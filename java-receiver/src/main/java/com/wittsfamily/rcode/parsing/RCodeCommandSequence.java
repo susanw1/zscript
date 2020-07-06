@@ -123,7 +123,9 @@ public class RCodeCommandSequence {
         for (RCodeCommandSlot current = first.next; current != null; current = current.next) {
             current.reset();
         }
-        in.getSequenceIn().closeCommandSequence();
+        if (in != null) {
+            in.skipSequence();
+        }
         last = first;
         first.terminate();
         first.next = null;
@@ -134,7 +136,9 @@ public class RCodeCommandSequence {
         if (locks == null) {
             locks = new RCodeLockSet(params);
             for (RCodeCommandSlot slot = first; slot != null; slot = slot.next) {
-                slot.getCommand().setLocks(locks);
+                if (slot.getCommand() != null) {
+                    slot.getCommand().setLocks(locks);
+                }
             }
             channel.setLocks(locks);
         }

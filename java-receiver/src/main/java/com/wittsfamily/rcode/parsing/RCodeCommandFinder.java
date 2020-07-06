@@ -18,6 +18,7 @@ public class RCodeCommandFinder {
     public RCodeCommand findCommand(RCodeCommandSlot slot) {
         byte rVal = slot.getFields().get('R', (byte) 0xFF);
         if (rVal == 0xFF && !slot.getFields().has('R')) {
+            System.out.println("oops, no R value");
             return null;
         }
         for (int i = 0; i < commandNum; i++) {

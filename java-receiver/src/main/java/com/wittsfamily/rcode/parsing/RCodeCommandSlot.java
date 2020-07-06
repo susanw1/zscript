@@ -81,7 +81,6 @@ public class RCodeCommandSlot {
     }
 
     private boolean parseHexField(RCodeInStream in, char field) {
-        System.out.println("parsing field: " + field);
         RCodeLookaheadStream l = in.getLookahead();
         char c = l.read();
         int lookahead = 0;
@@ -149,6 +148,7 @@ public class RCodeCommandSlot {
                 status = RCodeResponseStatus.PARSE_ERROR;
                 errorMessage = "* only valid on first command of sequence";
                 in.closeCommand();
+                end = '\n';
                 return false;
             }
         }
@@ -160,11 +160,15 @@ public class RCodeCommandSlot {
                 status = RCodeResponseStatus.PARSE_ERROR;
                 errorMessage = "% only valid on first command of sequence";
                 in.closeCommand();
+                end = '\n';
                 return false;
             }
         }
         parsed = true;
         while (true) {
+            if (in.hasNext()) {
+                eatWhitespace(in);
+            }
             if (in.hasNext()) {
                 c = in.read();
                 if (c >= 'A' && c <= 'Z') {
@@ -172,14 +176,15 @@ public class RCodeCommandSlot {
                         status = RCodeResponseStatus.TOO_BIG;
                         errorMessage = "Too many fields";
                         in.closeCommand();
+                        end = '\n';
                         return false;
                     }
                 } else if (c == '+') {
-                    System.out.println("parsing field: big");
                     if (target.getLength() != 0) {
                         status = RCodeResponseStatus.PARSE_ERROR;
                         errorMessage = "Multiple big fields";
                         in.closeCommand();
+                        end = '\n';
                         return false;
                     }
                     target.setIsString(false);
@@ -192,6 +197,7 @@ public class RCodeCommandSlot {
                             status = RCodeResponseStatus.PARSE_ERROR;
                             errorMessage = "Big field odd digits";
                             in.closeCommand();
+                            end = '\n';
                             return false;
                         }
                         d += getHex(in.read());
@@ -205,6 +211,7 @@ public class RCodeCommandSlot {
                                 status = RCodeResponseStatus.TOO_BIG;
                                 errorMessage = "Big field too long";
                                 in.closeCommand();
+                                end = '\n';
                                 return false;
                             }
                         }
@@ -214,6 +221,7 @@ public class RCodeCommandSlot {
                         status = RCodeResponseStatus.PARSE_ERROR;
                         errorMessage = "Multiple big fields";
                         in.closeCommand();
+                        end = '\n';
                         return false;
                     }
                     target.setIsString(true);
@@ -240,6 +248,7 @@ public class RCodeCommandSlot {
                                     status = RCodeResponseStatus.TOO_BIG;
                                     errorMessage = "Big field too long";
                                     in.closeCommand();
+                                    end = '\n';
                                     return false;
                                 }
                             }
@@ -251,17 +260,26 @@ public class RCodeCommandSlot {
                         status = RCodeResponseStatus.PARSE_ERROR;
                         errorMessage = "Command sequence ended before end of big string field";
                         in.closeCommand();
+                        end = '\n';
                         return false;
                     }
                 } else {
                     status = RCodeResponseStatus.PARSE_ERROR;
-                    errorMessage = "Unknown field marker";
+                    errorMessage = "Unknown field marker: " + c;
                     in.closeCommand();
+                    end = '\n';
                     return false;
                 }
             } else {
                 in.closeCommand();
                 end = in.read();
+                if (getCommand() == null) {
+                    status = RCodeResponseStatus.UNKNOWN_CMD;
+                    errorMessage = "Command not known";
+                    in.closeCommand();
+                    end = '\n';
+                    return false;
+                }
                 return true;
             }
         }

@@ -7,6 +7,7 @@ public class RCodeInStream {
     private boolean isInString = false;
     private boolean hasBackslash = false;
     private boolean lock = false;
+    private boolean currentValid = false;
 
     public RCodeInStream(RCodeSequenceInStream sequenceIn) {
         this.sequenceIn = sequenceIn;
@@ -21,22 +22,27 @@ public class RCodeInStream {
     }
 
     private char readInt() {
-        if (hasNext()) {
+        if (!hasReachedCommandEnd) {
             char prev = current;
-            current = sequenceIn.next();
-            if (current == '\n' || (current == ';' && !isInString)) {
-                hasReachedCommandEnd = true;
-            } else if (current == '"') {
-                if (!hasBackslash) {
-                    isInString = !isInString;
-                    hasBackslash = false;
+            if (sequenceIn.hasNext()) {
+                current = sequenceIn.next();
+                currentValid = true;
+                if (current == '\n' || (current == ';' && !isInString)) {
+                    hasReachedCommandEnd = true;
+                    currentValid = false;
+                } else if (current == '"') {
+                    if (!hasBackslash) {
+                        isInString = !isInString;
+                    }
+                } else if (isInString) {
+                    if (current == '\\') {
+                        hasBackslash = !hasBackslash;
+                    } else {
+                        hasBackslash = false;
+                    }
                 }
-            } else if (isInString) {
-                if (current == '\\') {
-                    hasBackslash = !hasBackslash;
-                } else {
-                    hasBackslash = false;
-                }
+            } else {
+                currentValid = false;
             }
             return prev;
         } else {
@@ -56,11 +62,12 @@ public class RCodeInStream {
     }
 
     public boolean hasNext() {
-        return !hasReachedCommandEnd && sequenceIn.hasNext();
+        return currentValid || !hasReachedCommandEnd && sequenceIn.hasNext();
     }
 
     public void openCommand() {
         hasReachedCommandEnd = false;
+        currentValid = true;
         if (current == ';' || current == '\n') {
             read();
         }
@@ -70,6 +77,9 @@ public class RCodeInStream {
         while (hasNext()) {
             read();
         }
+        if (current != '\n' && current != ';') {
+            current = sequenceIn.next();
+        }
     }
 
     public boolean isCommandOpen() {
@@ -77,7 +87,10 @@ public class RCodeInStream {
     }
 
     public void skipSequence() {
-        sequenceIn.closeCommandSequence();
+        if (current != '\n') {
+            sequenceIn.closeCommandSequence();
+            current = 0;
+        }
     }
 
     public void unlock() {
@@ -91,7 +104,6 @@ public class RCodeInStream {
             lock = true;
             return true;
         }
-
     }
 
     public boolean isLocked() {

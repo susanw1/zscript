@@ -38,7 +38,8 @@ public class RCodeParser {
                         if (ch.hasCommandSequence() && ch.getCommandSequence().peekFirst() == null) {
                             RCodeCommandSequence seq = ch.getCommandSequence();
                             seq.getInStream().unlock();
-                            if (seq.peekFirst() == null && seq.getInStream().lock()) {
+                            seq.getInStream().getSequenceIn().openCommandSequence();
+                            if (seq.getInStream().lock()) {
                                 mostRecent = seq;
                                 parse(targetSlot, seq);
                                 break;
@@ -57,14 +58,16 @@ public class RCodeParser {
         } else {
             boolean worked = slot.parseSingleCommand(sequence.getInStream(), sequence);
             if (!worked) {
+                sequence.addLast(slot);
                 sequence.getInStream().skipSequence();
                 sequence.setFullyParsed(true);
                 sequence.releaseInStream();
-            }
-            sequence.addLast(slot);
-            if (slot.getEnd() == '\n' || !slot.getCommand().continueLocking(sequence.getChannel())) {
-                sequence.setFullyParsed(true);
-                sequence.releaseInStream();
+            } else {
+                sequence.addLast(slot);
+                if (slot.getEnd() == '\n' || !slot.getCommand().continueLocking(sequence.getChannel())) {
+                    sequence.setFullyParsed(true);
+                    sequence.releaseInStream();
+                }
             }
         }
     }

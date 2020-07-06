@@ -4,7 +4,7 @@ import com.wittsfamily.rcode.parsing.RCodeLookaheadStream;
 import com.wittsfamily.rcode.parsing.RCodeSequenceInStream;
 
 public class StringInStream implements RCodeSequenceInStream {
-    private final String s = "R1S00AE4312\"lfkghkjdflghaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaklfkghkjdflghaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaak\";R1C11\"aaaa\"";
+    private final String s = "R1S00AE4312\"lfkghkjdflghaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaak\";R6r;R6\nR10C11\"aaaa\"\nR6;R6\nR7\nR10C11";
     private int pos = 0;
     private boolean isAtStart = true;
     private boolean isOpen = false;
@@ -50,7 +50,16 @@ public class StringInStream implements RCodeSequenceInStream {
 
     @Override
     public void closeCommandSequence() {
-        isOpen = false;
+        if (isOpen) {
+            isOpen = false;
+            while (pos < s.length() && s.charAt(pos) != '\n') {
+                if (s.charAt(pos) == 'C') {
+                    int a = 1 / 0;
+                }
+                pos++;
+            }
+            pos++;
+        }
     }
 
     @Override

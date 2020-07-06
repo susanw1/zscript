@@ -24,20 +24,18 @@ public class RCodeActivateCommand implements RCodeCommand {
     @Override
     public void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out) {
         if (!isActivated) {
-            changed = slot;
-        }
-        isActivated = true;
-    }
-
-    @Override
-    public void finish(RCodeCommandSlot slot, RCodeOutStream out) {
-        if (slot == changed) {
             out.writeField('A', (byte) 0);
             out.writeStatus(RCodeResponseStatus.OK);
         } else {
             out.writeField('A', (byte) 1);
             out.writeStatus(RCodeResponseStatus.OK);
         }
+        isActivated = true;
+        slot.setComplete(true);
+    }
+
+    @Override
+    public void finish(RCodeCommandSlot slot, RCodeOutStream out) {
     }
 
     @Override
