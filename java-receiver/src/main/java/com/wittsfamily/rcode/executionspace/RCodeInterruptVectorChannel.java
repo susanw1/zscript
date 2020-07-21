@@ -1,7 +1,10 @@
 package com.wittsfamily.rcode.executionspace;
 
+import com.wittsfamily.rcode.RCode;
 import com.wittsfamily.rcode.RCodeBusInterrupt;
+import com.wittsfamily.rcode.RCodeLockSet;
 import com.wittsfamily.rcode.RCodeOutStream;
+import com.wittsfamily.rcode.RCodeParameters;
 import com.wittsfamily.rcode.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.parsing.RCodeInStream;
@@ -13,10 +16,10 @@ public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
     private RCodeBusInterrupt interrupt = null;
     private RCodeInStream in = null;
 
-    private RCodeInterruptVectorChannel(RCodeExecutionSpace space, RCodeInterruptVectorManager vectorManager, RCodeCommandSequence sequence) {
+    public RCodeInterruptVectorChannel(RCodeExecutionSpace space, RCodeInterruptVectorManager vectorManager, RCode r, RCodeParameters params) {
         this.space = space;
         this.vectorManager = vectorManager;
-        this.sequence = sequence;
+        this.sequence = new RCodeCommandSequence(r, params, this);
     }
 
     @Override
@@ -58,6 +61,7 @@ public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
 
     @Override
     public void releaseOutStream() {
+        interrupt = null;
     }
 
     public RCodeBusInterrupt getInterrupt() {
@@ -67,5 +71,11 @@ public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
     @Override
     public void setAsNotificationChannel() {
         throw new UnsupportedOperationException("Interrupt Vector Channel cannot be notification channel");
+    }
+
+    @Override
+    public void setLocks(RCodeLockSet locks) {
+        // TODO Auto-generated method stub
+
     }
 }

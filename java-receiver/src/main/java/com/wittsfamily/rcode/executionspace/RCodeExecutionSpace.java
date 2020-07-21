@@ -8,16 +8,22 @@ public class RCodeExecutionSpace {
     private final RCodeNotificationManager notifications;
     private final byte[] space;
     private int length = 0;
-    private boolean isRunning = false;
+    private boolean running = false;
 
     private RCodeExecutionSpaceSequenceIn[] inStreams;
     private RCodeExecutionSpaceOut[] outStreams;
 
-    public RCodeExecutionSpace(RCodeParameters params, RCodeNotificationManager notifications, byte[] space) {
+    public RCodeExecutionSpace(RCodeParameters params, RCodeNotificationManager notifications) {
         this.notifications = notifications;
-        this.space = space;
+        this.space = new byte[params.executionLength];
         inStreams = new RCodeExecutionSpaceSequenceIn[params.executionInNum];
         outStreams = new RCodeExecutionSpaceOut[params.executionOutNum];
+        for (int i = 0; i < inStreams.length; i++) {
+            inStreams[i] = new RCodeExecutionSpaceSequenceIn(this);
+        }
+        for (int i = 0; i < outStreams.length; i++) {
+            outStreams[i] = new RCodeExecutionSpaceOut(params, this);
+        }
     }
 
     public byte get(int pos) {
@@ -86,5 +92,22 @@ public class RCodeExecutionSpace {
 
     public RCodeCommandChannel getNotificationChannel() {
         return notifications.getNotificationChannel();
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean b) {
+        running = b;
+    }
+
+    public void write(byte[] data, int address, boolean isEnd) {
+        for (int i = 0; i < data.length; i++) {
+            space[i + address] = data[i];
+        }
+        if (isEnd) {
+            length = address + data.length;
+        }
     }
 }

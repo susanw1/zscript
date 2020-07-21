@@ -38,8 +38,8 @@ public class RCodeExecutionSpaceOut extends AbstractRCodeOutStream {
                 overLength = true;
             }
             for (int i = 0; i < length && !overLength; i++) {
-                buffer[length++] = value[i];
-                if (length == buffer.length) {
+                buffer[this.length++] = value[i];
+                if (this.length == buffer.length) {
                     overLength = true;
                 }
             }
@@ -83,6 +83,9 @@ public class RCodeExecutionSpaceOut extends AbstractRCodeOutStream {
     }
 
     public boolean flush() {
+        if (status != RCodeResponseStatus.CMD_FAIL) {
+            space.setRunning(false);
+        }
         if (!space.getNotificationChannel().getOutStream().isLocked()) {
             RCodeOutStream out = space.getNotificationChannel().getOutStream();
             if (out.isOpen()) {

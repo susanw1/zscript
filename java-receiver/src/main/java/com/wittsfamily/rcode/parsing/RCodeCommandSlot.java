@@ -191,7 +191,7 @@ public class RCodeCommandSlot {
                     byte d = getHex(in.peek());
 
                     while (in.hasNext() && isHex(in.peek())) {
-                        in.read();
+                        d = getHex(in.read());
                         d <<= 4;
                         if (!in.hasNext() || !isHex(in.peek())) {
                             status = RCodeResponseStatus.PARSE_ERROR;

@@ -162,4 +162,9 @@ public class RCodeCommandSequence {
             locks = null;
         }
     }
+
+    public byte getNotificationAddress() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }

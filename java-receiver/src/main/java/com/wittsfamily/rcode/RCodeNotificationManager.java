@@ -8,15 +8,18 @@ public class RCodeNotificationManager {
     private final RCodeBusInterruptSource[] sources;
     private final RCodeBusInterrupt[] waitingNotifications;
     private int waitingNotificationNumber = 0;
-    private final RCodeInterruptVectorManager vectorChannel;
+    private RCodeInterruptVectorManager vectorChannel;
     private RCodeCommandChannel notificationChannel = null;
     private byte notificationChannelAddress;
 
-    public RCodeNotificationManager(RCodeParameters params, RCodeInterruptVectorManager vectorChannel, RCodeBusInterruptSource[] sources) {
+    public RCodeNotificationManager(RCodeParameters params, RCodeBusInterruptSource[] sources) {
         this.params = params;
         this.sources = sources;
-        this.vectorChannel = vectorChannel;
         waitingNotifications = new RCodeBusInterrupt[params.interruptStoreNum];
+    }
+
+    public void setVectorChannel(RCodeInterruptVectorManager vectorChannel) {
+        this.vectorChannel = vectorChannel;
     }
 
     public void setNotificationChannel(RCodeCommandChannel notificationChannel, byte notificationAddress) {
@@ -69,12 +72,13 @@ public class RCodeNotificationManager {
                             waitingNotifications[waitingNotificationNumber++] = new RCodeBusInterrupt(source, id);
                             break;
                         }
-                    }
-                    if (canSendNotification() && (!params.findInterruptSourceAddress || source.hasFoundAddress(id))) {
-                        sendNotification(new RCodeBusInterrupt(source, id));
                     } else {
-                        waitingNotifications[waitingNotificationNumber++] = new RCodeBusInterrupt(source, id);
-                        break;
+                        if (canSendNotification() && (!params.findInterruptSourceAddress || source.hasFoundAddress(id))) {
+                            sendNotification(new RCodeBusInterrupt(source, id));
+                        } else {
+                            waitingNotifications[waitingNotificationNumber++] = new RCodeBusInterrupt(source, id);
+                            break;
+                        }
                     }
                 }
             }
@@ -86,7 +90,7 @@ public class RCodeNotificationManager {
     }
 
     private void sendNotification(RCodeBusInterrupt interrupt) {
-        if (params.isUsingInterruptVector) {
+        if (params.isUsingInterruptVector && vectorChannel.hasVector(interrupt)) {
             vectorChannel.acceptInterrupt(interrupt);
         } else {
             RCodeOutStream out = notificationChannel.getOutStream();

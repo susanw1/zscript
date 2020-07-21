@@ -9,11 +9,18 @@ import com.wittsfamily.rcode.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.parsing.RCodeInStream;
 
 public class DirectCommandChannel implements RCodeCommandChannel {
-    private final StringInStream s = new StringInStream();
+    private final StringInStream s;
+    private final RCodeOutStream out;
     private final RCodeCommandSequence seq;
+    private final boolean isPacket;
+    private int sequenceNumber;
 
-    public DirectCommandChannel(RCode rcode) {
-        this.seq = new RCodeCommandSequence(rcode, new RCodeParameters(), this);
+    public DirectCommandChannel(RCodeParameters params, RCode rcode, String str, RCodeOutStream out, boolean isPacket, int sequenceNumber) {
+        this.s = new StringInStream(str);
+        this.seq = new RCodeCommandSequence(rcode, params, this);
+        this.out = out;
+        this.isPacket = isPacket;
+        this.sequenceNumber = sequenceNumber;
     }
 
     @Override
@@ -23,12 +30,13 @@ public class DirectCommandChannel implements RCodeCommandChannel {
 
     @Override
     public RCodeOutStream getOutStream() {
-        return new PrintingOutStream();
+        sequenceNumber--;
+        return out;
     }
 
     @Override
     public boolean hasCommandSequence() {
-        return true;
+        return sequenceNumber > 0;
     }
 
     @Override
@@ -38,7 +46,7 @@ public class DirectCommandChannel implements RCodeCommandChannel {
 
     @Override
     public boolean isPacketBased() {
-        return false;
+        return isPacket;
     }
 
     @Override
@@ -53,7 +61,6 @@ public class DirectCommandChannel implements RCodeCommandChannel {
 
     @Override
     public void setAsNotificationChannel() {
-
     }
 
     @Override

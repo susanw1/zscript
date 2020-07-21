@@ -37,9 +37,8 @@ public class RCodeParser {
                         RCodeCommandChannel ch = rcode.getChannels()[i];
                         if (ch.hasCommandSequence() && ch.getCommandSequence().peekFirst() == null) {
                             RCodeCommandSequence seq = ch.getCommandSequence();
-                            seq.getInStream().unlock();
-                            seq.getInStream().getSequenceIn().openCommandSequence();
-                            if (seq.getInStream().lock()) {
+                            if (!ch.getInStream().isLocked()) {
+                                seq.getInStream().getSequenceIn().openCommandSequence();
                                 mostRecent = seq;
                                 parse(targetSlot, seq);
                                 break;

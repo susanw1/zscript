@@ -126,7 +126,7 @@ public class RCodeFieldMap {
     public void copyTo(RCodeOutStream out) {
         char last = 0;
         for (byte i = 0; i < size; i++) {
-            if (fields[i] != 'E') {
+            if (fields[i] != 'E' && fields[i] != 'R') {
                 if (last == fields[i]) {
                     out.continueField(values[i]);
                 } else {

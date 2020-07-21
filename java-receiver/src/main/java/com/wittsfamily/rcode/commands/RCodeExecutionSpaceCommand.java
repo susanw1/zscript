@@ -2,21 +2,16 @@ package com.wittsfamily.rcode.commands;
 
 import com.wittsfamily.rcode.RCodeLockSet;
 import com.wittsfamily.rcode.RCodeOutStream;
-import com.wittsfamily.rcode.RCodeResponseStatus;
+import com.wittsfamily.rcode.executionspace.RCodeExecutionSpace;
 import com.wittsfamily.rcode.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.parsing.RCodeCommandSlot;
 
-public class RCodeActivateCommand implements RCodeCommand {
-    public static final int MAX_SYSTEM_CODE = 15;
-    private static boolean isActivated = false;
+public class RCodeExecutionSpaceCommand implements RCodeCommand {
+    private final RCodeExecutionSpace space;
 
-    public static boolean isActivated() {
-        return isActivated;
-    }
-
-    public static void reset() {
-        isActivated = false;
+    private RCodeExecutionSpaceCommand(RCodeExecutionSpace space) {
+        this.space = space;
     }
 
     @Override
@@ -25,20 +20,17 @@ public class RCodeActivateCommand implements RCodeCommand {
     }
 
     @Override
-    public void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out) {
-        if (!isActivated) {
-            out.writeField('A', (byte) 0);
-            out.writeStatus(RCodeResponseStatus.OK);
-        } else {
-            out.writeField('A', (byte) 1);
-            out.writeStatus(RCodeResponseStatus.OK);
-        }
-        isActivated = true;
-        slot.setComplete(true);
+    public void finish(RCodeCommandSlot rCodeCommandSlot, RCodeOutStream out) {
     }
 
     @Override
-    public void finish(RCodeCommandSlot slot, RCodeOutStream out) {
+    public void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out) {
+        if (slot.getFields().has('G')) {
+            space.setRunning(true);
+        } else {
+            space.setRunning(false);
+        }
+        slot.setComplete(true);
     }
 
     @Override
@@ -47,7 +39,7 @@ public class RCodeActivateCommand implements RCodeCommand {
 
     @Override
     public byte getCode() {
-        return 6;
+        return 0x21;
     }
 
 }

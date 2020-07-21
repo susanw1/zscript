@@ -9,12 +9,11 @@ import com.wittsfamily.rcode.parsing.RCodeCommandChannel;
 public class RCodeInterruptVectorOut extends RCodeOutStream {
     private final RCodeNotificationManager notificationManager;
     private final RCodeParameters params;
-    private RCodeOutStream out;
+    private RCodeOutStream out = null;
 
     public RCodeInterruptVectorOut(RCodeNotificationManager notificationManager, RCodeParameters params) {
         this.notificationManager = notificationManager;
         this.params = params;
-        out = notificationManager.getNotificationChannel().getOutStream();
     }
 
     @Override
@@ -79,6 +78,7 @@ public class RCodeInterruptVectorOut extends RCodeOutStream {
             out.close();
         }
         out.openNotification();
+        out.markNotification();
         out.writeField('Z', (byte) 1);
         out.writeField('A', (byte) 1);
         out.writeField('T', channel.getInterrupt().getNotificationType());
@@ -93,7 +93,7 @@ public class RCodeInterruptVectorOut extends RCodeOutStream {
                 out.writeStatus(RCodeResponseStatus.CMD_FAIL);
             }
         }
-        out.writeCommandSequenceSeperator();
+        out.writeCommandSeperator();
         channel.getInterrupt().clear();
     }
 
@@ -114,17 +114,24 @@ public class RCodeInterruptVectorOut extends RCodeOutStream {
 
     @Override
     public boolean lock() {
-        return out.lock();
+        if (out.lock()) {
+            out = notificationManager.getNotificationChannel().getOutStream();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
     public boolean isLocked() {
+        if (out == null) {
+            out = notificationManager.getNotificationChannel().getOutStream();
+        }
         return out.isLocked();
     }
 
     @Override
     public void unlock() {
         out.unlock();
-        out = notificationManager.getNotificationChannel().getOutStream();
     }
 }

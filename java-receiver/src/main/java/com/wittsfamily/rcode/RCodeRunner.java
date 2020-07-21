@@ -40,7 +40,7 @@ public class RCodeRunner {
             if (canBeParallel || parallelNum == 0) {
                 canBeParallel = true;
                 for (int i = 0; i < channels.length; i++) {
-                    if (!channels[i].getOutStream().isLocked() && channels[i].getCommandSequence().isFullyParsed() && channels[i].getCommandSequence().canLock()
+                    if (channels[i].getCommandSequence().isFullyParsed() && !channels[i].getOutStream().isLocked() && channels[i].getCommandSequence().canLock()
                             && channels[i].getCommandSequence().canBeParallel()) {
                         current = channels[i].getCommandSequence();
                         targetInd = i;
@@ -51,7 +51,7 @@ public class RCodeRunner {
             }
             if (canBeParallel && current == null && parallelNum == 0) {
                 for (int i = 0; i < channels.length; i++) {
-                    if (!channels[i].getOutStream().isLocked() && channels[i].getCommandSequence().peekFirst() != null) {
+                    if (channels[i].getCommandSequence().peekFirst() != null && !channels[i].getOutStream().isLocked()) {
                         current = channels[i].getCommandSequence();
                         targetInd = i;
                         canBeParallel = false;
@@ -61,7 +61,6 @@ public class RCodeRunner {
             }
             if (current != null) {
                 RCodeOutStream out = current.getOutStream();
-                out.lock();
                 if (out.isOpen() && out.mostRecent != current) {
                     out.close();
                     out.mostRecent = current;

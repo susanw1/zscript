@@ -43,7 +43,13 @@ public abstract class AbstractRCodeOutStream extends RCodeOutStream {
     @Override
     public RCodeOutStream continueField(byte v) {
         byte[] arr = Integer.toHexString(Byte.toUnsignedInt(v)).getBytes(StandardCharsets.US_ASCII);
-        return writeBytes(arr, arr.length);
+        if (arr.length == 1) {
+            writeByte((byte) '0');
+            writeByte(arr[0]);
+        } else {
+            return writeBytes(arr, arr.length);
+        }
+        return this;
     }
 
     @Override

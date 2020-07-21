@@ -4,10 +4,14 @@ import com.wittsfamily.rcode.parsing.RCodeLookaheadStream;
 import com.wittsfamily.rcode.parsing.RCodeSequenceInStream;
 
 public class StringInStream implements RCodeSequenceInStream {
-    private final String s = "R1S00AE4312\"lfkghkjdflghaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaak\";R6r;R6\nR10C11\"aaaa\"\nR6;R6\nR7\nR10C11";
+    private final String s;
     private int pos = 0;
     private boolean isAtStart = true;
     private boolean isOpen = false;
+
+    public StringInStream(String s) {
+        this.s = s;
+    }
 
     @Override
     public char next() {
