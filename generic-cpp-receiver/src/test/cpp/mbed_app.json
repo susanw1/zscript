@@ -1,0 +1,8 @@
+{
+  "target_overrides": { 
+        "NUCLEO_G474RE": {
+               "target.clock_source": "USE_PLL_HSI",
+               "target.lse_available": 0
+               }
+        }
+}
