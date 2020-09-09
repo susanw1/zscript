@@ -23,9 +23,9 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-public class CoreRCodeStepDefinitions {
-    private RCodeAcceptanceTestMessageAssert testAssert = null;
-    private Function<RCodeAcceptanceTestMessageAssert, RCodeAcceptanceTestMessageAssert> testExpectedFields = a -> a;
+public class CoreRCodeSteps {
+    public static RCodeAcceptanceTestMessageAssert testAssert = null;
+    public static Function<RCodeAcceptanceTestMessageAssert, RCodeAcceptanceTestMessageAssert> testExpectedFields = a -> a;
 
     @Given("a connection is established to the target")
     public void a_connection_is_established_to_the_target() {
