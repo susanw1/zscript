@@ -13,6 +13,7 @@ OCDDIR = src/test/openocd
 MBEDDIR = ../../mbed-os
 
 MBEDPROFILE = release
+MBEDPROFILE_EXTRA = --profile $(MBEDDIR)/tools/profiles/extensions/lto.json
 # Project target (SW modified)
 MBED_TARGET = NUCLEO_G474RE
 MBED_COMPILER = GCC_ARM
@@ -21,7 +22,7 @@ MBED_COMPILER = GCC_ARM
 SOURCES  = --source $(MBEDDIR) --source $(CPPDIR)
 
 # MBED Flags
-MBEDFLAGS = -m $(MBED_TARGET) -t $(MBED_COMPILER) $(SOURCES) --build $(BUILDDIR) --profile $(MBEDPROFILE)
+MBEDFLAGS = -m $(MBED_TARGET) -t $(MBED_COMPILER) $(SOURCES) --build $(BUILDDIR) --profile $(MBEDPROFILE) $(MBEDPROFILE_EXTRA)
 
 # Flashing
 OCDSCRIPTS = /usr/share/openocd/scripts
