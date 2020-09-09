@@ -20,7 +20,6 @@ public class RCodeCommandFinder {
     public RCodeCommand findCommand(RCodeCommandSlot slot) {
         int fieldSectionNum = slot.getFields().countFieldSections('R');
         if (fieldSectionNum == 0) {
-            System.out.println("oops, no R value");
             return null;
         } else if (fieldSectionNum == 1) {
             byte rVal = slot.getFields().get('R', (byte) 0xFF);
@@ -48,9 +47,40 @@ public class RCodeCommandFinder {
     }
 
     public byte[] getSupportedCommands() {
-        byte[] cmds = new byte[commandNum];
+        int highestCodeLength = 0;
+        int totalLength = 0;
         for (int i = 0; i < commandNum; i++) {
-            cmds[i] = commands[i].getCode();
+            if (commands[i].getCodeLength() > highestCodeLength) {
+                highestCodeLength = commands[i].getCodeLength();
+            }
+            totalLength += commands[i].getCodeLength();
+        }
+        for (int l = 1; l <= highestCodeLength; l++) {
+            for (int i = 0; i < commandNum; i++) {
+                if (commands[i].getCodeLength() == l) {
+                    totalLength += l;
+                    break;
+                }
+            }
+        }
+        byte[] cmds = new byte[totalLength];
+        int pos = 0;
+        for (int l = 1; l <= highestCodeLength; l++) {
+            boolean hasInitialisedLength = l == 1;
+            for (int i = 0; i < commandNum; i++) {
+                if (commands[i].getCodeLength() == l) {
+                    if (!hasInitialisedLength) {
+                        for (int j = 0; j < l; j++) {
+                            cmds[pos++] = 0;
+                        }
+                        hasInitialisedLength = true;
+                    }
+                    byte[] fullCode = commands[i].getFullCode();
+                    for (int j = 0; j < l; j++) {
+                        cmds[pos++] = fullCode[j];
+                    }
+                }
+            }
         }
         return cmds;
     }

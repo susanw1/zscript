@@ -17,6 +17,8 @@ public interface RCodeCommand {
 
     byte getCode();
 
+    byte[] getFullCode();
+
     boolean matchesCode(byte[] code);
 
     int getCodeLength();

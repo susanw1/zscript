@@ -60,4 +60,9 @@ public class RCodeActivateCommand implements RCodeCommand {
         return 1;
     }
 
+    @Override
+    public byte[] getFullCode() {
+        return new byte[] { getCode() };
+    }
+
 }

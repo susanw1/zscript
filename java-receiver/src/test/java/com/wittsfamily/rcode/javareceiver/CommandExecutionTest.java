@@ -3,9 +3,6 @@ package com.wittsfamily.rcode.javareceiver;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.wittsfamily.rcode.javareceiver.RCode;
-import com.wittsfamily.rcode.javareceiver.RCodeBusInterruptSource;
-import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeActivateCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeEchoCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeTmpCommand;
@@ -69,27 +66,27 @@ class CommandExecutionTest {
 
     @Test
     void shouldGiveNotActivated() {
-        testCommand("R10+101000", "S7\"Not a system command, and not activated\"\n");
+        testCommand("R13+101000", "S7\"Not a system command, and not activated\"\n");
     }
 
     @Test
     void shouldGiveUnknownFieldMarker() {
-        testCommand("R1h00+101000", "S3\"Unknown field marker: h\"\n");
+        testCommand("R1h00+101000", "S3\"Unknown field marker with character code 104\"\n");
     }
 
     @Test
     void shouldAllowActivation() {
-        testCommand("R6;R10+101011", "AS;S+101011\n");
+        testCommand("R6;R13+101011", "AS;S+101011\n");
     }
 
     @Test
     void shouldRunSequences() {
-        testCommand("R6\nR10+101011", "AS\nS+101011\n");
+        testCommand("R6\nR13+101011", "AS\nS+101011\n");
     }
 
     @Test
     void shouldAbortSequenceOnError() {
-        testCommand("R7;R10+101011", "S4\"Command not known\"\n");
+        testCommand("R7;R13+101011", "S4\"Command not known\"\n");
     }
 
     @Test

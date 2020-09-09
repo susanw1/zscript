@@ -81,6 +81,9 @@ public class RCodeCommandSlot {
     }
 
     private boolean parseHexField(RCodeInStream in, char field) {
+        while (in.hasNext() && in.peek() == '0') {
+            in.read();
+        }
         RCodeLookaheadStream l = in.getLookahead();
         char c = l.read();
         int lookahead = 0;
@@ -187,7 +190,13 @@ public class RCodeCommandSlot {
             if (in.hasNext()) {
                 c = in.read();
                 if (c >= 'A' && c <= 'Z') {
-                    if (!parseHexField(in, c)) {
+                    if (map.has(c)) {
+                        status = RCodeResponseStatus.PARSE_ERROR;
+                        errorMessage = "Same field appears twice";
+                        in.closeCommand();
+                        end = '\n';
+                        return false;
+                    } else if (!parseHexField(in, c)) {
                         status = RCodeResponseStatus.TOO_BIG;
                         errorMessage = "Too many fields";
                         in.closeCommand();
