@@ -35,8 +35,13 @@ public class JavaReceiverCucumberStartup {
             RCodeAcceptanceTestConnectionManager.registerConnection(con);
             execs = Executors.newSingleThreadExecutor();
             execs.submit(() -> {
-                while (true) {
-                    r.progressRCode();
+                try {
+                    int i = 0;
+                    while (true) {
+                        r.progressRCode();
+                    }
+                } catch (Throwable t) {
+                    t.printStackTrace();
                 }
             });
         }
