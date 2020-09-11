@@ -12,7 +12,7 @@
 #include "../RCode/parsing/RCodeCommandSequence.hpp"
 #include "../RCode/RCodeParameters.hpp"
 #include "../UIP/UipEthernet.h"
-#include "UipUdpWrapper.hpp"
+#include "UipUdpWrapperSoon.hpp"
 
 class UipUdpChannelManager;
 
@@ -38,7 +38,7 @@ public:
             ip[i] = 0;
         }
     }
-    void open(UipUdpWriteWrapper *toOpen) {
+    void open(UdpSocket *toOpen) {
         toOpen->beginPacket(IpAddress(ip), port);
     }
 

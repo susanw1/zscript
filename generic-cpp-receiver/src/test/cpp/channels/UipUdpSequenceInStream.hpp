@@ -9,16 +9,15 @@
 #define SRC_TEST_CPP_CHANNELS_UIPUDPSEQUENCEINSTREAM_HPP_
 
 #include "../RCode/parsing/RCodeSequenceInStream.hpp"
-#include "UipUdpWrapper.hpp"
 
 class UipUdpLookaheadStream: public RCodeLookaheadStream {
 private:
-    UipUdpReadWrapper *reader;
+    UdpSocket *socket;
     int pos = 0;
     int last = -2;
 public:
-    UipUdpLookaheadStream(UipUdpReadWrapper *reader) :
-            reader(reader) {
+    UipUdpLookaheadStream(UdpSocket *socket) :
+            socket(socket) {
     }
     virtual char read() {
         int result;
@@ -26,7 +25,7 @@ public:
             result = last;
             last = -2;
         } else {
-            result = reader->peek(pos++);
+            result = socket->peek(pos++);
         }
         return result == -1 ? '\n' : result;
     }
@@ -37,20 +36,20 @@ public:
 };
 class UipUdpSequenceInStream: public RCodeSequenceInStream {
 private:
-    UipUdpReadWrapper *reader;
+    UdpSocket *socket;
     UipUdpLookaheadStream lookahead;
     int last = -1;
     bool open = false;
 public:
-    UipUdpSequenceInStream(UipUdpReadWrapper *reader) :
-            reader(reader), lookahead(reader) {
+    UipUdpSequenceInStream(UdpSocket *socket) :
+            socket(socket), lookahead(socket) {
     }
     virtual char next() {
-        int read = reader->read();
+        int read = socket->read();
         if (read < 0 || read == '\n') {
             open = false;
-            if (read == '\n' && reader->peek() == -1) {
-                reader->read();
+            if (read == '\n' && socket->peek() == -1) {
+                socket->read();
             }
         }
         last = read;
@@ -58,7 +57,7 @@ public:
     }
 
     virtual bool hasNext() {
-        return reader->available() > 0;
+        return socket->available() > 0;
     }
 
     virtual RCodeLookaheadStream* getLookahead() {
@@ -67,7 +66,7 @@ public:
     }
 
     virtual bool hasNextCommandSequence() {
-        return reader->isReading();
+        return socket->available() > 0;
     }
 
     virtual void openCommandSequence() {
@@ -76,7 +75,7 @@ public:
 
     virtual void closeCommandSequence() {
         open = false;
-        reader->close();
+        socket->flush();
     }
 
     virtual bool isCommandSequenceOpen() const {

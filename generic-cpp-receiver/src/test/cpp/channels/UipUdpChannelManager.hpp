@@ -11,13 +11,14 @@
 #include "../RCode/RCodeParameters.hpp"
 #include "../RCode/RCodeOutStream.hpp"
 #include "../RCode/parsing/RCodeInStream.hpp"
+#include "../UIP/UdpSocket.h"
 #include "UipUdpCommandChannel.hpp"
 #include "UipUdpOutStream.hpp"
 #include "UipUdpSequenceInStream.hpp"
-#include "UipUdpWrapper.hpp"
+//#include "UipUdpWrapper.hpp"
 
 class UipUdpChannelManager {
-    UipUdpReadWrapper read;
+    UdpSocket *socket;
     UipUdpSequenceInStream seqIn;
     RCodeInStream in;
     UipUdpOutStream out;
@@ -27,7 +28,7 @@ class UipUdpChannelManager {
     friend void setupChannels(UipUdpChannelManager *manager, RCode *rcode);
 public:
     UipUdpChannelManager(UdpSocket *socket, RCode *rcode) :
-            read(socket), seqIn(&read), in(&seqIn), out(socket) {
+            socket(socket), seqIn(socket), in(&seqIn), out(socket) {
         setupChannels(this, rcode);
     }
 
@@ -43,7 +44,6 @@ public:
         return &out;
     }
     void inReleased() {
-        read.close();
         hasCheckedPackets = false;
     }
     void checkSequences();

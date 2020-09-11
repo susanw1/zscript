@@ -27,7 +27,6 @@
 #include "RCodeEchoCommand.hpp"
 #include "UipUdpChannelManager.hpp"
 
-DigitalOut led(PB_0);
 int main(void) {
 
     uint8_t mac[] = { 0x1E, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
@@ -49,9 +48,7 @@ int main(void) {
     RCodeEchoCommand cmd;
     r.getCommandFinder()->registerCommand(&cmd);
     while (true) {
-        led = 0;
         r.progressRCode();
-        led = 1;
         uip.tick();
         uip.dhcpClient.checkLease();
     }

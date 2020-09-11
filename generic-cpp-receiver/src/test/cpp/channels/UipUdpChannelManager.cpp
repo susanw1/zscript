@@ -9,15 +9,19 @@
 
 #include <mbed.h>
 
+DigitalOut led(PB_0);
+
 void UipUdpChannelManager::checkSequences() {
-    if (!hasCheckedPackets && !read.isReading()) {
+    if (!hasCheckedPackets && socket->available() == 0) {
         hasCheckedPackets = true;
         for (int i = 0; i < RCodeParameters::uipChannelNum; i++) {
             channels[i].unsetHasSequence();
         }
-        if (read.open()) {
-            IpAddress ip = read.remoteIP();
-            uint16_t port = read.remotePort();
+        if (socket->parsePacket() > 0) {
+            led = a;
+            a = !a;
+            IpAddress ip = socket->remoteIP();
+            uint16_t port = socket->remotePort();
             uint8_t *addr = ip.rawAddress();
             UipUdpCommandChannel *match = NULL;
             for (int i = 0; i < RCodeParameters::uipChannelNum; i++) {
@@ -38,9 +42,6 @@ void UipUdpChannelManager::checkSequences() {
                 }
             }
             if (match != NULL) {
-                out.openResponse(match);
-                out.writeBigStringField("hello");
-                out.close();
                 match->setHasSequence();
             }
         }
