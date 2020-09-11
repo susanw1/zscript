@@ -28,15 +28,15 @@ void RCodeRunner::runNext() {
         canBeParallel = true;
     }
     if (current == NULL && parallelNum < RCodeParameters::maxParallelRunning) {
-        RCodeCommandChannel *channels = rcode->getChannels();
+        RCodeCommandChannel **channels = rcode->getChannels();
         if (canBeParallel || parallelNum == 0) {
             canBeParallel = true;
             for (int i = 0; i < rcode->getChannelNumber(); i++) {
-                if (channels[i].getCommandSequence()->isFullyParsed()
-                        && !channels[i].getOutStream()->isLocked()
-                        && channels[i].getCommandSequence()->canLock()
-                        && channels[i].getCommandSequence()->canBeParallel()) {
-                    current = channels[i].getCommandSequence();
+                if (channels[i]->getCommandSequence()->isFullyParsed()
+                        && !channels[i]->getOutStream()->isLocked()
+                        && channels[i]->getCommandSequence()->canLock()
+                        && channels[i]->getCommandSequence()->canBeParallel()) {
+                    current = channels[i]->getCommandSequence();
                     targetInd = i;
                     current->lock();
                     break;
@@ -45,9 +45,9 @@ void RCodeRunner::runNext() {
         }
         if (canBeParallel && current == NULL && parallelNum == 0) {
             for (int i = 0; i < rcode->getChannelNumber(); i++) {
-                if (channels[i].getCommandSequence()->peekFirst() != NULL
-                        && !channels[i].getOutStream()->isLocked()) {
-                    current = channels[i].getCommandSequence();
+                if (channels[i]->getCommandSequence()->peekFirst() != NULL
+                        && !channels[i]->getOutStream()->isLocked()) {
+                    current = channels[i]->getCommandSequence();
                     targetInd = i;
                     canBeParallel = false;
                     break;
@@ -75,7 +75,7 @@ void RCodeRunner::runNext() {
 }
 bool RCodeRunner::finishRunning(RCodeCommandSequence *target, int targetInd) {
     if (target->peekFirst()->isStarted()) {
-        target->peekFirst()->getCommand()->finish(target->peekFirst(),
+        target->peekFirst()->getCommand(rcode)->finish(target->peekFirst(),
                 target->getOutStream());
     }
     if (target->peekFirst()->getEnd() == '\n') {
@@ -117,7 +117,7 @@ void RCodeRunner::runSequence(RCodeCommandSequence *target, int targetInd) {
         out->writeStatus(cmd->getStatus());
         out->writeBigStringField(cmd->getErrorMessage());
     } else {
-        RCodeCommand *c = cmd->getCommand();
+        RCodeCommand *c = cmd->getCommand(rcode);
         if (c == NULL) {
             out->writeStatus(UNKNOWN_CMD);
             out->writeBigStringField("Command not found");

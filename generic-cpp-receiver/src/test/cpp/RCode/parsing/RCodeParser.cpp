@@ -22,7 +22,7 @@ void RCodeParser::parseNext() {
             } else {
                 mostRecent = NULL;
                 for (int i = 0; i < rcode->getChannelNumber(); i++) {
-                    RCodeCommandChannel *ch = &rcode->getChannels()[i];
+                    RCodeCommandChannel *ch = rcode->getChannels()[i];
                     if (ch->hasCommandSequence() && ch->getCommandSequence()->peekFirst()
                     == NULL) {
                         RCodeCommandSequence *seq = ch->getCommandSequence();
@@ -56,7 +56,7 @@ void RCodeParser::parse(RCodeCommandSlot *slot,
         } else {
             sequence->addLast(slot);
             if (slot->getEnd() == '\n'
-                    || !slot->getCommand()->continueLocking(
+                    || !slot->getCommand(rcode)->continueLocking(
                             sequence->getChannel())) {
                 sequence->setFullyParsed(true);
                 sequence->releaseInStream();
@@ -67,6 +67,6 @@ void RCodeParser::parse(RCodeCommandSlot *slot,
 
 void RCodeParserSetupSlots(RCodeParser *parser) {
     for (int i = 0; i < RCodeParameters::slotNum; ++i) {
-        parser->slots[i].setup(parser->rcode, &parser->bigBig);
+        parser->slots[i].setup(&parser->bigBig);
     }
 }

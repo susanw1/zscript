@@ -64,6 +64,18 @@ public class DirectCommandChannel implements RCodeCommandChannel {
     }
 
     @Override
+    public void releaseFromNotificationChannel() {
+    }
+
+    @Override
+    public void setAsDebugChannel() {
+    }
+
+    @Override
+    public void releaseFromDebugChannel() {
+    }
+
+    @Override
     public void setLocks(RCodeLockSet locks) {
 
     }

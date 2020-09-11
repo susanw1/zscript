@@ -20,19 +20,20 @@ class RCodeCommandSequence;
 class RCodeParser;
 
 class RCodeCommandSlot {
+public:
+    RCodeCommandSlot *next = NULL;
 private:
-    RCode *rcode = NULL;
-    RCodeStandardBigField big;
     RCodeBigBigField *bigBig = NULL;
-    RCodeFieldMap map;
-    char end = 0;
-    RCodeResponseStatus status = OK;
+    RCodeCommand *cmd = NULL;
     char const *errorMessage = "";
+    RCodeStandardBigField big;
+    RCodeFieldMap map;
+    RCodeResponseStatus status = OK;
+    char end = 0;
     bool parsed = false;
     bool complete = false;
     bool started = false;
     bool usesBigBig = false;
-    RCodeCommand *cmd = NULL;
 
     void eatWhitespace(RCodeInStream *in);
 
@@ -46,13 +47,11 @@ private:
 
     bool parseHexField(RCodeInStream *in, char field);
 
-    void setup(RCode *rcode, RCodeBigBigField *bigBig) {
-        this->rcode = rcode;
+    void setup(RCodeBigBigField *bigBig) {
         this->bigBig = bigBig;
     }
     friend void RCodeParserSetupSlots(RCodeParser *parser);
 public:
-    RCodeCommandSlot *next = NULL;
 
     void reset() {
         next = NULL;
@@ -62,7 +61,7 @@ public:
         parsed = false;
         started = false;
         complete = false;
-        if (usesBigBig) {
+        if (RCodeParameters::bigBigFieldLength > 0 && usesBigBig) {
             bigBig->reset();
             usesBigBig = false;
         }
@@ -87,7 +86,7 @@ public:
         return &map;
     }
     RCodeBigField* getBigField() {
-        if (usesBigBig) {
+        if (RCodeParameters::bigBigFieldLength > 0 && usesBigBig) {
             return bigBig;
         }
         return &big;
@@ -108,7 +107,7 @@ public:
         return errorMessage;
     }
 
-    RCodeCommand* getCommand();
+    RCodeCommand* getCommand(RCode *rcode);
 
     bool parseSingleCommand(RCodeInStream *in, RCodeCommandSequence *sequence);
 };

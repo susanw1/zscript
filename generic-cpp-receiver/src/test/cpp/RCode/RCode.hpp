@@ -21,13 +21,13 @@ private:
     RCodeParser parser;
     RCodeRunner runner;
     RCodeCommandFinder finder;
-    RCodeCommandChannel *channels = NULL;
+    RCodeCommandChannel **channels = NULL;
     uint8_t channelNum = 0;
 public:
     RCode() :
             parser(this), runner(this) {
     }
-    void setChannels(RCodeCommandChannel *channels, uint8_t channelNum) {
+    void setChannels(RCodeCommandChannel **channels, uint8_t channelNum) {
         this->channels = channels;
         this->channelNum = channelNum;
     }
@@ -35,7 +35,7 @@ public:
         parser.parseNext();
         runner.runNext();
     }
-    RCodeCommandChannel* getChannels() {
+    RCodeCommandChannel** getChannels() {
         return channels;
     }
     uint8_t getChannelNumber() {

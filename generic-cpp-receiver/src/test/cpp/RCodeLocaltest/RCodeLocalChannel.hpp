@@ -7,12 +7,12 @@
 
 #ifndef SRC_TEST_CPP_RCODE_TEST_RCODELOCALCHANNEL_HPP_
 #define SRC_TEST_CPP_RCODE_TEST_RCODELOCALCHANNEL_HPP_
-#include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
-#include "../parsing/RCodeCommandChannel.hpp"
-#include "../parsing/RCodeInStream.hpp"
-#include "../AbstractRCodeOutStream.hpp"
-#include "../RCode.hpp"
+#include "../RCode/RCodeIncludes.hpp"
+#include "../RCode/RCodeParameters.hpp"
+#include "../RCode/parsing/RCodeCommandChannel.hpp"
+#include "../RCode/parsing/RCodeInStream.hpp"
+#include "../RCode/AbstractRCodeOutStream.hpp"
+#include "../RCode/RCode.hpp"
 
 #include <iostream>
 
@@ -148,6 +148,15 @@ public:
     }
 
     virtual void setAsNotificationChannel() {
+
+    }
+    virtual void releaseFromNotificationChannel() {
+
+    }
+    virtual void setAsDebugChannel() {
+
+    }
+    virtual void releaseFromDebugChannel() {
 
     }
 

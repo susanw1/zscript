@@ -17,7 +17,9 @@ public class RCodeDebugOutput {
     }
 
     public void setDebugChannel(RCodeCommandChannel channel) {
+        this.channel.releaseFromDebugChannel();
         this.channel = channel;
+        this.channel.setAsDebugChannel();
     }
 
     public void println(String s) {

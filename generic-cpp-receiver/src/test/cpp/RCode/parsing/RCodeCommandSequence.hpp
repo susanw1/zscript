@@ -19,7 +19,7 @@ class RCodeOutStream;
 
 class RCodeCommandSequence {
 private:
-    RCode *const rcode;
+    RCode *rcode;
     RCodeCommandChannel *const channel;
     bool fullyParsed = false;
     RCodeCommandSlot *first = NULL;
@@ -32,6 +32,12 @@ private:
 public:
     RCodeCommandSequence(RCode *rcode, RCodeCommandChannel *channel) :
             rcode(rcode), channel(channel), locks() {
+    }
+    void setRCode(RCode *rcode) {
+        this->rcode = rcode;
+    }
+    RCode* getRCode() {
+        return rcode;
     }
     RCodeInStream* getInStream();
 

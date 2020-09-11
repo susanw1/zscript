@@ -15,7 +15,7 @@ class RCodeParameters {
 public:
     static const int bigFieldLength = 32;
     static const int bigBigFieldLength = 0;
-    static const int fieldNum = 10;
+    static const int fieldNum = 20;
     static const int fieldSize = 0;
     static const bool cacheFieldResults = true;
     static const bool isUsingInterruptVector = true;
@@ -37,6 +37,7 @@ public:
     static const int highestRwLockNum = 25;
     static const bool hasMultiByteCommands = false;
     static const int debugBufferLength = 25;
+    static const int uipChannelNum = 3;
 };
 
 #endif /* SRC_TEST_CPP_RCODE_RCODEPARAMETERS_HPP_ */

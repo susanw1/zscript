@@ -37,7 +37,7 @@ void RCodeCommandSequence::addLast(RCodeCommandSlot *slot) {
         last->next = slot;
         last = slot;
         if (locks.isActive()) {
-            slot->getCommand()->setLocks(&locks);
+            slot->getCommand(rcode)->setLocks(&locks);
         }
     } else {
         last = slot;
@@ -75,8 +75,8 @@ bool RCodeCommandSequence::canLock() {
     if (!locks.isActive()) {
         locks.activate();
         for (RCodeCommandSlot *slot = first; slot != NULL; slot = slot->next) {
-            if (slot->getCommand() != NULL) {
-                slot->getCommand()->setLocks(&locks);
+            if (slot->getCommand(rcode) != NULL) {
+                slot->getCommand(rcode)->setLocks(&locks);
             }
         }
         channel->setLocks(&locks);
@@ -87,8 +87,8 @@ void RCodeCommandSequence::lock() {
     if (!locks.isActive()) {
         locks.activate();
         for (RCodeCommandSlot *slot = first; slot != NULL; slot = slot->next) {
-            if (slot->getCommand() != NULL) {
-                slot->getCommand()->setLocks(&locks);
+            if (slot->getCommand(rcode) != NULL) {
+                slot->getCommand(rcode)->setLocks(&locks);
             }
         }
         channel->setLocks(&locks);

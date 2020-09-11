@@ -33,6 +33,12 @@ public:
 
     virtual void setAsNotificationChannel() = 0;
 
+    virtual void releaseFromNotificationChannel() = 0;
+
+    virtual void setAsDebugChannel() = 0;
+
+    virtual void releaseFromDebugChannel() = 0;
+
     virtual void setLocks(RCodeLockSet *locks) = 0;
 
     virtual ~RCodeCommandChannel() {

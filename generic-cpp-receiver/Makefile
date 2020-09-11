@@ -19,7 +19,7 @@ MBED_TARGET = NUCLEO_G474RE
 MBED_COMPILER = GCC_ARM
 
 # Sources
-SOURCES  = --source $(MBEDDIR) --source $(CPPDIR)
+SOURCES  = --source $(MBEDDIR) --source $(CPPDIR)RCode --source $(CPPDIR)main --source $(CPPDIR)UIP --source $(CPPDIR)channels
 
 # MBED Flags
 MBEDFLAGS = -m $(MBED_TARGET) -t $(MBED_COMPILER) $(SOURCES) --build $(BUILDDIR) --profile $(MBEDPROFILE) $(MBEDPROFILE_EXTRA)

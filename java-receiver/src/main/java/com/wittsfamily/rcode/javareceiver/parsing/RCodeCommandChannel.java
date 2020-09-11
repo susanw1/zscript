@@ -20,5 +20,11 @@ public interface RCodeCommandChannel {
 
     void setAsNotificationChannel();
 
+    void releaseFromNotificationChannel();
+
+    void setAsDebugChannel();
+
+    void releaseFromDebugChannel();
+
     void setLocks(RCodeLockSet locks);
 }

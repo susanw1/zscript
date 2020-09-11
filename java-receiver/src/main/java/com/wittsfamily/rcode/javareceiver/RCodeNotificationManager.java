@@ -22,7 +22,9 @@ public class RCodeNotificationManager {
     }
 
     public void setNotificationChannel(RCodeCommandChannel notificationChannel) {
+        this.notificationChannel.releaseFromNotificationChannel();
         this.notificationChannel = notificationChannel;
+        this.notificationChannel.setAsNotificationChannel();
     }
 
     public RCodeCommandChannel getNotificationChannel() {

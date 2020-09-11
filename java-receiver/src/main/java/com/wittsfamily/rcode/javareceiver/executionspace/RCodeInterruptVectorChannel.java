@@ -70,7 +70,22 @@ public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
 
     @Override
     public void setAsNotificationChannel() {
-        throw new UnsupportedOperationException("Interrupt Vector Channel cannot be notification channel");
+        throw new UnsupportedOperationException("Execution Space cannot be notification channel");
+    }
+
+    @Override
+    public void releaseFromNotificationChannel() {
+        throw new UnsupportedOperationException("Execution Space cannot be notification channel");
+    }
+
+    @Override
+    public void setAsDebugChannel() {
+        throw new UnsupportedOperationException("Execution Space cannot be notification channel");
+    }
+
+    @Override
+    public void releaseFromDebugChannel() {
+        throw new UnsupportedOperationException("Execution Space cannot be notification channel");
     }
 
     @Override

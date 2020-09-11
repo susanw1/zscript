@@ -65,7 +65,8 @@ public class RCodeCommandSlot {
     private void eatWhitespace(RCodeInStream in) {
         char c = in.peek();
         while (in.hasNext() && (c == ' ' || c == '\t' || c == '\r')) {
-            c = in.read();
+            in.read();
+            c = in.peek();
         }
     }
 
@@ -160,6 +161,9 @@ public class RCodeCommandSlot {
         }
         if (in.peek() == '*') {
             in.read();
+            if (in.hasNext()) {
+                eatWhitespace(in);
+            }
             if (sequence.peekFirst() == null) {
                 sequence.setBroadcast();
             } else {
@@ -172,6 +176,9 @@ public class RCodeCommandSlot {
         }
         if (in.peek() == '%') {
             in.read();
+            if (in.hasNext()) {
+                eatWhitespace(in);
+            }
             if (sequence.peekFirst() == null) {
                 sequence.setParallel();
             } else {

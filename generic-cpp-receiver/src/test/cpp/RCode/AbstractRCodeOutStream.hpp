@@ -33,7 +33,7 @@ public:
     virtual RCodeOutStream* writeStatus(RCodeResponseStatus st) {
         writeByte('S');
         if (st != OK) {
-            if (st > 16) {
+            if (st > 15) {
                 writeByte(toHexDigit((st >> 4) & 0x0F));
             }
             writeByte(toHexDigit(st & 0x0F));
@@ -44,7 +44,7 @@ public:
     virtual RCodeOutStream* writeField(char f, uint8_t v) {
         writeByte(f);
         if (v != 0) {
-            if (v > 16) {
+            if (v > 15) {
                 writeByte(toHexDigit(v >> 4));
             }
             writeByte(toHexDigit(v & 0x0F));
@@ -53,8 +53,10 @@ public:
     }
 
     virtual RCodeOutStream* continueField(uint8_t v) {
-        if (v > 16) {
+        if (v > 15) {
             writeByte(toHexDigit(v >> 4));
+        } else {
+            writeByte('0');
         }
         writeByte(toHexDigit(v & 0x0F));
         return this;

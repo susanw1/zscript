@@ -10,7 +10,8 @@
 void RCodeCommandSlot::eatWhitespace(RCodeInStream *in) {
     char c = in->peek();
     while (in->hasNext() && (c == ' ' || c == '\t' || c == '\r')) {
-        c = in->read();
+        in->read();
+        c = in->peek();
     }
 }
 bool RCodeCommandSlot::parseHexField(RCodeInStream *in, char field) {
@@ -55,7 +56,7 @@ bool RCodeCommandSlot::parseHexField(RCodeInStream *in, char field) {
 
     }
 }
-RCodeCommand* RCodeCommandSlot::getCommand() {
+RCodeCommand* RCodeCommandSlot::getCommand(RCode *rcode) {
     if (cmd == NULL) {
         cmd = rcode->getCommandFinder()->findCommand(this);
     }
@@ -85,6 +86,9 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
     }
     if (in->peek() == '*') {
         in->read();
+        if (in->hasNext()) {
+            eatWhitespace(in);
+        }
         if (sequence->peekFirst() == NULL) {
             sequence->setBroadcast();
         } else {
@@ -97,6 +101,9 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
     }
     if (in->peek() == '%') {
         in->read();
+        if (in->hasNext()) {
+            eatWhitespace(in);
+        }
         if (sequence->peekFirst() == NULL) {
             sequence->setParallel();
         } else {
@@ -224,7 +231,7 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
         } else {
             in->closeCommand();
             end = in->read();
-            if (getCommand() == NULL) {
+            if (getCommand(sequence->getRCode()) == NULL) {
                 status = UNKNOWN_CMD;
                 errorMessage = "Command not known";
                 end = '\n';

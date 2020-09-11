@@ -20,8 +20,7 @@
 #include "UdpSocket.h"
 #include "DnsClient.h"
 
-extern "C"
-{
+extern "C" {
 #include "utility/uip-conf.h"
 #include "utility/uip.h"
 #include "utility/uip_arp.h"
@@ -37,9 +36,7 @@ extern "C"
  * @retval
  */
 UdpSocket::UdpSocket() :
-    _uip_udp_conn(NULL),
-    _timeout_ms(1000)
-{
+        _uip_udp_conn(NULL), _timeout_ms(1000) {
     memset(&appdata, 0, sizeof(appdata));
 }
 
@@ -50,9 +47,7 @@ UdpSocket::UdpSocket() :
  * @retval
  */
 UdpSocket::UdpSocket(int timeout_ms) :
-    _uip_udp_conn(NULL),
-    _timeout_ms(timeout_ms)
-{
+        _uip_udp_conn(NULL), _timeout_ms(timeout_ms) {
     memset(&appdata, 0, sizeof(appdata));
 }
 
@@ -62,18 +57,15 @@ UdpSocket::UdpSocket(int timeout_ms) :
  * @param
  * @retval
  */
-UdpSocket::UdpSocket(UipEthernet* net, int timeout_ms /*= 1000*/ ) :
-    _uip_udp_conn(NULL),
-    _timeout_ms(timeout_ms)
-{
+UdpSocket::UdpSocket(UipEthernet *net, int timeout_ms /*= 1000*/) :
+        _uip_udp_conn(NULL), _timeout_ms(timeout_ms) {
     memset(&appdata, 0, sizeof(appdata));
     if (UipEthernet::ethernet != net)
         UipEthernet::ethernet = net;
 }
 
 // initialize, start listening on specified port. Returns 1 if successful, 0 if there are no sockets available to use
-uint8_t UdpSocket::begin(uint16_t port)
-{
+uint8_t UdpSocket::begin(uint16_t port) {
     if (!_uip_udp_conn) {
         _uip_udp_conn = uip_udp_new(NULL, 0);
     }
@@ -88,8 +80,7 @@ uint8_t UdpSocket::begin(uint16_t port)
 }
 
 // Finish with the UDP socket
-void UdpSocket::stop()
-{
+void UdpSocket::stop() {
     if (_uip_udp_conn) {
         uip_udp_remove(_uip_udp_conn);
         _uip_udp_conn->appstate = NULL;
@@ -107,8 +98,7 @@ void UdpSocket::stop()
  * @param
  * @retval
  */
-void UdpSocket::close()
-{
+void UdpSocket::close() {
     stop();
 }
 
@@ -116,11 +106,10 @@ void UdpSocket::close()
 // Start building up a packet to send to the remote host specific in ip and port
 
 // Returns 1 if successful, 0 if there was a problem with the supplied IP address or port
-int UdpSocket::beginPacket(IpAddress ip, uint16_t port)
-{
+int UdpSocket::beginPacket(IpAddress ip, uint16_t port) {
     UipEthernet::ethernet->tick();
     if (ip && port) {
-        uip_ipaddr_t    ripaddr;
+        uip_ipaddr_t ripaddr;
         uip_ip_addr(&ripaddr, ip);
 #ifdef UIPETHERNET_DEBUG_UDP
         printf("udp beginPacket, ");
@@ -128,18 +117,14 @@ int UdpSocket::beginPacket(IpAddress ip, uint16_t port)
         if (_uip_udp_conn) {
             _uip_udp_conn->rport = htons(port);
             uip_ipaddr_copy(_uip_udp_conn->ripaddr, &ripaddr);
-        }
-        else {
+        } else {
             _uip_udp_conn = uip_udp_new(&ripaddr, htons(port));
-            if (_uip_udp_conn)
-            {
+            if (_uip_udp_conn) {
 #ifdef UIPETHERNET_DEBUG_UDP
                 printf("new connection, ");
 #endif
                 _uip_udp_conn->appstate = &appdata;
-            }
-            else
-            {
+            } else {
 #ifdef UIPETHERNET_DEBUG_UDP
                 printf("failed to allocate new connection\r\n");
 #endif
@@ -155,7 +140,8 @@ int UdpSocket::beginPacket(IpAddress ip, uint16_t port)
 
     if (_uip_udp_conn) {
         if (appdata.packet_out == NOBLOCK) {
-            appdata.packet_out = UipEthernet::ethernet->enc28j60Eth.allocBlock(UIP_UDP_MAXPACKETSIZE);
+            appdata.packet_out = UipEthernet::ethernet->enc28j60Eth.allocBlock(
+            UIP_UDP_MAXPACKETSIZE);
             appdata.out_pos = UIP_UDP_PHYH_LEN;
             if (appdata.packet_out != NOBLOCK) {
                 return 1;
@@ -180,19 +166,17 @@ int UdpSocket::beginPacket(IpAddress ip, uint16_t port)
 // Start building up a packet to send to the remote host specific in host and port
 
 // Returns 1 if successful, 0 if there was a problem resolving the hostname or port
-int UdpSocket::beginPacket(const char* host, uint16_t port)
-{
+int UdpSocket::beginPacket(const char *host, uint16_t port) {
     // Look up the host first
-    int         ret = 0;
-    DnsClient   dns;
-    IpAddress   remote_addr;
+    int ret = 0;
+    DnsClient dns;
+    IpAddress remote_addr;
 
     dns.begin(UipEthernet::ethernet->dnsServerIP());
     ret = dns.getHostByName(host, remote_addr);
     if (ret == 1) {
         return beginPacket(remote_addr, port);
-    }
-    else {
+    } else {
         return ret;
     }
 }
@@ -200,11 +184,11 @@ int UdpSocket::beginPacket(const char* host, uint16_t port)
 // Finish off this packet and send it
 
 // Returns 1 if the packet was sent successfully, 0 if there was an error
-int UdpSocket::endPacket()
-{
+int UdpSocket::endPacket() {
     if (_uip_udp_conn && appdata.packet_out != NOBLOCK) {
         appdata.send = true;
-        UipEthernet::ethernet->enc28j60Eth.resizeBlock(appdata.packet_out, 0, appdata.out_pos);
+        UipEthernet::ethernet->enc28j60Eth.resizeBlock(appdata.packet_out, 0,
+                appdata.out_pos);
         uip_udp_periodic_conn(_uip_udp_conn);
         if (uip_len > 0) {
             _send(&appdata);
@@ -216,22 +200,15 @@ int UdpSocket::endPacket()
 }
 
 // Write a single byte into the packet
-size_t UdpSocket::write(uint8_t c)
-{
+size_t UdpSocket::write(uint8_t c) {
     return write(&c, 1);
 }
 
 // Write size bytes from buffer into the packet
-size_t UdpSocket::write(const uint8_t* buffer, size_t size)
-{
+size_t UdpSocket::write(const uint8_t *buffer, size_t size) {
     if (appdata.packet_out != NOBLOCK) {
-        size_t  ret = UipEthernet::ethernet->enc28j60Eth.writePacket
-            (
-                appdata.packet_out,
-                appdata.out_pos,
-                (uint8_t*)buffer,
-                size
-            );
+        size_t ret = UipEthernet::ethernet->enc28j60Eth.writePacket(
+                appdata.packet_out, appdata.out_pos, (uint8_t*) buffer, size);
         appdata.out_pos += ret;
         return ret;
     }
@@ -242,8 +219,7 @@ size_t UdpSocket::write(const uint8_t* buffer, size_t size)
 // Start processing the next available incoming packet
 
 // Returns the size of the packet in bytes, or 0 if no packets are available
-int UdpSocket::parsePacket()
-{
+int UdpSocket::parsePacket() {
     UipEthernet::ethernet->tick();
 #ifdef UIPETHERNET_DEBUG_UDP
     if (appdata.packet_in != NOBLOCK) {
@@ -271,16 +247,14 @@ int UdpSocket::parsePacket()
 }
 
 // Number of bytes remaining in the current packet
-size_t UdpSocket::available()
-{
+size_t UdpSocket::available() {
     UipEthernet::ethernet->tick();
     return UipEthernet::ethernet->enc28j60Eth.blockSize(appdata.packet_in);
 }
 
 // Read a single byte from the current packet. Returns -1 if no byte is available.
-int UdpSocket::read()
-{
-    static unsigned char    c;
+int UdpSocket::read() {
+    static unsigned char c;
     if (read(&c, 1) > 0) {
         return c;
     }
@@ -291,17 +265,19 @@ int UdpSocket::read()
 // Read up to len bytes from the current packet and place them into buffer
 
 // Returns the number of bytes read, or 0 if none are available
-size_t UdpSocket::read(unsigned char* buffer, size_t len)
-{
+size_t UdpSocket::read(unsigned char *buffer, size_t len) {
     UipEthernet::ethernet->tick();
     if (appdata.packet_in != NOBLOCK) {
-        memaddress  read = UipEthernet::ethernet->enc28j60Eth.readPacket(appdata.packet_in, 0, buffer, len);
-        if (read == UipEthernet::ethernet->enc28j60Eth.blockSize(appdata.packet_in)) {
+        memaddress read = UipEthernet::ethernet->enc28j60Eth.readPacket(
+                appdata.packet_in, 0, buffer, len);
+        if (read
+                == UipEthernet::ethernet->enc28j60Eth.blockSize(
+                        appdata.packet_in)) {
             UipEthernet::ethernet->enc28j60Eth.freeBlock(appdata.packet_in);
             appdata.packet_in = NOBLOCK;
-        }
-        else
-            UipEthernet::ethernet->enc28j60Eth.resizeBlock(appdata.packet_in, read);
+        } else
+            UipEthernet::ethernet->enc28j60Eth.resizeBlock(appdata.packet_in,
+                    read);
         return read;
     }
 
@@ -309,59 +285,77 @@ size_t UdpSocket::read(unsigned char* buffer, size_t len)
 }
 
 // Return the next byte from the current packet without moving on to the next byte
-int UdpSocket::peek()
-{
+int UdpSocket::peek() {
     UipEthernet::ethernet->tick();
     if (appdata.packet_in != NOBLOCK) {
-        unsigned char   c;
-        if (UipEthernet::ethernet->enc28j60Eth.readPacket(appdata.packet_in, 0, &c, 1) == 1)
+        unsigned char c;
+        if (UipEthernet::ethernet->enc28j60Eth.readPacket(appdata.packet_in, 0,
+                &c, 1) == 1)
             return c;
     }
 
     return -1;
 }
+// Return the offset th byte from the current packet without moving on (peek(0) is the same as peek())
+int UdpSocket::peek(memaddress offset) {
+    UipEthernet::ethernet->tick();
+    if (appdata.packet_in != NOBLOCK) {
+        unsigned char c;
+        if (UipEthernet::ethernet->enc28j60Eth.readPacket(appdata.packet_in,
+                offset, &c, 1) == 1)
+            return c;
+    }
+
+    return -1;
+}
+// Returns the number of characters read, or 0 if none are available
+size_t UdpSocket::peek(unsigned char *buffer, size_t len) {
+    UipEthernet::ethernet->tick();
+    if (appdata.packet_in != NOBLOCK) {
+        memaddress read = UipEthernet::ethernet->enc28j60Eth.readPacket(
+                appdata.packet_in, 0, buffer, len);
+        return read;
+    }
+    return 0;
+}
 
 // Finish reading the current packet
-void UdpSocket::flush()
-{
+void UdpSocket::flush() {
     UipEthernet::ethernet->tick();
     UipEthernet::ethernet->enc28j60Eth.freeBlock(appdata.packet_in);
     appdata.packet_in = NOBLOCK;
 }
 
 // Return the IP address of the host who sent the current incoming packet
-IpAddress UdpSocket::remoteIP()
-{
+IpAddress UdpSocket::remoteIP() {
     return _uip_udp_conn ? ip_addr_uip(_uip_udp_conn->ripaddr) : IpAddress();
 }
 
 // Return the port of the host who sent the current incoming packet
-uint16_t UdpSocket::remotePort()
-{
+uint16_t UdpSocket::remotePort() {
     return _uip_udp_conn ? ntohs(_uip_udp_conn->rport) : 0;
 }
 
 // UIP callback function
-void uipudp_appcall()
-{
-    if (uip_udp_userdata_t * data = (uip_udp_userdata_t *) (uip_udp_conn->appstate)) {
+void uipudp_appcall() {
+    if (uip_udp_userdata_t *data =
+            (uip_udp_userdata_t*) (uip_udp_conn->appstate)) {
         if (uip_newdata()) {
             if (data->packet_next == NOBLOCK) {
                 uip_udp_conn->rport = UDPBUF->srcport;
                 uip_ipaddr_copy(uip_udp_conn->ripaddr, UDPBUF->srcipaddr);
-                data->packet_next = UipEthernet::ethernet->enc28j60Eth.allocBlock(ntohs(UDPBUF->udplen) - UIP_UDPH_LEN);
+                data->packet_next =
+                        UipEthernet::ethernet->enc28j60Eth.allocBlock(
+                        ntohs(UDPBUF->udplen) - UIP_UDPH_LEN);
 
                 //if we are unable to allocate memory the packet is dropped. udp doesn't guarantee packet delivery
                 if (data->packet_next != NOBLOCK) {
                     //discard Linklevel and IP and udp-header and any trailing bytes:
-                    UipEthernet::ethernet->enc28j60Eth.copyPacket
-                        (
-                            data->packet_next,
-                            0,
-                            UipEthernet::inPacket,
+                    UipEthernet::ethernet->enc28j60Eth.copyPacket(
+                            data->packet_next, 0, UipEthernet::inPacket,
                             UIP_UDP_PHYH_LEN,
-                            UipEthernet::ethernet->enc28j60Eth.blockSize(data->packet_next)
-                        );
+                            UipEthernet::ethernet->enc28j60Eth.blockSize(
+                                    data->packet_next));
 #ifdef UIPETHERNET_DEBUG_UDP
                     printf
                     (
@@ -374,8 +368,7 @@ void uipudp_appcall()
             }
         }
 
-        if (uip_poll() && data->send)
-        {
+        if (uip_poll() && data->send) {
             //set uip_slen (uip private) by calling uip_udp_send
 #ifdef UIPETHERNET_DEBUG_UDP
             printf
@@ -398,8 +391,7 @@ void uipudp_appcall()
  * @param
  * @retval
  */
-void UdpSocket::_send(uip_udp_userdata_t* data)
-{
+void UdpSocket::_send(uip_udp_userdata_t *data) {
     uip_arp_out();  //add arp
     if (uip_len == UIP_ARPHDRSIZE) {
         UipEthernet::uipPacket = NOBLOCK;
@@ -407,8 +399,7 @@ void UdpSocket::_send(uip_udp_userdata_t* data)
 #ifdef UIPETHERNET_DEBUG_UDP
         printf("udp, uip_poll results in ARP-packet\r\n");
 #endif
-    }
-    else {
+    } else {
         //arp found ethaddr for ip (otherwise packet is replaced by arp-request)
         data->send = false;
         data->packet_out = NOBLOCK;
@@ -428,18 +419,17 @@ void UdpSocket::_send(uip_udp_userdata_t* data)
  * @param
  * @retval
  */
-nsapi_size_or_error_t UdpSocket::sendto(const char* host, uint16_t port, const void* data, size_t size)
-{
-    DnsClient   dns;
-    IpAddress   address;
-    uint32_t    address_bytes;
+nsapi_size_or_error_t UdpSocket::sendto(const char *host, uint16_t port,
+        const void *data, size_t size) {
+    DnsClient dns;
+    IpAddress address;
+    uint32_t address_bytes;
 
     dns.begin(UipEthernet::ethernet->dnsServerIP());
     if (dns.getHostByName(host, address) == 1) {
         address_bytes = address;
         _remote_addr = SocketAddress(&address_bytes, NSAPI_IPv4, port);
-    }
-    else {
+    } else {
         _remote_addr = SocketAddress(host, port);
     }
 
@@ -448,7 +438,7 @@ nsapi_size_or_error_t UdpSocket::sendto(const char* host, uint16_t port, const v
         return NSAPI_ERROR_NO_ADDRESS;
     }
 
-    if (write((uint8_t*)data, size) == 0) {
+    if (write((uint8_t*) data, size) == 0) {
         stop();
         return NSAPI_ERROR_WOULD_BLOCK;
     };
@@ -467,10 +457,10 @@ nsapi_size_or_error_t UdpSocket::sendto(const char* host, uint16_t port, const v
  * @param
  * @retval
  */
-nsapi_size_or_error_t UdpSocket::sendto(const SocketAddress& address, const void* data, size_t size)
-{
-    IpAddress   ip_addr(address.get_addr().bytes);
-    uint16_t    port = address.get_port();
+nsapi_size_or_error_t UdpSocket::sendto(const SocketAddress &address,
+        const void *data, size_t size) {
+    IpAddress ip_addr(address.get_addr().bytes);
+    uint16_t port = address.get_port();
 
     _remote_addr = address;
 
@@ -479,7 +469,7 @@ nsapi_size_or_error_t UdpSocket::sendto(const SocketAddress& address, const void
         return NSAPI_ERROR_NO_ADDRESS;
     }
 
-    if (write((uint8_t*)data, size) == 0) {
+    if (write((uint8_t*) data, size) == 0) {
         stop();
         return NSAPI_ERROR_WOULD_BLOCK;
     };
@@ -498,12 +488,12 @@ nsapi_size_or_error_t UdpSocket::sendto(const SocketAddress& address, const void
  * @param
  * @retval
  */
-nsapi_size_or_error_t UdpSocket::recvfrom(SocketAddress* address, void* data, size_t size)
-{
+nsapi_size_or_error_t UdpSocket::recvfrom(SocketAddress *address, void *data,
+        size_t size) {
     *address = _remote_addr;
 
-    Timer   timer;
-    int     success;
+    Timer timer;
+    int success;
 
     timer.start();
     do {
@@ -515,17 +505,16 @@ nsapi_size_or_error_t UdpSocket::recvfrom(SocketAddress* address, void* data, si
         return NSAPI_ERROR_WOULD_BLOCK;
     }
 
-    size_t      n;
-    size_t      recv_count = 0;
-    uint8_t*    pos = (uint8_t*)data;
+    size_t n;
+    size_t recv_count = 0;
+    uint8_t *pos = (uint8_t*) data;
 
     do {
         if (recv_count + available() <= size) {
             n = read(pos, available());
             pos += n;
             recv_count += n;
-        }
-        else {
+        } else {
             return NSAPI_ERROR_NO_MEMORY;
         }
     } while ((available() > 0) && (recv_count < size));
