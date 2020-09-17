@@ -10,35 +10,36 @@
 
 #include "../RCode/AbstractRCodeOutStream.hpp"
 #include "UipUdpCommandChannel.hpp"
+#include "UipUdpWrapper.hpp"
 
 class UipUdpOutStream: public AbstractRCodeOutStream {
 private:
-    UdpSocket *socket;
+    UipUdpWriteWrapper write;
     bool open = false;
 public:
-    UipUdpOutStream(UdpSocket *socket) :
-            socket(socket) {
+    UipUdpOutStream(UipUdpWriteWrapper write) :
+            write(write) {
     }
 
     virtual void writeByte(uint8_t value) {
-        socket->write(value);
+        write.write(value);
     }
     virtual RCodeOutStream* writeBytes(uint8_t const *value, uint16_t length) {
-        socket->write(value, length);
+        write.write(value, length);
         return this;
     }
     virtual void openResponse(RCodeCommandChannel *target) {
-        ((UipUdpCommandChannel*) target)->open(socket);
+        ((UipUdpCommandChannel*) target)->open(&write);
         open = true;
     }
 
     virtual void openNotification(RCodeCommandChannel *target) {
-        ((UipUdpCommandChannel*) target)->open(socket);
+        ((UipUdpCommandChannel*) target)->open(&write);
         open = true;
     }
 
     virtual void openDebug(RCodeCommandChannel *target) {
-        ((UipUdpCommandChannel*) target)->open(socket);
+        ((UipUdpCommandChannel*) target)->open(&write);
         open = true;
     }
 
@@ -47,7 +48,7 @@ public:
     }
 
     virtual void close() {
-        socket->endPacket();
+        write.endPacket();
         open = false;
     }
 };

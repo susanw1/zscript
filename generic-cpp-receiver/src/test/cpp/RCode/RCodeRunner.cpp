@@ -109,6 +109,7 @@ bool RCodeRunner::finishRunning(RCodeCommandSequence *target, int targetInd) {
 }
 
 void RCodeRunner::runSequence(RCodeCommandSequence *target, int targetInd) {
+    target->setRunning();
     RCodeOutStream *out = target->getOutStream();
     RCodeCommandSlot *cmd = target->peekFirst();
     cmd->getFields()->copyFieldTo(out, 'E');

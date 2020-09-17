@@ -26,6 +26,7 @@ private:
     RCodeCommandSlot *last = NULL;
     bool parallel = false;
     bool broadcast = false;
+    bool running = false;
     RCodeInStream *in = NULL;
     RCodeOutStream *out = NULL;
     RCodeLockSet locks;
@@ -60,6 +61,13 @@ public:
     bool isFullyParsed() const {
         return fullyParsed;
     }
+    void setRunning() {
+        running = true;
+    }
+
+    bool isRunning() const {
+        return running;
+    }
 
     void addLast(RCodeCommandSlot *slot);
 
@@ -82,6 +90,7 @@ public:
     }
 
     void reset() {
+        running = false;
         broadcast = false;
         parallel = false;
         last = NULL;

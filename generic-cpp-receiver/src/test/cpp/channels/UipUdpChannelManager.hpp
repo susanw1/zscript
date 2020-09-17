@@ -15,20 +15,22 @@
 #include "UipUdpCommandChannel.hpp"
 #include "UipUdpOutStream.hpp"
 #include "UipUdpSequenceInStream.hpp"
-//#include "UipUdpWrapper.hpp"
+#include "UipUdpWrapper.hpp"
 
 class UipUdpChannelManager {
     UdpSocket *socket;
+    UipUdpReadWrapper reader;
     UipUdpSequenceInStream seqIn;
     RCodeInStream in;
     UipUdpOutStream out;
     UipUdpCommandChannel channels[RCodeParameters::uipChannelNum];
     bool hasCheckedPackets = false;
-    bool a = 0;
+    bool a = 1;
     friend void setupChannels(UipUdpChannelManager *manager, RCode *rcode);
 public:
     UipUdpChannelManager(UdpSocket *socket, RCode *rcode) :
-            socket(socket), seqIn(socket), in(&seqIn), out(socket) {
+            socket(socket), reader(socket), seqIn(&reader), in(&seqIn), out(
+                    socket) {
         setupChannels(this, rcode);
     }
 

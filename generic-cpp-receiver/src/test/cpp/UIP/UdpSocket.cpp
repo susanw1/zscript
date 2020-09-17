@@ -296,13 +296,13 @@ int UdpSocket::peek() {
 
     return -1;
 }
-// Return the offset th byte from the current packet without moving on (peek(0) is the same as peek())
-int UdpSocket::peek(memaddress offset) {
+// Return the n th byte from the current packet without moving on (peek(0) is the same as peek())
+int UdpSocket::peek(memaddress n) {
     UipEthernet::ethernet->tick();
     if (appdata.packet_in != NOBLOCK) {
         unsigned char c;
-        if (UipEthernet::ethernet->enc28j60Eth.readPacket(appdata.packet_in,
-                offset, &c, 1) == 1)
+        if (UipEthernet::ethernet->enc28j60Eth.readPacket(appdata.packet_in, n,
+                &c, 1) == 1)
             return c;
     }
 

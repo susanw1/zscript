@@ -26,16 +26,15 @@
 #include "Enc28j60Eth.h"
 #include "mbed.h"
 
-extern "C"
-{
+extern "C" {
 #include "enc28j60.h"
 #include "uip.h"
 }
 
 // Static member initialization
-uint16_t    Enc28j60Eth::nextPacketPtr;
-uint8_t     Enc28j60Eth::bank = 0xff;
-struct      memblock Enc28j60Eth::receivePkt;
+uint16_t Enc28j60Eth::nextPacketPtr;
+uint8_t Enc28j60Eth::bank = 0xff;
+struct memblock Enc28j60Eth::receivePkt;
 
 /**
  * @brief
@@ -44,10 +43,8 @@ struct      memblock Enc28j60Eth::receivePkt;
  * @retval
  */
 Enc28j60Eth::Enc28j60Eth(PinName mosi, PinName miso, PinName sclk, PinName cs) :
-    MemPool(),
-    _spi(mosi, miso, sclk),
-    _cs(cs)
-{ }
+        MemPool(), _spi(mosi, miso, sclk), _cs(cs) {
+}
 
 /**
  * @brief
@@ -55,10 +52,9 @@ Enc28j60Eth::Enc28j60Eth(PinName mosi, PinName miso, PinName sclk, PinName cs) :
  * @param
  * @retval
  */
-void Enc28j60Eth::init(uint8_t* macaddr)
-{
-    MemPool::init();            // 1 byte in between RX_STOP_INIT and pool to allow prepending of controlbyte
-    
+void Enc28j60Eth::init(uint8_t *macaddr) {
+    MemPool::init(); // 1 byte in between RX_STOP_INIT and pool to allow prepending of controlbyte
+
     // initialize SPI interface
     _cs = 1;
     _spi.format(8, 0);          // 8-bit, mode 0
@@ -109,7 +105,8 @@ void Enc28j60Eth::init(uint8_t* macaddr)
     // in binary these poitions are:11 0000 0011 1111
     // This is hex 303F->EPMM0=0x3f,EPMM1=0x30
     //TODO define specific pattern to receive dhcp-broadcast packages instead of setting ERFCON_BCEN!
-    writeReg(ERXFCON, ERXFCON_UCEN | ERXFCON_CRCEN | ERXFCON_PMEN | ERXFCON_BCEN);
+    writeReg(ERXFCON,
+            ERXFCON_UCEN | ERXFCON_CRCEN | ERXFCON_PMEN | ERXFCON_BCEN);
     writeRegPair(EPMM0, 0x303f);
     writeRegPair(EPMCSL, 0xf7f9);
 
@@ -121,7 +118,8 @@ void Enc28j60Eth::init(uint8_t* macaddr)
     writeRegPair(MACON1, MACON1_MARXEN | MACON1_TXPAUS | MACON1_RXPAUS);
 
     // enable automatic padding to 60bytes and CRC operations
-    writeOp(ENC28J60_BIT_FIELD_SET, MACON3, MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN);
+    writeOp(ENC28J60_BIT_FIELD_SET, MACON3,
+            MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN);
 
     // set inter-frame gap (non-back-to-back)
     writeRegPair(MAIPGL, 0x0C12);
@@ -165,20 +163,17 @@ void Enc28j60Eth::init(uint8_t* macaddr)
  * @param
  * @retval
  */
-memhandle Enc28j60Eth::receivePacket()
-{
-    uint8_t     rxstat;
-    uint16_t    len;
+memhandle Enc28j60Eth::receivePacket() {
+    uint8_t rxstat;
+    uint16_t len;
     // check if a packet has been received and buffered
     //if( !(readReg(EIR) & EIR_PKTIF) ){
     // The above does not work. See Rev. B4 Silicon Errata point 6.
     if (readReg(EPKTCNT) != 0) {
-        uint16_t    readPtr = nextPacketPtr +
-            6 > RXEND_INIT ? nextPacketPtr +
-            6 -
-            RXEND_INIT +
-            RXSTART_INIT : nextPacketPtr +
-            6;
+        uint16_t readPtr = nextPacketPtr + 6 > RXEND_INIT ? nextPacketPtr + 6 -
+        RXEND_INIT +
+        RXSTART_INIT :
+                                                            nextPacketPtr + 6;
         // Set the read pointer to the start of the received packet
         writeRegPair(ERDPTL, nextPacketPtr);
 
@@ -225,7 +220,7 @@ memhandle Enc28j60Eth::receivePacket()
         setERXRDPT();
     }
 
-    return(NOBLOCK);
+    return (NOBLOCK);
 }
 
 /**
@@ -234,9 +229,9 @@ memhandle Enc28j60Eth::receivePacket()
  * @param
  * @retval
  */
-void Enc28j60Eth::setERXRDPT()
-{
-    writeRegPair(ERXRDPTL, nextPacketPtr == RXSTART_INIT ? RXEND_INIT : nextPacketPtr - 1);
+void Enc28j60Eth::setERXRDPT() {
+    writeRegPair(ERXRDPTL,
+            nextPacketPtr == RXSTART_INIT ? RXEND_INIT : nextPacketPtr - 1);
 }
 
 /**
@@ -245,9 +240,10 @@ void Enc28j60Eth::setERXRDPT()
  * @param
  * @retval
  */
-size_t Enc28j60Eth::blockSize(memhandle handle)
-{
-    return handle == NOBLOCK ? 0 : handle == UIP_RECEIVEBUFFERHANDLE ? receivePkt.size : blocks[handle].size;
+size_t Enc28j60Eth::blockSize(memhandle handle) {
+    return handle == NOBLOCK ? 0 :
+           handle == UIP_RECEIVEBUFFERHANDLE ?
+                   receivePkt.size : blocks[handle].size;
 }
 
 /**
@@ -256,14 +252,13 @@ size_t Enc28j60Eth::blockSize(memhandle handle)
  * @param
  * @retval
  */
-void Enc28j60Eth::sendPacket(memhandle handle)
-{
-    memblock*   packet = &blocks[handle];
-    uint16_t    start = packet->begin - 1;
-    uint16_t    end = start + packet->size;
+void Enc28j60Eth::sendPacket(memhandle handle) {
+    memblock *packet = &blocks[handle];
+    uint16_t start = packet->begin - 1;
+    uint16_t end = start + packet->size;
 
     // backup data at control-byte position
-    uint8_t     data = readByte(start);
+    uint8_t data = readByte(start);
     // write control-byte (if not 0 anyway)
     if (data)
         writeByte(start, 0);
@@ -302,16 +297,17 @@ void Enc28j60Eth::sendPacket(memhandle handle)
  * @param
  * @retval
  */
-uint16_t Enc28j60Eth::setReadPtr(memhandle handle, memaddress position, uint16_t len)
-{
-    memblock*   packet = handle == UIP_RECEIVEBUFFERHANDLE ? &receivePkt : &blocks[handle];
-    memaddress  start = handle == UIP_RECEIVEBUFFERHANDLE &&
-        packet->begin +
-        position > RXEND_INIT ? packet->begin +
-        position -
-        RXEND_INIT +
-        RXSTART_INIT : packet->begin +
-        position;
+uint16_t Enc28j60Eth::setReadPtr(memhandle handle, memaddress position,
+        uint16_t len) {
+    memblock *packet =
+            handle == UIP_RECEIVEBUFFERHANDLE ? &receivePkt : &blocks[handle];
+    memaddress start =
+            handle == UIP_RECEIVEBUFFERHANDLE
+                    && packet->begin + position > RXEND_INIT ?
+                    packet->begin + position -
+                    RXEND_INIT +
+                    RXSTART_INIT :
+                    packet->begin + position;
 
     writeRegPair(ERDPTL, start);
 
@@ -326,8 +322,8 @@ uint16_t Enc28j60Eth::setReadPtr(memhandle handle, memaddress position, uint16_t
  * @param
  * @retval
  */
-uint16_t Enc28j60Eth::readPacket(memhandle handle, memaddress position, uint8_t* buffer, uint16_t len)
-{
+uint16_t Enc28j60Eth::readPacket(memhandle handle, memaddress position,
+        uint8_t *buffer, uint16_t len) {
     len = setReadPtr(handle, position, len);
     readBuffer(len, buffer);
     return len;
@@ -339,10 +335,10 @@ uint16_t Enc28j60Eth::readPacket(memhandle handle, memaddress position, uint8_t*
  * @param
  * @retval
  */
-uint16_t Enc28j60Eth::writePacket(memhandle handle, memaddress position, uint8_t* buffer, uint16_t len)
-{
-    memblock*   packet = &blocks[handle];
-    uint16_t    start = packet->begin + position;
+uint16_t Enc28j60Eth::writePacket(memhandle handle, memaddress position,
+        uint8_t *buffer, uint16_t len) {
+    memblock *packet = &blocks[handle];
+    uint16_t start = packet->begin + position;
 
     writeRegPair(EWRPTL, start);
 
@@ -358,8 +354,7 @@ uint16_t Enc28j60Eth::writePacket(memhandle handle, memaddress position, uint8_t
  * @param
  * @retval
  */
-uint8_t Enc28j60Eth::readByte(uint16_t addr)
-{
+uint8_t Enc28j60Eth::readByte(uint16_t addr) {
     uint8_t result;
 
     writeRegPair(ERDPTL, addr);
@@ -371,10 +366,10 @@ uint8_t Enc28j60Eth::readByte(uint16_t addr)
 
     // read data
     result = _spi.write(0x00);
-    
+
     _cs = 1;
-    
-    return(result);
+
+    return (result);
 }
 
 /**
@@ -383,8 +378,7 @@ uint8_t Enc28j60Eth::readByte(uint16_t addr)
  * @param
  * @retval
  */
-void Enc28j60Eth::writeByte(uint16_t addr, uint8_t data)
-{
+void Enc28j60Eth::writeByte(uint16_t addr, uint8_t data) {
     writeRegPair(EWRPTL, addr);
 
     _cs = 0;
@@ -394,7 +388,7 @@ void Enc28j60Eth::writeByte(uint16_t addr, uint8_t data)
 
     // write data
     _spi.write(data);
-    
+
     _cs = 1;
 }
 
@@ -404,24 +398,18 @@ void Enc28j60Eth::writeByte(uint16_t addr, uint8_t data)
  * @param
  * @retval
  */
-void Enc28j60Eth::copyPacket
-(
-    memhandle   dest_pkt,
-    memaddress  dest_pos,
-    memhandle   src_pkt,
-    memaddress  src_pos,
-    uint16_t    len
-)
-{
-    memblock*   dest = &blocks[dest_pkt];
-    memblock*   src = src_pkt == UIP_RECEIVEBUFFERHANDLE ? &receivePkt : &blocks[src_pkt];
-    memaddress  start = src_pkt == UIP_RECEIVEBUFFERHANDLE &&
-        src->begin +
-        src_pos > RXEND_INIT ? src->begin +
-        src_pos -
-        RXEND_INIT +
-        RXSTART_INIT : src->begin +
-        src_pos;
+void Enc28j60Eth::copyPacket(memhandle dest_pkt, memaddress dest_pos,
+        memhandle src_pkt, memaddress src_pos, uint16_t len) {
+    memblock *dest = &blocks[dest_pkt];
+    memblock *src =
+            src_pkt == UIP_RECEIVEBUFFERHANDLE ? &receivePkt : &blocks[src_pkt];
+    memaddress start =
+            src_pkt == UIP_RECEIVEBUFFERHANDLE
+                    && src->begin + src_pos > RXEND_INIT ?
+                    src->begin + src_pos -
+                    RXEND_INIT +
+                    RXSTART_INIT :
+                    src->begin + src_pos;
     enc28j60_mempool_block_move_callback(dest->begin + dest_pos, start, len);
 
     // Move the RX read pointer to the start of the next received packet
@@ -435,8 +423,7 @@ void Enc28j60Eth::copyPacket
  * @param
  * @retval
  */
-void Enc28j60Eth::freePacket()
-{
+void Enc28j60Eth::freePacket() {
     setERXRDPT();
 }
 
@@ -446,8 +433,7 @@ void Enc28j60Eth::freePacket()
  * @param
  * @retval
  */
-uint8_t Enc28j60Eth::readOp(uint8_t op, uint8_t address)
-{
+uint8_t Enc28j60Eth::readOp(uint8_t op, uint8_t address) {
     uint8_t result;
 
     _cs = 0;
@@ -463,7 +449,7 @@ uint8_t Enc28j60Eth::readOp(uint8_t op, uint8_t address)
         result = _spi.write(0x00);
 
     _cs = 1;
-    return(result);
+    return (result);
 }
 
 /**
@@ -472,8 +458,7 @@ uint8_t Enc28j60Eth::readOp(uint8_t op, uint8_t address)
  * @param
  * @retval
  */
-void Enc28j60Eth::writeOp(uint8_t op, uint8_t address, uint8_t data)
-{
+void Enc28j60Eth::writeOp(uint8_t op, uint8_t address, uint8_t data) {
     _cs = 0;
 
     // issue write command
@@ -481,7 +466,7 @@ void Enc28j60Eth::writeOp(uint8_t op, uint8_t address, uint8_t data)
 
     // write data
     _spi.write(data);
-    
+
     _cs = 1;
 }
 
@@ -491,13 +476,12 @@ void Enc28j60Eth::writeOp(uint8_t op, uint8_t address, uint8_t data)
  * @param
  * @retval
  */
-void Enc28j60Eth::readBuffer(uint16_t len, uint8_t* data)
-{
+void Enc28j60Eth::readBuffer(uint16_t len, uint8_t *data) {
     _cs = 0;
 
     // issue read command
     _spi.write(ENC28J60_READ_BUF_MEM);
- 
+
     // read data
     while (len) {
         len--;
@@ -505,8 +489,6 @@ void Enc28j60Eth::readBuffer(uint16_t len, uint8_t* data)
         data++;
     }
 
-    *data = '\0';
-    
     _cs = 1;
 }
 
@@ -516,8 +498,7 @@ void Enc28j60Eth::readBuffer(uint16_t len, uint8_t* data)
  * @param
  * @retval
  */
-void Enc28j60Eth::writeBuffer(uint16_t len, uint8_t* data)
-{
+void Enc28j60Eth::writeBuffer(uint16_t len, uint8_t *data) {
     _cs = 0;
 
     // issue write command
@@ -539,8 +520,7 @@ void Enc28j60Eth::writeBuffer(uint16_t len, uint8_t* data)
  * @param
  * @retval
  */
-void Enc28j60Eth::setBank(uint8_t address)
-{
+void Enc28j60Eth::setBank(uint8_t address) {
     // set the bank (if needed)
     if ((address & BANK_MASK) != bank) {
         // set the bank
@@ -556,8 +536,7 @@ void Enc28j60Eth::setBank(uint8_t address)
  * @param
  * @retval
  */
-uint8_t Enc28j60Eth::readReg(uint8_t address)
-{
+uint8_t Enc28j60Eth::readReg(uint8_t address) {
     // set the bank
     setBank(address);
 
@@ -571,8 +550,7 @@ uint8_t Enc28j60Eth::readReg(uint8_t address)
  * @param
  * @retval
  */
-void Enc28j60Eth::writeReg(uint8_t address, uint8_t data)
-{
+void Enc28j60Eth::writeReg(uint8_t address, uint8_t data) {
     // set the bank
     setBank(address);
 
@@ -586,8 +564,7 @@ void Enc28j60Eth::writeReg(uint8_t address, uint8_t data)
  * @param
  * @retval
  */
-void Enc28j60Eth::writeRegPair(uint8_t address, uint16_t data)
-{
+void Enc28j60Eth::writeRegPair(uint8_t address, uint16_t data) {
     // set the bank
     setBank(address);
 
@@ -602,8 +579,7 @@ void Enc28j60Eth::writeRegPair(uint8_t address, uint16_t data)
  * @param
  * @retval
  */
-void Enc28j60Eth::phyWrite(uint8_t address, uint16_t data)
-{
+void Enc28j60Eth::phyWrite(uint8_t address, uint16_t data) {
     // set the PHY register address
     writeReg(MIREGADR, address);
 
@@ -622,8 +598,7 @@ void Enc28j60Eth::phyWrite(uint8_t address, uint16_t data)
  * @param
  * @retval
  */
-uint16_t Enc28j60Eth::phyRead(uint8_t address)
-{
+uint16_t Enc28j60Eth::phyRead(uint8_t address) {
     writeReg(MIREGADR, address);
     writeReg(MICMD, MICMD_MIIRD);
 
@@ -633,7 +608,7 @@ uint16_t Enc28j60Eth::phyRead(uint8_t address)
     }   //and MIRDH
 
     writeReg(MICMD, 0);
-    return(readReg(MIRDL) | readReg(MIRDH) << 8);
+    return (readReg(MIRDL) | readReg(MIRDH) << 8);
 }
 
 /**
@@ -642,16 +617,14 @@ uint16_t Enc28j60Eth::phyRead(uint8_t address)
  * @param
  * @retval
  */
-void Enc28j60Eth::clkout(uint8_t clk)
-{
+void Enc28j60Eth::clkout(uint8_t clk) {
     //setup clkout: 2 is 12.5MHz:
     writeReg(ECOCON, clk & 0x7);
 }
 
 // read the revision of the chip:
-uint8_t Enc28j60Eth::getrev()
-{
-    return(readReg(EREVID));
+uint8_t Enc28j60Eth::getrev() {
+    return (readReg(EREVID));
 }
 
 /**
@@ -660,11 +633,11 @@ uint8_t Enc28j60Eth::getrev()
  * @param
  * @retval
  */
-uint16_t Enc28j60Eth::chksum(uint16_t sum, memhandle handle, memaddress pos, uint16_t len)
-{
-    uint8_t     spdr;
-    uint16_t    t;
-    uint16_t    i;
+uint16_t Enc28j60Eth::chksum(uint16_t sum, memhandle handle, memaddress pos,
+        uint16_t len) {
+    uint8_t spdr;
+    uint16_t t;
+    uint16_t i;
 
     len = setReadPtr(handle, pos, len) - 1;
     _cs = 0;
@@ -679,7 +652,7 @@ uint16_t Enc28j60Eth::chksum(uint16_t sum, memhandle handle, memaddress pos, uin
         t += spdr;
         sum += t;
         if (sum < t) {
-            sum++;  /* carry */
+            sum++; /* carry */
         }
     }
 
@@ -688,7 +661,7 @@ uint16_t Enc28j60Eth::chksum(uint16_t sum, memhandle handle, memaddress pos, uin
         t = (spdr << 8) + 0;
         sum += t;
         if (sum < t) {
-            sum++;  /* carry */
+            sum++; /* carry */
         }
     }
 
@@ -704,8 +677,7 @@ uint16_t Enc28j60Eth::chksum(uint16_t sum, memhandle handle, memaddress pos, uin
  * @param
  * @retval
  */
-void Enc28j60Eth::powerOff()
-{
+void Enc28j60Eth::powerOff() {
     writeOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_RXEN);
     wait_us(50000);
     writeOp(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_VRPS);
@@ -719,8 +691,7 @@ void Enc28j60Eth::powerOff()
  * @param
  * @retval
  */
-void Enc28j60Eth::powerOn()
-{
+void Enc28j60Eth::powerOn() {
     writeOp(ENC28J60_BIT_FIELD_CLR, ECON2, ECON2_PWRSV);
     wait_us(50000);
     writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
@@ -733,7 +704,6 @@ void Enc28j60Eth::powerOn()
  * @param
  * @retval
  */
-bool Enc28j60Eth::linkStatus()
-{
-    return(phyRead(PHSTAT2) & 0x0400) > 0;
+bool Enc28j60Eth::linkStatus() {
+    return (phyRead(PHSTAT2) & 0x0400) > 0;
 }

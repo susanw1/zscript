@@ -101,7 +101,7 @@ public:
     // Return the next byte from the current packet without moving on to the next byte
     int peek();
     // Return the nth byte from the current packet without moving on (peek(0) is the same as peek())
-    int peek(memaddress offset);
+    int peek(memaddress n);
     // Returns the number of characters read, or 0 if none are available
     size_t peek(unsigned char *buffer, size_t len);
 
