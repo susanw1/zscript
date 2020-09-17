@@ -14,6 +14,7 @@ public class RCodeCommandSequence {
     private RCodeCommandSlot last;
     private boolean canBeParallel;
     private boolean isBroadcast;
+    private boolean isRunning;
     private RCodeInStream in = null;
     private RCodeOutStream out = null;
     private RCodeLockSet locks = null;
@@ -68,6 +69,14 @@ public class RCodeCommandSequence {
         return isFullyParsed;
     }
 
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public void setRunning() {
+        this.isRunning = true;
+    }
+
     public void addLast(RCodeCommandSlot slot) {
         if (last != null) {
             last.next = slot;
@@ -117,12 +126,14 @@ public class RCodeCommandSequence {
         first = null;
         isFullyParsed = false;
         locks = null;
+        isRunning = false;
     }
 
     public void fail() {
         for (RCodeCommandSlot current = first.next; current != null; current = current.next) {
             current.reset();
         }
+        isFullyParsed = true;
         if (in != null) {
             in.skipSequence();
         }

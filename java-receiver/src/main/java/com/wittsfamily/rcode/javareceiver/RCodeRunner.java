@@ -21,13 +21,13 @@ public class RCodeRunner {
         RCodeCommandSequence current = null;
         int targetInd = 0;
         for (; targetInd < parallelNum; targetInd++) {
-            if (running[targetInd].peekFirst().isComplete()) {
+            if (running[targetInd].peekFirst() != null && (running[targetInd].peekFirst().isComplete() || !running[targetInd].peekFirst().isStarted())) {
                 current = running[targetInd];
                 break;
             }
         }
-        if (current != null) {
-            if (finishRunning(current, targetInd)) {
+        if (current != null && current.peekFirst().isComplete()) {
+            if (finishRunning(current, targetInd) || current.peekFirst() == null) {
                 current = null;
             }
         }
@@ -40,8 +40,8 @@ public class RCodeRunner {
             if (canBeParallel || parallelNum == 0) {
                 canBeParallel = true;
                 for (int i = 0; i < channels.length; i++) {
-                    if (channels[i].getCommandSequence().isFullyParsed() && !channels[i].getOutStream().isLocked() && channels[i].getCommandSequence().canLock()
-                            && channels[i].getCommandSequence().canBeParallel()) {
+                    if (channels[i].getCommandSequence().isFullyParsed() && channels[i].getCommandSequence().peekFirst() != null && !channels[i].getOutStream().isLocked()
+                            && channels[i].getCommandSequence().canLock() && channels[i].getCommandSequence().canBeParallel()) {
                         current = channels[i].getCommandSequence();
                         targetInd = i;
                         current.lock();
@@ -80,6 +80,7 @@ public class RCodeRunner {
     }
 
     private void runSequence(RCodeCommandSequence target, int targetInd) {
+        target.setRunning();
         RCodeOutStream out = target.getOutStream();
         RCodeCommandSlot cmd = target.peekFirst();
         cmd.getFields().copyFieldTo(out, 'E');
@@ -117,8 +118,8 @@ public class RCodeRunner {
         }
         RCodeCommandSlot slot = target.popFirst();
         slot.reset();
-        if (target.peekFirst() == null) {
-            if (!target.getChannel().isPacketBased() || (target.isFullyParsed() && !target.getChannel().hasCommandSequence())) {
+        if (target.peekFirst() == null && target.isFullyParsed()) {
+            if (!target.getChannel().isPacketBased() || !target.getChannel().hasCommandSequence()) {
                 target.getOutStream().close();
             }
             target.releaseOutStream();

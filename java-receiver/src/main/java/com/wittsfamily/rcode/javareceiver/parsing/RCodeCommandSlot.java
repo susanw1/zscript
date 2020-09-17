@@ -145,7 +145,7 @@ public class RCodeCommandSlot {
         char c;
         eatWhitespace(in);
         if (in.peek() == '#') {
-            if (sequence.peekFirst() == null) {
+            if (sequence.peekFirst() == null && !sequence.isRunning()) {
                 status = RCodeResponseStatus.SKIP_COMMAND;
                 errorMessage = "# found, command sequence is comment";
                 in.closeCommand();
@@ -164,7 +164,7 @@ public class RCodeCommandSlot {
             if (in.hasNext()) {
                 eatWhitespace(in);
             }
-            if (sequence.peekFirst() == null) {
+            if (sequence.peekFirst() == null && !sequence.isRunning()) {
                 sequence.setBroadcast();
             } else {
                 status = RCodeResponseStatus.PARSE_ERROR;
@@ -179,7 +179,7 @@ public class RCodeCommandSlot {
             if (in.hasNext()) {
                 eatWhitespace(in);
             }
-            if (sequence.peekFirst() == null) {
+            if (sequence.peekFirst() == null && !sequence.isRunning()) {
                 sequence.setParallel();
             } else {
                 status = RCodeResponseStatus.PARSE_ERROR;
