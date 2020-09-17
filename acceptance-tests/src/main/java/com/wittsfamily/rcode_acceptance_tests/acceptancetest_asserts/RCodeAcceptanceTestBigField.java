@@ -26,6 +26,9 @@ public class RCodeAcceptanceTestBigField {
     }
 
     public String asString() {
+        if (field.isEmpty()) {
+            return "";
+        }
         if (isString) {
             byte[] data = new byte[field.size()];
             int pos = 0;

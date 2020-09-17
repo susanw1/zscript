@@ -36,6 +36,31 @@ Feature: General parse errors
     Then the target must respond with a PARSE_ERROR status
     
 	@Standard-operation
+  Scenario: the target is given debug info
+    When the target is sent debug info
+    Then the target must not respond
+    
+	@Standard-operation
+  Scenario: the target is given a broadcast command
+    When the target is sent a broadcast command
+    Then the target must respond with a broadcast response
+    
+	@Standard-failure
+  Scenario: the target is given a broadcast command mid sequence
+    When the target is sent a broadcast command mid sequence
+    Then the target must respond with a PARSE_ERROR status after expected fields
+    
+	@Standard-failure
+  Scenario: the target is given debug info mid sequence
+    When the target is sent debug info mid sequence
+    Then the target must respond with a PARSE_ERROR status after expected fields
+    
+	@Standard-failure
+  Scenario: the target is set to parallel mid sequence
+    When the target is set to parallel mid sequence
+    Then the target must respond with a PARSE_ERROR status after expected fields
+    
+	@Standard-operation
   Scenario: the target is given an escaped quote in a string
     When the target is sent an command with an escaped quote in a string
     Then the target must respond with a OK status
