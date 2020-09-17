@@ -1,5 +1,7 @@
 package com.wittsfamily.rcode.javareceiver_acceptancetests;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,8 +65,13 @@ public class LocalTestConnection implements RCodeAcceptanceTestConnection, RCode
             for (Byte b : current) {
                 bytes[i++] = b;
             }
+            try {
             for (Consumer<byte[]> consumer : handlers) {
                 consumer.accept(bytes);
+            }
+            }catch (Exception e) {
+                System.out.println(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(bytes)).toString());
+                e.printStackTrace();
             }
             current.clear();
             isOpen = false;

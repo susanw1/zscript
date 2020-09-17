@@ -36,7 +36,6 @@ public class JavaReceiverCucumberStartup {
             execs = Executors.newSingleThreadExecutor();
             execs.submit(() -> {
                 try {
-                    int i = 0;
                     while (true) {
                         r.progressRCode();
                     }

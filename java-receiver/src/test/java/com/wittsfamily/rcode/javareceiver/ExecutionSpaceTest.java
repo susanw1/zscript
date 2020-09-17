@@ -31,7 +31,7 @@ class ExecutionSpaceTest {
         TestInterruptSource intS = new TestInterruptSource();
         RCode r = new RCode(params, new RCodeBusInterruptSource[] { intS });
         StringOutStream out = new StringOutStream();
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8;R6\nR21G\n", out, false, 100), new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8;R6\nR21G\n", out, false, 10), new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
         r.getSpace().write("R1+10a0;R13A1\nR1+10a1;R11A2\nR33\nR1+10a2;R11A2\n".getBytes(StandardCharsets.US_ASCII), 0, true);
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
@@ -120,7 +120,7 @@ class ExecutionSpaceTest {
         r.getCommandFinder().registerCommand(new RCodeTmp2Command());
         r.getCommandFinder().registerCommand(new RCodeExecutionSpaceCommand(r.getSpace()));
         r.getCommandFinder().registerCommand(new RCodeSetNotificationHostCommand(r));
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             r.progressRCode();
         }
         assertThat(out.getString()).isEqualTo("S;AS\nS\n!Z2;S1;S10\n");

@@ -5,9 +5,6 @@ import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.wittsfamily.rcode.javareceiver.RCode;
-import com.wittsfamily.rcode.javareceiver.RCodeBusInterruptSource;
-import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeActivateCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeEchoCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeTmpCommand;
@@ -37,7 +34,7 @@ class PacketOutTest {
 
     @Test
     void shouldWorkForMultipleCommands() {
-        testCommand("R1EY20;R1H33\nR6;R1B", List.of("ESY20;SH33\nAS;SB\n"), 9);
+        testCommand("R1EY20;R1H33\nR6;R1B", List.of("ESY20;SH33\nAS;SB\n"), 12);
     }
 
 }
