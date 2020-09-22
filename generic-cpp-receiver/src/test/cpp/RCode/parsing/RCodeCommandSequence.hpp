@@ -21,15 +21,18 @@ class RCodeCommandSequence {
 private:
     RCode *rcode;
     RCodeCommandChannel *const channel;
-    bool fullyParsed = false;
     RCodeCommandSlot *first = NULL;
     RCodeCommandSlot *last = NULL;
     bool parallel = false;
     bool broadcast = false;
-    bool running = false;
     RCodeInStream *in = NULL;
     RCodeOutStream *out = NULL;
     RCodeLockSet locks;
+
+    bool fullyParsed = false;
+    bool active = false;
+    bool failed = false;
+
 public:
     RCodeCommandSequence(RCode *rcode, RCodeCommandChannel *channel) :
             rcode(rcode), channel(channel), locks() {
@@ -61,12 +64,27 @@ public:
     bool isFullyParsed() const {
         return fullyParsed;
     }
-    void setRunning() {
-        running = true;
+
+    bool hasParsed() const {
+        return first != NULL;
     }
 
-    bool isRunning() const {
-        return running;
+    void setFailed() {
+        failed = true;
+    }
+    void unsetFailed() {
+        failed = false;
+    }
+    bool hasFailed() const {
+        return failed;
+    }
+
+    void setActive() {
+        active = true;
+    }
+
+    bool isActive() const {
+        return active;
     }
 
     void addLast(RCodeCommandSlot *slot);
@@ -90,9 +108,9 @@ public:
     }
 
     void reset() {
-        running = false;
         broadcast = false;
         parallel = false;
+        active = false;
         last = NULL;
         first = NULL;
         fullyParsed = false;
@@ -106,7 +124,8 @@ public:
     void lock();
 
     void unlock();
-};
+}
+;
 
 #include "RCodeInStream.hpp"
 #include "../RCodeOutStream.hpp"

@@ -6,7 +6,7 @@
  */
 #include "RCodeInStream.hpp"
 
-int16_t RCodeInStream::readInt() {
+int16_t RCodeInStream::readInternal() {
     if (!hasReachedCommandEnd) {
         int16_t prev = current;
         if (sequenceIn->hasNext()) {

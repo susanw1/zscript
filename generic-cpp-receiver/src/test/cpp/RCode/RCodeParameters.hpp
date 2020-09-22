@@ -14,7 +14,7 @@ typedef uint8_t fieldUnit;
 class RCodeParameters {
 public:
     static const int bigFieldLength = 32;
-    static const int bigBigFieldLength = 0;
+    static const int bigBigFieldLength = 1024;
     static const int fieldNum = 20;
     static const int fieldSize = 0;
     static const bool cacheFieldResults = true;

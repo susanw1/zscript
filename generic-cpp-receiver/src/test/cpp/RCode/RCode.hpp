@@ -12,6 +12,7 @@
 #include "parsing/RCodeParser.hpp"
 #include "parsing/RCodeCommandFinder.hpp"
 #include "RCodeRunner.hpp"
+#include "RCodeDebugOutput.hpp"
 
 class RCodeCommandChannel;
 class RCodeLockSet;
@@ -21,17 +22,19 @@ private:
     RCodeParser parser;
     RCodeRunner runner;
     RCodeCommandFinder finder;
+    RCodeDebugOutput debug;
     RCodeCommandChannel **channels = NULL;
     uint8_t channelNum = 0;
 public:
     RCode() :
-            parser(this), runner(this) {
+            parser(this), runner(this), debug() {
     }
     void setChannels(RCodeCommandChannel **channels, uint8_t channelNum) {
         this->channels = channels;
         this->channelNum = channelNum;
     }
     void progressRCode() {
+        debug.attemptFlush();
         parser.parseNext();
         runner.runNext();
     }
@@ -43,6 +46,10 @@ public:
     }
     RCodeCommandFinder* getCommandFinder() {
         return &finder;
+    }
+
+    RCodeDebugOutput* getDebug() {
+        return &debug;
     }
 
     bool canLock(RCodeLockSet *locks) {

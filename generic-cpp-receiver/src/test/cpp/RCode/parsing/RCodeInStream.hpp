@@ -23,23 +23,23 @@ private:
     bool lockVal = false;
     bool currentValid = false;
 
-    int16_t readInt();
+    int16_t readInternal();
 public:
     RCodeInStream(RCodeSequenceInStream *sequenceIn) :
             sequenceIn(sequenceIn) {
     }
 
     char read() {
-        int16_t c = readInt();
+        int16_t c = readInternal();
         if (c == -1) {
-            return (char) readInt();
+            return (char) readInternal();
         }
         return (char) c;
     }
 
     char peek() {
         if (current == -1) {
-            readInt();
+            readInternal();
         }
         return (char) current;
     }

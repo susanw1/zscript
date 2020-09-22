@@ -24,6 +24,7 @@ private:
 
     bool finishRunning(RCodeCommandSequence *target, int targetInd);
 
+    RCodeCommandSequence* findNextToRun();
 public:
     RCodeRunner(RCode *rcode) :
             rcode(rcode) {

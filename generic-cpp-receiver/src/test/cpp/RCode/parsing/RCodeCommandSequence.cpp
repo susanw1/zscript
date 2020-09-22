@@ -59,16 +59,14 @@ RCodeCommandSlot* RCodeCommandSequence::popFirst() {
 }
 
 void RCodeCommandSequence::fail() {
-    for (RCodeCommandSlot *current = first->next; current != NULL; current =
-            current->next) {
+    for (RCodeCommandSlot *current = first; current != NULL;
+            current = current->next) {
         current->reset();
     }
     if (in != NULL) {
         in->skipSequence();
     }
     last = first;
-    first->terminate();
-    first->next = NULL;
     locks.reset();
 }
 bool RCodeCommandSequence::canLock() {

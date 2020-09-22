@@ -1,34 +1,30 @@
 /*
- * RCodeActivateCommand.hpp
+ * RCodeSetDebugChannelCommand.hpp
  *
  *  Created on: 9 Sep 2020
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_RCODE_COMMANDS_RCODEACTIVATECOMMAND_HPP_
-#define SRC_TEST_CPP_RCODE_COMMANDS_RCODEACTIVATECOMMAND_HPP_
+#ifndef SRC_TEST_CPP_RCODE_COMMANDS_RCODESETDEBUGCHANNELCOMMAND_HPP_
+#define SRC_TEST_CPP_RCODE_COMMANDS_RCODESETDEBUGCHANNELCOMMAND_HPP_
 
 #include "../RCodeIncludes.hpp"
 #include "../RCodeParameters.hpp"
 #include "RCodeCommand.hpp"
 
 class RCodeOutStream;
+class RCodeDebugOutput;
+class RCode;
 
-class RCodeActivateCommand: public RCodeCommand {
+class RCodeSetDebugChannelCommand: public RCodeCommand {
 private:
-    static bool activated;
-    const uint8_t code = 0x03;
+    const uint8_t code = 0x09;
+    RCode *const rcode;
 public:
-    static const int MAX_SYSTEM_CODE = 15;
+    RCodeSetDebugChannelCommand(RCode *const rcode) :
+            rcode(rcode) {
 
-    static bool isActivated() {
-        return activated;
     }
-
-    static void reset() {
-        activated = false;
-    }
-
     bool continueLocking(RCodeCommandChannel *c) const {
         return true;
     }
@@ -47,7 +43,7 @@ public:
     }
 
     bool matchesCode(uint8_t code[], uint8_t length) const {
-        return length == 1 && code[0] == RCodeActivateCommand::code;
+        return length == 1 && code[0] == RCodeSetDebugChannelCommand::code;
     }
 
     uint8_t getCodeLength() const {
@@ -59,7 +55,9 @@ public:
     }
 };
 
+#include "../RCode.hpp"
 #include "../RCodeOutStream.hpp"
+#include "../RCodeDebugOutput.hpp"
 #include "../parsing/RCodeCommandSlot.hpp"
 
-#endif /* SRC_TEST_CPP_RCODE_COMMANDS_RCODEACTIVATECOMMAND_HPP_ */
+#endif /* SRC_TEST_CPP_RCODE_COMMANDS_RCODESETDEBUGCHANNELCOMMAND_HPP_ */

@@ -55,9 +55,6 @@ public class RCodeAcceptanceTestAssert extends RCodeAcceptanceTestMessageAssert 
                 c = in.read();
             }
             List<Character> charsDone = new ArrayList<>();
-            if (seq.isEmpty()) {
-                throw new AssertionError("\nResponse received is empty.");
-            }
             for (RCodeAcceptanceTestCondition condition : conditions) {
                 condition.test(seq, charsDone);
             }
