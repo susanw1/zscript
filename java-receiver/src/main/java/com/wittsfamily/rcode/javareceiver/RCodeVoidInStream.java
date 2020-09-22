@@ -6,12 +6,12 @@ import com.wittsfamily.rcode.javareceiver.parsing.RCodeSequenceInStream;
 public class RCodeVoidInStream implements RCodeSequenceInStream {
 
     @Override
-    public char next() {
+    public char nextChar() {
         return 0;
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNextChar() {
         return false;
     }
 

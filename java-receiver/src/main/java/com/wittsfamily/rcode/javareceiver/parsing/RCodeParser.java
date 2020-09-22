@@ -30,18 +30,22 @@ public class RCodeParser {
                 }
             }
             if (targetSlot != null) {
-                if (mostRecent != null && !mostRecent.isFullyParsed()) {
+                if (mostRecent != null && !mostRecent.isFullyParsed() && !mostRecent.hasFailed()) {
                     parse(targetSlot, mostRecent);
                 } else {
+                    if (mostRecent != null) {
+                        mostRecent.unsetFailed();
+                    }
                     mostRecent = null;
                     for (int i = 0; i < rcode.getChannels().length; i++) {
-                        RCodeCommandChannel ch = rcode.getChannels()[i];
-                        if (ch.hasCommandSequence() && ch.getCommandSequence().peekFirst() == null) {
-                            RCodeCommandSequence seq = ch.getCommandSequence();
-                            if (!ch.getInStream().isLocked()) {
+                        RCodeCommandChannel channel = rcode.getChannels()[i];
+                        if (channel.hasCommandSequence() && !channel.getCommandSequence().isActive()) {
+                            RCodeCommandSequence seq = channel.getCommandSequence();
+                            if (!channel.getInStream().isLocked()) {
                                 seq.getInStream().getSequenceIn().openCommandSequence();
                                 mostRecent = seq;
                                 parse(targetSlot, seq);
+                                seq.setActive();
                                 break;
                             }
                         }
@@ -52,7 +56,7 @@ public class RCodeParser {
     }
 
     private void parse(RCodeCommandSlot slot, RCodeCommandSequence sequence) {
-        if (!sequence.getInStream().getSequenceIn().hasNext()) {
+        if (!sequence.getInStream().getSequenceIn().hasNextChar()) {
             sequence.setFullyParsed(true);
             sequence.releaseInStream();
         } else {

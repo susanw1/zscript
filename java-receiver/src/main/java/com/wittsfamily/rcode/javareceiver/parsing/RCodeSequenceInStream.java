@@ -1,9 +1,9 @@
 package com.wittsfamily.rcode.javareceiver.parsing;
 
 public interface RCodeSequenceInStream {
-    char next();
+    char nextChar();
 
-    boolean hasNext();
+    boolean hasNextChar();
 
     RCodeLookaheadStream getLookahead();
 

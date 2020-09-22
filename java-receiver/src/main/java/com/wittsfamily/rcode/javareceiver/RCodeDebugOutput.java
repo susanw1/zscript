@@ -54,6 +54,25 @@ public class RCodeDebugOutput {
         }
     }
 
+    public void attemptFlush() {
+        if (position != 0 && channel != null && channel.getOutStream().lock()) {
+            RCodeOutStream stream = channel.getOutStream();
+            if (stream.mostRecent == this) {
+                if (!stream.isOpen()) {
+                    stream.openDebug(channel);
+                }
+            } else {
+                stream.mostRecent = this;
+                if (stream.isOpen()) {
+                    stream.close();
+                }
+                stream.openDebug(channel);
+            }
+            flushBuffer(channel.getOutStream());
+            stream.unlock();
+        }
+    }
+
     private void flushBuffer(RCodeOutStream stream) {
         int curPos = 0;
         int prevPos = 0;

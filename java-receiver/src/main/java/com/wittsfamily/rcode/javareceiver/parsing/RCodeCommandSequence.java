@@ -9,12 +9,15 @@ public class RCodeCommandSequence {
     private final RCode rcode;
     private final RCodeParameters params;
     private final RCodeCommandChannel channel;
-    private boolean isFullyParsed;
     private RCodeCommandSlot first;
     private RCodeCommandSlot last;
     private boolean canBeParallel;
     private boolean isBroadcast;
-    private boolean isRunning;
+
+    private boolean isFullyParsed;
+    private boolean active;
+    private boolean failed = false;
+
     private RCodeInStream in = null;
     private RCodeOutStream out = null;
     private RCodeLockSet locks = null;
@@ -39,6 +42,14 @@ public class RCodeCommandSequence {
 
     public boolean isBroadcast() {
         return isBroadcast;
+    }
+
+    public boolean hasFailed() {
+        return failed;
+    }
+
+    public void unsetFailed() {
+        this.failed = false;
     }
 
     public void releaseInStream() {
@@ -69,12 +80,12 @@ public class RCodeCommandSequence {
         return isFullyParsed;
     }
 
-    public boolean isRunning() {
-        return isRunning;
+    public boolean isActive() {
+        return active;
     }
 
-    public void setRunning() {
-        this.isRunning = true;
+    public void setActive() {
+        this.active = true;
     }
 
     public void addLast(RCodeCommandSlot slot) {
@@ -119,6 +130,10 @@ public class RCodeCommandSequence {
         canBeParallel = true;
     }
 
+    public boolean hasParsed() {
+        return first != null;
+    }
+
     public void reset() {
         isBroadcast = false;
         canBeParallel = false;
@@ -126,19 +141,18 @@ public class RCodeCommandSequence {
         first = null;
         isFullyParsed = false;
         locks = null;
-        isRunning = false;
+        active = false;
     }
 
     public void fail() {
-        for (RCodeCommandSlot current = first.next; current != null; current = current.next) {
+        for (RCodeCommandSlot current = first; current != null; current = current.next) {
             current.reset();
         }
-        isFullyParsed = true;
         if (in != null) {
             in.skipSequence();
         }
+        failed = true;
         last = first;
-        first.terminate();
         first.next = null;
         locks = null;
     }

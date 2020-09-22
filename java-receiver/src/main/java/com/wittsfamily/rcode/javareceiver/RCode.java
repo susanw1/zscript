@@ -58,6 +58,7 @@ public class RCode {
     }
 
     public void progressRCode() {
+        debug.attemptFlush();
         notificationManager.manageNotifications();
         parser.parseNext();
         runner.runNext();

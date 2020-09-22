@@ -17,16 +17,56 @@ public class RCodeRunner {
         this.running = new RCodeCommandSequence[params.maxParallelRunning];
     }
 
+    private RCodeCommandSequence findNewSequenceToRun() {
+        RCodeCommandSequence current = null;
+        RCodeCommandChannel[] channels = rcode.getChannels();
+        if (canBeParallel || parallelNum == 0) {
+            canBeParallel = true;
+            for (int i = 0; i < channels.length; i++) {
+                if (channels[i].getCommandSequence().isFullyParsed() && !channels[i].getOutStream().isLocked() && channels[i].getCommandSequence().canLock()
+                        && channels[i].getCommandSequence().canBeParallel()) {
+                    current = channels[i].getCommandSequence();
+                    current.lock();
+                    break;
+                }
+            }
+        }
+        if (canBeParallel && current == null && parallelNum == 0) {
+            for (int i = 0; i < channels.length; i++) {
+                if (channels[i].getCommandSequence().isActive() && !channels[i].getOutStream().isLocked()) {
+                    current = channels[i].getCommandSequence();
+                    canBeParallel = false;
+                    break;
+                }
+            }
+        }
+        if (current != null) {
+            RCodeOutStream out = current.getOutStream();
+            if (out.isOpen() && out.mostRecent != current) {
+                out.close();
+            }
+            out.mostRecent = current;
+            if (!out.isOpen()) {
+                out.openResponse(current.getChannel());
+            }
+            if (current.isBroadcast()) {
+                out.markBroadcast();
+            }
+            running[parallelNum++] = current;
+        }
+        return current;
+    }
+
     public void runNext() {
         RCodeCommandSequence current = null;
         int targetInd = 0;
         for (; targetInd < parallelNum; targetInd++) {
-            if (running[targetInd].peekFirst().isComplete()) {
+            if (!running[targetInd].hasParsed() || running[targetInd].peekFirst().isComplete() || !running[targetInd].peekFirst().isStarted()) {
                 current = running[targetInd];
                 break;
             }
         }
-        if (current != null) {
+        if (current != null && (!current.hasParsed() || current.peekFirst().isComplete())) {
             if (finishRunning(current, targetInd)) {
                 current = null;
             }
@@ -36,45 +76,10 @@ public class RCodeRunner {
             canBeParallel = true;
         }
         if (current == null && parallelNum < running.length) {
-            RCodeCommandChannel[] channels = rcode.getChannels();
-            if (canBeParallel || parallelNum == 0) {
-                canBeParallel = true;
-                for (int i = 0; i < channels.length; i++) {
-                    if (channels[i].getCommandSequence().isFullyParsed() && !channels[i].getOutStream().isLocked() && channels[i].getCommandSequence().canLock()
-                            && channels[i].getCommandSequence().canBeParallel()) {
-                        current = channels[i].getCommandSequence();
-                        targetInd = i;
-                        current.lock();
-                        break;
-                    }
-                }
-            }
-            if (canBeParallel && current == null && parallelNum == 0) {
-                for (int i = 0; i < channels.length; i++) {
-                    if (channels[i].getCommandSequence().peekFirst() != null && !channels[i].getOutStream().isLocked()) {
-                        current = channels[i].getCommandSequence();
-                        targetInd = i;
-                        canBeParallel = false;
-                        break;
-                    }
-                }
-            }
-            if (current != null) {
-                RCodeOutStream out = current.getOutStream();
-                if (out.isOpen() && out.mostRecent != current) {
-                    out.close();
-                }
-                out.mostRecent = current;
-                if (!out.isOpen()) {
-                    out.openResponse(current.getChannel());
-                }
-                if (current.isBroadcast()) {
-                    out.markBroadcast();
-                }
-                running[parallelNum++] = current;
-            }
+            targetInd = parallelNum;
+            current = findNewSequenceToRun();
         }
-        if (current != null) {
+        if (current != null && current.hasParsed()) {
             runSequence(current, targetInd);
         }
     }
@@ -107,18 +112,20 @@ public class RCodeRunner {
     }
 
     private boolean finishRunning(RCodeCommandSequence target, int targetInd) {
-        if (target.peekFirst().isStarted()) {
-            target.peekFirst().getCommand().finish(target.peekFirst(), target.getOutStream());
+        if (target.hasParsed()) {
+            if (target.peekFirst().isStarted()) {
+                target.peekFirst().getCommand().finish(target.peekFirst(), target.getOutStream());
+            }
+            if (target.peekFirst().getEnd() == '\n') {
+                target.getOutStream().writeCommandSequenceSeperator();
+            } else {
+                target.getOutStream().writeCommandSeperator();
+            }
+            RCodeCommandSlot slot = target.popFirst();
+            slot.reset();
         }
-        if (target.peekFirst().getEnd() == '\n') {
-            target.getOutStream().writeCommandSequenceSeperator();
-        } else {
-            target.getOutStream().writeCommandSeperator();
-        }
-        RCodeCommandSlot slot = target.popFirst();
-        slot.reset();
-        if (target.peekFirst() == null) {
-            if (!target.getChannel().isPacketBased() || (target.isFullyParsed() && !target.getChannel().hasCommandSequence())) {
+        if (!target.hasParsed() && target.isFullyParsed()) {
+            if (!target.getChannel().isPacketBased() || !target.getChannel().hasCommandSequence()) {
                 target.getOutStream().close();
             }
             target.releaseOutStream();

@@ -15,7 +15,7 @@ public class RCodeQueueSequenceInStream implements RCodeSequenceInStream {
     }
 
     @Override
-    public char next() {
+    public char nextChar() {
         if (!isOpen || messages.isEmpty() || messages.peek().length <= pos || messages.peek()[pos] == '\n') {
             isOpen = false;
             return '\n';
@@ -24,7 +24,7 @@ public class RCodeQueueSequenceInStream implements RCodeSequenceInStream {
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNextChar() {
         return isOpen && !messages.isEmpty() && pos < messages.peek().length && messages.peek()[pos] != '\n';
     }
 

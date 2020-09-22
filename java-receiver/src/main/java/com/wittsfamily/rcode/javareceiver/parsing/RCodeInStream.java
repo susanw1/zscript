@@ -24,8 +24,8 @@ public class RCodeInStream {
     private int readInt() {
         if (!hasReachedCommandEnd) {
             int prev = current;
-            if (sequenceIn.hasNext()) {
-                current = sequenceIn.next();
+            if (sequenceIn.hasNextChar()) {
+                current = sequenceIn.nextChar();
                 currentValid = true;
                 if (current == '\n' || (current == ';' && !isInString)) {
                     hasReachedCommandEnd = true;
@@ -62,7 +62,7 @@ public class RCodeInStream {
     }
 
     public boolean hasNext() {
-        return currentValid || !hasReachedCommandEnd && sequenceIn.hasNext();
+        return currentValid || !hasReachedCommandEnd && sequenceIn.hasNextChar();
     }
 
     public void openCommand() {
@@ -78,7 +78,7 @@ public class RCodeInStream {
             read();
         }
         if (current != '\n' && current != ';') {
-            current = sequenceIn.next();
+            current = sequenceIn.nextChar();
         }
     }
 

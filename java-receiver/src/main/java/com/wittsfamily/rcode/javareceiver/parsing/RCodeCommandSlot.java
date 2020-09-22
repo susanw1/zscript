@@ -10,14 +10,17 @@ public class RCodeCommandSlot {
     private final RCodeFieldMap map;
     private final RCodeBigField big;
     private final RCodeBigField bigBig;
+
     private char end = 0;
     private RCodeResponseStatus status = RCodeResponseStatus.OK;
     private String errorMessage = "";
     private boolean parsed = false;
-    private boolean complete = false;
-    private boolean started = false;
     private boolean isBigBig = false;
+
     private RCodeCommand cmd = null;
+    private boolean started = false;
+    private boolean complete = false;
+
     public RCodeCommandSlot next = null;
 
     public RCodeCommandSlot(RCode rcode, RCodeParameters params, RCodeBigField bigBig) {
@@ -145,7 +148,7 @@ public class RCodeCommandSlot {
         char c;
         eatWhitespace(in);
         if (in.peek() == '#') {
-            if (sequence.peekFirst() == null && !sequence.isRunning()) {
+            if (!sequence.isActive()) {
                 status = RCodeResponseStatus.SKIP_COMMAND;
                 errorMessage = "# found, command sequence is comment";
                 in.closeCommand();
@@ -164,7 +167,7 @@ public class RCodeCommandSlot {
             if (in.hasNext()) {
                 eatWhitespace(in);
             }
-            if (sequence.peekFirst() == null && !sequence.isRunning()) {
+            if (!sequence.isActive()) {
                 sequence.setBroadcast();
             } else {
                 status = RCodeResponseStatus.PARSE_ERROR;
@@ -179,7 +182,7 @@ public class RCodeCommandSlot {
             if (in.hasNext()) {
                 eatWhitespace(in);
             }
-            if (sequence.peekFirst() == null && !sequence.isRunning()) {
+            if (!sequence.isActive()) {
                 sequence.setParallel();
             } else {
                 status = RCodeResponseStatus.PARSE_ERROR;

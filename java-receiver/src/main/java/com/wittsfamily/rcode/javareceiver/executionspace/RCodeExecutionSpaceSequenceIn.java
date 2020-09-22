@@ -30,7 +30,7 @@ public class RCodeExecutionSpaceSequenceIn implements RCodeSequenceInStream {
     }
 
     @Override
-    public char next() {
+    public char nextChar() {
         if (isSequenceOpen) {
             if (pos >= space.getLength() || space.get(pos) == '\n') {
                 isSequenceOpen = false;
@@ -44,7 +44,7 @@ public class RCodeExecutionSpaceSequenceIn implements RCodeSequenceInStream {
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNextChar() {
         return isSequenceOpen || !hasStarted;
     }
 
