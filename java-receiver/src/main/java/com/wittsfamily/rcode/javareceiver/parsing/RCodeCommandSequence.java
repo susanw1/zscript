@@ -144,18 +144,60 @@ public class RCodeCommandSequence {
         active = false;
     }
 
-    public void fail(RCodeResponseStatus status) {
+    public boolean fail(RCodeResponseStatus status) {
         if (status != RCodeResponseStatus.CMD_FAIL) {
-            for (RCodeCommandSlot current = first; current != null; current = current.next) {
+            RCodeCommandSlot next = null;
+            for (RCodeCommandSlot current = first; current != null; current = next) {
+                next = current.next;
                 current.reset();
             }
             if (in != null) {
                 in.skipSequence();
             }
-            failed = true;
+            if (!isFullyParsed) {
+                failed = true;
+                isFullyParsed = true;
+            }
             first = null;
             last = null;
             locks = null;
+            return false;
+        } else {
+            boolean found = false;
+            RCodeCommandSlot next = null;
+            for (RCodeCommandSlot current = first; current != null; current = next) {
+                next = current.next;
+                if (current.getEnd() == '|') {
+                    found = true;
+                }
+                current.reset();
+                if (found) {
+                    first = next;
+                    break;
+                }
+            }
+            if (!found || first == null) {
+                first = null;
+                last = null;
+                if (isFullyParsed) {
+                    locks = null;
+                    return false;
+                } else {
+                    in.skipToError();
+                    if (in.read() == '\n') {
+                        if (!isFullyParsed) {
+                            failed = true;
+                            isFullyParsed = true;
+                        }
+                        locks = null;
+                        return false;
+                    }
+                    return true;
+                }
+            } else {
+                System.out.println("found");
+                return true;
+            }
         }
     }
 

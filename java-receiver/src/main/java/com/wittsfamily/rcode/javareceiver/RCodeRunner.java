@@ -93,6 +93,7 @@ public class RCodeRunner {
         RCodeOutStream out = target.getOutStream();
         RCodeCommandSlot cmd = target.peekFirst();
         cmd.getFields().copyFieldTo(out, 'E');
+
         if (cmd.getStatus() != RCodeResponseStatus.OK) {
             cmd.setComplete(true);
             out.writeStatus(cmd.getStatus());
@@ -125,8 +126,11 @@ public class RCodeRunner {
                 slot.getCommand().finish(slot, target.getOutStream());
             }
             if (slot.getStatus() != RCodeResponseStatus.OK) {
-                target.getOutStream().writeCommandSequenceSeperator();
-                target.fail(slot.getStatus());
+                if (target.fail(slot.getStatus())) {
+                    target.getOutStream().writeCommandSequenceErrorHandler();
+                } else {
+                    target.getOutStream().writeCommandSequenceSeperator();
+                }
             } else if (slot.getEnd() == '\n' || (target.isFullyParsed() && slot.next == null)) {
                 target.getOutStream().writeCommandSequenceSeperator();
             } else {

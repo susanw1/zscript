@@ -116,6 +116,18 @@ public class RCodeInStream {
         }
     }
 
+    public void skipToError() {
+        while (hasNext() || current == '&') {
+            if (current == '&') {
+                openCommand();
+            }
+            read();
+        }
+        if (current != '\n' && current != '&' && current != '|') {
+            current = sequenceIn.nextChar();
+        }
+    }
+
     public void unlock() {
         lock = false;
     }

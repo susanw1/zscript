@@ -16,7 +16,7 @@ public class RCodeParameters {
     public final int executionInNum = 6;
     public final int executionOutNum = 5;
     public final int maxParallelRunning = 3;
-    public final int slotNum = 1;
+    public final int slotNum = 20;
     public final int lockNum = 20;
 
     public final int highestBasicLockNum = 10;
