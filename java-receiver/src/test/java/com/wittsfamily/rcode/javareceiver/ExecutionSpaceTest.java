@@ -31,8 +31,8 @@ class ExecutionSpaceTest {
         TestInterruptSource intS = new TestInterruptSource();
         RCode r = new RCode(params, new RCodeBusInterruptSource[] { intS });
         StringOutStream out = new StringOutStream();
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8;R6\nR21G\n", out, false, 10), new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
-        r.getSpace().write("R1+10a0;R13A1\nR1+10a1;R11A2\nR33\nR1+10a2;R11A2\n".getBytes(StandardCharsets.US_ASCII), 0, true);
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8&R6\nR21G\n", out, false, 10), new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
+        r.getSpace().write("R1+10a0&R13A1\nR1+10a1&R11A2\nR33\nR1+10a2&R11A2\n".getBytes(StandardCharsets.US_ASCII), 0, true);
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
         r.getCommandFinder().registerCommand(new RCodeTmpCommand());
@@ -42,7 +42,7 @@ class ExecutionSpaceTest {
         for (int i = 0; i < 40; i++) {
             r.progressRCode();
         }
-        assertThat(out.getString()).isEqualTo("S;AS\nS\n!Z2S+10a1;S10A2\n!Z2S4\"Command not known\"\n");
+        assertThat(out.getString()).isEqualTo("S&AS\nS\n!Z2S+10a1&S10A2\n!Z2S4\"Command not known\"\n");
     }
 
     @Test
@@ -51,8 +51,8 @@ class ExecutionSpaceTest {
         TestInterruptSource intS = new TestInterruptSource();
         RCode r = new RCode(params, new RCodeBusInterruptSource[] { intS });
         StringOutStream out = new StringOutStream();
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8;R6\nR21\n", out, false, 100), new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
-        r.getSpace().write("R1+10a0;R13A1\nR1+10a1;R11A2\nR33\nR1+10a2;R11A2\n".getBytes(StandardCharsets.US_ASCII), 0, true);
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8&R6\nR21\n", out, false, 10), new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
+        r.getSpace().write("R1+10a0&R13A1\nR1+10a1&R11A2\nR33\nR1+10a2&R11A2\n".getBytes(StandardCharsets.US_ASCII), 0, true);
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
         r.getCommandFinder().registerCommand(new RCodeTmpCommand());
@@ -62,7 +62,7 @@ class ExecutionSpaceTest {
         for (int i = 0; i < 40; i++) {
             r.progressRCode();
         }
-        assertThat(out.getString()).isEqualTo("S;AS\nS\n");
+        assertThat(out.getString()).isEqualTo("S&AS\nS\n");
     }
 
     @Test
@@ -71,9 +71,9 @@ class ExecutionSpaceTest {
         TestInterruptSource intS = new TestInterruptSource();
         RCode r = new RCode(params, new RCodeBusInterruptSource[] { intS });
         StringOutStream out = new StringOutStream();
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8;R6\nR21G\nR1+00\nR1+01\nR1+02", out, false, 100),
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8&R6\nR21G\nR1+00\nR1+01\nR1+02", out, false, 40),
                 new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
-        r.getSpace().write("R11A2\nR11A3\nR11A4\nR11A5\nR1+10;R21\n".getBytes(StandardCharsets.US_ASCII), 0, true);
+        r.getSpace().write("R11A2\nR11A3\nR11A4\nR11A5\nR1+10&R21\n".getBytes(StandardCharsets.US_ASCII), 0, true);
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
         r.getCommandFinder().registerCommand(new RCodeTmpCommand());
@@ -83,7 +83,7 @@ class ExecutionSpaceTest {
         for (int i = 0; i < 100; i++) {
             r.progressRCode();
         }
-        assertThat(out.getString()).isEqualTo("S;AS\nS\n!Z2S10A2\nS+00\n!Z2S10A3\nS+01\n!Z2S10A4\nS+02\n!Z2S10A5\n");
+        assertThat(out.getString()).isEqualTo("S&AS\nS\n!Z2S10A2\nS+00\n!Z2S10A3\nS+01\n!Z2S10A4\nS+02\n!Z2S10A5\n");
     }
 
     @Test
@@ -92,18 +92,18 @@ class ExecutionSpaceTest {
         TestInterruptSource intS = new TestInterruptSource();
         RCode r = new RCode(params, new RCodeBusInterruptSource[] { intS });
         StringOutStream out = new StringOutStream();
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8;R6\nR21G\n", out, false, 100), new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
-        r.getSpace().write("R1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa\";R1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa\";R11A7\n".getBytes(StandardCharsets.US_ASCII), 0, true);
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8&R6\nR21G\n", out, false, 12), new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
+        r.getSpace().write("R1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&R1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&R11A7\n".getBytes(StandardCharsets.US_ASCII), 0, true);
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
         r.getCommandFinder().registerCommand(new RCodeTmpCommand());
         r.getCommandFinder().registerCommand(new RCodeTmp2Command());
         r.getCommandFinder().registerCommand(new RCodeExecutionSpaceCommand(r.getSpace()));
         r.getCommandFinder().registerCommand(new RCodeSetNotificationHostCommand(r));
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 15; i++) {
             r.progressRCode();
         }
-        assertThat(out.getString()).isEqualTo("S;AS\nS\n!Z2S\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa\";S1;S10\n");
+        assertThat(out.getString()).isEqualTo("S&AS\nS\n!Z2S\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&S1&S10\n");
     }
 
     @Test
@@ -112,18 +112,18 @@ class ExecutionSpaceTest {
         TestInterruptSource intS = new TestInterruptSource();
         RCode r = new RCode(params, new RCodeBusInterruptSource[] { intS });
         StringOutStream out = new StringOutStream();
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8;R6\nR21G\n", out, false, 100), new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
-        r.getSpace().write("R1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\";R11A7\n".getBytes(StandardCharsets.US_ASCII), 0, true);
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8&R6\nR21G\n", out, false, 12), new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
+        r.getSpace().write("R1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&R11A7\n".getBytes(StandardCharsets.US_ASCII), 0, true);
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
         r.getCommandFinder().registerCommand(new RCodeTmpCommand());
         r.getCommandFinder().registerCommand(new RCodeTmp2Command());
         r.getCommandFinder().registerCommand(new RCodeExecutionSpaceCommand(r.getSpace()));
         r.getCommandFinder().registerCommand(new RCodeSetNotificationHostCommand(r));
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 12; i++) {
             r.progressRCode();
         }
-        assertThat(out.getString()).isEqualTo("S;AS\nS\n!Z2;S1;S10\n");
+        assertThat(out.getString()).isEqualTo("S&AS\nS\n!Z2&S1&S10\n");
     }
 
 }

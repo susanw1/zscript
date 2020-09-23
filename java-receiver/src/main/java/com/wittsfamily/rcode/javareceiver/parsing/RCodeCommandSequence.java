@@ -4,6 +4,7 @@ import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
+import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
 
 public class RCodeCommandSequence {
     private final RCode rcode;
@@ -17,6 +18,7 @@ public class RCodeCommandSequence {
     private boolean isFullyParsed;
     private boolean active;
     private boolean failed = false;
+    private boolean empty = false;
 
     private RCodeInStream in = null;
     private RCodeOutStream out = null;
@@ -44,6 +46,10 @@ public class RCodeCommandSequence {
         return isBroadcast;
     }
 
+    public boolean isEmpty() {
+        return empty;
+    }
+
     public boolean hasFailed() {
         return failed;
     }
@@ -53,7 +59,9 @@ public class RCodeCommandSequence {
     }
 
     public void releaseInStream() {
-        in.unlock();
+        if (in != null) {
+            in.unlock();
+        }
         channel.releaseInStream();
         in = null;
     }
@@ -122,14 +130,6 @@ public class RCodeCommandSequence {
         return channel;
     }
 
-    public void setBroadcast() {
-        isBroadcast = true;
-    }
-
-    public void setParallel() {
-        canBeParallel = true;
-    }
-
     public boolean hasParsed() {
         return first != null;
     }
@@ -144,17 +144,19 @@ public class RCodeCommandSequence {
         active = false;
     }
 
-    public void fail() {
-        for (RCodeCommandSlot current = first; current != null; current = current.next) {
-            current.reset();
+    public void fail(RCodeResponseStatus status) {
+        if (status != RCodeResponseStatus.CMD_FAIL) {
+            for (RCodeCommandSlot current = first; current != null; current = current.next) {
+                current.reset();
+            }
+            if (in != null) {
+                in.skipSequence();
+            }
+            failed = true;
+            first = null;
+            last = null;
+            locks = null;
         }
-        if (in != null) {
-            in.skipSequence();
-        }
-        failed = true;
-        last = first;
-        first.next = null;
-        locks = null;
     }
 
     public boolean canLock() {
@@ -165,7 +167,6 @@ public class RCodeCommandSequence {
                     slot.getCommand().setLocks(locks);
                 }
             }
-            channel.setLocks(locks);
         }
         return rcode.canLock(locks);
     }
@@ -176,7 +177,6 @@ public class RCodeCommandSequence {
             for (RCodeCommandSlot slot = first; slot != null; slot = slot.next) {
                 slot.getCommand().setLocks(locks);
             }
-            channel.setLocks(locks);
         }
         rcode.lock(locks);
     }
@@ -186,5 +186,38 @@ public class RCodeCommandSequence {
             rcode.unlock(locks);
             locks = null;
         }
+    }
+
+    public boolean parseFlags() {
+        in.openCommand();
+        if (RCodeParser.shouldEatWhitespace(in)) {
+            RCodeParser.eatWhitespace(in);
+        }
+        if (in.peek() == '#') {
+            in.skipSequence();
+            return false;
+        }
+        if (in.peek() == '*') {
+            in.read();
+            isBroadcast = true;
+            if (RCodeParser.shouldEatWhitespace(in)) {
+                RCodeParser.eatWhitespace(in);
+            }
+        }
+        if (in.peek() == '%') {
+            in.read();
+            canBeParallel = true;
+            if (RCodeParser.shouldEatWhitespace(in)) {
+                RCodeParser.eatWhitespace(in);
+            }
+        }
+        if (!in.getSequenceIn().hasNextChar()) {
+            empty = true;
+            canBeParallel = true;
+            isFullyParsed = true;
+        }
+
+        in.unOpen();
+        return true;
     }
 }

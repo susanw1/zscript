@@ -72,6 +72,11 @@ public class RCodeInterruptVectorOut extends RCodeOutStream {
     }
 
     @Override
+    public RCodeOutStream writeCommandSequenceErrorHandler() {
+        return out.writeCommandSequenceErrorHandler();
+    }
+
+    @Override
     public void openResponse(RCodeCommandChannel target) {
         RCodeInterruptVectorChannel channel = (RCodeInterruptVectorChannel) target;
         if (out.isOpen()) {

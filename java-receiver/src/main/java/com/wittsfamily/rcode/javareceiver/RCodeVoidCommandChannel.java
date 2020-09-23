@@ -56,7 +56,16 @@ public class RCodeVoidCommandChannel implements RCodeCommandChannel {
     }
 
     @Override
-    public void setLocks(RCodeLockSet locks) {
+    public void lock() {
+    }
+
+    @Override
+    public boolean canLock() {
+        return true;
+    }
+
+    @Override
+    public void unlock() {
     }
 
 }

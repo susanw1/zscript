@@ -57,11 +57,11 @@ public class RCodeExecutionSpaceSequenceIn implements RCodeSequenceInStream {
             @Override
             public char read() {
                 if (stillInSequence) {
-                    if (pos - 1 + offset >= space.getLength() || space.get(pos - 1 + offset) == '\n') {
+                    if (pos + offset >= space.getLength() || space.get(pos + offset) == '\n') {
                         stillInSequence = false;
                         return '\n';
                     } else {
-                        return (char) space.get(pos - 1 + offset++);
+                        return (char) space.get(pos + offset++);
                     }
                 } else {
                     return '\n';

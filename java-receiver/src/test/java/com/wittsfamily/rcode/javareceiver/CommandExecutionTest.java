@@ -19,15 +19,9 @@ class CommandExecutionTest {
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
         r.getCommandFinder().registerCommand(new RCodeTmpCommand());
-        r.progressRCode();
-        r.progressRCode();
-        r.progressRCode();
-        r.progressRCode();
-        r.progressRCode();
-        r.progressRCode();
-        r.progressRCode();
-        r.progressRCode();
-        r.progressRCode();
+        for (int i = 0; i < 40; i++) {
+            r.progressRCode();
+        }
         Assertions.assertThat(out.getString()).isEqualTo(output);
     }
 
@@ -38,7 +32,7 @@ class CommandExecutionTest {
 
     @Test
     void shouldWorkForBasicEchoAndActivateCommand() {
-        testCommand("R1E0020000Y72Z00X0G\"aaaaaaaaaaaa\";R6", "E20000SY72ZXG\"aaaaaaaaaaaa\";AS\n", 3);
+        testCommand("R1E0020000Y72Z00X0G\"aaaaaaaaaaaa\"&R6", "E20000SY72ZXG\"aaaaaaaaaaaa\"&AS\n", 3);
     }
 
     @Test
@@ -76,7 +70,7 @@ class CommandExecutionTest {
 
     @Test
     void shouldAllowActivation() {
-        testCommand("R6;R13+101011", "AS;S+101011\n", 3);
+        testCommand("R6&R13+101011", "AS&S+101011\n", 3);
     }
 
     @Test
@@ -86,7 +80,7 @@ class CommandExecutionTest {
 
     @Test
     void shouldAbortSequenceOnError() {
-        testCommand("R7;R13+101011", "S4\"Command not known\"\n", 3);
+        testCommand("R7&R13+101011", "S4\"Command not known\"\n", 3);
     }
 
     @Test
@@ -96,7 +90,7 @@ class CommandExecutionTest {
 
     @Test
     void shouldAbortCurrentAndContinueNextSequenceOnError() {
-        testCommand("R7;R1+aaa\nR1+101011", "S4\"Command not known\"\nS+101011\n", 15);
+        testCommand("R7&R1+aaa\nR1+101011", "S4\"Command not known\"\nS+101011\n", 15);
     }
 
     @Test
@@ -116,7 +110,7 @@ class CommandExecutionTest {
 
     @Test
     void shouldFailBroadcastAtOtherPoint() {
-        testCommand("R6;*R1+11", "AS;S3\"* only valid on first command of sequence\"\n", 3);
+        testCommand("R6&*R1+11", "AS&S3\"* only valid on first command of sequence\"\n", 3);
     }
 
     @Test
@@ -126,7 +120,7 @@ class CommandExecutionTest {
 
     @Test
     void shouldFailParallelAtOtherPoint() {
-        testCommand("R6;%R1+11", "AS;S3\"% only valid on first command of sequence\"\n", 3);
+        testCommand("R6&%R1+11", "AS&S3\"% only valid on first command of sequence\"\n", 3);
     }
 
     @Test

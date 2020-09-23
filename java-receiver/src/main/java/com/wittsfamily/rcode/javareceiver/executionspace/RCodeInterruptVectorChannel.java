@@ -10,16 +10,20 @@ import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeInStream;
 
 public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
+    private final RCode rcode;
     private final RCodeExecutionSpace space;
     private final RCodeInterruptVectorManager vectorManager;
     private final RCodeCommandSequence sequence;
     private RCodeBusInterrupt interrupt = null;
     private RCodeInStream in = null;
+    private RCodeLockSet locks;
 
     public RCodeInterruptVectorChannel(RCodeExecutionSpace space, RCodeInterruptVectorManager vectorManager, RCode r, RCodeParameters params) {
+        this.rcode = r;
         this.space = space;
         this.vectorManager = vectorManager;
         this.sequence = new RCodeCommandSequence(r, params, this);
+        this.locks = new RCodeLockSet(params);
     }
 
     @Override
@@ -55,7 +59,9 @@ public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
 
     @Override
     public void releaseInStream() {
-        space.releaseInStream((RCodeExecutionSpaceSequenceIn) in.getSequenceIn());
+        if (in != null) {
+            space.releaseInStream((RCodeExecutionSpaceSequenceIn) in.getSequenceIn());
+        }
         in = null;
     }
 
@@ -89,8 +95,17 @@ public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
     }
 
     @Override
-    public void setLocks(RCodeLockSet locks) {
-        // TODO Auto-generated method stub
+    public void lock() {
+        rcode.lock(locks);
+    }
 
+    @Override
+    public boolean canLock() {
+        return rcode.canLock(locks);
+    }
+
+    @Override
+    public void unlock() {
+        rcode.unlock(locks);
     }
 }

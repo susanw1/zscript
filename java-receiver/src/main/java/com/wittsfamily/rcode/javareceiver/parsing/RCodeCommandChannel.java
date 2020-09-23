@@ -1,6 +1,5 @@
 package com.wittsfamily.rcode.javareceiver.parsing;
 
-import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 
 public interface RCodeCommandChannel {
@@ -26,5 +25,9 @@ public interface RCodeCommandChannel {
 
     void releaseFromDebugChannel();
 
-    void setLocks(RCodeLockSet locks);
+    void lock();
+
+    boolean canLock();
+
+    void unlock();
 }

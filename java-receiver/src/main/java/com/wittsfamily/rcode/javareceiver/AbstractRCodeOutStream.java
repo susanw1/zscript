@@ -91,7 +91,13 @@ public abstract class AbstractRCodeOutStream extends RCodeOutStream {
 
     @Override
     public RCodeOutStream writeCommandSeperator() {
-        writeByte((byte) ';');
+        writeByte((byte) '&');
+        return this;
+    }
+
+    @Override
+    public RCodeOutStream writeCommandSequenceErrorHandler() {
+        writeByte((byte) '|');
         return this;
     }
 

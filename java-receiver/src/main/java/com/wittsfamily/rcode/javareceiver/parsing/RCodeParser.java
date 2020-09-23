@@ -2,7 +2,6 @@ package com.wittsfamily.rcode.javareceiver.parsing;
 
 import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
-import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
 
 public class RCodeParser {
     private final RCode rcode;
@@ -20,6 +19,23 @@ public class RCodeParser {
         }
     }
 
+    public static void eatWhitespace(RCodeInStream in) {
+        char c = in.peek();
+        while (in.hasNext() && (c == ' ' || c == '\t' || c == '\r')) {
+            in.read();
+            c = in.peek();
+        }
+    }
+
+    public static boolean shouldEatWhitespace(RCodeInStream in) {
+        RCodeLookaheadStream l = in.getLookahead();
+        char c = l.read();
+        while (c == ' ' || c == '\t' || c == '\r') {
+            c = l.read();
+        }
+        return c != '&';
+    }
+
     public void parseNext() {
         RCodeCommandSlot targetSlot = null;
         if (bigBig.getLength() == 0) {
@@ -30,22 +46,33 @@ public class RCodeParser {
                 }
             }
             if (targetSlot != null) {
-                if (mostRecent != null && !mostRecent.isFullyParsed() && !mostRecent.hasFailed()) {
+                if (mostRecent != null && mostRecent.isActive() && !mostRecent.isFullyParsed() && !mostRecent.hasFailed()) {
                     parse(targetSlot, mostRecent);
                 } else {
                     if (mostRecent != null) {
                         mostRecent.unsetFailed();
+                        mostRecent.releaseInStream();
+                        mostRecent.getChannel().unlock();
                     }
                     mostRecent = null;
                     for (int i = 0; i < rcode.getChannels().length; i++) {
                         RCodeCommandChannel channel = rcode.getChannels()[i];
-                        if (channel.hasCommandSequence() && !channel.getCommandSequence().isActive()) {
+                        if (channel.canLock() && channel.hasCommandSequence() && !channel.getCommandSequence().isActive()) {
                             RCodeCommandSequence seq = channel.getCommandSequence();
                             if (!channel.getInStream().isLocked()) {
+                                channel.lock();
                                 seq.getInStream().getSequenceIn().openCommandSequence();
-                                mostRecent = seq;
-                                parse(targetSlot, seq);
-                                seq.setActive();
+                                if (seq.parseFlags()) {
+                                    if (seq.isFullyParsed()) {
+                                        channel.unlock();
+                                        seq.setActive();
+                                        seq.releaseInStream();
+                                    } else {
+                                        mostRecent = seq;
+                                        parse(targetSlot, seq);
+                                        seq.setActive();
+                                    }
+                                }
                                 break;
                             }
                         }
@@ -56,24 +83,19 @@ public class RCodeParser {
     }
 
     private void parse(RCodeCommandSlot slot, RCodeCommandSequence sequence) {
-        if (!sequence.getInStream().getSequenceIn().hasNextChar()) {
+        boolean worked = slot.parseSingleCommand(sequence.getInStream(), sequence);
+        if (!worked) {
+            sequence.addLast(slot);
+            sequence.getInStream().skipSequence();
             sequence.setFullyParsed(true);
             sequence.releaseInStream();
+            sequence.getChannel().unlock();
         } else {
-            boolean worked = slot.parseSingleCommand(sequence.getInStream(), sequence);
-            if (!worked) {
-                if (slot.getStatus() != RCodeResponseStatus.SKIP_COMMAND) {
-                    sequence.addLast(slot);
-                }
-                sequence.getInStream().skipSequence();
+            sequence.addLast(slot);
+            if (slot.getEnd() == '\n') {
                 sequence.setFullyParsed(true);
                 sequence.releaseInStream();
-            } else {
-                sequence.addLast(slot);
-                if (slot.getEnd() == '\n' || !slot.getCommand().continueLocking(sequence.getChannel())) {
-                    sequence.setFullyParsed(true);
-                    sequence.releaseInStream();
-                }
+                sequence.getChannel().unlock();
             }
         }
     }

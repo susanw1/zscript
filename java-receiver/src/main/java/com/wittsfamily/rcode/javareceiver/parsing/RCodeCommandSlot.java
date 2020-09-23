@@ -4,6 +4,7 @@ import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeCommand;
+import com.wittsfamily.rcode.javareceiver.commands.RCodeCommandExecutionData;
 
 public class RCodeCommandSlot {
     private final RCode rcode;
@@ -21,6 +22,7 @@ public class RCodeCommandSlot {
     private boolean started = false;
     private boolean complete = false;
 
+    public RCodeCommandExecutionData commandExecutionData = null;
     public RCodeCommandSlot next = null;
 
     public RCodeCommandSlot(RCode rcode, RCodeParameters params, RCodeBigField bigBig) {
@@ -43,6 +45,7 @@ public class RCodeCommandSlot {
             isBigBig = false;
         }
         cmd = null;
+        commandExecutionData = null;
     }
 
     public void start() {
@@ -63,14 +66,6 @@ public class RCodeCommandSlot {
 
     public void setComplete(boolean complete) {
         this.complete = complete;
-    }
-
-    private void eatWhitespace(RCodeInStream in) {
-        char c = in.peek();
-        while (in.hasNext() && (c == ' ' || c == '\t' || c == '\r')) {
-            in.read();
-            c = in.peek();
-        }
     }
 
     public RCodeFieldMap getFields() {
@@ -145,57 +140,19 @@ public class RCodeCommandSlot {
         RCodeBigField target = big;
         in.openCommand();
         reset();
+        RCodeParser.eatWhitespace(in);
+        if (!in.hasNext()) {
+            status = RCodeResponseStatus.PARSE_ERROR;
+            errorMessage = "No command present";
+            in.closeCommand();
+            end = '\n';
+            return false;
+        }
         char c;
-        eatWhitespace(in);
-        if (in.peek() == '#') {
-            if (!sequence.isActive()) {
-                status = RCodeResponseStatus.SKIP_COMMAND;
-                errorMessage = "# found, command sequence is comment";
-                in.closeCommand();
-                end = '\n';
-                return false;
-            } else {
-                status = RCodeResponseStatus.PARSE_ERROR;
-                errorMessage = "# only valid on first command of sequence";
-                in.closeCommand();
-                end = '\n';
-                return false;
-            }
-        }
-        if (in.peek() == '*') {
-            in.read();
-            if (in.hasNext()) {
-                eatWhitespace(in);
-            }
-            if (!sequence.isActive()) {
-                sequence.setBroadcast();
-            } else {
-                status = RCodeResponseStatus.PARSE_ERROR;
-                errorMessage = "* only valid on first command of sequence";
-                in.closeCommand();
-                end = '\n';
-                return false;
-            }
-        }
-        if (in.peek() == '%') {
-            in.read();
-            if (in.hasNext()) {
-                eatWhitespace(in);
-            }
-            if (!sequence.isActive()) {
-                sequence.setParallel();
-            } else {
-                status = RCodeResponseStatus.PARSE_ERROR;
-                errorMessage = "% only valid on first command of sequence";
-                in.closeCommand();
-                end = '\n';
-                return false;
-            }
-        }
         parsed = true;
         while (true) {
             if (in.hasNext()) {
-                eatWhitespace(in);
+                RCodeParser.eatWhitespace(in);
             }
             if (in.hasNext()) {
                 c = in.read();
@@ -332,5 +289,11 @@ public class RCodeCommandSlot {
 
     public String getErrorMessage() {
         return errorMessage;
+    }
+
+    public void fail(String errorMessage, RCodeResponseStatus status) {
+        this.errorMessage = errorMessage;
+        this.status = status;
+        this.end = '\n';
     }
 }

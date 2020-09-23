@@ -16,6 +16,7 @@ public class StringInStream implements RCodeSequenceInStream {
     @Override
     public char nextChar() {
         if (pos >= s.length()) {
+            pos++;
             return '\n';
         }
         return s.charAt(pos++);
@@ -23,7 +24,7 @@ public class StringInStream implements RCodeSequenceInStream {
 
     @Override
     public boolean hasNextChar() {
-        return pos < s.length();
+        return pos <= s.length();
     }
 
     @Override
@@ -33,10 +34,10 @@ public class StringInStream implements RCodeSequenceInStream {
 
             @Override
             public char read() {
-                if (pos - 1 + offset >= s.length()) {
+                if (pos + offset >= s.length()) {
                     return '\n';
                 }
-                return s.charAt(pos - 1 + offset++);
+                return s.charAt(pos + offset++);
             }
         };
     }
@@ -57,9 +58,6 @@ public class StringInStream implements RCodeSequenceInStream {
         if (isOpen) {
             isOpen = false;
             while (pos < s.length() && s.charAt(pos) != '\n') {
-                if (s.charAt(pos) == 'C') {
-                    int a = 1 / 0;
-                }
                 pos++;
             }
             pos++;

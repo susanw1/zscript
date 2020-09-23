@@ -4,7 +4,6 @@ import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
 import com.wittsfamily.rcode.javareceiver.executionspace.RCodeExecutionSpace;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSlot;
 
@@ -13,11 +12,6 @@ public class RCodeExecutionSpaceCommand implements RCodeCommand {
 
     public RCodeExecutionSpaceCommand(RCodeExecutionSpace space) {
         this.space = space;
-    }
-
-    @Override
-    public boolean continueLocking(RCodeCommandChannel c) {
-        return true;
     }
 
     @Override

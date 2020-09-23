@@ -38,9 +38,9 @@ class InterruptVectorTest {
         intVect.getVectorMap().setVector((byte) 0x01, (byte) 0x03, (byte) 0x04, true, 0);
         intVect.getVectorMap().setVector((byte) 0x01, (byte) 0x03, (byte) 0x05, false, 8);
         intVect.getVectorMap().setVector((byte) 0x04, 22);
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8;R6", out, false, 1), new RCodeInterruptVectorChannel(r.getSpace(), intVect, r, params) });
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8&R6", out, false, 1), new RCodeInterruptVectorChannel(r.getSpace(), intVect, r, params) });
         r.getSpace().setRunning(true);
-        r.getSpace().write("R1+10a0;R13A1\nR1+10a0;R11A2\nR33".getBytes(StandardCharsets.US_ASCII), 0, true);
+        r.getSpace().write("R1+10a0&R13A1\nR1+10a0&R11A2\nR33".getBytes(StandardCharsets.US_ASCII), 0, true);
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
         r.getCommandFinder().registerCommand(new RCodeTmpCommand());
@@ -79,7 +79,7 @@ class InterruptVectorTest {
             r.progressRCode();
         }
         assertThat(out.getString()).isEqualTo(
-                "S;AS\n!Z1A1T1I3S;A4S;S+10a0;SA1\n!Z1A1T1I3S;A6S;SA1\n!Z1A1T1I5S;A4S;S+10a0;S10A2\n!Z1A1T4I3S;A4S;S10A2\n!Z1A1T8I3S;A4S\n!Z1A1T8I3S;AS10\n!Z1A1T8I3S;A4S;S4\"Command not known\"\n");
+                "S&AS\n!Z1A1T1I3S&A4S&S+10a0&SA1\n!Z1A1T1I3S&A6S&SA1\n!Z1A1T1I5S&A4S&S+10a0&S10A2\n!Z1A1T4I3S&A4S&S10A2\n!Z1A1T8I3S&A4S\n!Z1A1T8I3S&AS10\n!Z1A1T8I3S&A4S&S4\"Command not known\"\n");
 
     }
 

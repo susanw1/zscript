@@ -3,16 +3,10 @@ package com.wittsfamily.rcode.javareceiver.commands;
 import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSlot;
 
 public class RCodeTmp2Command implements RCodeCommand {
-    @Override
-    public boolean continueLocking(RCodeCommandChannel c) {
-        return true;
-    }
-
     @Override
     public void finish(RCodeCommandSlot rCodeCommandSlot, RCodeOutStream out) {
     }
@@ -22,6 +16,7 @@ public class RCodeTmp2Command implements RCodeCommand {
         out.writeStatus(RCodeResponseStatus.CMD_FAIL);
         slot.getFields().copyTo(out);
         slot.getBigField().copyTo(out);
+        slot.fail("", RCodeResponseStatus.CMD_FAIL);
         slot.setComplete(true);
     }
 

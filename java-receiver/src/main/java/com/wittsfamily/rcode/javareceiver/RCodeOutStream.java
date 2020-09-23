@@ -45,6 +45,8 @@ public abstract class RCodeOutStream {
 
     public abstract RCodeOutStream writeCommandSequenceSeperator();
 
+    public abstract RCodeOutStream writeCommandSequenceErrorHandler();
+
     public abstract void openResponse(RCodeCommandChannel target);
 
     public abstract void openNotification(RCodeCommandChannel target);

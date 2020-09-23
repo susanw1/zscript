@@ -1,7 +1,6 @@
 package com.wittsfamily.rcode.javareceiver.test;
 
 import com.wittsfamily.rcode.javareceiver.RCode;
-import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
@@ -76,8 +75,16 @@ public class DirectCommandChannel implements RCodeCommandChannel {
     }
 
     @Override
-    public void setLocks(RCodeLockSet locks) {
+    public void lock() {
+    }
 
+    @Override
+    public boolean canLock() {
+        return true;
+    }
+
+    @Override
+    public void unlock() {
     }
 
 }

@@ -4,9 +4,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.wittsfamily.rcode.javareceiver.RCode;
-import com.wittsfamily.rcode.javareceiver.RCodeBusInterruptSource;
-import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeActivateCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeEchoCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeSetNotificationHostCommand;
@@ -46,7 +43,7 @@ class BusInterruptNotificationTest {
         r.progressRCode();
         r.progressRCode();
         r.progressRCode();
-        Assertions.assertThat(out.getString()).isEqualTo("S\n!Z1A1T3I5S;A2S\n");
+        Assertions.assertThat(out.getString()).isEqualTo("S\n!Z1A1T3I5S&A2S\n");
     }
 
     @Test
@@ -71,7 +68,7 @@ class BusInterruptNotificationTest {
         r.progressRCode();
         r.progressRCode();
         r.progressRCode();
-        Assertions.assertThat(out.getString()).isEqualTo("S\n!Z1A1T11I41S;AS10\n");
+        Assertions.assertThat(out.getString()).isEqualTo("S\n!Z1A1T11I41S&AS10\n");
     }
 
     @Test
@@ -96,7 +93,7 @@ class BusInterruptNotificationTest {
         r.progressRCode();
         r.progressRCode();
         r.progressRCode();
-        Assertions.assertThat(out.getString()).isEqualTo("S\nSA11+0100\n!Z1A1T11I41S;AS10\n");
+        Assertions.assertThat(out.getString()).isEqualTo("S\nSA11+0100\n!Z1A1T11I41S&AS10\n");
     }
 
     @Test
@@ -121,7 +118,7 @@ class BusInterruptNotificationTest {
         r.progressRCode();
         r.progressRCode();
         r.progressRCode();
-        Assertions.assertThat(out.getString()).isEqualTo("S\n!Z1A1T11I41S;AS10\nSA11+0100\n");
+        Assertions.assertThat(out.getString()).isEqualTo("S\n!Z1A1T11I41S&AS10\nSA11+0100\n");
     }
 
     @Test
@@ -147,7 +144,7 @@ class BusInterruptNotificationTest {
         r.progressRCode();
         r.progressRCode();
         r.progressRCode();
-        Assertions.assertThat(out.getString()).isEqualTo("S\n!Z1A1T11I41S;AS10\n!Z1A1T31IS;A50S\n");
+        Assertions.assertThat(out.getString()).isEqualTo("S\n!Z1A1T11I41S&AS10\n!Z1A1T31IS&A50S\n");
     }
 
     @Test

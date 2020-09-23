@@ -9,13 +9,17 @@ import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeInStream;
 
 public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
+    private final RCode rcode;
     private final RCodeExecutionSpace space;
     private final RCodeCommandSequence sequence;
     private int position = 0;
     private RCodeInStream in = null;
     private RCodeOutStream out = null;
+    private RCodeLockSet locks;
 
     public RCodeExecutionSpaceChannel(RCodeParameters params, RCode rcode, RCodeExecutionSpace space) {
+        this.locks = new RCodeLockSet(params);
+        this.rcode = rcode;
         this.space = space;
         this.sequence = new RCodeCommandSequence(rcode, params, this);
     }
@@ -58,8 +62,10 @@ public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
 
     @Override
     public void releaseInStream() {
-        position = ((RCodeExecutionSpaceSequenceIn) in.getSequenceIn()).getPosition();
-        space.releaseInStream((RCodeExecutionSpaceSequenceIn) in.getSequenceIn());
+        if (in != null) {
+            position = ((RCodeExecutionSpaceSequenceIn) in.getSequenceIn()).getPosition();
+            space.releaseInStream((RCodeExecutionSpaceSequenceIn) in.getSequenceIn());
+        }
         in = null;
     }
 
@@ -90,8 +96,18 @@ public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
     }
 
     @Override
-    public void setLocks(RCodeLockSet locks) {
-        // TODO Auto-generated method stub
+    public void lock() {
+        rcode.lock(locks);
+    }
+
+    @Override
+    public boolean canLock() {
+        return rcode.canLock(locks);
+    }
+
+    @Override
+    public void unlock() {
+        rcode.unlock(locks);
     }
 
 }

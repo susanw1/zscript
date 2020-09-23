@@ -5,7 +5,6 @@ import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSlot;
 
@@ -16,11 +15,6 @@ public class RCodeCapabilitiesCommand implements RCodeCommand {
     public RCodeCapabilitiesCommand(RCodeParameters params, RCode rcode) {
         this.params = params;
         this.rcode = rcode;
-    }
-
-    @Override
-    public boolean continueLocking(RCodeCommandChannel c) {
-        return true;
     }
 
     @Override

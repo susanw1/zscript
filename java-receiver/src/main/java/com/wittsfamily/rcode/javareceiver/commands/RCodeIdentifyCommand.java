@@ -3,16 +3,10 @@ package com.wittsfamily.rcode.javareceiver.commands;
 import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSlot;
 
 public class RCodeIdentifyCommand implements RCodeCommand {
-
-    @Override
-    public boolean continueLocking(RCodeCommandChannel c) {
-        return true;
-    }
 
     @Override
     public void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out) {

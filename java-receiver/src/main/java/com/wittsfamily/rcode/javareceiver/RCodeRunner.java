@@ -24,8 +24,9 @@ public class RCodeRunner {
             canBeParallel = true;
             for (int i = 0; i < channels.length; i++) {
                 if (channels[i].getCommandSequence().isFullyParsed() && !channels[i].getOutStream().isLocked() && channels[i].getCommandSequence().canLock()
-                        && channels[i].getCommandSequence().canBeParallel()) {
+                        && channels[i].getCommandSequence().canBeParallel() && channels[i].canLock()) {
                     current = channels[i].getCommandSequence();
+                    channels[i].lock();
                     current.lock();
                     break;
                 }
@@ -33,8 +34,9 @@ public class RCodeRunner {
         }
         if (canBeParallel && current == null && parallelNum == 0) {
             for (int i = 0; i < channels.length; i++) {
-                if (channels[i].getCommandSequence().isActive() && !channels[i].getOutStream().isLocked()) {
+                if (channels[i].getCommandSequence().isActive() && !channels[i].getOutStream().isLocked() && channels[i].canLock()) {
                     current = channels[i].getCommandSequence();
+                    channels[i].lock();
                     canBeParallel = false;
                     break;
                 }
@@ -53,6 +55,9 @@ public class RCodeRunner {
                 out.markBroadcast();
             }
             running[parallelNum++] = current;
+            if (current.isEmpty() && finishRunning(current, parallelNum - 1)) {
+                current = null;
+            }
         }
         return current;
     }
@@ -97,12 +102,14 @@ public class RCodeRunner {
             if (c == null) {
                 out.writeStatus(RCodeResponseStatus.UNKNOWN_CMD);
                 out.writeBigStringField("Command not found");
-                target.fail();
+                target.getOutStream().writeCommandSequenceSeperator();
+                target.fail(RCodeResponseStatus.UNKNOWN_CMD);
                 finishRunning(target, targetInd);
             } else if (Byte.toUnsignedInt(cmd.getFields().get('R', (byte) 0xFF)) > RCodeActivateCommand.MAX_SYSTEM_CODE && !RCodeActivateCommand.isActivated()) {
                 out.writeStatus(RCodeResponseStatus.NOT_ACTIVATED);
                 out.writeBigStringField("Not a system command, and not activated");
-                target.fail();
+                target.getOutStream().writeCommandSequenceSeperator();
+                target.fail(RCodeResponseStatus.NOT_ACTIVATED);
                 finishRunning(target, targetInd);
             } else {
                 cmd.start();
@@ -113,16 +120,22 @@ public class RCodeRunner {
 
     private boolean finishRunning(RCodeCommandSequence target, int targetInd) {
         if (target.hasParsed()) {
-            if (target.peekFirst().isStarted()) {
-                target.peekFirst().getCommand().finish(target.peekFirst(), target.getOutStream());
+            RCodeCommandSlot slot = target.peekFirst();
+            if (slot.isStarted()) {
+                slot.getCommand().finish(slot, target.getOutStream());
             }
-            if (target.peekFirst().getEnd() == '\n') {
+            if (slot.getStatus() != RCodeResponseStatus.OK) {
+                target.getOutStream().writeCommandSequenceSeperator();
+                target.fail(slot.getStatus());
+            } else if (slot.getEnd() == '\n' || (target.isFullyParsed() && slot.next == null)) {
                 target.getOutStream().writeCommandSequenceSeperator();
             } else {
                 target.getOutStream().writeCommandSeperator();
             }
-            RCodeCommandSlot slot = target.popFirst();
+            target.popFirst();
             slot.reset();
+        } else if (target.isEmpty()) {
+            target.getOutStream().writeCommandSequenceSeperator();
         }
         if (!target.hasParsed() && target.isFullyParsed()) {
             if (!target.getChannel().isPacketBased() || !target.getChannel().hasCommandSequence()) {
@@ -135,6 +148,7 @@ public class RCodeRunner {
                 canBeParallel = true;
             }
             target.unlock();
+            target.getChannel().unlock();
             target.reset();
             for (int i = targetInd; i < parallelNum - 1; i++) {
                 running[i] = running[i + 1];

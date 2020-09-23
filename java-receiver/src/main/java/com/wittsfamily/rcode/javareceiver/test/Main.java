@@ -1,7 +1,5 @@
 package com.wittsfamily.rcode.javareceiver.test;
 
-import java.nio.charset.StandardCharsets;
-
 import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeBusInterruptSource;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
@@ -20,9 +18,8 @@ public class Main {
         RCodeParameters params = new RCodeParameters(true);
         TestInterruptSource intS = new TestInterruptSource();
         RCode r = new RCode(params, new RCodeBusInterruptSource[] { intS });
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8;R6\nR21G\n", new PrintingOutStream(), false, 3),
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R6&R11&R1&R1\n", new PrintingOutStream(), false, 6),
                 new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
-        r.getSpace().write("R1+10a0;R10A1\nR1+10a1;R11A2\nR33\nR1+10a2;R11A2\n".getBytes(StandardCharsets.US_ASCII), 0, true);
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
         r.getCommandFinder().registerCommand(new RCodeTmpCommand());

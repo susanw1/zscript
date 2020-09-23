@@ -60,6 +60,11 @@ public class RCodeVoidOutStream extends RCodeOutStream {
     }
 
     @Override
+    public RCodeOutStream writeCommandSequenceErrorHandler() {
+        return this;
+    }
+
+    @Override
     public void openResponse(RCodeCommandChannel target) {
     }
 

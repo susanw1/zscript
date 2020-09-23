@@ -7,7 +7,6 @@ import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSlot;
 
@@ -16,11 +15,6 @@ public class RCodeWriteToDebugCommand implements RCodeCommand {
 
     public RCodeWriteToDebugCommand(RCode rcode) {
         this.rcode = rcode;
-    }
-
-    @Override
-    public boolean continueLocking(RCodeCommandChannel c) {
-        return true;
     }
 
     @Override

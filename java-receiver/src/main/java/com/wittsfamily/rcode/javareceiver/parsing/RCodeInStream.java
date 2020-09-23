@@ -8,6 +8,26 @@ public class RCodeInStream {
     private boolean hasBackslash = false;
     private boolean lock = false;
     private boolean currentValid = false;
+    private RCodeWrapperLookaheadStream stream = new RCodeWrapperLookaheadStream();
+
+    private class RCodeWrapperLookaheadStream implements RCodeLookaheadStream {
+        private boolean hasUsed = false;
+        private RCodeLookaheadStream toWrap;
+
+        public void reset(RCodeLookaheadStream toWrap) {
+            hasUsed = false;
+            this.toWrap = toWrap;
+        }
+
+        @Override
+        public char read() {
+            if (hasUsed || current == -1) {
+                return toWrap.read();
+            }
+            hasUsed = true;
+            return (char) current;
+        }
+    };
 
     public RCodeInStream(RCodeSequenceInStream sequenceIn) {
         this.sequenceIn = sequenceIn;
@@ -27,7 +47,7 @@ public class RCodeInStream {
             if (sequenceIn.hasNextChar()) {
                 current = sequenceIn.nextChar();
                 currentValid = true;
-                if (current == '\n' || (current == ';' && !isInString)) {
+                if (current == '\n' || ((current == '&' || current == '|') && !isInString)) {
                     hasReachedCommandEnd = true;
                     currentValid = false;
                 } else if (current == '"') {
@@ -58,7 +78,8 @@ public class RCodeInStream {
     }
 
     public RCodeLookaheadStream getLookahead() {
-        return sequenceIn.getLookahead();
+        stream.reset(sequenceIn.getLookahead());
+        return stream;
     }
 
     public boolean hasNext() {
@@ -68,7 +89,7 @@ public class RCodeInStream {
     public void openCommand() {
         hasReachedCommandEnd = false;
         currentValid = true;
-        if (current == ';' || current == '\n') {
+        if (current == '&' || current == '|' || current == '\n') {
             read();
         }
     }
@@ -77,7 +98,7 @@ public class RCodeInStream {
         while (hasNext()) {
             read();
         }
-        if (current != '\n' && current != ';') {
+        if (current != '\n' && current != '&' && current != '|') {
             current = sequenceIn.nextChar();
         }
     }
@@ -89,6 +110,8 @@ public class RCodeInStream {
     public void skipSequence() {
         if (current != '\n') {
             sequenceIn.closeCommandSequence();
+            hasReachedCommandEnd = true;
+            currentValid = false;
             current = -1;
         }
     }
@@ -112,5 +135,10 @@ public class RCodeInStream {
 
     public RCodeSequenceInStream getSequenceIn() {
         return sequenceIn;
+    }
+
+    public void unOpen() {
+        hasReachedCommandEnd = false;
+        currentValid = true;
     }
 }

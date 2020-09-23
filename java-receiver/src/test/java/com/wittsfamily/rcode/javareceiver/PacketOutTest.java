@@ -34,7 +34,7 @@ class PacketOutTest {
 
     @Test
     void shouldWorkForMultipleCommands() {
-        testCommand("R1EY20;R1H33\nR6;R1B", List.of("ESY20;SH33\nAS;SB\n"), 12);
+        testCommand("R1EY20&R1H33\nR6&R1B", List.of("ESY20&SH33\nAS&SB\n"), 12);
     }
 
 }
