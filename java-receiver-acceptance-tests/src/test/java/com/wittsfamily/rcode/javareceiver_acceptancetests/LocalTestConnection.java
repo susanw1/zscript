@@ -10,7 +10,6 @@ import java.util.function.Consumer;
 
 import com.wittsfamily.rcode.javareceiver.AbstractRCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCode;
-import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
@@ -66,10 +65,10 @@ public class LocalTestConnection implements RCodeAcceptanceTestConnection, RCode
                 bytes[i++] = b;
             }
             try {
-            for (Consumer<byte[]> consumer : handlers) {
-                consumer.accept(bytes);
-            }
-            }catch (Exception e) {
+                for (Consumer<byte[]> consumer : handlers) {
+                    consumer.accept(bytes);
+                }
+            } catch (Exception e) {
                 System.out.println(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(bytes)).toString());
                 e.printStackTrace();
             }
@@ -141,9 +140,16 @@ public class LocalTestConnection implements RCodeAcceptanceTestConnection, RCode
     }
 
     @Override
-    public void setLocks(RCodeLockSet locks) {
-        // TODO Auto-generated method stub
+    public void lock() {
+    }
 
+    @Override
+    public boolean canLock() {
+        return true;
+    }
+
+    @Override
+    public void unlock() {
     }
 
 }

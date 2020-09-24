@@ -31,7 +31,7 @@ public class RCodeQueueSequenceInStream implements RCodeSequenceInStream {
     @Override
     public RCodeLookaheadStream getLookahead() {
         return new RCodeLookaheadStream() {
-            private int offsetPos = -1;
+            private int offsetPos = 0;
 
             @Override
             public char read() {
