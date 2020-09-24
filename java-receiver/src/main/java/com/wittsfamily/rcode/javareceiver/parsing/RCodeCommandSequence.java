@@ -142,6 +142,7 @@ public class RCodeCommandSequence {
         isFullyParsed = false;
         locks = null;
         active = false;
+        empty = false;
     }
 
     public boolean fail(RCodeResponseStatus status) {
@@ -195,7 +196,6 @@ public class RCodeCommandSequence {
                     return true;
                 }
             } else {
-                System.out.println("found");
                 return true;
             }
         }

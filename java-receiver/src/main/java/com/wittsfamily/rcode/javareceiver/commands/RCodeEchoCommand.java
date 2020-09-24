@@ -15,6 +15,16 @@ public class RCodeEchoCommand implements RCodeCommand {
     public void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out) {
         if (!slot.getFields().has('S')) {
             out.writeStatus(RCodeResponseStatus.OK);
+        } else {
+            RCodeResponseStatus stat = RCodeResponseStatus.OK;
+            byte val = slot.getFields().get('S', (byte) 0);
+            for (RCodeResponseStatus r : RCodeResponseStatus.values()) {
+                if (r.getValue() == val) {
+                    stat = r;
+                    break;
+                }
+            }
+            slot.fail("", stat);
         }
         slot.getFields().copyTo(out);
         slot.getBigField().copyTo(out);

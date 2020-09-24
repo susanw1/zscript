@@ -133,8 +133,11 @@ public class RCodeRunner {
                 }
             } else if (slot.getEnd() == '\n' || (target.isFullyParsed() && slot.next == null)) {
                 target.getOutStream().writeCommandSequenceSeperator();
-            } else {
+            } else if (slot.getEnd() == '&') {
                 target.getOutStream().writeCommandSeperator();
+            } else {
+                target.fail(RCodeResponseStatus.UNKNOWN_ERROR);
+                target.getOutStream().writeCommandSequenceSeperator();
             }
             target.popFirst();
             slot.reset();

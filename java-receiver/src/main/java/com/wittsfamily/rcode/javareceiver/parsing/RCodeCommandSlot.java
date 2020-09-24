@@ -294,6 +294,5 @@ public class RCodeCommandSlot {
     public void fail(String errorMessage, RCodeResponseStatus status) {
         this.errorMessage = errorMessage;
         this.status = status;
-        this.end = '\n';
     }
 }

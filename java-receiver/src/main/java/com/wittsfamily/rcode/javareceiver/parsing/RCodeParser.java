@@ -33,7 +33,7 @@ public class RCodeParser {
         while (c == ' ' || c == '\t' || c == '\r') {
             c = l.read();
         }
-        return c != '&';
+        return c != '&' && c != '|';
     }
 
     public void parseNext() {
@@ -72,6 +72,10 @@ public class RCodeParser {
                                         parse(targetSlot, seq);
                                         seq.setActive();
                                     }
+                                } else {
+                                    seq.releaseInStream();
+                                    seq.reset();
+                                    channel.unlock();
                                 }
                                 break;
                             }
