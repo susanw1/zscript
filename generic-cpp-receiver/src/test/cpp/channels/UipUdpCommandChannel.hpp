@@ -99,9 +99,17 @@ public:
     virtual void releaseFromDebugChannel() {
         isDebugSet = false;
     }
+    virtual void lock() {
 
-    virtual void setLocks(RCodeLockSet *locks) {
     }
+
+    virtual bool canLock() {
+        return true;
+    }
+
+    virtual void unlock() {
+    }
+
 };
 #include "UipUdpChannelManager.hpp"
 

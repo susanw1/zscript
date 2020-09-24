@@ -18,7 +18,6 @@ class RCodeLockSet;
 
 class RCodeCommand {
 public:
-    virtual bool continueLocking(RCodeCommandChannel *c) const = 0;
 
     virtual void finish(RCodeCommandSlot *rCodeCommandSlot,
             RCodeOutStream *out) const = 0;

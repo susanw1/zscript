@@ -32,6 +32,7 @@ private:
     bool fullyParsed = false;
     bool active = false;
     bool failed = false;
+    bool empty = false;
 
 public:
     RCodeCommandSequence(RCode *rcode, RCodeCommandChannel *channel) :
@@ -50,6 +51,10 @@ public:
     RCodeOutStream* getOutStream();
 
     void releaseOutStream();
+
+    bool isEmpty() {
+        return empty;
+    }
 
     bool canBeParallel() const {
         return parallel;
@@ -99,14 +104,6 @@ public:
         return channel;
     }
 
-    void setBroadcast() {
-        broadcast = true;
-    }
-
-    void setParallel() {
-        parallel = true;
-    }
-
     void reset() {
         broadcast = false;
         parallel = false;
@@ -115,9 +112,12 @@ public:
         first = NULL;
         fullyParsed = false;
         locks.reset();
+        empty = false;
     }
 
-    void fail();
+    bool fail(RCodeResponseStatus status);
+
+    bool parseFlags();
 
     bool canLock();
 

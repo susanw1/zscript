@@ -25,6 +25,9 @@
 #include "UipEthernet.h"
 #include "RCode.hpp"
 #include "RCodeEchoCommand.hpp"
+#include "RCodeActivateCommand.hpp"
+#include "RCodeSetDebugChannelCommand.hpp"
+#include "RCodeSendDebugCommand.hpp"
 #include "UipUdpChannelManager.hpp"
 
 int main(void) {
@@ -46,7 +49,13 @@ int main(void) {
     }
     r.setChannels(channels, RCodeParameters::uipChannelNum);
     RCodeEchoCommand cmd;
+    RCodeActivateCommand cmd2;
+    RCodeSetDebugChannelCommand cmd3(&r);
+    RCodeSendDebugCommand cmd4(&r);
     r.getCommandFinder()->registerCommand(&cmd);
+    r.getCommandFinder()->registerCommand(&cmd2);
+    r.getCommandFinder()->registerCommand(&cmd3);
+    r.getCommandFinder()->registerCommand(&cmd4);
     while (true) {
         r.progressRCode();
         uip.tick();

@@ -10,16 +10,14 @@
 #include <mbed.h>
 
 DigitalOut led(PB_0);
-
 void UipUdpChannelManager::checkSequences() {
+    led = 1;
     if (!hasCheckedPackets && !reader.isReading()) {
         hasCheckedPackets = true;
         for (int i = 0; i < RCodeParameters::uipChannelNum; i++) {
             channels[i].unsetHasSequence();
         }
         if (reader.open()) {
-            led = a;
-            a = !a;
             IpAddress ip = reader.remoteIP();
             uint16_t port = reader.remotePort();
             uint8_t *addr = ip.rawAddress();
@@ -47,4 +45,5 @@ void UipUdpChannelManager::checkSequences() {
         }
         hasCheckedPackets = false;
     }
+    led = 0;
 }

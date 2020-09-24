@@ -34,6 +34,8 @@ public:
     bool isLocked() {
         return lockVal;
     }
+    virtual RCodeOutStream* markDebug() = 0;
+
     virtual RCodeOutStream* markNotification() = 0;
 
     virtual RCodeOutStream* markBroadcast() = 0;
@@ -56,6 +58,8 @@ public:
             uint16_t length) = 0;
 
     virtual RCodeOutStream* writeCommandSeperator() = 0;
+
+    virtual RCodeOutStream* writeCommandSequenceErrorHandler() = 0;
 
     virtual RCodeOutStream* writeCommandSequenceSeperator() = 0;
 

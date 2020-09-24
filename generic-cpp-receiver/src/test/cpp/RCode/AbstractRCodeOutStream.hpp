@@ -20,6 +20,10 @@ private:
 public:
     virtual void writeByte(uint8_t value) = 0;
 
+    virtual RCodeOutStream* markDebug() {
+        writeByte('#');
+        return this;
+    }
     virtual RCodeOutStream* markNotification() {
         writeByte('!');
         return this;
@@ -109,7 +113,11 @@ public:
     }
 
     virtual RCodeOutStream* writeCommandSeperator() {
-        writeByte(';');
+        writeByte('&');
+        return this;
+    }
+    virtual RCodeOutStream* writeCommandSequenceErrorHandler() {
+        writeByte('|');
         return this;
     }
 

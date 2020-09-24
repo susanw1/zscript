@@ -9,24 +9,49 @@
 #define SRC_TEST_CPP_RCODE_PARSING_RCODEINSTREAM_HPP_
 #include "../RCodeIncludes.hpp"
 #include "../RCodeParameters.hpp"
+#include "RCodeLookaheadStream.hpp"
 
-class RCodeLookaheadStream;
 class RCodeSequenceInStream;
 
 class RCodeInStream {
 private:
-    RCodeSequenceInStream *const sequenceIn;
     bool hasReachedCommandEnd = false;
-    int16_t current = -1;
     bool isInString = false;
+    int16_t current = -1;
+
+    class RCodeInStreamLookaheadOffset: public RCodeLookaheadStream {
+    private:
+        RCodeLookaheadStream *toWrap = NULL;
+        RCodeInStream *parent;
+        bool hasUsed = false;
+
+    public:
+        RCodeInStreamLookaheadOffset(RCodeInStream *parent) :
+                parent(parent) {
+        }
+        virtual void reset(RCodeLookaheadStream *toWrap) {
+            hasUsed = false;
+            this->toWrap = toWrap;
+        }
+        char read() {
+            if (hasUsed || parent->current == -1) {
+                return toWrap->read();
+            }
+            hasUsed = true;
+            return (char) parent->current;
+        }
+    };
+    RCodeInStreamLookaheadOffset lookahead;
+    RCodeSequenceInStream *const sequenceIn;
     bool hasBackslash = false;
     bool lockVal = false;
     bool currentValid = false;
 
     int16_t readInternal();
+
 public:
     RCodeInStream(RCodeSequenceInStream *sequenceIn) :
-            sequenceIn(sequenceIn) {
+            sequenceIn(sequenceIn), lookahead(this) {
     }
 
     char read() {
@@ -51,7 +76,7 @@ public:
     void openCommand() {
         hasReachedCommandEnd = false;
         currentValid = true;
-        if (current == ';' || current == '\n') {
+        if (current == '&' || current == '|' || current == '\n') {
             read();
         }
     }
@@ -61,6 +86,7 @@ public:
     bool isCommandOpen() const {
         return !hasReachedCommandEnd;
     }
+    void skipToError();
 
     void skipSequence();
 
@@ -83,6 +109,10 @@ public:
 
     RCodeSequenceInStream* getSequenceIn() {
         return sequenceIn;
+    }
+    void unOpen() {
+        hasReachedCommandEnd = false;
+        currentValid = true;
     }
 };
 

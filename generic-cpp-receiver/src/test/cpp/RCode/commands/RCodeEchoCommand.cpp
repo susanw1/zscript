@@ -11,6 +11,8 @@ void RCodeEchoCommand::execute(RCodeCommandSlot *slot,
         RCodeCommandSequence *sequence, RCodeOutStream *out) {
     if (!slot->getFields()->has('S')) {
         out->writeStatus(OK);
+    } else {
+        slot->fail("", (RCodeResponseStatus) slot->getFields()->get('S', 0));
     }
     slot->getFields()->copyTo(out);
     slot->getBigField()->copyTo(out);

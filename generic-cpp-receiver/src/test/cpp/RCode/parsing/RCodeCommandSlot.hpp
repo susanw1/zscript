@@ -35,8 +35,6 @@ private:
     bool started = false;
     bool usesBigBig = false;
 
-    void eatWhitespace(RCodeInStream *in);
-
     uint8_t getHex(char c) {
         return (uint8_t) (c >= 'a' ? c - 'a' + 10 : c - '0');
     }
@@ -110,6 +108,12 @@ public:
     RCodeCommand* getCommand(RCode *rcode);
 
     bool parseSingleCommand(RCodeInStream *in, RCodeCommandSequence *sequence);
+
+    void fail(const char *errorMessage, RCodeResponseStatus status) {
+        this->errorMessage = errorMessage;
+        this->status = status;
+        this->end = '\n';
+    }
 };
 
 #endif /* SRC_TEST_CPP_RCODE_PARSING_RCODECOMMANDSLOT_HPP_ */

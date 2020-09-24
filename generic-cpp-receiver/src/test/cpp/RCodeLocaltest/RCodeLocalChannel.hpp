@@ -40,8 +40,7 @@ public:
 
     }
     char charAt(int relative) {
-        return relative + pos - 1 >= lengthRead ?
-                '\n' : buffer[relative + pos - 1];
+        return relative + pos >= lengthRead ? '\n' : buffer[relative + pos];
     }
     virtual char next() {
         return pos >= lengthRead ? '\n' : buffer[pos++];
@@ -160,8 +159,15 @@ public:
 
     }
 
-    virtual void setLocks(RCodeLockSet *locks) {
+    virtual void lock() {
 
+    }
+
+    virtual bool canLock() {
+        return true;
+    }
+
+    virtual void unlock() {
     }
 
     virtual ~RCodeLocalChannel() {

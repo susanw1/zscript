@@ -25,10 +25,6 @@ public:
             rcode(rcode) {
 
     }
-    bool continueLocking(RCodeCommandChannel *c) const {
-        return true;
-    }
-
     void finish(RCodeCommandSlot *rCodeCommandSlot, RCodeOutStream *out) const {
     }
 

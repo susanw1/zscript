@@ -6,7 +6,6 @@
  */
 
 #include "RCodeRunner.hpp"
-
 RCodeCommandSequence* RCodeRunner::findNextToRun() {
     RCodeCommandSequence *current = NULL;
     RCodeCommandChannel **channels = rcode->getChannels();
@@ -16,9 +15,11 @@ RCodeCommandSequence* RCodeRunner::findNextToRun() {
             if (channels[i]->getCommandSequence()->isFullyParsed()
                     && !channels[i]->getOutStream()->isLocked()
                     && channels[i]->getCommandSequence()->canLock()
-                    && channels[i]->getCommandSequence()->canBeParallel()) {
+                    && channels[i]->getCommandSequence()->canBeParallel()
+                    && channels[i]->canLock()) {
                 current = channels[i]->getCommandSequence();
                 current->lock();
+                channels[i]->lock();
                 break;
             }
         }
@@ -26,8 +27,10 @@ RCodeCommandSequence* RCodeRunner::findNextToRun() {
     if (canBeParallel && current == NULL && parallelNum == 0) {
         for (int i = 0; i < rcode->getChannelNumber(); i++) {
             if (channels[i]->getCommandSequence()->peekFirst() != NULL
-                    && !channels[i]->getOutStream()->isLocked()) {
+                    && !channels[i]->getOutStream()->isLocked()
+                    && channels[i]->canLock()) {
                 current = channels[i]->getCommandSequence();
+                channels[i]->lock();
                 canBeParallel = false;
                 break;
             }
@@ -82,17 +85,31 @@ void RCodeRunner::runNext() {
 }
 bool RCodeRunner::finishRunning(RCodeCommandSequence *target, int targetInd) {
     if (target->hasParsed()) {
-        if (target->peekFirst()->isStarted()) {
-            target->peekFirst()->getCommand(rcode)->finish(target->peekFirst(),
-                    target->getOutStream());
+        RCodeCommandSlot *slot = target->peekFirst();
+        if (slot->isStarted()) {
+            slot->getCommand(rcode)->finish(slot, target->getOutStream());
         }
-        if (target->peekFirst()->getEnd() == '\n') {
+        if (slot->isStarted() && slot->getStatus() != OK) {
+            if (target->fail(slot->getStatus())) {
+                target->getOutStream()->writeCommandSequenceErrorHandler();
+            } else {
+                target->getOutStream()->writeCommandSequenceSeperator();
+            }
+        } else if (slot->getEnd() == '\n'
+                || (target->isFullyParsed() && slot->next == NULL)) {
             target->getOutStream()->writeCommandSequenceSeperator();
-        } else {
+        } else if (slot->getEnd() == '&') {
             target->getOutStream()->writeCommandSeperator();
+        } else {
+            target->fail(UNKNOWN_ERROR);
+            target->getOutStream()->writeCommandSequenceSeperator();
         }
-        RCodeCommandSlot *slot = target->popFirst();
-        slot->reset();
+        if (target->hasParsed()) {
+            target->popFirst();
+            slot->reset();
+        }
+    } else if (target->isEmpty()) {
+        target->getOutStream()->writeCommandSequenceSeperator();
     }
     if (!target->hasParsed() && target->isFullyParsed()) {
         if (!target->getChannel()->isPacketBased()
@@ -107,6 +124,7 @@ bool RCodeRunner::finishRunning(RCodeCommandSequence *target, int targetInd) {
             canBeParallel = true;
         }
         target->unlock();
+        target->getChannel()->unlock();
         target->reset();
         for (int i = targetInd; i < parallelNum - 1; i++) {
             running[i] = running[i + 1];
@@ -130,14 +148,16 @@ void RCodeRunner::runSequence(RCodeCommandSequence *target, int targetInd) {
         if (c == NULL) {
             out->writeStatus(UNKNOWN_CMD);
             out->writeBigStringField("Command not found");
-            target->fail();
+            out->writeCommandSequenceSeperator();
+            target->fail(UNKNOWN_CMD);
             finishRunning(target, targetInd);
         } else if (cmd->getFields()->get('R', 0xFF)
                 > RCodeActivateCommand::MAX_SYSTEM_CODE
                 && !RCodeActivateCommand::isActivated()) {
             out->writeStatus(NOT_ACTIVATED);
             out->writeBigStringField("Not a system command, and not activated");
-            target->fail();
+            out->writeCommandSequenceSeperator();
+            target->fail(NOT_ACTIVATED);
             finishRunning(target, targetInd);
         } else {
             cmd->start();

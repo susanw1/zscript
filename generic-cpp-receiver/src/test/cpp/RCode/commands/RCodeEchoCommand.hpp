@@ -15,9 +15,6 @@ class RCodeEchoCommand: public RCodeCommand {
 private:
     const uint8_t code = 0x01;
 public:
-    bool continueLocking(RCodeCommandChannel *c) const {
-        return true;
-    }
 
     void finish(RCodeCommandSlot *rCodeCommandSlot, RCodeOutStream *out) const {
     }

@@ -23,6 +23,9 @@ private:
     RCodeBigBigField bigBig = RCodeBigBigField();
     friend void RCodeParserSetupSlots(RCodeParser *parser);
 public:
+    static void eatWhitespace(RCodeInStream *in);
+
+    static bool shouldEatWhitespace(RCodeInStream *in);
 
     RCodeParser(RCode *rcode) :
             rcode(rcode) {

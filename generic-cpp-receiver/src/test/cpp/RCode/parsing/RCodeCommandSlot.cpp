@@ -7,13 +7,6 @@
 
 #include "RCodeCommandSlotInterrim.hpp"
 
-void RCodeCommandSlot::eatWhitespace(RCodeInStream *in) {
-    char c = in->peek();
-    while (in->hasNext() && (c == ' ' || c == '\t' || c == '\r')) {
-        in->read();
-        c = in->peek();
-    }
-}
 bool RCodeCommandSlot::parseHexField(RCodeInStream *in, char field) {
     while (in->hasNext() && in->peek() == '0') {
         in->read();
@@ -68,56 +61,10 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
     in->openCommand();
     reset();
     char c;
-    eatWhitespace(in);
-    if (in->peek() == '#') {
-        if (!sequence->isActive()) {
-            status = SKIP_COMMAND;
-            errorMessage = "# found, command sequence is comment";
-            in->closeCommand();
-            end = '\n';
-            return false;
-        } else {
-            status = PARSE_ERROR;
-            errorMessage = "# only valid on first command of sequence";
-            in->closeCommand();
-            end = '\n';
-            return false;
-        }
-    }
-    if (in->peek() == '*') {
-        in->read();
-        if (in->hasNext()) {
-            eatWhitespace(in);
-        }
-        if (!sequence->isActive()) {
-            sequence->setBroadcast();
-        } else {
-            status = PARSE_ERROR;
-            errorMessage = "* only valid on first command of sequence";
-            in->closeCommand();
-            end = '\n';
-            return false;
-        }
-    }
-    if (in->peek() == '%') {
-        in->read();
-        if (in->hasNext()) {
-            eatWhitespace(in);
-        }
-        if (!sequence->isActive()) {
-            sequence->setParallel();
-        } else {
-            status = PARSE_ERROR;
-            errorMessage = "% only valid on first command of sequence";
-            in->closeCommand();
-            end = '\n';
-            return false;
-        }
-    }
     parsed = true;
     while (true) {
         if (in->hasNext()) {
-            eatWhitespace(in);
+            RCodeParser::eatWhitespace(in);
         }
         if (in->hasNext()) {
             c = in->read();

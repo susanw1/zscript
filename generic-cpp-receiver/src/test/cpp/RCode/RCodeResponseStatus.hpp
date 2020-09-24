@@ -21,8 +21,7 @@ enum RCodeResponseStatus {
     NOT_ACTIVATED = 7,
     TOO_BIG = 8,
     CMD_FAIL = 0x10,
-    NOT_EXECUTED = 0x11,
-    SKIP_COMMAND = 0xFF
+    NOT_EXECUTED = 0x11
 };
 
 #endif /* SRC_TEST_CPP_RCODE_RCODERESPONSESTATUS_HPP_ */

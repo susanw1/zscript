@@ -6,7 +6,6 @@
  */
 
 #include "RCodeDebugOutput.hpp"
-#include <iostream>
 
 void RCodeDebugOutput::flushBuffer(RCodeOutStream *stream) {
     int curPos = 0;
@@ -17,11 +16,7 @@ void RCodeDebugOutput::flushBuffer(RCodeOutStream *stream) {
                 && debugBuffer[curPos] != '\n') {
             curPos++;
         }
-        char c = '#';
-        stream->writeBytes((uint8_t*) &c, 1);
-        stream->writeBytes(debugBuffer + prevPos, curPos - prevPos);
-        c = '\n';
-        stream->writeBytes((uint8_t*) &c, 1);
+        stream->markDebug()->writeBytes(debugBuffer + prevPos, curPos - prevPos)->writeCommandSequenceSeperator();
         curPos++;
     }
     if (position == RCodeParameters::debugBufferLength + 1) {
@@ -41,13 +36,13 @@ void RCodeDebugOutput::writeToBuffer(const uint8_t *b, int length) {
         int lenToCopy = RCodeParameters::debugBufferLength - position;
         if (lenToCopy > 0) {
             for (int i = 0; i < lenToCopy; ++i) {
-                debugBuffer[i] = b[position + i];
+                debugBuffer[position + i] = b[i];
             }
         }
         position = RCodeParameters::debugBufferLength + 1;
     } else {
         for (int i = 0; i < length; ++i) {
-            debugBuffer[i] = b[position + i];
+            debugBuffer[position + i] = b[i];
         }
         position += length;
     }

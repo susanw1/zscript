@@ -7,7 +7,22 @@
 
 #include "RCodeParser.hpp"
 
-#include <iostream>
+void RCodeParser::eatWhitespace(RCodeInStream *in) {
+    char c = in->peek();
+    while (in->hasNext() && (c == ' ' || c == '\t' || c == '\r')) {
+        in->read();
+        c = in->peek();
+    }
+}
+
+bool RCodeParser::shouldEatWhitespace(RCodeInStream *in) {
+    RCodeLookaheadStream *l = in->getLookahead();
+    char c = l->read();
+    while (c == ' ' || c == '\t' || c == '\r') {
+        c = l->read();
+    }
+    return c != '&' && c != '|';
+}
 
 void RCodeParser::parseNext() {
     RCodeCommandSlot *targetSlot = NULL;
@@ -26,19 +41,34 @@ void RCodeParser::parseNext() {
             } else {
                 if (mostRecent != NULL) {
                     mostRecent->unsetFailed();
+                    mostRecent->releaseInStream();
+                    mostRecent->getChannel()->unlock();
                 }
                 mostRecent = NULL;
                 for (int i = 0; i < rcode->getChannelNumber(); i++) {
                     RCodeCommandChannel *channel = rcode->getChannels()[i];
-                    if (channel->hasCommandSequence()
+                    if (channel->canLock() && channel->hasCommandSequence()
                             && !channel->getCommandSequence()->isActive()) {
                         RCodeCommandSequence *seq =
                                 channel->getCommandSequence();
                         if (!channel->getInStream()->isLocked()) {
+                            channel->lock();
                             seq->getInStream()->getSequenceIn()->openCommandSequence();
-                            mostRecent = seq;
-                            parse(targetSlot, seq);
-                            seq->setActive();
+                            if (seq->parseFlags()) {
+                                if (seq->isFullyParsed()) {
+                                    channel->unlock();
+                                    seq->setActive();
+                                    seq->releaseInStream();
+                                } else {
+                                    mostRecent = seq;
+                                    parse(targetSlot, seq);
+                                    seq->setActive();
+                                }
+                            } else {
+                                seq->releaseInStream();
+                                channel->unlock();
+                                seq->reset();
+                            }
                             break;
                         }
                     }
@@ -52,27 +82,23 @@ void RCodeParser::parse(RCodeCommandSlot *slot,
     if (!sequence->getInStream()->getSequenceIn()->hasNext()) {
         sequence->setFullyParsed(true);
         sequence->releaseInStream();
+        sequence->getChannel()->unlock();
     } else {
         bool worked = slot->parseSingleCommand(sequence->getInStream(),
                 sequence);
         if (!worked) {
-            if (slot->getStatus() == SKIP_COMMAND) {
-                sequence->addLast(slot);
-                sequence->getInStream()->skipSequence();
-                sequence->setFullyParsed(true);
-            } else {
-                sequence->addLast(slot);
-                sequence->getInStream()->skipSequence();
-                sequence->setFailed();
-            }
+            sequence->addLast(slot);
+            sequence->getInStream()->skipSequence();
+            sequence->setFailed();
+            sequence->setFullyParsed(true);
             sequence->releaseInStream();
+            sequence->getChannel()->unlock();
         } else {
             sequence->addLast(slot);
-            if (slot->getEnd() == '\n'
-                    || !slot->getCommand(rcode)->continueLocking(
-                            sequence->getChannel())) {
+            if (slot->getEnd() == '\n') {
                 sequence->setFullyParsed(true);
                 sequence->releaseInStream();
+                sequence->getChannel()->unlock();
             }
         }
     }

@@ -39,7 +39,11 @@ public:
 
     virtual void releaseFromDebugChannel() = 0;
 
-    virtual void setLocks(RCodeLockSet *locks) = 0;
+    virtual void lock() = 0;
+
+    virtual bool canLock() = 0;
+
+    virtual void unlock() = 0;
 
     virtual ~RCodeCommandChannel() {
 

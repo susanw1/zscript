@@ -15,7 +15,9 @@ RCodeInStream* RCodeCommandSequence::getInStream() {
     return in;
 }
 void RCodeCommandSequence::releaseInStream() {
-    in->unlock();
+    if (in != NULL) {
+        in->unlock();
+    }
     channel->releaseInStream();
     in = NULL;
 }
@@ -58,16 +60,94 @@ RCodeCommandSlot* RCodeCommandSequence::popFirst() {
     return target;
 }
 
-void RCodeCommandSequence::fail() {
-    for (RCodeCommandSlot *current = first; current != NULL;
-            current = current->next) {
-        current->reset();
+bool RCodeCommandSequence::fail(RCodeResponseStatus status) {
+    if (status != CMD_FAIL) {
+        RCodeCommandSlot *next = NULL;
+        for (RCodeCommandSlot *current = first; current != NULL; current =
+                next) {
+            next = current->next;
+            current->reset();
+        }
+        if (in != NULL) {
+            in->skipSequence();
+        }
+        if (!fullyParsed) {
+            failed = true;
+            fullyParsed = true;
+        }
+        first = NULL;
+        last = NULL;
+        locks.reset();
+        return false;
+    } else {
+        bool found = false;
+        RCodeCommandSlot *next = NULL;
+        for (RCodeCommandSlot *current = first; current != NULL; current =
+                next) {
+            next = current->next;
+            if (current->getEnd() == '|') {
+                found = true;
+            }
+            current->reset();
+            if (found) {
+                first = next;
+                break;
+            }
+        }
+        if (!found || first == NULL) {
+            first = NULL;
+            last = NULL;
+            if (fullyParsed) {
+                locks.reset();
+                return false;
+            } else {
+                in->skipToError();
+                if (in->read() == '\n') {
+                    if (!fullyParsed) {
+                        failed = true;
+                        fullyParsed = true;
+                    }
+                    locks.reset();
+                    return false;
+                }
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
-    if (in != NULL) {
+}
+bool RCodeCommandSequence::parseFlags() {
+    in->openCommand();
+    if (RCodeParser::shouldEatWhitespace(in)) {
+        RCodeParser::eatWhitespace(in);
+    }
+    if (in->peek() == '#') {
         in->skipSequence();
+        return false;
     }
-    last = first;
-    locks.reset();
+    if (in->peek() == '*') {
+        in->read();
+        broadcast = true;
+        if (RCodeParser::shouldEatWhitespace(in)) {
+            RCodeParser::eatWhitespace(in);
+        }
+    }
+    if (in->peek() == '%') {
+        in->read();
+        parallel = true;
+        if (RCodeParser::shouldEatWhitespace(in)) {
+            RCodeParser::eatWhitespace(in);
+        }
+    }
+    if (!in->getSequenceIn()->hasNext()) {
+        empty = true;
+        parallel = true;
+        fullyParsed = true;
+    }
+
+    in->unOpen();
+    return true;
 }
 bool RCodeCommandSequence::canLock() {
     return true;
@@ -78,7 +158,6 @@ bool RCodeCommandSequence::canLock() {
                 slot->getCommand(rcode)->setLocks(&locks);
             }
         }
-        channel->setLocks(&locks);
     }
     return rcode->canLock(&locks);
 }
@@ -91,7 +170,6 @@ void RCodeCommandSequence::lock() {
                 slot->getCommand(rcode)->setLocks(&locks);
             }
         }
-        channel->setLocks(&locks);
     }
     rcode->lock(&locks);
 }

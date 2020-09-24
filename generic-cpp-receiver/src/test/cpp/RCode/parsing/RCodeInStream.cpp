@@ -12,7 +12,8 @@ int16_t RCodeInStream::readInternal() {
         if (sequenceIn->hasNext()) {
             current = sequenceIn->next();
             currentValid = true;
-            if (current == '\n' || (current == ';' && !isInString)) {
+            if (current == '\n'
+                    || ((current == '&' || current == '|') && !isInString)) {
                 hasReachedCommandEnd = true;
                 currentValid = false;
             } else if (current == '"') {
@@ -35,7 +36,8 @@ int16_t RCodeInStream::readInternal() {
     }
 }
 RCodeLookaheadStream* RCodeInStream::getLookahead() {
-    return sequenceIn->getLookahead();
+    lookahead.reset(sequenceIn->getLookahead());
+    return &lookahead;
 }
 
 bool RCodeInStream::hasNext() {
@@ -46,7 +48,18 @@ void RCodeInStream::closeCommand() {
     while (hasNext()) {
         read();
     }
-    if (current != '\n' && current != ';') {
+    if (current != '\n' && current != '&' && current != '|') {
+        current = sequenceIn->next();
+    }
+}
+void RCodeInStream::skipToError() {
+    while (hasNext() || current == '&') {
+        if (current == '&') {
+            openCommand();
+        }
+        read();
+    }
+    if (current != '\n' && current != '&' && current != '|') {
         current = sequenceIn->next();
     }
 }
@@ -54,6 +67,8 @@ void RCodeInStream::closeCommand() {
 void RCodeInStream::skipSequence() {
     if (current != '\n') {
         sequenceIn->closeCommandSequence();
+        currentValid = false;
+        hasReachedCommandEnd = true;
         current = -1;
     }
 }
