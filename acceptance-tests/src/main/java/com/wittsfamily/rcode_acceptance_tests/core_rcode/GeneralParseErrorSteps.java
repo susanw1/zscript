@@ -67,20 +67,20 @@ public class GeneralParseErrorSteps {
 
     @When("the target is sent a broadcast command mid sequence")
     public void the_target_is_sent_a_broadcast_command_mid_sequence() {
-        CoreRCodeSteps.testAssert = assertThatCommand(RCodeAcceptanceTestConnectionManager.getConnections().get(0), "R1A1;*R1H2\n");
-        CoreRCodeSteps.testExpectedFields = a -> a.worked().hasField('A', 1).next();
+        CoreRCodeSteps.testAssert = assertThatCommand(RCodeAcceptanceTestConnectionManager.getConnections().get(0), "R1A1&*R1H2\n");
+        CoreRCodeSteps.testExpectedFields = a -> a.worked().hasField('A', 1).next().hasStatus(RCodeAcceptanceTestResponseStatus.PARSE_ERROR).isLastInSequence();
     }
 
     @When("the target is sent debug info mid sequence")
     public void the_target_is_sent_debug_info_mid_sequence() {
-        CoreRCodeSteps.testAssert = assertThatCommand(RCodeAcceptanceTestConnectionManager.getConnections().get(0), "R1A2;#R1H2\n");
-        CoreRCodeSteps.testExpectedFields = a -> a.worked().hasField('A', 2).next();
+        CoreRCodeSteps.testAssert = assertThatCommand(RCodeAcceptanceTestConnectionManager.getConnections().get(0), "R1A2&#R1H2\n");
+        CoreRCodeSteps.testExpectedFields = a -> a.worked().hasField('A', 2).next().hasStatus(RCodeAcceptanceTestResponseStatus.PARSE_ERROR).isLastInSequence();
     }
 
     @When("the target is set to parallel mid sequence")
     public void the_target_is_set_to_parallel_mid_sequence() {
-        CoreRCodeSteps.testAssert = assertThatCommand(RCodeAcceptanceTestConnectionManager.getConnections().get(0), "R1A3;%R1H2\n");
-        CoreRCodeSteps.testExpectedFields = a -> a.worked().hasField('A', 3).next();
+        CoreRCodeSteps.testAssert = assertThatCommand(RCodeAcceptanceTestConnectionManager.getConnections().get(0), "R1A3&%R1H2\n");
+        CoreRCodeSteps.testExpectedFields = a -> a.worked().hasField('A', 3).next().hasStatus(RCodeAcceptanceTestResponseStatus.PARSE_ERROR).isLastInSequence();
     }
 
     @Then("the target must not respond")

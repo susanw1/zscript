@@ -69,3 +69,28 @@ Feature: Core RCode communication
     And the target is sent a harmless peripheral command
     Then the target must respond with an OK status
     
+	@Standard-operation
+  Scenario: the target is given multiple echo commands in a sequence
+    When the target is sent multiple echo commands
+    Then the target must respond with the expected fields
+    
+	@Standard-operation
+  Scenario: the target is given multiple echo commands in a sequence including error handlers
+    When the target is sent multiple echo commands including error handlers
+    Then the target must respond with the expected fields
+    
+	@Standard-failure
+  Scenario: the target is given multiple echo commands, one of which gives S10, in a sequence
+    When the target is sent multiple echo commands one of which gives S10, in a sequence
+    Then the target must respond with the expected fields
+    
+	@Standard-failure
+  Scenario: the target is given multiple echo commands, one of which gives S10, in a sequence with error handler
+    When the target is sent multiple echo commands one of which gives S10, in a sequence with error handler
+    Then the target must respond with the expected fields
+    
+	@Standard-failure
+  Scenario: the target is given multiple echo commands, one of which gives S5, in a sequence with error handler
+    When the target is sent multiple echo commands one of which gives S5, in a sequence with error handler
+    Then the target must respond with the expected fields
+    

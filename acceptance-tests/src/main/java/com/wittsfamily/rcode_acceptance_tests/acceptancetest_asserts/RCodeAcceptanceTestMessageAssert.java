@@ -439,9 +439,22 @@ public abstract class RCodeAcceptanceTestMessageAssert {
 
     public RCodeAcceptanceTestMessageAssert sequenceContinues() {
         conditions.add((seq, prev) -> {
-            if (seq.peekFirst().getEnd() != ';') {
+            if (seq.peekFirst().getEnd() == '\n') {
+                throw new AssertionError("\nResponse received was terminated with \\n when & expected.");
+            } else if (seq.peekFirst().getEnd() == '|') {
+                throw new AssertionError("\nResponse received was terminated with | when & expected.");
+            }
+        });
+        return this;
+    }
+
+    public RCodeAcceptanceTestMessageAssert sequenceHasError() {
+        conditions.add((seq, prev) -> {
+            if (seq.peekFirst().getEnd() != '|') {
                 if (seq.peekFirst().getEnd() == '\n') {
-                    throw new AssertionError("\nResponse received was terminated with \\n when ; expected.");
+                    throw new AssertionError("\nResponse received was terminated with \\n when | expected.");
+                } else if (seq.peekFirst().getEnd() == '&') {
+                    throw new AssertionError("\nResponse received was terminated with & when | expected.");
                 } else {
                     throw new AssertionError("\nResponse received was terminated with " + seq.peekFirst().getEnd() + " when ; expected.");
                 }

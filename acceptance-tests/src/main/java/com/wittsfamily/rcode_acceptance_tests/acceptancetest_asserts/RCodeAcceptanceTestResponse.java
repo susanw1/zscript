@@ -105,7 +105,7 @@ public class RCodeAcceptanceTestResponse {
                         c = in.read();
                     }
                 }
-                if (c != -1 && c != ';' && c != '\n') {
+                if (c != -1 && c != '&' && c != '|' && c != '\n') {
                     if (c >= 'A' && c <= 'Z') {
                         current += (char) c;
                         current = parseHexField(in, (char) c, current);
