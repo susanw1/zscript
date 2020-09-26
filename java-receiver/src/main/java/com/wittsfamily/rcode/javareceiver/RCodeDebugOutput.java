@@ -46,6 +46,7 @@ public class RCodeDebugOutput {
                 byte[] strBytes = s.getBytes(StandardCharsets.UTF_8);
                 stream.writeBytes(strBytes, strBytes.length);
                 stream.writeBytes(new byte[] { '\n' }, 1);
+                stream.close();
                 stream.unlock();
             } else {
                 writeToBuffer(s.getBytes(StandardCharsets.UTF_8));
@@ -69,6 +70,7 @@ public class RCodeDebugOutput {
                 stream.openDebug(channel);
             }
             flushBuffer(channel.getOutStream());
+            stream.close();
             stream.unlock();
         }
     }
