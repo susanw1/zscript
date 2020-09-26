@@ -140,6 +140,18 @@ public class LocalTestConnection implements RCodeAcceptanceTestConnection, RCode
     }
 
     @Override
+    public void setAsDebugChannel() {
+    }
+
+    @Override
+    public void releaseFromNotificationChannel() {
+    }
+
+    @Override
+    public void releaseFromDebugChannel() {
+    }
+
+    @Override
     public void lock() {
     }
 
