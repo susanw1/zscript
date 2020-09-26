@@ -51,7 +51,7 @@ private:
 
 public:
     RCodeInStream(RCodeSequenceInStream *sequenceIn) :
-            sequenceIn(sequenceIn), lookahead(this) {
+            lookahead(this), sequenceIn(sequenceIn) {
     }
 
     char read() {

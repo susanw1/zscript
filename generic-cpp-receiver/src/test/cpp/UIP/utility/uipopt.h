@@ -81,7 +81,7 @@
  * if UIP should be run over Ethernet.
  *
  * All of these should be changed to suit your project.
-*/
+ */
 /**
  * Determines if UIP should use a fixed IP address or not.
  *
@@ -448,7 +448,7 @@
  * This function must be implemented by the module that uses UIP, and
  * is called by UIP whenever a log message is generated.
  */
-void    uip_log(char* msg);
+void uip_log(char *msg);
 
 /**
  * The link level header length.
@@ -517,16 +517,16 @@ void    uip_log(char* msg);
  * The following example illustrates how this can look.
  \code
 
-void httpd_appcall(void);
-#define UIP_APPCALL     httpd_appcall
+ void httpd_appcall(void);
+ #define UIP_APPCALL     httpd_appcall
 
-struct httpd_state {
-  u8_t state;
-  u16_t count;
-  char *dataptr;
-  char *script;
-};
-typedef struct httpd_state uip_tcp_appstate_t
+ struct httpd_state {
+ u8_t state;
+ u16_t count;
+ char *dataptr;
+ char *script;
+ };
+ typedef struct httpd_state uip_tcp_appstate_t
  \endcode
  */
 /**

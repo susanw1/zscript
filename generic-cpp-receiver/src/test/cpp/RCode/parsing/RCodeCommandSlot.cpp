@@ -60,6 +60,14 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
     RCodeBigField *target = &big;
     in->openCommand();
     reset();
+    RCodeParser::eatWhitespace(in);
+    if (!in->hasNext()) {
+        status = PARSE_ERROR;
+        errorMessage = "No command present";
+        in->closeCommand();
+        end = '\n';
+        return false;
+    }
     char c;
     parsed = true;
     while (true) {

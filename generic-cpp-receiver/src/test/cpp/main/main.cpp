@@ -40,7 +40,6 @@ int main(void) {
     UdpSocket socket(&uip);
 
     socket.begin(4889);
-
     RCode r;
     UipUdpChannelManager uipManager(&socket, &r);
     RCodeCommandChannel *channels[RCodeParameters::uipChannelNum];

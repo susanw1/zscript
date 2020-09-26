@@ -85,6 +85,7 @@ void RCodeDebugOutput::println(const char *s, int length) {
             stream->writeBytes((const uint8_t*) s, length);
             c = '\n';
             stream->writeBytes((uint8_t*) &c, 1);
+            stream->close();
             stream->unlock();
         } else {
             writeToBuffer((const uint8_t*) s, length);
@@ -95,7 +96,9 @@ void RCodeDebugOutput::println(const char *s, int length) {
 }
 
 void RCodeDebugOutput::attemptFlush() {
-    if (position != 0 && channel != NULL && channel->getOutStream()->lock()) {
+    if (position != 0 && channel != NULL
+            && !channel->getOutStream()->isLocked()) {
+        channel->getOutStream()->lock();
         RCodeOutStream *stream = channel->getOutStream();
         if (stream->mostRecent == this) {
             if (!stream->isOpen()) {
@@ -109,6 +112,7 @@ void RCodeDebugOutput::attemptFlush() {
             stream->openDebug(channel);
         }
         flushBuffer(channel->getOutStream());
+        stream->close();
         stream->unlock();
     }
 }

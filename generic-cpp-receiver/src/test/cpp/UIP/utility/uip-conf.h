@@ -51,7 +51,7 @@
  *
  * \hideinitializer
  */
-typedef uint8_t         u8_t;
+typedef uint8_t u8_t;
 
 /**
  * 16 bit datatype
@@ -60,7 +60,7 @@ typedef uint8_t         u8_t;
  *
  * \hideinitializer
  */
-typedef uint16_t        u16_t;
+typedef uint16_t u16_t;
 
 /**
  * Statistics datatype
@@ -70,7 +70,7 @@ typedef uint16_t        u16_t;
  *
  * \hideinitializer
  */
-typedef unsigned short  uip_stats_t;
+typedef unsigned short uip_stats_t;
 
 /**
  * Maximum number of TCP connections.
@@ -163,11 +163,11 @@ typedef unsigned short  uip_stats_t;
  */
 #define UIP_CONF_STATISTICS 0
 //#define UIP_CONF_LLH_LEN 0
-typedef void*   uip_tcp_appstate_t;
-void            uipclient_appcall(void);
+typedef void *uip_tcp_appstate_t;
+void uipclient_appcall(void);
 #define UIP_APPCALL uipclient_appcall
-typedef void*   uip_udp_appstate_t;
-void            uipudp_appcall(void);
+typedef void *uip_udp_appstate_t;
+void uipudp_appcall(void);
 #define UIP_UDP_APPCALL uipudp_appcall
 #define CC_REGISTER_ARG register
 #define UIP_ARCH_CHKSUM 1

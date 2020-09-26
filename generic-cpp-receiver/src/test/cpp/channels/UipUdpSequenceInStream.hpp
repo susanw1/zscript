@@ -15,24 +15,16 @@ class UipUdpLookaheadStream: public RCodeLookaheadStream {
 private:
     UipUdpReadWrapper *reader;
     int pos = 0;
-    int last = -2;
 public:
     UipUdpLookaheadStream(UipUdpReadWrapper *reader) :
             reader(reader) {
     }
     virtual char read() {
-        int result;
-        if (last != -2) {
-            result = last;
-            last = -2;
-        } else {
-            result = reader->peek(pos++);
-        }
+        int result = reader->peek(pos++);
         return result == -1 ? '\n' : result;
     }
-    void reset(int last) {
+    void reset() {
         pos = 0;
-        this->last = last;
     }
 };
 class UipUdpSequenceInStream: public RCodeSequenceInStream {
@@ -62,7 +54,7 @@ public:
     }
 
     virtual RCodeLookaheadStream* getLookahead() {
-        lookahead.reset(last);
+        lookahead.reset();
         return &lookahead;
     }
 

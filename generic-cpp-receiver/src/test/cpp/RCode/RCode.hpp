@@ -33,11 +33,9 @@ public:
         this->channels = channels;
         this->channelNum = channelNum;
     }
-    void progressRCode() {
-        debug.attemptFlush();
-        parser.parseNext();
-        runner.runNext();
-    }
+
+    void progressRCode();
+
     RCodeCommandChannel** getChannels() {
         return channels;
     }

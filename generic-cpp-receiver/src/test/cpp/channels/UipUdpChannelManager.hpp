@@ -18,6 +18,7 @@
 #include "UipUdpWrapper.hpp"
 
 class UipUdpChannelManager {
+    RCode *rcode;
     UdpSocket *socket;
     UipUdpReadWrapper reader;
     UipUdpSequenceInStream seqIn;
@@ -25,12 +26,11 @@ class UipUdpChannelManager {
     UipUdpOutStream out;
     UipUdpCommandChannel channels[RCodeParameters::uipChannelNum];
     bool hasCheckedPackets = false;
-    bool a = 1;
     friend void setupChannels(UipUdpChannelManager *manager, RCode *rcode);
 public:
     UipUdpChannelManager(UdpSocket *socket, RCode *rcode) :
-            socket(socket), reader(socket), seqIn(&reader), in(&seqIn), out(
-                    socket) {
+            rcode(rcode), socket(socket), reader(socket), seqIn(&reader), in(
+                    &seqIn), out(socket) {
         setupChannels(this, rcode);
     }
 
