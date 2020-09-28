@@ -216,6 +216,7 @@ public class RCodeCommandSlot {
                         return false;
                     }
                     target.setIsString(true);
+                    c = 0;
                     while (in.hasNext()) {
                         c = in.read();
                         if (c != '"') {

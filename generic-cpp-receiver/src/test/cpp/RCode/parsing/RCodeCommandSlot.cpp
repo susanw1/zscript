@@ -136,6 +136,7 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
                     end = '\n';
                     return false;
                 }
+                c = 0;
                 target->setIsString(true);
                 while (in->hasNext()) {
                     c = in->read();
