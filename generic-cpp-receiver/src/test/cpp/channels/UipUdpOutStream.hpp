@@ -9,7 +9,6 @@
 #define SRC_TEST_CPP_CHANNELS_UIPUDPOUTSTREAM_HPP_
 
 #include "../RCode/AbstractRCodeOutStream.hpp"
-#include "UipUdpCommandChannel.hpp"
 #include "UipUdpWrapper.hpp"
 
 class UipUdpOutStream: public AbstractRCodeOutStream {
@@ -17,8 +16,8 @@ private:
     UipUdpWriteWrapper write;
     bool open = false;
 public:
-    UipUdpOutStream(UipUdpWriteWrapper write) :
-            write(write) {
+    UipUdpOutStream(UdpSocket *socket) :
+            write(socket) {
     }
 
     virtual void writeByte(uint8_t value) {
@@ -28,20 +27,11 @@ public:
         write.write(value, length);
         return this;
     }
-    virtual void openResponse(RCodeCommandChannel *target) {
-        ((UipUdpCommandChannel*) target)->open(&write);
-        open = true;
-    }
+    virtual void openResponse(RCodeCommandChannel *target);
 
-    virtual void openNotification(RCodeCommandChannel *target) {
-        ((UipUdpCommandChannel*) target)->open(&write);
-        open = true;
-    }
+    virtual void openNotification(RCodeCommandChannel *target);
 
-    virtual void openDebug(RCodeCommandChannel *target) {
-        ((UipUdpCommandChannel*) target)->open(&write);
-        open = true;
-    }
+    virtual void openDebug(RCodeCommandChannel *target);
 
     virtual bool isOpen() {
         return open;
@@ -52,5 +42,6 @@ public:
         open = false;
     }
 };
+#include "UipUdpCommandChannel.hpp"
 
 #endif /* SRC_TEST_CPP_CHANNELS_UIPUDPOUTSTREAM_HPP_ */

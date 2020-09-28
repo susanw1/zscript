@@ -16,9 +16,13 @@ int16_t RCodeInStream::readInternal() {
                     || ((current == '&' || current == '|') && !isInString)) {
                 hasReachedCommandEnd = true;
                 currentValid = false;
+                hasBackslash = false;
+                isInString = false;
             } else if (current == '"') {
                 if (!hasBackslash) {
                     isInString = !isInString;
+                } else {
+                    hasBackslash = false;
                 }
             } else if (isInString) {
                 if (current == '\\') {
@@ -26,6 +30,8 @@ int16_t RCodeInStream::readInternal() {
                 } else {
                     hasBackslash = false;
                 }
+            } else {
+                hasBackslash = false;
             }
         } else {
             currentValid = false;
@@ -70,5 +76,7 @@ void RCodeInStream::skipSequence() {
         currentValid = false;
         hasReachedCommandEnd = true;
         current = -1;
+        hasBackslash = false;
+        isInString = false;
     }
 }

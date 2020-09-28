@@ -11,6 +11,7 @@
 #include "../RCode/parsing/RCodeSequenceInStream.hpp"
 #include "UipUdpWrapper.hpp"
 
+class UipUdpSequenceInStream;
 class UipUdpLookaheadStream: public RCodeLookaheadStream {
 private:
     UipUdpReadWrapper *reader;
@@ -23,34 +24,38 @@ public:
         int result = reader->peek(pos++);
         return result == -1 ? '\n' : result;
     }
+
     void reset() {
         pos = 0;
     }
 };
 class UipUdpSequenceInStream: public RCodeSequenceInStream {
 private:
-    UipUdpReadWrapper *reader;
+    UipUdpReadWrapper reader;
     UipUdpLookaheadStream lookahead;
     int last = -1;
     bool open = false;
 public:
-    UipUdpSequenceInStream(UipUdpReadWrapper *reader) :
-            reader(reader), lookahead(reader) {
+    UipUdpSequenceInStream(UdpSocket *socket) :
+            reader(socket), lookahead(&reader) {
     }
     virtual char next() {
-        int read = reader->read();
+        int read = reader.read();
         if (read < 0 || read == '\n') {
             open = false;
-            if (read == '\n' && reader->peek() == -1) {
-                reader->read();
+            if (read == '\n' && reader.peek() == -1) {
+                reader.read();
             }
         }
         last = read;
         return open ? read : '\n';
     }
+    UipUdpReadWrapper* getReader() {
+        return &reader;
+    }
 
     virtual bool hasNext() {
-        return reader->available() > 0;
+        return reader.available() > 0;
     }
 
     virtual RCodeLookaheadStream* getLookahead() {
@@ -59,7 +64,7 @@ public:
     }
 
     virtual bool hasNextCommandSequence() {
-        return reader->available() > 0;
+        return reader.available() > 0 || reader.open();
     }
 
     virtual void openCommandSequence() {
@@ -68,7 +73,7 @@ public:
 
     virtual void closeCommandSequence() {
         open = false;
-        reader->close();
+        reader.close();
     }
 
     virtual bool isCommandSequenceOpen() const {

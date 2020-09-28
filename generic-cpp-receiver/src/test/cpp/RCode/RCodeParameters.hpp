@@ -37,7 +37,6 @@ public:
     static const int highestRwLockNum = 25;
     static const bool hasMultiByteCommands = false;
     static const int debugBufferLength = 25;
-    static const int uipChannelNum = 3;
 };
 
 #endif /* SRC_TEST_CPP_RCODE_RCODEPARAMETERS_HPP_ */

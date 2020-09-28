@@ -13,27 +13,24 @@
 #include "../RCode/RCodeParameters.hpp"
 #include "../UIP/UipEthernet.h"
 #include "UipUdpWrapper.hpp"
-
-class UipUdpChannelManager;
+#include "UipUdpSequenceInStream.hpp"
+#include "UipUdpOutStream.hpp"
 
 class UipUdpCommandChannel: public RCodeCommandChannel {
 private:
-    UipUdpChannelManager *manager = NULL;
     RCodeCommandSequence sequence;
+    UdpSocket socket;
+    UipUdpSequenceInStream in;
+    RCodeInStream inSt;
+    UipUdpOutStream out;
     uint8_t ip[4];
     uint16_t port = 0;
-    bool isNotificationSet = false;
-    bool isDebugSet = false;
-    bool hasSequence = false;
 
-    void setup(RCode *rcode, UipUdpChannelManager *manager) {
-        this->sequence.setRCode(rcode);
-        this->manager = manager;
-    }
-    friend void setupChannels(UipUdpChannelManager *manager, RCode *rcode);
 public:
-    UipUdpCommandChannel() :
-            sequence(NULL, this) {
+    UipUdpCommandChannel(RCode *rcode, UipEthernet *eth, uint16_t localPort) :
+            sequence(rcode, this), socket(eth, 1000), in(&socket), inSt(&in), out(
+                    &socket) {
+        socket.begin(localPort);
         for (int i = 0; i < 4; i++) {
             ip[i] = 0;
         }
@@ -49,15 +46,6 @@ public:
             }
         }
         return port == remotePort;
-    }
-    bool isInUse() {
-        return isDebugSet || isNotificationSet || sequence.peekFirst() != NULL;
-    }
-    void setHasSequence() {
-        hasSequence = true;
-    }
-    void unsetHasSequence() {
-        hasSequence = false;
     }
     void setAddress(uint8_t *addr, uint16_t remotePort) {
         for (int i = 0; i < 4; i++) {
@@ -85,19 +73,15 @@ public:
     }
 
     virtual void setAsNotificationChannel() {
-        isNotificationSet = true;
     }
 
     virtual void releaseFromNotificationChannel() {
-        isNotificationSet = false;
     }
 
     virtual void setAsDebugChannel() {
-        isDebugSet = true;
     }
 
     virtual void releaseFromDebugChannel() {
-        isDebugSet = false;
     }
     virtual void lock() {
 
@@ -111,6 +95,6 @@ public:
     }
 
 };
-#include "UipUdpChannelManager.hpp"
+#include "UipUdpSequenceInStream.hpp"
 
 #endif /* SRC_TEST_CPP_CHANNELS_UIPUDPCOMMANDCHANNEL_HPP_ */

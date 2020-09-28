@@ -79,7 +79,7 @@ public:
     virtual RCodeOutStream* writeBigStringField(uint8_t const *value,
             uint16_t length) {
         writeByte('"');
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length; ++i) {
             if (value[i] == '\n') {
                 writeByte('\\');
                 writeByte('n');
@@ -95,20 +95,28 @@ public:
     }
 
     virtual RCodeOutStream* writeBigStringField(char const *s) {
-        writeByte('"');
         if (sizeof(uint8_t) == sizeof(char)) {
-            int i = 0;
-            while (*(s + i++) != 0)
+            int i;
+            for (i = 0; *(s + i) != 0; ++i)
                 ;
-            writeBytes((uint8_t const*) s, i);
+            writeBigStringField((uint8_t const*) s, i);
         } else {
-            int i = 0;
+            writeByte('"');
+            int i;
             char c;
-            while ((c = *(s + i++)) != 0) {
-                writeByte((uint8_t) c);
+            for (i = 0; *(s + i) != 0; ++i) {
+                if (c == '\n') {
+                    writeByte('\\');
+                    writeByte('n');
+                } else if (c == '\\' || c == '"') {
+                    writeByte('\\');
+                    writeByte((uint8_t) c);
+                } else {
+                    writeByte((uint8_t) c);
+                }
             }
+            writeByte('"');
         }
-        writeByte('"');
         return this;
     }
 

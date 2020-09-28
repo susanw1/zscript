@@ -16,28 +16,29 @@ private:
     const uint8_t code = 0x01;
 public:
 
-    void finish(RCodeCommandSlot *rCodeCommandSlot, RCodeOutStream *out) const {
+    virtual void finish(RCodeCommandSlot *rCodeCommandSlot,
+            RCodeOutStream *out) const {
     }
 
-    void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
+    virtual void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
             RCodeOutStream *out);
 
-    void setLocks(RCodeLockSet *locks) const {
+    virtual void setLocks(RCodeLockSet *locks) const {
     }
 
-    uint8_t getCode() const {
+    virtual uint8_t getCode() const {
         return code;
     }
 
-    bool matchesCode(uint8_t code[], uint8_t length) const {
+    virtual bool matchesCode(uint8_t code[], uint8_t length) const {
         return length == 1 && code[0] == RCodeEchoCommand::code;
     }
 
-    uint8_t getCodeLength() const {
+    virtual uint8_t getCodeLength() const {
         return 1;
     }
 
-    uint8_t const* getFullCode() const {
+    virtual uint8_t const* getFullCode() const {
         return &code;
     }
 };

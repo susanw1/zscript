@@ -12,7 +12,7 @@
 
 class UipUdpReadWrapper {
 private:
-    UdpSocket *const socket;
+    UdpSocket *socket;
     bool reading = false;
 public:
     UipUdpReadWrapper(UdpSocket *socket) :
@@ -73,7 +73,7 @@ public:
     UipUdpWriteWrapper(UdpSocket *socket) :
             socket(socket) {
     }
-    int beginPacket(IpAddress ip, uint16_t port) {
+    bool beginPacket(IpAddress ip, uint16_t port) {
         if (!isWriting) {
             isWriting = socket->beginPacket(ip, port);
             return isWriting;
@@ -85,13 +85,13 @@ public:
         if (isWriting) {
             return socket->write(b);
         }
-        return false;
+        return 0;
     }
     size_t write(const uint8_t *buffer, size_t size) {
         if (isWriting) {
             return socket->write(buffer, size);
         }
-        return false;
+        return 0;
     }
 
     void endPacket() {

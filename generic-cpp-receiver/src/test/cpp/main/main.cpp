@@ -28,7 +28,7 @@
 #include "RCodeActivateCommand.hpp"
 #include "RCodeSetDebugChannelCommand.hpp"
 #include "RCodeSendDebugCommand.hpp"
-#include "UipUdpChannelManager.hpp"
+#include "UipUdpCommandChannel.hpp"
 
 int main(void) {
 
@@ -37,16 +37,10 @@ int main(void) {
 
     while (uip.connect(5))
         ;
-    UdpSocket socket(&uip);
-
-    socket.begin(4889);
     RCode r;
-    UipUdpChannelManager uipManager(&socket, &r);
-    RCodeCommandChannel *channels[RCodeParameters::uipChannelNum];
-    for (int i = 0; i < RCodeParameters::uipChannelNum; ++i) {
-        channels[i] = uipManager.getChannels() + i;
-    }
-    r.setChannels(channels, RCodeParameters::uipChannelNum);
+    UipUdpCommandChannel channel(&r, &uip, 4889);
+    RCodeCommandChannel *ch = &channel;
+    r.setChannels(&ch, 1);
     RCodeEchoCommand cmd;
     RCodeActivateCommand cmd2;
     RCodeSetDebugChannelCommand cmd3(&r);

@@ -8,24 +8,22 @@
 #include "UipUdpCommandChannel.hpp"
 
 RCodeInStream* UipUdpCommandChannel::getInStream() {
-    return manager->getInStream();
+    return &inSt;
 }
 
 RCodeOutStream* UipUdpCommandChannel::getOutStream() {
-    return manager->getOutStream();
+    return &out;
 }
 
 bool UipUdpCommandChannel::hasCommandSequence() {
-    manager->checkSequences();
-    return hasSequence;
+    if (in.hasNextCommandSequence()) {
+        setAddress(in.getReader()->remoteIP().rawAddress(),
+                in.getReader()->remotePort());
+        return true;
+    }
+    return false;
 }
 
 void UipUdpCommandChannel::releaseInStream() {
-    manager->getInStream()->getSequenceIn()->closeCommandSequence();
-    manager->inReleased();
-}
-void setupChannels(UipUdpChannelManager *manager, RCode *rcode) {
-    for (int i = 0; i < RCodeParameters::uipChannelNum; i++) {
-        manager->channels[i].setup(rcode, manager);
-    }
+    in.closeCommandSequence();
 }

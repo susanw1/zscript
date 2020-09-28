@@ -19,19 +19,19 @@
 
 class UipUdpChannelManager {
     RCode *rcode;
-    UdpSocket *socket;
-    UipUdpReadWrapper reader;
     UipUdpSequenceInStream seqIn;
     RCodeInStream in;
     UipUdpOutStream out;
     UipUdpCommandChannel channels[RCodeParameters::uipChannelNum];
-    bool hasCheckedPackets = false;
-    friend void setupChannels(UipUdpChannelManager *manager, RCode *rcode);
+    UdpSocket sockets[RCodeParameters::uipChannelNum];
+    bool waitingForSlot = false;
+    friend void setupChannels(UipUdpChannelManager *manager, UipEthernet *eth,
+            RCode *rcode);
+//    void findChannelForRun();
 public:
-    UipUdpChannelManager(UdpSocket *socket, RCode *rcode) :
-            rcode(rcode), socket(socket), reader(socket), seqIn(&reader), in(
-                    &seqIn), out(socket) {
-        setupChannels(this, rcode);
+    UipUdpChannelManager(UipEthernet *eth, UdpSocket *socket, RCode *rcode) :
+            rcode(rcode), seqIn(), in(&seqIn), out(socket) {
+        setupChannels(this, eth, rcode);
     }
 
     UipUdpCommandChannel* getChannels() {
@@ -46,9 +46,8 @@ public:
         return &out;
     }
     void inReleased() {
-        hasCheckedPackets = false;
     }
-    void checkSequences();
+//    void checkSequences();
 };
 
 #endif /* SRC_TEST_CPP_MAIN_UIPUDPCHANNELMANAGER_HPP_ */
