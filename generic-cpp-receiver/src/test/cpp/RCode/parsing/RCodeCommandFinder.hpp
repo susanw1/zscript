@@ -25,8 +25,12 @@ private:
 
 public:
 
-    void registerCommand(RCodeCommand *cmd) {
-        commands[commandNum++] = cmd;
+    bool registerCommand(RCodeCommand *cmd) {
+        if (commandNum < RCodeParameters::commandNum) {
+            commands[commandNum++] = cmd;
+            return true;
+        }
+        return false;
     }
 
     RCodeCommand* findCommand(RCodeCommandSlot *slot);
