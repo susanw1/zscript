@@ -27,28 +27,47 @@
 #include "RCodeEchoCommand.hpp"
 #include "RCodeActivateCommand.hpp"
 #include "RCodeSetDebugChannelCommand.hpp"
-#include "RCodeSendDebugCommand.hpp"
+#include "commands/RCodeSendDebugCommand.hpp"
+#include "commands/RCodeExecutionStateCommand.hpp"
+#include "commands/RCodeExecutionCommand.hpp"
+#include "commands/RCodeExecutionStoreCommand.hpp"
+#include "commands/RCodeNotificationHostCommand.hpp"
+#include "executionspace/RCodeExecutionSpaceChannel.hpp"
 #include "UipUdpCommandChannel.hpp"
 
-int main(void) {
+DigitalOut led(PB_0);
 
+int main(void) {
+    led = 1;
     uint8_t mac[] = { 0x1E, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
     UipEthernet uip(mac, PA_7, PA_6, PA_5, PA_8);
 
     while (uip.connect(5))
         ;
-    RCode r;
+    RCode r(NULL, 0);
     UipUdpCommandChannel channel(&r, &uip, 4889);
-    RCodeCommandChannel *ch = &channel;
-    r.setChannels(&ch, 1);
-    RCodeEchoCommand cmd;
-    RCodeActivateCommand cmd2;
-    RCodeSetDebugChannelCommand cmd3(&r);
-    RCodeSendDebugCommand cmd4(&r);
-    r.getCommandFinder()->registerCommand(&cmd);
+    RCodeExecutionSpaceChannel execCh = RCodeExecutionSpaceChannel(&r,
+            r.getSpace());
+    RCodeCommandChannel *chptr[2] = { &channel, &execCh };
+    RCodeExecutionSpaceChannel **execPtr = (RCodeExecutionSpaceChannel**) chptr
+            + 1;
+    r.setChannels(chptr, 1);
+    r.getSpace()->setChannels(execPtr, 1);
+    RCodeEchoCommand cmd0 = RCodeEchoCommand();
+    RCodeActivateCommand cmd1 = RCodeActivateCommand();
+    RCodeSetDebugChannelCommand cmd2 = RCodeSetDebugChannelCommand(&r);
+    RCodeSendDebugCommand cmd3 = RCodeSendDebugCommand(&r);
+    RCodeExecutionStateCommand cmd4 = RCodeExecutionStateCommand(r.getSpace());
+    RCodeExecutionCommand cmd5 = RCodeExecutionCommand(r.getSpace());
+    RCodeExecutionStoreCommand cmd6 = RCodeExecutionStoreCommand(r.getSpace());
+    RCodeNotificationHostCommand cmd7 = RCodeNotificationHostCommand(&r);
+    r.getCommandFinder()->registerCommand(&cmd0);
     r.getCommandFinder()->registerCommand(&cmd2);
     r.getCommandFinder()->registerCommand(&cmd3);
     r.getCommandFinder()->registerCommand(&cmd4);
+    r.getCommandFinder()->registerCommand(&cmd5);
+    r.getCommandFinder()->registerCommand(&cmd6);
+    r.getCommandFinder()->registerCommand(&cmd7);
     while (true) {
         r.progressRCode();
         uip.tick();

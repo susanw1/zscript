@@ -33,7 +33,7 @@ public:
     static const int interruptStoreNum = 5;
     static const int interruptVectorWorkingNum = 5;
     static const int interruptVectorNum = 5;
-    static const int executionLength = 64;
+    static const uint16_t executionLength = 64;
     static const int executionOutBufferSize = 32;
     static const int executionInNum = 1;
     static const int executionOutNum = 1;

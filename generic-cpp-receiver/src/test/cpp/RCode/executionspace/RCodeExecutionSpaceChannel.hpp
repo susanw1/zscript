@@ -57,19 +57,15 @@ public:
     void unlock();
 
     void setAsNotificationChannel() {
-        throw "Execution Space cannot be notification channel";
     }
 
     void releaseFromNotificationChannel() {
-        throw "Execution Space cannot be notification channel";
     }
 
     void setAsDebugChannel() {
-        throw "Execution Space cannot be debug channel";
     }
 
     void releaseFromDebugChannel() {
-        throw "Execution Space cannot be debug channel";
     }
 
 };
