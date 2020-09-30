@@ -8,7 +8,9 @@ public class RCodeExecutionSpace {
     private final RCodeNotificationManager notifications;
     private final byte[] space;
     private int length = 0;
+    private int delay = 0;
     private boolean running = false;
+    private boolean failed = false;
 
     private RCodeExecutionSpaceSequenceIn[] inStreams;
     private RCodeExecutionSpaceOut[] outStreams;
@@ -24,6 +26,14 @@ public class RCodeExecutionSpace {
         for (int i = 0; i < outStreams.length; i++) {
             outStreams[i] = new RCodeExecutionSpaceOut(params, this);
         }
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 
     public byte get(int pos) {
@@ -100,6 +110,14 @@ public class RCodeExecutionSpace {
 
     public void setRunning(boolean b) {
         running = b;
+    }
+
+    public boolean hasFailed() {
+        return failed;
+    }
+
+    public void setFailed(boolean failed) {
+        this.failed = failed;
     }
 
     public void write(byte[] data, int address, boolean isEnd) {

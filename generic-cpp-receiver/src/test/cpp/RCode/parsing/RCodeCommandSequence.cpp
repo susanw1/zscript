@@ -150,7 +150,6 @@ bool RCodeCommandSequence::parseFlags() {
     return true;
 }
 bool RCodeCommandSequence::canLock() {
-    return true;
     if (!locks.isActive()) {
         locks.activate();
         for (RCodeCommandSlot *slot = first; slot != NULL; slot = slot->next) {
@@ -162,7 +161,6 @@ bool RCodeCommandSequence::canLock() {
     return rcode->canLock(&locks);
 }
 void RCodeCommandSequence::lock() {
-    return;
     if (!locks.isActive()) {
         locks.activate();
         for (RCodeCommandSlot *slot = first; slot != NULL; slot = slot->next) {
@@ -175,7 +173,6 @@ void RCodeCommandSequence::lock() {
 }
 
 void RCodeCommandSequence::unlock() {
-    return;
     if (!locks.isActive()) {
         rcode->unlock(&locks);
         locks.reset();

@@ -13,6 +13,7 @@ public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
     private final RCodeExecutionSpace space;
     private final RCodeCommandSequence sequence;
     private int position = 0;
+    private int delayTimer = 0;
     private RCodeInStream in = null;
     private RCodeOutStream out = null;
     private RCodeLockSet locks;
@@ -42,11 +43,12 @@ public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
 
     @Override
     public boolean hasCommandSequence() {
-        boolean has = space.isRunning() && space.hasInStream() && space.hasOutStream() && in == null && out == null;
+        boolean has = space.isRunning() && space.hasInStream() && space.hasOutStream() && in == null && out == null && delayTimer >= space.getDelay();
         if (has) {
             in = new RCodeInStream(space.acquireInStream(position));
             out = space.acquireOutStream();
         }
+        delayTimer++;
         return has;
     }
 
@@ -62,6 +64,7 @@ public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
 
     @Override
     public void releaseInStream() {
+        delayTimer = 0;
         if (in != null) {
             position = ((RCodeExecutionSpaceSequenceIn) in.getSequenceIn()).getPosition();
             space.releaseInStream((RCodeExecutionSpaceSequenceIn) in.getSequenceIn());

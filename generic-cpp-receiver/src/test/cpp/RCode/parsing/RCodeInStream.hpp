@@ -29,6 +29,9 @@ private:
         RCodeInStreamLookaheadOffset(RCodeInStream *parent) :
                 parent(parent) {
         }
+        virtual void setParent(RCodeInStream *parent) {
+            this->parent = parent;
+        }
         virtual void reset(RCodeLookaheadStream *toWrap) {
             hasUsed = false;
             this->toWrap = toWrap;
@@ -42,7 +45,7 @@ private:
         }
     };
     RCodeInStreamLookaheadOffset lookahead;
-    RCodeSequenceInStream *const sequenceIn;
+    RCodeSequenceInStream *sequenceIn;
     bool hasBackslash = false;
     bool lockVal = false;
     bool currentValid = false;
@@ -53,7 +56,14 @@ public:
     RCodeInStream(RCodeSequenceInStream *sequenceIn) :
             lookahead(this), sequenceIn(sequenceIn) {
     }
-
+    void operator =(const RCodeInStream &r) {
+        lookahead = r.lookahead;
+        lookahead.setParent(this);
+        sequenceIn = r.sequenceIn;
+        hasBackslash = r.hasBackslash;
+        lockVal = r.lockVal;
+        currentValid = r.currentValid;
+    }
     char read() {
         int16_t c = readInternal();
         if (c == -1) {

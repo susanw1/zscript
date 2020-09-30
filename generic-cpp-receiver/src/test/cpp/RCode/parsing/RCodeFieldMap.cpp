@@ -8,7 +8,7 @@
 
 void RCodeFieldMap::copyFieldTo(RCodeOutStream *out, char c) const {
     bool hasSeenBefore = false;
-    for (uint8_t i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         if (fields[i] == c) {
             if (!hasSeenBefore) {
                 out->writeField(c, values[i]);
@@ -24,8 +24,8 @@ void RCodeFieldMap::copyFieldTo(RCodeOutStream *out, char c) const {
 }
 void RCodeFieldMap::copyTo(RCodeOutStream *out) const {
     char last = 0;
-    for (uint8_t i = 0; i < size; i++) {
-        if (fields[i] != 'E' && fields[i] != 'R') {
+    for (int i = 0; i < size; i++) {
+        if (fields[i] != 'E' && fields[i] != 'R' && fields[i] != 'S') {
             if (last == fields[i]) {
                 out->continueField(values[i]);
             } else {

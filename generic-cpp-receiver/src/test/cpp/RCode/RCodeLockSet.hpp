@@ -15,7 +15,7 @@ private:
     uint8_t locks[RCodeParameters::lockNum];
     uint8_t w_nr[RCodeParameters::lockNum];
     bool active = false;
-    uint16_t lockNum = 0;
+    lockNumber_t lockNum = 0;
 
 public:
     void addLock(uint8_t lock, bool isWrite) {
@@ -38,7 +38,7 @@ public:
         return locks;
     }
 
-    uint16_t getLockNum() const {
+    lockNumber_t getLockNum() const {
         return lockNum;
     }
 

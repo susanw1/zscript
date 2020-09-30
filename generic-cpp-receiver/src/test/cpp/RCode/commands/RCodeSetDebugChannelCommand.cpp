@@ -9,7 +9,7 @@
 
 void RCodeSetDebugChannelCommand::execute(RCodeCommandSlot *slot,
         RCodeCommandSequence *sequence, RCodeOutStream *out) {
-    rcode->getDebug()->setDebugChannel(sequence->getChannel());
+    rcode->getDebug().setDebugChannel(sequence->getChannel());
     out->writeStatus(OK);
     slot->setComplete(true);
 }

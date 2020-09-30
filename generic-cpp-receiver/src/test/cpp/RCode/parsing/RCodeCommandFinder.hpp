@@ -10,21 +10,25 @@
 #include "../RCodeIncludes.hpp"
 #include "../RCodeParameters.hpp"
 
+class RCode;
 class RCodeCommand;
 class RCodeCommandSlot;
 
 struct RCodeSupportedCommandArray {
     uint8_t cmds[RCodeParameters::commandCapabilitiesReturnArrayMaxSize];
-    uint16_t cmdNum;
+    commandNum_t cmdNum;
 };
 
 class RCodeCommandFinder {
 private:
+    RCode *rcode;
     RCodeCommand *commands[RCodeParameters::commandNum];
-    int commandNum = 0;
+    commandNum_t commandNum = 0;
 
 public:
-
+    RCodeCommandFinder(RCode *rcode) :
+            rcode(rcode) {
+    }
     bool registerCommand(RCodeCommand *cmd) {
         if (commandNum < RCodeParameters::commandNum) {
             commands[commandNum++] = cmd;
@@ -40,5 +44,6 @@ public:
 
 #include "../commands/RCodeCommand.hpp"
 #include "RCodeCommandSlot.hpp"
+#include "../RCode.hpp"
 
 #endif /* SRC_TEST_CPP_RCODE_PARSING_RCODECOMMANDFINDER_HPP_ */

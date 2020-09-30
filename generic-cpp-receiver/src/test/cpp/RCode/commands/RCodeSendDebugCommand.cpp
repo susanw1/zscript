@@ -9,7 +9,7 @@
 
 void RCodeSendDebugCommand::execute(RCodeCommandSlot *slot,
         RCodeCommandSequence *sequence, RCodeOutStream *out) {
-    rcode->getDebug()->println((const char*) slot->getBigField()->getData(),
+    rcode->getDebug().println((const char*) slot->getBigField()->getData(),
             slot->getBigField()->getLength());
     out->writeStatus(OK);
     slot->setComplete(true);

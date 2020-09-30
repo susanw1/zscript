@@ -45,29 +45,42 @@ public:
         return this;
     }
 
-    virtual RCodeOutStream* writeField(char f, uint8_t v) {
+    virtual RCodeOutStream* writeField(char f, fieldUnit v) {
         writeByte(f);
-        if (v != 0) {
-            if (v > 15) {
-                writeByte(toHexDigit(v >> 4));
+        if (sizeof(fieldUnit) == 1 || v <= 255) {
+            if (v != 0) {
+                if (v > 15) {
+                    writeByte(toHexDigit(v >> 4));
+                }
+                writeByte(toHexDigit(v & 0x0F));
             }
-            writeByte(toHexDigit(v & 0x0F));
+        } else {
+            int i = 1;
+            for (fieldUnit tmp = 0xff; tmp < v; tmp = (tmp << 4) + 0x0f) {
+                i++;
+            }
+            for (; i >= 0; --i) {
+                writeByte(toHexDigit((v >> (4 * i)) & 0x0F));
+            }
         }
         return this;
     }
 
-    virtual RCodeOutStream* continueField(uint8_t v) {
-        if (v > 15) {
+    virtual RCodeOutStream* continueField(fieldUnit v) {
+        if (sizeof(fieldUnit) == 1) {
             writeByte(toHexDigit(v >> 4));
+            writeByte(toHexDigit(v & 0x0F));
         } else {
-            writeByte('0');
+            int i = sizeof(fieldUnit) * 2 - 1;
+            for (; i >= 0; --i) {
+                writeByte(toHexDigit((v >> (4 * i)) & 0x0F));
+            }
         }
-        writeByte(toHexDigit(v & 0x0F));
         return this;
     }
 
     virtual RCodeOutStream* writeBigHexField(uint8_t const *value,
-            uint16_t length) {
+            bigFieldAddress_t length) {
         writeByte('+');
         for (int i = 0; i < length; i++) {
             writeByte(toHexDigit(value[i] >> 4));
@@ -77,7 +90,7 @@ public:
     }
 
     virtual RCodeOutStream* writeBigStringField(uint8_t const *value,
-            uint16_t length) {
+            bigFieldAddress_t length) {
         writeByte('"');
         for (int i = 0; i < length; ++i) {
             if (value[i] == '\n') {
@@ -136,6 +149,7 @@ public:
     virtual ~AbstractRCodeOutStream() {
 
     }
-};
+}
+;
 
 #endif /* SRC_TEST_CPP_RCODE_ABSTRACTRCODEOUTSTREAM_HPP_ */

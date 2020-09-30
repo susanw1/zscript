@@ -11,8 +11,12 @@
 #include "RCodeParameters.hpp"
 #include "parsing/RCodeParser.hpp"
 #include "parsing/RCodeCommandFinder.hpp"
+#include "executionspace/RCodeExecutionSpace.hpp"
+#include "RCodeNotificationManager.hpp"
 #include "RCodeRunner.hpp"
 #include "RCodeDebugOutput.hpp"
+#include "RCodeVoidChannel.hpp"
+#include "RCodeLocks.hpp"
 
 class RCodeCommandChannel;
 class RCodeLockSet;
@@ -21,13 +25,19 @@ class RCode {
 private:
     RCodeParser parser;
     RCodeRunner runner;
+    RCodeNotificationManager notificationManager;
+    RCodeExecutionSpace space;
     RCodeCommandFinder finder;
     RCodeDebugOutput debug;
+    RCodeVoidChannel voidChannel;
+    RCodeLocks locks;
     RCodeCommandChannel **channels = NULL;
     uint8_t channelNum = 0;
 public:
-    RCode() :
-            parser(this), runner(this), debug() {
+    RCode(RCodeBusInterruptSource *interruptSources, uint8_t interruptSourceNum) :
+            parser(this), runner(this), notificationManager(this,
+                    interruptSources, interruptSourceNum), space(
+                    &notificationManager), finder(this), debug() {
     }
     void setChannels(RCodeCommandChannel **channels, uint8_t channelNum) {
         this->channels = channels;
@@ -36,6 +46,13 @@ public:
 
     void progressRCode();
 
+    RCodeCommandChannel* getVoidChannel() {
+        return &voidChannel;
+    }
+
+    RCodeExecutionSpace* getSpace() {
+        return &space;
+    }
     RCodeCommandChannel** getChannels() {
         return channels;
     }
@@ -46,22 +63,24 @@ public:
         return &finder;
     }
 
-    RCodeDebugOutput* getDebug() {
-        return &debug;
+    RCodeDebugOutput& getDebug() {
+        return debug;
     }
 
-    bool canLock(RCodeLockSet *locks) {
-        return true;
+    RCodeNotificationManager* getNotificationManager() {
+        return &notificationManager;
+    }
+    bool canLock(RCodeLockSet *lockset) {
+        return locks.canLock(lockset);
     }
 
-    void lock(RCodeLockSet *locks) {
-        ;
+    void lock(RCodeLockSet *lockset) {
+        locks.lock(lockset);
     }
 
-    void unlock(RCodeLockSet *locks) {
-        ;
+    void unlock(RCodeLockSet *lockset) {
+        locks.unlock(lockset);
     }
-    //TODO: Implement real locking for RCode
 };
 
 #endif /* SRC_TEST_CPP_RCODE_RCODE_HPP_ */

@@ -17,7 +17,7 @@ class RCodeFieldMap {
 private:
     char fields[RCodeParameters::fieldNum];
     fieldUnit values[RCodeParameters::fieldNum];
-    uint8_t size = 0;
+    fieldMapSize_t size = 0;
     mutable char lastSearchedField = 0;
     mutable fieldUnit lastFoundValue = 0;
 public:
@@ -94,7 +94,7 @@ public:
         return j;
     }
 
-    uint8_t getFieldCount() const {
+    fieldMapSize_t getFieldCount() const {
         return size;
     }
 

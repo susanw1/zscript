@@ -14,7 +14,7 @@ class RCodeOutStream;
 
 class RCodeBigField {
 protected:
-    uint16_t length = 0;
+    bigFieldAddress_t length = 0;
     bool string = false;
 public:
     virtual bool addByteToBigField(uint8_t b) = 0;
@@ -23,7 +23,7 @@ public:
 
     virtual uint8_t const* getData() const = 0;
 
-    uint16_t getLength() const {
+    bigFieldAddress_t getLength() const {
         return length;
     }
 

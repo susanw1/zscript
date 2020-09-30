@@ -94,6 +94,7 @@ class ExecutionSpaceTest {
         StringOutStream out = new StringOutStream();
         r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8&R6\nR21G\n", out, false, 12), new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
         r.getSpace().write("R1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&R1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&R11A7\n".getBytes(StandardCharsets.US_ASCII), 0, true);
+        r.getSpace().setDelay(5);
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
         r.getCommandFinder().registerCommand(new RCodeTmpCommand());
@@ -114,6 +115,7 @@ class ExecutionSpaceTest {
         StringOutStream out = new StringOutStream();
         r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8&R6\nR21G\n", out, false, 12), new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
         r.getSpace().write("R1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&R11A7\n".getBytes(StandardCharsets.US_ASCII), 0, true);
+        r.getSpace().setDelay(2);
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
         r.getCommandFinder().registerCommand(new RCodeTmpCommand());

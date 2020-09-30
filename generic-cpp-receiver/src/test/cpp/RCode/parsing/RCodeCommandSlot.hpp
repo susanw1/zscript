@@ -18,7 +18,13 @@ class RCodeInStream;
 class RCodeCommandSequence;
 
 class RCodeParser;
-
+struct RCodeCommandSlotStatus {
+    bool parsed :1;
+    bool complete :1;
+    bool started :1;
+    bool usesBigBig :1;
+    bool hasCheckedCommand :1;
+};
 class RCodeCommandSlot {
 public:
     RCodeCommandSlot *next = NULL;
@@ -30,10 +36,7 @@ private:
     RCodeFieldMap map;
     RCodeResponseStatus status = OK;
     char end = 0;
-    bool parsed = false;
-    bool complete = false;
-    bool started = false;
-    bool usesBigBig = false;
+    RCodeCommandSlotStatus slotStatus;
 
     uint8_t getHex(char c) {
         return (uint8_t) (c >= 'a' ? c - 'a' + 10 : c - '0');
@@ -50,47 +53,54 @@ private:
     }
     friend void RCodeParserSetupSlots(RCodeParser *parser);
 public:
-
+    RCodeCommandSlot() {
+        slotStatus.parsed = false;
+        slotStatus.started = false;
+        slotStatus.complete = false;
+        slotStatus.hasCheckedCommand = false;
+        slotStatus.usesBigBig = false;
+    }
     void reset() {
         next = NULL;
         map.reset();
         big.reset();
         status = OK;
-        parsed = false;
-        started = false;
-        complete = false;
-        if (RCodeParameters::bigBigFieldLength > 0 && usesBigBig) {
+        slotStatus.parsed = false;
+        slotStatus.started = false;
+        slotStatus.complete = false;
+        slotStatus.hasCheckedCommand = false;
+        if (RCodeParameters::bigBigFieldLength > 0 && slotStatus.usesBigBig) {
             bigBig->reset();
-            usesBigBig = false;
         }
+        slotStatus.usesBigBig = false;
         cmd = NULL;
     }
     void start() {
-        started = true;
+        slotStatus.started = true;
     }
     bool isStarted() const {
-        return started;
+        return slotStatus.started;
     }
     void terminate() {
         end = '\n';
     }
     bool isComplete() const {
-        return complete;
+        return slotStatus.complete;
     }
     void setComplete(bool complete) {
-        this->complete = complete;
+        this->slotStatus.complete = complete;
     }
     RCodeFieldMap* getFields() {
         return &map;
     }
     RCodeBigField* getBigField() {
-        if (RCodeParameters::bigBigFieldLength > 0 && usesBigBig) {
+        if (RCodeParameters::bigBigFieldLength > 0 && slotStatus.usesBigBig) {
             return bigBig;
         }
         return &big;
     }
     bool isParsed() const {
-        return parsed;
+        return slotStatus.parsed;
     }
 
     char getEnd() const {

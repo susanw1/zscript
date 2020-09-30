@@ -13,6 +13,7 @@ void RCodeEchoCommand::execute(RCodeCommandSlot *slot,
         out->writeStatus(OK);
     } else {
         slot->fail("", (RCodeResponseStatus) slot->getFields()->get('S', 0));
+        out->writeStatus((RCodeResponseStatus) slot->getFields()->get('S', 0));
     }
     slot->getFields()->copyTo(out);
     slot->getBigField()->copyTo(out);

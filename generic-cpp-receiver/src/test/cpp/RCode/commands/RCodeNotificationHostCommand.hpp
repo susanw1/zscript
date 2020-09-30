@@ -1,31 +1,28 @@
 /*
- * RCodeActivateCommand.hpp
+ * RCodeNotificationHostCommand.hpp
  *
- *  Created on: 9 Sep 2020
+ *  Created on: 30 Sep 2020
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_RCODE_COMMANDS_RCODEACTIVATECOMMAND_HPP_
-#define SRC_TEST_CPP_RCODE_COMMANDS_RCODEACTIVATECOMMAND_HPP_
+#ifndef SRC_TEST_CPP_RCODE_COMMANDS_RCODENOTIFICATIONHOSTCOMMAND_HPP_
+#define SRC_TEST_CPP_RCODE_COMMANDS_RCODENOTIFICATIONHOSTCOMMAND_HPP_
 
 #include "../RCodeIncludes.hpp"
 #include "../RCodeParameters.hpp"
 #include "RCodeCommand.hpp"
 
 class RCodeOutStream;
-class RCodeActivateCommand: public RCodeCommand {
+class RCodeDebugOutput;
+class RCode;
+
+class RCodeNotificationHostCommand: public RCodeCommand {
 private:
-    static bool activated;
-    const uint8_t code = 0x03;
+    const uint8_t code = 0x08;
+    RCode *const rcode;
 public:
-    static const int MAX_SYSTEM_CODE = 15;
-
-    static bool isActivated() {
-        return activated;
-    }
-
-    static void reset() {
-        activated = false;
+    RCodeNotificationHostCommand(RCode *const rcode) :
+            rcode(rcode) {
     }
 
     void finish(RCodeCommandSlot *rCodeCommandSlot, RCodeOutStream *out) const {
@@ -42,7 +39,7 @@ public:
     }
 
     bool matchesCode(uint8_t code[], uint8_t length) const {
-        return length == 1 && code[0] == RCodeActivateCommand::code;
+        return length == 1 && code[0] == RCodeNotificationHostCommand::code;
     }
 
     uint8_t getCodeLength() const {
@@ -54,7 +51,9 @@ public:
     }
 };
 
+#include "../RCode.hpp"
 #include "../RCodeOutStream.hpp"
+#include "../RCodeNotificationManager.hpp"
 #include "../parsing/RCodeCommandSlot.hpp"
 
-#endif /* SRC_TEST_CPP_RCODE_COMMANDS_RCODEACTIVATECOMMAND_HPP_ */
+#endif /* SRC_TEST_CPP_RCODE_COMMANDS_RCODENOTIFICATIONHOSTCOMMAND_HPP_ */

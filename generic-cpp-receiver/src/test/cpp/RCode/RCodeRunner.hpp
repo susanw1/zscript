@@ -17,7 +17,7 @@ class RCodeRunner {
 private:
     RCode *const rcode;
     RCodeCommandSequence *running[RCodeParameters::maxParallelRunning];
-    int parallelNum = 0;
+    uint8_t parallelNum = 0;
     bool canBeParallel = false;
 
     void runSequence(RCodeCommandSequence *target, int targetInd);

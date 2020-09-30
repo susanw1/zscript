@@ -29,7 +29,7 @@ public:
 };
 class RCodeLocalSequenceInStream: public RCodeSequenceInStream {
 private:
-    char buffer[500];
+    char buffer[10000];
     int lengthRead = 0;
     int pos = 0;
     bool opened = false;
@@ -60,7 +60,7 @@ public:
     }
 
     virtual void openCommandSequence() {
-        std::cin.getline(buffer, 499);
+        std::cin.getline(buffer, 9999);
         lengthRead = std::cin.gcount();
         buffer[lengthRead - 1] = '\n';
         opened = true;

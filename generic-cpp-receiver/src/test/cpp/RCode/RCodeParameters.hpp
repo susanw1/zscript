@@ -11,6 +11,14 @@
 
 typedef uint8_t fieldUnit;
 
+typedef uint16_t executionSpaceAddress_t;
+typedef uint16_t executionSpaceOutLength_t;
+typedef uint16_t bigFieldAddress_t;
+typedef uint8_t fieldMapSize_t;
+typedef uint8_t commandNum_t;
+typedef uint8_t debugOutputBufferLength_t;
+typedef uint8_t lockNumber_t;
+
 class RCodeParameters {
 public:
     static const int bigFieldLength = 32;
@@ -36,7 +44,11 @@ public:
     static const int lowestRwLockNum = 20;
     static const int highestRwLockNum = 25;
     static const bool hasMultiByteCommands = false;
-    static const int debugBufferLength = 25;
+    static const int debugBufferLength = 100;
+};
+class RCodeLockValues {
+public:
+    static const uint8_t executionSpaceLock = 20;
 };
 
 #endif /* SRC_TEST_CPP_RCODE_RCODEPARAMETERS_HPP_ */

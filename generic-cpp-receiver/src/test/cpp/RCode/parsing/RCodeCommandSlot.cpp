@@ -36,11 +36,11 @@ bool RCodeCommandSlot::parseHexField(RCodeInStream *in, char field) {
             return false;
         }
         while (lookahead > 0) {
-            for (int i = 0; i < 1 * 2; i++) {
+            for (int i = 0; i < sizeof(fieldUnit) * 2; i++) {
                 current <<= 4;
                 current |= getHex(in->read());
             }
-            lookahead -= 1 * 2;
+            lookahead -= sizeof(fieldUnit) * 2;
             if (!map.add(field, current)) {
                 return false;
             }
@@ -50,7 +50,8 @@ bool RCodeCommandSlot::parseHexField(RCodeInStream *in, char field) {
     }
 }
 RCodeCommand* RCodeCommandSlot::getCommand(RCode *rcode) {
-    if (cmd == NULL) {
+    if (cmd == NULL && !slotStatus.hasCheckedCommand) {
+        slotStatus.hasCheckedCommand = true;
         cmd = rcode->getCommandFinder()->findCommand(this);
     }
     return cmd;
@@ -64,12 +65,13 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
     if (!in->hasNext()) {
         status = PARSE_ERROR;
         errorMessage = "No command present";
+        sequence->getRCode()->getDebug() << "No command present\n";
         in->closeCommand();
         end = '\n';
         return false;
     }
     char c;
-    parsed = true;
+    slotStatus.parsed = true;
     while (true) {
         if (in->hasNext()) {
             RCodeParser::eatWhitespace(in);
@@ -78,22 +80,29 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
             c = in->read();
             if (c >= 'A' && c <= 'Z') {
                 if (map.has(c)) {
+                    slotStatus.hasCheckedCommand = true;
                     status = PARSE_ERROR;
                     errorMessage = "Same field appears twice";
+                    sequence->getRCode()->getDebug()
+                            << "Same field appears twice\n";
                     in->closeCommand();
                     end = '\n';
                     return false;
                 } else if (!parseHexField(in, c)) {
+                    slotStatus.hasCheckedCommand = true;
                     status = TOO_BIG;
                     errorMessage = "Too many fields";
+                    sequence->getRCode()->getDebug() << "Too many fields\n";
                     in->closeCommand();
                     end = '\n';
                     return false;
                 }
             } else if (c == '+') {
                 if (target->getLength() != 0) {
+                    slotStatus.hasCheckedCommand = true;
                     status = PARSE_ERROR;
                     errorMessage = "Multiple big fields";
+                    sequence->getRCode()->getDebug() << "Multiple big fields\n";
                     in->closeCommand();
                     end = '\n';
                     return false;
@@ -105,8 +114,11 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
                     d = getHex(in->read());
                     d <<= 4;
                     if (!in->hasNext() || !isHex(in->peek())) {
+                        slotStatus.hasCheckedCommand = true;
                         status = PARSE_ERROR;
                         errorMessage = "Big field odd digits";
+                        sequence->getRCode()->getDebug()
+                                << "Big field odd digits\n";
                         in->closeCommand();
                         end = '\n';
                         return false;
@@ -115,13 +127,16 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
                     if (!target->addByteToBigField(d)) {
                         if (target == &big
                                 && RCodeParameters::bigBigFieldLength > 0) {
-                            usesBigBig = true;
+                            slotStatus.usesBigBig = true;
                             target = bigBig;
                             bigBig->copyFrom(&big);
                             bigBig->addByteToBigField(d);
                         } else {
-                            status = TOO_BIG;
+                            slotStatus.hasCheckedCommand = true;
                             errorMessage = "Big field too long";
+                            status = TOO_BIG;
+                            sequence->getRCode()->getDebug()
+                                    << "Big field too long\n";
                             in->closeCommand();
                             end = '\n';
                             return false;
@@ -130,8 +145,10 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
                 }
             } else if (c == '"') {
                 if (target->getLength() != 0) {
+                    slotStatus.hasCheckedCommand = true;
                     status = PARSE_ERROR;
                     errorMessage = "Multiple big fields";
+                    sequence->getRCode()->getDebug() << "Multiple big fields\n";
                     in->closeCommand();
                     end = '\n';
                     return false;
@@ -153,11 +170,14 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
                         if (!target->addByteToBigField((uint8_t) c)) {
                             if (target == &big
                                     && RCodeParameters::bigBigFieldLength > 0) {
-                                usesBigBig = true;
+                                slotStatus.usesBigBig = true;
                                 target = bigBig;
                                 bigBig->copyFrom(&big);
                                 bigBig->addByteToBigField((uint8_t) c);
                             } else {
+                                slotStatus.hasCheckedCommand = true;
+                                sequence->getRCode()->getDebug()
+                                        << "Big field too long\n";
                                 status = TOO_BIG;
                                 errorMessage = "Big field too long";
                                 in->closeCommand();
@@ -170,6 +190,9 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
                     }
                 }
                 if (c != '"') {
+                    slotStatus.hasCheckedCommand = true;
+                    sequence->getRCode()->getDebug()
+                            << "Command sequence ended before end of big string field\n";
                     status = PARSE_ERROR;
                     errorMessage =
                             "Command sequence ended before end of big string field";
@@ -178,6 +201,9 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
                     return false;
                 }
             } else {
+                slotStatus.hasCheckedCommand = true;
+                sequence->getRCode()->getDebug() << "Unknown field marker: "
+                        << c << "\n";
                 status = PARSE_ERROR;
                 errorMessage = "Unknown field marker";
                 in->closeCommand();
