@@ -306,7 +306,7 @@ Any command which is addressed as a broadcast, and is intended to find RCode rec
 
 Every command code must be unique, and cannot contain the response fields `S`, `Z` or `E`, or the parameter field `E` (Echo command is exception)
 
-Key for Values column (xx means any number):  
+Key for Values column (xx means a particular number):  
 
 |Content | Meaning															|  
 |-------|-------------------------------------------------------------------|  
@@ -314,7 +314,7 @@ Key for Values column (xx means any number):
 |xx?	| Field can only take this value, but might not be present			|  
 |xx,xx	| Field can only take one of these values							|  
 |xx,xx?	| Field can only take one of these values, but might not be present	|  
-|\*		| Any number														|  
+|*		| Any number														|  
 |**		| Any number of any length											|  
 |*?		| Any number or not present											|  
 |**?	| Any number of any length or not present							|  
