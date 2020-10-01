@@ -111,6 +111,9 @@ public:
         last = NULL;
         first = NULL;
         fullyParsed = false;
+        if (locks.isActive()) {
+            unlock();
+        }
         locks.reset();
         empty = false;
     }

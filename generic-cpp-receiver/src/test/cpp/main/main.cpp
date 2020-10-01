@@ -35,10 +35,7 @@
 #include "executionspace/RCodeExecutionSpaceChannel.hpp"
 #include "UipUdpCommandChannel.hpp"
 
-DigitalOut led(PB_0);
-
 int main(void) {
-    led = 1;
     uint8_t mac[] = { 0x1E, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
     UipEthernet uip(mac, PA_7, PA_6, PA_5, PA_8);
 
@@ -51,7 +48,7 @@ int main(void) {
     RCodeCommandChannel *chptr[2] = { &channel, &execCh };
     RCodeExecutionSpaceChannel **execPtr = (RCodeExecutionSpaceChannel**) chptr
             + 1;
-    r.setChannels(chptr, 1);
+    r.setChannels(chptr, 2);
     r.getSpace()->setChannels(execPtr, 1);
     RCodeEchoCommand cmd0 = RCodeEchoCommand();
     RCodeActivateCommand cmd1 = RCodeActivateCommand();
@@ -62,6 +59,7 @@ int main(void) {
     RCodeExecutionStoreCommand cmd6 = RCodeExecutionStoreCommand(r.getSpace());
     RCodeNotificationHostCommand cmd7 = RCodeNotificationHostCommand(&r);
     r.getCommandFinder()->registerCommand(&cmd0);
+    r.getCommandFinder()->registerCommand(&cmd1);
     r.getCommandFinder()->registerCommand(&cmd2);
     r.getCommandFinder()->registerCommand(&cmd3);
     r.getCommandFinder()->registerCommand(&cmd4);

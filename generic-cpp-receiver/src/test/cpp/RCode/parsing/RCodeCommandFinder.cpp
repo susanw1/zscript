@@ -10,6 +10,7 @@
 RCodeCommand* RCodeCommandFinder::findCommand(RCodeCommandSlot *slot) {
     int fieldSectionNum = slot->getFields()->countFieldSections('R');
     if (fieldSectionNum == 0) {
+        rcode->getDebug() << "No R field in command\n";
         return NULL;
     } else if (fieldSectionNum == 1) {
         uint8_t rVal = slot->getFields()->get('R', 0xFF);
@@ -40,7 +41,7 @@ RCodeCommand* RCodeCommandFinder::findCommand(RCodeCommandSlot *slot) {
         rcode->getDebug() << "\n";
         return NULL;
     } else {
-        rcode->getDebug() << "No multi-byte commands present\n";
+        rcode->getDebug() << "Multi-byte commands disabled\n";
         return NULL;
     }
 }

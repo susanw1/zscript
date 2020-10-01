@@ -19,7 +19,18 @@ private:
             - RCodeParameters::lowestRwLockNum];
 
 public:
-
+    RCodeLocks() {
+        for (int i = 0; i < (RCodeParameters::highestBasicLockNum + 7) / 8;
+                ++i) {
+            locks[i] = 0;
+        }
+        for (int i = 0;
+                i
+                        < RCodeParameters::highestRwLockNum
+                                - RCodeParameters::lowestRwLockNum; ++i) {
+            rwLocks[i] = 0;
+        }
+    }
     bool canLock(RCodeLockSet *l) {
         for (int i = 0; i < l->getLockNum(); i++) {
             if (l->getLocks()[i] < RCodeParameters::highestBasicLockNum) {
@@ -71,7 +82,8 @@ public:
                 if ((l->getW_nr()[i / 8] & 1 << i % 8) != 0) {
                     rwLocks[l->getLocks()[i] - RCodeParameters::lowestRwLockNum] =
                             0;
-                } else {
+                } else if (rwLocks[l->getLocks()[i]
+                        - RCodeParameters::lowestRwLockNum] != 0) {
                     rwLocks[l->getLocks()[i] - RCodeParameters::lowestRwLockNum]--;
                 }
             }
