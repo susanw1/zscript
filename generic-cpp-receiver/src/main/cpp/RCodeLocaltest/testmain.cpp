@@ -7,6 +7,7 @@
 #include "../RCode/RCode.hpp"
 #include "RCodeLocalChannel.hpp"
 #include "../RCode/commands/RCodeEchoCommand.hpp"
+#include "../RCode/commands/RCodeCapabilitiesCommand.hpp"
 #include "../RCode/commands/RCodeActivateCommand.hpp"
 #include "../RCode/commands/RCodeSetDebugChannelCommand.hpp"
 #include "../RCode/commands/RCodeSendDebugCommand.hpp"
@@ -38,6 +39,7 @@ int main(void) {
     RCodeExecutionCommand cmd5 = RCodeExecutionCommand(r.getSpace());
     RCodeExecutionStoreCommand cmd6 = RCodeExecutionStoreCommand(r.getSpace());
     RCodeNotificationHostCommand cmd7 = RCodeNotificationHostCommand(&r);
+    RCodeCapabilitiesCommand cmd8 = RCodeCapabilitiesCommand(&r);
     r.getCommandFinder()->registerCommand(&cmd0);
     r.getCommandFinder()->registerCommand(&cmd1);
     r.getCommandFinder()->registerCommand(&cmd2);
@@ -46,6 +48,7 @@ int main(void) {
     r.getCommandFinder()->registerCommand(&cmd5);
     r.getCommandFinder()->registerCommand(&cmd6);
     r.getCommandFinder()->registerCommand(&cmd7);
+    r.getCommandFinder()->registerCommand(&cmd8);
     while (true) {
         r.progressRCode();
     }

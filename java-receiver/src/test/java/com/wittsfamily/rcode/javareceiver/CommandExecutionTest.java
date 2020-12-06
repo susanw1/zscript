@@ -110,7 +110,7 @@ class CommandExecutionTest {
 
     @Test
     void shouldFailBroadcastAtOtherPoint() {
-        testCommand("R6&*R1+11", "AS&S3\"* only valid on first command of sequence\"\n", 3);
+        testCommand("R6&*R1+11", "AS&S3\"Unknown field marker with character code 42\"\n", 3);
     }
 
     @Test
@@ -120,7 +120,7 @@ class CommandExecutionTest {
 
     @Test
     void shouldFailParallelAtOtherPoint() {
-        testCommand("R6&%R1+11", "AS&S3\"% only valid on first command of sequence\"\n", 3);
+        testCommand("R6&%R1+11", "AS&S3\"Unknown field marker with character code 37\"\n", 3);
     }
 
     @Test

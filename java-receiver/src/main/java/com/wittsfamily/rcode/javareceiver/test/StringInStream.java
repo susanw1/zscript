@@ -24,7 +24,7 @@ public class StringInStream implements RCodeSequenceInStream {
 
     @Override
     public boolean hasNextChar() {
-        return pos <= s.length();
+        return pos < s.length();
     }
 
     @Override

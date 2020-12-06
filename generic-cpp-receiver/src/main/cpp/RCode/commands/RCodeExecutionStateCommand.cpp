@@ -7,6 +7,7 @@
 
 #include "RCodeExecutionStateCommand.hpp"
 
+#ifdef NOTIFICATIONS
 void RCodeExecutionStateCommand::execute(RCodeCommandSlot *slot,
         RCodeCommandSequence *sequence, RCodeOutStream *out) {
     out->writeField('D', space->getDelay());
@@ -19,3 +20,4 @@ void RCodeExecutionStateCommand::execute(RCodeCommandSlot *slot,
     out->writeStatus(OK);
     slot->setComplete(true);
 }
+#endif

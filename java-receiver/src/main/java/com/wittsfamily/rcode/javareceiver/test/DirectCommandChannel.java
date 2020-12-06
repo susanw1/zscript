@@ -34,7 +34,7 @@ public class DirectCommandChannel implements RCodeCommandChannel {
 
     @Override
     public boolean hasCommandSequence() {
-        return sequenceNumber > 0;
+        return s.hasNextChar();
     }
 
     @Override

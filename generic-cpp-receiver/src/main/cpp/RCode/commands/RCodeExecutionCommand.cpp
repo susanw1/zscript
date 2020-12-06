@@ -6,6 +6,7 @@
  */
 
 #include "RCodeExecutionCommand.hpp"
+#ifdef NOTIFICATIONS
 
 void RCodeExecutionCommand::execute(RCodeCommandSlot *slot,
         RCodeCommandSequence *sequence, RCodeOutStream *out) {
@@ -79,3 +80,4 @@ void RCodeExecutionCommand::execute(RCodeCommandSlot *slot,
     }
     slot->setComplete(true);
 }
+#endif

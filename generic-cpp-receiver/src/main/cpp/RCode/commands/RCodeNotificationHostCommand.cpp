@@ -7,6 +7,7 @@
 
 #include "RCodeNotificationHostCommand.hpp"
 
+#ifdef NOTIFICATIONS
 void RCodeNotificationHostCommand::execute(RCodeCommandSlot *slot,
         RCodeCommandSequence *sequence, RCodeOutStream *out) {
     rcode->getNotificationManager()->setNotificationChannel(
@@ -15,3 +16,4 @@ void RCodeNotificationHostCommand::execute(RCodeCommandSlot *slot,
     slot->setComplete(true);
 }
 
+#endif

@@ -1,31 +1,28 @@
 /*
- * RCodeNotificationHostCommand.hpp
+ * RCodeCapabilitiesCommand.hpp
  *
- *  Created on: 30 Sep 2020
+ *  Created on: 9 Sep 2020
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_RCODE_COMMANDS_RCODENOTIFICATIONHOSTCOMMAND_HPP_
-#define SRC_TEST_CPP_RCODE_COMMANDS_RCODENOTIFICATIONHOSTCOMMAND_HPP_
+#ifndef SRC_TEST_CPP_RCODE_COMMANDS_RCODECAPABILITIESCOMMAND_HPP_
+#define SRC_TEST_CPP_RCODE_COMMANDS_RCODECAPABILITIESCOMMAND_HPP_
 
 #include "../RCodeIncludes.hpp"
 #include "../RCodeParameters.hpp"
-#ifdef NOTIFICATIONS
 #include "RCodeCommand.hpp"
 
 class RCodeOutStream;
-class RCodeDebugOutput;
 class RCode;
-
-class RCodeNotificationHostCommand: public RCodeCommand {
+class RCodeCapabilitiesCommand: public RCodeCommand {
 private:
-    const uint8_t code = 0x08;
-    RCode *const rcode;
+    RCode *rcode;
+    const uint8_t code = 0x02;
 public:
-    RCodeNotificationHostCommand(RCode *const rcode) :
+    RCodeCapabilitiesCommand(RCode *rcode) :
             rcode(rcode) {
-    }
 
+    }
     void finish(RCodeCommandSlot *rCodeCommandSlot, RCodeOutStream *out) const {
     }
 
@@ -40,7 +37,7 @@ public:
     }
 
     bool matchesCode(uint8_t code[], uint8_t length) const {
-        return length == 1 && code[0] == RCodeNotificationHostCommand::code;
+        return length == 1 && code[0] == RCodeCapabilitiesCommand::code;
     }
 
     uint8_t getCodeLength() const {
@@ -52,9 +49,8 @@ public:
     }
 };
 
-#include "../RCode.hpp"
 #include "../RCodeOutStream.hpp"
-#include "../RCodeNotificationManager.hpp"
 #include "../parsing/RCodeCommandSlot.hpp"
-#endif
-#endif /* SRC_TEST_CPP_RCODE_COMMANDS_RCODENOTIFICATIONHOSTCOMMAND_HPP_ */
+#include "../parsing/RCodeCommandFinder.hpp"
+
+#endif /* SRC_TEST_CPP_RCODE_COMMANDS_RCODECAPABILITIESCOMMAND_HPP_ */

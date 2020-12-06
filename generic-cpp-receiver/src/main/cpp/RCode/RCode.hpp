@@ -11,8 +11,10 @@
 #include "RCodeParameters.hpp"
 #include "parsing/RCodeParser.hpp"
 #include "parsing/RCodeCommandFinder.hpp"
+#ifdef NOTIFICATIONS
 #include "executionspace/RCodeExecutionSpace.hpp"
 #include "RCodeNotificationManager.hpp"
+#endif
 #include "RCodeRunner.hpp"
 #include "RCodeDebugOutput.hpp"
 #include "RCodeVoidChannel.hpp"
@@ -25,8 +27,10 @@ class RCode {
 private:
     RCodeParser parser;
     RCodeRunner runner;
+#ifdef NOTIFICATIONS
     RCodeNotificationManager notificationManager;
     RCodeExecutionSpace space;
+#endif
     RCodeCommandFinder finder;
     RCodeDebugOutput debug;
     RCodeVoidChannel voidChannel;
@@ -34,10 +38,18 @@ private:
     RCodeCommandChannel **channels = NULL;
     uint8_t channelNum = 0;
 public:
-    RCode(RCodeBusInterruptSource *interruptSources, uint8_t interruptSourceNum) :
-            parser(this), runner(this), notificationManager(this,
-                    interruptSources, interruptSourceNum), space(
-                    &notificationManager), finder(this), debug() {
+    RCode(
+#ifdef NOTIFICATIONS
+            RCodeBusInterruptSource *interruptSources, uint8_t interruptSourceNum
+#endif
+    ) :
+            parser(this), runner(this),
+#ifdef NOTIFICATIONS
+    notificationManager(this,
+            interruptSources, interruptSourceNum), space(
+            &notificationManager),
+#endif
+                    finder(this), debug() {
     }
     void setChannels(RCodeCommandChannel **channels, uint8_t channelNum) {
         this->channels = channels;
@@ -50,9 +62,11 @@ public:
         return &voidChannel;
     }
 
+#ifdef NOTIFICATIONS
     RCodeExecutionSpace* getSpace() {
         return &space;
     }
+#endif
     RCodeCommandChannel** getChannels() {
         return channels;
     }
@@ -67,9 +81,11 @@ public:
         return debug;
     }
 
+#ifdef NOTIFICATIONS
     RCodeNotificationManager* getNotificationManager() {
         return &notificationManager;
     }
+#endif
     bool canLock(RCodeLockSet *lockset) {
         return locks.canLock(lockset);
     }

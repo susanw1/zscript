@@ -6,6 +6,7 @@
  */
 
 #include "RCodeExecutionStoreCommand.hpp"
+#ifdef NOTIFICATIONS
 void RCodeExecutionStoreCommand::execute(RCodeCommandSlot *slot,
         RCodeCommandSequence *sequence, RCodeOutStream *out) {
     executionSpaceAddress_t address = 0;
@@ -41,3 +42,4 @@ void RCodeExecutionStoreCommand::execute(RCodeCommandSlot *slot,
     }
     slot->setComplete(true);
 }
+#endif

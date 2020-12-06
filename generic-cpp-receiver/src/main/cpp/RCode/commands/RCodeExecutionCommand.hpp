@@ -9,6 +9,7 @@
 #define SRC_TEST_CPP_RCODE_COMMANDS_RCODEEXECUTIONCOMMAND_HPP_
 #include "../RCodeIncludes.hpp"
 #include "../RCodeParameters.hpp"
+#ifdef NOTIFICATIONS
 #include "RCodeCommand.hpp"
 #include "../executionspace/RCodeExecutionSpace.hpp"
 
@@ -50,4 +51,5 @@ public:
 };
 #include "../executionspace/RCodeExecutionSpaceChannel.hpp"
 
+#endif
 #endif /* SRC_TEST_CPP_RCODE_COMMANDS_RCODEEXECUTIONCOMMAND_HPP_ */

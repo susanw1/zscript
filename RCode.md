@@ -579,6 +579,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	B		|	**		|	Maximum big field length (should always be more than around 8, just to allow basic functionality)  
 |				|	Resp		|	N		|	**		|	Maximum field number (should always be more than around 5, as otherwise basic commands will not function)  
 |				|	Resp		|	F		|	*		|	Maximum field size, maximum number of bytes given to a field.  
+|				|	Resp		|	U		|	*		|	Field Unit size, minimum number of bytes given to a field.  
 |				|	Resp		|	P		|	**?		|	Size of persistent memory, if not present, not supported  
 |				|	Resp		|	M		|	*		|	Number of pages  
 |				|	Resp		|	big		|	**		|	list, in binary, of supported RCodes, e.g. +0001020304, supports Ident, Echo, Capabilities, Activate, and Soft reset  
