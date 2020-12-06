@@ -1,17 +1,20 @@
-package com.wittsfamily.rcode.javareceiver;
+package com.wittsfamily.rcode.javareceiver.tests;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.wittsfamily.rcode.javareceiver.DirectCommandChannel;
+import com.wittsfamily.rcode.javareceiver.RCode;
+import com.wittsfamily.rcode.javareceiver.RCodeBusInterruptSource;
+import com.wittsfamily.rcode.javareceiver.RCodeParameters;
+import com.wittsfamily.rcode.javareceiver.RCodeTmpCommand;
+import com.wittsfamily.rcode.javareceiver.StringOutStream;
+import com.wittsfamily.rcode.javareceiver.TestInterruptSource;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeActivateCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeEchoCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeSetNotificationHostCommand;
-import com.wittsfamily.rcode.javareceiver.commands.RCodeTmpCommand;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
-import com.wittsfamily.rcode.javareceiver.test.DirectCommandChannel;
-import com.wittsfamily.rcode.javareceiver.test.StringOutStream;
-import com.wittsfamily.rcode.javareceiver.test.TestInterruptSource;
 
 class BusInterruptNotificationTest {
     private RCodeParameters params;

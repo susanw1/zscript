@@ -34,14 +34,14 @@ public class RCodeInStream {
     }
 
     public char read() {
-        int c = readInt();
+        int c = readInternal();
         if (c == -1) {
-            return (char) readInt();
+            return (char) readInternal();
         }
         return (char) c;
     }
 
-    private int readInt() {
+    private int readInternal() {
         if (!hasReachedCommandEnd) {
             int prev = current;
             if (sequenceIn.hasNextChar()) {
@@ -72,7 +72,7 @@ public class RCodeInStream {
 
     public char peek() {
         if (current == -1) {
-            readInt();
+            readInternal();
         }
         return (char) current;
     }

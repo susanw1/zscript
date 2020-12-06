@@ -19,8 +19,6 @@ public:
 
     virtual RCodeLookaheadStream* getLookahead() = 0;
 
-    virtual bool hasNextCommandSequence() = 0;
-
     virtual void openCommandSequence() = 0;
 
     virtual void closeCommandSequence() = 0;

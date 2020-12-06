@@ -21,11 +21,6 @@ public class RCodeVoidInStream implements RCodeSequenceInStream {
     }
 
     @Override
-    public boolean hasNextCommandSequence() {
-        return false;
-    }
-
-    @Override
     public void openCommandSequence() {
 
     }

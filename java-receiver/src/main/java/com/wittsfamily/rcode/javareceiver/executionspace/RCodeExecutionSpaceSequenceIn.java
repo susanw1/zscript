@@ -71,11 +71,6 @@ public class RCodeExecutionSpaceSequenceIn implements RCodeSequenceInStream {
     }
 
     @Override
-    public boolean hasNextCommandSequence() {
-        return false;
-    }
-
-    @Override
     public void openCommandSequence() {
         isSequenceOpen = true;
         hasStarted = false;

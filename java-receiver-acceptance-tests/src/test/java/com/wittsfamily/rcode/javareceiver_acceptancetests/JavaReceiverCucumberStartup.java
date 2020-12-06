@@ -5,12 +5,11 @@ import java.util.concurrent.Executors;
 
 import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeBusInterruptSource;
+import com.wittsfamily.rcode.javareceiver.RCodeIdentifyCommand;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeActivateCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeCapabilitiesCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeEchoCommand;
-import com.wittsfamily.rcode.javareceiver.commands.RCodeIdentifyCommand;
-import com.wittsfamily.rcode.javareceiver.commands.RCodeTmpCommand;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode_acceptance_tests.RCodeAcceptanceTestConnectionManager;
 
@@ -31,7 +30,6 @@ public class JavaReceiverCucumberStartup {
             r.getCommandFinder().registerCommand(new RCodeEchoCommand());
             r.getCommandFinder().registerCommand(new RCodeCapabilitiesCommand(new RCodeParameters(false), r));
             r.getCommandFinder().registerCommand(new RCodeActivateCommand());
-            r.getCommandFinder().registerCommand(new RCodeTmpCommand());
             RCodeAcceptanceTestConnectionManager.registerConnection(con);
             execs = Executors.newSingleThreadExecutor();
             execs.submit(() -> {

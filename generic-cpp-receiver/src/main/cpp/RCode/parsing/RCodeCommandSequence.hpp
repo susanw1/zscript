@@ -44,11 +44,11 @@ public:
     RCode* getRCode() {
         return rcode;
     }
-    RCodeInStream* getInStream();
+    RCodeInStream* acquireInStream();
 
     void releaseInStream();
 
-    RCodeOutStream* getOutStream();
+    RCodeOutStream* acquireOutStream();
 
     void releaseOutStream();
 
@@ -82,6 +82,9 @@ public:
     }
     bool hasFailed() const {
         return failed;
+    }
+    bool canContinueParse() {
+        return active && !fullyParsed && !failed;
     }
 
     void setActive() {

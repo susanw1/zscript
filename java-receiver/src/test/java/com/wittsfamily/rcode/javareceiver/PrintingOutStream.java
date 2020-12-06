@@ -1,16 +1,14 @@
-package com.wittsfamily.rcode.javareceiver.test;
+package com.wittsfamily.rcode.javareceiver;
 
 import com.wittsfamily.rcode.javareceiver.AbstractRCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 
-public class StringOutStream extends AbstractRCodeOutStream {
-    private final StringBuilder builder = new StringBuilder();
-    private boolean open = false;
+public class PrintingOutStream extends AbstractRCodeOutStream {
 
     @Override
     public void writeByte(byte value) {
-        builder.append((char) value);
+        System.out.print((char) value);
     }
 
     @Override
@@ -23,30 +21,23 @@ public class StringOutStream extends AbstractRCodeOutStream {
 
     @Override
     public void openResponse(RCodeCommandChannel target) {
-        open = true;
     }
 
     @Override
     public void openNotification(RCodeCommandChannel target) {
-        open = true;
     }
 
     @Override
     public void openDebug(RCodeCommandChannel target) {
-        open = true;
     }
 
     @Override
     public boolean isOpen() {
-        return open;
+        return true;
     }
 
     @Override
     public void close() {
-        open = false;
     }
 
-    public String getString() {
-        return builder.toString();
-    }
 }

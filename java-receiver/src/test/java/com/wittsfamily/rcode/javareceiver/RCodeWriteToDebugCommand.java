@@ -1,22 +1,31 @@
-package com.wittsfamily.rcode.javareceiver.commands;
+package com.wittsfamily.rcode.javareceiver;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+
+import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
+import com.wittsfamily.rcode.javareceiver.commands.RCodeCommand;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSlot;
 
-public class RCodeTmp2Command implements RCodeCommand {
+public class RCodeWriteToDebugCommand implements RCodeCommand {
+    private final RCode rcode;
+
+    public RCodeWriteToDebugCommand(RCode rcode) {
+        this.rcode = rcode;
+    }
+
     @Override
     public void finish(RCodeCommandSlot rCodeCommandSlot, RCodeOutStream out) {
     }
 
     @Override
     public void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out) {
-        out.writeStatus(RCodeResponseStatus.CMD_FAIL);
-        slot.getFields().copyTo(out);
-        slot.getBigField().copyTo(out);
-        slot.fail("", RCodeResponseStatus.CMD_FAIL);
+        rcode.getDebug().println(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(slot.getBigField().getData(), 0, slot.getBigField().getLength())).toString());
+        out.writeStatus(RCodeResponseStatus.OK);
         slot.setComplete(true);
     }
 
@@ -26,7 +35,7 @@ public class RCodeTmp2Command implements RCodeCommand {
 
     @Override
     public byte getCode() {
-        return 0x11;
+        return 0x60;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.wittsfamily.rcode.javareceiver;
+package com.wittsfamily.rcode.javareceiver.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,17 +7,20 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.wittsfamily.rcode.javareceiver.DirectCommandChannel;
+import com.wittsfamily.rcode.javareceiver.RCode;
+import com.wittsfamily.rcode.javareceiver.RCodeBusInterruptSource;
+import com.wittsfamily.rcode.javareceiver.RCodeParameters;
+import com.wittsfamily.rcode.javareceiver.RCodeTmp2Command;
+import com.wittsfamily.rcode.javareceiver.RCodeTmpCommand;
+import com.wittsfamily.rcode.javareceiver.StringOutStream;
+import com.wittsfamily.rcode.javareceiver.TestInterruptSource;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeActivateCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeEchoCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeExecutionSpaceCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeSetNotificationHostCommand;
-import com.wittsfamily.rcode.javareceiver.commands.RCodeTmp2Command;
-import com.wittsfamily.rcode.javareceiver.commands.RCodeTmpCommand;
 import com.wittsfamily.rcode.javareceiver.executionspace.RCodeExecutionSpaceChannel;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
-import com.wittsfamily.rcode.javareceiver.test.DirectCommandChannel;
-import com.wittsfamily.rcode.javareceiver.test.StringOutStream;
-import com.wittsfamily.rcode.javareceiver.test.TestInterruptSource;
 
 class ExecutionSpaceTest {
     @BeforeEach

@@ -27,18 +27,9 @@ public class RCodeParser {
         }
     }
 
-    public static boolean shouldEatWhitespace(RCodeInStream in) {
-        RCodeLookaheadStream l = in.getLookahead();
-        char c = l.read();
-        while (c == ' ' || c == '\t' || c == '\r') {
-            c = l.read();
-        }
-        return c != '&' && c != '|';
-    }
-
     public void parseNext() {
         RCodeCommandSlot targetSlot = null;
-        if (bigBig.getLength() == 0) {
+        if (!bigBig.isInUse()) {
             for (int i = 0; i < slots.length; i++) {
                 if (!slots[i].isParsed()) {
                     targetSlot = slots[i];
@@ -46,7 +37,7 @@ public class RCodeParser {
                 }
             }
             if (targetSlot != null) {
-                if (mostRecent != null && mostRecent.isActive() && !mostRecent.isFullyParsed() && !mostRecent.hasFailed()) {
+                if (mostRecent != null && mostRecent.canContinueParse()) {
                     parse(targetSlot, mostRecent);
                 } else {
                     if (mostRecent != null) {
@@ -57,28 +48,9 @@ public class RCodeParser {
                     mostRecent = null;
                     for (int i = 0; i < rcode.getChannels().length; i++) {
                         RCodeCommandChannel channel = rcode.getChannels()[i];
-                        if (channel.canLock() && channel.hasCommandSequence() && !channel.getCommandSequence().isActive()) {
-                            RCodeCommandSequence seq = channel.getCommandSequence();
-                            if (!channel.getInStream().isLocked()) {
-                                channel.lock();
-                                seq.getInStream().getSequenceIn().openCommandSequence();
-                                if (seq.parseFlags()) {
-                                    if (seq.isFullyParsed()) {
-                                        channel.unlock();
-                                        seq.setActive();
-                                        seq.releaseInStream();
-                                    } else {
-                                        mostRecent = seq;
-                                        parse(targetSlot, seq);
-                                        seq.setActive();
-                                    }
-                                } else {
-                                    seq.releaseInStream();
-                                    seq.reset();
-                                    channel.unlock();
-                                }
-                                break;
-                            }
+                        if (channel.canLock() && channel.hasCommandSequence() && !channel.getCommandSequence().isActive() && !channel.getInStream().isLocked()) {
+                            mostRecent = beginSequenceParse(targetSlot, channel);
+                            break;
                         }
                     }
                 }
@@ -86,21 +58,41 @@ public class RCodeParser {
         }
     }
 
+    private RCodeCommandSequence beginSequenceParse(RCodeCommandSlot targetSlot, RCodeCommandChannel channel) {
+        RCodeCommandSequence candidateSequence = channel.getCommandSequence();
+        channel.lock();
+        candidateSequence.acquireInStream().getSequenceIn().openCommandSequence();
+        if (candidateSequence.parseRCodeMarkers()) { // returns false if a debug sequence, true otherwise
+            candidateSequence.setActive();
+            if (!candidateSequence.isFullyParsed()) {
+                // This is the normal case - nothing unexpected has happened
+                parse(targetSlot, candidateSequence);
+                return candidateSequence;
+            } else {
+                // This is when the incoming command sequence (candidateSequence) is empty / has only markers
+                candidateSequence.releaseInStream();
+                channel.unlock();
+                return null;
+            }
+        } else {
+            // The received sequence is debug - we will ignore it
+            candidateSequence.releaseInStream();
+            candidateSequence.reset();
+            channel.unlock();
+            return null;
+        }
+    }
+
     private void parse(RCodeCommandSlot slot, RCodeCommandSequence sequence) {
-        boolean worked = slot.parseSingleCommand(sequence.getInStream(), sequence);
+        boolean worked = slot.parseSingleCommand(sequence.acquireInStream(), sequence);
+        sequence.addLast(slot);
         if (!worked) {
-            sequence.addLast(slot);
-            sequence.getInStream().skipSequence();
+            sequence.acquireInStream().skipSequence();
+        }
+        if (!worked || slot.isEndOfSequence()) {
             sequence.setFullyParsed(true);
             sequence.releaseInStream();
             sequence.getChannel().unlock();
-        } else {
-            sequence.addLast(slot);
-            if (slot.getEnd() == '\n') {
-                sequence.setFullyParsed(true);
-                sequence.releaseInStream();
-                sequence.getChannel().unlock();
-            }
         }
     }
 }

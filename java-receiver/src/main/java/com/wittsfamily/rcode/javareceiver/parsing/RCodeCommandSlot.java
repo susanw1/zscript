@@ -4,7 +4,6 @@ import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeCommand;
-import com.wittsfamily.rcode.javareceiver.commands.RCodeCommandExecutionData;
 
 public class RCodeCommandSlot {
     private final RCode rcode;
@@ -22,7 +21,6 @@ public class RCodeCommandSlot {
     private boolean started = false;
     private boolean complete = false;
 
-    public RCodeCommandExecutionData commandExecutionData = null;
     public RCodeCommandSlot next = null;
 
     public RCodeCommandSlot(RCode rcode, RCodeParameters params, RCodeBigField bigBig) {
@@ -45,7 +43,6 @@ public class RCodeCommandSlot {
             isBigBig = false;
         }
         cmd = null;
-        commandExecutionData = null;
     }
 
     public void start() {
@@ -136,16 +133,20 @@ public class RCodeCommandSlot {
         return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
     }
 
+    private void failParse(RCodeInStream in, RCodeResponseStatus errorStatus, String message) {
+        status = errorStatus;
+        errorMessage = message;
+        in.closeCommand();
+        end = '\n';
+    }
+
     public boolean parseSingleCommand(RCodeInStream in, RCodeCommandSequence sequence) {
         RCodeBigField target = big;
         in.openCommand();
         reset();
         RCodeParser.eatWhitespace(in);
         if (!in.hasNext()) {
-            status = RCodeResponseStatus.PARSE_ERROR;
-            errorMessage = "No command present";
-            in.closeCommand();
-            end = '\n';
+            failParse(in, RCodeResponseStatus.PARSE_ERROR, "No command present");
             return false;
         }
         char c;
@@ -158,24 +159,15 @@ public class RCodeCommandSlot {
                 c = in.read();
                 if (c >= 'A' && c <= 'Z') {
                     if (map.has(c)) {
-                        status = RCodeResponseStatus.PARSE_ERROR;
-                        errorMessage = "Same field appears twice";
-                        in.closeCommand();
-                        end = '\n';
+                        failParse(in, RCodeResponseStatus.PARSE_ERROR, "Same field appears twice");
                         return false;
                     } else if (!parseHexField(in, c)) {
-                        status = RCodeResponseStatus.TOO_BIG;
-                        errorMessage = "Too many fields";
-                        in.closeCommand();
-                        end = '\n';
+                        failParse(in, RCodeResponseStatus.TOO_BIG, "Too many fields");
                         return false;
                     }
                 } else if (c == '+') {
                     if (target.getLength() != 0) {
-                        status = RCodeResponseStatus.PARSE_ERROR;
-                        errorMessage = "Multiple big fields";
-                        in.closeCommand();
-                        end = '\n';
+                        failParse(in, RCodeResponseStatus.PARSE_ERROR, "Multiple big fields");
                         return false;
                     }
                     target.setIsString(false);
@@ -185,10 +177,7 @@ public class RCodeCommandSlot {
                         d = getHex(in.read());
                         d <<= 4;
                         if (!in.hasNext() || !isHex(in.peek())) {
-                            status = RCodeResponseStatus.PARSE_ERROR;
-                            errorMessage = "Big field odd digits";
-                            in.closeCommand();
-                            end = '\n';
+                            failParse(in, RCodeResponseStatus.PARSE_ERROR, "Big field odd digits");
                             return false;
                         }
                         d += getHex(in.read());
@@ -199,20 +188,14 @@ public class RCodeCommandSlot {
                                 big.copyTo(bigBig);
                                 bigBig.addByteToBigField(d);
                             } else {
-                                status = RCodeResponseStatus.TOO_BIG;
-                                errorMessage = "Big field too long";
-                                in.closeCommand();
-                                end = '\n';
+                                failParse(in, RCodeResponseStatus.TOO_BIG, "Big field too long");
                                 return false;
                             }
                         }
                     }
                 } else if (c == '"') {
                     if (target.getLength() != 0) {
-                        status = RCodeResponseStatus.PARSE_ERROR;
-                        errorMessage = "Multiple big fields";
-                        in.closeCommand();
-                        end = '\n';
+                        failParse(in, RCodeResponseStatus.PARSE_ERROR, "Multiple big fields");
                         return false;
                     }
                     target.setIsString(true);
@@ -237,10 +220,7 @@ public class RCodeCommandSlot {
                                     big.copyTo(bigBig);
                                     bigBig.addByteToBigField((byte) c);
                                 } else {
-                                    status = RCodeResponseStatus.TOO_BIG;
-                                    errorMessage = "Big field too long";
-                                    in.closeCommand();
-                                    end = '\n';
+                                    failParse(in, RCodeResponseStatus.TOO_BIG, "Big field too long");
                                     return false;
                                 }
                             }
@@ -249,26 +229,18 @@ public class RCodeCommandSlot {
                         }
                     }
                     if (c != '"') {
-                        status = RCodeResponseStatus.PARSE_ERROR;
-                        errorMessage = "Command sequence ended before end of big string field";
-                        in.closeCommand();
-                        end = '\n';
+                        failParse(in, RCodeResponseStatus.PARSE_ERROR, "Command sequence ended before end of big string field");
                         return false;
                     }
                 } else {
-                    status = RCodeResponseStatus.PARSE_ERROR;
-                    errorMessage = "Unknown field marker with character code " + (int) c;
-                    in.closeCommand();
-                    end = '\n';
+                    failParse(in, RCodeResponseStatus.PARSE_ERROR, "Unknown field marker with character code " + (int) c);
                     return false;
                 }
             } else {
                 in.closeCommand();
                 end = in.read();
                 if (getCommand() == null) {
-                    status = RCodeResponseStatus.UNKNOWN_CMD;
-                    errorMessage = "Command not known";
-                    end = '\n';
+                    failParse(in, RCodeResponseStatus.UNKNOWN_CMD, "Command not known");
                     return false;
                 }
                 return true;
@@ -282,6 +254,10 @@ public class RCodeCommandSlot {
 
     public char getEnd() {
         return end;
+    }
+
+    public boolean isEndOfSequence() {
+        return end == '\n';
     }
 
     public RCodeResponseStatus getStatus() {

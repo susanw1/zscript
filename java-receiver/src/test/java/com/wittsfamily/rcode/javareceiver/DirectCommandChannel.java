@@ -1,4 +1,4 @@
-package com.wittsfamily.rcode.javareceiver.test;
+package com.wittsfamily.rcode.javareceiver;
 
 import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;

@@ -67,10 +67,6 @@ public:
         return &lookahead;
     }
 
-    bool hasNextCommandSequence() {
-        return false;
-    }
-
     int getPosition() {
         return pos;
     }

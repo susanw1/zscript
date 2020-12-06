@@ -23,6 +23,10 @@ public:
 
     virtual uint8_t const* getData() const = 0;
 
+    bool isInUse() const {
+        return length != 0;
+    }
+
     bigFieldAddress_t getLength() const {
         return length;
     }

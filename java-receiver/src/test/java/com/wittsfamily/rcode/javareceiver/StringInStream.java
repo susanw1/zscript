@@ -1,4 +1,4 @@
-package com.wittsfamily.rcode.javareceiver.test;
+package com.wittsfamily.rcode.javareceiver;
 
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeLookaheadStream;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeSequenceInStream;
@@ -40,11 +40,6 @@ public class StringInStream implements RCodeSequenceInStream {
                 return s.charAt(pos + offset++);
             }
         };
-    }
-
-    @Override
-    public boolean hasNextCommandSequence() {
-        return isAtStart;
     }
 
     @Override

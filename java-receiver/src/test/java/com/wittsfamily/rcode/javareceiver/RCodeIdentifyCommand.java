@@ -1,8 +1,6 @@
-package com.wittsfamily.rcode.javareceiver.commands;
+package com.wittsfamily.rcode.javareceiver;
 
-import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
-import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
-import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
+import com.wittsfamily.rcode.javareceiver.commands.RCodeCommand;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSlot;
 
@@ -10,8 +8,8 @@ public class RCodeIdentifyCommand implements RCodeCommand {
 
     @Override
     public void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out) {
-        out.writeField('V', (byte) 1);
-        out.continueField((byte) 3);
+        out.writeField('V', (byte) 0);
+        out.continueField((byte) 0);
         out.continueField((byte) 1);
         out.writeBigStringField("Java/Test");
         out.writeStatus(RCodeResponseStatus.OK);

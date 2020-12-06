@@ -7,7 +7,7 @@
 
 #include "RCodeCommandSequence.hpp"
 
-RCodeInStream* RCodeCommandSequence::getInStream() {
+RCodeInStream* RCodeCommandSequence::acquireInStream() {
     if (in == NULL) {
         in = channel->getInStream();
         in->lock();
@@ -21,7 +21,7 @@ void RCodeCommandSequence::releaseInStream() {
     channel->releaseInStream();
     in = NULL;
 }
-RCodeOutStream* RCodeCommandSequence::getOutStream() {
+RCodeOutStream* RCodeCommandSequence::acquireOutStream() {
     if (out == NULL) {
         out = channel->getOutStream();
         out->lock();
@@ -117,9 +117,17 @@ bool RCodeCommandSequence::fail(RCodeResponseStatus status) {
         }
     }
 }
+bool shouldEatWhitespace(RCodeInStream *in) {
+    RCodeLookaheadStream *l = in->getLookahead();
+    char c = l->read();
+    while (c == ' ' || c == '\t' || c == '\r') {
+        c = l->read();
+    }
+    return c != '&' && c != '|';
+}
 bool RCodeCommandSequence::parseFlags() {
     in->openCommand();
-    if (RCodeParser::shouldEatWhitespace(in)) {
+    if (shouldEatWhitespace(in)) {
         RCodeParser::eatWhitespace(in);
     }
     if (in->peek() == '#') {
@@ -129,14 +137,14 @@ bool RCodeCommandSequence::parseFlags() {
     if (in->peek() == '*') {
         in->read();
         broadcast = true;
-        if (RCodeParser::shouldEatWhitespace(in)) {
+        if (shouldEatWhitespace(in)) {
             RCodeParser::eatWhitespace(in);
         }
     }
     if (in->peek() == '%') {
         in->read();
         parallel = true;
-        if (RCodeParser::shouldEatWhitespace(in)) {
+        if (shouldEatWhitespace(in)) {
             RCodeParser::eatWhitespace(in);
         }
     }

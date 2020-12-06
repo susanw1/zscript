@@ -7,8 +7,6 @@ public interface RCodeSequenceInStream {
 
     RCodeLookaheadStream getLookahead();
 
-    boolean hasNextCommandSequence();
-
     void openCommandSequence();
 
     void closeCommandSequence();

@@ -30,7 +30,7 @@ public class RCodeCommandSequence {
         this.channel = channel;
     }
 
-    public RCodeInStream getInStream() {
+    public RCodeInStream acquireInStream() {
         if (in == null) {
             in = channel.getInStream();
             in.lock();
@@ -66,7 +66,7 @@ public class RCodeCommandSequence {
         in = null;
     }
 
-    public RCodeOutStream getOutStream() {
+    public RCodeOutStream acquireOutStream() {
         if (out == null) {
             out = channel.getOutStream();
             out.lock();
@@ -90,6 +90,10 @@ public class RCodeCommandSequence {
 
     public boolean isActive() {
         return active;
+    }
+
+    public boolean canContinueParse() {
+        return active && !isFullyParsed && !failed;
     }
 
     public void setActive() {
@@ -230,9 +234,18 @@ public class RCodeCommandSequence {
         }
     }
 
-    public boolean parseFlags() {
+    public static boolean shouldEatWhitespace(RCodeInStream in) {
+        RCodeLookaheadStream l = in.getLookahead();
+        char c = l.read();
+        while (c == ' ' || c == '\t' || c == '\r') {
+            c = l.read();
+        }
+        return c != '&' && c != '|';
+    }
+
+    public boolean parseRCodeMarkers() {
         in.openCommand();
-        if (RCodeParser.shouldEatWhitespace(in)) {
+        if (shouldEatWhitespace(in)) {
             RCodeParser.eatWhitespace(in);
         }
         if (in.peek() == '#') {
@@ -242,14 +255,14 @@ public class RCodeCommandSequence {
         if (in.peek() == '*') {
             in.read();
             isBroadcast = true;
-            if (RCodeParser.shouldEatWhitespace(in)) {
+            if (shouldEatWhitespace(in)) {
                 RCodeParser.eatWhitespace(in);
             }
         }
         if (in.peek() == '%') {
             in.read();
             canBeParallel = true;
-            if (RCodeParser.shouldEatWhitespace(in)) {
+            if (shouldEatWhitespace(in)) {
                 RCodeParser.eatWhitespace(in);
             }
         }

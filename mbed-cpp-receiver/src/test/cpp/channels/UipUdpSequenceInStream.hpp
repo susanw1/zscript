@@ -63,7 +63,7 @@ public:
         return &lookahead;
     }
 
-    virtual bool hasNextCommandSequence() {
+    bool hasNextCommandSequence() {
         return reader.available() > 0 || reader.open();
     }
 

@@ -43,7 +43,7 @@ public class RCodeRunner {
             }
         }
         if (current != null) {
-            RCodeOutStream out = current.getOutStream();
+            RCodeOutStream out = current.acquireOutStream();
             if (out.isOpen() && out.mostRecent != current) {
                 out.close();
             }
@@ -90,7 +90,7 @@ public class RCodeRunner {
     }
 
     private void runSequence(RCodeCommandSequence target, int targetInd) {
-        RCodeOutStream out = target.getOutStream();
+        RCodeOutStream out = target.acquireOutStream();
         RCodeCommandSlot cmd = target.peekFirst();
         cmd.getFields().copyFieldTo(out, 'E');
 
@@ -103,13 +103,13 @@ public class RCodeRunner {
             if (c == null) {
                 out.writeStatus(RCodeResponseStatus.UNKNOWN_CMD);
                 out.writeBigStringField("Command not found");
-                target.getOutStream().writeCommandSequenceSeperator();
+                target.acquireOutStream().writeCommandSequenceSeperator();
                 target.fail(RCodeResponseStatus.UNKNOWN_CMD);
                 finishRunning(target, targetInd);
             } else if (Byte.toUnsignedInt(cmd.getFields().get('R', (byte) 0xFF)) > RCodeActivateCommand.MAX_SYSTEM_CODE && !RCodeActivateCommand.isActivated()) {
                 out.writeStatus(RCodeResponseStatus.NOT_ACTIVATED);
                 out.writeBigStringField("Not a system command, and not activated");
-                target.getOutStream().writeCommandSequenceSeperator();
+                target.acquireOutStream().writeCommandSequenceSeperator();
                 target.fail(RCodeResponseStatus.NOT_ACTIVATED);
                 finishRunning(target, targetInd);
             } else {
@@ -123,30 +123,30 @@ public class RCodeRunner {
         if (target.hasParsed()) {
             RCodeCommandSlot slot = target.peekFirst();
             if (slot.isStarted()) {
-                slot.getCommand().finish(slot, target.getOutStream());
+                slot.getCommand().finish(slot, target.acquireOutStream());
             }
             if (slot.getStatus() != RCodeResponseStatus.OK) {
                 if (target.fail(slot.getStatus())) {
-                    target.getOutStream().writeCommandSequenceErrorHandler();
+                    target.acquireOutStream().writeCommandSequenceErrorHandler();
                 } else {
-                    target.getOutStream().writeCommandSequenceSeperator();
+                    target.acquireOutStream().writeCommandSequenceSeperator();
                 }
             } else if (slot.getEnd() == '\n' || (target.isFullyParsed() && slot.next == null)) {
-                target.getOutStream().writeCommandSequenceSeperator();
+                target.acquireOutStream().writeCommandSequenceSeperator();
             } else if (slot.getEnd() == '&') {
-                target.getOutStream().writeCommandSeperator();
+                target.acquireOutStream().writeCommandSeperator();
             } else {
                 target.fail(RCodeResponseStatus.UNKNOWN_ERROR);
-                target.getOutStream().writeCommandSequenceSeperator();
+                target.acquireOutStream().writeCommandSequenceSeperator();
             }
             target.popFirst();
             slot.reset();
         } else if (target.isEmpty()) {
-            target.getOutStream().writeCommandSequenceSeperator();
+            target.acquireOutStream().writeCommandSequenceSeperator();
         }
         if (!target.hasParsed() && target.isFullyParsed()) {
             if (!target.getChannel().isPacketBased() || !target.getChannel().hasCommandSequence()) {
-                target.getOutStream().close();
+                target.acquireOutStream().close();
             }
             target.releaseOutStream();
             if (!target.canBeParallel()) {

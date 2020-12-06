@@ -31,6 +31,10 @@ public class RCodeBigField {
         return data;
     }
 
+    public boolean isInUse() {
+        return length != 0;
+    }
+
     public int getLength() {
         return length;
     }

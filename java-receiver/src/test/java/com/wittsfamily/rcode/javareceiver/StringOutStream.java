@@ -1,15 +1,11 @@
-package com.wittsfamily.rcode.javareceiver.test;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.wittsfamily.rcode.javareceiver;
 
 import com.wittsfamily.rcode.javareceiver.AbstractRCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 
-public class StringPacketOutStream extends AbstractRCodeOutStream {
-    private final List<String> prevPackets = new ArrayList<>();
-    private StringBuilder builder = new StringBuilder();
+public class StringOutStream extends AbstractRCodeOutStream {
+    private final StringBuilder builder = new StringBuilder();
     private boolean open = false;
 
     @Override
@@ -48,12 +44,9 @@ public class StringPacketOutStream extends AbstractRCodeOutStream {
     @Override
     public void close() {
         open = false;
-        prevPackets.add(builder.toString());
-        builder = new StringBuilder();
     }
 
-    public List<String> getPackets() {
-        return prevPackets;
+    public String getString() {
+        return builder.toString();
     }
-
 }

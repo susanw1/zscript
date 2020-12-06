@@ -54,8 +54,7 @@ public:
         l.relativePos = 0;
         return &l;
     }
-
-    virtual bool hasNextCommandSequence() {
+    bool hasNextCommandSequence() {
         return !opened;
     }
 

@@ -22,10 +22,12 @@ private:
     RCodeCommandSlot slots[RCodeParameters::slotNum];
     RCodeBigBigField bigBig = RCodeBigBigField();
     friend void RCodeParserSetupSlots(RCodeParser *parser);
+
+    RCodeCommandSequence* beginSequenceParse(RCodeCommandSlot *targetSlot,
+            RCodeCommandChannel *channel);
+    void parse(RCodeCommandSlot *slot, RCodeCommandSequence *sequence);
 public:
     static void eatWhitespace(RCodeInStream *in);
-
-    static bool shouldEatWhitespace(RCodeInStream *in);
 
     RCodeParser(RCode *rcode) :
             rcode(rcode) {
@@ -34,7 +36,6 @@ public:
 
     void parseNext();
 
-    void parse(RCodeCommandSlot *slot, RCodeCommandSequence *sequence);
     void setupSlots();
 };
 

@@ -15,18 +15,9 @@ void RCodeParser::eatWhitespace(RCodeInStream *in) {
     }
 }
 
-bool RCodeParser::shouldEatWhitespace(RCodeInStream *in) {
-    RCodeLookaheadStream *l = in->getLookahead();
-    char c = l->read();
-    while (c == ' ' || c == '\t' || c == '\r') {
-        c = l->read();
-    }
-    return c != '&' && c != '|';
-}
-
 void RCodeParser::parseNext() {
     RCodeCommandSlot *targetSlot = NULL;
-    if (bigBig.getLength() == 0) {
+    if (!bigBig.isInUse()) {
         for (int i = 0; i < RCodeParameters::slotNum; i++) {
             if (!slots[i].isParsed()) {
                 targetSlot = &slots[i];
@@ -34,9 +25,7 @@ void RCodeParser::parseNext() {
             }
         }
         if (targetSlot != NULL) {
-            if (mostRecent != NULL && mostRecent->isActive()
-                    && !mostRecent->isFullyParsed()
-                    && !mostRecent->hasFailed()) {
+            if (mostRecent != NULL && mostRecent->canContinueParse()) {
                 parse(targetSlot, mostRecent);
             } else {
                 if (mostRecent != NULL) {
@@ -48,59 +37,55 @@ void RCodeParser::parseNext() {
                 for (int i = 0; i < rcode->getChannelNumber(); i++) {
                     RCodeCommandChannel *channel = rcode->getChannels()[i];
                     if (channel->canLock() && channel->hasCommandSequence()
-                            && !channel->getCommandSequence()->isActive()) {
-                        RCodeCommandSequence *seq =
-                                channel->getCommandSequence();
-                        if (!channel->getInStream()->isLocked()) {
-                            channel->lock();
-                            seq->getInStream()->getSequenceIn()->openCommandSequence();
-                            if (seq->parseFlags()) {
-                                if (seq->isFullyParsed()) {
-                                    channel->unlock();
-                                    seq->setActive();
-                                    seq->releaseInStream();
-                                } else {
-                                    mostRecent = seq;
-                                    parse(targetSlot, seq);
-                                    seq->setActive();
-                                }
-                            } else {
-                                seq->releaseInStream();
-                                channel->unlock();
-                                seq->reset();
-                            }
-                            break;
-                        }
+                            && !channel->getCommandSequence()->isActive()
+                            && !channel->getInStream()->isLocked()) {
+                        mostRecent = beginSequenceParse(targetSlot, channel);
+                        break;
                     }
                 }
             }
         }
     }
 }
+
+RCodeCommandSequence* RCodeParser::beginSequenceParse(
+        RCodeCommandSlot *targetSlot, RCodeCommandChannel *channel) {
+
+    RCodeCommandSequence *seq = channel->getCommandSequence();
+    channel->lock();
+    seq->acquireInStream()->getSequenceIn()->openCommandSequence();
+    if (seq->parseFlags()) { // returns false if a debug sequence, true otherwise
+        seq->setActive();
+        if (!seq->isFullyParsed()) {
+            // This is the normal case - nothing unexpected has happened
+            parse(targetSlot, seq);
+            return seq;
+        } else {
+            // This is when the incoming command sequence (candidateSequence) is empty / has only markers
+            channel->unlock();
+            seq->releaseInStream();
+            return NULL;
+        }
+    } else {
+        // The received sequence is debug - we will ignore it
+        seq->releaseInStream();
+        channel->unlock();
+        seq->reset();
+        return NULL;
+    }
+}
 void RCodeParser::parse(RCodeCommandSlot *slot,
         RCodeCommandSequence *sequence) {
-    if (!sequence->getInStream()->getSequenceIn()->hasNext()) {
+    bool worked = slot->parseSingleCommand(sequence->acquireInStream(),
+            sequence);
+    sequence->addLast(slot);
+    if (!worked) {
+        sequence->acquireInStream()->skipSequence();
+    }
+    if (!worked || slot->getEnd() == '\n') {
         sequence->setFullyParsed(true);
         sequence->releaseInStream();
         sequence->getChannel()->unlock();
-    } else {
-        bool worked = slot->parseSingleCommand(sequence->getInStream(),
-                sequence);
-        if (!worked) {
-            sequence->addLast(slot);
-            sequence->getInStream()->skipSequence();
-            sequence->setFailed();
-            sequence->setFullyParsed(true);
-            sequence->releaseInStream();
-            sequence->getChannel()->unlock();
-        } else {
-            sequence->addLast(slot);
-            if (slot->getEnd() == '\n') {
-                sequence->setFullyParsed(true);
-                sequence->releaseInStream();
-                sequence->getChannel()->unlock();
-            }
-        }
     }
 }
 

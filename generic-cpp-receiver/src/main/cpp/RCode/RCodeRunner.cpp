@@ -37,7 +37,7 @@ RCodeCommandSequence* RCodeRunner::findNextToRun() {
         }
     }
     if (current != NULL) {
-        RCodeOutStream *out = current->getOutStream();
+        RCodeOutStream *out = current->acquireOutStream();
         if (out->isOpen() && out->mostRecent != current) {
             out->close();
         }
@@ -87,35 +87,35 @@ bool RCodeRunner::finishRunning(RCodeCommandSequence *target, int targetInd) {
     if (target->hasParsed()) {
         RCodeCommandSlot *slot = target->peekFirst();
         if (slot->isStarted()) {
-            slot->getCommand(rcode)->finish(slot, target->getOutStream());
+            slot->getCommand(rcode)->finish(slot, target->acquireOutStream());
         }
         if (slot->isStarted() && slot->getStatus() != OK) {
             if (target->fail(slot->getStatus())) {
-                target->getOutStream()->writeCommandSequenceErrorHandler();
+                target->acquireOutStream()->writeCommandSequenceErrorHandler();
             } else {
-                target->getOutStream()->writeCommandSequenceSeperator();
+                target->acquireOutStream()->writeCommandSequenceSeperator();
             }
         } else if (slot->getEnd() == '\n'
                 || (target->isFullyParsed() && slot->next == NULL)) {
-            target->getOutStream()->writeCommandSequenceSeperator();
+            target->acquireOutStream()->writeCommandSequenceSeperator();
         } else if (slot->getEnd() == '&') {
-            target->getOutStream()->writeCommandSeperator();
+            target->acquireOutStream()->writeCommandSeperator();
         } else {
             target->fail(UNKNOWN_ERROR);
-            target->getOutStream()->writeCommandSequenceSeperator();
+            target->acquireOutStream()->writeCommandSequenceSeperator();
         }
         if (target->hasParsed()) {
             target->popFirst();
             slot->reset();
         }
     } else if (target->isEmpty()) {
-        target->getOutStream()->writeCommandSequenceSeperator();
+        target->acquireOutStream()->writeCommandSequenceSeperator();
     }
     if (!target->hasParsed() && target->isFullyParsed()) {
         if (!target->getChannel()->isPacketBased()
                 || (target->isFullyParsed()
                         && !target->getChannel()->hasCommandSequence())) {
-            target->getOutStream()->close();
+            target->acquireOutStream()->close();
         }
         target->releaseOutStream();
         if (!target->canBeParallel()) {
@@ -136,7 +136,7 @@ bool RCodeRunner::finishRunning(RCodeCommandSequence *target, int targetInd) {
 }
 
 void RCodeRunner::runSequence(RCodeCommandSequence *target, int targetInd) {
-    RCodeOutStream *out = target->getOutStream();
+    RCodeOutStream *out = target->acquireOutStream();
     RCodeCommandSlot *cmd = target->peekFirst();
     cmd->getFields()->copyFieldTo(out, 'E');
     if (cmd->getStatus() != OK) {

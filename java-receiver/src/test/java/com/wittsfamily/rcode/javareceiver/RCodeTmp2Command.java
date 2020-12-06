@@ -1,24 +1,23 @@
-package com.wittsfamily.rcode.javareceiver.commands;
+package com.wittsfamily.rcode.javareceiver;
 
 import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
+import com.wittsfamily.rcode.javareceiver.commands.RCodeCommand;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSlot;
 
-public class RCodeTmpCommand implements RCodeCommand {
-
+public class RCodeTmp2Command implements RCodeCommand {
     @Override
     public void finish(RCodeCommandSlot rCodeCommandSlot, RCodeOutStream out) {
     }
 
     @Override
     public void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out) {
-        if (!slot.getFields().has('S')) {
-            out.writeStatus(RCodeResponseStatus.OK);
-        }
+        out.writeStatus(RCodeResponseStatus.CMD_FAIL);
         slot.getFields().copyTo(out);
         slot.getBigField().copyTo(out);
+        slot.fail("", RCodeResponseStatus.CMD_FAIL);
         slot.setComplete(true);
     }
 
@@ -28,7 +27,7 @@ public class RCodeTmpCommand implements RCodeCommand {
 
     @Override
     public byte getCode() {
-        return 0x13;
+        return 0x11;
     }
 
     @Override

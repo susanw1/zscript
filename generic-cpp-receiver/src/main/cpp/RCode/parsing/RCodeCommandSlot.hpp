@@ -52,6 +52,10 @@ private:
         this->bigBig = bigBig;
     }
     friend void RCodeParserSetupSlots(RCodeParser *parser);
+
+    void failParse(RCodeInStream *in, RCodeCommandSequence *sequence,
+            RCodeResponseStatus errorStatus, char const *errorMessage);
+
 public:
     RCodeCommandSlot() {
         slotStatus.parsed = false;
@@ -105,6 +109,9 @@ public:
 
     char getEnd() const {
         return end;
+    }
+    bool isEndOfSequence() const {
+        return end == '\n';
     }
 
     RCodeResponseStatus getStatus() const {
