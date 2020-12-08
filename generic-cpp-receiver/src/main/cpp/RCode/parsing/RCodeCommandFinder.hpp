@@ -29,13 +29,7 @@ public:
     RCodeCommandFinder(RCode *rcode) :
             rcode(rcode) {
     }
-    bool registerCommand(RCodeCommand *cmd) {
-        if (commandNum < RCodeParameters::commandNum) {
-            commands[commandNum++] = cmd;
-            return true;
-        }
-        return false;
-    }
+    RCodeCommandFinder* registerCommand(RCodeCommand *cmd);
 
     RCodeCommand* findCommand(RCodeCommandSlot *slot);
 

@@ -7,6 +7,19 @@
 
 #include "RCodeParser.hpp"
 
+void RCodeParser::report_failure(RCodeCommandChannel *channel) {
+    if (!channel->getOutStream()->isLocked()) {
+        channel->getOutStream()->lock();
+        channel->getOutStream()->openResponse(channel);
+        channel->getOutStream()->writeStatus(SETUP_ERROR);
+        channel->getOutStream()->writeBigStringField(
+                rcode->getConfigFailureState());
+        channel->getOutStream()->writeCommandSequenceSeperator();
+        channel->getOutStream()->close();
+        channel->getOutStream()->unlock();
+    }
+}
+
 void RCodeParser::parseNext() {
     RCodeCommandSlot *targetSlot = NULL;
     if (!bigBig.isInUse()) {
@@ -31,7 +44,14 @@ void RCodeParser::parseNext() {
                     if (channel->canLock() && channel->hasCommandSequence()
                             && !channel->getCommandSequence()->isActive()
                             && !channel->getInStream()->getSequenceInStream()->isLocked()) {
-                        mostRecent = beginSequenceParse(targetSlot, channel);
+                        if (rcode->getConfigFailureState() == NULL) {
+                            mostRecent = beginSequenceParse(targetSlot,
+                                    channel);
+                        } else {
+                            channel->getInStream()->getSequenceInStream()->open();
+                            channel->getInStream()->getSequenceInStream()->close();
+                            report_failure(channel);
+                        }
                         break;
                     }
                 }

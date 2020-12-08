@@ -1,20 +1,28 @@
 package com.wittsfamily.rcode.javareceiver.parsing;
 
+import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeCommand;
 
 public class RCodeCommandFinder {
     private final RCodeParameters params;
+    private final RCode rcode;
     private RCodeCommand[] commands;
     private int commandNum;
 
-    public RCodeCommandFinder(RCodeParameters params) {
+    public RCodeCommandFinder(RCodeParameters params, RCode rcode) {
         this.params = params;
+        this.rcode = rcode;
         commands = new RCodeCommand[params.commandNum];
     }
 
-    public void registerCommand(RCodeCommand cmd) {
-        commands[commandNum++] = cmd;
+    public RCodeCommandFinder registerCommand(RCodeCommand cmd) {
+        if (commandNum >= commands.length) {
+            rcode.configFail("Too many commands registered.");
+        } else {
+            commands[commandNum++] = cmd;
+        }
+        return this;
     }
 
     public RCodeCommand findCommand(RCodeCommandSlot slot) {

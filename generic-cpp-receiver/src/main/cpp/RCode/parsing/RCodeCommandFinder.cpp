@@ -7,6 +7,14 @@
 
 #include "RCodeCommandFinder.hpp"
 
+RCodeCommandFinder* RCodeCommandFinder::registerCommand(RCodeCommand *cmd) {
+    if (commandNum < RCodeParameters::commandNum) {
+        commands[commandNum++] = cmd;
+    } else {
+        rcode->configFail("Too many commands registered.");
+    }
+    return this;
+}
 RCodeCommand* RCodeCommandFinder::findCommand(RCodeCommandSlot *slot) {
     int fieldSectionNum = slot->getFields()->countFieldSections('R');
     if (fieldSectionNum == 0) {

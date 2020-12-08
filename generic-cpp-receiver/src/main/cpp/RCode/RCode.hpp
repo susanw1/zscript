@@ -36,24 +36,33 @@ private:
     RCodeVoidChannel voidChannel;
     RCodeLocks locks;
     RCodeCommandChannel **channels = NULL;
+    const char *configFailureState = NULL;
     uint8_t channelNum = 0;
 public:
     RCode(
 #ifdef NOTIFICATIONS
-            RCodeBusInterruptSource *interruptSources, uint8_t interruptSourceNum
+            RCodeBusInterruptSource *interruptSources,
+            uint8_t interruptSourceNum
 #endif
-    ) :
+            ) :
             parser(this), runner(this),
 #ifdef NOTIFICATIONS
-    notificationManager(this,
-            interruptSources, interruptSourceNum), space(
-            &notificationManager),
+                    notificationManager(this, interruptSources,
+                            interruptSourceNum), space(&notificationManager),
 #endif
                     finder(this), debug() {
     }
     void setChannels(RCodeCommandChannel **channels, uint8_t channelNum) {
         this->channels = channels;
         this->channelNum = channelNum;
+    }
+
+    void configFail(const char *configFailureState) {
+        this->configFailureState = configFailureState;
+    }
+
+    const char* getConfigFailureState() {
+        return configFailureState;
     }
 
     void progressRCode();

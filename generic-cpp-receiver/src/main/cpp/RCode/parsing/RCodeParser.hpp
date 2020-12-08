@@ -14,6 +14,7 @@
 
 class RCode;
 class RCodeCommandSequence;
+class RCodeCommandChannel;
 
 class RCodeParser {
 private:
@@ -26,6 +27,8 @@ private:
     RCodeCommandSequence* beginSequenceParse(RCodeCommandSlot *targetSlot,
             RCodeCommandChannel *channel);
     void parse(RCodeCommandSlot *slot, RCodeCommandSequence *sequence);
+
+    void report_failure(RCodeCommandChannel *channel);
 public:
 
     RCodeParser(RCode *rcode) :

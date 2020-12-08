@@ -2,6 +2,7 @@ package com.wittsfamily.rcode.javareceiver.parsing;
 
 import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
+import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
 
 public class RCodeParser {
     private final RCode rcode;
@@ -42,12 +43,30 @@ public class RCodeParser {
                         RCodeCommandChannel channel = rcode.getChannels()[i];
                         if (channel.canLock() && channel.hasCommandSequence() && !channel.getCommandSequence().isActive()
                                 && !channel.getInStream().getSequenceInStream().isLocked()) {
-                            mostRecent = beginSequenceParse(targetSlot, channel);
+                            if (rcode.getConfigFailureState() == null) {
+                                mostRecent = beginSequenceParse(targetSlot, channel);
+                            } else {
+                                channel.getInStream().getSequenceInStream().open();
+                                channel.getInStream().getSequenceInStream().close();
+                                report_failure(channel);
+                            }
                             break;
                         }
                     }
                 }
             }
+        }
+    }
+
+    private void report_failure(RCodeCommandChannel channel) {
+        if (!channel.getOutStream().isLocked()) {
+            channel.getOutStream().lock();
+            channel.getOutStream().openResponse(channel);
+            channel.getOutStream().writeStatus(RCodeResponseStatus.SETUP_ERROR);
+            channel.getOutStream().writeBigStringField(rcode.getConfigFailureState());
+            channel.getOutStream().writeCommandSequenceSeperator();
+            channel.getOutStream().close();
+            channel.getOutStream().unlock();
         }
     }
 

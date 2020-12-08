@@ -10,6 +10,7 @@ public enum RCodeResponseStatus {
     BAD_PARAM(6),
     NOT_ACTIVATED(7),
     TOO_BIG(8),
+    SETUP_ERROR(0xf),
     CMD_FAIL(0x10),
     NOT_EXECUTED(0x11);
 
