@@ -7,9 +7,9 @@
 
 #include "RCodeCommandSequence.hpp"
 
-RCodeInStream* RCodeCommandSequence::acquireInStream() {
+RCodeSequenceInStream* RCodeCommandSequence::acquireInStream() {
     if (in == NULL) {
-        in = channel->getInStream();
+        in = channel->getInStream()->getSequenceInStream();
         in->lock();
     }
     return in;
@@ -69,7 +69,7 @@ bool RCodeCommandSequence::fail(RCodeResponseStatus status) {
             current->reset();
         }
         if (in != NULL) {
-            in->skipSequence();
+            in->close();
         }
         if (!fullyParsed) {
             failed = true;
@@ -102,7 +102,7 @@ bool RCodeCommandSequence::fail(RCodeResponseStatus status) {
                 return false;
             } else {
                 in->skipToError();
-                if (in->read() == '\n') {
+                if (in->peek() == '\n') {
                     if (!fullyParsed) {
                         failed = true;
                         fullyParsed = true;
@@ -117,44 +117,33 @@ bool RCodeCommandSequence::fail(RCodeResponseStatus status) {
         }
     }
 }
-bool shouldEatWhitespace(RCodeInStream *in) {
-    RCodeLookaheadStream *l = in->getLookahead();
-    char c = l->read();
-    while (c == ' ' || c == '\t' || c == '\r') {
-        c = l->read();
-    }
-    return c != '&' && c != '|';
-}
 bool RCodeCommandSequence::parseFlags() {
-    in->openCommand();
-    if (shouldEatWhitespace(in)) {
-        RCodeParser::eatWhitespace(in);
-    }
-    if (in->peek() == '#') {
-        in->skipSequence();
+    RCodeMarkerInStream *mIn = in->getMarkerInStream();
+    mIn->eatWhitespace();
+    mIn->read();
+    if (mIn->reread() == '#') {
+        mIn->close();
+        in->close();
         return false;
     }
-    if (in->peek() == '*') {
-        in->read();
+    if (mIn->reread() == '*') {
+        mIn->read();
         broadcast = true;
-        if (shouldEatWhitespace(in)) {
-            RCodeParser::eatWhitespace(in);
-        }
+        mIn->eatWhitespace();
     }
-    if (in->peek() == '%') {
-        in->read();
+    if (mIn->reread() == '%') {
+        mIn->read();
         parallel = true;
-        if (shouldEatWhitespace(in)) {
-            RCodeParser::eatWhitespace(in);
-        }
+        mIn->eatWhitespace();
     }
-    if (!in->getSequenceIn()->hasNext()) {
+    if (mIn->reread() == '\n') {
+        mIn->read();
         empty = true;
         parallel = true;
         fullyParsed = true;
     }
 
-    in->unOpen();
+    mIn->close();
     return true;
 }
 bool RCodeCommandSequence::canLock() {

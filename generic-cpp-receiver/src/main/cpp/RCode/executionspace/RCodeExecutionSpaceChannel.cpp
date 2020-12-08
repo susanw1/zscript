@@ -7,11 +7,11 @@
 
 #include "RCodeExecutionSpaceChannel.hpp"
 
-RCodeInStream* RCodeExecutionSpaceChannel::getInStream() {
-    if (in.getSequenceIn() == NULL) {
-        in = RCodeInStream(space->acquireInStream(position));
+RCodeExecutionSpaceChannelIn* RCodeExecutionSpaceChannel::getInStream() {
+    if (in == NULL) {
+        in = space->acquireInStream(position);
     }
-    return &in;
+    return in;
 }
 
 RCodeOutStream* RCodeExecutionSpaceChannel::getOutStream() {
@@ -23,10 +23,10 @@ RCodeOutStream* RCodeExecutionSpaceChannel::getOutStream() {
 
 bool RCodeExecutionSpaceChannel::hasCommandSequence() {
     bool has = space->isRunning() && space->hasInStream()
-            && space->hasOutStream() && in.getSequenceIn() == NULL
-            && out == NULL && delayCounter >= space->getDelay();
+            && space->hasOutStream() && in == NULL && out == NULL
+            && delayCounter >= space->getDelay();
     if (has) {
-        in = RCodeInStream(space->acquireInStream(position));
+        in = space->acquireInStream(position);
         out = space->acquireOutStream();
     }
     delayCounter++;
@@ -35,13 +35,11 @@ bool RCodeExecutionSpaceChannel::hasCommandSequence() {
 
 void RCodeExecutionSpaceChannel::releaseInStream() {
     delayCounter = 0;
-    if (in.getSequenceIn() != NULL) {
-        position =
-                ((RCodeExecutionSpaceSequenceIn*) in.getSequenceIn())->getPosition();
-        space->releaseInStream(
-                (RCodeExecutionSpaceSequenceIn*) in.getSequenceIn());
+    if (in != NULL) {
+        position = in->getPosition();
+        space->releaseInStream(in);
     }
-    in = RCodeInStream(NULL);
+    in = NULL;
 }
 
 void RCodeExecutionSpaceChannel::releaseOutStream() {

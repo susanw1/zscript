@@ -9,9 +9,9 @@
 #define SRC_TEST_CPP_RCODE_PARSING_RCODESEQUENCEINSTREAM_HPP_
 #include "../RCodeIncludes.hpp"
 #include "../RCodeParameters.hpp"
-#include "RCodeLookaheadStream.hpp"
-
-class RCodeSequenceInStream {
+#include "../instreams/RCodeLookaheadStream.hpp"
+bbbbbbbbbbbbbbbbbbb
+class OldRCodeSequenceInStream {
 public:
     virtual char next() = 0;
 
@@ -24,7 +24,7 @@ public:
     virtual void closeCommandSequence() = 0;
 
     virtual bool isCommandSequenceOpen() const = 0;
-    virtual ~RCodeSequenceInStream() {
+    virtual ~OldRCodeSequenceInStream() {
 
     }
 };

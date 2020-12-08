@@ -14,7 +14,7 @@
 
 class RCode;
 class RCodeCommand;
-class RCodeInStream;
+class RCodeCommandInStream;
 class RCodeCommandSequence;
 
 class RCodeParser;
@@ -46,14 +46,14 @@ private:
         return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
     }
 
-    bool parseHexField(RCodeInStream *in, char field);
+    bool parseHexField(RCodeCommandInStream *in, char field);
 
     void setup(RCodeBigBigField *bigBig) {
         this->bigBig = bigBig;
     }
     friend void RCodeParserSetupSlots(RCodeParser *parser);
 
-    void failParse(RCodeInStream *in, RCodeCommandSequence *sequence,
+    void failParse(RCodeCommandInStream *in, RCodeCommandSequence *sequence,
             RCodeResponseStatus errorStatus, char const *errorMessage);
 
 public:
@@ -124,7 +124,8 @@ public:
 
     RCodeCommand* getCommand(RCode *rcode);
 
-    bool parseSingleCommand(RCodeInStream *in, RCodeCommandSequence *sequence);
+    bool parseSingleCommand(RCodeCommandInStream *in,
+            RCodeCommandSequence *sequence);
 
     void fail(const char *errorMessage, RCodeResponseStatus status) {
         this->errorMessage = errorMessage;

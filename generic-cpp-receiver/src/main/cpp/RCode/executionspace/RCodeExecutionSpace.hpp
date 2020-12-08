@@ -9,7 +9,7 @@
 #define SRC_TEST_CPP_RCODE_EXECUTIONSPACE_RCODEEXECUTIONSPACE_HPP_
 #include "../RCodeIncludes.hpp"
 #include "../RCodeParameters.hpp"
-#include "RCodeExecutionSpaceSequenceIn.hpp"
+#include "RCodeExecutionSpaceChannelIn.hpp"
 #include "RCodeExecutionSpaceOut.hpp"
 
 class RCodeNotificationManager;
@@ -21,7 +21,7 @@ class RCodeExecutionSpace {
 public:
     RCodeExecutionSpace();
 private:
-    RCodeExecutionSpaceSequenceIn inStreams[RCodeParameters::executionInNum];
+    RCodeExecutionSpaceChannelIn inStreams[RCodeParameters::executionInNum];
     RCodeExecutionSpaceOut outStreams[RCodeParameters::executionOutNum];
     RCodeNotificationManager *notifications;
     RCodeExecutionSpaceChannel **channels = NULL;
@@ -76,7 +76,7 @@ public:
         return false;
     }
 
-    RCodeExecutionSpaceSequenceIn* acquireInStream(
+    RCodeExecutionSpaceChannelIn* acquireInStream(
             executionSpaceAddress_t position) {
         for (int i = 0; i < RCodeParameters::executionInNum; i++) {
             if (!inStreams[i].isInUse()) {
@@ -87,7 +87,7 @@ public:
         return NULL;
     }
 
-    void releaseInStream(RCodeExecutionSpaceSequenceIn *stream) {
+    void releaseInStream(RCodeExecutionSpaceChannelIn *stream) {
         stream->release();
     }
 

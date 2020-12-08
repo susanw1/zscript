@@ -11,13 +11,13 @@
 #include "../RCodeParameters.hpp"
 
 class RCodeLockSet;
-class RCodeInStream;
+class RCodeChannelInStream;
 class RCodeOutStream;
 class RCodeCommandSequence;
 
 class RCodeCommandChannel {
 public:
-    virtual RCodeInStream* getInStream() = 0;
+    virtual RCodeChannelInStream* getInStream() = 0;
 
     virtual RCodeOutStream* getOutStream() = 0;
 

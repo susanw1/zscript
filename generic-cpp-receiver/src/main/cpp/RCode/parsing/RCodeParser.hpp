@@ -27,7 +27,6 @@ private:
             RCodeCommandChannel *channel);
     void parse(RCodeCommandSlot *slot, RCodeCommandSequence *sequence);
 public:
-    static void eatWhitespace(RCodeInStream *in);
 
     RCodeParser(RCode *rcode) :
             rcode(rcode) {

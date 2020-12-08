@@ -10,40 +10,46 @@
 #include "../RCode/RCodeIncludes.hpp"
 #include "../RCode/RCodeParameters.hpp"
 #include "../RCode/parsing/RCodeCommandChannel.hpp"
-#include "../RCode/parsing/RCodeInStream.hpp"
+#include "../RCode/instreams/RCodeChannelInStream.hpp"
 #include "../RCode/AbstractRCodeOutStream.hpp"
 #include "../RCode/RCode.hpp"
 
 #include <iostream>
 
-class RCodeLocalSequenceInStream;
+class RCodeLocalChannelInStream;
 class RCodeLocalLookaheadStream: public RCodeLookaheadStream {
 public:
-    RCodeLocalSequenceInStream *parent;
+    RCodeLocalChannelInStream *parent;
     int relativePos = 0;
     virtual char read();
-    RCodeLocalLookaheadStream(RCodeLocalSequenceInStream *parent) :
+    RCodeLocalLookaheadStream(RCodeLocalChannelInStream *parent) :
             parent(parent) {
 
     }
 };
-class RCodeLocalSequenceInStream: public RCodeSequenceInStream {
+class RCodeLocalChannelInStream: public RCodeChannelInStream {
 private:
     char buffer[10000];
     int lengthRead = 0;
     int pos = 0;
+    int timer = 100;
     bool opened = false;
     RCodeLocalLookaheadStream l;
 public:
-    RCodeLocalSequenceInStream() :
+    RCodeLocalChannelInStream() :
             l(this) {
 
     }
     char charAt(int relative) {
         return relative + pos >= lengthRead ? '\n' : buffer[relative + pos];
     }
-    virtual char next() {
-        return pos >= lengthRead ? '\n' : buffer[pos++];
+    virtual int16_t read() {
+        if (pos >= lengthRead) {
+            opened = false;
+            return -1;
+        } else {
+            return buffer[pos++];
+        }
     }
 
     virtual bool hasNext() {
@@ -55,24 +61,21 @@ public:
         return &l;
     }
     bool hasNextCommandSequence() {
-        return !opened;
+        if (!opened && timer <= 0) {
+            std::cin.getline(buffer, 9999);
+            lengthRead = std::cin.gcount() - 1;
+            buffer[lengthRead] = '\n';
+            opened = true;
+            pos = 0;
+            timer = 100;
+        } else {
+            timer--;
+            return false;
+        }
+        return true;
     }
 
-    virtual void openCommandSequence() {
-        std::cin.getline(buffer, 9999);
-        lengthRead = std::cin.gcount();
-        buffer[lengthRead - 1] = '\n';
-        opened = true;
-        pos = 0;
-    }
-
-    virtual void closeCommandSequence() {
-        opened = false;
-    }
-    virtual bool isCommandSequenceOpen() const {
-        return opened;
-    }
-    virtual ~RCodeLocalSequenceInStream() {
+    virtual ~RCodeLocalChannelInStream() {
 
     }
 };
@@ -110,17 +113,16 @@ public:
     }
 };
 class RCodeLocalChannel: public RCodeCommandChannel {
-    RCodeInStream in;
-    RCodeLocalSequenceInStream seqin;
+    RCodeLocalChannelInStream seqin;
     RCodeLocalOutStream out;
     RCodeCommandSequence seq;
 public:
     RCodeLocalChannel(RCode *rcode) :
-            in(&seqin), seq(rcode, this) {
+            seq(rcode, this) {
 
     }
-    virtual RCodeInStream* getInStream() {
-        return &in;
+    virtual RCodeLocalChannelInStream* getInStream() {
+        return &seqin;
     }
     virtual RCodeOutStream* getOutStream() {
         return &out;
@@ -138,7 +140,6 @@ public:
     }
 
     virtual void releaseInStream() {
-        seqin.closeCommandSequence();
     }
 
     virtual void releaseOutStream() {

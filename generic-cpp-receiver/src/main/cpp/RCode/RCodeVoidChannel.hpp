@@ -12,7 +12,7 @@
 #include "RCodeOutStream.hpp"
 
 class RCodeCommandSequence;
-class RCodeInStream;
+class RCodeChannelInStream;
 
 class RCodeVoidChannel: public RCodeCommandChannel {
     class RCodeVoidOutStream: public RCodeOutStream {
@@ -91,7 +91,7 @@ class RCodeVoidChannel: public RCodeCommandChannel {
     };
     RCodeVoidOutStream out;
 public:
-    virtual RCodeInStream* getInStream() {
+    virtual RCodeChannelInStream* getInStream() {
         return NULL;
     }
 

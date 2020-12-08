@@ -7,21 +7,21 @@
 
 #ifndef SRC_TEST_CPP_RCODE_EXECUTIONSPACE_RCODEEXECUTIONSPACESEQUENCEIN_HPP_
 #define SRC_TEST_CPP_RCODE_EXECUTIONSPACE_RCODEEXECUTIONSPACESEQUENCEIN_HPP_
+#include "../instreams/RCodeChannelInStream.hpp"
 #include "../RCodeIncludes.hpp"
 #include "../RCodeParameters.hpp"
-#include "../parsing/RCodeSequenceInStream.hpp"
 
 class RCodeExecutionSpace;
 
-class RCodeExecutionSpaceSequenceIn: public RCodeSequenceInStream {
+class RCodeExecutionSpaceChannelIn: public RCodeChannelInStream {
 private:
     class RCodeExecutionSpaceLookahead: public RCodeLookaheadStream {
     private:
-        RCodeExecutionSpaceSequenceIn *parent = NULL;
+        RCodeExecutionSpaceChannelIn *parent = NULL;
         executionSpaceAddress_t offset = 0;
         bool stillInSequence = false;
     public:
-        RCodeExecutionSpaceLookahead(RCodeExecutionSpaceSequenceIn *parent) :
+        RCodeExecutionSpaceLookahead(RCodeExecutionSpaceChannelIn *parent) :
                 parent(parent) {
 
         }
@@ -31,12 +31,10 @@ private:
     RCodeExecutionSpaceLookahead lookahead;
     RCodeExecutionSpace *space;
     executionSpaceAddress_t pos = 0;
-    bool isSequenceOpen = false;
-    bool hasStarted = false;
     bool inUse = false;
 
 public:
-    RCodeExecutionSpaceSequenceIn() :
+    RCodeExecutionSpaceChannelIn() :
             lookahead(this), space(NULL) {
     }
     void initialSetup(RCodeExecutionSpace *space) {
@@ -45,8 +43,6 @@ public:
 
     void setup(executionSpaceAddress_t position) {
         pos = position;
-        isSequenceOpen = false;
-        hasStarted = false;
         inUse = true;
     }
 
@@ -58,11 +54,9 @@ public:
         return inUse;
     }
 
-    bool hasNext() {
-        return isSequenceOpen || !hasStarted;
-    }
+    int16_t read();
 
-    RCodeLookaheadStream* getLookahead() {
+    virtual RCodeLookaheadStream* getLookahead() {
         lookahead.reset();
         return &lookahead;
     }
@@ -71,17 +65,9 @@ public:
         return pos;
     }
 
-    bool isCommandSequenceOpen() const {
-        return isSequenceOpen;
-    }
-
     char next();
 
-    void openCommandSequence();
-
     bool needsDelayNext();
-
-    void closeCommandSequence();
 };
 #include "RCodeExecutionSpace.hpp"
 

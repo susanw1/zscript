@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import com.wittsfamily.rcode.javareceiver.instreams.RCodeChannelInStream;
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeLookaheadStream;
 import com.wittsfamily.rcode.javareceiver.instreams.RCodeSequenceInStream;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeLookaheadStream;
 
 public class RCodeQueueSequenceInStream implements RCodeChannelInStream {
     private final Queue<byte[]> messages = new LinkedList<>();

@@ -14,7 +14,7 @@
 class RCode;
 class RCodeCommandSlot;
 class RCodeCommandChannel;
-class RCodeInStream;
+class RCodeSequenceInStream;
 class RCodeOutStream;
 
 class RCodeCommandSequence {
@@ -25,7 +25,7 @@ private:
     RCodeCommandSlot *last = NULL;
     bool parallel = false;
     bool broadcast = false;
-    RCodeInStream *in = NULL;
+    RCodeSequenceInStream *in = NULL;
     RCodeOutStream *out = NULL;
     RCodeLockSet locks;
 
@@ -44,7 +44,7 @@ public:
     RCode* getRCode() {
         return rcode;
     }
-    RCodeInStream* acquireInStream();
+    RCodeSequenceInStream* acquireInStream();
 
     void releaseInStream();
 
@@ -133,7 +133,7 @@ public:
 }
 ;
 
-#include "RCodeInStream.hpp"
+#include "../instreams/RCodeSequenceInStream.hpp"
 #include "../RCodeOutStream.hpp"
 #include "RCodeCommandSlot.hpp"
 #include "RCodeCommandChannel.hpp"

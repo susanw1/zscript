@@ -7,17 +7,17 @@
 
 #include "RCodeCommandSlotInterrim.hpp"
 
-void RCodeCommandSlot::failParse(RCodeInStream *in,
+void RCodeCommandSlot::failParse(RCodeCommandInStream *in,
         RCodeCommandSequence *sequence, RCodeResponseStatus errorStatus,
         char const *errorMessage) {
     status = errorStatus;
     this->errorMessage = errorMessage;
 
     sequence->getRCode()->getDebug() << errorMessage << "\n";
-    in->closeCommand();
+    in->close();
     end = '\n';
 }
-bool RCodeCommandSlot::parseHexField(RCodeInStream *in, char field) {
+bool RCodeCommandSlot::parseHexField(RCodeCommandInStream *in, char field) {
     while (in->hasNext() && in->peek() == '0') {
         in->read();
     }
@@ -66,12 +66,12 @@ RCodeCommand* RCodeCommandSlot::getCommand(RCode *rcode) {
     }
     return cmd;
 }
-bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
+bool RCodeCommandSlot::parseSingleCommand(RCodeCommandInStream *in,
         RCodeCommandSequence *sequence) {
     RCodeBigField *target = &big;
-    in->openCommand();
+    in->open();
     reset();
-    RCodeParser::eatWhitespace(in);
+    in->eatWhitespace();
     if (!in->hasNext()) {
         failParse(in, sequence, PARSE_ERROR, "No command present");
         return false;
@@ -80,7 +80,7 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
     slotStatus.parsed = true;
     while (true) {
         if (in->hasNext()) {
-            RCodeParser::eatWhitespace(in);
+            in->eatWhitespace();
         }
         if (in->hasNext()) {
             c = in->read();
@@ -179,12 +179,12 @@ bool RCodeCommandSlot::parseSingleCommand(RCodeInStream *in,
                         << c << "\n";
                 status = PARSE_ERROR;
                 errorMessage = "Unknown field marker";
-                in->closeCommand();
+                in->close();
                 end = '\n';
                 return false;
             }
         } else {
-            in->closeCommand();
+            in->close();
             end = in->read();
             if (getCommand(sequence->getRCode()) == NULL) {
                 failParse(in, sequence, UNKNOWN_CMD, "Command not known");

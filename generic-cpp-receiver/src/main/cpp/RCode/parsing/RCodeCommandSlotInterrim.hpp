@@ -10,8 +10,8 @@
 
 #include "RCodeCommandSlot.hpp"
 
-#include "RCodeInStream.hpp"
-#include "RCodeLookaheadStream.hpp"
+#include "../instreams/RCodeCommandInStream.hpp"
+#include "../instreams/RCodeLookaheadStream.hpp"
 #include "RCodeCommandSequence.hpp"
 #include "RCodeCommandFinder.hpp"
 

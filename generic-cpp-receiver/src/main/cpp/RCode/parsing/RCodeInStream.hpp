@@ -9,10 +9,10 @@
 #define SRC_TEST_CPP_RCODE_PARSING_RCODEINSTREAM_HPP_
 #include "../RCodeIncludes.hpp"
 #include "../RCodeParameters.hpp"
-#include "RCodeLookaheadStream.hpp"
+#include "../instreams/RCodeLookaheadStream.hpp"
 
-class RCodeSequenceInStream;
-
+class OldRCodeSequenceInStream;
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 class RCodeInStream {
 private:
     bool hasReachedCommandEnd = false;
@@ -45,7 +45,7 @@ private:
         }
     };
     RCodeInStreamLookaheadOffset lookahead;
-    RCodeSequenceInStream *sequenceIn;
+    OldRCodeSequenceInStream *sequenceIn;
     bool hasBackslash = false;
     bool lockVal = false;
     bool currentValid = false;
@@ -53,7 +53,7 @@ private:
     int16_t readInternal();
 
 public:
-    RCodeInStream(RCodeSequenceInStream *sequenceIn) :
+    RCodeInStream(OldRCodeSequenceInStream *sequenceIn) :
             lookahead(this), sequenceIn(sequenceIn) {
     }
     void operator =(const RCodeInStream &r) {
@@ -117,7 +117,7 @@ public:
         return lockVal;
     }
 
-    RCodeSequenceInStream* getSequenceIn() {
+    OldRCodeSequenceInStream* getSequenceIn() {
         return sequenceIn;
     }
     void unOpen() {
@@ -126,6 +126,6 @@ public:
     }
 };
 
-#include "RCodeSequenceInStream.hpp"
+#include "OldRCodeSequenceInStream.hpp"
 
 #endif /* SRC_TEST_CPP_RCODE_PARSING_RCODEINSTREAM_HPP_ */

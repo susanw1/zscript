@@ -19,7 +19,7 @@ private:
     RCode *rcode;
     RCodeExecutionSpace *space;
     RCodeCommandSequence sequence;
-    RCodeInStream in;
+    RCodeExecutionSpaceChannelIn *in;
     RCodeOutStream *out = NULL;
     RCodeLockSet locks;
     executionSpaceAddress_t position = 0;
@@ -40,7 +40,7 @@ public:
     bool isPacketBased() {
         return false;
     }
-    RCodeInStream* getInStream();
+    RCodeExecutionSpaceChannelIn* getInStream();
 
     RCodeOutStream* getOutStream();
 

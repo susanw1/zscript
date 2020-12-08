@@ -7,14 +7,6 @@
 
 #include "RCodeParser.hpp"
 
-void RCodeParser::eatWhitespace(RCodeInStream *in) {
-    char c = in->peek();
-    while (in->hasNext() && (c == ' ' || c == '\t' || c == '\r')) {
-        in->read();
-        c = in->peek();
-    }
-}
-
 void RCodeParser::parseNext() {
     RCodeCommandSlot *targetSlot = NULL;
     if (!bigBig.isInUse()) {
@@ -38,7 +30,7 @@ void RCodeParser::parseNext() {
                     RCodeCommandChannel *channel = rcode->getChannels()[i];
                     if (channel->canLock() && channel->hasCommandSequence()
                             && !channel->getCommandSequence()->isActive()
-                            && !channel->getInStream()->isLocked()) {
+                            && !channel->getInStream()->getSequenceInStream()->isLocked()) {
                         mostRecent = beginSequenceParse(targetSlot, channel);
                         break;
                     }
@@ -51,38 +43,38 @@ void RCodeParser::parseNext() {
 RCodeCommandSequence* RCodeParser::beginSequenceParse(
         RCodeCommandSlot *targetSlot, RCodeCommandChannel *channel) {
 
-    RCodeCommandSequence *seq = channel->getCommandSequence();
+    RCodeCommandSequence *candidateSequence = channel->getCommandSequence();
     channel->lock();
-    seq->acquireInStream()->getSequenceIn()->openCommandSequence();
-    if (seq->parseFlags()) { // returns false if a debug sequence, true otherwise
-        seq->setActive();
-        if (!seq->isFullyParsed()) {
+    candidateSequence->acquireInStream()->open();
+    if (candidateSequence->parseFlags()) { // returns false if a debug sequence, true otherwise
+        candidateSequence->setActive();
+        if (!candidateSequence->isFullyParsed()) {
             // This is the normal case - nothing unexpected has happened
-            parse(targetSlot, seq);
-            return seq;
+            parse(targetSlot, candidateSequence);
+            return candidateSequence;
         } else {
             // This is when the incoming command sequence (candidateSequence) is empty / has only markers
             channel->unlock();
-            seq->releaseInStream();
+            candidateSequence->releaseInStream();
             return NULL;
         }
     } else {
         // The received sequence is debug - we will ignore it
-        seq->releaseInStream();
+        candidateSequence->releaseInStream();
         channel->unlock();
-        seq->reset();
+        candidateSequence->reset();
         return NULL;
     }
 }
 void RCodeParser::parse(RCodeCommandSlot *slot,
         RCodeCommandSequence *sequence) {
-    bool worked = slot->parseSingleCommand(sequence->acquireInStream(),
-            sequence);
+    bool worked = slot->parseSingleCommand(
+            sequence->acquireInStream()->getCommandInStream(), sequence);
     sequence->addLast(slot);
     if (!worked) {
-        sequence->acquireInStream()->skipSequence();
+        sequence->acquireInStream()->close();
     }
-    if (!worked || slot->getEnd() == '\n') {
+    if (!worked || slot->isEndOfSequence()) {
         sequence->setFullyParsed(true);
         sequence->releaseInStream();
         sequence->getChannel()->unlock();
