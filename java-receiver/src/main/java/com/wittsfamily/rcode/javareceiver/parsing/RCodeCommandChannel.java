@@ -1,9 +1,10 @@
 package com.wittsfamily.rcode.javareceiver.parsing;
 
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeChannelInStream;
 
 public interface RCodeCommandChannel {
-    RCodeInStream getInStream();
+    RCodeChannelInStream getInStream();
 
     RCodeOutStream getOutStream();
 

@@ -4,9 +4,9 @@ import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeChannelInStream;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeInStream;
 
 public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
     private final RCode rcode;
@@ -14,7 +14,7 @@ public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
     private final RCodeCommandSequence sequence;
     private int position = 0;
     private int delayTimer = 0;
-    private RCodeInStream in = null;
+    private RCodeExecutionSpaceInStream in = null;
     private RCodeOutStream out = null;
     private RCodeLockSet locks;
 
@@ -26,9 +26,9 @@ public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
     }
 
     @Override
-    public RCodeInStream getInStream() {
+    public RCodeChannelInStream getInStream() {
         if (in == null) {
-            in = new RCodeInStream(space.acquireInStream(position));
+            in = space.acquireInStream(position);
         }
         return in;
     }
@@ -45,7 +45,7 @@ public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
     public boolean hasCommandSequence() {
         boolean has = space.isRunning() && space.hasInStream() && space.hasOutStream() && in == null && out == null && delayTimer >= space.getDelay();
         if (has) {
-            in = new RCodeInStream(space.acquireInStream(position));
+            in = space.acquireInStream(position);
             out = space.acquireOutStream();
         }
         delayTimer++;
@@ -66,8 +66,11 @@ public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
     public void releaseInStream() {
         delayTimer = 0;
         if (in != null) {
-            position = ((RCodeExecutionSpaceSequenceIn) in.getSequenceIn()).getPosition();
-            space.releaseInStream((RCodeExecutionSpaceSequenceIn) in.getSequenceIn());
+            position = in.getPosition() + 1;
+            if (position >= space.getLength()) {
+                position = 0;
+            }
+            space.releaseInStream(in);
         }
         in = null;
     }

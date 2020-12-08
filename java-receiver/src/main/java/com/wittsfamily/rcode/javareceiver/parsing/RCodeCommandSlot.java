@@ -4,6 +4,7 @@ import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeCommand;
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeCommandInStream;
 
 public class RCodeCommandSlot {
     private final RCode rcode;
@@ -76,7 +77,7 @@ public class RCodeCommandSlot {
         return big;
     }
 
-    private boolean parseHexField(RCodeInStream in, char field) {
+    private boolean parseHexField(RCodeCommandInStream in, char field) {
         while (in.hasNext() && in.peek() == '0') {
             in.read();
         }
@@ -133,18 +134,18 @@ public class RCodeCommandSlot {
         return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
     }
 
-    private void failParse(RCodeInStream in, RCodeResponseStatus errorStatus, String message) {
+    private void failParse(RCodeCommandInStream in, RCodeResponseStatus errorStatus, String message) {
         status = errorStatus;
         errorMessage = message;
-        in.closeCommand();
+        in.close();
         end = '\n';
     }
 
-    public boolean parseSingleCommand(RCodeInStream in, RCodeCommandSequence sequence) {
+    public boolean parseSingleCommand(RCodeCommandInStream in, RCodeCommandSequence sequence) {
         RCodeBigField target = big;
-        in.openCommand();
+        in.open();
         reset();
-        RCodeParser.eatWhitespace(in);
+        in.eatWhitespace();
         if (!in.hasNext()) {
             failParse(in, RCodeResponseStatus.PARSE_ERROR, "No command present");
             return false;
@@ -153,7 +154,7 @@ public class RCodeCommandSlot {
         parsed = true;
         while (true) {
             if (in.hasNext()) {
-                RCodeParser.eatWhitespace(in);
+                in.eatWhitespace();
             }
             if (in.hasNext()) {
                 c = in.read();
@@ -237,7 +238,7 @@ public class RCodeCommandSlot {
                     return false;
                 }
             } else {
-                in.closeCommand();
+                in.close();
                 end = in.read();
                 if (getCommand() == null) {
                     failParse(in, RCodeResponseStatus.UNKNOWN_CMD, "Command not known");

@@ -5,7 +5,6 @@ import java.util.concurrent.Executors;
 
 import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeBusInterruptSource;
-import com.wittsfamily.rcode.javareceiver.RCodeIdentifyCommand;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeActivateCommand;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeCapabilitiesCommand;

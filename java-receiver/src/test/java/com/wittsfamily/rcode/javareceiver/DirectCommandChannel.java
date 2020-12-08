@@ -1,11 +1,8 @@
 package com.wittsfamily.rcode.javareceiver;
 
-import com.wittsfamily.rcode.javareceiver.RCode;
-import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
-import com.wittsfamily.rcode.javareceiver.RCodeParameters;
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeChannelInStream;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeInStream;
 
 public class DirectCommandChannel implements RCodeCommandChannel {
     private final StringInStream s;
@@ -23,8 +20,8 @@ public class DirectCommandChannel implements RCodeCommandChannel {
     }
 
     @Override
-    public RCodeInStream getInStream() {
-        return new RCodeInStream(s);
+    public RCodeChannelInStream getInStream() {
+        return s;
     }
 
     @Override
@@ -34,7 +31,7 @@ public class DirectCommandChannel implements RCodeCommandChannel {
 
     @Override
     public boolean hasCommandSequence() {
-        return s.hasNextChar();
+        return s.hasNext();
     }
 
     @Override

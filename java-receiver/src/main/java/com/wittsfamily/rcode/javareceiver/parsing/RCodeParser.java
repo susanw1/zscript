@@ -19,14 +19,6 @@ public class RCodeParser {
         }
     }
 
-    public static void eatWhitespace(RCodeInStream in) {
-        char c = in.peek();
-        while (in.hasNext() && (c == ' ' || c == '\t' || c == '\r')) {
-            in.read();
-            c = in.peek();
-        }
-    }
-
     public void parseNext() {
         RCodeCommandSlot targetSlot = null;
         if (!bigBig.isInUse()) {
@@ -48,7 +40,8 @@ public class RCodeParser {
                     mostRecent = null;
                     for (int i = 0; i < rcode.getChannels().length; i++) {
                         RCodeCommandChannel channel = rcode.getChannels()[i];
-                        if (channel.canLock() && channel.hasCommandSequence() && !channel.getCommandSequence().isActive() && !channel.getInStream().isLocked()) {
+                        if (channel.canLock() && channel.hasCommandSequence() && !channel.getCommandSequence().isActive()
+                                && !channel.getInStream().getSequenceInStream().isLocked()) {
                             mostRecent = beginSequenceParse(targetSlot, channel);
                             break;
                         }
@@ -61,7 +54,7 @@ public class RCodeParser {
     private RCodeCommandSequence beginSequenceParse(RCodeCommandSlot targetSlot, RCodeCommandChannel channel) {
         RCodeCommandSequence candidateSequence = channel.getCommandSequence();
         channel.lock();
-        candidateSequence.acquireInStream().getSequenceIn().openCommandSequence();
+        candidateSequence.acquireInStream().open();
         if (candidateSequence.parseRCodeMarkers()) { // returns false if a debug sequence, true otherwise
             candidateSequence.setActive();
             if (!candidateSequence.isFullyParsed()) {
@@ -84,10 +77,10 @@ public class RCodeParser {
     }
 
     private void parse(RCodeCommandSlot slot, RCodeCommandSequence sequence) {
-        boolean worked = slot.parseSingleCommand(sequence.acquireInStream(), sequence);
+        boolean worked = slot.parseSingleCommand(sequence.acquireInStream().getCommandInStream(), sequence);
         sequence.addLast(slot);
         if (!worked) {
-            sequence.acquireInStream().skipSequence();
+            sequence.acquireInStream().close();
         }
         if (!worked || slot.isEndOfSequence()) {
             sequence.setFullyParsed(true);

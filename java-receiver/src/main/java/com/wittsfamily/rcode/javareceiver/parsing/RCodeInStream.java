@@ -1,7 +1,8 @@
 package com.wittsfamily.rcode.javareceiver.parsing;
 
+@Deprecated
 public class RCodeInStream {
-    private final RCodeSequenceInStream sequenceIn;
+    private final OldRCodeSequenceInStream sequenceIn;
     private boolean hasReachedCommandEnd = false;
     private int current = -1;
     private boolean isInString = false;
@@ -29,7 +30,7 @@ public class RCodeInStream {
         }
     };
 
-    public RCodeInStream(RCodeSequenceInStream sequenceIn) {
+    public RCodeInStream(OldRCodeSequenceInStream sequenceIn) {
         this.sequenceIn = sequenceIn;
     }
 
@@ -145,7 +146,7 @@ public class RCodeInStream {
         return lock;
     }
 
-    public RCodeSequenceInStream getSequenceIn() {
+    public OldRCodeSequenceInStream getSequenceIn() {
         return sequenceIn;
     }
 

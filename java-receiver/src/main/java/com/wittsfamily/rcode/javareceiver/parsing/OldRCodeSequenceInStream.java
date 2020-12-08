@@ -1,6 +1,7 @@
 package com.wittsfamily.rcode.javareceiver.parsing;
 
-public interface RCodeSequenceInStream {
+@Deprecated
+public interface OldRCodeSequenceInStream {
     char nextChar();
 
     boolean hasNextChar();

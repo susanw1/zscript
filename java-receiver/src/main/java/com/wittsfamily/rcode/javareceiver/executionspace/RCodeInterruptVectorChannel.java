@@ -5,9 +5,9 @@ import com.wittsfamily.rcode.javareceiver.RCodeBusInterrupt;
 import com.wittsfamily.rcode.javareceiver.RCodeLockSet;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeChannelInStream;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeInStream;
 
 public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
     private final RCode rcode;
@@ -15,7 +15,7 @@ public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
     private final RCodeInterruptVectorManager vectorManager;
     private final RCodeCommandSequence sequence;
     private RCodeBusInterrupt interrupt = null;
-    private RCodeInStream in = null;
+    private RCodeExecutionSpaceInStream in = null;
     private RCodeLockSet locks;
 
     public RCodeInterruptVectorChannel(RCodeExecutionSpace space, RCodeInterruptVectorManager vectorManager, RCode r, RCodeParameters params) {
@@ -27,12 +27,12 @@ public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
     }
 
     @Override
-    public RCodeInStream getInStream() {
+    public RCodeChannelInStream getInStream() {
         if (interrupt == null) {
             interrupt = vectorManager.takeInterrupt();
         }
         if (in == null) {
-            in = new RCodeInStream(space.acquireInStream(vectorManager.findVector(interrupt)));
+            in = space.acquireInStream(vectorManager.findVector(interrupt));
         }
         return in;
     }
@@ -60,7 +60,7 @@ public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
     @Override
     public void releaseInStream() {
         if (in != null) {
-            space.releaseInStream((RCodeExecutionSpaceSequenceIn) in.getSequenceIn());
+            space.releaseInStream(in);
         }
         in = null;
     }

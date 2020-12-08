@@ -1,7 +1,5 @@
 package com.wittsfamily.rcode.javareceiver;
 
-import com.wittsfamily.rcode.javareceiver.AbstractRCodeOutStream;
-import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 
 public class StringOutStream extends AbstractRCodeOutStream {
@@ -11,6 +9,7 @@ public class StringOutStream extends AbstractRCodeOutStream {
     @Override
     public void writeByte(byte value) {
         builder.append((char) value);
+        System.out.print((char) value);
     }
 
     @Override

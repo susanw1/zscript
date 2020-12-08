@@ -37,7 +37,7 @@ class InterruptVectorTest {
         RCodeInterruptVectorManager intVect = new RCodeInterruptVectorManager(params, r.getNotificationManager(), r.getSpace());
         StringOutStream out = new StringOutStream();
         r.getNotificationManager().setVectorChannel(intVect);
-        intVect.getVectorMap().setVector((byte) 0x01, 13);
+        intVect.getVectorMap().setVector((byte) 0x01, 14);
         intVect.getVectorMap().setVector((byte) 0x01, (byte) 0x03, (byte) 0x04, true, 0);
         intVect.getVectorMap().setVector((byte) 0x01, (byte) 0x03, (byte) 0x05, false, 8);
         intVect.getVectorMap().setVector((byte) 0x04, 22);
@@ -76,7 +76,7 @@ class InterruptVectorTest {
         for (int i = 0; i < 20; i++) {
             r.progressRCode();
         }
-        intVect.getVectorMap().setDefaultVector(27);
+        intVect.getVectorMap().setDefaultVector(28);
         intS.setNotification((byte) 0x13, (byte) 8, (byte) 3, (byte) 4);
         for (int i = 0; i < 20; i++) {
             r.progressRCode();

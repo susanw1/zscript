@@ -42,7 +42,7 @@ class ExecutionSpaceTest {
         r.getCommandFinder().registerCommand(new RCodeTmp2Command());
         r.getCommandFinder().registerCommand(new RCodeExecutionSpaceCommand(r.getSpace()));
         r.getCommandFinder().registerCommand(new RCodeSetNotificationHostCommand(r));
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0; i < 80; i++) {
             r.progressRCode();
         }
         assertThat(out.getString()).isEqualTo("S&AS\nS\n!Z2S+10a1&S10A2\n!Z2S4\"Command not known\"\n");

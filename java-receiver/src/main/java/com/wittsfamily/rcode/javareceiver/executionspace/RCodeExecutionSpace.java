@@ -12,16 +12,16 @@ public class RCodeExecutionSpace {
     private boolean running = false;
     private boolean failed = false;
 
-    private RCodeExecutionSpaceSequenceIn[] inStreams;
+    private RCodeExecutionSpaceInStream[] inStreams;
     private RCodeExecutionSpaceOut[] outStreams;
 
     public RCodeExecutionSpace(RCodeParameters params, RCodeNotificationManager notifications) {
         this.notifications = notifications;
         this.space = new byte[params.executionLength];
-        inStreams = new RCodeExecutionSpaceSequenceIn[params.executionInNum];
+        inStreams = new RCodeExecutionSpaceInStream[params.executionInNum];
         outStreams = new RCodeExecutionSpaceOut[params.executionOutNum];
         for (int i = 0; i < inStreams.length; i++) {
-            inStreams[i] = new RCodeExecutionSpaceSequenceIn(this);
+            inStreams[i] = new RCodeExecutionSpaceInStream(this);
         }
         for (int i = 0; i < outStreams.length; i++) {
             outStreams[i] = new RCodeExecutionSpaceOut(params, this);
@@ -53,8 +53,8 @@ public class RCodeExecutionSpace {
         return false;
     }
 
-    public RCodeExecutionSpaceSequenceIn acquireInStream(int position) {
-        for (RCodeExecutionSpaceSequenceIn in : inStreams) {
+    public RCodeExecutionSpaceInStream acquireInStream(int position) {
+        for (RCodeExecutionSpaceInStream in : inStreams) {
             if (!in.isInUse()) {
                 in.setup(position);
                 return in;
@@ -63,7 +63,7 @@ public class RCodeExecutionSpace {
         return null;
     }
 
-    public void releaseInStream(RCodeExecutionSpaceSequenceIn stream) {
+    public void releaseInStream(RCodeExecutionSpaceInStream stream) {
         stream.release();
     }
 

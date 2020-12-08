@@ -1,31 +1,31 @@
 package com.wittsfamily.rcode.javareceiver_acceptancetests;
 
+import java.util.LinkedList;
 import java.util.Queue;
 
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeChannelInStream;
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeSequenceInStream;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeLookaheadStream;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeSequenceInStream;
 
-public class RCodeQueueSequenceInStream implements RCodeSequenceInStream {
-    private final Queue<byte[]> messages;
-    private boolean isOpen = false;
+public class RCodeQueueSequenceInStream implements RCodeChannelInStream {
+    private final Queue<byte[]> messages = new LinkedList<>();
+    private final RCodeSequenceInStream seqInStream = new RCodeSequenceInStream(this);
     private int pos = 0;
 
-    public RCodeQueueSequenceInStream(Queue<byte[]> messages) {
-        this.messages = messages;
+    public void addMessage(byte[] message) {
+        messages.add(message);
     }
 
     @Override
-    public char nextChar() {
-        if (!isOpen || messages.isEmpty() || messages.peek().length <= pos || messages.peek()[pos] == '\n') {
-            isOpen = false;
-            return '\n';
+    public int read() {
+        if (messages.isEmpty() || messages.peek().length <= pos || messages.peek().length == pos + 1 && messages.peek()[pos] == '\n') {
+            if (!messages.isEmpty()) {
+                messages.poll();
+            }
+            pos = 0;
+            return -1;
         }
         return (char) messages.peek()[pos++];
-    }
-
-    @Override
-    public boolean hasNextChar() {
-        return isOpen && !messages.isEmpty() && pos < messages.peek().length && messages.peek()[pos] != '\n';
     }
 
     @Override
@@ -35,7 +35,7 @@ public class RCodeQueueSequenceInStream implements RCodeSequenceInStream {
 
             @Override
             public char read() {
-                if (!isOpen || messages.isEmpty() || messages.peek().length <= pos + offsetPos || messages.peek()[pos + offsetPos] == '\n') {
+                if (messages.isEmpty() || messages.peek().length <= pos + offsetPos) {
                     return '\n';
                 }
                 return (char) messages.peek()[pos + offsetPos++];
@@ -43,7 +43,6 @@ public class RCodeQueueSequenceInStream implements RCodeSequenceInStream {
         };
     }
 
-    @Override
     public boolean hasNextCommandSequence() {
         if (messages.isEmpty()) {
             return false;
@@ -64,41 +63,8 @@ public class RCodeQueueSequenceInStream implements RCodeSequenceInStream {
     }
 
     @Override
-    public void openCommandSequence() {
-        if (messages.peek()[pos] == '\n') {
-            pos++;
-        }
-        if (pos >= messages.peek().length) {
-            pos = 0;
-            messages.poll();
-        }
-        isOpen = true;
-    }
-
-    @Override
-    public void closeCommandSequence() {
-        if (pos >= messages.peek().length) {
-            pos = 0;
-            messages.poll();
-        } else {
-            boolean found = false;
-            for (int i = 0; i < messages.peek().length; i++) {
-                if (messages.peek()[i] == '\n') {
-                    pos = i;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                pos = 0;
-                messages.poll();
-            }
-        }
-    }
-
-    @Override
-    public boolean isCommandSequenceOpen() {
-        return isOpen;
+    public RCodeSequenceInStream getSequenceInStream() {
+        return seqInStream;
     }
 
 }

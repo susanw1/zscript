@@ -1,14 +1,14 @@
 package com.wittsfamily.rcode.javareceiver;
 
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeChannelInStream;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeInStream;
 
 public class RCodeVoidCommandChannel implements RCodeCommandChannel {
 
     @Override
-    public RCodeInStream getInStream() {
-        return new RCodeInStream(new RCodeVoidInStream());
+    public RCodeChannelInStream getInStream() {
+        return new RCodeVoidInStream();
     }
 
     @Override

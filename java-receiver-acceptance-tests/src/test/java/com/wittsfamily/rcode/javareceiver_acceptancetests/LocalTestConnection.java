@@ -3,25 +3,21 @@ package com.wittsfamily.rcode.javareceiver_acceptancetests;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.function.Consumer;
 
 import com.wittsfamily.rcode.javareceiver.AbstractRCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCode;
 import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.RCodeParameters;
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeChannelInStream;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandChannel;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeInStream;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeSequenceInStream;
 import com.wittsfamily.rcode_acceptance_tests.acceptancetest_asserts.RCodeAcceptanceTestConnection;
 
 public class LocalTestConnection implements RCodeAcceptanceTestConnection, RCodeCommandChannel {
     private final List<Consumer<byte[]>> handlers = new ArrayList<>();
-    private final Queue<byte[]> messagesIn = new LinkedList<>();
-    private final RCodeSequenceInStream queueIn = new RCodeQueueSequenceInStream(messagesIn);
+    private final RCodeQueueSequenceInStream queueIn = new RCodeQueueSequenceInStream();
     private final RCodeCommandSequence seq;
     private final boolean isPacketBased;
     private final RCodeOutStream out = new AbstractRCodeOutStream() {
@@ -69,7 +65,7 @@ public class LocalTestConnection implements RCodeAcceptanceTestConnection, RCode
                     consumer.accept(bytes);
                 }
             } catch (Exception e) {
-                System.out.println(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(bytes)).toString());
+                System.out.println("Failure with: " + StandardCharsets.UTF_8.decode(ByteBuffer.wrap(bytes)).toString());
                 e.printStackTrace();
             }
             current.clear();
@@ -89,7 +85,7 @@ public class LocalTestConnection implements RCodeAcceptanceTestConnection, RCode
 
     @Override
     public void send(byte[] message) {
-        messagesIn.add(message);
+        queueIn.addMessage(message);
     }
 
     @Override
@@ -103,8 +99,8 @@ public class LocalTestConnection implements RCodeAcceptanceTestConnection, RCode
     }
 
     @Override
-    public RCodeInStream getInStream() {
-        return new RCodeInStream(queueIn);
+    public RCodeChannelInStream getInStream() {
+        return queueIn;
     }
 
     @Override

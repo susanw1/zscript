@@ -1,30 +1,16 @@
 package com.wittsfamily.rcode.javareceiver;
 
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeChannelInStream;
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeSequenceInStream;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeLookaheadStream;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeSequenceInStream;
 
-public class StringInStream implements RCodeSequenceInStream {
+public class StringInStream implements RCodeChannelInStream {
+    private final RCodeSequenceInStream seqInStream = new RCodeSequenceInStream(this);
     private final String s;
     private int pos = 0;
-    private boolean isAtStart = true;
-    private boolean isOpen = false;
 
     public StringInStream(String s) {
         this.s = s;
-    }
-
-    @Override
-    public char nextChar() {
-        if (pos >= s.length()) {
-            pos++;
-            return '\n';
-        }
-        return s.charAt(pos++);
-    }
-
-    @Override
-    public boolean hasNextChar() {
-        return pos < s.length();
     }
 
     @Override
@@ -43,25 +29,19 @@ public class StringInStream implements RCodeSequenceInStream {
     }
 
     @Override
-    public void openCommandSequence() {
-        isAtStart = false;
-        isOpen = true;
+    public RCodeSequenceInStream getSequenceInStream() {
+        return seqInStream;
     }
 
     @Override
-    public void closeCommandSequence() {
-        if (isOpen) {
-            isOpen = false;
-            while (pos < s.length() && s.charAt(pos) != '\n') {
-                pos++;
-            }
-            pos++;
+    public int read() {
+        if (pos >= s.length()) {
+            return -1;
         }
+        return s.charAt(pos++);
     }
 
-    @Override
-    public boolean isCommandSequenceOpen() {
-        return isOpen;
+    public boolean hasNext() {
+        return pos < s.length();
     }
-
 }
