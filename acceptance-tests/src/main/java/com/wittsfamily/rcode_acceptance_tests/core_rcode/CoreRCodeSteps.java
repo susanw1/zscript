@@ -97,6 +97,12 @@ public class CoreRCodeSteps {
         testExpectedFields = a -> a.hasField('S', "ff");
     }
 
+    @When("the target is sent a string field containing command separators")
+    public void the_target_is_sent_a_string_field_containing_command_separators() {
+        testAssert = assertThatCommand(RCodeAcceptanceTestConnectionManager.getConnections().get(0), "R1\"&\\\"\\a\\\"|\"\n");
+        testExpectedFields = a -> a.worked().hasBigStringField("&\"a\"|");
+    }
+
     @When("the target is sent a peripheral command")
     public void the_target_is_sent_a_peripheral_command() {
         for (byte b : RCodeAcceptanceTestCapabilityResult.getSupportedCodes()) {

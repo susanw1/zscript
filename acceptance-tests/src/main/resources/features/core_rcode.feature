@@ -35,6 +35,11 @@ Feature: Core RCode communication
     Then the target must respond with the expected fields
     
 	@Standard-operation
+  Scenario: the target is given a big string field containing command separators
+    When the target is sent a string field containing command separators
+    Then the target must respond with the expected fields
+    
+	@Standard-operation
   Scenario: the target echos data sent with the echo command, to its limits on both fields and big field
   	Given the targets capabilities are known
     When the target is sent an echo command with as much data as possible
