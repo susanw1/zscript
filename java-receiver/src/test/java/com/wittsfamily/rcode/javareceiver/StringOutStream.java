@@ -9,7 +9,6 @@ public class StringOutStream extends AbstractRCodeOutStream {
     @Override
     public void writeByte(byte value) {
         builder.append((char) value);
-        System.out.print((char) value);
     }
 
     @Override
