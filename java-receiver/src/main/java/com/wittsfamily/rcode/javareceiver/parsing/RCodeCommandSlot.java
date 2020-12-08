@@ -5,6 +5,7 @@ import com.wittsfamily.rcode.javareceiver.RCodeParameters;
 import com.wittsfamily.rcode.javareceiver.RCodeResponseStatus;
 import com.wittsfamily.rcode.javareceiver.commands.RCodeCommand;
 import com.wittsfamily.rcode.javareceiver.instreams.RCodeCommandInStream;
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeLookaheadStream;
 
 public class RCodeCommandSlot {
     private final RCode rcode;

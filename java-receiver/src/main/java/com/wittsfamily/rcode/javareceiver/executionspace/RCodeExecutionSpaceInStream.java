@@ -1,8 +1,8 @@
 package com.wittsfamily.rcode.javareceiver.executionspace;
 
 import com.wittsfamily.rcode.javareceiver.instreams.RCodeChannelInStream;
+import com.wittsfamily.rcode.javareceiver.instreams.RCodeLookaheadStream;
 import com.wittsfamily.rcode.javareceiver.instreams.RCodeSequenceInStream;
-import com.wittsfamily.rcode.javareceiver.parsing.RCodeLookaheadStream;
 
 public class RCodeExecutionSpaceInStream implements RCodeChannelInStream {
     private final RCodeExecutionSpace space;

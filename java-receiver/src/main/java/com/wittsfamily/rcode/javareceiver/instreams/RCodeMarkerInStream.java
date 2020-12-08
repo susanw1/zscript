@@ -33,7 +33,6 @@ public class RCodeMarkerInStream {
     }
 
     public void close() {
-        sequenceIn.getCommandInStream().openWith(' ');
     }
 
     public void eatWhitespace() {

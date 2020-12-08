@@ -13,7 +13,7 @@ public class Main {
         RCodeParameters params = new RCodeParameters(true);
         TestInterruptSource intS = new TestInterruptSource();
         RCode r = new RCode(params, new RCodeBusInterruptSource[] { intS });
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R1\"&\"\n", new PrintingOutStream(), false, 80),
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R1\"&\"\n\n", new PrintingOutStream(), false, 80),
                 new RCodeExecutionSpaceChannel(params, r, r.getSpace()) });
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());

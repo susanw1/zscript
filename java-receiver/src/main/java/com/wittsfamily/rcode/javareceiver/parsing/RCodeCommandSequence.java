@@ -255,7 +255,7 @@ public class RCodeCommandSequence {
             canBeParallel = true;
             mIn.eatWhitespace();
         }
-        if (!mIn.hasNext()) {
+        if (mIn.reread() == '\n') {
             empty = true;
             canBeParallel = true;
             isFullyParsed = true;
