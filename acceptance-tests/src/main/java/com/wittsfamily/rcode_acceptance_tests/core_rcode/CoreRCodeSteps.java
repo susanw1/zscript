@@ -116,7 +116,7 @@ public class CoreRCodeSteps {
     @When("the target is sent an activate command")
     public void the_target_is_sent_an_activate_command() throws Throwable {
         try {
-            assertThatCommand(RCodeAcceptanceTestConnectionManager.getConnections().get(0), "R6\n").worked().hasField('A', 0).hasNoOtherFields().send().get(2, TimeUnit.SECONDS);
+            assertThatCommand(RCodeAcceptanceTestConnectionManager.getConnections().get(0), "R3\n").worked().hasField('A', 0).hasNoOtherFields().send().get(2, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
             throw e.getCause();
         }
@@ -166,13 +166,18 @@ public class CoreRCodeSteps {
 
     @Then("the target must support all required functionality")
     public void the_target_must_support_all_required_functionality() {
-        assertThat(RCodeAcceptanceTestCapabilityResult.getSupportedCodes()).contains(0x0, 0x1, 0x2, 0x6);
-        assertThat(RCodeAcceptanceTestCapabilityResult.getGeneralCapabilities()).isNotNegative();
-        assertThat(RCodeAcceptanceTestCapabilityResult.getMaxBigFieldLength()).satisfiesAnyOf(v -> assertThat(v).isNegative(), v -> assertThat(v).isGreaterThanOrEqualTo(4));
-        assertThat(RCodeAcceptanceTestCapabilityResult.getMaxFieldNum()).satisfiesAnyOf(v -> assertThat(v).isNegative(), v -> assertThat(v).isGreaterThanOrEqualTo(5));
-        assertThat(RCodeAcceptanceTestCapabilityResult.getMaxFieldSize()).satisfiesAnyOf(v -> assertThat(v).isNegative(), v -> assertThat(v).isGreaterThanOrEqualTo(1));
+        assertThat(RCodeAcceptanceTestCapabilityResult.getSupportedCodes()).describedAs("Target must support required commands (Identify, Echo, Capabilities, and Activate)")
+                .contains(0x0, 0x1, 0x2, 0x3);
+        assertThat(RCodeAcceptanceTestCapabilityResult.getGeneralCapabilities()).describedAs("Target must give a binary capabilities field (C)").isNotNegative();
+        assertThat(RCodeAcceptanceTestCapabilityResult.getMaxBigFieldLength()).describedAs("Target must support a big field of length >= 4")
+                .satisfiesAnyOf(v -> assertThat(v).isNegative(), v -> assertThat(v).isGreaterThanOrEqualTo(4));
+        assertThat(RCodeAcceptanceTestCapabilityResult.getMaxFieldNum()).describedAs("Target must support a field number >= 5").satisfiesAnyOf(v -> assertThat(v).isNegative(),
+                v -> assertThat(v).isGreaterThanOrEqualTo(5));
+        assertThat(RCodeAcceptanceTestCapabilityResult.getMaxFieldSize()).describedAs("Target must support a fields of length >= 4").satisfiesAnyOf(v -> assertThat(v).isNegative(),
+                v -> assertThat(v).isGreaterThanOrEqualTo(1));
         if (RCodeAcceptanceTestCapabilityResult.getPersistantMemorySize() != -1) {
-            assertThat(RCodeAcceptanceTestCapabilityResult.getSupportedCodes()).contains(0x10, 0x11);
+            assertThat(RCodeAcceptanceTestCapabilityResult.getSupportedCodes()).describedAs("If the target has persistant memory, it must support read/write commands")
+                    .contains(0x10, 0x11);
         }
         RCodeAcceptanceTestCapabilityResult.setHasBeenRead();
     }

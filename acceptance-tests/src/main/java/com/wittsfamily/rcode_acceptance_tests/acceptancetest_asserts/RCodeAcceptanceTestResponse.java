@@ -162,7 +162,7 @@ public class RCodeAcceptanceTestResponse {
                         current += (char) c;
                     } else {
                         current += (char) c;
-                        throw new AssertionError("Unknown field marker: " + (char) c + "\nCurrent sequence: " + current);
+                        throw new AssertionError("Unknown field marker: " + c + "\nCurrent sequence: " + current);
                     }
                 } else {
                     if (c == -1) {

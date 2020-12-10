@@ -137,34 +137,35 @@ public class LargeCommandCreationSteps {
                 a = a.worked().hasBigField().getBigField(b -> {
                     RCodeAcceptanceTestCapabilityResult.addSupportedCodes(b);
                 }).hasField('M', RCodeAcceptanceTestCapabilityResult.getMaxPageNum()).getField('C', c -> {
-                    assertThat(c).hasSize(1);
-                    assertThat(RCodeAcceptanceTestCapabilityResult.getGeneralCapabilities()).isIn(-1, Byte.toUnsignedInt(c[0]));
+                    assertThat(c).describedAs("Multi-byte page numbers not allowed").hasSize(1);
+                    assertThat(RCodeAcceptanceTestCapabilityResult.getGeneralCapabilities()).describedAs("Target must give consistant capabilities").isIn(-1,
+                            Byte.toUnsignedInt(c[0]));
                     RCodeAcceptanceTestCapabilityResult.setGeneralCapabilities(Byte.toUnsignedInt(c[0]));
                 }).getField('B', b -> {
                     long size = 0;
                     for (byte d : b) {
                         size <<= 8;
                         size += d;
-                        assertThat(size).isLessThan(Integer.MAX_VALUE);
+                        assertThat(size).describedAs("Target gave too large a maximum big field length").isLessThan(Integer.MAX_VALUE);
                     }
-                    assertThat(RCodeAcceptanceTestCapabilityResult.getMaxBigFieldLength()).isIn(-1, size);
+                    assertThat(RCodeAcceptanceTestCapabilityResult.getMaxBigFieldLength()).describedAs("Target must give consistant capabilities").isIn(-1, size);
                     RCodeAcceptanceTestCapabilityResult.setMaxBigFieldLength((int) size);
                 }).getField('N', n -> {
-                    assertThat(n).hasSize(1);
-                    assertThat(RCodeAcceptanceTestCapabilityResult.getMaxFieldNum()).isIn(-1, Byte.toUnsignedInt(n[0]));
+                    assertThat(n).describedAs("Multi-byte field numbers not allowed").hasSize(1);
+                    assertThat(RCodeAcceptanceTestCapabilityResult.getMaxFieldNum()).describedAs("Target must give consistant capabilities").isIn(-1, Byte.toUnsignedInt(n[0]));
                     RCodeAcceptanceTestCapabilityResult.setMaxFieldNum(Byte.toUnsignedInt(n[0]));
                 }).getField('F', f -> {
-                    assertThat(f).hasSize(1);
-                    assertThat(RCodeAcceptanceTestCapabilityResult.getMaxFieldSize()).isIn(-1, Byte.toUnsignedInt(f[0]));
+                    assertThat(f).describedAs("Multi-byte field sizes not allowed").hasSize(1);
+                    assertThat(RCodeAcceptanceTestCapabilityResult.getMaxFieldSize()).describedAs("Target must give consistant capabilities").isIn(-1, Byte.toUnsignedInt(f[0]));
                     RCodeAcceptanceTestCapabilityResult.setMaxFieldSize(Byte.toUnsignedInt(f[0]));
                 }).getField('P', n -> {
                     long size = 0;
                     for (byte d : n) {
-                        assertThat(size).isLessThan(Long.MAX_VALUE >>> 8);
+                        assertThat(size).describedAs("Target gave too large a persistant memory size").isLessThan(Long.MAX_VALUE >>> 8);
                         size <<= 8;
                         size += d;
                     }
-                    assertThat(RCodeAcceptanceTestCapabilityResult.getPersistantMemorySize()).isIn(-1, size);
+                    assertThat(RCodeAcceptanceTestCapabilityResult.getPersistantMemorySize()).describedAs("Target must give consistant capabilities").isIn(-1, size);
                     RCodeAcceptanceTestCapabilityResult.setPersistantMemorySize(size);
                 });
                 if (i < RCodeAcceptanceTestCapabilityResult.getMaxPageNum() - 1) {
@@ -237,7 +238,7 @@ public class LargeCommandCreationSteps {
 
     @When("the target is sent an echo command with too much big-field data")
     public void the_target_is_sent_an_echo_command_with_too_much_big_field_data() {
-        int bigl = RCodeAcceptanceTestCapabilityResult.getMaxBigFieldLength() * 2;
+        int bigl = RCodeAcceptanceTestCapabilityResult.getMaxBigFieldLength() + 200;
         byte[] bigArr = new byte[bigl * 2];
         byte[] bigArrActual = new byte[bigl];
         int arrOffset = 0;
