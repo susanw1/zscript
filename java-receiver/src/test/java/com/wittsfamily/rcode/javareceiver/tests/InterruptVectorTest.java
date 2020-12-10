@@ -41,7 +41,7 @@ class InterruptVectorTest {
         intVect.getVectorMap().setVector((byte) 0x01, (byte) 0x03, (byte) 0x04, true, 0);
         intVect.getVectorMap().setVector((byte) 0x01, (byte) 0x03, (byte) 0x05, false, 8);
         intVect.getVectorMap().setVector((byte) 0x04, 22);
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8&R6", out, false, 1), new RCodeInterruptVectorChannel(r.getSpace(), intVect, r, params) });
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R8&R3", out, false, 1), new RCodeInterruptVectorChannel(r.getSpace(), intVect, r, params) });
         r.getSpace().setRunning(true);
         r.getSpace().write("R1+10a0&R13A1\nR1+10a0&R11A2\nR33".getBytes(StandardCharsets.US_ASCII), 0, true);
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
@@ -98,7 +98,7 @@ class InterruptVectorTest {
         intVect.getVectorMap().setVector((byte) 0x01, (byte) 0x03, (byte) 0x04, true, 0);
         intVect.getVectorMap().setVector((byte) 0x01, (byte) 0x03, (byte) 0x05, false, 8);
         intVect.getVectorMap().setVector((byte) 0x04, 22);
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R6", out, false, 1), new RCodeInterruptVectorChannel(r.getSpace(), intVect, r, params) });
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(params, r, "R3", out, false, 1), new RCodeInterruptVectorChannel(r.getSpace(), intVect, r, params) });
         r.getSpace().setRunning(true);
         r.getSpace().write("R1+10a0;R13A1\nR1+10a0;R11A2\nR33".getBytes(StandardCharsets.US_ASCII), 0, true);
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());

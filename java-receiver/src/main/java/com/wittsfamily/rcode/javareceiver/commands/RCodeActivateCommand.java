@@ -41,7 +41,7 @@ public class RCodeActivateCommand implements RCodeCommand {
 
     @Override
     public byte getCode() {
-        return 6;
+        return 3;
     }
 
     @Override

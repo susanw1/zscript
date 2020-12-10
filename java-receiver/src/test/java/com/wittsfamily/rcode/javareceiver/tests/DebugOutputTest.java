@@ -23,7 +23,7 @@ class DebugOutputTest {
         RCodeActivateCommand.reset();
         RCode r = new RCode(new RCodeParameters(false), new RCodeBusInterruptSource[0]);
         StringOutStream out = new StringOutStream();
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(new RCodeParameters(false), r, "#234342\nR6&R1B01\n#&1&2&3&1&2&3&\nR1CV40\"hello\"", out, false, 100) });
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(new RCodeParameters(false), r, "#234342\nR3&R1B01\n#&1&2&3&1&2&3&\nR1CV40\"hello\"", out, false, 100) });
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
         r.getCommandFinder().registerCommand(new RCodeTmpCommand());
@@ -43,7 +43,7 @@ class DebugOutputTest {
         StringOutStream out1 = new StringOutStream();
         StringOutStream out2 = new StringOutStream();
         r.setChannels(
-                new RCodeCommandChannel[] { new DirectCommandChannel(new RCodeParameters(false), r, "R6&R9\nR60\"hello123123testing\\nhello123123testing\"", out1, false, 100),
+                new RCodeCommandChannel[] { new DirectCommandChannel(new RCodeParameters(false), r, "R3&R9\nR60\"hello123123testing\\nhello123123testing\"", out1, false, 100),
                         new DirectCommandChannel(new RCodeParameters(false), r, "R60\"demodemo\"", out2, false, 100) });
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());
@@ -64,7 +64,7 @@ class DebugOutputTest {
         RCode r = new RCode(new RCodeParameters(false), new RCodeBusInterruptSource[0]);
         StringOutStream out1 = new StringOutStream();
         StringOutStream out2 = new StringOutStream();
-        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(new RCodeParameters(false), r, "R6\nR60\"hello123123testing\\nhello123123testing\"", out1, false, 100),
+        r.setChannels(new RCodeCommandChannel[] { new DirectCommandChannel(new RCodeParameters(false), r, "R3\nR60\"hello123123testing\\nhello123123testing\"", out1, false, 100),
                 new DirectCommandChannel(new RCodeParameters(false), r, "R60\"demodemo\"", out2, false, 100) });
         r.getCommandFinder().registerCommand(new RCodeEchoCommand());
         r.getCommandFinder().registerCommand(new RCodeActivateCommand());

@@ -35,7 +35,7 @@ class CommandExecutionTest {
 
     @Test
     void shouldWorkForBasicEchoAndActivateCommand() {
-        testCommand("R1E0020000Y72Z00X0G\"aaaaaaaaaaaa\"&R6", "E20000SY72ZXG\"aaaaaaaaaaaa\"&AS\n", 3);
+        testCommand("R1E0020000Y72Z00X0G\"aaaaaaaaaaaa\"&R3", "E20000SY72ZXG\"aaaaaaaaaaaa\"&AS\n", 3);
     }
 
     @Test
@@ -73,12 +73,12 @@ class CommandExecutionTest {
 
     @Test
     void shouldAllowActivation() {
-        testCommand("R6&R13+101011", "AS&S+101011\n", 3);
+        testCommand("R3&R13+101011", "AS&S+101011\n", 3);
     }
 
     @Test
     void shouldRunSequences() {
-        testCommand("R6\nR13+101011", "AS\nS+101011\n", 15);
+        testCommand("R3\nR13+101011", "AS\nS+101011\n", 15);
     }
 
     @Test
@@ -113,7 +113,7 @@ class CommandExecutionTest {
 
     @Test
     void shouldFailBroadcastAtOtherPoint() {
-        testCommand("R6&*R1+11", "AS&S3\"Unknown field marker with character code 42\"\n", 3);
+        testCommand("R3&*R1+11", "AS&S3\"Unknown field marker with character code 42\"\n", 3);
     }
 
     @Test
@@ -123,7 +123,7 @@ class CommandExecutionTest {
 
     @Test
     void shouldFailParallelAtOtherPoint() {
-        testCommand("R6&%R1+11", "AS&S3\"Unknown field marker with character code 37\"\n", 3);
+        testCommand("R3&%R1+11", "AS&S3\"Unknown field marker with character code 37\"\n", 3);
     }
 
     @Test
@@ -133,7 +133,7 @@ class CommandExecutionTest {
 
     @Test
     void shouldAllowSecondSequenceAsBroadcast() {
-        testCommand("R6\n*%R1+11", "AS\n*S+11\n", 15);
+        testCommand("R3\n*%R1+11", "AS\n*S+11\n", 15);
     }
 
 }
