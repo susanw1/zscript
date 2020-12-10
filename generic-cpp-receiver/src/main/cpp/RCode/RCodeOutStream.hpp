@@ -18,7 +18,7 @@ public:
     bool lockVal;
     void *mostRecent;
 
-    bool lock() {
+    virtual bool lock() {
         if (!lockVal) {
             lockVal = true;
             return true;
@@ -27,11 +27,11 @@ public:
 
     }
 
-    void unlock() {
+    virtual void unlock() {
         lockVal = false;
     }
 
-    bool isLocked() {
+    virtual bool isLocked() {
         return lockVal;
     }
     virtual RCodeOutStream* markDebug() = 0;

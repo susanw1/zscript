@@ -91,14 +91,19 @@ class RCodeVoidChannel: public RCodeCommandChannel {
     };
     RCodeVoidOutStream out;
 public:
-    virtual RCodeChannelInStream* getInStream() {
+    virtual RCodeChannelInStream* acquireInStream() {
         return NULL;
     }
-
-    virtual RCodeOutStream* getOutStream() {
-        return &out;
+    bool hasInStream() {
+        return true;
     }
 
+    virtual RCodeOutStream* acquireOutStream() {
+        return &out;
+    }
+    virtual bool hasOutStream() {
+        return true;
+    }
     virtual bool hasCommandSequence() {
         return false;
     }

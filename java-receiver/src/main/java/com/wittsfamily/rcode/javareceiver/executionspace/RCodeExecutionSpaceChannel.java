@@ -26,7 +26,7 @@ public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
     }
 
     @Override
-    public RCodeChannelInStream getInStream() {
+    public RCodeChannelInStream acquireInStream() {
         if (in == null) {
             in = space.acquireInStream(position);
         }
@@ -34,7 +34,12 @@ public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
     }
 
     @Override
-    public RCodeOutStream getOutStream() {
+    public boolean hasInStream() {
+        return in != null;
+    }
+
+    @Override
+    public RCodeOutStream acquireOutStream() {
         if (out == null) {
             out = space.acquireOutStream();
         }
@@ -42,12 +47,13 @@ public class RCodeExecutionSpaceChannel implements RCodeCommandChannel {
     }
 
     @Override
+    public boolean hasOutStream() {
+        return out != null;
+    }
+
+    @Override
     public boolean hasCommandSequence() {
         boolean has = space.isRunning() && space.hasInStream() && space.hasOutStream() && in == null && out == null && delayTimer >= space.getDelay();
-        if (has) {
-            in = space.acquireInStream(position);
-            out = space.acquireOutStream();
-        }
         delayTimer++;
         return has;
     }

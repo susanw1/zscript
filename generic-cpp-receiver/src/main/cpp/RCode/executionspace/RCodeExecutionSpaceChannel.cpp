@@ -7,14 +7,14 @@
 
 #include "RCodeExecutionSpaceChannel.hpp"
 
-RCodeExecutionSpaceChannelIn* RCodeExecutionSpaceChannel::getInStream() {
+RCodeExecutionSpaceChannelIn* RCodeExecutionSpaceChannel::acquireInStream() {
     if (in == NULL) {
         in = space->acquireInStream(position);
     }
     return in;
 }
 
-RCodeOutStream* RCodeExecutionSpaceChannel::getOutStream() {
+RCodeOutStream* RCodeExecutionSpaceChannel::acquireOutStream() {
     if (out == NULL) {
         out = space->acquireOutStream();
     }
@@ -25,10 +25,6 @@ bool RCodeExecutionSpaceChannel::hasCommandSequence() {
     bool has = space->isRunning() && space->hasInStream()
             && space->hasOutStream() && in == NULL && out == NULL
             && delayCounter >= space->getDelay();
-    if (has) {
-        in = space->acquireInStream(position);
-        out = space->acquireOutStream();
-    }
     delayCounter++;
     return has;
 }
@@ -36,7 +32,10 @@ bool RCodeExecutionSpaceChannel::hasCommandSequence() {
 void RCodeExecutionSpaceChannel::releaseInStream() {
     delayCounter = 0;
     if (in != NULL) {
-        position = in->getPosition();
+        position = in->getPosition() + 1;
+        if (position >= space->getLength()) {
+            position = 0;
+        }
         space->releaseInStream(in);
     }
     in = NULL;

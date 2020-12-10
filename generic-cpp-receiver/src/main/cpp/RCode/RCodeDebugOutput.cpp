@@ -77,50 +77,9 @@ void RCodeDebugOutput::println(const char *s) {
 
 void RCodeDebugOutput::println(const char *s,
         debugOutputBufferLength_t length) {
-    if (channel != NULL) {
-        RCodeOutStream *stream = channel->getOutStream();
-        if (stream->lock()) {
-            if (stream->mostRecent == this) {
-                if (!stream->isOpen()) {
-                    stream->openDebug(channel);
-                }
-            } else {
-                stream->mostRecent = this;
-                if (stream->isOpen()) {
-                    stream->close();
-                }
-                stream->openDebug(channel);
-            }
-            if (position != 0) {
-                flushBuffer(stream);
-            }
-            int prevPos = 0;
-            for (int i = 0; i < length; ++i) {
-                if (s[i] == '\n') {
-                    stream->markDebug()->writeBytes(
-                            (const uint8_t*) (s + prevPos), i - prevPos)->writeCommandSequenceSeperator();
-                    prevPos = i + 1;
-                }
-            }
-            if (prevPos != length) {
-                stream->markDebug()->writeBytes((const uint8_t*) (s + prevPos),
-                        length - prevPos)->writeCommandSequenceSeperator();
-            }
-            stream->close();
-            stream->unlock();
-        } else {
-            writeToBuffer((const uint8_t*) s, length);
-            char c = '\n';
-            writeToBuffer((uint8_t*) &c, 1);
-        }
-    }
-}
-
-void RCodeDebugOutput::attemptFlush() {
-    if (position != 0 && channel != NULL
-            && !channel->getOutStream()->isLocked()) {
-        channel->getOutStream()->lock();
-        RCodeOutStream *stream = channel->getOutStream();
+    if (channel != NULL
+            && (!channel->hasOutStream() || !channel->acquireOutStream()->lock())) {
+        RCodeOutStream *stream = channel->acquireOutStream();
         if (stream->mostRecent == this) {
             if (!stream->isOpen()) {
                 stream->openDebug(channel);
@@ -132,9 +91,52 @@ void RCodeDebugOutput::attemptFlush() {
             }
             stream->openDebug(channel);
         }
-        flushBuffer(channel->getOutStream());
+        if (position != 0) {
+            flushBuffer(stream);
+        }
+        int prevPos = 0;
+        for (int i = 0; i < length; ++i) {
+            if (s[i] == '\n') {
+                stream->markDebug()->writeBytes((const uint8_t*) (s + prevPos),
+                        i - prevPos)->writeCommandSequenceSeperator();
+                prevPos = i + 1;
+            }
+        }
+        if (prevPos != length) {
+            stream->markDebug()->writeBytes((const uint8_t*) (s + prevPos),
+                    length - prevPos)->writeCommandSequenceSeperator();
+        }
         stream->close();
         stream->unlock();
+        channel->releaseOutStream();
+    } else {
+        writeToBuffer((const uint8_t*) s, length);
+        char c = '\n';
+        writeToBuffer((uint8_t*) &c, 1);
+    }
+}
+
+void RCodeDebugOutput::attemptFlush() {
+    if (position != 0 && channel != NULL
+            && (!channel->hasOutStream()
+                    || !channel->acquireOutStream()->isLocked())) {
+        channel->acquireOutStream()->lock();
+        RCodeOutStream *stream = channel->acquireOutStream();
+        if (stream->mostRecent == this) {
+            if (!stream->isOpen()) {
+                stream->openDebug(channel);
+            }
+        } else {
+            stream->mostRecent = this;
+            if (stream->isOpen()) {
+                stream->close();
+            }
+            stream->openDebug(channel);
+        }
+        flushBuffer(channel->acquireOutStream());
+        stream->close();
+        stream->unlock();
+        channel->releaseOutStream();
     }
 }
 

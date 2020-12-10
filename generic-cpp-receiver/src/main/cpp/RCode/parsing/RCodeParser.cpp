@@ -8,15 +8,16 @@
 #include "RCodeParser.hpp"
 
 void RCodeParser::report_failure(RCodeCommandChannel *channel) {
-    if (!channel->getOutStream()->isLocked()) {
-        channel->getOutStream()->lock();
-        channel->getOutStream()->openResponse(channel);
-        channel->getOutStream()->writeStatus(SETUP_ERROR);
-        channel->getOutStream()->writeBigStringField(
+    if (!channel->hasOutStream() || !channel->acquireOutStream()->isLocked()) {
+        channel->acquireOutStream()->lock();
+        channel->acquireOutStream()->openResponse(channel);
+        channel->acquireOutStream()->writeStatus(SETUP_ERROR);
+        channel->acquireOutStream()->writeBigStringField(
                 rcode->getConfigFailureState());
-        channel->getOutStream()->writeCommandSequenceSeperator();
-        channel->getOutStream()->close();
-        channel->getOutStream()->unlock();
+        channel->acquireOutStream()->writeCommandSequenceSeperator();
+        channel->acquireOutStream()->close();
+        channel->acquireOutStream()->unlock();
+        channel->releaseOutStream();
     }
 }
 
@@ -43,14 +44,16 @@ void RCodeParser::parseNext() {
                     RCodeCommandChannel *channel = rcode->getChannels()[i];
                     if (channel->canLock() && channel->hasCommandSequence()
                             && !channel->getCommandSequence()->isActive()
-                            && !channel->getInStream()->getSequenceInStream()->isLocked()) {
+                            && (!channel->hasInStream()
+                                    || !channel->acquireInStream()->getSequenceInStream()->isLocked())) {
                         if (rcode->getConfigFailureState() == NULL) {
                             mostRecent = beginSequenceParse(targetSlot,
                                     channel);
                         } else {
-                            channel->getInStream()->getSequenceInStream()->open();
-                            channel->getInStream()->getSequenceInStream()->close();
+                            channel->acquireInStream()->getSequenceInStream()->open();
+                            channel->acquireInStream()->getSequenceInStream()->close();
                             report_failure(channel);
+                            channel->releaseInStream();
                         }
                         break;
                     }

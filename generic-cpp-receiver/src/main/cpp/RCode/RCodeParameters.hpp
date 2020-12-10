@@ -19,7 +19,7 @@ typedef uint16_t executionSpaceOutLength_t;
 typedef uint16_t bigFieldAddress_t;
 typedef uint8_t fieldMapSize_t;
 typedef uint8_t commandNum_t;
-typedef uint8_t debugOutputBufferLength_t;
+typedef uint16_t debugOutputBufferLength_t;
 typedef uint8_t lockNumber_t;
 
 class RCodeParameters {
@@ -35,7 +35,7 @@ public:
     static const int interruptStoreNum = 5;
     static const int interruptVectorWorkingNum = 5;
     static const int interruptVectorNum = 5;
-    static const uint16_t executionLength = 64;
+    static const uint16_t executionLength = 128;
     static const int executionOutBufferSize = 32;
     static const int executionInNum = 1;
     static const int executionOutNum = 1;
@@ -46,7 +46,7 @@ public:
     static const int lowestRwLockNum = 20;
     static const int highestRwLockNum = 25;
     static const bool hasMultiByteCommands = false;
-    static const int debugBufferLength = 100;
+    static const int debugBufferLength = 256;
 };
 class RCodeLockValues {
 public:

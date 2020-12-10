@@ -13,18 +13,20 @@ RCodeNotificationManager::RCodeNotificationManager(RCode *rcode,
                 rcode->getVoidChannel()) {
 }
 bool RCodeNotificationManager::canSendNotification() {
-    return (!RCodeParameters::isUsingInterruptVector
-            && !notificationChannel->getOutStream()->isLocked())
-            || (RCodeParameters::isUsingInterruptVector);
-    //&& vectorChannel->canAccept());
+    if (!RCodeParameters::isUsingInterruptVector) {
+        return !notificationChannel->hasOutStream()
+                || !notificationChannel->acquireOutStream()->isLocked();
+    } else {
+        return vectorChannel->canAccept();
+    }
 }
 
-void RCodeNotificationManager::sendNotification(RCodeBusInterrupt *interrupt) {
-    if (RCodeParameters::isUsingInterruptVector) {
-        // && vectorChannel->hasVector(interrupt)) {
-        //vectorChannel->acceptInterrupt(interrupt);
+void RCodeNotificationManager::sendNotification(RCodeBusInterrupt *interrupt) { // Only called if canSendNotification()
+    if (RCodeParameters::isUsingInterruptVector
+            && vectorChannel->hasVector(interrupt)) {
+        vectorChannel->acceptInterrupt(interrupt);
     } else {
-        RCodeOutStream *out = notificationChannel->getOutStream();
+        RCodeOutStream *out = notificationChannel->acquireOutStream();
         if (out->isOpen()) {
             out->close();
             out->mostRecent = interrupt->getSource();

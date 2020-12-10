@@ -121,11 +121,17 @@ public:
             seq(rcode, this) {
 
     }
-    virtual RCodeLocalChannelInStream* getInStream() {
+    virtual RCodeLocalChannelInStream* acquireInStream() {
         return &seqin;
     }
-    virtual RCodeOutStream* getOutStream() {
+    bool hasInStream() {
+        return true;
+    }
+    virtual RCodeOutStream* acquireOutStream() {
         return &out;
+    }
+    virtual bool hasOutStream() {
+        return true;
     }
     virtual bool hasCommandSequence() {
         return seqin.hasNextCommandSequence();

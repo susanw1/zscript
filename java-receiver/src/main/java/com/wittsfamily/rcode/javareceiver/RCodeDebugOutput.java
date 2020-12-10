@@ -26,8 +26,9 @@ public class RCodeDebugOutput {
 
     public void println(String s) {
         if (channel != null) {
-            RCodeOutStream stream = channel.getOutStream();
-            if (stream.lock()) {
+            if ((!channel.hasOutStream() || !channel.acquireOutStream().isLocked())) {
+                RCodeOutStream stream = channel.acquireOutStream();
+                stream.lock();
                 if (stream.mostRecent == this) {
                     if (!stream.isOpen()) {
                         stream.openDebug(channel);
@@ -48,6 +49,7 @@ public class RCodeDebugOutput {
                 stream.writeBytes(new byte[] { '\n' }, 1);
                 stream.close();
                 stream.unlock();
+                channel.releaseOutStream();
             } else {
                 writeToBuffer(s.getBytes(StandardCharsets.UTF_8));
                 writeToBuffer(new byte[] { (byte) '\n' });
@@ -56,8 +58,9 @@ public class RCodeDebugOutput {
     }
 
     public void attemptFlush() {
-        if (position != 0 && channel != null && channel.getOutStream().lock()) {
-            RCodeOutStream stream = channel.getOutStream();
+        if (position != 0 && channel != null && (!channel.hasOutStream() || !channel.acquireOutStream().isLocked())) {
+            channel.acquireOutStream().lock();
+            RCodeOutStream stream = channel.acquireOutStream();
             if (stream.mostRecent == this) {
                 if (!stream.isOpen()) {
                     stream.openDebug(channel);
@@ -69,9 +72,10 @@ public class RCodeDebugOutput {
                 }
                 stream.openDebug(channel);
             }
-            flushBuffer(channel.getOutStream());
+            flushBuffer(channel.acquireOutStream());
             stream.close();
             stream.unlock();
+            channel.releaseOutStream();
         }
     }
 

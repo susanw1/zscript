@@ -125,18 +125,16 @@ public class RCodeInterruptVectorOut extends RCodeOutStream {
 
     @Override
     public boolean lock() {
-        if (out.lock()) {
-            out = notificationManager.getNotificationChannel().getOutStream();
-            return true;
-        } else {
-            return false;
+        if (out == null) {
+            out = notificationManager.getNotificationChannel().acquireOutStream();
         }
+        return out.lock();
     }
 
     @Override
     public boolean isLocked() {
         if (out == null) {
-            out = notificationManager.getNotificationChannel().getOutStream();
+            out = notificationManager.getNotificationChannel().acquireOutStream();
         }
         return out.isLocked();
     }
@@ -144,6 +142,8 @@ public class RCodeInterruptVectorOut extends RCodeOutStream {
     @Override
     public void unlock() {
         out.unlock();
+        notificationManager.getNotificationChannel().releaseOutStream();
+        out = null;
     }
 
 }

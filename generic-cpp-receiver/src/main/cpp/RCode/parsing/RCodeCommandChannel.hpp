@@ -17,9 +17,15 @@ class RCodeCommandSequence;
 
 class RCodeCommandChannel {
 public:
-    virtual RCodeChannelInStream* getInStream() = 0;
+    virtual RCodeChannelInStream* acquireInStream() = 0;
 
-    virtual RCodeOutStream* getOutStream() = 0;
+    virtual bool hasInStream() = 0; // This method must be implemented such that if it returns true, calling acquireInStream() does not change the state of the channel,
+                                    // and if it returns false, acquireInStream() returns an unlocked out stream.
+
+    virtual RCodeOutStream* acquireOutStream() = 0;
+
+    virtual bool hasOutStream() = 0; // This method must be implemented such that if it returns true, calling acquireOutStream() does not change the state of the channel,
+                                     // and if it returns false, acquireOutStream() returns an unlocked out stream.
 
     virtual bool hasCommandSequence() = 0;
 

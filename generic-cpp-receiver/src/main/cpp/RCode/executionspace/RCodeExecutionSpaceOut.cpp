@@ -8,12 +8,15 @@
 #include "RCodeExecutionSpaceOut.hpp"
 
 bool RCodeExecutionSpaceOut::flush() {
-    if (status != CMD_FAIL) {
+    if (status != CMD_FAIL && status != OK) {
         space->setRunning(false);
         space->setFailed(true);
     }
-    if (!space->getNotificationChannel()->getOutStream()->isLocked()) {
-        RCodeOutStream *out = space->getNotificationChannel()->getOutStream();
+    if (!space->getNotificationChannel()->hasOutStream()
+            || !space->getNotificationChannel()->acquireOutStream()->isLocked()) {
+        RCodeOutStream *out =
+                space->getNotificationChannel()->acquireOutStream();
+        out->lock();
         if (out->isOpen()) {
             out->close();
         }
@@ -33,6 +36,7 @@ bool RCodeExecutionSpaceOut::flush() {
         }
         out->close();
         out->unlock();
+        space->getNotificationChannel()->releaseOutStream();
         dataBufferFull = false;
         status = OK;
         return true;

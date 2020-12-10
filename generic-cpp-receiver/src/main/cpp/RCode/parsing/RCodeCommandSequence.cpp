@@ -9,7 +9,7 @@
 
 RCodeSequenceInStream* RCodeCommandSequence::acquireInStream() {
     if (in == NULL) {
-        in = channel->getInStream()->getSequenceInStream();
+        in = channel->acquireInStream()->getSequenceInStream();
         in->lock();
     }
     return in;
@@ -23,7 +23,7 @@ void RCodeCommandSequence::releaseInStream() {
 }
 RCodeOutStream* RCodeCommandSequence::acquireOutStream() {
     if (out == NULL) {
-        out = channel->getOutStream();
+        out = channel->acquireOutStream();
         out->lock();
     }
     return out;

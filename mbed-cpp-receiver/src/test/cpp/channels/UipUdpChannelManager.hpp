@@ -12,14 +12,14 @@
 #include "../RCode/RCodeOutStream.hpp"
 #include "../RCode/parsing/RCodeInStream.hpp"
 #include "../UIP/UdpSocket.h"
+#include "UipUdpChannelInStream.hpp"
 #include "UipUdpCommandChannel.hpp"
 #include "UipUdpOutStream.hpp"
-#include "UipUdpSequenceInStream.hpp"
 #include "UipUdpWrapper.hpp"
 
 class UipUdpChannelManager {
     RCode *rcode;
-    UipUdpSequenceInStream seqIn;
+    UipUdpChannelInStream seqIn;
     RCodeInStream in;
     UipUdpOutStream out;
     UipUdpCommandChannel channels[RCodeParameters::uipChannelNum];

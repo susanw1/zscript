@@ -100,8 +100,8 @@ public class RCodeExecutionSpaceOut extends AbstractRCodeOutStream {
         if (status != RCodeResponseStatus.CMD_FAIL) {
             space.setRunning(false);
         }
-        if (!space.getNotificationChannel().getOutStream().isLocked()) {
-            RCodeOutStream out = space.getNotificationChannel().getOutStream();
+        if ((!space.getNotificationChannel().hasOutStream() || !space.getNotificationChannel().acquireOutStream().isLocked())) {
+            RCodeOutStream out = space.getNotificationChannel().acquireOutStream();
             if (out.isOpen()) {
                 out.close();
             }

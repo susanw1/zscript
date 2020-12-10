@@ -40,10 +40,17 @@ public:
     bool isPacketBased() {
         return false;
     }
-    RCodeExecutionSpaceChannelIn* getInStream();
+    RCodeExecutionSpaceChannelIn* acquireInStream();
 
-    RCodeOutStream* getOutStream();
+    bool hasInStream() {
+        return in != NULL;
+    }
 
+    RCodeOutStream* acquireOutStream();
+
+    bool hasOutStream() {
+        return out != NULL;
+    }
     bool hasCommandSequence();
 
     void releaseInStream();

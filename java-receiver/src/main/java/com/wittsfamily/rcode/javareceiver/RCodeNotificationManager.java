@@ -84,14 +84,15 @@ public class RCodeNotificationManager {
     }
 
     private boolean canSendNotification() {
-        return (!params.isUsingInterruptVector && !notificationChannel.getOutStream().isLocked()) || (params.isUsingInterruptVector && vectorChannel.canAccept());
+        return (!params.isUsingInterruptVector && (!notificationChannel.hasOutStream() || !notificationChannel.acquireOutStream().isLocked()))
+                || (params.isUsingInterruptVector && vectorChannel.canAccept());
     }
 
     private void sendNotification(RCodeBusInterrupt interrupt) {
         if (params.isUsingInterruptVector && vectorChannel.hasVector(interrupt)) {
             vectorChannel.acceptInterrupt(interrupt);
         } else {
-            RCodeOutStream out = notificationChannel.getOutStream();
+            RCodeOutStream out = notificationChannel.acquireOutStream();
             if (out.isOpen()) {
                 out.close();
                 out.mostRecent = interrupt.getSource();
@@ -114,6 +115,7 @@ public class RCodeNotificationManager {
             }
             out.writeCommandSequenceSeperator();
             out.close();
+            notificationChannel.releaseOutStream();
             interrupt.clear();
         }
     }

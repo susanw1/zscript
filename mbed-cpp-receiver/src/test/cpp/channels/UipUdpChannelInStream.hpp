@@ -5,13 +5,13 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_CHANNELS_UIPUDPSEQUENCEINSTREAM_HPP_
-#define SRC_TEST_CPP_CHANNELS_UIPUDPSEQUENCEINSTREAM_HPP_
+#ifndef SRC_TEST_CPP_CHANNELS_UIPUDPCHANNELINSTREAM_HPP_
+#define SRC_TEST_CPP_CHANNELS_UIPUDPCHANNELINSTREAM_HPP_
 
-#include "../RCode/parsing/RCodeSequenceInStream.hpp"
+#include "instreams/RCodeChannelInStream.hpp"
 #include "UipUdpWrapper.hpp"
 
-class UipUdpSequenceInStream;
+class UipUdpChannelInStream;
 class UipUdpLookaheadStream: public RCodeLookaheadStream {
 private:
     UipUdpReadWrapper *reader;
@@ -29,35 +29,29 @@ public:
         pos = 0;
     }
 };
-class UipUdpSequenceInStream: public RCodeSequenceInStream {
+class UipUdpChannelInStream: public RCodeChannelInStream {
 private:
     UipUdpReadWrapper reader;
     UipUdpLookaheadStream lookahead;
     int last = -1;
-    bool open = false;
 public:
-    UipUdpSequenceInStream(UdpSocket *socket) :
+    UipUdpChannelInStream(UdpSocket *socket) :
             reader(socket), lookahead(&reader) {
-    }
-    virtual char next() {
-        int read = reader.read();
-        if (read < 0 || read == '\n') {
-            open = false;
-            if (read == '\n' && reader.peek() == -1) {
-                reader.read();
-            }
-        }
-        last = read;
-        return open ? read : '\n';
     }
     UipUdpReadWrapper* getReader() {
         return &reader;
     }
 
-    virtual bool hasNext() {
-        return reader.available() > 0;
+    virtual int16_t read() {
+        if (!reader.isReading()) {
+            reader.open();
+        }
+        int read = reader.read();
+        if (read < 0) {
+            reader.close();
+        }
+        return read;
     }
-
     virtual RCodeLookaheadStream* getLookahead() {
         lookahead.reset();
         return &lookahead;
@@ -66,18 +60,8 @@ public:
     bool hasNextCommandSequence() {
         return reader.available() > 0 || reader.open();
     }
-
-    virtual void openCommandSequence() {
-        open = true;
-    }
-
-    virtual void closeCommandSequence() {
-        open = false;
+    void close() {
         reader.close();
     }
-
-    virtual bool isCommandSequenceOpen() const {
-        return open;
-    }
 };
-#endif /* SRC_TEST_CPP_CHANNELS_UIPUDPSEQUENCEINSTREAM_HPP_ */
+#endif /* SRC_TEST_CPP_CHANNELS_UIPUDPCHANNELINSTREAM_HPP_ */

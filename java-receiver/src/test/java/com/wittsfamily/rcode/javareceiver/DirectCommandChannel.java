@@ -20,13 +20,23 @@ public class DirectCommandChannel implements RCodeCommandChannel {
     }
 
     @Override
-    public RCodeChannelInStream getInStream() {
+    public RCodeChannelInStream acquireInStream() {
         return s;
     }
 
     @Override
-    public RCodeOutStream getOutStream() {
+    public boolean hasInStream() {
+        return true;
+    }
+
+    @Override
+    public RCodeOutStream acquireOutStream() {
         return out;
+    }
+
+    @Override
+    public boolean hasOutStream() {
+        return true;
     }
 
     @Override

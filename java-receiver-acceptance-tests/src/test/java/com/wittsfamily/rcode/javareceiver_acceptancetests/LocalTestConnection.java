@@ -99,12 +99,22 @@ public class LocalTestConnection implements RCodeAcceptanceTestConnection, RCode
     }
 
     @Override
-    public RCodeChannelInStream getInStream() {
+    public boolean hasInStream() {
+        return true;
+    }
+
+    @Override
+    public RCodeChannelInStream acquireInStream() {
         return queueIn;
     }
 
     @Override
-    public RCodeOutStream getOutStream() {
+    public boolean hasOutStream() {
+        return true;
+    }
+
+    @Override
+    public RCodeOutStream acquireOutStream() {
         return out;
     }
 

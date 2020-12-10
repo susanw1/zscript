@@ -4,9 +4,13 @@ import com.wittsfamily.rcode.javareceiver.RCodeOutStream;
 import com.wittsfamily.rcode.javareceiver.instreams.RCodeChannelInStream;
 
 public interface RCodeCommandChannel {
-    RCodeChannelInStream getInStream();
+    RCodeChannelInStream acquireInStream();
 
-    RCodeOutStream getOutStream();
+    boolean hasInStream();
+
+    RCodeOutStream acquireOutStream();
+
+    boolean hasOutStream();
 
     boolean hasCommandSequence();
 

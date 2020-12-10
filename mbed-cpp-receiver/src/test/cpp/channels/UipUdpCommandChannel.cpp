@@ -7,8 +7,8 @@
 
 #include "UipUdpCommandChannel.hpp"
 
-RCodeInStream* UipUdpCommandChannel::getInStream() {
-    return &inSt;
+UipUdpChannelInStream* UipUdpCommandChannel::getInStream() {
+    return &in;
 }
 
 RCodeOutStream* UipUdpCommandChannel::getOutStream() {
@@ -25,5 +25,5 @@ bool UipUdpCommandChannel::hasCommandSequence() {
 }
 
 void UipUdpCommandChannel::releaseInStream() {
-    in.closeCommandSequence();
+    in.close();
 }

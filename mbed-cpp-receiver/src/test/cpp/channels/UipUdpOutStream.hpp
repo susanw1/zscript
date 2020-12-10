@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_CPP_CHANNELS_UIPUDPOUTSTREAM_HPP_
 #define SRC_TEST_CPP_CHANNELS_UIPUDPOUTSTREAM_HPP_
 
-#include "../RCode/AbstractRCodeOutStream.hpp"
+#include "AbstractRCodeOutStream.hpp"
 #include "UipUdpWrapper.hpp"
 
 class UipUdpOutStream: public AbstractRCodeOutStream {

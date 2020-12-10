@@ -23,8 +23,8 @@ public class RCodeRunner {
         if (canBeParallel || parallelNum == 0) {
             canBeParallel = true;
             for (int i = 0; i < channels.length; i++) {
-                if (channels[i].getCommandSequence().isFullyParsed() && !channels[i].getOutStream().isLocked() && channels[i].getCommandSequence().canLock()
-                        && channels[i].getCommandSequence().canBeParallel() && channels[i].canLock()) {
+                if (channels[i].getCommandSequence().isFullyParsed() && channels[i].getCommandSequence().canLock() && channels[i].getCommandSequence().canBeParallel()
+                        && channels[i].canLock() && (!channels[i].hasOutStream() || !channels[i].acquireOutStream().isLocked())) {
                     current = channels[i].getCommandSequence();
                     channels[i].lock();
                     current.lock();
@@ -34,7 +34,7 @@ public class RCodeRunner {
         }
         if (canBeParallel && current == null && parallelNum == 0) {
             for (int i = 0; i < channels.length; i++) {
-                if (channels[i].getCommandSequence().isActive() && !channels[i].getOutStream().isLocked() && channels[i].canLock()) {
+                if (channels[i].getCommandSequence().isActive() && channels[i].canLock() && (!channels[i].hasOutStream() || !channels[i].acquireOutStream().isLocked())) {
                     current = channels[i].getCommandSequence();
                     channels[i].lock();
                     canBeParallel = false;
@@ -143,6 +143,7 @@ public class RCodeRunner {
             slot.reset();
         } else if (target.isEmpty()) {
             target.acquireOutStream().writeCommandSequenceSeperator();
+            target.releaseOutStream();
         }
         if (!target.hasParsed() && target.isFullyParsed()) {
             if (!target.getChannel().isPacketBased() || !target.getChannel().hasCommandSequence()) {

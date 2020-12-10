@@ -27,7 +27,7 @@ public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
     }
 
     @Override
-    public RCodeChannelInStream getInStream() {
+    public RCodeChannelInStream acquireInStream() {
         if (interrupt == null) {
             interrupt = vectorManager.takeInterrupt();
         }
@@ -38,8 +38,18 @@ public class RCodeInterruptVectorChannel implements RCodeCommandChannel {
     }
 
     @Override
-    public RCodeOutStream getOutStream() {
+    public boolean hasInStream() {
+        return in != null;
+    }
+
+    @Override
+    public RCodeOutStream acquireOutStream() {
         return vectorManager.getOut();
+    }
+
+    @Override
+    public boolean hasOutStream() {
+        return true;
     }
 
     @Override

@@ -7,7 +7,7 @@ PROJECT = usb-test
 
 # Project Structure
 CPPDIR = src/test/cpp/
-RCODEDIR = ../generic-cpp-receiver/src/test/cpp/
+RCODEDIR = ../generic-cpp-receiver/src/main/cpp/
 BUILDDIR = build
 OCDDIR = src/test/openocd
 

@@ -42,13 +42,14 @@ public class RCodeParser {
                     for (int i = 0; i < rcode.getChannels().length; i++) {
                         RCodeCommandChannel channel = rcode.getChannels()[i];
                         if (channel.canLock() && channel.hasCommandSequence() && !channel.getCommandSequence().isActive()
-                                && !channel.getInStream().getSequenceInStream().isLocked()) {
+                                && (!channel.hasInStream() || !channel.acquireInStream().getSequenceInStream().isLocked())) {
                             if (rcode.getConfigFailureState() == null) {
                                 mostRecent = beginSequenceParse(targetSlot, channel);
                             } else {
-                                channel.getInStream().getSequenceInStream().open();
-                                channel.getInStream().getSequenceInStream().close();
+                                channel.acquireInStream().getSequenceInStream().open();
+                                channel.acquireInStream().getSequenceInStream().close();
                                 report_failure(channel);
+                                channel.releaseInStream();
                             }
                             break;
                         }
@@ -59,14 +60,15 @@ public class RCodeParser {
     }
 
     private void report_failure(RCodeCommandChannel channel) {
-        if (!channel.getOutStream().isLocked()) {
-            channel.getOutStream().lock();
-            channel.getOutStream().openResponse(channel);
-            channel.getOutStream().writeStatus(RCodeResponseStatus.SETUP_ERROR);
-            channel.getOutStream().writeBigStringField(rcode.getConfigFailureState());
-            channel.getOutStream().writeCommandSequenceSeperator();
-            channel.getOutStream().close();
-            channel.getOutStream().unlock();
+        if (!channel.hasOutStream() || !channel.acquireOutStream().isLocked()) {
+            channel.acquireOutStream().lock();
+            channel.acquireOutStream().openResponse(channel);
+            channel.acquireOutStream().writeStatus(RCodeResponseStatus.SETUP_ERROR);
+            channel.acquireOutStream().writeBigStringField(rcode.getConfigFailureState());
+            channel.acquireOutStream().writeCommandSequenceSeperator();
+            channel.acquireOutStream().close();
+            channel.acquireOutStream().unlock();
+            channel.releaseOutStream();
         }
     }
 

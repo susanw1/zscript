@@ -34,7 +34,7 @@ public class RCodeCommandSequence {
 
     public RCodeSequenceInStream acquireInStream() {
         if (in == null) {
-            in = channel.getInStream().getSequenceInStream();
+            in = channel.acquireInStream().getSequenceInStream();
             in.lock();
         }
         return in;
@@ -70,7 +70,7 @@ public class RCodeCommandSequence {
 
     public RCodeOutStream acquireOutStream() {
         if (out == null) {
-            out = channel.getOutStream();
+            out = channel.acquireOutStream();
             out.lock();
         }
         return out;

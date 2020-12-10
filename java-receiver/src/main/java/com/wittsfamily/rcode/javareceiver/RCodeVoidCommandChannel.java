@@ -7,13 +7,23 @@ import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
 public class RCodeVoidCommandChannel implements RCodeCommandChannel {
 
     @Override
-    public RCodeChannelInStream getInStream() {
+    public RCodeChannelInStream acquireInStream() {
         return new RCodeVoidInStream();
     }
 
     @Override
-    public RCodeOutStream getOutStream() {
+    public boolean hasInStream() {
+        return true;
+    }
+
+    @Override
+    public RCodeOutStream acquireOutStream() {
         return new RCodeVoidOutStream();
+    }
+
+    @Override
+    public boolean hasOutStream() {
+        return true;
     }
 
     @Override

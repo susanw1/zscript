@@ -55,5 +55,6 @@ public:
 #include "RCode.hpp"
 #include "parsing/RCodeCommandChannel.hpp"
 #include "RCodeOutStream.hpp"
+#include "executionspace/RCodeInterruptVectorManager.hpp"
 
 #endif /* SRC_TEST_CPP_RCODE_RCODENOTIFICATIONMANAGER_HPP_ */

@@ -13,10 +13,11 @@ RCodeCommandSequence* RCodeRunner::findNextToRun() {
         canBeParallel = true;
         for (int i = 0; i < rcode->getChannelNumber(); i++) {
             if (channels[i]->getCommandSequence()->isFullyParsed()
-                    && !channels[i]->getOutStream()->isLocked()
-                    && channels[i]->getCommandSequence()->canLock()
                     && channels[i]->getCommandSequence()->canBeParallel()
-                    && channels[i]->canLock()) {
+                    && channels[i]->getCommandSequence()->canLock()
+                    && channels[i]->canLock()
+                    && (!channels[i]->hasOutStream()
+                            || !channels[i]->acquireOutStream()->isLocked())) {
                 current = channels[i]->getCommandSequence();
                 current->lock();
                 channels[i]->lock();
@@ -26,9 +27,10 @@ RCodeCommandSequence* RCodeRunner::findNextToRun() {
     }
     if (canBeParallel && current == NULL && parallelNum == 0) {
         for (int i = 0; i < rcode->getChannelNumber(); i++) {
-            if (channels[i]->getCommandSequence()->peekFirst() != NULL
-                    && !channels[i]->getOutStream()->isLocked()
-                    && channels[i]->canLock()) {
+            if (channels[i]->getCommandSequence()->hasParsed()
+                    && channels[i]->canLock()
+                    && (!channels[i]->hasOutStream()
+                            || !channels[i]->acquireOutStream()->isLocked())) {
                 current = channels[i]->getCommandSequence();
                 channels[i]->lock();
                 canBeParallel = false;
@@ -110,6 +112,7 @@ bool RCodeRunner::finishRunning(RCodeCommandSequence *target, int targetInd) {
         }
     } else if (target->isEmpty()) {
         target->acquireOutStream()->writeCommandSequenceSeperator();
+        target->releaseOutStream();
     }
     if (!target->hasParsed() && target->isFullyParsed()) {
         if (!target->getChannel()->isPacketBased()
