@@ -7,11 +7,11 @@
 
 #include "UipUdpCommandChannel.hpp"
 
-UipUdpChannelInStream* UipUdpCommandChannel::getInStream() {
+UipUdpChannelInStream* UipUdpCommandChannel::acquireInStream() {
     return &in;
 }
 
-RCodeOutStream* UipUdpCommandChannel::getOutStream() {
+RCodeOutStream* UipUdpCommandChannel::acquireOutStream() {
     return &out;
 }
 

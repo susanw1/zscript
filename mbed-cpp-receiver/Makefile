@@ -20,10 +20,10 @@ MBED_TARGET = NUCLEO_G474RE
 MBED_COMPILER = GCC_ARM
 
 # Sources
-SOURCES  = --source $(MBEDDIR) --source $(RCODEDIR)RCode --source $(CPPDIR)main --source $(CPPDIR)UIP --source $(CPPDIR)channels
+SOURCES  = --source $(MBEDDIR) --source $(RCODEDIR)RCode --source $(CPPDIR)main --source $(CPPDIR)UIP --source $(CPPDIR)channels --source $(CPPDIR)commands
 
 # MBED Flags
-MBEDFLAGS = -m $(MBED_TARGET) -t $(MBED_COMPILER) $(SOURCES) --build $(BUILDDIR) --profile $(MBEDPROFILE) $(MBEDPROFILE_EXTRA)
+MBEDFLAGS = -m $(MBED_TARGET) -t $(MBED_COMPILER) $(SOURCES) --build $(BUILDDIR) --profile $(MBEDPROFILE) $(MBEDPROFILE_EXTRA) #-D UIP_CONF_BROADCAST=1
 
 # Flashing
 OCDSCRIPTS = /usr/share/openocd/scripts

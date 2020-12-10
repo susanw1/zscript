@@ -51,9 +51,16 @@ public:
         }
         port = remotePort;
     }
-    virtual UipUdpChannelInStream* getInStream();
+    virtual UipUdpChannelInStream* acquireInStream();
 
-    virtual RCodeOutStream* getOutStream();
+    bool hasInStream() {
+        return true;
+    }
+    virtual RCodeOutStream* acquireOutStream();
+
+    bool hasOutStream() {
+        return true;
+    }
 
     virtual bool hasCommandSequence();
 

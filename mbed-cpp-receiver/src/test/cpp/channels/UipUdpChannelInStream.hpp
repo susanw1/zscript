@@ -33,7 +33,6 @@ class UipUdpChannelInStream: public RCodeChannelInStream {
 private:
     UipUdpReadWrapper reader;
     UipUdpLookaheadStream lookahead;
-    int last = -1;
 public:
     UipUdpChannelInStream(UdpSocket *socket) :
             reader(socket), lookahead(&reader) {
@@ -61,7 +60,9 @@ public:
         return reader.available() > 0 || reader.open();
     }
     void close() {
-        reader.close();
+        if (reader.peek() == -1) {
+            reader.close();
+        }
     }
 };
 #endif /* SRC_TEST_CPP_CHANNELS_UIPUDPCHANNELINSTREAM_HPP_ */
