@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_CPP_RCODE_INSTREAMS_RCODECHANNELINSTREAM_HPP_
 #define SRC_MAIN_CPP_RCODE_INSTREAMS_RCODECHANNELINSTREAM_HPP_
 #include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
+#include "RCodeParameters.hpp"
 #include "RCodeLookaheadStream.hpp"
 #include "RCodeSequenceInStream.hpp"
 

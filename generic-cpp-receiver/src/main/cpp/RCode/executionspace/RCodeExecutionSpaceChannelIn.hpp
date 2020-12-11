@@ -9,7 +9,7 @@
 #define SRC_TEST_CPP_RCODE_EXECUTIONSPACE_RCODEEXECUTIONSPACESEQUENCEIN_HPP_
 #include "../instreams/RCodeChannelInStream.hpp"
 #include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
+#include "RCodeParameters.hpp"
 
 class RCodeExecutionSpace;
 

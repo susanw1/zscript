@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_CPP_RCODE_COMMANDS_RCODEECHOCOMMAND_HPP_
 #define SRC_TEST_CPP_RCODE_COMMANDS_RCODEECHOCOMMAND_HPP_
 #include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
+#include "RCodeParameters.hpp"
 #include "RCodeCommand.hpp"
 
 class RCodeEchoCommand: public RCodeCommand {

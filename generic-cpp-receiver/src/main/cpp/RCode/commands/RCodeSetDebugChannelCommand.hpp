@@ -9,7 +9,7 @@
 #define SRC_TEST_CPP_RCODE_COMMANDS_RCODESETDEBUGCHANNELCOMMAND_HPP_
 
 #include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
+#include "RCodeParameters.hpp"
 #include "RCodeCommand.hpp"
 
 class RCodeOutStream;

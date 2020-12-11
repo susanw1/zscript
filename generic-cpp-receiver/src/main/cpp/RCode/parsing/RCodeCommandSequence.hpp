@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_CPP_RCODE_PARSING_RCODECOMMANDSEQUENCE_HPP_
 #define SRC_TEST_CPP_RCODE_PARSING_RCODECOMMANDSEQUENCE_HPP_
 #include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
+#include "RCodeParameters.hpp"
 #include "../RCodeLockSet.hpp"
 
 class RCode;

@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_CPP_RCODE_COMMANDS_RCODEEXECUTIONSTATECOMMAND_HPP_
 #define SRC_TEST_CPP_RCODE_COMMANDS_RCODEEXECUTIONSTATECOMMAND_HPP_
 #include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
+#include "RCodeParameters.hpp"
 #ifdef NOTIFICATIONS
 #include "RCodeCommand.hpp"
 #include "../executionspace/RCodeExecutionSpace.hpp"

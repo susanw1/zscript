@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_CPP_RCODE_COMMANDS_RCODECOMMAND_HPP_
 #define SRC_TEST_CPP_RCODE_COMMANDS_RCODECOMMAND_HPP_
 #include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
+#include "RCodeParameters.hpp"
 
 class RCodeCommandChannel;
 class RCodeCommandSlot;

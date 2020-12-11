@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_CPP_RCODE_EXECUTIONSPACE_RCODEEXECUTIONSPACE_HPP_
 #define SRC_TEST_CPP_RCODE_EXECUTIONSPACE_RCODEEXECUTIONSPACE_HPP_
 #include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
+#include "RCodeParameters.hpp"
 #include "RCodeExecutionSpaceChannelIn.hpp"
 #include "RCodeExecutionSpaceOut.hpp"
 

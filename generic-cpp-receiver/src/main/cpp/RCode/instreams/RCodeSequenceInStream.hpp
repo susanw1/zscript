@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_CPP_RCODE_INSTREAMS_RCODESEQUENCEINSTREAM_HPP_
 #define SRC_MAIN_CPP_RCODE_INSTREAMS_RCODESEQUENCEINSTREAM_HPP_
 #include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
+#include "RCodeParameters.hpp"
 #include "RCodeCommandInStream.hpp"
 #include "RCodeMarkerInStream.hpp"
 

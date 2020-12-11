@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTORCHANNEL_HPP_
 #define SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTORCHANNEL_HPP_
 #include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
+#include "RCodeParameters.hpp"
 #include "../parsing/RCodeCommandChannel.hpp"
 #include "../parsing/RCodeCommandSequence.hpp"
 #include "../RCodeLockSet.hpp"

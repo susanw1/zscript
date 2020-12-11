@@ -9,7 +9,7 @@
 #define SRC_TEST_CPP_RCODE_COMMANDS_RCODENOTIFICATIONHOSTCOMMAND_HPP_
 
 #include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
+#include "RCodeParameters.hpp"
 #ifdef NOTIFICATIONS
 #include "RCodeCommand.hpp"
 

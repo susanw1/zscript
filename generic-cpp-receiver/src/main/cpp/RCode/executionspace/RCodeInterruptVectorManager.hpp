@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTORMANAGER_HPP_
 #define SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTORMANAGER_HPP_
 #include "../RCodeIncludes.hpp"
-#include "../RCodeParameters.hpp"
+#include "RCodeParameters.hpp"
 #include "../RCodeBusInterrupt.hpp"
 #include "RCodeInterruptVectorOut.hpp"
 #include "RCodeInterruptVectorMap.hpp"
