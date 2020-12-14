@@ -188,6 +188,14 @@ SECTIONS
     . = ALIGN(8);
   } >RAM
 
+  /* Add special section we can read and write from/to without hitting the code or anything else */
+  .user_flash :
+  {
+    . = ALIGN(2048);
+    PROVIDE ( _user_flash_start = . );
+    . = . + 2048;
+  } >FLASH
+
   /* Remove information from the compiler libraries */
   /DISCARD/ :
   {

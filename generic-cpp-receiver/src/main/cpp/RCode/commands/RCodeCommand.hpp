@@ -25,7 +25,8 @@ public:
     virtual void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
             RCodeOutStream *out) = 0;
 
-    virtual void setLocks(RCodeLockSet *locks) const = 0;
+    virtual void setLocks(RCodeCommandSlot *slot,
+            RCodeLockSet *locks) const = 0;
 
     virtual uint8_t getCode() const = 0;
 

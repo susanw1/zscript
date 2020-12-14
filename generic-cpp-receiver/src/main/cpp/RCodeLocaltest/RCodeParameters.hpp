@@ -47,6 +47,9 @@ public:
     static const int highestRwLockNum = 25;
     static const bool hasMultiByteCommands = false;
     static const int debugBufferLength = 256;
+    static const uint16_t persistentMemorySize = 256;
+    static const bool persistentGUID = true;
+    static const bool persistentMAC = true;
 };
 class RCodeLockValues {
 public:

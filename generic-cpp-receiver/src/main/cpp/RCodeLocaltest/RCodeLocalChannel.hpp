@@ -7,8 +7,8 @@
 
 #ifndef SRC_TEST_CPP_RCODE_TEST_RCODELOCALCHANNEL_HPP_
 #define SRC_TEST_CPP_RCODE_TEST_RCODELOCALCHANNEL_HPP_
+#include "RCodeParameters.hpp"
 #include "../RCode/RCodeIncludes.hpp"
-#include "../RCode/RCodeParameters.hpp"
 #include "../RCode/parsing/RCodeCommandChannel.hpp"
 #include "../RCode/instreams/RCodeChannelInStream.hpp"
 #include "../RCode/AbstractRCodeOutStream.hpp"

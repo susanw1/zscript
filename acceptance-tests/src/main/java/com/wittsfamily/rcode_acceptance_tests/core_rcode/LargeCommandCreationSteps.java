@@ -165,7 +165,7 @@ public class LargeCommandCreationSteps {
                         size <<= 8;
                         size += d;
                     }
-                    assertThat(RCodeAcceptanceTestCapabilityResult.getPersistantMemorySize()).describedAs("Target must give consistant capabilities").isIn(-1, size);
+                    assertThat(RCodeAcceptanceTestCapabilityResult.getPersistantMemorySize()).describedAs("Target must give consistant capabilities").isIn((long) -1, size);
                     RCodeAcceptanceTestCapabilityResult.setPersistantMemorySize(size);
                 });
                 if (i < RCodeAcceptanceTestCapabilityResult.getMaxPageNum() - 1) {

@@ -39,7 +39,7 @@ void RCodeCommandSequence::addLast(RCodeCommandSlot *slot) {
         last->next = slot;
         last = slot;
         if (locks.isActive()) {
-            slot->getCommand(rcode)->setLocks(&locks);
+            slot->getCommand(rcode)->setLocks(slot, &locks);
         }
     } else {
         last = slot;
@@ -151,7 +151,7 @@ bool RCodeCommandSequence::canLock() {
         locks.activate();
         for (RCodeCommandSlot *slot = first; slot != NULL; slot = slot->next) {
             if (slot->getCommand(rcode) != NULL) {
-                slot->getCommand(rcode)->setLocks(&locks);
+                slot->getCommand(rcode)->setLocks(slot, &locks);
             }
         }
     }
@@ -162,7 +162,7 @@ void RCodeCommandSequence::lock() {
         locks.activate();
         for (RCodeCommandSlot *slot = first; slot != NULL; slot = slot->next) {
             if (slot->getCommand(rcode) != NULL) {
-                slot->getCommand(rcode)->setLocks(&locks);
+                slot->getCommand(rcode)->setLocks(slot, &locks);
             }
         }
     }

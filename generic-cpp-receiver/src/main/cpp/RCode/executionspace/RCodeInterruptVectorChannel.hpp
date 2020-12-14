@@ -33,6 +33,7 @@ public:
             RCodeInterruptVectorManager *vectorManager, RCode *r) :
             rcode(r), space(space), vectorManager(vectorManager), sequence(r,
                     this) {
+        locks.addLock(RCodeLockValues::executionSpaceLock, false);
     }
 
     RCodeChannelInStream* acquireInStream();

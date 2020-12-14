@@ -18,7 +18,7 @@ class RCode;
 
 class RCodeSendDebugCommand: public RCodeCommand {
 private:
-    const uint8_t code = 0xff;
+    const uint8_t code = 0x1f;
     RCode *const rcode;
 public:
     RCodeSendDebugCommand(RCode *const rcode) :
@@ -31,7 +31,7 @@ public:
     void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
             RCodeOutStream *out);
 
-    void setLocks(RCodeLockSet *locks) const {
+    void setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
     }
 
     uint8_t getCode() const {

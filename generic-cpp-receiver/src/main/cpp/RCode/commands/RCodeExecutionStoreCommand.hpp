@@ -29,7 +29,7 @@ public:
     virtual void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
             RCodeOutStream *out);
 
-    virtual void setLocks(RCodeLockSet *locks) const {
+    virtual void setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
         locks->addLock(RCodeLockValues::executionSpaceLock, true);
     }
 

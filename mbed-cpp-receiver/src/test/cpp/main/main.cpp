@@ -34,12 +34,18 @@
 #include "commands/RCodeCapabilitiesCommand.hpp"
 #include "executionspace/RCodeExecutionSpaceChannel.hpp"
 #include "../commands/RCodeIdentifyCommand.hpp"
+#include "../commands/persistence/RCodeFetchGiudCommand.hpp"
+#include "../commands/persistence/RCodePersistentFetchCommand.hpp"
+#include "../commands/persistence/RCodePersistentStoreCommand.hpp"
+#include "../commands/persistence/RCodeStoreGiudCommand.hpp"
+#include "../commands/persistence/RCodeStoreMacAddressCommand.hpp"
+#include "../commands/persistence/RCodeMbedFlashPersistence.hpp"
+
 #include "UipUdpCommandChannel.hpp"
 
 int main(void) {
     uint8_t mac[] = { 0x1E, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
     UipEthernet uip(mac, PA_7, PA_6, PA_5, PA_8);
-
     while (uip.connect(5))
         ;
     RCode r(NULL, 0);
@@ -60,6 +66,14 @@ int main(void) {
     RCodeExecutionStoreCommand cmd6 = RCodeExecutionStoreCommand(r.getSpace());
     RCodeNotificationHostCommand cmd7 = RCodeNotificationHostCommand(&r);
     RCodeIdentifyCommand cmd8 = RCodeIdentifyCommand();
+
+    RCodeMbedFlashPersistence persist = RCodeMbedFlashPersistence();
+    RCodeFetchGiudCommand cmd9 = RCodeFetchGiudCommand(&persist);
+    RCodePersistentFetchCommand cmd10 = RCodePersistentFetchCommand(&persist);
+    RCodePersistentStoreCommand cmd11 = RCodePersistentStoreCommand(&persist);
+    RCodeStoreGiudCommand cmd12 = RCodeStoreGiudCommand(&persist);
+    RCodeStoreMacAddressCommand cmd13 = RCodeStoreMacAddressCommand(&persist);
+
     r.getCommandFinder()->registerCommand(&cmd8);
     r.getCommandFinder()->registerCommand(&cmd0);
     r.getCommandFinder()->registerCommand(&cmd3);
@@ -69,6 +83,12 @@ int main(void) {
     r.getCommandFinder()->registerCommand(&cmd4);
     r.getCommandFinder()->registerCommand(&cmd5);
     r.getCommandFinder()->registerCommand(&cmd6);
+
+    r.getCommandFinder()->registerCommand(&cmd9);
+    r.getCommandFinder()->registerCommand(&cmd10);
+    r.getCommandFinder()->registerCommand(&cmd11);
+    r.getCommandFinder()->registerCommand(&cmd12);
+    r.getCommandFinder()->registerCommand(&cmd13);
     while (true) {
         r.progressRCode();
         uip.tick();

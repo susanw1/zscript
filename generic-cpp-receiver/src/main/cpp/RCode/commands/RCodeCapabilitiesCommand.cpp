@@ -28,6 +28,10 @@ void RCodeCapabilitiesCommand::execute(RCodeCommandSlot *slot,
         capabilities |= 0x08;
     }
     out->writeField('C', capabilities);
+    if (RCodeParameters::persistentMemorySize != 0) {
+        RCodeOutStream::writeFieldType(out, 'P',
+                RCodeParameters::persistentMemorySize);
+    }
     RCodeOutStream::writeFieldType(out, 'N',
             (uint32_t) RCodeParameters::fieldNum);
     RCodeOutStream::writeFieldType(out, 'M', (uint8_t) 1);

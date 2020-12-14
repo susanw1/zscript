@@ -28,7 +28,8 @@ RCodeCommand* RCodeCommandFinder::findCommand(RCodeCommandSlot *slot) {
                 return commands[i];
             }
         }
-        rcode->getDebug() << "Unknown command: R" << hex << rVal << "\n";
+        rcode->getDebug() << "Unknown command: R" << RCodeDebugOutputMode::hex
+                << rVal << "\n";
         return NULL;
     } else if (RCodeParameters::hasMultiByteCommands) {
         RCodeFieldMap *map = slot->getFields();
@@ -42,7 +43,7 @@ RCodeCommand* RCodeCommandFinder::findCommand(RCodeCommandSlot *slot) {
                 return commands[i];
             }
         }
-        rcode->getDebug() << "Unknown command: R" << hex;
+        rcode->getDebug() << "Unknown command: R" << RCodeDebugOutputMode::hex;
         for (int i = 0; i < fieldSectionNum; i++) {
             rcode->getDebug() << code[i];
         }

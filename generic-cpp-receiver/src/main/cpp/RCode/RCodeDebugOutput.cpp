@@ -142,7 +142,7 @@ void RCodeDebugOutput::attemptFlush() {
 
 RCodeDebugOutput& RCodeDebugOutput::operator <<(RCodeDebugOutputMode m) {
     switch (m) {
-    case hex:
+    case RCodeDebugOutputMode::hex:
         state.isCharacter = false;
         state.isDecimal = false;
         state.isHex = true;
