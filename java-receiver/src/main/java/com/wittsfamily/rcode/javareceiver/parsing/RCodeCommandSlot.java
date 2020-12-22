@@ -22,6 +22,7 @@ public class RCodeCommandSlot {
     private RCodeCommand cmd = null;
     private boolean started = false;
     private boolean complete = false;
+    private boolean needsMoveAlong = false;
 
     public RCodeCommandSlot next = null;
 
@@ -40,6 +41,7 @@ public class RCodeCommandSlot {
         parsed = false;
         started = false;
         complete = false;
+        needsMoveAlong = false;
         if (isBigBig) {
             bigBig.reset();
             isBigBig = false;
@@ -57,6 +59,14 @@ public class RCodeCommandSlot {
 
     public void terminate() {
         end = '\n';
+    }
+
+    public boolean needsMoveAlong() {
+        return needsMoveAlong;
+    }
+
+    public void setNeedsMoveAlong(boolean needsMoveAlong) {
+        this.needsMoveAlong = needsMoveAlong;
     }
 
     public boolean isComplete() {

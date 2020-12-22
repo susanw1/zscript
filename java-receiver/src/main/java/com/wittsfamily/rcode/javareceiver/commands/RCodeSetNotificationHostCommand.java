@@ -15,10 +15,6 @@ public class RCodeSetNotificationHostCommand implements RCodeCommand {
     }
 
     @Override
-    public void finish(RCodeCommandSlot rCodeCommandSlot, RCodeOutStream out) {
-    }
-
-    @Override
     public void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out) {
         rcode.getNotificationManager().setNotificationChannel(sequence.getChannel());
         out.writeStatus(RCodeResponseStatus.OK);

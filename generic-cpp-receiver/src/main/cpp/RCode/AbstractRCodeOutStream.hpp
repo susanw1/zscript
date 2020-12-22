@@ -79,8 +79,7 @@ public:
         return this;
     }
 
-    virtual RCodeOutStream* writeBigHexField(uint8_t const *value,
-            bigFieldAddress_t length) {
+    virtual RCodeOutStream* writeBigHexField(uint8_t const *value, bigFieldAddress_t length) {
         writeByte('+');
         for (int i = 0; i < length; i++) {
             writeByte(toHexDigit(value[i] >> 4));
@@ -89,8 +88,7 @@ public:
         return this;
     }
 
-    virtual RCodeOutStream* writeBigStringField(uint8_t const *value,
-            bigFieldAddress_t length) {
+    virtual RCodeOutStream* writeBigStringField(uint8_t const *value, bigFieldAddress_t length) {
         writeByte('"');
         for (int i = 0; i < length; ++i) {
             if (value[i] == '\n') {

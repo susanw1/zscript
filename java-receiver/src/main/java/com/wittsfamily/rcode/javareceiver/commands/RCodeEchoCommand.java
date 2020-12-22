@@ -7,9 +7,6 @@ import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSequence;
 import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSlot;
 
 public class RCodeEchoCommand implements RCodeCommand {
-    @Override
-    public void finish(RCodeCommandSlot rCodeCommandSlot, RCodeOutStream out) {
-    }
 
     @Override
     public void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out) {

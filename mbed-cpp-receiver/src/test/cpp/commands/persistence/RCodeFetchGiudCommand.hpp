@@ -20,13 +20,11 @@ public:
     RCodeFetchGiudCommand(RCodeMbedFlashPersistence *persist) :
             persist(persist) {
     }
-    void finish(RCodeCommandSlot *rCodeCommandSlot, RCodeOutStream *out) const {
-    }
 
     void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
             RCodeOutStream *out);
 
-    void setLocks(RCodeLockSet *locks) const {
+    void setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
     }
 
     uint8_t getCode() const {

@@ -60,10 +60,17 @@ void RCodeRunner::runNext() {
     for (; targetInd < parallelNum; targetInd++) {
         if (!running[targetInd]->hasParsed()
                 || running[targetInd]->peekFirst()->isComplete()
+                || running[targetInd]->peekFirst()->needsMoveAlong()
                 || !running[targetInd]->peekFirst()->isStarted()) {
             current = running[targetInd];
             break;
         }
+    }
+    if (current != NULL && current->peekFirst()->needsMoveAlong()) {
+        current->peekFirst()->setNeedsMoveAlong(false);
+        current->peekFirst()->getCommand(rcode)->moveAlong(
+                current->peekFirst());
+        current = NULL;
     }
     if (current != NULL
             && (!current->hasParsed() || current->peekFirst()->isComplete())) {

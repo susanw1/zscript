@@ -11,47 +11,45 @@
 #include "RCodeParameters.hpp"
 #include "RCodeI2cPhysicalBus.hpp"
 #include "RCodeI2cBus.hpp"
+#include "../LowLevel/I2cLowLevel/I2cManager.hpp"
 #include <mbed.h>
+
+void i2cSubsystemCallback(I2c *i2c, I2cTerminationStatus status);
 
 class RCodeI2cSubsystem {
 private:
-    RCodeI2cPhysicalBus phyBus0;
-    RCodeI2cPhysicalBus phyBus1;
-    RCodeI2cPhysicalBus phyBus2;
-    RCodeI2cPhysicalBus phyBus3;
-    RCodeI2cBus busses[4 * RCodeI2cParameters::i2cBussesPerPhyBus];
-    bool createNotifications = false;
+    static RCodeI2cPhysicalBus phyBus0;
+    static RCodeI2cPhysicalBus phyBus1;
+    static RCodeI2cPhysicalBus phyBus2;
+    static RCodeI2cPhysicalBus phyBus3;
+    static RCodeI2cBus busses[4 * RCodeI2cParameters::i2cBussesPerPhyBus];
+    static bool createNotifications;
 public:
-    RCodeI2cSubsystem() :
-            phyBus0(RCodeI2cParameters::i2c0sda, RCodeI2cParameters::i2c0scl), phyBus1(
-                    RCodeI2cParameters::i2c1sda, RCodeI2cParameters::i2c1scl), phyBus2(
-                    RCodeI2cParameters::i2c2sda, RCodeI2cParameters::i2c2scl), phyBus3(
-                    RCodeI2cParameters::i2c3sda, RCodeI2cParameters::i2c3scl) {
+    static void init() {
+        createNotifications = false;
         for (int i = 0; i < RCodeI2cParameters::i2cBussesPerPhyBus; ++i) {
-            busses[i * 4].setup(&phyBus0, i * 4,
-                    RCodeLockValues::i2cPhyBus0Lock);
-            busses[i * 4 + 1].setup(&phyBus1, i * 4 + 1,
-                    RCodeLockValues::i2cPhyBus1Lock);
-            busses[i * 4 + 2].setup(&phyBus2, i * 4 + 2,
-                    RCodeLockValues::i2cPhyBus2Lock);
-            busses[i * 4 + 3].setup(&phyBus3, i * 4 + 3,
-                    RCodeLockValues::i2cPhyBus3Lock);
+            busses[i * 4].setup(&phyBus0, i * 4, RCodeLockValues::i2cPhyBus0Lock);
+            busses[i * 4 + 1].setup(&phyBus1, i * 4 + 1, RCodeLockValues::i2cPhyBus1Lock);
+            busses[i * 4 + 2].setup(&phyBus2, i * 4 + 2, RCodeLockValues::i2cPhyBus2Lock);
+            busses[i * 4 + 3].setup(&phyBus3, i * 4 + 3, RCodeLockValues::i2cPhyBus3Lock);
         }
     }
-    RCodeI2cBus* getRCodeBus(uint8_t busNum) {
+    static void i2cSubsystemCallback(I2c *i2c, I2cTerminationStatus status);
+
+    static RCodeI2cBus* getRCodeBus(uint8_t busNum) {
         return busses + busNum;
     }
-    bool shouldCreateNotifications() {
+    static bool shouldCreateNotifications() {
         return createNotifications;
     }
-    void setCreateNotifications(bool createNotifications) {
-        this->createNotifications = createNotifications;
+    static void setCreateNotifications(bool createNotifications) {
+        RCodeI2cSubsystem::createNotifications = createNotifications;
     }
-    void setFrequency(int hz) {
-        phyBus0.setFrequency(hz);
-        phyBus1.setFrequency(hz);
-        phyBus2.setFrequency(hz);
-        phyBus3.setFrequency(hz);
+    static void setFrequency(I2cFrequency freq) {
+        phyBus0.setFrequency(freq);
+        phyBus1.setFrequency(freq);
+        phyBus2.setFrequency(freq);
+        phyBus3.setFrequency(freq);
     }
 };
 

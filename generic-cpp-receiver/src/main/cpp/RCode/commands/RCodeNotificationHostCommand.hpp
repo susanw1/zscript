@@ -26,9 +26,6 @@ public:
             rcode(rcode) {
     }
 
-    void finish(RCodeCommandSlot *rCodeCommandSlot, RCodeOutStream *out) const {
-    }
-
     void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
             RCodeOutStream *out);
 

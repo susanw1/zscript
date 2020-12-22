@@ -20,7 +20,11 @@ class RCodeCommand {
 public:
 
     virtual void finish(RCodeCommandSlot *rCodeCommandSlot,
-            RCodeOutStream *out) const = 0;
+            RCodeOutStream *out) const {
+    }
+
+    virtual void moveAlong(RCodeCommandSlot *rCodeCommandSlot) const {
+    }
 
     virtual void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
             RCodeOutStream *out) = 0;

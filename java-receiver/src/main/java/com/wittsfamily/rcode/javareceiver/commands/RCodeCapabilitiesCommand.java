@@ -60,10 +60,6 @@ public class RCodeCapabilitiesCommand implements RCodeCommand {
     }
 
     @Override
-    public void finish(RCodeCommandSlot slot, RCodeOutStream out) {
-    }
-
-    @Override
     public void setLocks(RCodeLockSet locks) {
     }
 

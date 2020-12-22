@@ -7,7 +7,8 @@ import com.wittsfamily.rcode.javareceiver.parsing.RCodeCommandSlot;
 
 public interface RCodeCommand {
 
-    void finish(RCodeCommandSlot rCodeCommandSlot, RCodeOutStream out);
+    default void finish(RCodeCommandSlot rCodeCommandSlot, RCodeOutStream out) {
+    }
 
     void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out);
 
@@ -20,4 +21,7 @@ public interface RCodeCommand {
     boolean matchesCode(byte[] code);
 
     int getCodeLength();
+
+    default void moveAlong(RCodeCommandSlot slot) {
+    }
 }

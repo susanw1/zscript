@@ -15,10 +15,6 @@ public class RCodeExecutionSpaceCommand implements RCodeCommand {
     }
 
     @Override
-    public void finish(RCodeCommandSlot rCodeCommandSlot, RCodeOutStream out) {
-    }
-
-    @Override
     public void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out) {
         if (slot.getFields().has('G')) {
             space.setRunning(true);

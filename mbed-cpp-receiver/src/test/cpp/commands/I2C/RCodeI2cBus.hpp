@@ -10,7 +10,10 @@
 #include "../RCodeIncludes.hpp"
 #include "RCodeParameters.hpp"
 
+#include "../LowLevel/I2cLowLevel/I2c.hpp"
+
 class RCodeI2cPhysicalBus;
+class RCodeCommandSlot;
 
 class RCodeI2cBus {
 private:
@@ -26,6 +29,29 @@ public:
         this->busNum = busNum;
         this->busLock = busLock;
     }
+    uint8_t getBusNum() {
+        return busNum;
+    }
+    uint8_t getBusLock() {
+        return busLock;
+    }
+    void asyncTransmit(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, RCodeCommandSlot *callbackSlot,
+            void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t), uint8_t callbackData);
+
+    void asyncReceive(uint16_t addr, uint8_t rxLen, RCodeCommandSlot *callbackSlot, void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t),
+            uint8_t callbackData);
+
+    void asyncTransmitReceive(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, uint8_t rxLen, RCodeCommandSlot *callbackSlot,
+            void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t), uint8_t callbackData);
+
+    void activateBus();
+
+    uint8_t* getReadBuffer();
+    void freeReadBuffer();
+    uint8_t getCallbackData();
+    I2cTerminationStatus getStatus();
+
 };
 
+#include "RCodeI2cPhysicalBus.hpp"
 #endif /* SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CBUS_HPP_ */

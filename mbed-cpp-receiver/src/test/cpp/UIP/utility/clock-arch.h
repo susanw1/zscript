@@ -20,6 +20,6 @@
 #ifndef clock_h_
 #define clock_h_
 
-typedef unsigned long   clock_time_t;
+typedef unsigned long clock_time_t;
 #define CLOCK_CONF_SECOND   1
 #endif

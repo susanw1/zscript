@@ -68,14 +68,6 @@ class RCodeI2cParameters {
 public:
     static const int i2cReadMaximum = 1024; //if USE_I2C_STATIC_READ_BUFFERS defined, 4 arrays of this length are created - very memory expensive
     static const int i2cBussesPerPhyBus = 2;
-    static const PinName i2c0sda = I2C_SDA;
-    static const PinName i2c0scl = I2C_SCL;
-    static const PinName i2c1sda = I2C_SDA;
-    static const PinName i2c1scl = I2C_SCL;
-    static const PinName i2c2sda = I2C_SDA;
-    static const PinName i2c2scl = I2C_SCL;
-    static const PinName i2c3sda = I2C_SDA;
-    static const PinName i2c3scl = I2C_SCL;
 
 };
 

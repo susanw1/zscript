@@ -12,8 +12,7 @@ void RCodeParser::report_failure(RCodeCommandChannel *channel) {
         channel->acquireOutStream()->lock();
         channel->acquireOutStream()->openResponse(channel);
         channel->acquireOutStream()->writeStatus(SETUP_ERROR);
-        channel->acquireOutStream()->writeBigStringField(
-                rcode->getConfigFailureState());
+        channel->acquireOutStream()->writeBigStringField(rcode->getConfigFailureState());
         channel->acquireOutStream()->writeCommandSequenceSeperator();
         channel->acquireOutStream()->close();
         channel->acquireOutStream()->unlock();
@@ -42,13 +41,10 @@ void RCodeParser::parseNext() {
                 mostRecent = NULL;
                 for (int i = 0; i < rcode->getChannelNumber(); i++) {
                     RCodeCommandChannel *channel = rcode->getChannels()[i];
-                    if (channel->canLock() && channel->hasCommandSequence()
-                            && !channel->getCommandSequence()->isActive()
-                            && (!channel->hasInStream()
-                                    || !channel->acquireInStream()->getSequenceInStream()->isLocked())) {
+                    if (channel->canLock() && channel->hasCommandSequence() && !channel->getCommandSequence()->isActive()
+                            && (!channel->hasInStream() || !channel->acquireInStream()->getSequenceInStream()->isLocked())) {
                         if (rcode->getConfigFailureState() == NULL) {
-                            mostRecent = beginSequenceParse(targetSlot,
-                                    channel);
+                            mostRecent = beginSequenceParse(targetSlot, channel);
                         } else {
                             channel->acquireInStream()->getSequenceInStream()->open();
                             channel->acquireInStream()->getSequenceInStream()->close();
@@ -63,8 +59,7 @@ void RCodeParser::parseNext() {
     }
 }
 
-RCodeCommandSequence* RCodeParser::beginSequenceParse(
-        RCodeCommandSlot *targetSlot, RCodeCommandChannel *channel) {
+RCodeCommandSequence* RCodeParser::beginSequenceParse(RCodeCommandSlot *targetSlot, RCodeCommandChannel *channel) {
 
     RCodeCommandSequence *candidateSequence = channel->getCommandSequence();
     channel->lock();
@@ -89,10 +84,8 @@ RCodeCommandSequence* RCodeParser::beginSequenceParse(
         return NULL;
     }
 }
-void RCodeParser::parse(RCodeCommandSlot *slot,
-        RCodeCommandSequence *sequence) {
-    bool worked = slot->parseSingleCommand(
-            sequence->acquireInStream()->getCommandInStream(), sequence);
+void RCodeParser::parse(RCodeCommandSlot *slot, RCodeCommandSequence *sequence) {
+    bool worked = slot->parseSingleCommand(sequence->acquireInStream()->getCommandInStream(), sequence);
     sequence->addLast(slot);
     if (!worked) {
         sequence->acquireInStream()->close();

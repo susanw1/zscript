@@ -23,13 +23,11 @@ RCodeCommand* RCodeCommandFinder::findCommand(RCodeCommandSlot *slot) {
     } else if (fieldSectionNum == 1) {
         uint8_t rVal = slot->getFields()->get('R', 0xFF);
         for (int i = 0; i < commandNum; i++) {
-            if (commands[i]->getCode() == rVal
-                    && commands[i]->getCodeLength() == 1) {
+            if (commands[i]->getCode() == rVal && commands[i]->getCodeLength() == 1) {
                 return commands[i];
             }
         }
-        rcode->getDebug() << "Unknown command: R" << RCodeDebugOutputMode::hex
-                << rVal << "\n";
+        rcode->getDebug() << "Unknown command: R" << RCodeDebugOutputMode::hex << rVal << "\n";
         return NULL;
     } else if (RCodeParameters::hasMultiByteCommands) {
         RCodeFieldMap *map = slot->getFields();
@@ -38,8 +36,7 @@ RCodeCommand* RCodeCommandFinder::findCommand(RCodeCommandSlot *slot) {
             code[i] = map->get('R', i, 0xFF);
         }
         for (int i = 0; i < commandNum; i++) {
-            if (commands[i]->getCodeLength() == fieldSectionNum
-                    && commands[i]->matchesCode(code, fieldSectionNum)) {
+            if (commands[i]->getCodeLength() == fieldSectionNum && commands[i]->matchesCode(code, fieldSectionNum)) {
                 return commands[i];
             }
         }

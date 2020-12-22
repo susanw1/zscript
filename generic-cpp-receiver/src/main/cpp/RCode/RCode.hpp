@@ -41,14 +41,12 @@ private:
 public:
     RCode(
 #ifdef NOTIFICATIONS
-            RCodeBusInterruptSource *interruptSources,
-            uint8_t interruptSourceNum
+            RCodeBusInterruptSource *interruptSources, uint8_t interruptSourceNum
 #endif
             ) :
             parser(this), runner(this),
 #ifdef NOTIFICATIONS
-                    notificationManager(this, interruptSources,
-                            interruptSourceNum), space(&notificationManager),
+                    notificationManager(this, interruptSources, interruptSourceNum), space(&notificationManager),
 #endif
                     finder(this), debug() {
     }

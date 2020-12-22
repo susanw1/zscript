@@ -32,10 +32,6 @@ public class RCodeActivateCommand implements RCodeCommand {
     }
 
     @Override
-    public void finish(RCodeCommandSlot slot, RCodeOutStream out) {
-    }
-
-    @Override
     public void setLocks(RCodeLockSet locks) {
     }
 

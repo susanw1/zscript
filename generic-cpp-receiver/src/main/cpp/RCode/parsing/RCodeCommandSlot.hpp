@@ -21,6 +21,7 @@ class RCodeParser;
 struct RCodeCommandSlotStatus {
     bool parsed :1;
     bool complete :1;
+    bool needsMoveAlong :1;
     bool started :1;
     bool usesBigBig :1;
     bool hasCheckedCommand :1;
@@ -60,6 +61,7 @@ public:
     RCodeCommandSlot() {
         slotStatus.parsed = false;
         slotStatus.started = false;
+        slotStatus.needsMoveAlong = false;
         slotStatus.complete = false;
         slotStatus.hasCheckedCommand = false;
         slotStatus.usesBigBig = false;
@@ -73,6 +75,7 @@ public:
         slotStatus.started = false;
         slotStatus.complete = false;
         slotStatus.hasCheckedCommand = false;
+        slotStatus.needsMoveAlong = false;
         if (RCodeParameters::bigBigFieldLength > 0 && slotStatus.usesBigBig) {
             bigBig->reset();
         }
@@ -93,6 +96,12 @@ public:
     }
     void setComplete(bool complete) {
         this->slotStatus.complete = complete;
+    }
+    bool needsMoveAlong() const {
+        return slotStatus.needsMoveAlong;
+    }
+    void setNeedsMoveAlong(bool needsMoveAlong) {
+        this->slotStatus.needsMoveAlong = needsMoveAlong;
     }
     RCodeFieldMap* getFields() {
         return &map;

@@ -28,11 +28,7 @@ public:
         activated = false;
     }
 
-    void finish(RCodeCommandSlot *rCodeCommandSlot, RCodeOutStream *out) const {
-    }
-
-    void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
-            RCodeOutStream *out);
+    void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence, RCodeOutStream *out);
 
     void setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
     }

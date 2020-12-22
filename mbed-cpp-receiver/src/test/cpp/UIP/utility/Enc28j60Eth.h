@@ -33,50 +33,49 @@
 
 //#define ENC28J60DEBUG
 
-class Enc28j60Eth : public MemPool
-{
+class Enc28j60Eth: public MemPool {
 private:
-    SPI             _spi;
-    DigitalOut      _cs;
+    SPI _spi;
+    DigitalOut _cs;
     static uint16_t nextPacketPtr;
-    static uint8_t  bank;
+    static uint8_t bank;
 
-    static struct memblock  receivePkt;
+    static struct memblock receivePkt;
 
-    uint16_t    setReadPtr(memhandle handle, memaddress position, uint16_t len);
-    void        setERXRDPT();
-    void        readBuffer(uint16_t len, uint8_t* data);
-    void        writeBuffer(uint16_t len, uint8_t* data);
-    void        setBank(uint8_t address);
-    uint8_t     readReg(uint8_t address);
-    void        writeReg(uint8_t address, uint8_t data);
-    void        phyWrite(uint8_t address, uint16_t data);
-    uint16_t    phyRead(uint8_t address);
-    void        clkout(uint8_t clk);
+    uint16_t setReadPtr(memhandle handle, memaddress position, uint16_t len);
+    void setERXRDPT();
+    void readBuffer(uint16_t len, uint8_t *data);
+    void writeBuffer(uint16_t len, uint8_t *data);
+    void setBank(uint8_t address);
+    uint8_t readReg(uint8_t address);
+    void writeReg(uint8_t address, uint8_t data);
+    void phyWrite(uint8_t address, uint16_t data);
+    uint16_t phyRead(uint8_t address);
+    void clkout(uint8_t clk);
 
     friend void enc28j60_mempool_block_move_callback(memaddress, memaddress, memaddress);
 public:
     Enc28j60Eth(PinName mosi, PinName miso, PinName sclk, PinName cs);
-    uint8_t     getrev();
-    void        powerOn();
-    void        powerOff();
-    bool        linkStatus();
+    uint8_t getrev();
+    void powerOn();
+    void powerOff();
+    bool linkStatus();
 
-    void        init(uint8_t* macaddr);
-    memhandle   receivePacket();
-    void        freePacket();
-    size_t      blockSize(memhandle handle);
-    void        sendPacket(memhandle handle);
-    uint16_t    readPacket(memhandle handle, memaddress position, uint8_t* buffer, uint16_t len);
-    uint16_t    writePacket(memhandle handle, memaddress position, uint8_t* buffer, uint16_t len);
-    void        copyPacket(memhandle dest, memaddress dest_pos, memhandle src, memaddress src_pos, uint16_t len);
-    uint16_t    chksum(uint16_t sum, memhandle handle, memaddress pos, uint16_t len);
+    void init(uint8_t *macaddr);
+    memhandle receivePacket();
+    void freePacket();
+    size_t blockSize(memhandle handle);
+    void sendPacket(memhandle handle);
+    uint16_t readPacket(memhandle handle, memaddress position, uint8_t *buffer, uint16_t len);
+    uint16_t writePacket(memhandle handle, memaddress position, uint8_t *buffer, uint16_t len);
+    void copyPacket(memhandle dest, memaddress dest_pos, memhandle src, memaddress src_pos, uint16_t len);
+    uint16_t chksum(uint16_t sum, memhandle handle, memaddress pos, uint16_t len);
 
-    uint8_t     readOp(uint8_t op, uint8_t address);
-    uint8_t     readByte(uint16_t addr);
-    void        writeOp(uint8_t op, uint8_t address, uint8_t data);
-    void        writeRegPair(uint8_t address, uint16_t data);
-    void        writeByte(uint16_t addr, uint8_t data);
+    uint8_t readOp(uint8_t op, uint8_t address);
+    uint8_t readByte(uint16_t addr);
+    void writeOp(uint8_t op, uint8_t address, uint8_t data);
+    void writeRegPair(uint8_t address, uint16_t data);
+    void writeByte(uint16_t addr, uint8_t data);
 };
 
 #endif

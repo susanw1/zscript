@@ -16,10 +16,6 @@ private:
     const uint8_t code = 0x01;
 public:
 
-    virtual void finish(RCodeCommandSlot *rCodeCommandSlot,
-            RCodeOutStream *out) const {
-    }
-
     virtual void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
             RCodeOutStream *out);
 

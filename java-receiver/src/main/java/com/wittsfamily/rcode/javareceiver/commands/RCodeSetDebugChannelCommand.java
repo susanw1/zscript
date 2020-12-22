@@ -15,10 +15,6 @@ public class RCodeSetDebugChannelCommand implements RCodeCommand {
     }
 
     @Override
-    public void finish(RCodeCommandSlot rCodeCommandSlot, RCodeOutStream out) {
-    }
-
-    @Override
     public void execute(RCodeCommandSlot slot, RCodeCommandSequence sequence, RCodeOutStream out) {
         rcode.getDebug().setDebugChannel(sequence.getChannel());
         rcode.getDebug().println("Debug channel set...");

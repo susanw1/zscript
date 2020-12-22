@@ -66,10 +66,16 @@ public class RCodeRunner {
         RCodeCommandSequence current = null;
         int targetInd = 0;
         for (; targetInd < parallelNum; targetInd++) {
-            if (!running[targetInd].hasParsed() || running[targetInd].peekFirst().isComplete() || !running[targetInd].peekFirst().isStarted()) {
+            if (!running[targetInd].hasParsed() || running[targetInd].peekFirst().isComplete() || running[targetInd].peekFirst().needsMoveAlong()
+                    || !running[targetInd].peekFirst().isStarted()) {
                 current = running[targetInd];
                 break;
             }
+        }
+        if (current != null && current.peekFirst().needsMoveAlong()) {
+            current.peekFirst().setNeedsMoveAlong(false);
+            current.peekFirst().getCommand().moveAlong(current.peekFirst());
+            current = null;
         }
         if (current != null && (!current.hasParsed() || current.peekFirst().isComplete())) {
             if (finishRunning(current, targetInd)) {

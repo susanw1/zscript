@@ -9,44 +9,73 @@
 #define SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CPHYSICALBUS_HPP_
 #include "../RCodeIncludes.hpp"
 #include "RCodeParameters.hpp"
-#include "I2C.h"
-#include "Callback.h"
-
-#ifndef USE_I2C_STATIC_READ_BUFFERS
+#include "../LowLevel/I2cLowLevel/I2c.hpp"
 #include <mbed.h>
-#endif
+
+class RCodeI2cPhysicalBus;
+class RCodeCommandSlot;
+class RCodeI2cSubsystem;
 
 class RCodeI2cPhysicalBus {
 private:
-    mbed::I2C i2c;
+    I2c *i2c;
 #ifdef USE_I2C_STATIC_READ_BUFFERS
     uint8_t readBuffer[RCodeI2cParameters::i2cReadMaximum];
 #else
     uint8_t *readBuffer = NULL;
 #endif
+    RCodeCommandSlot *callbackSlot = NULL;
+    void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t) = NULL;
+    I2cTerminationStatus status;
+    uint8_t callbackData = 0;
+    uint8_t currentBus = 0;
+
+    friend RCodeI2cSubsystem;
 public:
-    RCodeI2cPhysicalBus(PinName sda, PinName scl) :
-            i2c(sda, scl) {
+    RCodeI2cPhysicalBus(I2c *i2c) :
+            i2c(i2c), status(Complete) {
+        i2c->init();
     }
-    int8_t transfer(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen,
-            uint8_t rxLen, mbed::Callback<void(int)> callback, bool repeat) {
-#ifndef USE_I2C_STATIC_READ_BUFFERS
-        readBuffer = (uint8_t*) malloc(rxLen);
-#endif
-        return i2c.transfer(addr, (const char*) txBuffer, txLen,
-                (char*) readBuffer, rxLen, callback, I2C_EVENT_ALL, repeat);
-    }
+    void asyncTransmit(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, RCodeCommandSlot *callbackSlot,
+            void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t), uint8_t callbackData);
+
+    void asyncReceive(uint16_t addr, uint8_t rxLen, RCodeCommandSlot *callbackSlot, void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t),
+            uint8_t callbackData);
+
+    void asyncTransmitReceive(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, uint8_t rxLen, RCodeCommandSlot *callbackSlot,
+            void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t), uint8_t callbackData);
+
     uint8_t* getReadBuffer() {
         return readBuffer;
     }
     void freeReadBuffer() {
 #ifndef USE_I2C_STATIC_READ_BUFFERS
-        free(readBuffer);
+        if (readBuffer != NULL) {
+            free(readBuffer);
+            readBuffer = NULL;
+        }
 #endif
     }
-    void setFrequency(int hz) {
-        i2c.frequency(hz);
+    void setFrequency(I2cFrequency freq) {
+        i2c->setFrequency(freq);
+    }
+    void activateSwitchedBus(uint8_t busNum) {
+        if (busNum == currentBus) {
+            return;
+        } else {
+            //TODO: implement bus switching
+        }
+    }
+    I2cTerminationStatus getStatus() {
+        return status;
+    }
+    uint8_t getCallbackData() {
+        return callbackData;
+    }
+    I2c* getI2c() {
+        return i2c;
     }
 };
+#include "RCodeI2cSubsystem.hpp"
 
 #endif /* SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CPHYSICALBUS_HPP_ */

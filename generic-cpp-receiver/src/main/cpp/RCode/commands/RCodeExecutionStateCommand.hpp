@@ -22,9 +22,6 @@ public:
             space(space) {
 
     }
-    virtual void finish(RCodeCommandSlot *rCodeCommandSlot,
-            RCodeOutStream *out) const {
-    }
 
     virtual void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
             RCodeOutStream *out);
