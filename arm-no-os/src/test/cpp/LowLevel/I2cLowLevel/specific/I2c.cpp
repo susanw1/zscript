@@ -5,7 +5,8 @@
  *      Author: robert
  */
 
-#include "../../I2cLowLevel/I2c.hpp"
+#include "../I2c.hpp"
+#include "../../ClocksLowLevel/ClockManager.hpp"
 
 bool I2c::init() {
     state.hasRx = false;
@@ -29,15 +30,19 @@ bool I2c::init() {
 }
 
 void I2c::setFrequency(I2cFrequency freq) {
-    // Assumes 64MHz input clock
+    // Always uses PCLK_1
     if (freq == kHz10) {
-        i2c.getRegisters()->TIMINGR = 0xF042C3C7;
+        uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(4000) - 1;
+        i2c.getRegisters()->TIMINGR = 0x0042C3C7 | (scale << 28);
     } else if (freq == kHz100) {
-        i2c.getRegisters()->TIMINGR = 0xF0420F13;
+        uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(4000) - 1;
+        i2c.getRegisters()->TIMINGR = 0x00420F13 | (scale << 28);
     } else if (freq == kHz400) {
-        i2c.getRegisters()->TIMINGR = 0x70330309;
+        uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(8000) - 1;
+        i2c.getRegisters()->TIMINGR = 0x00330309 | (scale << 28);
     } else if (freq == kHz1000) {
-        i2c.getRegisters()->TIMINGR = 0x70100103;
+        uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(8000) - 1;
+        i2c.getRegisters()->TIMINGR = 0x00100103 | (scale << 28);
     }
 }
 

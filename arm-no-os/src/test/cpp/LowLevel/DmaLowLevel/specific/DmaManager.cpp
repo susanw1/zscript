@@ -6,11 +6,8 @@
  */
 
 #include "../../DmaLowLevel/DmaManager.hpp"
-
-#include "cmsis.h"
-#include "pinmap.h"
-#include "PeripheralPins.h"
-
+#include "stm32g484xx.h"
+#include "core_cm4.h"
 Dma DmaManager::dmas[] = { Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma() };
 
 class DmaInterruptManager {
@@ -94,29 +91,29 @@ DmaChannelInternal createChannelInternalFromId(DmaIdentifier id) {
     }
 }
 void DmaManager::init() {
-    __HAL_RCC_DMA1_CLK_ENABLE();
-    __HAL_RCC_DMA2_CLK_ENABLE();
+    //__HAL_RCC_DMA1_CLK_ENABLE();
+    //__HAL_RCC_DMA2_CLK_ENABLE();
 
     for (int i = 0; i < GeneralHalSetup::dmaCount; ++i) {
         dmas[i].setDma(createChannelInternalFromId(i));
     }
 
-    NVIC_SetVector(DMA1_Channel1_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA1CH1);
-    NVIC_SetVector(DMA1_Channel2_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA1CH2);
-    NVIC_SetVector(DMA1_Channel3_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA1CH3);
-    NVIC_SetVector(DMA1_Channel4_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA1CH4);
-    NVIC_SetVector(DMA1_Channel5_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA1CH5);
-    NVIC_SetVector(DMA1_Channel6_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA1CH6);
-    NVIC_SetVector(DMA1_Channel7_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA1CH7);
-    NVIC_SetVector(DMA1_Channel8_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA1CH8);
+    NVIC_SetVector(DMA1_Channel1_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA1CH1);
+    NVIC_SetVector(DMA1_Channel2_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA1CH2);
+    NVIC_SetVector(DMA1_Channel3_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA1CH3);
+    NVIC_SetVector(DMA1_Channel4_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA1CH4);
+    NVIC_SetVector(DMA1_Channel5_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA1CH5);
+    NVIC_SetVector(DMA1_Channel6_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA1CH6);
+    NVIC_SetVector(DMA1_Channel7_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA1CH7);
+    NVIC_SetVector(DMA1_Channel8_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA1CH8);
 
-    NVIC_SetVector(DMA2_Channel1_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA2CH1);
-    NVIC_SetVector(DMA2_Channel2_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA2CH2);
-    NVIC_SetVector(DMA2_Channel3_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA2CH3);
-    NVIC_SetVector(DMA2_Channel4_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA2CH4);
-    NVIC_SetVector(DMA2_Channel5_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA2CH5);
-    NVIC_SetVector(DMA2_Channel6_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA2CH6);
-    NVIC_SetVector(DMA2_Channel7_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA2CH7);
-    NVIC_SetVector(DMA2_Channel8_IRQn, (uint32_t) &DmaInterruptManager::IRQDMA2CH8);
+    NVIC_SetVector(DMA2_Channel1_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA2CH1);
+    NVIC_SetVector(DMA2_Channel2_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA2CH2);
+    NVIC_SetVector(DMA2_Channel3_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA2CH3);
+    NVIC_SetVector(DMA2_Channel4_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA2CH4);
+    NVIC_SetVector(DMA2_Channel5_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA2CH5);
+    NVIC_SetVector(DMA2_Channel6_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA2CH6);
+    NVIC_SetVector(DMA2_Channel7_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA2CH7);
+    NVIC_SetVector(DMA2_Channel8_IRQn, (uint32_t) & DmaInterruptManager::IRQDMA2CH8);
 }
 

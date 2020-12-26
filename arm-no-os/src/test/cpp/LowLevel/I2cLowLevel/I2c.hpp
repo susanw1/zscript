@@ -7,7 +7,7 @@
 
 #ifndef SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2C_HPP_
 #define SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2C_HPP_
-#include "..//GeneralHalSetup.hpp"
+#include "../GeneralHalSetup.hpp"
 #include "specific/I2cInternal.hpp"
 #include "../DmaLowLevel/Dma.hpp"
 #include "../DmaLowLevel/DmaManager.hpp"

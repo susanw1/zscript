@@ -9,10 +9,6 @@
 #define SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2CINTERNAL_HPP_
 #include "../../GeneralHalSetup.hpp"
 #include "../../I2cLowLevel/specific/I2cRegisters.hpp"
-#include "drivers/DigitalInOut.h"
-#include "PinNamesTypes.h"
-#include "platform/mbed_wait_api.h"
-#include "cmsis.h"
 
 struct I2cState {
     uint16_t repeatCount :10;

@@ -3,11 +3,14 @@
 # Kevin Cuzner
 #
 
-PROJECT = blink
+PROJECT = no-os
 
 # Project Structure
-SRCDIR = src/test/cpp/blink-NoI2C
+LLDIR = src/test/cpp/LowLevel/GpioLowLevel
+LLDIR2 = src/test/cpp/LowLevel/ClocksLowLevel
+SRCDIR = src/test/cpp/main
 COMDIR = src/test/cpp/common
+RCODEDIR = ../generic-cpp-receiver/src/main/cpp/RCode
 BINDIR = bin
 OBJDIR = obj
 INCDIR = src/test/cpp/include
@@ -20,12 +23,12 @@ DEVICE_FAMILY = STM32G484xx
 DEVICE = STM32G484RE
 
 # Sources
-CSRC = $(wildcard $(SRCDIR)/*.c) $(wildcard $(COMDIR)/*.c)
-CPPSRC = $(wildcard $(SRCDIR)/*.cpp) $(wildcard $(COMDIR)/*.cpp)
+CSRC = $(wildcard $(SRCDIR)/*.c) $(wildcard $(COMDIR)/*.c) #$(wildcard $(RCODEDIR)/*.c)
+CPPSRC = $(wildcard $(SRCDIR)/*.cpp) $(wildcard $(COMDIR)/*.cpp) $(wildcard $(LLDIR)/*.cpp) $(wildcard $(LLDIR)/*/*.cpp) $(wildcard $(LLDIR)/*/*/*.cpp)  $(wildcard $(LLDIR2)/*.cpp) $(wildcard $(LLDIR2)/*/*.cpp) $(wildcard $(LLDIR2)/*/*/*.cpp)#$(wildcard $(RCODEDIR)/*.cpp)
 ASM = $(wildcard $(SRCDIR)/*.s) $(wildcard $(COMDIR)/*.s)
 
 # Include directories
-INCLUDE  = -I$(INCDIR) -I$(INCDIR)/Core -I$(INCDIR)/STM32G4xx
+INCLUDE  = -I$(INCDIR) -I$(INCDIR)/Core -I$(INCDIR)/STM32G4xx -I$(RCODEDIR)/ $(wildcard -I$(RCODEDIR)/*/) -I$(SRCDIR)
 
 # Linker 
 #LSCRIPT = STM32F103X8_FLASH.ld
@@ -90,6 +93,36 @@ clean:
 	$(RM) $(OBJDIR)
 
 # Compilation
+$(OBJDIR)/%.o: $(LLDIR)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(GCFLAGS) -c $< -o $@
+	
+$(OBJDIR)/%.o: $(LLDIR)/*/%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(GCFLAGS) -c $< -o $@
+	
+$(OBJDIR)/%.o: $(LLDIR)/*/*/%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(GCFLAGS) -c $< -o $@
+	
+	
+$(OBJDIR)/%.o: $(LLDIR2)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(GCFLAGS) -c $< -o $@
+	
+$(OBJDIR)/%.o: $(LLDIR2)/*/%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(GCFLAGS) -c $< -o $@
+	
+$(OBJDIR)/%.o: $(LLDIR2)/*/*/%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(GCFLAGS) -c $< -o $@
+	
+		
+$(OBJDIR)/%.o: $(RCODEDIR)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(GCFLAGS) -c $< -o $@
+
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CC) $(GCFLAGS) -c $< -o $@

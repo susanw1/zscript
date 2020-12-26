@@ -46,7 +46,7 @@ public:
     }
 }
 ;
-#include "RCodeCommandSlot.hpp"
+#include "parsing/RCodeCommandSlot.hpp"
 #include "RCodeOutStream.hpp"
 #include "RCodeLockSet.hpp"
 

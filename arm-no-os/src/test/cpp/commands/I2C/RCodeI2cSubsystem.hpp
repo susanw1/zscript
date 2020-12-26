@@ -7,12 +7,11 @@
 
 #ifndef SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CSUBSYSTEM_HPP_
 #define SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CSUBSYSTEM_HPP_
-#include "../RCodeIncludes.hpp"
+#include "RCodeIncludes.hpp"
 #include "RCodeParameters.hpp"
 #include "RCodeI2cPhysicalBus.hpp"
 #include "RCodeI2cBus.hpp"
 #include "../LowLevel/I2cLowLevel/I2cManager.hpp"
-#include <mbed.h>
 
 void i2cSubsystemCallback(I2c *i2c, I2cTerminationStatus status);
 

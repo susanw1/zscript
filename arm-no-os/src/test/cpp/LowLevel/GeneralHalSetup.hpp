@@ -9,7 +9,8 @@
 #define SRC_TEST_CPP_COMMANDS_LOWLEVEL_GENERALHALSETUP_HPP_
 #include <stdint.h>
 #include <stdlib.h>
-#include "drivers/DigitalInOut.h"
+#include "stm32g4xx.h"
+#include "stm32g484xx.h"
 
 typedef uint8_t DmaIdentifier;
 typedef uint8_t I2cIdentifier;
@@ -33,7 +34,12 @@ typedef uint8_t PinAlternateFunction;
 
 class GeneralHalSetup {
 public:
-    static const DmaIdentifier i2cCount = 4;
+
+    static const uint8_t pinCount = 52;
+
+    static const uint8_t systemClockCount = 13;
+
+    static const I2cIdentifier i2cCount = 4;
     static const DmaIdentifier dmaCount = 16;
 
     static const DmaIdentifier i2c1Dma = 0;

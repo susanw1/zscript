@@ -21,19 +21,21 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#include <mbed.h>
-#include "UipEthernet.h"
-#include "RCode.hpp"
-#include "commands/RCodeActivateCommand.hpp"
-#include "commands/RCodeSetDebugChannelCommand.hpp"
-#include "commands/RCodeEchoCommand.hpp"
-#include "commands/RCodeExecutionStateCommand.hpp"
-#include "commands/RCodeExecutionCommand.hpp"
-#include "commands/RCodeExecutionStoreCommand.hpp"
-#include "commands/RCodeNotificationHostCommand.hpp"
-#include "commands/RCodeCapabilitiesCommand.hpp"
-#include "executionspace/RCodeExecutionSpaceChannel.hpp"
-#include "../commands/RCodeIdentifyCommand.hpp"
+#include "stm32g4xx.h"
+#include "stm32g484xx.h"
+
+//#include "RCode.hpp"
+//#include "commands/RCodeActivateCommand.hpp"
+//#include "commands/RCodeSetDebugChannelCommand.hpp"
+//#include "commands/RCodeEchoCommand.hpp"
+//#include "commands/RCodeExecutionStateCommand.hpp"
+//#include "commands/RCodeExecutionCommand.hpp"
+//#include "commands/RCodeExecutionStoreCommand.hpp"
+//#include "commands/RCodeNotificationHostCommand.hpp"
+//#include "commands/RCodeCapabilitiesCommand.hpp"
+//#include "executionspace/RCodeExecutionSpaceChannel.hpp"
+//#include "../commands/RCodeIdentifyCommand.hpp"
+
 //#include "../commands/persistence/RCodeFetchGiudCommand.hpp"
 //#include "../commands/persistence/RCodePersistentFetchCommand.hpp"
 //#include "../commands/persistence/RCodePersistentStoreCommand.hpp"
@@ -44,9 +46,54 @@
 //#include "../commands/I2C/RCodeI2cSetupCommand.hpp"
 //#include "../commands/I2C/RCodeI2cSendCommand.hpp"
 
-#include "UipUdpCommandChannel.hpp"
+#include "../LowLevel/GpioLowLevel/GpioManager.hpp"
+#include "../LowLevel/GpioLowLevel/Gpio.hpp"
+
+#include "../LowLevel/ClocksLowLevel/ClockManager.hpp"
+#include "../LowLevel/ClocksLowLevel/Clock.hpp"
 
 int main(void) {
+    ClockManager::getClock(VCO)->set(300000, HSI);
+    ClockManager::getClock(PLL_R)->set(150000, VCO);
+    ClockManager::getClock(SysClock)->set(150000, PLL_R);
+    ClockManager::getClock(HCLK)->set(150000, SysClock);
+    ClockManager::getClock(PCLK_1)->set(64000, HCLK);
+    GpioManager::init();
+    GpioPin *c4 = GpioManager::getPin(PC_4);
+    c4->init();
+    c4->setOutputMode(PushPull);
+    c4->setPullMode(NoPull);
+    c4->setOutputSpeed(MediumSpeed);
+    c4->setMode(Output);
+    c4->set();
+    GpioPin *c8 = GpioManager::getPin(PC_8);
+    c8->init();
+    c8->setPullMode(PullDown);
+    c8->setMode(Input);
+
+    uint32_t time = 0x100000;
+    while (true) {
+        if (c8->read()) {
+            time = 0x80000;
+        } else {
+            time = 0x100000;
+        }
+        for (int i = 0; i < time; ++i)
+            ;
+        c4->reset();
+        if (c8->read()) {
+            time = 0x80000;
+        } else {
+            time = 0x100000;
+        }
+        for (int i = 0; i < time; ++i)
+            ;
+        c4->set();
+//        r.progressRCode();
+//        uip.tick();
+//        uip.dhcpClient.checkLease();
+    }
+}
 //    wait_us(5000000);
 //    uint8_t mac[] = { 0x1E, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 //    UipEthernet uip(mac, PA_7, PA_6, PA_5, PA_4);
@@ -98,10 +145,4 @@ int main(void) {
 
 //    r.getCommandFinder()->registerCommand(&cmd14);
 //    r.getCommandFinder()->registerCommand(&cmd15);
-    while (true) {
-//        r.progressRCode();
-//        uip.tick();
-//        uip.dhcpClient.checkLease();
-    }
-}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

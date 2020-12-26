@@ -7,7 +7,7 @@
 
 #ifndef SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CBUS_HPP_
 #define SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CBUS_HPP_
-#include "../RCodeIncludes.hpp"
+#include "RCodeIncludes.hpp"
 #include "RCodeParameters.hpp"
 
 #include "../LowLevel/I2cLowLevel/I2c.hpp"
