@@ -161,7 +161,7 @@ public:
         target->writeField(f, toWrite);
         while (length != 0) {
             toWrite = 0;
-            for (int i = 0; i < sizeof(fieldUnit); ++i) {
+            for (uint8_t i = 0; i < sizeof(fieldUnit); ++i) {
                 toWrite <<= 8;
                 toWrite += *value++;
                 length--;

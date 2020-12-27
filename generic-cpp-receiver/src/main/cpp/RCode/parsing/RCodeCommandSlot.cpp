@@ -46,7 +46,7 @@ bool RCodeCommandSlot::parseHexField(RCodeCommandInStream *in, char field) {
             return false;
         }
         while (lookahead > 0) {
-            for (int i = 0; i < sizeof(fieldUnit) * 2; i++) {
+            for (uint8_t i = 0; i < sizeof(fieldUnit) * 2; i++) {
                 current <<= 4;
                 current |= getHex(in->read());
             }

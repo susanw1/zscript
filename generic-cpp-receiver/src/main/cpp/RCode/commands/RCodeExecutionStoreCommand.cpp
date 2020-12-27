@@ -13,7 +13,7 @@ void RCodeExecutionStoreCommand::execute(RCodeCommandSlot *slot,
     if (slot->getFields()->has('A')) {
         bool fits = false;
         int fieldSectionNum = slot->getFields()->countFieldSections('A');
-        int effectiveSize = (fieldSectionNum - 1) * sizeof(fieldUnit);
+        uint16_t effectiveSize = (fieldSectionNum - 1) * sizeof(fieldUnit);
         fieldUnit first = slot->getFields()->get('A', 0);
         while (first != 0) {
             first >>= 8;

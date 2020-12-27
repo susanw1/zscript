@@ -372,7 +372,7 @@ RCodeDebugOutput& RCodeDebugOutput::operator <<(int64_t i) {
 
 RCodeDebugOutput& RCodeDebugOutput::operator <<(uint64_t v) {
     if (state.isCharacter) {
-        for (int i = 7; i >= 0; ++i) {
+        for (int i = 7; i >= 0; i--) {
             *this << (char) (v >> (i * 8));
         }
         *this << (char) v;
