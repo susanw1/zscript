@@ -84,10 +84,10 @@ DmaChannelRegisters* getDmaChannelRegistersFromRegisters(DmaRegisters *r, uint8_
 DmaChannelInternal createChannelInternalFromId(DmaIdentifier id) {
     if (id < 8) {
         DmaRegisters *registers = (DmaRegisters*) 0x50000000;
-        return DmaChannelInternal((DmaRegisters*) registers, getDmaChannelRegistersFromRegisters(registers, id), id);
+        return DmaChannelInternal((DmaRegisters*) registers, getDmaChannelRegistersFromRegisters(registers, id), ((uint32_t*) 0x40020800) + id, id);
     } else {
         DmaRegisters *registers = (DmaRegisters*) 0x50000000;
-        return DmaChannelInternal((DmaRegisters*) registers, getDmaChannelRegistersFromRegisters(registers, id - 8), id - 8);
+        return DmaChannelInternal((DmaRegisters*) registers, getDmaChannelRegistersFromRegisters(registers, id - 8), ((uint32_t*) 0x40020800) + id, id - 8);
     }
 }
 void DmaManager::init() {

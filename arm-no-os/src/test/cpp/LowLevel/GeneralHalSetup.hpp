@@ -16,20 +16,20 @@ typedef uint8_t DmaIdentifier;
 typedef uint8_t I2cIdentifier;
 typedef uint8_t PinAlternateFunction;
 
-#define I2C_1_SDA PB_9
-#define I2C_1_SCL PA_15
+#define I2C_1_SDA PB_9_
+#define I2C_1_SCL PA_15_
 #define USE_I2C_1
 
-#define I2C_2_SDA PA_8
-#define I2C_2_SCL PC_4
+#define I2C_2_SDA PA_8_
+#define I2C_2_SCL PC_4_
 #define USE_I2C_2
 
-#define I2C_3_SDA PC_9
-#define I2C_3_SCL PC_8
+#define I2C_3_SDA PC_9_
+#define I2C_3_SCL PC_8_
 #define USE_I2C_3
 
-#define I2C_4_SDA PC_7
-#define I2C_4_SCL PC_6
+#define I2C_4_SDA PC_7_
+#define I2C_4_SCL PC_6_
 #define USE_I2C_4
 
 class GeneralHalSetup {

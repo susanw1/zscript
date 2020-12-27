@@ -26,17 +26,20 @@ uint16_t Dma::fetchRemainingTransferLength() {
 }
 
 void Dma::halt() {
+    channel.setMux(DMAMUX_NO_MUX);
     channel.getChannelRegisters()->CCR &= ~1;
 }
 
 void Dma::resume() {
     channel.getChannelRegisters()->CCR |= 1;
+    channel.setMux(request);
 }
 
-void Dma::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize, const uint8_t *target,
-        bool targetIncrement, uint8_t targetSize, bool memToMem, uint16_t transferLength, uint8_t dir, bool circular, DmaPriority priority,
-        void (*callback)(Dma*, DmaTerminationStatus), bool interruptOnHalf) {
+void Dma::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize, DmaMuxRequest request,
+        const uint8_t *target, bool targetIncrement, uint8_t targetSize, bool memToMem, uint16_t transferLength, uint8_t dir, bool circular,
+        DmaPriority priority, void (*callback)(Dma*, DmaTerminationStatus), bool interruptOnHalf) {
     this->callback = callback;
+
     channel.clearTransferError();
     channel.clearHalfTransferred();
     channel.clearTransferComplete();
@@ -67,5 +70,7 @@ void Dma::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourc
     if (interruptOnHalf) {
         config |= 0x40;
     }
+    this->request = request;
+    channel.setMux(request);
     channel.getChannelRegisters()->CCR = config;
 }

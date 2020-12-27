@@ -7,21 +7,26 @@
 
 #ifndef SRC_TEST_CPP_COMMANDS_NEWHAL_DMANEWHAL_DMACHANNELINTERNAL_HPP_
 #define SRC_TEST_CPP_COMMANDS_NEWHAL_DMANEWHAL_DMACHANNELINTERNAL_HPP_
-#include "../../DmaLowLevel/specific/DmaRegisters.hpp"
+#include "../specific/DmaRegisters.hpp"
 #include "../../GeneralHalSetup.hpp"
+#include "DmaMuxRequest.hpp"
 
 class DmaChannelInternal {
     DmaRegisters *registers;
     DmaChannelRegisters *channelRegs;
+    uint32_t *dmaMux;
     uint8_t channelOffset;
-public:
+    public:
     DmaChannelInternal() :
-            registers(NULL), channelRegs(NULL), channelOffset(0) {
+            registers(NULL), channelRegs(NULL), dmaMux(NULL), channelOffset(0) {
     }
-    DmaChannelInternal(DmaRegisters *registers, DmaChannelRegisters *channelRegs, uint8_t channelOffset) :
-            registers(registers), channelRegs(channelRegs), channelOffset(channelOffset) {
+    DmaChannelInternal(DmaRegisters *registers, DmaChannelRegisters *channelRegs, uint32_t *dmaMux, uint8_t channelOffset) :
+            registers(registers), channelRegs(channelRegs), dmaMux(dmaMux), channelOffset(channelOffset) {
     }
-
+    void setMux(DmaMuxRequest mux) {
+        *dmaMux &= ~0x7F;
+        *dmaMux |= mux;
+    }
     void operator=(const DmaChannelInternal &i) {
         registers = i.registers;
         channelRegs = i.channelRegs;

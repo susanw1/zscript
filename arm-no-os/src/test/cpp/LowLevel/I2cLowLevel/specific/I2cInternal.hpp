@@ -8,7 +8,9 @@
 #ifndef SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2CINTERNAL_HPP_
 #define SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2CINTERNAL_HPP_
 #include "../../GeneralHalSetup.hpp"
-#include "../../I2cLowLevel/specific/I2cRegisters.hpp"
+#include "../../GpioLowLevel/Gpio.hpp"
+#include "../../GpioLowLevel/GpioManager.hpp"
+#include "../specific/I2cRegisters.hpp"
 
 struct I2cState {
     uint16_t repeatCount :10;
@@ -19,16 +21,16 @@ struct I2cState {
 };
 class I2cInternal {
 private:
-    PinName sda;
+    GpioPinName sda;
     PinAlternateFunction sdaFunction;
-    PinName scl;
+    GpioPinName scl;
     PinAlternateFunction sclFunction;
     I2cRegisters *registers;
-public:
+    public:
     I2cInternal() :
             sda(PA_1), sdaFunction(0), scl(PA_1), sclFunction(0), registers(NULL) {
     }
-    I2cInternal(PinName sda, PinAlternateFunction sdaFunction, PinName scl, PinAlternateFunction sclFunction, I2cRegisters *registers) :
+    I2cInternal(GpioPinName sda, PinAlternateFunction sdaFunction, GpioPinName scl, PinAlternateFunction sclFunction, I2cRegisters *registers) :
             sda(sda), sdaFunction(sdaFunction), scl(scl), sclFunction(sclFunction), registers(registers) {
     }
     void operator=(const I2cInternal &other) {

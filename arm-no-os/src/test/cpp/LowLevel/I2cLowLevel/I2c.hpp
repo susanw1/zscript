@@ -8,6 +8,8 @@
 #ifndef SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2C_HPP_
 #define SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2C_HPP_
 #include "../GeneralHalSetup.hpp"
+#include "../GpioLowLevel/Gpio.hpp"
+#include "../GpioLowLevel/GpioManager.hpp"
 #include "specific/I2cInternal.hpp"
 #include "../DmaLowLevel/Dma.hpp"
 #include "../DmaLowLevel/DmaManager.hpp"
@@ -28,6 +30,8 @@ private:
     I2cInternal i2c;
     I2cIdentifier id;
     Dma *dma = DmaManager::getDmaById(0);
+    DmaMuxRequest requestTx = DMAMUX_NO_MUX;
+    DmaMuxRequest requestRx = DMAMUX_NO_MUX;
     bool lockBool = false;
     uint16_t address = 0;
     uint16_t txLen = 0;
@@ -47,9 +51,11 @@ private:
 
     void restartReceive();
 
-    void setI2c(I2cInternal i2c, I2cIdentifier id) {
+    void setI2c(I2cInternal i2c, I2cIdentifier id, DmaMuxRequest requestTx, DmaMuxRequest requestRx) {
         this->i2c = i2c;
         this->id = id;
+        this->requestTx = requestTx;
+        this->requestRx = requestRx;
     }
 public:
     bool init();

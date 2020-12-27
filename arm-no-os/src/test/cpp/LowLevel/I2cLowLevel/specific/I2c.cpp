@@ -198,7 +198,7 @@ void I2c::asyncTransmit(uint16_t address, const uint8_t *txData, uint16_t txLen,
     this->txLen = txLen;
     this->address = address;
     if (txLen != 0) {
-        dma->peripheralWrite(txData, true, (uint8_t*) &i2c.getRegisters()->TXDR, false, txLen + 1, false, Medium, &I2cDmaCallback, false);
+        dma->peripheralWrite(requestTx, txData, true, (uint8_t*) &i2c.getRegisters()->TXDR, false, txLen + 1, false, Medium, &I2cDmaCallback, false);
     }
     uint32_t cr2r = 0x00003000; //we always want to start, and want 10 bit addressing to be done properly
     cr2r |= 0x02000000; // set autoend
@@ -243,7 +243,7 @@ void I2c::asyncReceive(uint16_t address, uint8_t *rxData, uint16_t rxLen, void (
     this->rxData = rxData;
     this->rxLen = rxLen;
     this->address = address;
-    dma->peripheralRead((uint8_t*) &i2c.getRegisters()->RXDR, false, rxData, true, rxLen + 1, false, Medium, &I2cDmaCallback, false);
+    dma->peripheralRead(requestRx, (uint8_t*) &i2c.getRegisters()->RXDR, false, rxData, true, rxLen + 1, false, Medium, &I2cDmaCallback, false);
     uint32_t cr2r = 0x00003400; //we always want to start, and want 10 bit addressing to be done properly, and we want to read
     cr2r |= 0x02000000; // set autoend
     if (address > 255) {
@@ -289,7 +289,7 @@ void I2c::asyncTransmitReceive(uint16_t address, const uint8_t *txData, uint16_t
     this->txLen = txLen;
     this->address = address;
     if (txLen != 0) {
-        dma->peripheralWrite(txData, true, (uint8_t*) &i2c.getRegisters()->TXDR, false, txLen + 1, false, Medium, &I2cDmaCallback, false);
+        dma->peripheralWrite(requestTx, txData, true, (uint8_t*) &i2c.getRegisters()->TXDR, false, txLen + 1, false, Medium, &I2cDmaCallback, false);
     }
     uint32_t cr2r = 0x00003000; //we always want to start, and want 10 bit addressing to be done properly
     // Do not set auto-end
@@ -338,7 +338,7 @@ void I2c::restartReceive() {
     this->callback = callback;
     state.repeatCount = 0;
     state.txDone = true;
-    dma->peripheralRead((uint8_t*) &i2c.getRegisters()->RXDR, false, rxData, true, rxLen + 1, false, Medium, &I2cDmaCallback, false);
+    dma->peripheralRead(requestRx, (uint8_t*) &i2c.getRegisters()->RXDR, false, rxData, true, rxLen + 1, false, Medium, &I2cDmaCallback, false);
     uint32_t cr2r = 0x00003400; //we always want to start, and want 10 bit addressing to be done properly, and we want to read
     cr2r |= 0x02000000; // set autoend
     if (address > 255) {

@@ -9,47 +9,56 @@
 
 void I2cInternal::activateClock(I2cIdentifier id) {
     if (id == 0) {
-        __HAL_RCC_I2C1_CLK_ENABLE();
+        RCC->APB1ENR1 |= 0x00200000;
     } else if (id == 0) {
-        __HAL_RCC_I2C2_CLK_ENABLE();
+        RCC->APB1ENR1 |= 0x00400000;
     } else if (id == 0) {
-        __HAL_RCC_I2C3_CLK_ENABLE();
+        RCC->APB1ENR1 |= 0x40000000;
     } else {
-        __HAL_RCC_I2C4_CLK_ENABLE();
+        RCC->APB1ENR2 |= 0x00000002;
     }
 }
+
 void I2cInternal::activatePins() {
-    // the constants are used by mbed: speed max, no pull up/down, open drain, alternate function
-    pin_function(sda, (((uint32_t) sdaFunction) << 10) | 0x000003CA);
-    pin_function(scl, (((uint32_t) sclFunction) << 10) | 0x000003CA);
+    GpioManager::getPin(scl)->setPullMode(NoPull);
+    GpioManager::getPin(scl)->setOutputMode(OpenDrain);
+    GpioManager::getPin(scl)->setAlternateFunction(sclFunction);
+    GpioManager::getPin(scl)->setOutputSpeed(VeryHighSpeed);
+    GpioManager::getPin(scl)->setMode(AlternateFunction);
+    GpioManager::getPin(sda)->setPullMode(NoPull);
+    GpioManager::getPin(sda)->setOutputMode(OpenDrain);
+    GpioManager::getPin(sda)->setAlternateFunction(sdaFunction);
+    GpioManager::getPin(sda)->setOutputSpeed(VeryHighSpeed);
+    GpioManager::getPin(sda)->setMode(AlternateFunction);
 }
 bool I2cInternal::recoverSdaJam() {
     int attempts = 18;
-    mbed::DigitalInOut pin_sda(sda, PIN_INPUT, OpenDrain, 1);
-    mbed::DigitalInOut pin_scl(scl, PIN_INPUT, OpenDrain, 1);
-    pin_sda.input();
-    pin_scl.input();
-    if (pin_sda == 1) {
+    GpioPin *sdaPin = GpioManager::getPin(sda);
+    GpioPin *sclPin = GpioManager::getPin(scl);
+    sdaPin->setMode(Output);
+    sclPin->setMode(Output);
+    if (sdaPin->read()) {
         return true;
     }
-    pin_scl = 1;
-    wait_us(100);
-    if (pin_scl == 0) {
+    sclPin->set();
+    for (int i = 0; i < 0x1000; ++i)
+        ;
+    if (!sclPin->read()) {
         return false;
     }
-    pin_scl.output();
-    pin_sda.input();
-    while (pin_sda == 0 && attempts > 0) {
-        pin_scl = 1;
-        wait_us(100);
-        pin_scl = 0;
-        wait_us(100);
+    while (!sdaPin->read() && attempts > 0) {
+        sclPin->set();
+        for (int i = 0; i < 0x1000; ++i)
+            ;
+        sclPin->reset();
+        for (int i = 0; i < 0x1000; ++i)
+            ;
         attempts++;
     }
-    pin_sda.output();
-    pin_sda = 0;
-    pin_scl = 1;
-    pin_sda = 1;
-    pin_sda.input();
-    return pin_sda == 1;
+    sdaPin->reset();
+    sclPin->set();
+    sdaPin->set();
+    sdaPin->setMode(AlternateFunction);
+    sclPin->setMode(AlternateFunction);
+    return sdaPin->read();
 }

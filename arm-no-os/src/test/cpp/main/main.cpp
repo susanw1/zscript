@@ -78,7 +78,7 @@ int main(void) {
         } else {
             time = 0x100000;
         }
-        for (int i = 0; i < time; ++i)
+        for (volatile uint32_t i = 0; i < time; ++i)
             ;
         c4->reset();
         if (c8->read()) {
@@ -86,7 +86,7 @@ int main(void) {
         } else {
             time = 0x100000;
         }
-        for (int i = 0; i < time; ++i)
+        for (volatile uint32_t i = 0; i < time; ++i)
             ;
         c4->set();
 //        r.progressRCode();

@@ -6,8 +6,7 @@
 PROJECT = no-os
 
 # Project Structure
-LLDIR = src/test/cpp/LowLevel/GpioLowLevel
-LLDIR2 = src/test/cpp/LowLevel/ClocksLowLevel
+LLDIR = src/test/cpp/LowLevel
 SRCDIR = src/test/cpp/main
 COMDIR = src/test/cpp/common
 RCODEDIR = ../generic-cpp-receiver/src/main/cpp/RCode
@@ -17,14 +16,15 @@ INCDIR = src/test/cpp/include
 LDDIR = src/test/ld
 OCDDIR = src/test/openocd
 
+
 # Project target (SW modified)
 CPU = cortex-m4
 DEVICE_FAMILY = STM32G484xx
 DEVICE = STM32G484RE
 
 # Sources
-CSRC = $(wildcard $(SRCDIR)/*.c) $(wildcard $(COMDIR)/*.c) #$(wildcard $(RCODEDIR)/*.c)
-CPPSRC = $(wildcard $(SRCDIR)/*.cpp) $(wildcard $(COMDIR)/*.cpp) $(wildcard $(LLDIR)/*.cpp) $(wildcard $(LLDIR)/*/*.cpp) $(wildcard $(LLDIR)/*/*/*.cpp)  $(wildcard $(LLDIR2)/*.cpp) $(wildcard $(LLDIR2)/*/*.cpp) $(wildcard $(LLDIR2)/*/*/*.cpp)#$(wildcard $(RCODEDIR)/*.cpp)
+CSRC = $(wildcard $(SRCDIR)/*.c) $(wildcard $(COMDIR)/*.c)
+CPPSRC = $(wildcard $(SRCDIR)/*.cpp) $(wildcard $(COMDIR)/*.cpp) $(wildcard $(LLDIR)/*.cpp) $(wildcard $(LLDIR)/*/*.cpp) $(wildcard $(LLDIR)/*/*/*.cpp) $(wildcard $(RCODEDIR)/*.cpp) $(wildcard $(RCODEDIR)/*/*.cpp)
 ASM = $(wildcard $(SRCDIR)/*.s) $(wildcard $(COMDIR)/*.s)
 
 # Include directories
@@ -35,9 +35,10 @@ INCLUDE  = -I$(INCDIR) -I$(INCDIR)/Core -I$(INCDIR)/STM32G4xx -I$(RCODEDIR)/ $(w
 LSCRIPT = $(LDDIR)/STM32G484QETX_FLASH.ld
 
 # C Flags
-GCFLAGS  = -Wall -fno-common -mthumb -mcpu=$(CPU) -D$(DEVICE_FAMILY) --specs=nosys.specs -g -Wa,-ahlms=$(addprefix $(OBJDIR)/,$(notdir $(<:.c=.lst)))
+OPTIMISATIONS = -O3 -flto
+GCFLAGS  = -Wall -fno-common -mthumb -mcpu=$(CPU) -D$(DEVICE_FAMILY) --specs=nosys.specs -g -Wa,-ahlms=$(addprefix $(OBJDIR)/,$(notdir $(<:.c=.lst))) $(OPTIMISATIONS)
 GCFLAGS += $(INCLUDE)
-LDFLAGS += -T$(LSCRIPT) -mthumb -mcpu=$(CPU) --specs=nosys.specs 
+LDFLAGS += -T$(LSCRIPT) -mthumb -mcpu=$(CPU) --specs=nosys.specs  $(OPTIMISATIONS)
 ASFLAGS += -mcpu=$(CPU)
 
 # Flashing
@@ -46,7 +47,7 @@ OCDFLAGS = --search $(OCDSCRIPTS) -f $(OCDSCRIPTS)/interface/stlink.cfg  -f $(OC
 
 
 # Tools
-CC = arm-none-eabi-gcc
+CC = arm-none-eabi-g++
 AS = arm-none-eabi-as
 AR = arm-none-eabi-ar
 LD = arm-none-eabi-ld
@@ -89,8 +90,8 @@ macros:
 cleanBuild: clean
 
 clean:
-	$(RM) $(BINDIR)
 	$(RM) $(OBJDIR)
+	$(RM) $(BINDIR)
 
 # Compilation
 $(OBJDIR)/%.o: $(LLDIR)/%.cpp
@@ -106,20 +107,12 @@ $(OBJDIR)/%.o: $(LLDIR)/*/*/%.cpp
 	$(CC) $(GCFLAGS) -c $< -o $@
 	
 	
-$(OBJDIR)/%.o: $(LLDIR2)/%.cpp
-	@mkdir -p $(dir $@)
-	$(CC) $(GCFLAGS) -c $< -o $@
-	
-$(OBJDIR)/%.o: $(LLDIR2)/*/%.cpp
-	@mkdir -p $(dir $@)
-	$(CC) $(GCFLAGS) -c $< -o $@
-	
-$(OBJDIR)/%.o: $(LLDIR2)/*/*/%.cpp
-	@mkdir -p $(dir $@)
-	$(CC) $(GCFLAGS) -c $< -o $@
-	
 		
 $(OBJDIR)/%.o: $(RCODEDIR)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(GCFLAGS) -c $< -o $@
+	
+$(OBJDIR)/%.o: $(RCODEDIR)/*/%.cpp
 	@mkdir -p $(dir $@)
 	$(CC) $(GCFLAGS) -c $< -o $@
 
