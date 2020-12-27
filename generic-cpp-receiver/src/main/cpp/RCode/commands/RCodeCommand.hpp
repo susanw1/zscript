@@ -40,9 +40,6 @@ public:
 
     virtual uint8_t const* getFullCode() const = 0;
 
-    virtual ~RCodeCommand() {
-
-    }
 };
 
 #endif /* SRC_TEST_CPP_RCODE_COMMANDS_RCODECOMMAND_HPP_ */

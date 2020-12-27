@@ -73,9 +73,6 @@ public:
 
     virtual void close() = 0;
 
-    virtual ~RCodeOutStream() {
-
-    }
     static void writeFieldType(RCodeOutStream *target, char f, uint8_t value) {
         target->writeField(f, (fieldUnit) value);
     }

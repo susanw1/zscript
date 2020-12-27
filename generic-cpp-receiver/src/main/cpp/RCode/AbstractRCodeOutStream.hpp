@@ -144,9 +144,6 @@ public:
         writeByte('\n');
         return this;
     }
-    virtual ~AbstractRCodeOutStream() {
-
-    }
 }
 ;
 

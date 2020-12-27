@@ -8,11 +8,11 @@
 #include "RCodeInterruptVectorChannel.hpp"
 
 RCodeChannelInStream* RCodeInterruptVectorChannel::acquireInStream() {
-    if (interrupt == NULL) {
+    if (interrupt.getSource() == NULL) {
         interrupt = vectorManager->takeInterrupt();
     }
     if (in == NULL) {
-        in = space->acquireInStream(vectorManager->findVector(interrupt));
+        in = space->acquireInStream(vectorManager->findVector(&interrupt));
     }
     return in;
 }
@@ -21,7 +21,7 @@ RCodeOutStream* RCodeInterruptVectorChannel::acquireOutStream() {
 }
 
 bool RCodeInterruptVectorChannel::hasCommandSequence() {
-    return interrupt == NULL && vectorManager->hasInterruptSource()
+    return interrupt.getSource() == NULL && vectorManager->hasInterruptSource()
             && space->hasInStream();
 }
 

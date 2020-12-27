@@ -51,9 +51,6 @@ public:
 
     virtual void unlock() = 0;
 
-    virtual ~RCodeCommandChannel() {
-
-    }
 };
 
 #endif /* SRC_TEST_CPP_RCODE_PARSING_RCODECOMMANDCHANNEL_HPP_ */

@@ -21,7 +21,7 @@ class RCode;
 class RCodeNotificationManager {
 private:
     RCodeBusInterruptSource *sources;
-    RCodeBusInterrupt *waitingNotifications[RCodeParameters::interruptStoreNum];
+    RCodeBusInterrupt waitingNotifications[RCodeParameters::interruptStoreNum];
     uint8_t waitingNotificationNumber = 0;
     uint8_t sourceNum = 0;
     RCodeInterruptVectorManager *vectorChannel;
@@ -29,7 +29,7 @@ private:
 
     bool canSendNotification();
 
-    void sendNotification(RCodeBusInterrupt *interrupt);
+    void sendNotification(RCodeBusInterrupt interrupt);
 
 public:
     RCodeNotificationManager(RCode *rcode, RCodeBusInterruptSource *sources,

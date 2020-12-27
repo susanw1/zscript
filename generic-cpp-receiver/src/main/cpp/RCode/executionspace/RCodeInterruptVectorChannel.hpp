@@ -24,7 +24,7 @@ private:
     RCodeExecutionSpace *space;
     RCodeInterruptVectorManager *vectorManager;
     RCodeCommandSequence sequence;
-    RCodeBusInterrupt *interrupt = NULL;
+    RCodeBusInterrupt interrupt;
     RCodeExecutionSpaceChannelIn *in = NULL;
     RCodeLockSet locks;
 
@@ -65,11 +65,11 @@ public:
     }
 
     void releaseOutStream() {
-        interrupt = NULL;
+        interrupt = RCodeBusInterrupt();
     }
 
     RCodeBusInterrupt* getInterrupt() {
-        return interrupt;
+        return &interrupt;
     }
 
     void setAsNotificationChannel() {

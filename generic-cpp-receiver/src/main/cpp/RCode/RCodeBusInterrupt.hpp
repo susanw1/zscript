@@ -16,9 +16,14 @@ class RCodeBusInterrupt {
 private:
     RCodeBusInterruptSource *source;
     uint8_t id;
+
 public:
+
+    RCodeBusInterrupt() :
+            source(NULL), id(0) {
+    }
     RCodeBusInterrupt(RCodeBusInterruptSource *source, uint8_t id) :
-            source(source) {
+            source(source), id(id) {
     }
 
     RCodeBusInterruptSource* getSource() {

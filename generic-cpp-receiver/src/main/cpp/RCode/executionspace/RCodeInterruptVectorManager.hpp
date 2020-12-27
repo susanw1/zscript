@@ -19,7 +19,7 @@ private:
     RCodeExecutionSpace space;
     RCodeInterruptVectorOut out;
     RCodeInterruptVectorMap vectorMap;
-    RCodeBusInterrupt *waitingInterrupts[RCodeParameters::interruptVectorWorkingNum];
+    RCodeBusInterrupt waitingInterrupts[RCodeParameters::interruptVectorWorkingNum];
     int waitingNum = 0;
 
 public:
@@ -37,7 +37,7 @@ public:
         return waitingNum < RCodeParameters::interruptVectorWorkingNum;
     }
 
-    void acceptInterrupt(RCodeBusInterrupt *i) {
+    void acceptInterrupt(RCodeBusInterrupt i) {
         waitingInterrupts[waitingNum++] = i;
     }
 
@@ -45,8 +45,8 @@ public:
         return waitingNum > 0;
     }
 
-    RCodeBusInterrupt* takeInterrupt() {
-        RCodeBusInterrupt *interrupt = waitingInterrupts[0];
+    RCodeBusInterrupt takeInterrupt() {
+        RCodeBusInterrupt interrupt = waitingInterrupts[0];
         for (int i = 0; i < waitingNum - 1; i++) {
             waitingInterrupts[i] = waitingInterrupts[i + 1];
         }
