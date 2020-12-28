@@ -2,6 +2,7 @@ package com.wittsfamily.rcode_acceptance_tests.core_rcode;
 
 import static com.wittsfamily.rcode_acceptance_tests.acceptancetest_asserts.RCodeAcceptanceTestAssert.assertThatCommand;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -24,8 +25,8 @@ public class CoreRCodeSteps {
 
     @Given("a connection is established to the target")
     public void a_connection_is_established_to_the_target() {
+        assumeThat(RCodeAcceptanceTestConnectionManager.getConnections()).as("A connection to the target must be provided").isNotEmpty();
         RCodeAcceptanceTestConnectionManager.getConnections().get(0).clearListeners();
-        assertThat(RCodeAcceptanceTestConnectionManager.getConnections()).as("A connection to the target must be provided").isNotEmpty();
     }
 
     @Given("the targets capabilities are known")

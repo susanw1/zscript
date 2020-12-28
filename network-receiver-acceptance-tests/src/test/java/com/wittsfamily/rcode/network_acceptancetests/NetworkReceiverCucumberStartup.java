@@ -1,7 +1,9 @@
 package com.wittsfamily.rcode.network_acceptancetests;
 
+import java.io.UncheckedIOException;
 import java.net.DatagramPacket;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -12,11 +14,14 @@ import java.util.function.Consumer;
 
 import javax.swing.JOptionPane;
 
+import org.junit.AssumptionViolatedException;
+
 import com.wittsfamily.rcode_acceptance_tests.RCodeAcceptanceTestConnectionManager;
 
 import io.cucumber.java.en.Given;
 
 public class NetworkReceiverCucumberStartup {
+
     private static boolean hasStarted = false;
 
     @Given("the target is running and connected")
@@ -32,13 +37,13 @@ public class NetworkReceiverCucumberStartup {
                     while (!foundPort) {
                         String portStr = JOptionPane.showInputDialog("Enter the target device's port");
                         if (portStr == null) {
-                            throw new RuntimeException("No port entered");
+                            throw new AssumptionViolatedException("No port entered");
                         }
                         try {
                             port = Integer.parseInt(portStr);
                             foundPort = true;
                         } catch (NumberFormatException e) {
-                            e.printStackTrace();
+                            throw new AssumptionViolatedException("Invalid port", e);
                         }
                     }
                     connection.watchResponses();
@@ -62,7 +67,7 @@ public class NetworkReceiverCucumberStartup {
                             } else if (result == JOptionPane.NO_OPTION) {
                                 break;
                             } else {
-                                throw new RuntimeException("Search for target device aborted");
+                                throw new AssumptionViolatedException("Search for target device aborted");
                             }
                         } else {
                             String[] options = new String[listener.getByteResults().size()];
@@ -87,14 +92,15 @@ public class NetworkReceiverCucumberStartup {
                 connection.setTarget(target);
                 connection.clearListeners();
                 RCodeAcceptanceTestConnectionManager.registerConnection(connection);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                System.err.println("interrupted");
+            } catch (SocketException e) {
+                throw new UncheckedIOException("Search for target device aborted", e);
             }
-
         }
     }
 
-    private class BroadcastListener implements Consumer<DatagramPacket> {
+    private static class BroadcastListener implements Consumer<DatagramPacket> {
         private final Lock lock = new ReentrantLock();
         private List<byte[]> byteResults = new ArrayList<>();
         private List<SocketAddress> addresses = new ArrayList<>();

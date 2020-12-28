@@ -3,6 +3,7 @@ package com.wittsfamily.rcode.network_acceptancetests;
 import static java.util.Collections.list;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -35,34 +36,31 @@ public class NetworkAcceptanceTestConnection implements RCodeAcceptanceTestConne
 
     public void watchResponses() {
         exec.submit(() -> {
-            try {
-                while (true) {
-                    byte[] received = new byte[10000];
-                    DatagramPacket p = new DatagramPacket(received, received.length);
-                    s.receive(p);
-                    lock.lock();
-                    try {
-                        if (p.getLength() > 0 && p.getSocketAddress().equals(target)) {
-                            byte[] result = new byte[p.getLength()];
-                            for (int i = 0; i < result.length; i++) {
-                                result[i] = received[i];
-                            }
-                            for (Consumer<byte[]> handler : handlers) {
-                                handler.accept(result);
-                            }
+            while (true) {
+                byte[] received = new byte[10000];
+                DatagramPacket p = new DatagramPacket(received, received.length);
+                s.receive(p);
+                lock.lock();
+                try {
+                    if (p.getLength() > 0 && p.getSocketAddress().equals(target)) {
+                        byte[] result = new byte[p.getLength()];
+                        for (int i = 0; i < result.length; i++) {
+                            result[i] = received[i];
                         }
-                        if (p.getLength() > 0) {
-                            for (Consumer<DatagramPacket> handler : broadcastHandlers) {
-                                handler.accept(p);
-                            }
+                        for (Consumer<byte[]> handler : handlers) {
+                            handler.accept(result);
                         }
-                    } finally {
-                        lock.unlock();
                     }
+                    if (p.getLength() > 0) {
+                        for (Consumer<DatagramPacket> handler : broadcastHandlers) {
+                            handler.accept(p);
+                        }
+                    }
+                } finally {
+                    lock.unlock();
                 }
-            } catch (Throwable t) {
-                t.printStackTrace();
             }
+
         });
     }
 
@@ -85,7 +83,7 @@ public class NetworkAcceptanceTestConnection implements RCodeAcceptanceTestConne
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         } finally {
             lock.unlock();
         }
@@ -98,7 +96,7 @@ public class NetworkAcceptanceTestConnection implements RCodeAcceptanceTestConne
             DatagramPacket p = new DatagramPacket(message, message.length, target);
             s.send(p);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         } finally {
             lock.unlock();
         }
