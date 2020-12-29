@@ -16,6 +16,7 @@
     <modules>
         <module>java-receiver</module>
         <module>acceptance-tests</module>
+        <module>java-receiver-acceptance-tests</module>
         <module>network-receiver-acceptance-tests</module>
     </modules>
 
