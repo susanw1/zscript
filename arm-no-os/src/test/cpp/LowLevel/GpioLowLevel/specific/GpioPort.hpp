@@ -64,11 +64,11 @@ private:
     }
     void setAlternateFunction(GpioPinName pin, uint8_t function) {
         if (pin.pin < 8) {
-            AFRL &= ~(0xF << pin.pin);
-            AFRL |= (function << pin.pin);
+            AFRL &= ~(0xF << (pin.pin * 4));
+            AFRL |= (function << (pin.pin * 4));
         } else {
-            AFRH &= ~(0xF << (pin.pin - 8));
-            AFRH |= (function << (pin.pin - 8));
+            AFRH &= ~(0xF << (pin.pin * 4 - 32));
+            AFRH |= (function << (pin.pin * 4 - 32));
         }
     }
 };

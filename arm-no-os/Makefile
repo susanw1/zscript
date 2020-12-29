@@ -38,7 +38,7 @@ LSCRIPT = $(LDDIR)/STM32G484QETX_FLASH.ld
 OPTIMISATIONS = -O3 -flto
 GCFLAGS  = -Wall -fno-common -mthumb -mcpu=$(CPU) -D$(DEVICE_FAMILY) --specs=nosys.specs -g -Wa,-ahlms=$(addprefix $(OBJDIR)/,$(notdir $(<:.c=.lst))) $(OPTIMISATIONS)
 GCFLAGS += $(INCLUDE)
-LDFLAGS += -T$(LSCRIPT) -mthumb -mcpu=$(CPU) --specs=nosys.specs  $(OPTIMISATIONS)
+LDFLAGS += -T$(LSCRIPT) -mthumb -Wl,--whole-archive -mcpu=$(CPU) --specs=nosys.specs  $(OPTIMISATIONS) 
 ASFLAGS += -mcpu=$(CPU)
 
 # Flashing
@@ -80,7 +80,7 @@ $(BINDIR)/$(PROJECT).bin: $(BINDIR)/$(PROJECT).elf
 
 $(BINDIR)/$(PROJECT).elf: $(OBJ)
 	@mkdir -p $(dir $@)
-	$(CC) $(OBJ) $(LDFLAGS) -o $(BINDIR)/$(PROJECT).elf
+	$(CC) $(OBJ) $(LDFLAGS)-Wl,--no-whole-archive -o $(BINDIR)/$(PROJECT).elf
 	$(OBJDUMP) -D $(BINDIR)/$(PROJECT).elf > $(BINDIR)/$(PROJECT).lst
 	$(SIZE) $(BINDIR)/$(PROJECT).elf
 

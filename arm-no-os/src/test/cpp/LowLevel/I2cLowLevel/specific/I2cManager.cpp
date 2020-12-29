@@ -121,7 +121,14 @@
 I2c I2cManager::i2cs[] = {I2c(), I2c(), I2c(), I2c()};
 
 class I2cInterruptManager {
-    friend I2cManager;
+    friend void I2C1_EV_IRQHandler();
+    friend void I2C1_ER_IRQHandler();
+    friend void I2C2_EV_IRQHandler();
+    friend void I2C2_ER_IRQHandler();
+    friend void I2C3_EV_IRQHandler();
+    friend void I2C3_ER_IRQHandler();
+    friend void I2C4_EV_IRQHandler();
+    friend void I2C4_ER_IRQHandler();
 
     static void IRQI2C1() {
         I2cManager::i2cs[0].interrupt();
@@ -146,19 +153,19 @@ I2cInternal getI2cInternal(I2cIdentifier id) {
 #endif
     } else if (id == 1) {
 #ifdef USE_I2C_2
-        return I2cInternal(I2C_SDA(I2C_2, I2C_2_SDA), I2C_SCL(I2C_2, I2C_2_SCL), (I2cRegisters*) 0x40005400);
+        return I2cInternal(I2C_SDA(I2C_2, I2C_2_SDA), I2C_SCL(I2C_2, I2C_2_SCL), (I2cRegisters*) 0x40005800);
 #else
         return I2cInternal();
 #endif
     } else if (id == 2) {
 #ifdef USE_I2C_3
-        return I2cInternal(I2C_SDA(I2C_3, I2C_3_SDA), I2C_SCL(I2C_3, I2C_3_SCL), (I2cRegisters*) 0x40005400);
+        return I2cInternal(I2C_SDA(I2C_3, I2C_3_SDA), I2C_SCL(I2C_3, I2C_3_SCL), (I2cRegisters*) 0x40007800);
 #else
         return I2cInternal();
 #endif
     } else {
 #ifdef USE_I2C_4
-        return I2cInternal(I2C_SDA(I2C_4, I2C_4_SDA), I2C_SCL(I2C_4, I2C_4_SCL), (I2cRegisters*) 0x40005400);
+        return I2cInternal(I2C_SDA(I2C_4, I2C_4_SDA), I2C_SCL(I2C_4, I2C_4_SCL), (I2cRegisters*) 0x40008400);
 #else
         return I2cInternal();
 #endif
@@ -186,20 +193,58 @@ DmaMuxRequest getI2cMuxRxRequest(I2cIdentifier id) {
         return DMAMUX_I2C4_RX;
     }
 }
+
+void I2C1_EV_IRQHandler() {
+    I2cInterruptManager::IRQI2C1();
+}
+void I2C1_ER_IRQHandler() {
+    I2cInterruptManager::IRQI2C1();
+}
+
+void I2C2_EV_IRQHandler() {
+    I2cInterruptManager::IRQI2C2();
+}
+void I2C2_ER_IRQHandler() {
+    I2cInterruptManager::IRQI2C2();
+}
+
+void I2C3_EV_IRQHandler() {
+    I2cInterruptManager::IRQI2C3();
+}
+void I2C3_ER_IRQHandler() {
+    I2cInterruptManager::IRQI2C3();
+}
+
+void I2C4_EV_IRQHandler() {
+    I2cInterruptManager::IRQI2C4();
+}
+void I2C4_ER_IRQHandler() {
+    I2cInterruptManager::IRQI2C4();
+}
+
 void I2cManager::init() {
+    DmaManager::init();
     for (int i = 0; i < GeneralHalSetup::i2cCount; ++i) {
         i2cs[i].setI2c(getI2cInternal(i), i, getI2cMuxTxRequest(i), getI2cMuxRxRequest(i));
     }
 
-    NVIC_SetVector(I2C1_EV_IRQn, (uint32_t) & I2cInterruptManager::IRQI2C1);
-    NVIC_SetVector(I2C1_ER_IRQn, (uint32_t) & I2cInterruptManager::IRQI2C1);
+    NVIC_SetPriority(I2C1_EV_IRQn, 10);
+    NVIC_SetPriority(I2C1_ER_IRQn, 10);
+    NVIC_EnableIRQ(I2C1_EV_IRQn);
+    NVIC_EnableIRQ(I2C1_ER_IRQn);
 
-    NVIC_SetVector(I2C2_EV_IRQn, (uint32_t) & I2cInterruptManager::IRQI2C2);
-    NVIC_SetVector(I2C2_ER_IRQn, (uint32_t) & I2cInterruptManager::IRQI2C2);
+    NVIC_SetPriority(I2C2_EV_IRQn, 10);
+    NVIC_SetPriority(I2C2_ER_IRQn, 10);
+    NVIC_EnableIRQ(I2C2_EV_IRQn);
+    NVIC_EnableIRQ(I2C2_ER_IRQn);
 
-    NVIC_SetVector(I2C3_EV_IRQn, (uint32_t) & I2cInterruptManager::IRQI2C3);
-    NVIC_SetVector(I2C3_ER_IRQn, (uint32_t) & I2cInterruptManager::IRQI2C3);
+    NVIC_SetPriority(I2C3_EV_IRQn, 10);
+    NVIC_SetPriority(I2C3_ER_IRQn, 10);
+    NVIC_EnableIRQ(I2C3_EV_IRQn);
+    NVIC_EnableIRQ(I2C3_ER_IRQn);
 
-    NVIC_SetVector(I2C4_EV_IRQn, (uint32_t) & I2cInterruptManager::IRQI2C4);
-    NVIC_SetVector(I2C4_ER_IRQn, (uint32_t) & I2cInterruptManager::IRQI2C4);
+    NVIC_SetPriority(I2C4_EV_IRQn, 10);
+    NVIC_SetPriority(I2C4_ER_IRQn, 10);
+    NVIC_EnableIRQ(I2C4_EV_IRQn);
+    NVIC_EnableIRQ(I2C4_ER_IRQn);
 }

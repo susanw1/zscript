@@ -31,7 +31,6 @@ GpioPin GpioManager::pins[] = { GpioPin(PortAAddr, PA_0), GpioPin(PortAAddr, PA_
         GpioPin(PortDAddr, PD_2), GpioPin(PortFAddr, PF_0), GpioPin(PortFAddr, PF_1), GpioPin(PortGAddr, PG_10) };
 
 void GpioManager::init() {
-
 }
 
 void GpioManager::activateClock(GpioPinName name) {

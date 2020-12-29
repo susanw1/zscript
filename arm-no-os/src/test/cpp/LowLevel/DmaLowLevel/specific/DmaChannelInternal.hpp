@@ -11,6 +11,30 @@
 #include "../../GeneralHalSetup.hpp"
 #include "DmaMuxRequest.hpp"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+void DMA1_Channel1_IRQHandler();
+void DMA1_Channel2_IRQHandler();
+void DMA1_Channel3_IRQHandler();
+void DMA1_Channel4_IRQHandler();
+void DMA1_Channel5_IRQHandler();
+void DMA1_Channel6_IRQHandler();
+void DMA1_Channel7_IRQHandler();
+void DMA1_Channel8_IRQHandler();
+
+void DMA2_Channel1_IRQHandler();
+void DMA2_Channel2_IRQHandler();
+void DMA2_Channel3_IRQHandler();
+void DMA2_Channel4_IRQHandler();
+void DMA2_Channel5_IRQHandler();
+void DMA2_Channel6_IRQHandler();
+void DMA2_Channel7_IRQHandler();
+void DMA2_Channel8_IRQHandler();
+#ifdef __cplusplus
+}
+#endif
+
 class DmaChannelInternal {
     DmaRegisters *registers;
     DmaChannelRegisters *channelRegs;
@@ -24,13 +48,14 @@ class DmaChannelInternal {
             registers(registers), channelRegs(channelRegs), dmaMux(dmaMux), channelOffset(channelOffset) {
     }
     void setMux(DmaMuxRequest mux) {
-        *dmaMux &= ~0x7F;
+        *dmaMux &= ~0x27F;
         *dmaMux |= mux;
     }
     void operator=(const DmaChannelInternal &i) {
         registers = i.registers;
         channelRegs = i.channelRegs;
         channelOffset = i.channelOffset;
+        dmaMux = i.dmaMux;
     }
 
     bool hasTransferError() {

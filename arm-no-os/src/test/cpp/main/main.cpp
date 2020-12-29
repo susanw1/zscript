@@ -52,13 +52,27 @@
 #include "../LowLevel/ClocksLowLevel/ClockManager.hpp"
 #include "../LowLevel/ClocksLowLevel/Clock.hpp"
 
+#include "../LowLevel/I2cLowLevel/I2cManager.hpp"
+#include "../LowLevel/I2cLowLevel/I2c.hpp"
+
+#include "stm32g4xx.h"
+#include "stm32g484xx.h"
+
+void doNothing(I2c *i2c, I2cTerminationStatus status) {
+    i2c->unlock();
+}
 int main(void) {
+    for (volatile uint32_t i = 0; i < 0x10000; ++i)
+        ;
     ClockManager::getClock(VCO)->set(300000, HSI);
     ClockManager::getClock(PLL_R)->set(150000, VCO);
     ClockManager::getClock(SysClock)->set(150000, PLL_R);
     ClockManager::getClock(HCLK)->set(150000, SysClock);
     ClockManager::getClock(PCLK_1)->set(64000, HCLK);
     GpioManager::init();
+    I2cManager::init();
+    I2c *i2c1 = I2cManager::getI2cById(0);
+    i2c1->init();
     GpioPin *c4 = GpioManager::getPin(PC_4);
     c4->init();
     c4->setOutputMode(PushPull);
@@ -70,7 +84,7 @@ int main(void) {
     c8->init();
     c8->setPullMode(PullDown);
     c8->setMode(Input);
-
+    uint8_t addr = 0;
     uint32_t time = 0x100000;
     while (true) {
         if (c8->read()) {
@@ -89,6 +103,14 @@ int main(void) {
         for (volatile uint32_t i = 0; i < time; ++i)
             ;
         c4->set();
+        if (!i2c1->isLocked()) {
+            i2c1->lock();
+            uint8_t data[4] = { 0xff, 0, 0xff, 0 };
+            i2c1->asyncTransmit(0x20, data, 4, &doNothing);
+            if (addr > 127) {
+                addr = 0;
+            }
+        }
 //        r.progressRCode();
 //        uip.tick();
 //        uip.dhcpClient.checkLease();

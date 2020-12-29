@@ -48,7 +48,7 @@ void Dma::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourc
     channel.getChannelRegisters()->CNDTR = transferLength;
     channel.getChannelRegisters()->CPAR = (uint32_t) peripheralOrSource;
     channel.getChannelRegisters()->CMAR = (uint32_t) target;
-    uint32_t config = 0x000b;
+    uint32_t config = 0x000a;
     if (memToMem) {
         config |= 0x4000;
     }
@@ -68,9 +68,10 @@ void Dma::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourc
         config |= 0x10;
     }
     if (interruptOnHalf) {
-        config |= 0x40;
+        config |= 0x4;
     }
     this->request = request;
-    channel.setMux(request);
     channel.getChannelRegisters()->CCR = config;
+    channel.setMux(request);
+    channel.getChannelRegisters()->CCR |= 1;
 }

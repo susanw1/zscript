@@ -26,9 +26,9 @@ class Dma {
 private:
     DmaChannelInternal channel;
     DmaMuxRequest request = DMAMUX_NO_MUX;
-    bool lockBool;
+    volatile bool lockBool;
 
-    void (*callback)(Dma*, DmaTerminationStatus);
+    void (*volatile callback)(Dma*, DmaTerminationStatus);
     void interrupt();
 
     friend DmaManager;

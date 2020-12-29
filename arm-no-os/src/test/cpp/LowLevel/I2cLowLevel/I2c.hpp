@@ -32,14 +32,14 @@ private:
     Dma *dma = DmaManager::getDmaById(0);
     DmaMuxRequest requestTx = DMAMUX_NO_MUX;
     DmaMuxRequest requestRx = DMAMUX_NO_MUX;
-    bool lockBool = false;
+    volatile bool lockBool = false;
     uint16_t address = 0;
     uint16_t txLen = 0;
     const uint8_t *txData = NULL;
     uint16_t rxLen = 0;
     uint8_t *rxData = NULL;
-    I2cState state;
-    void (*callback)(I2c*, I2cTerminationStatus);
+    volatile I2cState state;
+    void (*volatile callback)(I2c*, I2cTerminationStatus);
 
     friend void I2cDmaCallback(Dma*, DmaTerminationStatus);
     friend I2cManager;
@@ -56,8 +56,12 @@ private:
         this->id = id;
         this->requestTx = requestTx;
         this->requestRx = requestRx;
+        this->dma = DmaManager::getDmaById(id);
     }
 public:
+    I2c(I2c &&i2c);
+    I2c();
+
     bool init();
 
     void setFrequency(I2cFrequency freq);

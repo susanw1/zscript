@@ -12,6 +12,24 @@
 #include "../../GpioLowLevel/GpioManager.hpp"
 #include "../specific/I2cRegisters.hpp"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+void I2C1_EV_IRQHandler();
+void I2C1_ER_IRQHandler();
+
+void I2C2_EV_IRQHandler();
+void I2C2_ER_IRQHandler();
+
+void I2C3_EV_IRQHandler();
+void I2C3_ER_IRQHandler();
+
+void I2C4_EV_IRQHandler();
+void I2C4_ER_IRQHandler();
+#ifdef __cplusplus
+}
+#endif
+
 struct I2cState {
     uint16_t repeatCount :10;
     bool hasTx :1;

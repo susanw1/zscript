@@ -7,18 +7,25 @@
 
 #include "../I2c.hpp"
 #include "../../ClocksLowLevel/ClockManager.hpp"
+I2c::I2c(I2c &&o) :
+        i2c(o.i2c), id(o.id), dma(o.dma), requestTx(o.requestTx), requestRx(o.requestRx), lockBool(o.lockBool), state(((I2cState&) o.state)), callback(
+                o.callback) {
+}
+I2c::I2c() :
+        i2c(), id(0), state( { 0, false, false, false, false }), callback(NULL) {
+}
 
 bool I2c::init() {
     state.hasRx = false;
     state.hasTx = false;
     state.hasTxRx = false;
     state.txDone = false;
+    lockBool = false;
     i2c.activateClock(id);
     i2c.getRegisters()->CR1 &= ~1; // turn off peripheral
     setFrequency(kHz100);
-    uint32_t ccr1 = 0xF1;
+    uint32_t ccr1 = 0xC0F1;
     uint32_t ccr2 = 0x00001000;
-    setFrequency(kHz100);
     i2c.getRegisters()->TIMEOUTR = 0x8600;  // disable timeout on clock stretch,
     // Enable SCL low timeout - with 50ms of timeout.
 
@@ -30,20 +37,34 @@ bool I2c::init() {
 }
 
 void I2c::setFrequency(I2cFrequency freq) {
+    i2c.getRegisters()->CR1 &= ~1; // turn off peripheral
     // Always uses PCLK_1
     if (freq == kHz10) {
         uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(4000) - 1;
+        if (scale > 15) {
+            scale = 15;
+        }
         i2c.getRegisters()->TIMINGR = 0x0042C3C7 | (scale << 28);
     } else if (freq == kHz100) {
         uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(4000) - 1;
+        if (scale > 15) {
+            scale = 15;
+        }
         i2c.getRegisters()->TIMINGR = 0x00420F13 | (scale << 28);
     } else if (freq == kHz400) {
         uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(8000) - 1;
+        if (scale > 15) {
+            scale = 15;
+        }
         i2c.getRegisters()->TIMINGR = 0x00330309 | (scale << 28);
     } else if (freq == kHz1000) {
         uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(8000) - 1;
+        if (scale > 15) {
+            scale = 15;
+        }
         i2c.getRegisters()->TIMINGR = 0x00100103 | (scale << 28);
     }
+    i2c.getRegisters()->CR1 |= 1; // turn on peripheral
 }
 
 void I2c::dmaInterrupt(DmaTerminationStatus status) {
@@ -200,10 +221,12 @@ void I2c::asyncTransmit(uint16_t address, const uint8_t *txData, uint16_t txLen,
     if (txLen != 0) {
         dma->peripheralWrite(requestTx, txData, true, (uint8_t*) &i2c.getRegisters()->TXDR, false, txLen + 1, false, Medium, &I2cDmaCallback, false);
     }
-    uint32_t cr2r = 0x00003000; //we always want to start, and want 10 bit addressing to be done properly
+    uint32_t cr2r = 0x00001000; //we always want 10 bit addressing to be done properly
     cr2r |= 0x02000000; // set autoend
-    if (address > 255) {
+    if (address > 127) {
         cr2r |= 0x0800; // set 10 bit addressing
+    } else {
+        address <<= 1;
     }
     cr2r |= address;
     uint16_t chunking;
@@ -214,6 +237,7 @@ void I2c::asyncTransmit(uint16_t address, const uint8_t *txData, uint16_t txLen,
     }
     cr2r |= chunking << 16;
     i2c.getRegisters()->CR2 = cr2r;
+    i2c.getRegisters()->CR2 |= 0x2000;
 }
 
 void I2c::asyncReceive(uint16_t address, uint8_t *rxData, uint16_t rxLen, void (*callback)(I2c*, I2cTerminationStatus)) {
@@ -246,8 +270,10 @@ void I2c::asyncReceive(uint16_t address, uint8_t *rxData, uint16_t rxLen, void (
     dma->peripheralRead(requestRx, (uint8_t*) &i2c.getRegisters()->RXDR, false, rxData, true, rxLen + 1, false, Medium, &I2cDmaCallback, false);
     uint32_t cr2r = 0x00003400; //we always want to start, and want 10 bit addressing to be done properly, and we want to read
     cr2r |= 0x02000000; // set autoend
-    if (address > 255) {
+    if (address > 127) {
         cr2r |= 0x0800; // set 10 bit addressing
+    } else {
+        address <<= 1;
     }
     cr2r |= address;
     uint16_t chunking;
@@ -293,8 +319,10 @@ void I2c::asyncTransmitReceive(uint16_t address, const uint8_t *txData, uint16_t
     }
     uint32_t cr2r = 0x00003000; //we always want to start, and want 10 bit addressing to be done properly
     // Do not set auto-end
-    if (address > 255) {
+    if (address > 127) {
         cr2r |= 0x0800; // set 10 bit addressing
+    } else {
+        address <<= 1;
     }
     cr2r |= address;
     uint16_t chunking;
@@ -341,8 +369,10 @@ void I2c::restartReceive() {
     dma->peripheralRead(requestRx, (uint8_t*) &i2c.getRegisters()->RXDR, false, rxData, true, rxLen + 1, false, Medium, &I2cDmaCallback, false);
     uint32_t cr2r = 0x00003400; //we always want to start, and want 10 bit addressing to be done properly, and we want to read
     cr2r |= 0x02000000; // set autoend
-    if (address > 255) {
+    if (address > 127) {
         cr2r |= 0x0800; // set 10 bit addressing
+    } else {
+        address <<= 1;
     }
     cr2r |= address;
     uint16_t chunking;

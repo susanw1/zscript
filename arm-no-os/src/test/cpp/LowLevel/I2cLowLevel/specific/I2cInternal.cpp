@@ -8,6 +8,8 @@
 #include "../../I2cLowLevel/specific/I2cInternal.hpp"
 
 void I2cInternal::activateClock(I2cIdentifier id) {
+    GpioManager::getPin(scl)->init();
+    GpioManager::getPin(sda)->init();
     if (id == 0) {
         RCC->APB1ENR1 |= 0x00200000;
     } else if (id == 0) {
@@ -35,8 +37,17 @@ bool I2cInternal::recoverSdaJam() {
     int attempts = 18;
     GpioPin *sdaPin = GpioManager::getPin(sda);
     GpioPin *sclPin = GpioManager::getPin(scl);
+    sdaPin->setPullMode(NoPull);
+    sdaPin->setOutputMode(OpenDrain);
+    sdaPin->setOutputSpeed(VeryHighSpeed);
+    sclPin->setPullMode(NoPull);
+    sclPin->setOutputMode(OpenDrain);
+    sclPin->setOutputSpeed(VeryHighSpeed);
+    sdaPin->set();
+    sclPin->set();
     sdaPin->setMode(Output);
     sclPin->setMode(Output);
+    sdaPin->set();
     if (sdaPin->read()) {
         return true;
     }
@@ -48,10 +59,10 @@ bool I2cInternal::recoverSdaJam() {
     }
     while (!sdaPin->read() && attempts > 0) {
         sclPin->set();
-        for (int i = 0; i < 0x1000; ++i)
+        for (volatile uint32_t i = 0; i < 0x1000; ++i)
             ;
         sclPin->reset();
-        for (int i = 0; i < 0x1000; ++i)
+        for (volatile uint32_t i = 0; i < 0x1000; ++i)
             ;
         attempts++;
     }
