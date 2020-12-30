@@ -109,20 +109,20 @@ int main(void) {
         } else {
             time = 0x100000;
         }
-        for (volatile uint32_t i = 0; i < time / 2; ++i)
+        for (volatile uint32_t i = 0; i < time; ++i)
             ;
-        if (!i2c1->isLocked()) {
-            i2c1->lock();
-            uint8_t data[2] = { 0x19 };
-            i2c1->asyncTransmit(0x20, data, 1, &doNothing);
-        }
-        for (volatile uint32_t i = 0; i < time / 2; ++i)
-            ;
+//        for (volatile uint32_t i = 0; i < time / 2; ++i)
+//            ;
         c4->reset();
         if (!i2c1->isLocked()) {
             i2c1->lock();
-            i2c1->asyncReceive(0x20, &read, 1, &doNothing);
+            uint8_t data[2] = { 0x19 };
+            i2c1->asyncTransmitReceive(0x20, data, 1, &read, 1, &doNothing);
         }
+//        if (!i2c1->isLocked()) {
+//            i2c1->lock();
+//            i2c1->asyncReceive(0x20, &read, 1, &doNothing);
+//        }
         for (volatile uint32_t i = 0; i < time; ++i)
             ;
         c4->set();

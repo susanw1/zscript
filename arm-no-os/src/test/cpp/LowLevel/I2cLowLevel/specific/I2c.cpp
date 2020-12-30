@@ -73,73 +73,15 @@ void I2c::dmaInterrupt(DmaTerminationStatus status) {
     } else if (status == DmaError) {
         callback(this, MemoryError);
     } else if (status == DataTransferComplete) {
-        callback(this, OtherError); // as we set the DMA to be able to transfer 1 extra byte
+        if (state.hasTxRx && state.txDone) {
+            i2c.getRegisters()->CR2 |= 0x4000;
+        } else {
+            callback(this, OtherError); // as we set the DMA to be able to transfer 1 extra byte
+        }
     }
 }
 void I2c::interrupt() {
-    if (i2c.getRegisters()->ISR & 0x10) {
-        // NACK
-        if ((!state.hasTxRx && state.hasRx && dma->fetchRemainingTransferLength() == rxLen)
-                || (state.hasTx && (txLen == 0 || dma->fetchRemainingTransferLength() == txLen))) {
-            callback(this, AddressNack);
-        } else if (state.hasTxRx && state.txDone && dma->fetchRemainingTransferLength() == rxLen) {
-            callback(this, Address2Nack);
-        } else {
-            callback(this, DataNack);
-        }
-        if ((state.hasRx && (!state.hasTxRx || state.txDone)) || txLen != 0) {
-            dma->halt();
-            dma->unlock();
-        }
-        state.hasRx = false;
-        state.hasTx = false;
-        state.hasTxRx = false;
-        state.txDone = false;
-        txLen = 0;
-        txData = NULL;
-        rxLen = 0;
-        rxData = NULL;
-        i2c.getRegisters()->ICR |= 0x10;
-    } else if (i2c.getRegisters()->ISR & 0x20) {
-        // STOP
-        if (state.hasRx || state.hasTx || state.hasTxRx) {
-            callback(this, Complete);
-        }
-        if ((state.hasRx && (!state.hasTxRx || state.txDone)) || txLen != 0) {
-            dma->halt();
-            dma->unlock();
-        }
-        state.hasRx = false;
-        state.hasTx = false;
-        state.hasTxRx = false;
-        state.txDone = false;
-        txLen = 0;
-        txData = NULL;
-        rxLen = 0;
-        rxData = NULL;
-        i2c.getRegisters()->ICR |= 0x20;
-    } else if (i2c.getRegisters()->ISR & 0x40) {
-        // TC - bidirectional
-        restartReceive();
-        i2c.getRegisters()->ICR |= 0x40;
-    } else if (i2c.getRegisters()->ISR & 0x80) {
-        // TCR - reload
-        uint16_t length;
-        if (state.hasTx && !state.txDone) {
-            length = txLen;
-        } else if (state.hasRx) {
-            length = rxLen;
-        }
-        length -= state.repeatCount * 0xFF;
-        if (length > 255) {
-            i2c.getRegisters()->CR2 |= 0x1FF << 16;
-        } else {
-            i2c.getRegisters()->CR2 &= ~(0x1FF << 16);
-            i2c.getRegisters()->CR2 |= ((uint32_t) length) << 16;
-        }
-        state.repeatCount++;
-        i2c.getRegisters()->ICR |= 0x80;
-    } else if (i2c.getRegisters()->ISR & 0x100) {
+    if (i2c.getRegisters()->ISR & 0x100) {
         // BERR
         callback(this, BusError);
         if ((state.hasRx && (!state.hasTxRx || state.txDone)) || txLen != 0) {
@@ -184,6 +126,72 @@ void I2c::interrupt() {
         rxLen = 0;
         rxData = NULL;
         i2c.getRegisters()->ICR |= 0x1000;
+    } else if (i2c.getRegisters()->ISR & 0x10) {
+        // NACK
+        if ((!state.hasTxRx && state.hasRx && dma->fetchRemainingTransferLength() == rxLen)
+                || (state.hasTx && (txLen == 0 || dma->fetchRemainingTransferLength() == txLen))) {
+            callback(this, AddressNack);
+        } else if (state.hasTxRx && state.txDone && dma->fetchRemainingTransferLength() == rxLen) {
+            callback(this, Address2Nack);
+        } else {
+            callback(this, DataNack);
+        }
+        if ((state.hasRx && (!state.hasTxRx || state.txDone)) || txLen != 0) {
+            dma->halt();
+            dma->unlock();
+        }
+        state.hasRx = false;
+        state.hasTx = false;
+        state.hasTxRx = false;
+        state.txDone = false;
+        txLen = 0;
+        txData = NULL;
+        rxLen = 0;
+        rxData = NULL;
+        i2c.getRegisters()->ICR |= 0x10;
+    } else if (i2c.getRegisters()->ISR & 0x20) {
+        // STOP
+        if (state.hasRx || state.hasTx || state.hasTxRx) {
+            callback(this, Complete);
+        }
+        if ((state.hasRx && (!state.hasTxRx || state.txDone)) || txLen != 0) {
+            dma->halt();
+            dma->unlock();
+        }
+        state.hasRx = false;
+        state.hasTx = false;
+        state.hasTxRx = false;
+        state.txDone = false;
+        txLen = 0;
+        txData = NULL;
+        rxLen = 0;
+        rxData = NULL;
+        i2c.getRegisters()->ICR |= 0x20;
+    } else if (i2c.getRegisters()->ISR & 0x40) {
+        // TC - bidirectional
+        if (!state.txDone) {
+            restartReceive();
+            i2c.getRegisters()->ISR &= ~0x40;
+        } else {
+            i2c.getRegisters()->CR2 |= 0xC000;
+            callback(this, Complete);
+        }
+    } else if (i2c.getRegisters()->ISR & 0x80) {
+        // TCR - reload
+        uint16_t length;
+        if (state.hasTx && !state.txDone) {
+            length = txLen;
+        } else if (state.hasRx) {
+            length = rxLen;
+        }
+        length -= state.repeatCount * 0xFF;
+        if (length > 255) {
+            i2c.getRegisters()->CR2 |= 0x1FF << 16;
+        } else {
+            i2c.getRegisters()->CR2 &= ~(0x1FF << 16);
+            i2c.getRegisters()->CR2 |= ((uint32_t) length) << 16;
+        }
+        state.repeatCount++;
     }
 }
 void I2cDmaCallback(Dma *dma, DmaTerminationStatus status) {
@@ -337,28 +345,20 @@ void I2c::asyncTransmitReceive(uint16_t address, const uint8_t *txData, uint16_t
 void I2c::restartReceive() {
     if (txLen == 0 && !dma->lock()) {
         callback(this, BusBusy);
+        i2c.getRegisters()->CR2 |= 0x4000;
         return;
     }
+    dma->halt();
     if (rxLen == 0) {
         callback(this, OtherError);
-        dma->halt();
-        dma->unlock();
-        return;
-    }
-    if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone) {
-        callback(this, BusBusy);
-        dma->halt();
-        dma->unlock();
-        return;
-    }
-    if (i2c.getRegisters()->ISR & 0x8000) {
-        callback(this, BusBusy);
+        i2c.getRegisters()->CR2 |= 0x4000;
         dma->halt();
         dma->unlock();
         return;
     }
     if (address >= 1024) {
         callback(this, OtherError);
+        i2c.getRegisters()->CR2 |= 0x4000;
         dma->halt();
         dma->unlock();
         return;
@@ -366,9 +366,8 @@ void I2c::restartReceive() {
     this->callback = callback;
     state.repeatCount = 0;
     state.txDone = true;
-    dma->peripheralRead(requestRx, (uint8_t*) &i2c.getRegisters()->RXDR, false, rxData, true, rxLen + 1, false, Medium, &I2cDmaCallback, false);
-    uint32_t cr2r = 0x00003400; //we always want to start, and want 10 bit addressing to be done properly, and we want to read
-    cr2r |= 0x02000000; // set autoend
+    dma->peripheralRead(requestRx, (uint8_t*) &i2c.getRegisters()->RXDR, false, rxData, true, rxLen, false, Medium, &I2cDmaCallback, false);
+    uint32_t cr2r = 0x00001400; //we always want to start, and want 10 bit addressing to be done properly, and we want to read
     if (address > 127) {
         cr2r |= 0x0800; // set 10 bit addressing
     } else {
@@ -383,4 +382,5 @@ void I2c::restartReceive() {
     }
     cr2r |= chunking << 16;
     i2c.getRegisters()->CR2 = cr2r;
+    i2c.getRegisters()->CR2 |= 0x2000;
 }
