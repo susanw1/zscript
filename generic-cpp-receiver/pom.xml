@@ -1,0 +1,48 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.wittsfamily.rcode</groupId>
+        <artifactId>rcode-all</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.wittsfamily.rcode.javareceiver</groupId>
+    <artifactId>generic-cpp-receiver</artifactId>
+    <name>generic-cpp-receiver</name>
+
+    <packaging>nar</packaging>
+
+
+    <dependencies>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.maven-nar</groupId>
+                <artifactId>nar-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <cpp>
+                        <name>gcc</name>
+                        <exceptions>false</exceptions>
+                        <debug>true</debug>
+                        <includePaths>
+                            <includePath>
+                                <path>${project.basedir}/src/main/c++</path>
+                                <includes>**/*.hpp</includes>
+                            </includePath>
+                        </includePaths>
+                    </cpp>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.sdedwards.m2e-nar</groupId>
+                <artifactId>m2e-nar</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
