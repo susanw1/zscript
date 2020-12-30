@@ -80,36 +80,60 @@ int main(void) {
     c4->setOutputSpeed(MediumSpeed);
     c4->setMode(Output);
     c4->set();
-    GpioPin *c8 = GpioManager::getPin(PC_8);
-    c8->init();
-    c8->setPullMode(PullDown);
-    c8->setMode(Input);
     uint8_t addr = 0;
     uint32_t time = 0x100000;
+    if (!i2c1->isLocked()) {
+        i2c1->lock();
+        uint8_t data[2] = { 0x0A, 0x80 };
+        i2c1->asyncTransmit(0x20, data, 2, &doNothing);
+    }
+    while (i2c1->isLocked())
+        ;
+    if (!i2c1->isLocked()) {
+        i2c1->lock();
+        uint8_t data[2] = { 0, 0 };
+        i2c1->asyncTransmit(0x20, data, 2, &doNothing);
+    }
+    while (i2c1->isLocked())
+        ;
+    if (!i2c1->isLocked()) {
+        i2c1->lock();
+        uint8_t data[2] = { 0x16, 0xFF };
+        i2c1->asyncTransmit(0x20, data, 2, &doNothing);
+    }
+    uint8_t read = 0;
+    bool on = true;
     while (true) {
-        if (c8->read()) {
+        if (read != 0xff) {
             time = 0x80000;
         } else {
             time = 0x100000;
         }
-        for (volatile uint32_t i = 0; i < time; ++i)
+        for (volatile uint32_t i = 0; i < time / 2; ++i)
+            ;
+        if (!i2c1->isLocked()) {
+            i2c1->lock();
+            uint8_t data[2] = { 0x19 };
+            i2c1->asyncTransmit(0x20, data, 1, &doNothing);
+        }
+        for (volatile uint32_t i = 0; i < time / 2; ++i)
             ;
         c4->reset();
-        if (c8->read()) {
-            time = 0x80000;
-        } else {
-            time = 0x100000;
+        if (!i2c1->isLocked()) {
+            i2c1->lock();
+            i2c1->asyncReceive(0x20, &read, 1, &doNothing);
         }
         for (volatile uint32_t i = 0; i < time; ++i)
             ;
         c4->set();
         if (!i2c1->isLocked()) {
+            on = !on;
             i2c1->lock();
-            uint8_t data[4] = { 0xff, 0, 0xff, 0 };
-            i2c1->asyncTransmit(0x20, data, 4, &doNothing);
-            if (addr > 127) {
-                addr = 0;
+            uint8_t data[2] = { 0x0A, 0xFF };
+            if (on) {
+                data[1] = 0;
             }
+            i2c1->asyncTransmit(0x20, data, 2, &doNothing);
         }
 //        r.progressRCode();
 //        uip.tick();

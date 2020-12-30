@@ -87,14 +87,14 @@ void I2c::interrupt() {
         } else {
             callback(this, DataNack);
         }
-        state.hasRx = false;
-        state.hasTx = false;
-        state.hasTxRx = false;
-        state.txDone = false;
         if ((state.hasRx && (!state.hasTxRx || state.txDone)) || txLen != 0) {
             dma->halt();
             dma->unlock();
         }
+        state.hasRx = false;
+        state.hasTx = false;
+        state.hasTxRx = false;
+        state.txDone = false;
         txLen = 0;
         txData = NULL;
         rxLen = 0;
@@ -105,14 +105,14 @@ void I2c::interrupt() {
         if (state.hasRx || state.hasTx || state.hasTxRx) {
             callback(this, Complete);
         }
-        state.hasRx = false;
-        state.hasTx = false;
-        state.hasTxRx = false;
-        state.txDone = false;
         if ((state.hasRx && (!state.hasTxRx || state.txDone)) || txLen != 0) {
             dma->halt();
             dma->unlock();
         }
+        state.hasRx = false;
+        state.hasTx = false;
+        state.hasTxRx = false;
+        state.txDone = false;
         txLen = 0;
         txData = NULL;
         rxLen = 0;
@@ -142,14 +142,14 @@ void I2c::interrupt() {
     } else if (i2c.getRegisters()->ISR & 0x100) {
         // BERR
         callback(this, BusError);
-        state.hasRx = false;
-        state.hasTx = false;
-        state.hasTxRx = false;
-        state.txDone = false;
         if ((state.hasRx && (!state.hasTxRx || state.txDone)) || txLen != 0) {
             dma->halt();
             dma->unlock();
         }
+        state.hasRx = false;
+        state.hasTx = false;
+        state.hasTxRx = false;
+        state.txDone = false;
         txLen = 0;
         txData = NULL;
         rxLen = 0;
@@ -171,14 +171,14 @@ void I2c::interrupt() {
     } else if (i2c.getRegisters()->ISR & 0x1000) {
         // TIMEOUT
         callback(this, BusJammed);
-        state.hasRx = false;
-        state.hasTx = false;
-        state.hasTxRx = false;
-        state.txDone = false;
         if ((state.hasRx && (!state.hasTxRx || state.txDone)) || txLen != 0) {
             dma->halt();
             dma->unlock();
         }
+        state.hasRx = false;
+        state.hasTx = false;
+        state.hasTxRx = false;
+        state.txDone = false;
         txLen = 0;
         txData = NULL;
         rxLen = 0;
