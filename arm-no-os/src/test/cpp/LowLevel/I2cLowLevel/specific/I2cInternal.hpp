@@ -7,10 +7,10 @@
 
 #ifndef SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2CINTERNAL_HPP_
 #define SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2CINTERNAL_HPP_
-#include "../../GeneralHalSetup.hpp"
+#include "../../GeneralLLSetup.hpp"
 #include "../../GpioLowLevel/Gpio.hpp"
 #include "../../GpioLowLevel/GpioManager.hpp"
-#include "../specific/I2cRegisters.hpp"
+#include "I2cRegisters.hpp"
 
 #ifdef __cplusplus
 extern "C" {

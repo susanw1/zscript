@@ -7,7 +7,7 @@
 
 #ifndef SRC_TEST_CPP_COMMANDS_LOWLEVEL_I2CLOWLEVEL_I2CMANAGER_HPP_
 #define SRC_TEST_CPP_COMMANDS_LOWLEVEL_I2CLOWLEVEL_I2CMANAGER_HPP_
-#include "../GeneralHalSetup.hpp"
+#include "../GeneralLLSetup.hpp"
 #include "I2c.hpp"
 
 class I2cInterruptManager;

@@ -24,6 +24,8 @@
 #include "stm32g4xx.h"
 #include "stm32g484xx.h"
 
+#include "../LowLevel/ArduinoSpiLayer/src/Ethernet.h"
+
 //#include "RCode.hpp"
 //#include "commands/RCodeActivateCommand.hpp"
 //#include "commands/RCodeSetDebugChannelCommand.hpp"
@@ -49,6 +51,7 @@
 #include "../LowLevel/GpioLowLevel/GpioManager.hpp"
 #include "../LowLevel/GpioLowLevel/Gpio.hpp"
 
+#include "../LowLevel/ClocksLowLevel/SystemMilliClock.hpp"
 #include "../LowLevel/ClocksLowLevel/ClockManager.hpp"
 #include "../LowLevel/ClocksLowLevel/Clock.hpp"
 
@@ -62,15 +65,21 @@ void doNothing(I2c *i2c, I2cTerminationStatus status) {
     i2c->unlock();
 }
 int main(void) {
-    for (volatile uint32_t i = 0; i < 0x10000; ++i)
-        ;
     ClockManager::getClock(VCO)->set(300000, HSI);
     ClockManager::getClock(PLL_R)->set(150000, VCO);
     ClockManager::getClock(SysClock)->set(150000, PLL_R);
     ClockManager::getClock(HCLK)->set(150000, SysClock);
     ClockManager::getClock(PCLK_1)->set(64000, HCLK);
+    ClockManager::getClock(PCLK_2)->set(64000, HCLK);
     GpioManager::init();
     I2cManager::init();
+    SystemMilliClock::init();
+    SystemMilliClock::blockDelayMillis(1000);
+    uint8_t mac[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xaa };
+    uint32_t time = 1000;
+    while (!Ethernet.begin(mac, 5000, 5000)) {
+
+    }
     I2c *i2c1 = I2cManager::getI2cById(0);
     i2c1->init();
     GpioPin *c4 = GpioManager::getPin(PC_4);
@@ -81,7 +90,6 @@ int main(void) {
     c4->setMode(Output);
     c4->set();
     uint8_t addr = 0;
-    uint32_t time = 0x100000;
     if (!i2c1->isLocked()) {
         i2c1->lock();
         uint8_t data[2] = { 0x0A, 0x80 };
@@ -104,15 +112,12 @@ int main(void) {
     uint8_t read = 0;
     bool on = true;
     while (true) {
+        SystemMilliClock::blockDelayMillis(time);
         if (read != 0xff) {
-            time = 0x80000;
+            time = 500;
         } else {
-            time = 0x100000;
+            time = 1000;
         }
-        for (volatile uint32_t i = 0; i < time; ++i)
-            ;
-//        for (volatile uint32_t i = 0; i < time / 2; ++i)
-//            ;
         c4->reset();
         if (!i2c1->isLocked()) {
             i2c1->lock();
@@ -123,8 +128,7 @@ int main(void) {
 //            i2c1->lock();
 //            i2c1->asyncReceive(0x20, &read, 1, &doNothing);
 //        }
-        for (volatile uint32_t i = 0; i < time; ++i)
-            ;
+        SystemMilliClock::blockDelayMillis(time);
         c4->set();
         if (!i2c1->isLocked()) {
             on = !on;

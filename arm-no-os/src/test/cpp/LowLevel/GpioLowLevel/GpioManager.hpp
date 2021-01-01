@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGER_HPP_
 #define SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGER_HPP_
 
-#include "../GeneralHalSetup.hpp"
+#include "../GeneralLLSetup.hpp"
 #include "specific/GpioNames.hpp"
 #include "Gpio.hpp"
 

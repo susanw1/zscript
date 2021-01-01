@@ -7,13 +7,13 @@
 
 #ifndef SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2C_HPP_
 #define SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2C_HPP_
-#include "../GeneralHalSetup.hpp"
 #include "../GpioLowLevel/Gpio.hpp"
 #include "../GpioLowLevel/GpioManager.hpp"
 #include "specific/I2cInternal.hpp"
 #include "../DmaLowLevel/Dma.hpp"
 #include "../DmaLowLevel/DmaManager.hpp"
-#include "../I2cLowLevel/specific/I2cInternal.hpp"
+#include "../GeneralLLSetup.hpp"
+#include "specific/I2cInternal.hpp"
 
 enum I2cTerminationStatus {
     Complete, AddressNack, DataNack, Address2Nack, BusError, BusJammed, BusBusy, MemoryError, OtherError

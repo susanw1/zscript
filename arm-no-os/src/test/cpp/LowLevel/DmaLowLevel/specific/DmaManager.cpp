@@ -5,7 +5,7 @@
  *      Author: robert
  */
 
-#include "../../DmaLowLevel/DmaManager.hpp"
+#include "../DmaManager.hpp"
 #include "stm32g484xx.h"
 #include "core_cm4.h"
 Dma DmaManager::dmas[] = { Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma(), Dma() };

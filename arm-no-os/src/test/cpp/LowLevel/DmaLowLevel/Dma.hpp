@@ -7,8 +7,8 @@
 
 #ifndef SRC_TEST_CPP_COMMANDS_LOWLEVEL_DMALOWLEVEL_DMA_HPP_
 #define SRC_TEST_CPP_COMMANDS_LOWLEVEL_DMALOWLEVEL_DMA_HPP_
-#include "../../LowLevel/GeneralHalSetup.hpp"
-#include "../DmaLowLevel/specific/DmaChannelInternal.hpp"
+#include "specific/DmaChannelInternal.hpp"
+#include "../GeneralLLSetup.hpp"
 
 enum DmaTerminationStatus {
     DataTransferComplete, DataTransferHalfway, DmaError, SetupError

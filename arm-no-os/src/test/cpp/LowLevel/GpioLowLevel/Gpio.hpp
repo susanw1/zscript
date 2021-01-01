@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_GPIO_HPP_
 #define SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_GPIO_HPP_
 
-#include "../GeneralHalSetup.hpp"
+#include "../GeneralLLSetup.hpp"
 #include "specific/GpioPort.hpp"
 
 class GpioPin {

@@ -7,7 +7,7 @@
 
 #ifndef SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOPORT_HPP_
 #define SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOPORT_HPP_
-#include "../../GeneralHalSetup.hpp"
+#include "../../GeneralLLSetup.hpp"
 #include "GpioNames.hpp"
 
 enum OutputMode {

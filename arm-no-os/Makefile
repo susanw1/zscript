@@ -24,7 +24,7 @@ DEVICE = STM32G484RE
 
 # Sources
 CSRC = $(wildcard $(SRCDIR)/*.c) $(wildcard $(COMDIR)/*.c)
-CPPSRC = $(wildcard $(SRCDIR)/*.cpp) $(wildcard $(COMDIR)/*.cpp) $(wildcard $(LLDIR)/*.cpp) $(wildcard $(LLDIR)/*/*.cpp) $(wildcard $(LLDIR)/*/*/*.cpp) $(wildcard $(RCODEDIR)/*.cpp) $(wildcard $(RCODEDIR)/*/*.cpp)
+CPPSRC = $(wildcard $(SRCDIR)/*.cpp) $(wildcard $(COMDIR)/*.cpp) $(wildcard $(LLDIR)/*.cpp) $(wildcard $(LLDIR)/*/*.cpp) $(wildcard $(LLDIR)/*/*/*.cpp) $(wildcard $(LLDIR)/*/*/*/*.cpp) $(wildcard $(RCODEDIR)/*.cpp) $(wildcard $(RCODEDIR)/*/*.cpp)
 ASM = $(wildcard $(SRCDIR)/*.s) $(wildcard $(COMDIR)/*.s)
 
 # Include directories
@@ -103,6 +103,10 @@ $(OBJDIR)/%.o: $(LLDIR)/*/%.cpp
 	$(CC) $(GCFLAGS) -c $< -o $@
 	
 $(OBJDIR)/%.o: $(LLDIR)/*/*/%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(GCFLAGS) -c $< -o $@
+	
+$(OBJDIR)/%.o: $(LLDIR)/*/*/*/%.cpp
 	@mkdir -p $(dir $@)
 	$(CC) $(GCFLAGS) -c $< -o $@
 	

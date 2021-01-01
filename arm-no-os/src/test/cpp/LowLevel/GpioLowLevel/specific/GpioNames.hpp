@@ -7,7 +7,7 @@
 
 #ifndef SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIONAMES_HPP_
 #define SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIONAMES_HPP_
-#include "../../GeneralHalSetup.hpp"
+#include "../../GeneralLLSetup.hpp"
 
 #define PortA 0
 #define PortB 1

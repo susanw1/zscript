@@ -7,7 +7,7 @@
 
 #ifndef SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_CLOCKMANAGER_HPP_
 #define SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_CLOCKMANAGER_HPP_
-#include "../GeneralHalSetup.hpp"
+#include "../GeneralLLSetup.hpp"
 #include "Clock.hpp"
 
 class ClockManager {

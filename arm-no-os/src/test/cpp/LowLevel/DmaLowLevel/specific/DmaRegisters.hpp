@@ -7,7 +7,7 @@
 
 #ifndef SRC_TEST_CPP_COMMANDS_NEWHAL_DMANEWHAL_DMAREGISTERS_HPP_
 #define SRC_TEST_CPP_COMMANDS_NEWHAL_DMANEWHAL_DMAREGISTERS_HPP_
-#include "../../GeneralHalSetup.hpp"
+#include "../../GeneralLLSetup.hpp"
 
 struct DmaChannelRegisters {
     volatile uint32_t CCR;

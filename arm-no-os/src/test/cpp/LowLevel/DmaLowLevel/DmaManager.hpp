@@ -7,8 +7,8 @@
 
 #ifndef SRC_TEST_CPP_COMMANDS_LOWLEVEL_DMALOWLEVEL_DMAMANAGER_HPP_
 #define SRC_TEST_CPP_COMMANDS_LOWLEVEL_DMALOWLEVEL_DMAMANAGER_HPP_
-#include "../../LowLevel/GeneralHalSetup.hpp"
-#include "../DmaLowLevel/Dma.hpp"
+#include "Dma.hpp"
+#include "../GeneralLLSetup.hpp"
 
 class DmaManager {
 private:
