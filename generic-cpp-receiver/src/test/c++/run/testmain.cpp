@@ -5,7 +5,7 @@
  *      Author: robert
  */
 #include "../RCode/RCode.hpp"
-#include "RCodeLocalChannel.hpp"
+#include "../support/RCodeLocalChannel.hpp"
 #include "../RCode/commands/RCodeEchoCommand.hpp"
 #include "../RCode/commands/RCodeCapabilitiesCommand.hpp"
 #include "../RCode/commands/RCodeActivateCommand.hpp"
