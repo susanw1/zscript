@@ -77,10 +77,8 @@
                 <plugin>
                     <groupId>com.github.maven-nar</groupId>
                     <artifactId>nar-maven-plugin</artifactId>
-                    <version>3.5.2</version>
+                    <version>3.10.1</version>
                     <extensions>true</extensions>
-                    <configuration>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
@@ -105,6 +103,11 @@
                     <groupId>com.github.sdedwards.m2e-nar</groupId>
                     <artifactId>m2e-nar</artifactId>
                     <version>1.0.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.0.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>

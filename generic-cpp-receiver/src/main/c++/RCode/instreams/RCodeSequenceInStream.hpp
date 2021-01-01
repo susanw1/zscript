@@ -8,23 +8,24 @@
 #ifndef SRC_MAIN_CPP_RCODE_INSTREAMS_RCODESEQUENCEINSTREAM_HPP_
 #define SRC_MAIN_CPP_RCODE_INSTREAMS_RCODESEQUENCEINSTREAM_HPP_
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 #include "RCodeCommandInStream.hpp"
 #include "RCodeMarkerInStream.hpp"
 
+template<class RP>
 class RCodeChannelInStream;
 
+template<class RP>
 class RCodeSequenceInStream {
 private:
-    RCodeChannelInStream *channelIn;
-    RCodeCommandInStream commandIn = RCodeCommandInStream(this);
-    RCodeMarkerInStream markerIn = RCodeMarkerInStream(this);
+    RCodeChannelInStream<RP> *channelIn;
+    RCodeCommandInStream<RP> commandIn;
+    RCodeMarkerInStream<RP> markerIn;
     char current = 0;
     bool opened = false;
     bool locked = false;
 public:
-    RCodeSequenceInStream(RCodeChannelInStream *channelIn) :
-            channelIn(channelIn) {
+    RCodeSequenceInStream(RCodeChannelInStream<RP> *channelIn) :
+            channelIn(channelIn), commandIn(this), markerIn(this) {
     }
 
     void open() {
@@ -79,15 +80,15 @@ public:
         }
     }
 
-    RCodeChannelInStream* getChannelInStream() {
+    RCodeChannelInStream<RP>* getChannelInStream() {
         return channelIn;
     }
 
-    RCodeCommandInStream* getCommandInStream() {
+    RCodeCommandInStream<RP>* getCommandInStream() {
         return &commandIn;
     }
 
-    RCodeMarkerInStream* getMarkerInStream() {
+    RCodeMarkerInStream<RP>* getMarkerInStream() {
         markerIn.reset();
         return &markerIn;
     }
@@ -109,6 +110,17 @@ public:
         return locked;
     }
 };
+
+template<class RP>
+void RCodeSequenceInStream<RP>::readInternal() {
+    int next = channelIn->read();
+    if (next == -1) {
+        current = '\n';
+        opened = false;
+    } else {
+        current = (char) next;
+    }
+}
 
 #include "RCodeChannelInStream.hpp"
 

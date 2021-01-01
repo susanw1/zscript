@@ -8,46 +8,43 @@
 #ifndef SRC_TEST_CPP_RCODE_RCODELOCKS_HPP_
 #define SRC_TEST_CPP_RCODE_RCODELOCKS_HPP_
 #include "RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 #include "RCodeLockSet.hpp"
 
+/**
+ * Authoritative central store of locks.
+ */
+template<class RP>
 class RCodeLocks {
-
 private:
-    uint8_t locks[(RCodeParameters::highestBasicLockNum + 7) / 8];
-    uint8_t rwLocks[RCodeParameters::highestRwLockNum
-            - RCodeParameters::lowestRwLockNum];
+    /** Bitset of boolean locks */
+    uint8_t locks[(RP::highestBasicLockNum + 7) / 8];
+
+    /** Byte that represents value of the RW locks, 255 means write-locked */
+    uint8_t rwLocks[RP::highestRwLockNum - RP::lowestRwLockNum];
 
 public:
     RCodeLocks() {
-        for (int i = 0; i < (RCodeParameters::highestBasicLockNum + 7) / 8;
-                ++i) {
+        for (int i = 0; i < (RP::highestBasicLockNum + 7) / 8; ++i) {
             locks[i] = 0;
         }
-        for (int i = 0;
-                i
-                        < RCodeParameters::highestRwLockNum
-                                - RCodeParameters::lowestRwLockNum; ++i) {
+        for (int i = 0; i < RP::highestRwLockNum - RP::lowestRwLockNum; ++i) {
             rwLocks[i] = 0;
         }
     }
-    bool canLock(RCodeLockSet *l) {
+
+    bool canLock(RCodeLockSet<RP> *l) {
         for (int i = 0; i < l->getLockNum(); i++) {
-            if (l->getLocks()[i] < RCodeParameters::highestBasicLockNum) {
-                if ((locks[l->getLocks()[i] / 8] & (1 << (l->getLocks()[i] % 8)))
-                        != 0) {
+            if (l->getLocks()[i] < RP::highestBasicLockNum) {
+                if ((locks[l->getLocks()[i] / 8] & (1 << (l->getLocks()[i] % 8))) != 0) {
                     return false;
                 }
-            } else if (l->getLocks()[i] < RCodeParameters::highestRwLockNum
-                    && l->getLocks()[i] >= RCodeParameters::lowestRwLockNum) {
+            } else if (l->getLocks()[i] < RP::highestRwLockNum && l->getLocks()[i] >= RP::lowestRwLockNum) {
                 if ((l->getW_nr()[i / 8] & 1 << i % 8) != 0) {
-                    if (rwLocks[l->getLocks()[i]
-                            - RCodeParameters::lowestRwLockNum] != 0) {
+                    if (rwLocks[l->getLocks()[i] - RP::lowestRwLockNum] != 0) {
                         return false;
                     }
                 } else {
-                    if (rwLocks[l->getLocks()[i]
-                            - RCodeParameters::lowestRwLockNum] == 255) {
+                    if (rwLocks[l->getLocks()[i] - RP::lowestRwLockNum] == 255) {
                         return false;
                     }
                 }
@@ -56,35 +53,41 @@ public:
         return true;
     }
 
-    void lock(RCodeLockSet *l) {
+    void setBits(uint8_t *p, uint8_t val) {
+        *p |= val;
+    }
+
+    void clearBits(uint8_t *p, uint8_t val) {
+        *p &= (uint8_t) ~val;
+    }
+
+    void lock(RCodeLockSet<RP> *l) {
+        // FIXME: uint8_t casts everywhere! Argh!
         for (int i = 0; i < l->getLockNum(); i++) {
-            if (l->getLocks()[i] < RCodeParameters::highestBasicLockNum) {
-                locks[l->getLocks()[i] / 8] |= 1 << (l->getLocks()[i] % 8);
-            } else if (l->getLocks()[i] < RCodeParameters::highestRwLockNum
-                    && l->getLocks()[i] >= RCodeParameters::lowestRwLockNum) {
+            uint8_t lockToSet = l->getLocks()[i];
+
+            if (lockToSet < RP::highestBasicLockNum) {
+                setBits(&locks[lockToSet / 8], (uint8_t)(1 << (lockToSet % 8)));
+            } else if (lockToSet < RP::highestRwLockNum && lockToSet >= RP::lowestRwLockNum) {
                 if ((l->getW_nr()[i / 8] & 1 << i % 8) != 0) {
-                    rwLocks[l->getLocks()[i] - RCodeParameters::lowestRwLockNum] =
-                            255;
-                } else if (rwLocks[l->getLocks()[i]
-                        - RCodeParameters::lowestRwLockNum] != 255) {
-                    rwLocks[l->getLocks()[i] - RCodeParameters::lowestRwLockNum]++;
+                    rwLocks[lockToSet - RP::lowestRwLockNum] = 255;
+                } else if (rwLocks[lockToSet - RP::lowestRwLockNum] != 255) {
+                    rwLocks[lockToSet - RP::lowestRwLockNum]++;
                 }
             }
         }
     }
 
-    void unlock(RCodeLockSet *l) {
+    void unlock(RCodeLockSet<RP> *l) {
         for (int i = 0; i < l->getLockNum(); i++) {
-            if (l->getLocks()[i] < RCodeParameters::highestBasicLockNum) {
-                locks[l->getLocks()[i] / 8] &= ~(1 << (l->getLocks()[i] % 8));
-            } else if (l->getLocks()[i] < RCodeParameters::highestRwLockNum
-                    && l->getLocks()[i] >= RCodeParameters::lowestRwLockNum) {
+            uint8_t lockToClear = l->getLocks()[i];
+            if (lockToClear < RP::highestBasicLockNum) {
+                clearBits(&locks[lockToClear / 8], (uint8_t)(1 << (lockToClear % 8)));
+            } else if (lockToClear < RP::highestRwLockNum && lockToClear >= RP::lowestRwLockNum) {
                 if ((l->getW_nr()[i / 8] & 1 << i % 8) != 0) {
-                    rwLocks[l->getLocks()[i] - RCodeParameters::lowestRwLockNum] =
-                            0;
-                } else if (rwLocks[l->getLocks()[i]
-                        - RCodeParameters::lowestRwLockNum] != 0) {
-                    rwLocks[l->getLocks()[i] - RCodeParameters::lowestRwLockNum]--;
+                    rwLocks[lockToClear - RP::lowestRwLockNum] = 0;
+                } else if (rwLocks[lockToClear - RP::lowestRwLockNum] != 0) {
+                    rwLocks[lockToClear - RP::lowestRwLockNum]--;
                 }
             }
         }

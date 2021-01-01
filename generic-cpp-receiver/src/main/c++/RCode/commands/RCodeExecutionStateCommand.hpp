@@ -8,26 +8,23 @@
 #ifndef SRC_TEST_CPP_RCODE_COMMANDS_RCODEEXECUTIONSTATECOMMAND_HPP_
 #define SRC_TEST_CPP_RCODE_COMMANDS_RCODEEXECUTIONSTATECOMMAND_HPP_
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
-#ifdef NOTIFICATIONS
 #include "RCodeCommand.hpp"
 #include "../executionspace/RCodeExecutionSpace.hpp"
 
-class RCodeExecutionStateCommand: public RCodeCommand {
+template<class RP>
+class RCodeExecutionStateCommand: public RCodeCommand<RP> {
 private:
     const uint8_t code = 0x20;
-    RCodeExecutionSpace *space;
+    RCodeExecutionSpace<RP> *space;
 public:
-    RCodeExecutionStateCommand(RCodeExecutionSpace *space) :
+    RCodeExecutionStateCommand(RCodeExecutionSpace<RP> *space) :
             space(space) {
-
     }
 
-    virtual void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
-            RCodeOutStream *out);
+    virtual void execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out);
 
-    virtual void setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
-        locks->addLock(RCodeLockValues::executionSpaceLock, false);
+    virtual void setLocks(RCodeCommandSlot<RP> *slot, RCodeLockSet<RP> *locks) const {
+        locks->addLock(RP::executionSpaceLock, false);
     }
 
     virtual uint8_t getCode() const {
@@ -46,7 +43,21 @@ public:
         return &code;
     }
 };
+
+template<class RP>
+void RCodeExecutionStateCommand<RP>::execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out) {
+    out->writeField('D', space->getDelay());
+    if (space->hasFailed()) {
+        out->writeField('F', 0);
+    }
+    out->writeField('G', space->isRunning());
+    RCodeOutStream<RP>::writeFieldType(out, 'L', space->getLength());
+    RCodeOutStream<RP>::writeFieldType(out, 'M', RP::executionLength);
+    out->writeStatus(OK);
+    slot->setComplete(true);
+}
+
 #include "../RCodeOutStream.hpp"
 #include "../parsing/RCodeCommandSlot.hpp"
-#endif
+
 #endif /* SRC_TEST_CPP_RCODE_COMMANDS_RCODEEXECUTIONSTATECOMMAND_HPP_ */

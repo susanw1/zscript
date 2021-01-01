@@ -8,7 +8,6 @@
 #ifndef SRC_TEST_CPP_RCODE_RCODERESPONSESTATUS_HPP_
 #define SRC_TEST_CPP_RCODE_RCODERESPONSESTATUS_HPP_
 #include "RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 
 enum RCodeResponseStatus {
     OK = 0,
@@ -21,6 +20,7 @@ enum RCodeResponseStatus {
     NOT_ACTIVATED = 7,
     TOO_BIG = 8,
     SETUP_ERROR = 0xf,
+
     CMD_FAIL = 0x10,
     NOT_EXECUTED = 0x11
 };

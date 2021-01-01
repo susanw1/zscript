@@ -8,18 +8,20 @@
 #ifndef SRC_TEST_CPP_RCODE_PARSING_RCODEBIGFIELD_HPP_
 #define SRC_TEST_CPP_RCODE_PARSING_RCODEBIGFIELD_HPP_
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 
+template<class RP>
 class RCodeOutStream;
 
+template<class RP>
 class RCodeBigField {
+    typedef typename RP::bigFieldAddress_t bigFieldAddress_t;
 protected:
     bigFieldAddress_t length = 0;
     bool string = false;
 public:
     virtual bool addByteToBigField(uint8_t b) = 0;
 
-    virtual void copyTo(RCodeOutStream *out) const = 0;
+    virtual void copyTo(RCodeOutStream<RP> *out) const = 0;
 
     virtual uint8_t const* getData() const = 0;
 
@@ -42,38 +44,49 @@ public:
     void setIsString(bool isString) {
         this->string = isString;
     }
+
     virtual ~RCodeBigField() {
-
     }
 };
-class RCodeStandardBigField: public RCodeBigField {
+
+template<class RP>
+class RCodeStandardBigField: public RCodeBigField<RP> {
 private:
-    uint8_t data[RCodeParameters::bigFieldLength];
+    uint8_t data[RP::bigFieldLength];
 public:
     virtual uint8_t const* getData() const {
         return data;
     }
 
     virtual bool addByteToBigField(uint8_t b) {
-        if (length >= RCodeParameters::bigFieldLength) {
+        if (this->length >= RP::bigFieldLength) {
             return false;
         }
-        data[length++] = b;
+        data[this->length++] = b;
         return true;
     }
 
-    virtual void copyTo(RCodeOutStream *out) const;
+    virtual void copyTo(RCodeOutStream<RP> *out) const {
+        if (this->length != 0) {
+            if (RCodeStandardBigField<RP>::isString()) {
+                out->writeBigStringField(data, this->length);
+            } else {
+                out->writeBigHexField(data, this->length);
+            }
+        }
+    }
 };
 
-class RCodeBigBigField: public RCodeBigField {
+template<class RP>
+class RCodeBigBigField: public RCodeBigField<RP> {
 private:
-    uint8_t data[RCodeParameters::bigBigFieldLength];
+    uint8_t data[RP::bigBigFieldLength];
 public:
     virtual bool addByteToBigField(uint8_t b) {
-        if (length >= RCodeParameters::bigBigFieldLength) {
+        if (this->length >= RP::bigBigFieldLength) {
             return false;
         }
-        data[length++] = b;
+        data[this->length++] = b;
         return true;
     }
 
@@ -81,17 +94,24 @@ public:
         return data;
     }
 
-    virtual void copyTo(RCodeOutStream *out) const;
+    virtual void copyTo(RCodeOutStream<RP> *out) const {
+        if (this->length != 0) {
+            if (this->isString()) {
+                out->writeBigStringField(data, this->length);
+            } else {
+                out->writeBigHexField(data, this->length);
+            }
+        }
+    }
 
-    void copyFrom(RCodeStandardBigField const *source) {
-        length = source->getLength();
+    void copyFrom(RCodeStandardBigField<RP> const *source) {
+        this->length = source->getLength();
         uint8_t const *sourceData = source->getData();
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < this->length; i++) {
             data[i] = sourceData[i];
         }
-        string = source->isString();
+        this->string = source->isString();
     }
-
 };
 
 #include "../RCodeOutStream.hpp"

@@ -8,48 +8,56 @@
 #ifndef SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTORCHANNEL_HPP_
 #define SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTORCHANNEL_HPP_
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 #include "../parsing/RCodeCommandChannel.hpp"
 #include "../parsing/RCodeCommandSequence.hpp"
 #include "../RCodeLockSet.hpp"
 
+template<class RP>
 class RCode;
+
+template<class RP>
 class RCodeInterruptVectorManager;
+
+template<class RP>
 class RCodeBusInterrupt;
+
+template<class RP>
+class RCodeExecutionSpace;
+
+template<class RP>
 class RCodeExecutionSpaceChannelIn;
 
-class RCodeInterruptVectorChannel: public RCodeCommandChannel {
+template<class RP>
+class RCodeInterruptVectorChannel: public RCodeCommandChannel<RP> {
 private:
-    RCode *rcode;
-    RCodeExecutionSpace *space;
-    RCodeInterruptVectorManager *vectorManager;
-    RCodeCommandSequence sequence;
-    RCodeBusInterrupt interrupt;
-    RCodeExecutionSpaceChannelIn *in = NULL;
-    RCodeLockSet locks;
+    RCode<RP> *rcode;
+    RCodeExecutionSpace<RP> *space;
+    RCodeInterruptVectorManager<RP> *vectorManager;
+    RCodeCommandSequence<RP> sequence;
+    RCodeBusInterrupt<RP> interrupt;
+    RCodeExecutionSpaceChannelIn<RP> *in = NULL;
+    RCodeLockSet<RP> locks;
 
 public:
-    RCodeInterruptVectorChannel(RCodeExecutionSpace *space,
-            RCodeInterruptVectorManager *vectorManager, RCode *r) :
-            rcode(r), space(space), vectorManager(vectorManager), sequence(r,
-                    this) {
-        locks.addLock(RCodeLockValues::executionSpaceLock, false);
+    RCodeInterruptVectorChannel(RCodeExecutionSpace<RP> *space, RCodeInterruptVectorManager<RP> *vectorManager, RCode<RP> *r) :
+            rcode(r), space(space), vectorManager(vectorManager), sequence(r, this) {
+        locks.addLock(RP::executionSpaceLock, false);
     }
 
-    RCodeChannelInStream* acquireInStream();
+    RCodeChannelInStream<RP>* acquireInStream();
 
     bool hasInStream() {
         return in != NULL;
     }
 
-    RCodeOutStream* acquireOutStream();
+    RCodeOutStream<RP>* acquireOutStream();
 
     bool hasOutStream() {
         return true;
     }
     bool hasCommandSequence();
 
-    RCodeCommandSequence* getCommandSequence() {
+    RCodeCommandSequence<RP>* getCommandSequence() {
         return &sequence;
     }
 
@@ -65,10 +73,10 @@ public:
     }
 
     void releaseOutStream() {
-        interrupt = RCodeBusInterrupt();
+        interrupt = RCodeBusInterrupt<RP>();
     }
 
-    RCodeBusInterrupt* getInterrupt() {
+    RCodeBusInterrupt<RP>* getInterrupt() {
         return &interrupt;
     }
 
@@ -92,5 +100,42 @@ public:
 
 };
 #include "RCodeInterruptVectorManager.hpp"
+
+template<class RP>
+RCodeChannelInStream<RP>* RCodeInterruptVectorChannel<RP>::acquireInStream() {
+    if (interrupt.getSource() == NULL) {
+        interrupt = vectorManager->takeInterrupt();
+    }
+    if (in == NULL) {
+        in = space->acquireInStream(vectorManager->findVector(&interrupt));
+    }
+    return in;
+}
+
+template<class RP>
+RCodeOutStream<RP>* RCodeInterruptVectorChannel<RP>::acquireOutStream() {
+    return vectorManager->getOut();
+}
+
+template<class RP>
+bool RCodeInterruptVectorChannel<RP>::hasCommandSequence() {
+    return interrupt.getSource() == NULL && vectorManager->hasInterruptSource()
+            && space->hasInStream();
+}
+
+template<class RP>
+void RCodeInterruptVectorChannel<RP>::lock() {
+    rcode->lock(&locks);
+}
+
+template<class RP>
+bool RCodeInterruptVectorChannel<RP>::canLock() {
+    return rcode->canLock(&locks);
+}
+
+template<class RP>
+void RCodeInterruptVectorChannel<RP>::unlock() {
+    rcode->unlock(&locks);
+}
 
 #endif /* SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTORCHANNEL_HPP_ */

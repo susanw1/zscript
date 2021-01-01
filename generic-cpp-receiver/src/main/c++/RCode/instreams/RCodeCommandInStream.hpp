@@ -8,41 +8,59 @@
 #ifndef SRC_MAIN_CPP_RCODE_INSTREAMS_RCODECOMMANDINSTREAM_HPP_
 #define SRC_MAIN_CPP_RCODE_INSTREAMS_RCODECOMMANDINSTREAM_HPP_
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 #include "RCodeLookaheadStream.hpp"
 
+template<class RP>
 class RCodeSequenceInStream;
+
+template<class RP>
 class RCodeLookaheadStream;
+
+template<class RP>
 class RCodeCommandInStream;
 
-class RCodeCommandLookaheadStream: public RCodeLookaheadStream {
+template<class RP>
+class RCodeCommandLookaheadStream: public RCodeLookaheadStream<RP> {
 private:
-    RCodeLookaheadStream *parent;
-    RCodeCommandInStream *commandIn;
+    RCodeLookaheadStream<RP> *parent;
+    RCodeCommandInStream<RP> *commandIn;
     uint8_t lookahead = 2;
 public:
     RCodeCommandLookaheadStream() :
-            parent(NULL), commandIn(
-            NULL) {
+            parent(NULL), commandIn(NULL) {
     }
-    virtual char read();
+    virtual char read() {
+        if (lookahead == 0) {
+            return parent->read();
+        }
+        if (lookahead-- == 2) {
+            return commandIn->current;
+        } else {
+            return commandIn->sequenceIn->peek();
+        }
+    }
 
-    void reset(RCodeCommandInStream *commandIn);
+    void reset(RCodeCommandInStream<RP> *commandIn) {
+        this->commandIn = commandIn;
+        this->parent = commandIn->sequenceIn->getChannelInStream()->getLookahead();
+        this->lookahead = 2;
+    }
 };
 
+template<class RP>
 class RCodeCommandInStream {
 private:
-    RCodeSequenceInStream *sequenceIn;
-    RCodeCommandLookaheadStream lookahead;
+    RCodeSequenceInStream<RP> *sequenceIn;
+    RCodeCommandLookaheadStream<RP> lookahead;
     char current = 0;
     bool opened = false;
     bool inString = false;
     bool backslash = false;
 
     void readInternal();
-    friend RCodeCommandLookaheadStream;
+    friend RCodeCommandLookaheadStream<RP> ;
 public:
-    RCodeCommandInStream(RCodeSequenceInStream *sequenceIn) :
+    RCodeCommandInStream(RCodeSequenceInStream<RP> *sequenceIn) :
             sequenceIn(sequenceIn), lookahead() {
     }
 
@@ -95,11 +113,29 @@ public:
         }
     }
 
-    RCodeLookaheadStream* getLookahead() {
+    RCodeLookaheadStream<RP>* getLookahead() {
         lookahead.reset(this);
         return &lookahead;
     }
 };
+
+template<class RP>
+void RCodeCommandInStream<RP>::readInternal() {
+    current = sequenceIn->read();
+
+    if (current == '\n' || (!inString && (current == '&' || current == '|'))) {
+        opened = false;
+    } else if (current == '"' && !backslash) {
+        inString = !inString;
+    } else if (inString) {
+        if (current == '\\') {
+            backslash = !backslash;
+        } else {
+            backslash = false;
+        }
+    }
+}
+
 #include "RCodeSequenceInStream.hpp"
 
 #endif /* SRC_MAIN_CPP_RCODE_INSTREAMS_RCODECOMMANDINSTREAM_HPP_ */

@@ -7,50 +7,42 @@
 
 #ifndef SRC_TEST_CPP_RCODE_RCODE_HPP_
 #define SRC_TEST_CPP_RCODE_RCODE_HPP_
+
 #include "RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 #include "parsing/RCodeParser.hpp"
 #include "parsing/RCodeCommandFinder.hpp"
-#ifdef NOTIFICATIONS
 #include "executionspace/RCodeExecutionSpace.hpp"
 #include "RCodeNotificationManager.hpp"
-#endif
 #include "RCodeRunner.hpp"
 #include "RCodeDebugOutput.hpp"
 #include "RCodeVoidChannel.hpp"
 #include "RCodeLocks.hpp"
 
+template<class RP>
 class RCodeCommandChannel;
+
+template<class RP>
 class RCodeLockSet;
 
+template<class RP>
 class RCode {
 private:
-    RCodeParser parser;
-    RCodeRunner runner;
-#ifdef NOTIFICATIONS
-    RCodeNotificationManager notificationManager;
-    RCodeExecutionSpace space;
-#endif
-    RCodeCommandFinder finder;
-    RCodeDebugOutput debug;
-    RCodeVoidChannel voidChannel;
-    RCodeLocks locks;
-    RCodeCommandChannel **channels = NULL;
+    RCodeParser<RP> parser;
+    RCodeRunner<RP> runner;
+    RCodeNotificationManager<RP> notificationManager;
+    RCodeExecutionSpace<RP> space;
+    RCodeCommandFinder<RP> finder;
+    RCodeDebugOutput<RP> debug;
+    RCodeVoidChannel<RP> voidChannel;
+    RCodeLocks<RP> locks;
+    RCodeCommandChannel<RP> **channels = NULL;
     const char *configFailureState = NULL;
     uint8_t channelNum = 0;
 public:
-    RCode(
-#ifdef NOTIFICATIONS
-            RCodeBusInterruptSource *interruptSources, uint8_t interruptSourceNum
-#endif
-            ) :
-            parser(this), runner(this),
-#ifdef NOTIFICATIONS
-                    notificationManager(this, interruptSources, interruptSourceNum), space(&notificationManager),
-#endif
-                    finder(this), debug() {
+    RCode(RCodeBusInterruptSource<RP> *interruptSources, uint8_t interruptSourceNum) :
+            parser(this), runner(this), notificationManager(this, interruptSources, interruptSourceNum), space(&notificationManager), finder(this), debug() {
     }
-    void setChannels(RCodeCommandChannel **channels, uint8_t channelNum) {
+    void setChannels(RCodeCommandChannel<RP> **channels, uint8_t channelNum) {
         this->channels = channels;
         this->channelNum = channelNum;
     }
@@ -63,45 +55,47 @@ public:
         return configFailureState;
     }
 
-    void progressRCode();
+    void progressRCode() {
+        debug.attemptFlush();
+        parser.parseNext();
+        runner.runNext();
+    }
 
-    RCodeCommandChannel* getVoidChannel() {
+    RCodeCommandChannel<RP>* getVoidChannel() {
         return &voidChannel;
     }
 
-#ifdef NOTIFICATIONS
-    RCodeExecutionSpace* getSpace() {
+    RCodeExecutionSpace<RP>* getSpace() {
         return &space;
     }
-#endif
-    RCodeCommandChannel** getChannels() {
+
+    RCodeCommandChannel<RP>** getChannels() {
         return channels;
     }
     uint8_t getChannelNumber() {
         return channelNum;
     }
-    RCodeCommandFinder* getCommandFinder() {
+    RCodeCommandFinder<RP>* getCommandFinder() {
         return &finder;
     }
 
-    RCodeDebugOutput& getDebug() {
+    RCodeDebugOutput<RP>& getDebug() {
         return debug;
     }
 
-#ifdef NOTIFICATIONS
-    RCodeNotificationManager* getNotificationManager() {
+    RCodeNotificationManager<RP>* getNotificationManager() {
         return &notificationManager;
     }
-#endif
-    bool canLock(RCodeLockSet *lockset) {
+
+    bool canLock(RCodeLockSet<RP> *lockset) {
         return locks.canLock(lockset);
     }
 
-    void lock(RCodeLockSet *lockset) {
+    void lock(RCodeLockSet<RP> *lockset) {
         locks.lock(lockset);
     }
 
-    void unlock(RCodeLockSet *lockset) {
+    void unlock(RCodeLockSet<RP> *lockset) {
         locks.unlock(lockset);
     }
 };

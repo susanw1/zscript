@@ -8,18 +8,17 @@
 #ifndef SRC_TEST_CPP_RCODE_COMMANDS_RCODEECHOCOMMAND_HPP_
 #define SRC_TEST_CPP_RCODE_COMMANDS_RCODEECHOCOMMAND_HPP_
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 #include "RCodeCommand.hpp"
 
-class RCodeEchoCommand: public RCodeCommand {
+template <class RP>
+class RCodeEchoCommand: public RCodeCommand<RP> {
 private:
     const uint8_t code = 0x01;
 public:
 
-    virtual void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
-            RCodeOutStream *out);
+    virtual void execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out);
 
-    virtual void setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
+    virtual void setLocks(RCodeCommandSlot<RP> *slot, RCodeLockSet<RP> *locks) const {
     }
 
     virtual uint8_t getCode() const {
@@ -38,6 +37,21 @@ public:
         return &code;
     }
 };
+
+template<class RP>
+void RCodeEchoCommand<RP>::execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out) {
+    if (!slot->getFields()->has('S')) {
+        out->writeStatus(OK);
+    } else {
+        slot->fail("", (RCodeResponseStatus) slot->getFields()->get('S', 0));
+        out->writeStatus((RCodeResponseStatus) slot->getFields()->get('S', 0));
+    }
+    slot->getFields()->copyTo(out);
+    slot->getBigField()->copyTo(out);
+    slot->setComplete(true);
+}
+
+
 #include "../RCodeOutStream.hpp"
 #include "../parsing/RCodeCommandSlot.hpp"
 

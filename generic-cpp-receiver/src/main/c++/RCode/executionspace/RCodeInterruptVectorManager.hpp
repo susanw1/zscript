@@ -8,36 +8,36 @@
 #ifndef SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTORMANAGER_HPP_
 #define SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTORMANAGER_HPP_
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 #include "../RCodeBusInterrupt.hpp"
 #include "RCodeInterruptVectorOut.hpp"
 #include "RCodeInterruptVectorMap.hpp"
+#include "RCodeExecutionSpace.hpp"
 
+template<class RP>
 class RCodeInterruptVectorManager {
+    typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
 private:
-    RCodeNotificationManager *notificationManager;
-    RCodeExecutionSpace space;
-    RCodeInterruptVectorOut out;
-    RCodeInterruptVectorMap vectorMap;
-    RCodeBusInterrupt waitingInterrupts[RCodeParameters::interruptVectorWorkingNum];
+    RCodeNotificationManager<RP> *notificationManager;
+    RCodeExecutionSpace<RP> space;
+    RCodeInterruptVectorOut<RP> out;
+    RCodeInterruptVectorMap<RP> vectorMap;
+    RCodeBusInterrupt<RP> waitingInterrupts[RP::interruptVectorWorkingNum];
     int waitingNum = 0;
 
 public:
-    RCodeInterruptVectorManager(RCodeNotificationManager *notificationManager,
-            RCodeExecutionSpace space) :
-            notificationManager(notificationManager), space(space), out(
-                    notificationManager) {
+    RCodeInterruptVectorManager(RCodeNotificationManager<RP> *notificationManager, RCodeExecutionSpace<RP> space) :
+            notificationManager(notificationManager), space(space), out(notificationManager) {
     }
 
-    RCodeInterruptVectorMap* getVectorMap() {
+    RCodeInterruptVectorMap<RP>* getVectorMap() {
         return &vectorMap;
     }
 
     bool canAccept() {
-        return waitingNum < RCodeParameters::interruptVectorWorkingNum;
+        return waitingNum < RP::interruptVectorWorkingNum;
     }
 
-    void acceptInterrupt(RCodeBusInterrupt i) {
+    void acceptInterrupt(RCodeBusInterrupt<RP> i) {
         waitingInterrupts[waitingNum++] = i;
     }
 
@@ -45,8 +45,8 @@ public:
         return waitingNum > 0;
     }
 
-    RCodeBusInterrupt takeInterrupt() {
-        RCodeBusInterrupt interrupt = waitingInterrupts[0];
+    RCodeBusInterrupt<RP> takeInterrupt() {
+        RCodeBusInterrupt<RP> interrupt = waitingInterrupts[0];
         for (int i = 0; i < waitingNum - 1; i++) {
             waitingInterrupts[i] = waitingInterrupts[i + 1];
         }
@@ -54,30 +54,26 @@ public:
         return interrupt;
     }
 
-    RCodeExecutionSpace getSpace() {
+    RCodeExecutionSpace<RP> getSpace() {
         return space;
     }
 
-    bool hasVector(RCodeBusInterrupt *busInt) {
-        return vectorMap.hasVector(busInt->getNotificationType(),
-                busInt->getNotificationBus(), busInt->getFoundAddress(),
-                busInt->getSource()->hasAddress()
-                        && busInt->hasFindableAddress());
+    bool hasVector(RCodeBusInterrupt<RP> *busInt) {
+        return vectorMap.hasVector(busInt->getNotificationType(), busInt->getNotificationBus(), busInt->getFoundAddress(),
+                busInt->getSource()->hasAddress() && busInt->hasFindableAddress());
 
     }
 
-    executionSpaceAddress_t findVector(RCodeBusInterrupt *busInt) {
-        return vectorMap.getVector(busInt->getNotificationType(),
-                busInt->getNotificationBus(), busInt->getFoundAddress(),
-                busInt->getSource()->hasAddress()
-                        && busInt->hasFindableAddress());
+    executionSpaceAddress_t findVector(RCodeBusInterrupt<RP> *busInt) {
+        return vectorMap.getVector(busInt->getNotificationType(), busInt->getNotificationBus(), busInt->getFoundAddress(),
+                busInt->getSource()->hasAddress() && busInt->hasFindableAddress());
     }
 
-    RCodeInterruptVectorOut* getOut() {
+    RCodeInterruptVectorOut<RP>* getOut() {
         return &out;
     }
 
-    RCodeNotificationManager* getNotificationManager() {
+    RCodeNotificationManager<RP>* getNotificationManager() {
         return notificationManager;
     }
 };

@@ -8,17 +8,18 @@
 #ifndef SRC_MAIN_CPP_RCODE_INSTREAMS_RCODEMARKERINSTREAM_HPP_
 #define SRC_MAIN_CPP_RCODE_INSTREAMS_RCODEMARKERINSTREAM_HPP_
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 
+template<class RP>
 class RCodeSequenceInStream;
 
+template<class RP>
 class RCodeMarkerInStream {
 private:
-    RCodeSequenceInStream *sequenceIn;
+    RCodeSequenceInStream<RP> *sequenceIn;
     bool hasRead = false;
 
 public:
-    RCodeMarkerInStream(RCodeSequenceInStream *sequenceIn) :
+    RCodeMarkerInStream(RCodeSequenceInStream<RP> *sequenceIn) :
             sequenceIn(sequenceIn) {
     }
 
@@ -26,13 +27,24 @@ public:
         hasRead = false;
     }
 
-    char read();
+    char read() {
+        if (hasRead) {
+            sequenceIn->read();
+        }
+        hasRead = true;
+        return sequenceIn->peek();
+    }
 
-    char reread();
+    char reread() {
+        return sequenceIn->peek();
+    }
 
-    bool hasNext();
+    bool hasNext() {
+        return sequenceIn->hasNext();
+    }
 
-    void close();
+    void close() {
+    }
 
     void unread() {
         hasRead = false;
