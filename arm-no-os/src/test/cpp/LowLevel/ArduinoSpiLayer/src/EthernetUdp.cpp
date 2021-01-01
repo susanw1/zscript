@@ -176,6 +176,12 @@ int EthernetUDP::peek()
     return Ethernet.socketPeek(sockindex);
 }
 
+int EthernetUDP::peek(uint16_t dist) {
+    if (sockindex >= MAX_SOCK_NUM || _remaining == 0)
+        return -1;
+    return Ethernet.socketPeek(sockindex, dist);
+}
+
 void EthernetUDP::flush()
 {
     // TODO: we should wait for TX buffer to be emptied

@@ -21,22 +21,24 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#include "stm32g4xx.h"
-#include "stm32g484xx.h"
+#include <stm32g4xx.h>
+#include <stm32g484xx.h>
 
-#include "../LowLevel/ArduinoSpiLayer/src/Ethernet.h"
+#include <ArduinoSpiLayer/src/Ethernet.h>
 
-//#include "RCode.hpp"
-//#include "commands/RCodeActivateCommand.hpp"
-//#include "commands/RCodeSetDebugChannelCommand.hpp"
-//#include "commands/RCodeEchoCommand.hpp"
-//#include "commands/RCodeExecutionStateCommand.hpp"
-//#include "commands/RCodeExecutionCommand.hpp"
-//#include "commands/RCodeExecutionStoreCommand.hpp"
-//#include "commands/RCodeNotificationHostCommand.hpp"
-//#include "commands/RCodeCapabilitiesCommand.hpp"
-//#include "executionspace/RCodeExecutionSpaceChannel.hpp"
-//#include "../commands/RCodeIdentifyCommand.hpp"
+#include <RCode.hpp>
+#include <commands/RCodeActivateCommand.hpp>
+#include <commands/RCodeSetDebugChannelCommand.hpp>
+#include <commands/RCodeEchoCommand.hpp>
+#include <commands/RCodeExecutionStateCommand.hpp>
+#include <commands/RCodeExecutionCommand.hpp>
+#include <commands/RCodeExecutionStoreCommand.hpp>
+#include <commands/RCodeNotificationHostCommand.hpp>
+#include <commands/RCodeCapabilitiesCommand.hpp>
+#include <executionspace/RCodeExecutionSpaceChannel.hpp>
+#include <RCodeIdentifyCommand.hpp>
+
+#include <EthernetUdpCommandChannel.hpp>
 
 //#include "../commands/persistence/RCodeFetchGiudCommand.hpp"
 //#include "../commands/persistence/RCodePersistentFetchCommand.hpp"
@@ -80,6 +82,54 @@ int main(void) {
     while (!Ethernet.begin(mac, 5000, 5000)) {
 
     }
+
+    RCode r(NULL, 0);
+    EthernetUdpCommandChannel channel(4889, &r);
+    RCodeExecutionSpaceChannel execCh = RCodeExecutionSpaceChannel(&r, r.getSpace());
+    RCodeCommandChannel *chptr[2] = { &channel, &execCh };
+    RCodeExecutionSpaceChannel **execPtr = (RCodeExecutionSpaceChannel**) chptr + 1;
+    r.setChannels(chptr, 2);
+    r.getSpace()->setChannels(execPtr, 1);
+    RCodeEchoCommand cmd0 = RCodeEchoCommand();
+    RCodeActivateCommand cmd1 = RCodeActivateCommand();
+    RCodeSetDebugChannelCommand cmd2 = RCodeSetDebugChannelCommand(&r);
+    RCodeCapabilitiesCommand cmd3 = RCodeCapabilitiesCommand(&r);
+    RCodeExecutionStateCommand cmd4 = RCodeExecutionStateCommand(r.getSpace());
+    RCodeExecutionCommand cmd5 = RCodeExecutionCommand(r.getSpace());
+    RCodeExecutionStoreCommand cmd6 = RCodeExecutionStoreCommand(r.getSpace());
+    RCodeNotificationHostCommand cmd7 = RCodeNotificationHostCommand(&r);
+    RCodeIdentifyCommand cmd8 = RCodeIdentifyCommand();
+
+    //    RCodeMbedFlashPersistence persist = RCodeMbedFlashPersistence();
+    //    RCodeFetchGiudCommand cmd9 = RCodeFetchGiudCommand(&persist);
+    //    RCodePersistentFetchCommand cmd10 = RCodePersistentFetchCommand(&persist);
+    //    RCodePersistentStoreCommand cmd11 = RCodePersistentStoreCommand(&persist);
+    //    RCodeStoreGiudCommand cmd12 = RCodeStoreGiudCommand(&persist);
+    //    RCodeStoreMacAddressCommand cmd13 = RCodeStoreMacAddressCommand(&persist);
+
+    //    RCodeI2cSubsystem::init();
+    //    RCodeI2cSetupCommand cmd14 = RCodeI2cSetupCommand();
+    //    RCodeI2cSendCommand cmd15 = RCodeI2cSendCommand();
+
+    r.getCommandFinder()->registerCommand(&cmd8);
+    r.getCommandFinder()->registerCommand(&cmd0);
+    r.getCommandFinder()->registerCommand(&cmd3);
+    r.getCommandFinder()->registerCommand(&cmd1);
+    r.getCommandFinder()->registerCommand(&cmd7);
+    r.getCommandFinder()->registerCommand(&cmd2);
+    r.getCommandFinder()->registerCommand(&cmd4);
+    r.getCommandFinder()->registerCommand(&cmd5);
+    r.getCommandFinder()->registerCommand(&cmd6);
+
+    //    r.getCommandFinder()->registerCommand(&cmd9);
+    //    r.getCommandFinder()->registerCommand(&cmd10);
+    //    r.getCommandFinder()->registerCommand(&cmd11);
+    //    r.getCommandFinder()->registerCommand(&cmd12);
+    //    r.getCommandFinder()->registerCommand(&cmd13);
+
+    //    r.getCommandFinder()->registerCommand(&cmd14);
+    //    r.getCommandFinder()->registerCommand(&cmd15);
+
     I2c *i2c1 = I2cManager::getI2cById(0);
     i2c1->init();
     GpioPin *c4 = GpioManager::getPin(PC_4);
@@ -139,7 +189,8 @@ int main(void) {
             }
             i2c1->asyncTransmit(0x20, data, 2, &doNothing);
         }
-//        r.progressRCode();
+        r.progressRCode();
+        Ethernet.maintain();
 //        uip.tick();
 //        uip.dhcpClient.checkLease();
     }

@@ -129,6 +129,7 @@ private:
     static int socketRecv(uint8_t s, uint8_t *buf, int16_t len);
     static uint16_t socketRecvAvailable(uint8_t s);
     static uint8_t socketPeek(uint8_t s);
+    static uint8_t socketPeek(uint8_t s, uint16_t dist);
     // sets up a UDP datagram, the data for which will be provided by one
     // or more calls to bufferData and then finally sent with sendUDP.
     // return true if the datagram was successfully set up, or false if there was an error
@@ -202,6 +203,10 @@ public:
     ;
     // Return the next byte from the current packet without moving on to the next byte
     virtual int peek();
+
+    // Return the next byte from the current packet without moving on to the next byte
+    virtual int peek(uint16_t dist);
+
     virtual void flush(); // Finish reading the current packet
 
     // Return the IP address of the host who sent the current incoming packet

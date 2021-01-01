@@ -6,6 +6,8 @@
 PROJECT = no-os
 
 # Project Structure
+CHANNELDIR = src/test/cpp/channels/Ethernet
+COMMANDDIR = src/test/cpp/commands
 LLDIR = src/test/cpp/LowLevel
 SRCDIR = src/test/cpp/main
 COMDIR = src/test/cpp/common
@@ -24,11 +26,11 @@ DEVICE = STM32G484RE
 
 # Sources
 CSRC = $(wildcard $(SRCDIR)/*.c) $(wildcard $(COMDIR)/*.c)
-CPPSRC = $(wildcard $(SRCDIR)/*.cpp) $(wildcard $(COMDIR)/*.cpp) $(wildcard $(LLDIR)/*.cpp) $(wildcard $(LLDIR)/*/*.cpp) $(wildcard $(LLDIR)/*/*/*.cpp) $(wildcard $(LLDIR)/*/*/*/*.cpp) $(wildcard $(RCODEDIR)/*.cpp) $(wildcard $(RCODEDIR)/*/*.cpp)
+CPPSRC = $(wildcard $(SRCDIR)/*.cpp) $(wildcard $(COMDIR)/*.cpp) $(wildcard $(LLDIR)/*.cpp) $(wildcard $(LLDIR)/*/*.cpp) $(wildcard $(COMMANDDIR)/*.cpp) $(wildcard $(CHANNELDIR)/*.cpp) $(wildcard $(LLDIR)/*/*/*.cpp) $(wildcard $(LLDIR)/*/*/*/*.cpp) $(wildcard $(RCODEDIR)/*.cpp) $(wildcard $(RCODEDIR)/*/*.cpp)
 ASM = $(wildcard $(SRCDIR)/*.s) $(wildcard $(COMDIR)/*.s)
 
 # Include directories
-INCLUDE  = -I$(INCDIR) -I$(INCDIR)/Core -I$(INCDIR)/STM32G4xx -I$(RCODEDIR)/ $(wildcard -I$(RCODEDIR)/*/) -I$(SRCDIR)
+INCLUDE  = -I$(INCDIR) -I$(INCDIR)/Core -I$(INCDIR)/STM32G4xx -I$(RCODEDIR)/ $(wildcard -I$(RCODEDIR)/*/) -I$(SRCDIR) -I$(CHANNELDIR) -I$(COMMANDDIR) -I$(LLDIR)
 
 # Linker 
 #LSCRIPT = STM32F103X8_FLASH.ld
@@ -94,6 +96,14 @@ clean:
 	$(RM) $(BINDIR)
 
 # Compilation
+$(OBJDIR)/%.o: $(COMMANDDIR)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(GCFLAGS) -c $< -o $@
+	
+$(OBJDIR)/%.o: $(CHANNELDIR)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(GCFLAGS) -c $< -o $@
+	
 $(OBJDIR)/%.o: $(LLDIR)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CC) $(GCFLAGS) -c $< -o $@

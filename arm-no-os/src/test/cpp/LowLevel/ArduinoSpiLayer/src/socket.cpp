@@ -382,6 +382,15 @@ uint8_t EthernetClass::socketPeek(uint8_t s)
     SPI.endTransaction();
     return b;
 }
+uint8_t EthernetClass::socketPeek(uint8_t s, uint16_t dist)
+        {
+    uint8_t b;
+    SPI.beginTransaction();
+    uint16_t ptr = state[s].RX_RD + dist;
+    W5100.read((ptr & W5100.SMASK) + W5100.RBASE(s), &b, 1);
+    SPI.endTransaction();
+    return b;
+}
 
 /*****************************************/
 /*    Socket Data Transmit Functions     */
