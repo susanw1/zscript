@@ -19,7 +19,7 @@ void TIM6_DAC_IRQHandler();
 #endif
 
 class SystemMilliClock {
-    static uint32_t timeBroad;
+    static volatile uint32_t timeBroad;
     static uint8_t bitScaling;
 
     friend void TIM6_DAC_IRQHandler();

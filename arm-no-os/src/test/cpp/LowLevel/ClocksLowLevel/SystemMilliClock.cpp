@@ -7,7 +7,7 @@
 
 #include "SystemMilliClock.hpp"
 
-uint32_t SystemMilliClock::timeBroad = 0;
+volatile uint32_t SystemMilliClock::timeBroad = 0;
 uint8_t SystemMilliClock::bitScaling = 0;
 
 void TIM6_DAC_IRQHandler() {

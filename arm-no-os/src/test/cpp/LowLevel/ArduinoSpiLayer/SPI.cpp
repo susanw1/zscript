@@ -10,7 +10,7 @@
 void SPIClass::begin() {
     RCC->APB2ENR |= 0x1000;
     SPI1->CR2 = 0x1700;
-    SPI1->CR1 = 0x033C;
+    SPI1->CR1 = 0x0304;
     GpioPin *sck = GpioManager::getPin(PA_5);
     sck->init();
     sck->setAlternateFunction(5);
@@ -39,11 +39,11 @@ void SPIClass::begin() {
 
 void SPIClass::beginTransaction() {
 }
-
+#pragma GCC optimize ("-O0")
 uint8_t SPIClass::transfer(uint8_t data) {
     // Forces 8 bit read/write, to allow 1 byte at a time
     *((volatile uint8_t*) &(SPI1->DR)) = data;
-    while (!(SPI1->SR & 0x0600))
+    while (!(((volatile uint16_t) SPI1->SR) & 0x0600))
         ;
     return *((volatile uint8_t*) &(SPI1->DR));
 }

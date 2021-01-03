@@ -29,6 +29,7 @@ struct RCodeCommandSlotStatus {
 class RCodeCommandSlot {
 public:
     RCodeCommandSlot *next = NULL;
+
 private:
     RCodeBigBigField *bigBig = NULL;
     RCodeCommand *cmd = NULL;
@@ -37,10 +38,10 @@ private:
     RCodeFieldMap map;
     RCodeResponseStatus status = OK;
     char end = 0;
-    RCodeCommandSlotStatus slotStatus;
+    volatile RCodeCommandSlotStatus slotStatus;
 
     uint8_t getHex(char c) {
-        return (uint8_t) (c >= 'a' ? c - 'a' + 10 : c - '0');
+        return (uint8_t)(c >= 'a' ? c - 'a' + 10 : c - '0');
     }
 
     bool isHex(char c) {

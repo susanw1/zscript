@@ -16,6 +16,8 @@ typedef uint8_t DmaIdentifier;
 typedef uint8_t I2cIdentifier;
 typedef uint8_t PinAlternateFunction;
 
+typedef uint64_t flashProgramming_t;
+
 #define I2C_1_SDA PB_9_
 #define I2C_1_SCL PA_15_
 #define USE_I2C_1
@@ -34,7 +36,6 @@ typedef uint8_t PinAlternateFunction;
 
 class GeneralHalSetup {
 public:
-
     static const uint8_t pinCount = 52;
 
     static const uint8_t systemClockCount = 13;
@@ -46,6 +47,9 @@ public:
     static const DmaIdentifier i2c2Dma = 1;
     static const DmaIdentifier i2c3Dma = 2;
     static const DmaIdentifier i2c4Dma = 3;
+
+    static const bool inDualBankFlash = true;
+    static const uint32_t pageSize = 0x800;
 };
 
 #endif /* SRC_TEST_CPP_COMMANDS_LOWLEVEL_GENERALHALSETUP_HPP_ */

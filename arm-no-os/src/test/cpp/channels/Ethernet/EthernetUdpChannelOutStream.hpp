@@ -20,6 +20,8 @@ class EthernetUdpChannelOutStream: public AbstractRCodeOutStream {
 public:
     EthernetUdpChannelOutStream(EthernetUdpCommandChannel *channel) :
             channel(channel) {
+        unlock();
+        this->mostRecent = NULL;
     }
 
     virtual void writeByte(uint8_t value);

@@ -58,7 +58,7 @@ void I2c::setFrequency(I2cFrequency freq) {
         }
         i2c.getRegisters()->TIMINGR = 0x00330309 | (scale << 28);
     } else if (freq == kHz1000) {
-        uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(8000) - 1;
+        uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(10800) - 1;
         if (scale > 15) {
             scale = 15;
         }

@@ -13,6 +13,6 @@ void RCodeIdentifyCommand::execute(RCodeCommandSlot *slot,
     out->writeField('V', 0);
     out->continueField(0);
     out->continueField(1);
-    out->writeBigStringField("C++/MBED/initial-demo");
+    out->writeBigStringField("rcode/arm/no-os/initial-demo");
     slot->setComplete(true);
 }

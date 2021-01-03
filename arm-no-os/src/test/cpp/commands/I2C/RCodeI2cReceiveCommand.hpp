@@ -1,25 +1,25 @@
 /*
- * RCodeI2cSendCommand.hpp
+ * RCodeI2cReceiveCommand.hpp
  *
- *  Created on: 13 Dec 2020
+ *  Created on: 2 Jan 2021
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CSENDCOMMAND_HPP_
-#define SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CSENDCOMMAND_HPP_
-
+#ifndef SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CRECEIVECOMMAND_HPP_
+#define SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CRECEIVECOMMAND_HPP_
 #include "RCodeIncludes.hpp"
 #include "RCodeParameters.hpp"
 #include "commands/RCodeCommand.hpp"
 #include "RCodeI2cSubsystem.hpp"
 #include "RCodeI2cBus.hpp"
 
-class RCodeI2cSendCommand: public RCodeCommand {
+class RCodeI2cReceiveCommand: public RCodeCommand {
 private:
-    const uint8_t code = 0x51;
+    const uint8_t code = 0x52;
 
     static void setAsFinished(I2cTerminationStatus status, RCodeCommandSlot *slot, uint8_t retries);
-    public:
+
+public:
     void finish(RCodeCommandSlot *rCodeCommandSlot, RCodeOutStream *out) const;
 
     void moveAlong(RCodeCommandSlot *rCodeCommandSlot) const;
@@ -33,7 +33,7 @@ private:
     }
 
     bool matchesCode(uint8_t code[], uint8_t length) const {
-        return length == 1 && code[0] == RCodeI2cSendCommand::code;
+        return length == 1 && code[0] == RCodeI2cReceiveCommand::code;
     }
 
     uint8_t getCodeLength() const {
@@ -49,4 +49,4 @@ private:
 #include "RCodeOutStream.hpp"
 #include "RCodeLockSet.hpp"
 
-#endif /* SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CSENDCOMMAND_HPP_ */
+#endif /* SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CRECEIVECOMMAND_HPP_ */

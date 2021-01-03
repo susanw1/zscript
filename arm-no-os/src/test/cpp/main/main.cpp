@@ -46,9 +46,11 @@
 //#include "../commands/persistence/RCodeStoreGiudCommand.hpp"
 //#include "../commands/persistence/RCodeStoreMacAddressCommand.hpp"
 //#include "../commands/persistence/RCodeMbedFlashPersistence.hpp"
-//#include "../commands/I2C/RCodeI2cSubsystem.hpp"
-//#include "../commands/I2C/RCodeI2cSetupCommand.hpp"
-//#include "../commands/I2C/RCodeI2cSendCommand.hpp"
+
+#include <I2C/RCodeI2cSubsystem.hpp>
+#include <I2C/RCodeI2cSetupCommand.hpp>
+#include <I2C/RCodeI2cSendCommand.hpp>
+#include <I2C/RCodeI2cReceiveCommand.hpp>
 
 #include "../LowLevel/GpioLowLevel/GpioManager.hpp"
 #include "../LowLevel/GpioLowLevel/Gpio.hpp"
@@ -107,9 +109,10 @@ int main(void) {
     //    RCodeStoreGiudCommand cmd12 = RCodeStoreGiudCommand(&persist);
     //    RCodeStoreMacAddressCommand cmd13 = RCodeStoreMacAddressCommand(&persist);
 
-    //    RCodeI2cSubsystem::init();
-    //    RCodeI2cSetupCommand cmd14 = RCodeI2cSetupCommand();
-    //    RCodeI2cSendCommand cmd15 = RCodeI2cSendCommand();
+    RCodeI2cSubsystem::init();
+    RCodeI2cSetupCommand cmd14 = RCodeI2cSetupCommand();
+    RCodeI2cSendCommand cmd15 = RCodeI2cSendCommand();
+    RCodeI2cReceiveCommand cmd16 = RCodeI2cReceiveCommand();
 
     r.getCommandFinder()->registerCommand(&cmd8);
     r.getCommandFinder()->registerCommand(&cmd0);
@@ -127,8 +130,9 @@ int main(void) {
     //    r.getCommandFinder()->registerCommand(&cmd12);
     //    r.getCommandFinder()->registerCommand(&cmd13);
 
-    //    r.getCommandFinder()->registerCommand(&cmd14);
-    //    r.getCommandFinder()->registerCommand(&cmd15);
+    r.getCommandFinder()->registerCommand(&cmd14);
+    r.getCommandFinder()->registerCommand(&cmd15);
+    r.getCommandFinder()->registerCommand(&cmd16);
 
     I2c *i2c1 = I2cManager::getI2cById(0);
     i2c1->init();
@@ -162,33 +166,33 @@ int main(void) {
     uint8_t read = 0;
     bool on = true;
     while (true) {
-        SystemMilliClock::blockDelayMillis(time);
-        if (read != 0xff) {
-            time = 500;
-        } else {
-            time = 1000;
-        }
-        c4->reset();
-        if (!i2c1->isLocked()) {
-            i2c1->lock();
-            uint8_t data[2] = { 0x19 };
-            i2c1->asyncTransmitReceive(0x20, data, 1, &read, 1, &doNothing);
-        }
+//        SystemMilliClock::blockDelayMillis(time);
+//        if (read != 0xff) {
+//            time = 500;
+//        } else {
+//            time = 1000;
+//        }
+//        c4->reset();
 //        if (!i2c1->isLocked()) {
 //            i2c1->lock();
-//            i2c1->asyncReceive(0x20, &read, 1, &doNothing);
+//            uint8_t data[2] = { 0x19 };
+//            i2c1->asyncTransmitReceive(0x20, data, 1, &read, 1, &doNothing);
 //        }
-        SystemMilliClock::blockDelayMillis(time);
-        c4->set();
-        if (!i2c1->isLocked()) {
-            on = !on;
-            i2c1->lock();
-            uint8_t data[2] = { 0x0A, 0xFF };
-            if (on) {
-                data[1] = 0;
-            }
-            i2c1->asyncTransmit(0x20, data, 2, &doNothing);
-        }
+////        if (!i2c1->isLocked()) {
+////            i2c1->lock();
+////            i2c1->asyncReceive(0x20, &read, 1, &doNothing);
+////        }
+//        SystemMilliClock::blockDelayMillis(time);
+//        c4->set();
+//        if (!i2c1->isLocked()) {
+//            on = !on;
+//            i2c1->lock();
+//            uint8_t data[2] = { 0x0A, 0xFF };
+//            if (on) {
+//                data[1] = 0;
+//            }
+//            i2c1->asyncTransmit(0x20, data, 2, &doNothing);
+//        }
         r.progressRCode();
         Ethernet.maintain();
 //        uip.tick();

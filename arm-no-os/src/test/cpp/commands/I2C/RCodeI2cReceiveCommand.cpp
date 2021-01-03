@@ -1,31 +1,30 @@
 /*
- * RCodeI2cSendCommand.cpp
+ * RCodeI2cReceiveCommand.cpp
  *
- *  Created on: 13 Dec 2020
+ *  Created on: 2 Jan 2021
  *      Author: robert
  */
 
-#include "RCodeI2cSendCommand.hpp"
+#include "RCodeI2cReceiveCommand.hpp"
 
-void RCodeI2cSendCommand::setAsFinished(I2cTerminationStatus status, RCodeCommandSlot *slot, uint8_t retries) {
+void RCodeI2cReceiveCommand::setAsFinished(I2cTerminationStatus status, RCodeCommandSlot *slot, uint8_t retries) {
     if (status == Complete || retries == 0) {
         slot->setComplete(true);
     } else {
         slot->setNeedsMoveAlong(true);
     }
 }
-void RCodeI2cSendCommand::moveAlong(RCodeCommandSlot *slot) const {
+void RCodeI2cReceiveCommand::moveAlong(RCodeCommandSlot *slot) const {
     uint16_t address = slot->getFields()->get('A', 0);
     if (slot->getFields()->countFieldSections('A') > 1) {
         address = (address << 8) | slot->getFields()->get('A', 1, 0);
     }
-
+    uint16_t length = slot->getFields()->get('L', 0);
     RCodeI2cBus *bus = RCodeI2cSubsystem::getRCodeBus(slot->getFields()->get('B', 0));
-    bus->asyncTransmit(address, slot->getBigField()->getData(), slot->getBigField()->getLength(), slot, &RCodeI2cSendCommand::setAsFinished,
-            bus->getCallbackData() - 1);
+    bus->asyncReceive(address, length, slot, &RCodeI2cReceiveCommand::setAsFinished, bus->getCallbackData() - 1);
 }
 
-void RCodeI2cSendCommand::finish(RCodeCommandSlot *slot, RCodeOutStream *out) const {
+void RCodeI2cReceiveCommand::finish(RCodeCommandSlot *slot, RCodeOutStream *out) const {
     uint8_t addrLen = slot->getFields()->countFieldSections('A');
     if (addrLen == 0 || addrLen > 2) {
         return;
@@ -47,6 +46,11 @@ void RCodeI2cSendCommand::finish(RCodeCommandSlot *slot, RCodeOutStream *out) co
     if (slot->getFields()->get('B', 0) >= 4 * RCodeI2cParameters::i2cBussesPerPhyBus) {
         return;
     }
+    uint16_t length = slot->getFields()->get('L', 0);
+    if (length == 0) {
+        return;
+    }
+    out->writeBigHexField(bus->getReadBuffer(), length);
     uint8_t retries = slot->getFields()->get('T', 5);
     if (retries == 0) {
         retries = 1;
@@ -72,7 +76,7 @@ void RCodeI2cSendCommand::finish(RCodeCommandSlot *slot, RCodeOutStream *out) co
     bus->freeReadBuffer();
 }
 
-void RCodeI2cSendCommand::execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence, RCodeOutStream *out) {
+void RCodeI2cReceiveCommand::execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence, RCodeOutStream *out) {
     uint8_t addrLen = slot->getFields()->countFieldSections('A');
     if (addrLen == 0 || addrLen > 2) {
         out->writeStatus(BAD_PARAM);
@@ -115,19 +119,20 @@ void RCodeI2cSendCommand::execute(RCodeCommandSlot *slot, RCodeCommandSequence *
         slot->setComplete(true);
         return;
     }
-    if (slot->getBigField()->getLength() == 0) {
-        RCodeI2cSubsystem::getRCodeBus(bus)->activateBus();
-        RCodeI2cSubsystem::getRCodeBus(bus)->asyncTransmit(address, NULL, 0, slot, &RCodeI2cSendCommand::setAsFinished, retries - 1);
-    } else {
-        RCodeI2cSubsystem::getRCodeBus(bus)->activateBus();
-        RCodeI2cSubsystem::getRCodeBus(bus)->asyncTransmit(address, slot->getBigField()->getData(), slot->getBigField()->getLength(), slot,
-                &RCodeI2cSendCommand::setAsFinished, retries - 1);
+    uint16_t length = slot->getFields()->get('L', 0);
+    if (length == 0) {
+        out->writeStatus(BAD_PARAM);
+        out->writeBigStringField("Cannot perform 0 byte I2C read");
+        slot->setComplete(true);
+        return;
     }
+    RCodeI2cSubsystem::getRCodeBus(bus)->activateBus();
+    RCodeI2cSubsystem::getRCodeBus(bus)->asyncReceive(address, length, slot,
+            &RCodeI2cReceiveCommand::setAsFinished, retries - 1);
 }
 
-void RCodeI2cSendCommand::setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
+void RCodeI2cReceiveCommand::setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
     if (slot->getFields()->countFieldSections('B') <= 1) {
         locks->addLock(RCodeI2cSubsystem::getRCodeBus(slot->getFields()->get('B', 0))->getBusLock(), true);
     }
 }
-
