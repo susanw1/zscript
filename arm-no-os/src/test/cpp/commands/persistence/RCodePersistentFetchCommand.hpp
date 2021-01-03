@@ -8,17 +8,17 @@
 #ifndef SRC_TEST_CPP_COMMANDS_RCODEPERSISTENTFETCHCOMMAND_HPP_
 #define SRC_TEST_CPP_COMMANDS_RCODEPERSISTENTFETCHCOMMAND_HPP_
 
-#include "../persistence/RCodeMbedFlashPersistence.hpp"
 #include "RCodeIncludes.hpp"
 #include "RCodeParameters.hpp"
 #include "commands/RCodeCommand.hpp"
+#include "RCodeFlashPersistence.hpp"
 
 class RCodePersistentFetchCommand: public RCodeCommand {
 private:
     const uint8_t code = 0x11;
-    RCodeMbedFlashPersistence *persist;
+    RCodeFlashPersistence *persist;
 public:
-    RCodePersistentFetchCommand(RCodeMbedFlashPersistence *persist) :
+    RCodePersistentFetchCommand(RCodeFlashPersistence *persist) :
             persist(persist) {
     }
     void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,

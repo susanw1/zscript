@@ -7,17 +7,17 @@
 
 #ifndef SRC_TEST_CPP_COMMANDS_RCODEFETCHGIUDCOMMAND_HPP_
 #define SRC_TEST_CPP_COMMANDS_RCODEFETCHGIUDCOMMAND_HPP_
-#include "../persistence/RCodeMbedFlashPersistence.hpp"
 #include "RCodeIncludes.hpp"
 #include "RCodeParameters.hpp"
 #include "commands/RCodeCommand.hpp"
+#include "RCodeFlashPersistence.hpp"
 
 class RCodeFetchGiudCommand: public RCodeCommand {
 private:
     const uint8_t code = 0x06;
-    RCodeMbedFlashPersistence *persist;
+    RCodeFlashPersistence *persist;
 public:
-    RCodeFetchGiudCommand(RCodeMbedFlashPersistence *persist) :
+    RCodeFetchGiudCommand(RCodeFlashPersistence *persist) :
             persist(persist) {
     }
 

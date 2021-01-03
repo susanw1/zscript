@@ -1,11 +1,11 @@
 /*
- * RCodeMbedFlashPersistence.cpp
+ * RCodeFlashPersistence.cpp
  *
  *  Created on: 11 Dec 2020
  *      Author: robert
  */
 
-#include "RCodeMbedFlashPersistence.hpp"
+#include "RCodeFlashPersistence.hpp"
 
 static const uint16_t guidLocation = 0;
 static const uint16_t macAddressLocation = 20;
@@ -13,7 +13,7 @@ static const uint16_t mainPersistentMemoryLocation = 32;
 
 mbed::FlashIAP flash;
 
-RCodeMbedFlashPersistence::RCodeMbedFlashPersistence() :
+RCodeFlashPersistence::RCodeFlashPersistence() :
         persistenceStartAddress(
                 (((uint32_t) FLASHIAP_APP_ROM_END_ADDR)
                         + flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR)
@@ -23,30 +23,30 @@ RCodeMbedFlashPersistence::RCodeMbedFlashPersistence() :
                 flash.get_sector_size(persistenceStartAddress)) {
     flash.init();
 }
-uint32_t RCodeMbedFlashPersistence::getStuff() {
+uint32_t RCodeFlashPersistence::getStuff() {
     return persistenceStartAddress;
 }
-uint8_t* RCodeMbedFlashPersistence::getGuid() {
+uint8_t* RCodeFlashPersistence::getGuid() {
     return (uint8_t*) (persistenceStartAddress) + guidLocation;
 }
-uint8_t* RCodeMbedFlashPersistence::getMac() {
+uint8_t* RCodeFlashPersistence::getMac() {
     return (uint8_t*) (persistenceStartAddress) + macAddressLocation;
 }
-uint8_t* RCodeMbedFlashPersistence::getPersistentMemory() {
+uint8_t* RCodeFlashPersistence::getPersistentMemory() {
     return (uint8_t*) (persistenceStartAddress) + mainPersistentMemoryLocation;
 }
-int RCodeMbedFlashPersistence::writeGuid(const uint8_t *guid) {
+int RCodeFlashPersistence::writeGuid(const uint8_t *guid) {
     return writePersistentInternal(guidLocation, guid, 16);
 }
-int RCodeMbedFlashPersistence::writeMac(const uint8_t *mac) {
+int RCodeFlashPersistence::writeMac(const uint8_t *mac) {
     return writePersistentInternal(macAddressLocation, mac, 6);
 }
-int RCodeMbedFlashPersistence::writePersistent(uint8_t location,
+int RCodeFlashPersistence::writePersistent(uint8_t location,
         const uint8_t *memory, uint8_t length) {
     return writePersistentInternal(location + mainPersistentMemoryLocation,
             memory, length);
 }
-int RCodeMbedFlashPersistence::writePersistentInternal(uint16_t location,
+int RCodeFlashPersistence::writePersistentInternal(uint16_t location,
         const uint8_t *toWrite, uint16_t length) {
     uint8_t page[sectorSize];
     for (int i = 0; i < sectorSize; ++i) {
