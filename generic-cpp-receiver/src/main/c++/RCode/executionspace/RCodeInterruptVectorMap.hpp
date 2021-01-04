@@ -8,34 +8,28 @@
 #ifndef SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTORMAP_HPP_
 #define SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTORMAP_HPP_
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 
+template<class RP>
 class RCodeInterruptVectorMap {
+    typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
 private:
     uint16_t vectorNum = 0;
     uint16_t mostRecent = 0;
-    executionSpaceAddress_t vectors[RCodeParameters::interruptVectorNum];
-    uint8_t addresses[RCodeParameters::interruptVectorNum];
-    uint8_t specificities[RCodeParameters::interruptVectorNum];
-    uint8_t busses[RCodeParameters::interruptVectorNum];
-    uint8_t types[RCodeParameters::interruptVectorNum];
+    executionSpaceAddress_t vectors[RP::interruptVectorNum];
+    uint8_t addresses[RP::interruptVectorNum];
+    uint8_t specificities[RP::interruptVectorNum];
+    uint8_t busses[RP::interruptVectorNum];
+    uint8_t types[RP::interruptVectorNum];
 
-    bool setVectorInternal(uint8_t type, uint8_t bus, uint8_t addr,
-            uint8_t specificity, executionSpaceAddress_t vector) {
+    bool setVectorInternal(uint8_t type, uint8_t bus, uint8_t addr, uint8_t specificity, executionSpaceAddress_t vector) {
         for (int i = 0; i < vectorNum; i++) {
             if (specificities[i] == specificity
-                    && (specificity == 0
-                            || (types[i] == type
-                                    && (specificity == 1
-                                            || (busses[i] == bus
-                                                    && (specificity == 0x02
-                                                            || addresses[i]
-                                                                    == addr)))))) {
+                    && (specificity == 0 || (types[i] == type && (specificity == 1 || (busses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))))) {
                 vectors[i] = vector;
                 return true;
             }
         }
-        if (vectorNum >= RCodeParameters::interruptVectorNum) {
+        if (vectorNum >= RP::interruptVectorNum) {
             return false;
         }
         specificities[vectorNum] = specificity;
@@ -47,62 +41,38 @@ private:
         return true;
     }
 
-    bool hasVectorInternal(uint8_t type, uint8_t bus, uint8_t addr,
-            uint8_t specificity) {
+    bool hasVectorInternal(uint8_t type, uint8_t bus, uint8_t addr, uint8_t specificity) {
         if (specificities[mostRecent] == specificity
                 && (specificity == 0
                         || (types[mostRecent] == type
-                                && (specificity == 1
-                                        || (busses[mostRecent] == bus
-                                                && (specificity == 0x02
-                                                        || addresses[mostRecent]
-                                                                == addr)))))) {
+                                && (specificity == 1 || (busses[mostRecent] == bus && (specificity == 0x02 || addresses[mostRecent] == addr)))))) {
             return true;
         }
         for (int i = 0; i < vectorNum; i++) {
             if (specificities[i] == specificity
-                    && (specificity == 0
-                            || (types[i] == type
-                                    && (specificity == 1
-                                            || (busses[i] == bus
-                                                    && (specificity == 0x02
-                                                            || addresses[i]
-                                                                    == addr)))))) {
+                    && (specificity == 0 || (types[i] == type && (specificity == 1 || (busses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))))) {
                 mostRecent = i;
                 return true;
             }
         }
-        return specificity == 0 ?
-                false : hasVectorInternal(type, bus, addr, specificity - 1);
+        return specificity == 0 ? false : hasVectorInternal(type, bus, addr, specificity - 1);
     }
 
-    executionSpaceAddress_t getVectorInternal(uint8_t type, uint8_t bus,
-            uint8_t addr, uint8_t specificity) {
+    executionSpaceAddress_t getVectorInternal(uint8_t type, uint8_t bus, uint8_t addr, uint8_t specificity) {
         if (specificities[mostRecent] == specificity
                 && (specificity == 0
                         || (types[mostRecent] == type
-                                && (specificity == 1
-                                        || (busses[mostRecent] == bus
-                                                && (specificity == 0x02
-                                                        || addresses[mostRecent]
-                                                                == addr)))))) {
+                                && (specificity == 1 || (busses[mostRecent] == bus && (specificity == 0x02 || addresses[mostRecent] == addr)))))) {
             return vectors[mostRecent];
         }
         for (int i = 0; i < vectorNum; i++) {
             if (specificities[i] == specificity
-                    && (specificity == 0
-                            || (types[i] == type
-                                    && (specificity == 1
-                                            || (busses[i] == bus
-                                                    && (specificity == 0x02
-                                                            || addresses[i]
-                                                                    == addr)))))) {
+                    && (specificity == 0 || (types[i] == type && (specificity == 1 || (busses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))))) {
                 mostRecent = i;
                 return vectors[i];
             }
         }
-        return specificity == 0 ?
-                0 : getVectorInternal(type, bus, addr, specificity - 1);
+        return specificity == 0 ? 0 : getVectorInternal(type, bus, addr, specificity - 1);
     }
 
 public:
@@ -115,18 +85,15 @@ public:
         return setVectorInternal(type, 0, 0, 0x01, vector);
     }
 
-    bool setVector(uint8_t type, uint8_t bus, uint8_t addr, bool hasAddress,
-            executionSpaceAddress_t vector) {
-        return setVectorInternal(type, bus, addr, hasAddress ? 0x03 : 0x02,
-                vector);
+    bool setVector(uint8_t type, uint8_t bus, uint8_t addr, bool hasAddress, executionSpaceAddress_t vector) {
+        return setVectorInternal(type, bus, addr, hasAddress ? 0x03 : 0x02, vector);
     }
 
     bool hasVector(uint8_t type, uint8_t bus, uint8_t addr, bool hasAddress) {
         return hasVectorInternal(type, bus, addr, hasAddress ? 0x03 : 0x02);
     }
 
-    executionSpaceAddress_t getVector(uint8_t type, uint8_t bus, uint8_t addr,
-            bool hasAddress) {
+    executionSpaceAddress_t getVector(uint8_t type, uint8_t bus, uint8_t addr, bool hasAddress) {
         return getVectorInternal(type, bus, addr, hasAddress ? 0x03 : 0x02);
     }
 

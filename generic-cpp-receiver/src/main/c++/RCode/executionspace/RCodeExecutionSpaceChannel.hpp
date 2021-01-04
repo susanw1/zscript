@@ -10,29 +10,37 @@
 
 #include "../parsing/RCodeCommandSequence.hpp"
 #include "../parsing/RCodeCommandChannel.hpp"
+#include "RCodeExecutionSpaceChannelIn.hpp"
 
+template<class RP>
 class RCode;
+
+template<class RP>
 class RCodeExecutionSpace;
 
-class RCodeExecutionSpaceChannel: public RCodeCommandChannel {
+template<class RP>
+class RCodeExecutionSpaceChannel: public RCodeCommandChannel<RP> {
+    typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
 private:
-    RCode *rcode;
-    RCodeExecutionSpace *space;
-    RCodeCommandSequence sequence;
-    RCodeExecutionSpaceChannelIn *in;
-    RCodeOutStream *out = NULL;
-    RCodeLockSet locks;
+    RCode<RP> *rcode;
+    RCodeExecutionSpace<RP> *space;
+    RCodeCommandSequence<RP> sequence;
+    RCodeExecutionSpaceChannelIn<RP> *in;
+    RCodeOutStream<RP> *out = NULL;
+    RCodeLockSet<RP> locks;
     executionSpaceAddress_t position = 0;
     uint8_t delayCounter = 0;
     uint8_t lockCount = 0;
 public:
-    RCodeExecutionSpaceChannel(RCode *rcode, RCodeExecutionSpace *space) :
+    RCodeExecutionSpaceChannel(RCode<RP> *rcode, RCodeExecutionSpace<RP> *space) :
             rcode(rcode), space(space), sequence(rcode, this), in(NULL) {
-        locks.addLock(RCodeLockValues::executionSpaceLock, false);
+        locks.addLock(RP::executionSpaceLock, false);
     }
-    RCodeCommandSequence* getCommandSequence() {
+
+    RCodeCommandSequence<RP>* getCommandSequence() {
         return &sequence;
     }
+
     void move(executionSpaceAddress_t position) {
         this->position = position;
     }
@@ -40,28 +48,68 @@ public:
     bool isPacketBased() {
         return false;
     }
-    RCodeExecutionSpaceChannelIn* acquireInStream();
+    RCodeExecutionSpaceChannelIn<RP>* acquireInStream() {
+        if (this->in == NULL) {
+            in = space->acquireInStream(position);
+        }
+        return in;
+    }
 
     bool hasInStream() {
         return in != NULL;
     }
 
-    RCodeOutStream* acquireOutStream();
+    RCodeOutStream<RP>* acquireOutStream() {
+        if (out == NULL) {
+            out = space->acquireOutStream();
+        }
+        return out;
+    }
 
     bool hasOutStream() {
         return out != NULL;
     }
-    bool hasCommandSequence();
 
-    void releaseInStream();
+    bool hasCommandSequence() {
+        bool has = space->isRunning() && space->hasInStream() && space->hasOutStream() && in == NULL && out == NULL && delayCounter >= space->getDelay();
+        delayCounter++;
+        return has;
+    }
 
-    void releaseOutStream();
+    void releaseInStream() {
+        delayCounter = 0;
+        if (in != NULL) {
+            position = (executionSpaceAddress_t) (in->getPosition() + 1);
+            if (position >= space->getLength()) {
+                position = 0;
+            }
+            space->releaseInStream(in);
+        }
+        in = NULL;
+    }
 
-    void lock();
+    void releaseOutStream() {
+        space->releaseOutStream((RCodeExecutionSpaceOut<RP>*) out);
+        out = NULL;
+    }
 
-    bool canLock();
+    void lock() {
+        if (lockCount == 0) {
+            rcode->lock(&locks);
+        }
+        lockCount++;
+    }
 
-    void unlock();
+    bool canLock() {
+        return lockCount > 0 || rcode->canLock(&locks);
+    }
+
+    void unlock() {
+        lockCount--;
+        if (lockCount == 0) {
+            rcode->unlock(&locks);
+        }
+    }
 
     void setAsNotificationChannel() {
     }
@@ -74,8 +122,8 @@ public:
 
     void releaseFromDebugChannel() {
     }
-
 };
+
 #include "../RCode.hpp"
 #include "RCodeExecutionSpace.hpp"
 

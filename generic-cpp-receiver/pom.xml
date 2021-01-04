@@ -32,17 +32,55 @@
                         <debug>true</debug>
                         <includePaths>
                             <includePath>
-                                <path>${project.basedir}/src/main/c++</path>
+                                <path>${project.basedir}/src/main/c++/RCode</path>
                                 <includes>**/*.hpp</includes>
                             </includePath>
                         </includePaths>
+                        <options>
+                            <option>-flto</option>
+                            <option>-g</option>
+                            <option>-Wall</option>
+                        </options>
                     </cpp>
+                    <libraries>
+                        <library>
+                            <type>static</type>
+                        </library>
+                    </libraries>
+                    <tests>
+                        <test>
+                            <name>default-cli</name>
+                            <link>static</link>
+                            <run>false</run>
+                        </test>
+                        <test>
+                            <name>unit-tests1</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
+                        <test>
+                            <name>unit-tests2</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
+                    </tests>
                 </configuration>
             </plugin>
+
             <plugin>
-                <groupId>com.github.sdedwards.m2e-nar</groupId>
-                <artifactId>m2e-nar</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <configuration>
+                            <executable>${project.build.directory}/test-nar/bin/amd64-Linux-gpp/default-cli</executable>
+                            <workingDirectory>${project.build.directory}</workingDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+
         </plugins>
     </build>
 </project>

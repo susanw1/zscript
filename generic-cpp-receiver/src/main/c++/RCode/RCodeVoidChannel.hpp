@@ -11,75 +11,77 @@
 #include "parsing/RCodeCommandChannel.hpp"
 #include "RCodeOutStream.hpp"
 
+template<class RP>
 class RCodeCommandSequence;
+
+template<class RP>
 class RCodeChannelInStream;
 
-class RCodeVoidChannel: public RCodeCommandChannel {
-    class RCodeVoidOutStream: public RCodeOutStream {
+template<class RP>
+class RCodeVoidChannel: public RCodeCommandChannel<RP> {
+    template<class RP1>
+    class RCodeVoidOutStream : public RCodeOutStream<RP1> {
         bool isLocked() {
             return false;
         }
-        virtual RCodeOutStream* markDebug() {
+        virtual RCodeOutStream<RP1>* markDebug() {
             return this;
         }
 
-        virtual RCodeOutStream* markNotification() {
+        virtual RCodeOutStream<RP1>* markNotification() {
             return this;
         }
 
-        virtual RCodeOutStream* markBroadcast() {
+        virtual RCodeOutStream<RP1>* markBroadcast() {
             return this;
         }
-        virtual RCodeOutStream* writeStatus(RCodeResponseStatus st) {
-            return this;
-        }
-
-        virtual RCodeOutStream* writeField(char f, fieldUnit v) {
+        virtual RCodeOutStream<RP1>* writeStatus(RCodeResponseStatus st) {
             return this;
         }
 
-        virtual RCodeOutStream* continueField(fieldUnit v) {
+        virtual RCodeOutStream<RP1>* writeField(char f, typename RP1::fieldUnit_t v) {
             return this;
         }
 
-        virtual RCodeOutStream* writeBigHexField(uint8_t const *value,
-                bigFieldAddress_t length) {
+        virtual RCodeOutStream<RP1>* continueField(typename RP1::fieldUnit_t v) {
             return this;
         }
 
-        virtual RCodeOutStream* writeBigStringField(uint8_t const *value,
-                bigFieldAddress_t length) {
+        virtual RCodeOutStream<RP1>* writeBigHexField(uint8_t const *value, typename RP1::bigFieldAddress_t length) {
             return this;
         }
 
-        virtual RCodeOutStream* writeBigStringField(char const *s) {
+        virtual RCodeOutStream<RP1>* writeBigStringField(uint8_t const *value, typename RP1::bigFieldAddress_t length) {
             return this;
         }
 
-        virtual RCodeOutStream* writeBytes(uint8_t const *value,
-                bigFieldAddress_t length) {
+        virtual RCodeOutStream<RP1>* writeBigStringField(char const *s) {
             return this;
         }
 
-        virtual RCodeOutStream* writeCommandSeperator() {
+        virtual RCodeOutStream<RP1>* writeBytes(uint8_t const *value, typename RP1::bigFieldAddress_t length) {
             return this;
         }
 
-        virtual RCodeOutStream* writeCommandSequenceErrorHandler() {
+        virtual RCodeOutStream<RP1>* writeCommandSeperator() {
             return this;
         }
 
-        virtual RCodeOutStream* writeCommandSequenceSeperator() {
+        virtual RCodeOutStream<RP1>* writeCommandSequenceErrorHandler() {
             return this;
         }
 
-        virtual void openResponse(RCodeCommandChannel *target) {
+        virtual RCodeOutStream<RP1>* writeCommandSequenceSeperator() {
+            return this;
         }
 
-        virtual void openNotification(RCodeCommandChannel *target) {
+        virtual void openResponse(RCodeCommandChannel<RP1> *target) {
         }
 
-        virtual void openDebug(RCodeCommandChannel *target) {
+        virtual void openNotification(RCodeCommandChannel<RP1> *target) {
+        }
+
+        virtual void openDebug(RCodeCommandChannel<RP1> *target) {
         }
 
         virtual bool isOpen() {
@@ -89,16 +91,16 @@ class RCodeVoidChannel: public RCodeCommandChannel {
         virtual void close() {
         }
     };
-    RCodeVoidOutStream out;
+    RCodeVoidOutStream<RP> out;
 public:
-    virtual RCodeChannelInStream* acquireInStream() {
+    virtual RCodeChannelInStream<RP>* acquireInStream() {
         return NULL;
     }
     bool hasInStream() {
         return true;
     }
 
-    virtual RCodeOutStream* acquireOutStream() {
+    virtual RCodeOutStream<RP>* acquireOutStream() {
         return &out;
     }
     virtual bool hasOutStream() {
@@ -108,7 +110,7 @@ public:
         return false;
     }
 
-    virtual RCodeCommandSequence* getCommandSequence() {
+    virtual RCodeCommandSequence<RP>* getCommandSequence() {
         return NULL;
     }
 

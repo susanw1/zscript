@@ -9,27 +9,30 @@
 #define SRC_TEST_CPP_RCODE_COMMANDS_RCODESENDDEBUGCOMMAND_HPP_
 
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 #include "RCodeCommand.hpp"
 
+template<class RP>
 class RCodeOutStream;
+
+template<class RP>
 class RCodeDebugOutput;
+
+template<class RP>
 class RCode;
 
-class RCodeSendDebugCommand: public RCodeCommand {
+template<class RP>
+class RCodeSendDebugCommand: public RCodeCommand<RP> {
 private:
     const uint8_t code = 0x1f;
-    RCode *const rcode;
+    RCode<RP> *const rcode;
 public:
-    RCodeSendDebugCommand(RCode *const rcode) :
+    RCodeSendDebugCommand(RCode<RP> *const rcode) :
             rcode(rcode) {
-
     }
 
-    void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
-            RCodeOutStream *out);
+    void execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out);
 
-    void setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
+    void setLocks(RCodeCommandSlot<RP> *slot, RCodeLockSet<RP> *locks) const {
     }
 
     uint8_t getCode() const {
@@ -48,6 +51,13 @@ public:
         return &code;
     }
 };
+
+template<class RP>
+void RCodeSendDebugCommand<RP>::execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out) {
+    rcode->getDebug().println((const char*) slot->getBigField()->getData(), slot->getBigField()->getLength());
+    out->writeStatus(OK);
+    slot->setComplete(true);
+}
 
 #include "../RCode.hpp"
 #include "../RCodeOutStream.hpp"

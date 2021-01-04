@@ -8,33 +8,39 @@
 #ifndef SRC_TEST_CPP_RCODE_RCODELOCKSET_HPP_
 #define SRC_TEST_CPP_RCODE_RCODELOCKSET_HPP_
 #include "RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 
+/**
+ * Set of locks being requested.
+ */
+template<class RP>
 class RCodeLockSet {
+    typedef typename RP::lockNumber_t lockNumber_t;
 private:
-    uint8_t locks[RCodeParameters::lockNum];
-    uint8_t w_nr[RCodeParameters::lockNum];
+    // FIXME: locks are lockIds
+    uint8_t locks[RP::lockNum];
+    uint8_t w_nr[(RP::lockNum + 7) / 8];
     bool active = false;
     lockNumber_t lockNum = 0;
 
 public:
     void addLock(uint8_t lock, bool isWrite) {
+        // FIXME: check overrun
         for (int i = 0; i < lockNum; i++) {
             if (locks[i] == lock) {
                 if (isWrite) {
-                    w_nr[i / 8] |= 1 << i % 8;
+                    w_nr[i / 8] |= (uint8_t)(1 << i % 8);
                 }
                 break;
             }
         }
         locks[lockNum] = lock;
         if (isWrite) {
-            w_nr[lockNum / 8] |= 1 << lockNum % 8;
+            w_nr[lockNum / 8] |= (uint8_t)(1 << lockNum % 8);
         }
         lockNum++;
     }
 
-    uint8_t const* getLocks() const {
+    const uint8_t* getLocks() const {
         return locks;
     }
 
@@ -42,7 +48,7 @@ public:
         return lockNum;
     }
 
-    uint8_t const* getW_nr() const {
+    const uint8_t* getW_nr() const {
         return w_nr;
     }
     bool isActive() const {

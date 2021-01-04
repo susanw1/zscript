@@ -8,28 +8,36 @@
 #ifndef SRC_TEST_CPP_RCODE_PARSING_RCODECOMMANDCHANNEL_HPP_
 #define SRC_TEST_CPP_RCODE_PARSING_RCODECOMMANDCHANNEL_HPP_
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 
+template <class RP>
 class RCodeLockSet;
+
+template <class RP>
 class RCodeChannelInStream;
+
+template <class RP>
 class RCodeOutStream;
+
+template <class RP>
 class RCodeCommandSequence;
 
+
+template <class RP>
 class RCodeCommandChannel {
 public:
-    virtual RCodeChannelInStream* acquireInStream() = 0;
+    virtual RCodeChannelInStream<RP>* acquireInStream() = 0;
 
     virtual bool hasInStream() = 0; // This method must be implemented such that if it returns true, calling acquireInStream() does not change the state of the channel,
                                     // and if it returns false, acquireInStream() returns an unlocked out stream.
 
-    virtual RCodeOutStream* acquireOutStream() = 0;
+    virtual RCodeOutStream<RP>* acquireOutStream() = 0;
 
     virtual bool hasOutStream() = 0; // This method must be implemented such that if it returns true, calling acquireOutStream() does not change the state of the channel,
                                      // and if it returns false, acquireOutStream() returns an unlocked out stream.
 
     virtual bool hasCommandSequence() = 0;
 
-    virtual RCodeCommandSequence* getCommandSequence() = 0;
+    virtual RCodeCommandSequence<RP>* getCommandSequence() = 0;
 
     virtual bool isPacketBased() = 0;
 

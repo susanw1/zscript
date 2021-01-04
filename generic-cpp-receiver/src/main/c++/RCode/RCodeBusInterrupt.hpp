@@ -9,12 +9,12 @@
 #define SRC_TEST_CPP_RCODE_RCODEBUSINTERRUPT_HPP_
 
 #include "RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 #include "RCodeBusInterruptSource.hpp"
 
+template<class RP>
 class RCodeBusInterrupt {
 private:
-    RCodeBusInterruptSource *source;
+    RCodeBusInterruptSource<RP> *source;
     uint8_t id;
 
 public:
@@ -22,11 +22,11 @@ public:
     RCodeBusInterrupt() :
             source(NULL), id(0) {
     }
-    RCodeBusInterrupt(RCodeBusInterruptSource *source, uint8_t id) :
+    RCodeBusInterrupt(RCodeBusInterruptSource<RP> *source, uint8_t id) :
             source(source), id(id) {
     }
 
-    RCodeBusInterruptSource* getSource() {
+    RCodeBusInterruptSource<RP>* getSource() {
         return source;
     }
 

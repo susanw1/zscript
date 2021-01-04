@@ -7,42 +7,51 @@
 
 #ifndef SRC_TEST_CPP_RCODE_TEST_RCODELOCALCHANNEL_HPP_
 #define SRC_TEST_CPP_RCODE_TEST_RCODELOCALCHANNEL_HPP_
+
 #include "RCodeParameters.hpp"
-#include "../RCode/RCodeIncludes.hpp"
-#include "../RCode/parsing/RCodeCommandChannel.hpp"
-#include "../RCode/instreams/RCodeChannelInStream.hpp"
-#include "../RCode/AbstractRCodeOutStream.hpp"
-#include "../RCode/RCode.hpp"
+#include "RCodeIncludes.hpp"
+#include "parsing/RCodeCommandChannel.hpp"
+#include "instreams/RCodeChannelInStream.hpp"
+#include "AbstractRCodeOutStream.hpp"
+#include "RCode.hpp"
 
 #include <iostream>
 
 class RCodeLocalChannelInStream;
-class RCodeLocalLookaheadStream: public RCodeLookaheadStream {
+
+class RCodeLocalLookaheadStream: public RCodeLookaheadStream<TestParams> {
 public:
     RCodeLocalChannelInStream *parent;
     int relativePos = 0;
     virtual char read();
     RCodeLocalLookaheadStream(RCodeLocalChannelInStream *parent) :
             parent(parent) {
-
     }
 };
-class RCodeLocalChannelInStream: public RCodeChannelInStream {
+
+class RCodeLocalChannelInStream: public RCodeChannelInStream<TestParams> {
 private:
-    char buffer[10000];
-    int lengthRead = 0;
-    int pos = 0;
+    static const int MAX_BUFLEN = 10000;
+
+    char buffer[MAX_BUFLEN];
+
+    std::streamsize lengthRead = 0;
+    std::streamsize pos = 0;
     int timer = 100;
     bool opened = false;
-    RCodeLocalLookaheadStream l;
+    RCodeLocalLookaheadStream lookAhead;
 public:
     RCodeLocalChannelInStream() :
-            l(this) {
-
+            lookAhead(this) {
     }
+
+    virtual ~RCodeLocalChannelInStream() {
+    }
+
     char charAt(int relative) {
         return relative + pos >= lengthRead ? '\n' : buffer[relative + pos];
     }
+
     virtual int16_t read() {
         if (pos >= lengthRead) {
             opened = false;
@@ -56,13 +65,14 @@ public:
         return pos < lengthRead;
     }
 
-    virtual RCodeLookaheadStream* getLookahead() {
-        l.relativePos = 0;
-        return &l;
+    virtual RCodeLookaheadStream<TestParams>* getLookahead() {
+        lookAhead.relativePos = 0;
+        return &lookAhead;
     }
+
     bool hasNextCommandSequence() {
         if (!opened && timer <= 0) {
-            std::cin.getline(buffer, 9999);
+            std::cin.getline(buffer, MAX_BUFLEN - 1);
             lengthRead = std::cin.gcount() - 1;
             buffer[lengthRead] = '\n';
             opened = true;
@@ -74,24 +84,21 @@ public:
         }
         return true;
     }
-
-    virtual ~RCodeLocalChannelInStream() {
-
-    }
 };
-class RCodeLocalOutStream: public AbstractRCodeOutStream {
+
+class RCodeLocalOutStream: public AbstractRCodeOutStream<TestParams> {
 private:
     bool open = false;
 public:
-    virtual void openResponse(RCodeCommandChannel *target) {
+    virtual void openResponse(RCodeCommandChannel<TestParams> *target) {
         open = true;
     }
 
-    virtual void openNotification(RCodeCommandChannel *target) {
+    virtual void openNotification(RCodeCommandChannel<TestParams> *target) {
         open = true;
     }
 
-    virtual void openDebug(RCodeCommandChannel *target) {
+    virtual void openDebug(RCodeCommandChannel<TestParams> *target) {
         open = true;
     }
 
@@ -102,42 +109,53 @@ public:
     virtual void close() {
         open = false;
     }
+
     virtual void writeByte(uint8_t value) {
         std::cout << (char) value;
     }
-    virtual RCodeOutStream* writeBytes(uint8_t const *value, uint16_t length) {
+
+    virtual RCodeOutStream<TestParams>* writeBytes(uint8_t const *value, uint16_t length) {
         for (int i = 0; i < length; ++i) {
             std::cout << (char) value[i];
         }
         return this;
     }
 };
-class RCodeLocalChannel: public RCodeCommandChannel {
+
+class RCodeLocalChannel: public RCodeCommandChannel<TestParams> {
     RCodeLocalChannelInStream seqin;
     RCodeLocalOutStream out;
-    RCodeCommandSequence seq;
+    RCodeCommandSequence<TestParams> seq;
 public:
-    RCodeLocalChannel(RCode *rcode) :
+    RCodeLocalChannel(RCode<TestParams> *rcode) :
             seq(rcode, this) {
+    }
+
+    virtual ~RCodeLocalChannel() {
 
     }
+
     virtual RCodeLocalChannelInStream* acquireInStream() {
         return &seqin;
     }
+
     bool hasInStream() {
         return true;
     }
-    virtual RCodeOutStream* acquireOutStream() {
+
+    virtual RCodeOutStream<TestParams>* acquireOutStream() {
         return &out;
     }
+
     virtual bool hasOutStream() {
         return true;
     }
+
     virtual bool hasCommandSequence() {
         return seqin.hasNextCommandSequence();
     }
 
-    virtual RCodeCommandSequence* getCommandSequence() {
+    virtual RCodeCommandSequence<TestParams>* getCommandSequence() {
         return &seq;
     }
 
@@ -149,24 +167,21 @@ public:
     }
 
     virtual void releaseOutStream() {
-
     }
 
     virtual void setAsNotificationChannel() {
-
     }
+
     virtual void releaseFromNotificationChannel() {
-
     }
+
     virtual void setAsDebugChannel() {
-
     }
-    virtual void releaseFromDebugChannel() {
 
+    virtual void releaseFromDebugChannel() {
     }
 
     virtual void lock() {
-
     }
 
     virtual bool canLock() {
@@ -174,10 +189,6 @@ public:
     }
 
     virtual void unlock() {
-    }
-
-    virtual ~RCodeLocalChannel() {
-
     }
 };
 

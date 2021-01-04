@@ -9,11 +9,13 @@
 #define SRC_TEST_CPP_RCODE_COMMANDS_RCODEACTIVATECOMMAND_HPP_
 
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 #include "RCodeCommand.hpp"
 
+template<class RP>
 class RCodeOutStream;
-class RCodeActivateCommand: public RCodeCommand {
+
+template<class RP>
+class RCodeActivateCommand: public RCodeCommand<RP> {
 private:
     static bool activated;
     const uint8_t code = 0x03;
@@ -28,9 +30,19 @@ public:
         activated = false;
     }
 
-    void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence, RCodeOutStream *out);
+    void execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out) {
+        if (!activated) {
+            out->writeField('A', 0);
+            out->writeStatus(OK);
+        } else {
+            out->writeField('A', 1);
+            out->writeStatus(OK);
+        }
+        activated = true;
+        slot->setComplete(true);
+    }
 
-    void setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
+    void setLocks(RCodeCommandSlot<RP> *slot, RCodeLockSet<RP> *locks) const {
     }
 
     uint8_t getCode() const {
@@ -49,6 +61,10 @@ public:
         return &code;
     }
 };
+
+template<class RP>
+bool RCodeActivateCommand<RP>::activated = false;
+
 
 #include "../RCodeOutStream.hpp"
 #include "../parsing/RCodeCommandSlot.hpp"

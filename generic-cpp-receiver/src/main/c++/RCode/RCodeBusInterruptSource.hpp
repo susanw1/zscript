@@ -9,8 +9,8 @@
 #define SRC_TEST_CPP_RCODE_RCODEBUSINTERRUPTSOURCE_HPP_
 
 #include "RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 
+template<class RP>
 class RCodeBusInterruptSource {
 public:
     virtual bool hasAddress() = 0;

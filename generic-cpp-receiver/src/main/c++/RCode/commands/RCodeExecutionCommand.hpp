@@ -8,26 +8,25 @@
 #ifndef SRC_TEST_CPP_RCODE_COMMANDS_RCODEEXECUTIONCOMMAND_HPP_
 #define SRC_TEST_CPP_RCODE_COMMANDS_RCODEEXECUTIONCOMMAND_HPP_
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
-#ifdef NOTIFICATIONS
 #include "RCodeCommand.hpp"
 #include "../executionspace/RCodeExecutionSpace.hpp"
 
-class RCodeExecutionCommand: public RCodeCommand {
+template<class RP>
+class RCodeExecutionCommand: public RCodeCommand<RP> {
+    typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
+    typedef typename RP::fieldUnit_t fieldUnit_t;
 private:
     const uint8_t code = 0x21;
-    RCodeExecutionSpace *space;
+    RCodeExecutionSpace<RP> *space;
 public:
-    RCodeExecutionCommand(RCodeExecutionSpace *space) :
+    RCodeExecutionCommand(RCodeExecutionSpace<RP> *space) :
             space(space) {
-
     }
 
-    virtual void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
-            RCodeOutStream *out);
+    virtual void execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out);
 
-    virtual void setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
-        locks->addLock(RCodeLockValues::executionSpaceLock, false);
+    virtual void setLocks(RCodeCommandSlot<RP> *slot, RCodeLockSet<RP> *locks) const {
+        locks->addLock(RP::executionSpaceLock, false);
     }
 
     virtual uint8_t getCode() const {
@@ -46,7 +45,78 @@ public:
         return &code;
     }
 };
+
+template<class RP>
+void RCodeExecutionCommand<RP>::execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out) {
+    bool worked = true;
+    int16_t target = -1;
+    if (slot->getFields()->has('T')) {
+        if (slot->getFields()->get('T', 0x00) >= space->getChannelNum() || slot->getFields()->countFieldSections('T') != 1) {
+            worked = false;
+            slot->fail("", BAD_PARAM);
+            out->writeStatus(BAD_PARAM);
+            out->writeBigStringField("Not a valid Execution Space Channel");
+        } else {
+            target = slot->getFields()->get('T', 0xFF);
+        }
+    }
+    if (worked && slot->getFields()->has('A')) {
+        bool fits = false;
+        // FIXME: Converge with ExecutionStoreCommand, but add to FieldMap
+        executionSpaceAddress_t address = 0;
+        int fieldSectionNum = slot->getFields()->countFieldSections('A');
+        uint16_t effectiveSize = (uint16_t) ((fieldSectionNum - 1) * sizeof(fieldUnit_t));
+
+        fieldUnit_t first = slot->getFields()->get('A', 0);
+        while (first != 0) {
+            first = (fieldUnit_t) (first >> 8);
+            effectiveSize++;
+        }
+        if (effectiveSize < sizeof(executionSpaceAddress_t)) {
+            fits = true;
+        }
+        if (fits) {
+            for (int i = 0; i < fieldSectionNum; i++) {
+                address = (executionSpaceAddress_t) ( (address << (8 * sizeof(fieldUnit_t)) ) | slot->getFields()->get('A', i, 0));
+            }
+        }
+        if (!fits || address >= space->getLength()) {
+            worked = false;
+            slot->fail("", BAD_PARAM);
+            out->writeStatus(BAD_PARAM);
+            out->writeBigStringField("Target Address beyond end of Execution Space");
+        } else {
+            if (target == -1) {
+                for (int i = 0; i < space->getChannelNum(); ++i) {
+                    space->getChannels()[i]->move(address);
+                }
+            } else {
+                space->getChannels()[target]->move(address);
+            }
+        }
+    }
+    if (worked && slot->getFields()->has('D')) {
+        if (slot->getFields()->get('D', 0x00) > 0xFF || slot->getFields()->countFieldSections('D') != 1) {
+            worked = false;
+            slot->fail("", BAD_PARAM);
+            out->writeStatus(BAD_PARAM);
+            out->writeBigStringField("Delay larger than 1 byte");
+        } else {
+            space->setDelay((uint8_t) slot->getFields()->get('D', 0x00));
+        }
+    }
+    if (worked && slot->getFields()->has('G')) {
+        space->setRunning(true);
+    } else {
+        space->setRunning(false);
+    }
+    space->setFailed(false);
+    if (worked) {
+        out->writeStatus(OK);
+    }
+    slot->setComplete(true);
+}
+
 #include "../executionspace/RCodeExecutionSpaceChannel.hpp"
 
-#endif
 #endif /* SRC_TEST_CPP_RCODE_COMMANDS_RCODEEXECUTIONCOMMAND_HPP_ */

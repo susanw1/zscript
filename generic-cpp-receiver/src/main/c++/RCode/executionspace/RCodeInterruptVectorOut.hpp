@@ -8,82 +8,85 @@
 #ifndef SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTOROUT_HPP_
 #define SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTOROUT_HPP_
 #include "../RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 #include "../RCodeOutStream.hpp"
 
+template<class RP>
 class RCodeNotificationManager;
+
+template<class RP>
 class RCodeInterruptVectorChannel;
 
-class RCodeInterruptVectorOut: public RCodeOutStream {
+template<class RP>
+class RCodeInterruptVectorOut: public RCodeOutStream<RP> {
+    typedef typename RP::bigFieldAddress_t bigFieldAddress_t;
+    typedef typename RP::fieldUnit_t fieldUnit_t;
 private:
-    RCodeNotificationManager *notificationManager;
-    RCodeOutStream *out = NULL;
+    RCodeNotificationManager<RP> *notificationManager;
+    RCodeOutStream<RP> *out = NULL;
 
 public:
-    RCodeInterruptVectorOut(RCodeNotificationManager *notificationManager) :
+    RCodeInterruptVectorOut(RCodeNotificationManager<RP> *notificationManager) :
             notificationManager(notificationManager) {
     }
 
-    RCodeOutStream* markDebug() {
+    RCodeOutStream<RP>* markDebug() {
         return out->markDebug();
     }
 
-    RCodeOutStream* markNotification() {
+    RCodeOutStream<RP>* markNotification() {
         return out->markNotification();
     }
 
-    RCodeOutStream* markBroadcast() {
+    RCodeOutStream<RP>* markBroadcast() {
         return out->markBroadcast();
     }
 
-    RCodeOutStream* writeStatus(RCodeResponseStatus st) {
+    RCodeOutStream<RP>* writeStatus(RCodeResponseStatus st) {
         return out->writeStatus(st);
     }
 
-    RCodeOutStream* writeField(char f, fieldUnit v) {
+    RCodeOutStream<RP>* writeField(char f, fieldUnit_t v) {
         return out->writeField(f, v);
     }
 
-    RCodeOutStream* continueField(fieldUnit v) {
+    RCodeOutStream<RP>* continueField(fieldUnit_t v) {
         return out->continueField(v);
     }
 
-    RCodeOutStream* writeBigHexField(uint8_t const *value,
-            bigFieldAddress_t length) {
+    RCodeOutStream<RP>* writeBigHexField(uint8_t const *value, bigFieldAddress_t length) {
         return out->writeBigHexField(value, length);
     }
 
-    RCodeOutStream* writeBigStringField(uint8_t const *value,
-            bigFieldAddress_t length) {
+    RCodeOutStream<RP>* writeBigStringField(uint8_t const *value, bigFieldAddress_t length) {
         return out->writeBigStringField(value, length);
     }
 
-    RCodeOutStream* writeBigStringField(char const *s) {
+    RCodeOutStream<RP>* writeBigStringField(char const *s) {
         return out->writeBigStringField(s);
     }
 
-    RCodeOutStream* writeBytes(uint8_t const *value, bigFieldAddress_t length) {
+    RCodeOutStream<RP>* writeBytes(uint8_t const *value, bigFieldAddress_t length) {
         return out->writeBytes(value, length);
     }
 
-    RCodeOutStream* writeCommandSeperator() {
+    RCodeOutStream<RP>* writeCommandSeperator() {
         return out->writeCommandSeperator();
     }
 
-    RCodeOutStream* writeCommandSequenceSeperator() {
+    RCodeOutStream<RP>* writeCommandSequenceSeperator() {
         return out->writeCommandSequenceSeperator();
     }
 
-    RCodeOutStream* writeCommandSequenceErrorHandler() {
+    RCodeOutStream<RP>* writeCommandSequenceErrorHandler() {
         return out->writeCommandSequenceErrorHandler();
     }
 
-    void openResponse(RCodeCommandChannel *target);
+    void openResponse(RCodeCommandChannel<RP> *target);
 
-    void openNotification(RCodeCommandChannel *target) {
+    void openNotification(RCodeCommandChannel<RP> *target) {
     }
 
-    void openDebug(RCodeCommandChannel *target) {
+    void openDebug(RCodeCommandChannel<RP> *target) {
     }
 
     bool isOpen() {
@@ -99,8 +102,58 @@ public:
     bool isLocked();
 
     void unlock();
-
 };
+
+template<class RP>
+void RCodeInterruptVectorOut<RP>::openResponse(RCodeCommandChannel<RP> *target) {
+    RCodeInterruptVectorChannel<RP> *channel = (RCodeInterruptVectorChannel<RP>*) target;
+    if (out->isOpen()) {
+        out->close();
+    }
+    out->mostRecent = this;
+    out->openNotification(notificationManager->getNotificationChannel());
+    out->markNotification();
+    out->writeField('Z', 1);
+    out->writeField('A', 1);
+    out->writeField('T', channel->getInterrupt()->getNotificationType());
+    out->writeField('I', channel->getInterrupt()->getNotificationBus());
+    out->writeStatus(OK);
+    if (RP::findInterruptSourceAddress && channel->getInterrupt()->getSource()->hasAddress()) {
+        out->writeCommandSeperator();
+        out->writeField('A', channel->getInterrupt()->getFoundAddress());
+        if (channel->getInterrupt()->hasFindableAddress()) {
+            out->writeStatus(OK);
+        } else {
+            out->writeStatus(CMD_FAIL);
+        }
+    }
+    out->writeCommandSeperator();
+    channel->getInterrupt()->clear();
+}
+
+template<class RP>
+bool RCodeInterruptVectorOut<RP>::lock() {
+    if (out == NULL) {
+        out = notificationManager->getNotificationChannel()->acquireOutStream();
+    }
+    return out->lock();
+}
+
+template<class RP>
+bool RCodeInterruptVectorOut<RP>::isLocked() {
+    if (out == NULL) {
+        out = notificationManager->getNotificationChannel()->acquireOutStream();
+    }
+    return out->isLocked();
+}
+
+template<class RP>
+void RCodeInterruptVectorOut<RP>::unlock() {
+    out->unlock();
+    notificationManager->getNotificationChannel()->releaseOutStream();
+    out = NULL;
+}
+
 #include "RCodeInterruptVectorChannel.hpp"
 
 #endif /* SRC_MAIN_CPP_RCODE_EXECUTIONSPACE_RCODEINTERRUPTVECTOROUT_HPP_ */

@@ -9,35 +9,37 @@
 #define SRC_TEST_CPP_RCODE_ABSTRACTRCODEOUTSTREAM_HPP_
 #include "climits"
 #include "RCodeIncludes.hpp"
-#include "RCodeParameters.hpp"
 #include "RCodeOutStream.hpp"
 
-class AbstractRCodeOutStream: public RCodeOutStream {
+template<class RP>
+class AbstractRCodeOutStream: public RCodeOutStream<RP> {
+    typedef typename RP::bigFieldAddress_t bigFieldAddress_t;
+    typedef typename RP::fieldUnit_t fieldUnit_t;
 private:
     uint8_t toHexDigit(int i) {
-        return i > 9 ? 'a' + i - 10 : '0' + i;
+        return (uint8_t) (i > 9 ? 'a' + i - 10 : '0' + i);
     }
 public:
     virtual void writeByte(uint8_t value) = 0;
 
-    virtual RCodeOutStream* markDebug() {
+    virtual RCodeOutStream<RP>* markDebug() {
         writeByte('#');
         return this;
     }
-    virtual RCodeOutStream* markNotification() {
+    virtual RCodeOutStream<RP>* markNotification() {
         writeByte('!');
         return this;
     }
 
-    virtual RCodeOutStream* markBroadcast() {
+    virtual RCodeOutStream<RP>* markBroadcast() {
         writeByte('*');
         return this;
     }
 
-    virtual RCodeOutStream* writeStatus(RCodeResponseStatus st) {
+    virtual RCodeOutStream<RP>* writeStatus(RCodeResponseStatus st) {
         writeByte('S');
         if (st != OK) {
-            if (st > 15) {
+            if (st >= 0x10) {
                 writeByte(toHexDigit((st >> 4) & 0x0F));
             }
             writeByte(toHexDigit(st & 0x0F));
@@ -45,33 +47,33 @@ public:
         return this;
     }
 
-    virtual RCodeOutStream* writeField(char f, fieldUnit v) {
+    virtual RCodeOutStream<RP>* writeField(char f, fieldUnit_t v) {
         writeByte(f);
-        if (sizeof(fieldUnit) == 1 || v <= 255) {
+        if (sizeof(fieldUnit_t) == 1 || v <= 255) {
             if (v != 0) {
-                if (v > 15) {
+                if (v >= 0x10) {
                     writeByte(toHexDigit(v >> 4));
                 }
                 writeByte(toHexDigit(v & 0x0F));
             }
         } else {
-            int i = 1;
-            for (fieldUnit tmp = 0xff; tmp < v; tmp = (tmp << 4) + 0x0f) {
-                i++;
+            int howManyNibbles = 2;
+            for (fieldUnit_t tmp = 0xff; tmp < v; tmp = (fieldUnit_t) ((tmp << 4) + 0x0f)) {
+                howManyNibbles++;
             }
-            for (; i >= 0; --i) {
-                writeByte(toHexDigit((v >> (4 * i)) & 0x0F));
+            for (; howManyNibbles > 0; --howManyNibbles) {
+                writeByte(toHexDigit((v >> (4 * (howManyNibbles - 1))) & 0x0F));
             }
         }
         return this;
     }
 
-    virtual RCodeOutStream* continueField(fieldUnit v) {
-        if (sizeof(fieldUnit) == 1) {
-            writeByte(toHexDigit(v >> 4));
+    virtual RCodeOutStream<RP>* continueField(fieldUnit_t v) {
+        if (sizeof(fieldUnit_t) == 1) {
+            writeByte(toHexDigit((v >> 4) & 0x0F));
             writeByte(toHexDigit(v & 0x0F));
         } else {
-            int i = sizeof(fieldUnit) * 2 - 1;
+            int i = sizeof(fieldUnit_t) * 2 - 1;
             for (; i >= 0; --i) {
                 writeByte(toHexDigit((v >> (4 * i)) & 0x0F));
             }
@@ -79,7 +81,7 @@ public:
         return this;
     }
 
-    virtual RCodeOutStream* writeBigHexField(uint8_t const *value, bigFieldAddress_t length) {
+    virtual RCodeOutStream<RP>* writeBigHexField(uint8_t const *value, bigFieldAddress_t length) {
         writeByte('+');
         for (int i = 0; i < length; i++) {
             writeByte(toHexDigit(value[i] >> 4));
@@ -88,9 +90,9 @@ public:
         return this;
     }
 
-    virtual RCodeOutStream* writeBigStringField(uint8_t const *value, bigFieldAddress_t length) {
+    virtual RCodeOutStream<RP>* writeBigStringField(uint8_t const *value, bigFieldAddress_t length) {
         writeByte('"');
-        for (int i = 0; i < length; ++i) {
+        for (bigFieldAddress_t i = 0; i < length; ++i) {
             if (value[i] == '\n') {
                 writeByte('\\');
                 writeByte('n');
@@ -105,17 +107,17 @@ public:
         return this;
     }
 
-    virtual RCodeOutStream* writeBigStringField(char const *s) {
+    virtual RCodeOutStream<RP>* writeBigStringField(char const *s) {
         if (sizeof(uint8_t) == sizeof(char)) {
-            int i;
-            for (i = 0; *(s + i) != 0; ++i)
+            bigFieldAddress_t i;
+            for (i = 0; s[i] != '\0'; ++i)
                 ;
             writeBigStringField((uint8_t const*) s, i);
         } else {
             writeByte('"');
             int i;
             char c;
-            for (i = 0; *(s + i) != 0; ++i) {
+            for (i = 0; s[i] != '\0'; ++i) {
                 if (c == '\n') {
                     writeByte('\\');
                     writeByte('n');
@@ -131,20 +133,19 @@ public:
         return this;
     }
 
-    virtual RCodeOutStream* writeCommandSeperator() {
+    virtual RCodeOutStream<RP>* writeCommandSeperator() {
         writeByte('&');
         return this;
     }
-    virtual RCodeOutStream* writeCommandSequenceErrorHandler() {
+    virtual RCodeOutStream<RP>* writeCommandSequenceErrorHandler() {
         writeByte('|');
         return this;
     }
 
-    virtual RCodeOutStream* writeCommandSequenceSeperator() {
+    virtual RCodeOutStream<RP>* writeCommandSequenceSeperator() {
         writeByte('\n');
         return this;
     }
-}
-;
+};
 
 #endif /* SRC_TEST_CPP_RCODE_ABSTRACTRCODEOUTSTREAM_HPP_ */
