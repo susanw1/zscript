@@ -66,7 +66,7 @@ void RCodeRunner::runNext() {
             break;
         }
     }
-    if (current != NULL && current->peekFirst()->needsMoveAlong()) {
+    if (current != NULL && current->peekFirst() != NULL && current->peekFirst()->needsMoveAlong()) {
         current->peekFirst()->setNeedsMoveAlong(false);
         current->peekFirst()->getCommand(rcode)->moveAlong(
                 current->peekFirst());

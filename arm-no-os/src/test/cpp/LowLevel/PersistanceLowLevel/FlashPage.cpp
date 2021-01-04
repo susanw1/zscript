@@ -15,15 +15,25 @@ void FlashPage::unlockFlashWrite() {
 }
 
 void FlashPage::lockFlashWrite() {
-    FLASH->CR |= 0x80000000;
+    FLASH->CR = 0xC0000000;
 }
+void FlashPage::beginProgram() {
+    FLASH->SR |= 0xFFFFFFFF;
+    FLASH->CR = 0x1;
+}
+
+void FlashPage::endProgram() {
+    FLASH->CR = 0;
+}
+
 void FlashPage::erase() {
+    FLASH->SR |= 0xFFFFFFFF;
     if (pageNum > 127) {
-        FLASH->CR |= ((pageNum & 0x7F) << 3) | 0x804; // use bank 2
+        FLASH->CR = ((pageNum & 0x7F) << 3) | 0x802; // use bank 2
     } else {
-        FLASH->CR |= (pageNum << 3) | 0x04;
+        FLASH->CR = (pageNum << 3) | 0x02;
     }
-    FLASH->SR |= 0x10000;
+    FLASH->CR |= 0x10000;
 }
 
 bool FlashPage::isBusy() {

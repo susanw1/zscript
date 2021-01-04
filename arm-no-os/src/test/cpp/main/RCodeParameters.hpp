@@ -30,7 +30,7 @@ public:
     static const bool cacheFieldResults = true;
     static const bool isUsingInterruptVector = true;
     static const bool findInterruptSourceAddress = true;
-    static const int commandNum = 16;
+    static const int commandNum = 32;
     static const int commandCapabilitiesReturnArrayMaxSize = 32;
     static const int interruptStoreNum = 5;
     static const int interruptVectorWorkingNum = 5;

@@ -10,30 +10,40 @@
 
 #include <RCodeIncludes.hpp>
 #include <RCodeParameters.hpp>
-#include <FlashIAP.h>
+#include <PersistanceLowLevel/FlashPage.hpp>
 
 class RCodeFlashPersistence {
 private:
-    uint32_t persistenceStartAddress;
-    uint16_t sectorSize;
-
+    FlashPage page1;
+    FlashPage page2;
+    FlashPage* getCurrentValid();
+    uint8_t incWithRoll(uint8_t val) {
+        uint8_t newVal = val + 1;
+        if (newVal == 0 || newVal == 0xFF) {
+            return 1;
+        }
+        return newVal;
+    }
 public:
     RCodeFlashPersistence();
-    uint32_t getStuff();
+    bool hasGuid();
+
+    bool hasMac();
+
     uint8_t* getGuid();
 
     uint8_t* getMac();
 
     uint8_t* getPersistentMemory();
 
-    int writeGuid(const uint8_t *guid);
+    void writeGuid(const uint8_t *guid);
 
-    int writeMac(const uint8_t *mac);
+    void writeMac(const uint8_t *mac);
 
-    int writePersistent(uint8_t location, const uint8_t *memory,
+    void writePersistent(uint8_t location, const uint8_t *memory,
             uint8_t length);
     private:
-    int writePersistentInternal(uint16_t location, const uint8_t *toWrite,
+    void writePersistentInternal(uint16_t location, const uint8_t *toWrite,
             uint16_t length);
 //    int rewriteSector(uint16_t start, const uint8_t *toWrite);
 

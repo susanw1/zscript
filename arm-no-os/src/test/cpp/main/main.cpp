@@ -40,12 +40,12 @@
 
 #include <EthernetUdpCommandChannel.hpp>
 
-//#include "../commands/persistence/RCodeFetchGiudCommand.hpp"
-//#include "../commands/persistence/RCodePersistentFetchCommand.hpp"
-//#include "../commands/persistence/RCodePersistentStoreCommand.hpp"
-//#include "../commands/persistence/RCodeStoreGiudCommand.hpp"
-//#include "../commands/persistence/RCodeStoreMacAddressCommand.hpp"
-//#include "../commands/persistence/RCodeMbedFlashPersistence.hpp"
+#include "../commands/persistence/RCodeFetchGiudCommand.hpp"
+#include "../commands/persistence/RCodePersistentFetchCommand.hpp"
+#include "../commands/persistence/RCodePersistentStoreCommand.hpp"
+#include "../commands/persistence/RCodeStoreGiudCommand.hpp"
+#include "../commands/persistence/RCodeStoreMacAddressCommand.hpp"
+#include "../commands/persistence/RCodeFlashPersistence.hpp"
 
 #include <I2C/RCodeI2cSubsystem.hpp>
 #include <I2C/RCodeI2cSetupCommand.hpp>
@@ -79,13 +79,21 @@ int main(void) {
     I2cManager::init();
     SystemMilliClock::init();
     SystemMilliClock::blockDelayMillis(1000);
-    uint8_t mac[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xaa };
-    uint32_t time = 1000;
+    RCodeFlashPersistence persist = RCodeFlashPersistence();
+    RCode r(NULL, 0);
+    uint8_t *mac;
+    uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xaa };
+    if (persist.hasMac()) {
+        r.getDebug() << "Has Mac" << endl;
+        mac = persist.getMac();
+    } else {
+        r.getDebug() << "Has No Mac" << endl;
+        mac = macHardCoded;
+    }
     while (!Ethernet.begin(mac, 5000, 5000)) {
 
     }
 
-    RCode r(NULL, 0);
     EthernetUdpCommandChannel channel(4889, &r);
     RCodeExecutionSpaceChannel execCh = RCodeExecutionSpaceChannel(&r, r.getSpace());
     RCodeCommandChannel *chptr[2] = { &channel, &execCh };
@@ -102,12 +110,11 @@ int main(void) {
     RCodeNotificationHostCommand cmd7 = RCodeNotificationHostCommand(&r);
     RCodeIdentifyCommand cmd8 = RCodeIdentifyCommand();
 
-    //    RCodeMbedFlashPersistence persist = RCodeMbedFlashPersistence();
-    //    RCodeFetchGiudCommand cmd9 = RCodeFetchGiudCommand(&persist);
-    //    RCodePersistentFetchCommand cmd10 = RCodePersistentFetchCommand(&persist);
-    //    RCodePersistentStoreCommand cmd11 = RCodePersistentStoreCommand(&persist);
-    //    RCodeStoreGiudCommand cmd12 = RCodeStoreGiudCommand(&persist);
-    //    RCodeStoreMacAddressCommand cmd13 = RCodeStoreMacAddressCommand(&persist);
+    RCodeFetchGiudCommand cmd9 = RCodeFetchGiudCommand(&persist);
+//    RCodePersistentFetchCommand cmd10 = RCodePersistentFetchCommand(&persist);
+//    RCodePersistentStoreCommand cmd11 = RCodePersistentStoreCommand(&persist);
+    RCodeStoreGiudCommand cmd12 = RCodeStoreGiudCommand(&persist);
+    RCodeStoreMacAddressCommand cmd13 = RCodeStoreMacAddressCommand(&persist);
 
     RCodeI2cSubsystem::init();
     RCodeI2cSetupCommand cmd14 = RCodeI2cSetupCommand();
@@ -124,11 +131,11 @@ int main(void) {
     r.getCommandFinder()->registerCommand(&cmd5);
     r.getCommandFinder()->registerCommand(&cmd6);
 
-    //    r.getCommandFinder()->registerCommand(&cmd9);
-    //    r.getCommandFinder()->registerCommand(&cmd10);
-    //    r.getCommandFinder()->registerCommand(&cmd11);
-    //    r.getCommandFinder()->registerCommand(&cmd12);
-    //    r.getCommandFinder()->registerCommand(&cmd13);
+    r.getCommandFinder()->registerCommand(&cmd9);
+//    r.getCommandFinder()->registerCommand(&cmd10);
+//    r.getCommandFinder()->registerCommand(&cmd11);
+    r.getCommandFinder()->registerCommand(&cmd12);
+    r.getCommandFinder()->registerCommand(&cmd13);
 
     r.getCommandFinder()->registerCommand(&cmd14);
     r.getCommandFinder()->registerCommand(&cmd15);

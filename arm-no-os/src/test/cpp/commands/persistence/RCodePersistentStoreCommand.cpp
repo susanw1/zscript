@@ -30,13 +30,10 @@ void RCodePersistentStoreCommand::execute(RCodeCommandSlot *slot,
                 out->writeBigStringField(
                         "Cannot store data beyond persistent store length");
             } else {
-                if (persist->writePersistent(addr,
+                persist->writePersistent(addr,
                         slot->getBigField()->getData(),
-                        slot->getBigField()->getLength()) == 0) {
-                    out->writeStatus(OK);
-                } else {
-                    out->writeStatus(CMD_FAIL);
-                }
+                        slot->getBigField()->getLength());
+                out->writeStatus(OK);
             }
         }
     }

@@ -7,113 +7,91 @@
 
 #include "RCodeFlashPersistence.hpp"
 
-static const uint16_t guidLocation = 0;
-static const uint16_t macAddressLocation = 20;
-static const uint16_t mainPersistentMemoryLocation = 32;
-
-mbed::FlashIAP flash;
+static const uint16_t guidLocation = 16;
+static const uint16_t macAddressLocation = 40;
+static const uint16_t mainPersistentMemoryLocation = 48;
 
 RCodeFlashPersistence::RCodeFlashPersistence() :
-        persistenceStartAddress(
-                (((uint32_t) FLASHIAP_APP_ROM_END_ADDR)
-                        + flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR)
-                        - ((uint32_t) FLASHIAP_APP_ROM_END_ADDR)
-                                % flash.get_sector_size(
-                                        FLASHIAP_APP_ROM_END_ADDR))), sectorSize(
-                flash.get_sector_size(persistenceStartAddress)) {
-    flash.init();
+        page1(254), page2(255) {
 }
-uint32_t RCodeFlashPersistence::getStuff() {
-    return persistenceStartAddress;
+FlashPage* RCodeFlashPersistence::getCurrentValid() {
+    uint8_t p1_n = ((uint8_t) * page1.getStart());
+    uint8_t p2_n = ((uint8_t) * page2.getStart());
+    if ((p1_n == 0xFF && p2_n == 0xFF) || (p1_n == 0 && p2_n == 0)) {
+        // some kind of invalid state - erase and start again
+        flashProgramming_t newN = 1;
+        page1.eraseNoProgram();
+        page2.eraseNoProgram();
+        page1.programNoErase(&newN, 0, 1);
+        return &page1;
+    } else if (p1_n == 0 || p1_n == 0xFF) {
+        // p1 is the old one (might have erased but not overwriten)
+        return &page2;
+    } else if (p2_n == 0 || p2_n == 0xFF) {
+        // p2 is the old one (might have erased but not overwriten)
+        return &page1;
+    } else if (p1_n == incWithRoll(p2_n)) {
+        // p1 is the old one, now need to erase
+        page1.eraseNoProgram();
+        return &page2;
+    } else if (p2_n == incWithRoll(p1_n)) {
+        // p2 is the old one, now need to erase
+        page2.eraseNoProgram();
+        return &page1;
+    } else {
+        // the values are wrong somehow, e.g. died mid zeroing of old value
+        flashProgramming_t newN = 1;
+        page1.eraseNoProgram();
+        page2.eraseNoProgram();
+        page1.programNoErase(&newN, 0, 1);
+        return &page1;
+    }
+}
+bool RCodeFlashPersistence::hasGuid() {
+    return *(((uint8_t*) (getCurrentValid()->getStart())) + guidLocation) == 0xAA;
+}
+bool RCodeFlashPersistence::hasMac() {
+    return *(((uint8_t*) (getCurrentValid()->getStart())) + macAddressLocation) == 0xAA;
 }
 uint8_t* RCodeFlashPersistence::getGuid() {
-    return (uint8_t*) (persistenceStartAddress) + guidLocation;
+    return ((uint8_t*) (getCurrentValid()->getStart())) + guidLocation + 1;
 }
 uint8_t* RCodeFlashPersistence::getMac() {
-    return (uint8_t*) (persistenceStartAddress) + macAddressLocation;
+    return ((uint8_t*) (getCurrentValid()->getStart())) + macAddressLocation + 1;
 }
 uint8_t* RCodeFlashPersistence::getPersistentMemory() {
-    return (uint8_t*) (persistenceStartAddress) + mainPersistentMemoryLocation;
+    return ((uint8_t*) (getCurrentValid()->getStart())) + mainPersistentMemoryLocation;
 }
-int RCodeFlashPersistence::writeGuid(const uint8_t *guid) {
-    return writePersistentInternal(guidLocation, guid, 16);
+void RCodeFlashPersistence::writeGuid(const uint8_t *guid) {
+    uint8_t guidWithMarker[17];
+    for (int i = 0; i < 16; ++i) {
+        guidWithMarker[i + 1] = guid[i];
+    }
+    guidWithMarker[0] = 0xAA;
+    writePersistentInternal(guidLocation, guidWithMarker, 17);
 }
-int RCodeFlashPersistence::writeMac(const uint8_t *mac) {
-    return writePersistentInternal(macAddressLocation, mac, 6);
+void RCodeFlashPersistence::writeMac(const uint8_t *mac) {
+    uint8_t macWithMarker[7];
+    for (int i = 0; i < 6; ++i) {
+        macWithMarker[i + 1] = mac[i];
+    }
+    macWithMarker[0] = 0xAA;
+    writePersistentInternal(macAddressLocation, macWithMarker, 7);
 }
-int RCodeFlashPersistence::writePersistent(uint8_t location,
+void RCodeFlashPersistence::writePersistent(uint8_t location,
         const uint8_t *memory, uint8_t length) {
-    return writePersistentInternal(location + mainPersistentMemoryLocation,
+    writePersistentInternal(location + mainPersistentMemoryLocation,
             memory, length);
 }
-int RCodeFlashPersistence::writePersistentInternal(uint16_t location,
+void RCodeFlashPersistence::writePersistentInternal(uint16_t location,
         const uint8_t *toWrite, uint16_t length) {
-    uint8_t page[sectorSize];
-    for (int i = 0; i < sectorSize; ++i) {
-        page[i] = *((uint8_t*) (persistenceStartAddress) + location + i);
+    FlashPage *oldPage = getCurrentValid();
+    FlashPage *newPage;
+    if (oldPage == &page1) {
+        newPage = &page2;
+    } else {
+        newPage = &page1;
     }
-
-    if (flash.erase(persistenceStartAddress, sectorSize) < 0) {
-        return -1;
-    }
-    for (int i = 0; i < length; ++i) {
-        page[location + i] = toWrite[i];
-    }
-    return flash.program(page, persistenceStartAddress, sectorSize);
+    newPage->overwriteWith(oldPage, incWithRoll((uint8_t) * oldPage->getStart()), toWrite, location, length);
+    oldPage->zeroProgrammingSection(0);
 }
-//        uint16_t startSector = location - location % sectorSize;
-//        uint16_t endSector = location + length
-//                - (location + length) % sectorSize;
-//        if (startSector == endSector) {
-//            return 0;
-//            uint8_t sector[sectorSize];
-//            for (uint16_t i = 0; i < sectorSize; i++) {
-//                if (i >= location && i < location + length) {
-//                    sector[i + location] = toWrite[i];
-//                } else {
-//                    sector[i] = persistenceStartAddress[i];
-//                }
-//            }
-//            return rewriteSector(startSector, sector);
-//        } else {
-//            return -1;
-//            uint8_t sector[sectorSize];
-//            for (uint16_t i = 0; i < sectorSize; i++) {
-//                if (i >= location) {
-//                    sector[i + location] = toWrite[i];
-//                } else {
-//                    sector[i] = persistenceStartAddress[i];
-//                }
-//            }
-//            if (rewriteSector(startSector, sector) < 0) {
-//                return -1;
-//            }
-//            for (uint16_t j = startSector + sectorSize; j < endSector; j +=
-//                    sectorSize) {
-//                for (uint16_t i = 0; i < sectorSize; i++) {
-//                    sector[i] = toWrite[i + j + location % sectorSize];
-//                }
-//                if (rewriteSector(j, sector) < 0) {
-//                    return -1;
-//                }
-//            }
-//            for (uint16_t i = 0; i < sectorSize; i++) {
-//                if (i < location + length - endSector) {
-//                    sector[i + location] = toWrite[i + endSector
-//                            + location % sectorSize];
-//                } else {
-//                    sector[i] = persistenceStartAddress[endSector + i];
-//                }
-//            }
-//            return rewriteSector(endSector, sector);
-//        }
-
-//int RCodeMbedFlashPersistence::rewriteSector(uint16_t start,
-//        const uint8_t *toWrite) {
-//    if (flash.erase(((uint32_t) persistenceStartAddress) + start, sectorSize)
-//            < 0) {
-//        return -1;
-//    }
-//    return flash.program(toWrite, ((uint32_t) persistenceStartAddress) + start,
-//            sectorSize);
-//}

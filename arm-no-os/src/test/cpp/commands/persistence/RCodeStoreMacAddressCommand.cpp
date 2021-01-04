@@ -11,13 +11,10 @@ void RCodeStoreMacAddressCommand::execute(RCodeCommandSlot *slot,
         RCodeCommandSequence *sequence, RCodeOutStream *out) {
     if (slot->getBigField()->getLength() != 6) {
         out->writeStatus(BAD_PARAM);
-        out->writeBigStringField("MAC addresses must be 16 bytes long");
+        out->writeBigStringField("MAC addresses must be 6 bytes long");
     } else {
-        if (persist->writeMac(slot->getBigField()->getData())) {
-            out->writeStatus(OK);
-        } else {
-            out->writeStatus(CMD_FAIL);
-        }
+        persist->writeMac(slot->getBigField()->getData());
+        out->writeStatus(OK);
     }
     slot->setComplete(true);
 }

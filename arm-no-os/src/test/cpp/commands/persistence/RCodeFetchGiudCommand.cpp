@@ -9,8 +9,11 @@
 
 void RCodeFetchGiudCommand::execute(RCodeCommandSlot *slot,
         RCodeCommandSequence *sequence, RCodeOutStream *out) {
-    out->writeStatus(OK);
-    RCodeOutStream::writeFieldType(out, 'P', persist->getStuff());
+    if (persist->hasGuid()) {
+        out->writeStatus(OK);
+    } else {
+        out->writeStatus(CMD_FAIL);
+    }
     out->writeBigHexField(persist->getGuid(), 16);
     slot->setComplete(true);
 }
