@@ -6,15 +6,15 @@
 PROJECT = no-os
 
 # Project Structure
-CHANNELDIR = src/test/cpp/channels/Ethernet
-COMMANDDIR = src/test/cpp/commands
-LLDIR = src/test/cpp/LowLevel
-SRCDIR = src/test/cpp/main
-COMDIR = src/test/cpp/common
-RCODEDIR = ../generic-cpp-receiver/src/main/cpp/RCode
+CHANNELDIR = src/test/c++/channels/Ethernet
+COMMANDDIR = src/test/c++/commands
+LLDIR = src/test/c++/LowLevel
+SRCDIR = src/test/c++/main
+COMDIR = src/test/c++/common
+RCODEDIR = ../generic-cpp-receiver/src/main/c++/RCode
 BINDIR = bin
 OBJDIR = obj
-INCDIR = src/test/cpp/include
+INCDIR = src/test/c++/include
 LDDIR = src/test/ld
 OCDDIR = src/test/openocd
 
