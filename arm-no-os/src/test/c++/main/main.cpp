@@ -23,6 +23,7 @@
 
 #include <stm32g4xx.h>
 #include <stm32g484xx.h>
+#include "RCodeParameters.hpp"
 
 #include <ArduinoSpiLayer/src/Ethernet.h>
 
@@ -80,7 +81,7 @@ int main(void) {
     SystemMilliClock::init();
     SystemMilliClock::blockDelayMillis(1000);
     RCodeFlashPersistence persist = RCodeFlashPersistence();
-    RCode r(NULL, 0);
+    RCode<RCodeParameters> r(NULL, 0);
     uint8_t *mac;
     uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xaa };
     if (persist.hasMac()) {
@@ -95,19 +96,19 @@ int main(void) {
     }
 
     EthernetUdpCommandChannel channel(4889, &r);
-    RCodeExecutionSpaceChannel execCh = RCodeExecutionSpaceChannel(&r, r.getSpace());
-    RCodeCommandChannel *chptr[2] = { &channel, &execCh };
-    RCodeExecutionSpaceChannel **execPtr = (RCodeExecutionSpaceChannel**) chptr + 1;
+    RCodeExecutionSpaceChannel<RCodeParameters> execCh = RCodeExecutionSpaceChannel<RCodeParameters>(&r, r.getSpace());
+    RCodeCommandChannel<RCodeParameters> *chptr[2] = { &channel, &execCh };
+    RCodeExecutionSpaceChannel<RCodeParameters> **execPtr = (RCodeExecutionSpaceChannel<RCodeParameters>**) chptr + 1;
     r.setChannels(chptr, 2);
     r.getSpace()->setChannels(execPtr, 1);
-    RCodeEchoCommand cmd0 = RCodeEchoCommand();
-    RCodeActivateCommand cmd1 = RCodeActivateCommand();
-    RCodeSetDebugChannelCommand cmd2 = RCodeSetDebugChannelCommand(&r);
-    RCodeCapabilitiesCommand cmd3 = RCodeCapabilitiesCommand(&r);
-    RCodeExecutionStateCommand cmd4 = RCodeExecutionStateCommand(r.getSpace());
-    RCodeExecutionCommand cmd5 = RCodeExecutionCommand(r.getSpace());
-    RCodeExecutionStoreCommand cmd6 = RCodeExecutionStoreCommand(r.getSpace());
-    RCodeNotificationHostCommand cmd7 = RCodeNotificationHostCommand(&r);
+    RCodeEchoCommand<RCodeParameters> cmd0 = RCodeEchoCommand<RCodeParameters>();
+    RCodeActivateCommand<RCodeParameters> cmd1 = RCodeActivateCommand<RCodeParameters>();
+    RCodeSetDebugChannelCommand<RCodeParameters> cmd2 = RCodeSetDebugChannelCommand<RCodeParameters>(&r);
+    RCodeCapabilitiesCommand<RCodeParameters> cmd3 = RCodeCapabilitiesCommand<RCodeParameters>(&r);
+    RCodeExecutionStateCommand<RCodeParameters> cmd4 = RCodeExecutionStateCommand<RCodeParameters>(r.getSpace());
+    RCodeExecutionCommand<RCodeParameters> cmd5 = RCodeExecutionCommand<RCodeParameters>(r.getSpace());
+    RCodeExecutionStoreCommand<RCodeParameters> cmd6 = RCodeExecutionStoreCommand<RCodeParameters>(r.getSpace());
+    RCodeNotificationHostCommand<RCodeParameters> cmd7 = RCodeNotificationHostCommand<RCodeParameters>(&r);
     RCodeIdentifyCommand cmd8 = RCodeIdentifyCommand();
 
     RCodeFetchGiudCommand cmd9 = RCodeFetchGiudCommand(&persist);

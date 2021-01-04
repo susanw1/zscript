@@ -7,15 +7,15 @@
 
 #include "RCodeI2cPhysicalBus.hpp"
 
-void RCodeI2cPhysicalBus::asyncTransmit(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, RCodeCommandSlot *callbackSlot,
-        void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t), uint8_t callbackData) {
+void RCodeI2cPhysicalBus::asyncTransmit(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
+        void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t), uint8_t callbackData) {
     this->callbackSlot = callbackSlot;
     this->callbackFunc = callbackFunc;
     this->callbackData = callbackData;
     i2c->asyncTransmit(addr, txBuffer, txLen, &RCodeI2cSubsystem::i2cSubsystemCallback);
 }
-void RCodeI2cPhysicalBus::asyncReceive(uint16_t addr, uint8_t rxLen, RCodeCommandSlot *callbackSlot,
-        void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t), uint8_t callbackData) {
+void RCodeI2cPhysicalBus::asyncReceive(uint16_t addr, uint8_t rxLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
+        void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t), uint8_t callbackData) {
     this->callbackSlot = callbackSlot;
     this->callbackFunc = callbackFunc;
     this->callbackData = callbackData;
@@ -26,8 +26,9 @@ void RCodeI2cPhysicalBus::asyncReceive(uint16_t addr, uint8_t rxLen, RCodeComman
 #endif
     i2c->asyncReceive(addr, readBuffer, rxLen, &RCodeI2cSubsystem::i2cSubsystemCallback);
 }
-void RCodeI2cPhysicalBus::asyncTransmitReceive(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, uint8_t rxLen, RCodeCommandSlot *callbackSlot,
-        void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t), uint8_t callbackData) {
+void RCodeI2cPhysicalBus::asyncTransmitReceive(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, uint8_t rxLen,
+        RCodeCommandSlot<RCodeParameters> *callbackSlot,
+        void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t), uint8_t callbackData) {
     this->callbackSlot = callbackSlot;
     this->callbackFunc = callbackFunc;
     this->callbackData = callbackData;

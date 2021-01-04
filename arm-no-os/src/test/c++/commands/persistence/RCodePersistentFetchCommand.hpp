@@ -13,18 +13,18 @@
 #include "commands/RCodeCommand.hpp"
 #include "RCodeFlashPersistence.hpp"
 
-class RCodePersistentFetchCommand: public RCodeCommand {
+class RCodePersistentFetchCommand: public RCodeCommand<RCodeParameters> {
 private:
     const uint8_t code = 0x11;
     RCodeFlashPersistence *persist;
-public:
+    public:
     RCodePersistentFetchCommand(RCodeFlashPersistence *persist) :
             persist(persist) {
     }
-    void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
-            RCodeOutStream *out);
+    void execute(RCodeCommandSlot<RCodeParameters> *slot, RCodeCommandSequence<RCodeParameters> *sequence,
+            RCodeOutStream<RCodeParameters> *out);
 
-    void setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
+    void setLocks(RCodeCommandSlot<RCodeParameters> *slot, RCodeLockSet<RCodeParameters> *locks) const {
     }
 
     uint8_t getCode() const {

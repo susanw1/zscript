@@ -7,23 +7,21 @@
 
 #ifndef SRC_TEST_CPP_RCODE_RCODEPARAMETERS_HPP_
 #define SRC_TEST_CPP_RCODE_RCODEPARAMETERS_HPP_
+
 #include "RCodeIncludes.hpp"
-
-#define DEBUG
-#define NOTIFICATIONS
-
-typedef uint8_t fieldUnit;
-
-typedef uint16_t executionSpaceAddress_t;
-typedef uint16_t executionSpaceOutLength_t;
-typedef uint16_t bigFieldAddress_t;
-typedef uint8_t fieldMapSize_t;
-typedef uint8_t commandNum_t;
-typedef uint16_t debugOutputBufferLength_t;
-typedef uint8_t lockNumber_t;
 
 class RCodeParameters {
 public:
+    typedef uint8_t fieldUnit_t;
+
+    typedef uint16_t executionSpaceAddress_t;
+    typedef uint16_t executionSpaceOutLength_t;
+    typedef uint16_t bigFieldAddress_t;
+    typedef uint8_t fieldMapSize_t;
+    typedef uint8_t commandNum_t;
+    typedef uint16_t debugOutputBufferLength_t;
+    typedef uint8_t lockNumber_t;
+
     static const int bigFieldLength = 32;
     static const int bigBigFieldLength = 1024;
     static const int fieldNum = 20;
@@ -50,9 +48,7 @@ public:
     static const uint16_t persistentMemorySize = 0;
     static const bool persistentGUID = true;
     static const bool persistentMAC = true;
-};
-class RCodeLockValues {
-public:
+
     static const uint8_t i2cPhyBus0Lock = 5;
     static const uint8_t i2cPhyBus1Lock = 6;
     static const uint8_t i2cPhyBus2Lock = 7;

@@ -9,23 +9,24 @@
 #define SRC_TEST_CPP_RCODE_PARSING_RCODECOMMANDSEQUENCE_HPP_
 #include "../RCodeIncludes.hpp"
 #include "../RCodeLockSet.hpp"
+#include "../instreams/RCodeMarkerInStream.hpp"
 
-template <class RP>
+template<class RP>
 class RCode;
 
-template <class RP>
+template<class RP>
 class RCodeCommandSlot;
 
-template <class RP>
+template<class RP>
 class RCodeCommandChannel;
 
-template <class RP>
+template<class RP>
 class RCodeSequenceInStream;
 
-template <class RP>
+template<class RP>
 class RCodeOutStream;
 
-template <class RP>
+template<class RP>
 class RCodeCommandSequence {
 private:
     RCode<RP> *const rcode;
@@ -33,8 +34,8 @@ private:
 
     RCodeSequenceInStream<RP> *in = NULL;
     RCodeOutStream<RP> *out = NULL;
-    RCodeLockSet <RP>locks;
-    
+    RCodeLockSet<RP> locks;
+
     RCodeCommandSlot<RP> *first = NULL;
     RCodeCommandSlot<RP> *last = NULL;
     bool parallel = false;
@@ -46,7 +47,7 @@ private:
     bool empty = false;
 
 public:
-    RCodeCommandSequence(RCode<RP> *rcode, RCodeCommandChannel <RP>*channel) :
+    RCodeCommandSequence(RCode<RP> *rcode, RCodeCommandChannel<RP> *channel) :
             rcode(rcode), channel(channel), locks() {
     }
 
@@ -325,7 +326,6 @@ void RCodeCommandSequence<RP>::unlock() {
         locks.reset();
     }
 }
-
 
 #include "../instreams/RCodeSequenceInStream.hpp"
 #include "../RCodeOutStream.hpp"

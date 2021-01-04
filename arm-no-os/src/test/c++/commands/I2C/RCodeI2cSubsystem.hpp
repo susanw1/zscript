@@ -23,14 +23,14 @@ private:
     static RCodeI2cPhysicalBus phyBus3;
     static RCodeI2cBus busses[4 * RCodeI2cParameters::i2cBussesPerPhyBus];
     static bool createNotifications;
-public:
+    public:
     static void init() {
         createNotifications = false;
         for (int i = 0; i < RCodeI2cParameters::i2cBussesPerPhyBus; ++i) {
-            busses[i * 4].setup(&phyBus0, i * 4, RCodeLockValues::i2cPhyBus0Lock);
-            busses[i * 4 + 1].setup(&phyBus1, i * 4 + 1, RCodeLockValues::i2cPhyBus1Lock);
-            busses[i * 4 + 2].setup(&phyBus2, i * 4 + 2, RCodeLockValues::i2cPhyBus2Lock);
-            busses[i * 4 + 3].setup(&phyBus3, i * 4 + 3, RCodeLockValues::i2cPhyBus3Lock);
+            busses[i * 4].setup(&phyBus0, i * 4, RCodeParameters::i2cPhyBus0Lock);
+            busses[i * 4 + 1].setup(&phyBus1, i * 4 + 1, RCodeParameters::i2cPhyBus1Lock);
+            busses[i * 4 + 2].setup(&phyBus2, i * 4 + 2, RCodeParameters::i2cPhyBus2Lock);
+            busses[i * 4 + 3].setup(&phyBus3, i * 4 + 3, RCodeParameters::i2cPhyBus3Lock);
         }
     }
     static void i2cSubsystemCallback(I2c *i2c, I2cTerminationStatus status);

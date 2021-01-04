@@ -11,15 +11,15 @@
 #include "RCodeParameters.hpp"
 #include "commands/RCodeCommand.hpp"
 
-class RCodeIdentifyCommand: public RCodeCommand {
+class RCodeIdentifyCommand: public RCodeCommand<RCodeParameters> {
 private:
     const uint8_t code = 0x00;
-public:
+    public:
 
-    void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence,
-            RCodeOutStream *out);
+    void execute(RCodeCommandSlot<RCodeParameters> *slot, RCodeCommandSequence<RCodeParameters> *sequence,
+            RCodeOutStream<RCodeParameters> *out);
 
-    void setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
+    void setLocks(RCodeCommandSlot<RCodeParameters> *slot, RCodeLockSet<RCodeParameters> *locks) const {
     }
 
     uint8_t getCode() const {

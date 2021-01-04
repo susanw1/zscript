@@ -7,14 +7,16 @@
 
 #include "../persistence/RCodePersistentStoreCommand.hpp"
 
-void RCodePersistentStoreCommand::execute(RCodeCommandSlot *slot,
-        RCodeCommandSequence *sequence, RCodeOutStream *out) {
+void RCodePersistentStoreCommand::execute(RCodeCommandSlot<RCodeParameters> *slot,
+        RCodeCommandSequence<RCodeParameters> *sequence, RCodeOutStream<RCodeParameters> *out) {
     if (!slot->getFields()->has('A')) {
+        slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
         out->writeBigStringField("Address must be specified");
     } else {
         uint8_t addrLen = slot->getFields()->countFieldSections('A');
         if (addrLen > 4) {
+            slot->fail("", BAD_PARAM);
             out->writeStatus(BAD_PARAM);
             out->writeBigStringField(
                     "Cannot store data beyond persistent store length");
@@ -26,6 +28,7 @@ void RCodePersistentStoreCommand::execute(RCodeCommandSlot *slot,
             }
             if (slot->getBigField()->getLength() + addr
                     >= RCodeParameters::persistentMemorySize) {
+                slot->fail("", BAD_PARAM);
                 out->writeStatus(BAD_PARAM);
                 out->writeBigStringField(
                         "Cannot store data beyond persistent store length");

@@ -10,39 +10,40 @@
 #include "RCodeIncludes.hpp"
 #include "RCodeParameters.hpp"
 #include "../LowLevel/I2cLowLevel/I2c.hpp"
+#include <parsing/RCodeCommandSlot.hpp>
 
 class RCodeI2cPhysicalBus;
-class RCodeCommandSlot;
 class RCodeI2cSubsystem;
 
 class RCodeI2cPhysicalBus {
 private:
     I2c *i2c;
-#ifdef USE_I2C_STATIC_READ_BUFFERS
+    #ifdef USE_I2C_STATIC_READ_BUFFERS
     uint8_t readBuffer[RCodeI2cParameters::i2cReadMaximum];
 #else
     uint8_t *readBuffer = NULL;
-#endif
-    RCodeCommandSlot *callbackSlot = NULL;
-    void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t) = NULL;
+    #endif
+    RCodeCommandSlot<RCodeParameters> *callbackSlot = NULL;
+    void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t) = NULL;
     I2cTerminationStatus status;
     uint8_t callbackData = 0;
     uint8_t currentBus = 0;
 
     friend RCodeI2cSubsystem;
-public:
+    public:
     RCodeI2cPhysicalBus(I2c *i2c) :
             i2c(i2c), status(Complete) {
         i2c->init();
     }
-    void asyncTransmit(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, RCodeCommandSlot *callbackSlot,
-            void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t), uint8_t callbackData);
+    void asyncTransmit(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
+            void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t), uint8_t callbackData);
 
-    void asyncReceive(uint16_t addr, uint8_t rxLen, RCodeCommandSlot *callbackSlot, void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t),
+    void asyncReceive(uint16_t addr, uint8_t rxLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
+            void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t),
             uint8_t callbackData);
 
-    void asyncTransmitReceive(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, uint8_t rxLen, RCodeCommandSlot *callbackSlot,
-            void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot*, uint8_t), uint8_t callbackData);
+    void asyncTransmitReceive(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, uint8_t rxLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
+            void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t), uint8_t callbackData);
 
     uint8_t* getReadBuffer() {
         return readBuffer;

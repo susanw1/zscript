@@ -11,11 +11,12 @@
 #include <stdlib.h>
 #include "../../LowLevel/ArduinoSpiLayer/src/Ethernet.h"
 #include <instreams/RCodeChannelInStream.hpp>
+#include <RCodeParameters.hpp>
 
 class EthernetUdpCommandChannel;
 class EthernetUdpChannelInStream;
 
-class EthernetUdpChannelLookahead: public RCodeLookaheadStream {
+class EthernetUdpChannelLookahead: public RCodeLookaheadStream<RCodeParameters> {
     EthernetUdpChannelInStream *parent;
     uint8_t dist = 0;
     friend EthernetUdpChannelInStream;
@@ -25,7 +26,7 @@ class EthernetUdpChannelLookahead: public RCodeLookaheadStream {
     }
     virtual char read();
 };
-class EthernetUdpChannelInStream: public RCodeChannelInStream {
+class EthernetUdpChannelInStream: public RCodeChannelInStream<RCodeParameters> {
     EthernetUdpCommandChannel *channel;
     EthernetUdpChannelLookahead lookahead;
     friend EthernetUdpChannelLookahead;
@@ -39,7 +40,7 @@ public:
     }
     virtual int16_t read();
 
-    virtual RCodeLookaheadStream* getLookahead() {
+    virtual RCodeLookaheadStream<RCodeParameters>* getLookahead() {
         lookahead.dist = 0;
         return &lookahead;
     }

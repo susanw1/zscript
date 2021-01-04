@@ -9,15 +9,16 @@
 #define SRC_TEST_CPP_CHANNELS_ETHERNETCOMMANDCHANNEL_HPP_
 #include <stdint.h>
 #include <stdlib.h>
+#include <RCodeParameters.hpp>
 #include <parsing/RCodeCommandChannel.hpp>
 #include <parsing/RCodeCommandSequence.hpp>
 #include "../../LowLevel/ArduinoSpiLayer/src/Ethernet.h"
 #include "EthernetUdpChannelInStream.hpp"
 #include "EthernetUdpChannelOutStream.hpp"
 
-class EthernetUdpCommandChannel: public RCodeCommandChannel {
+class EthernetUdpCommandChannel: public RCodeCommandChannel<RCodeParameters> {
     EthernetUDP udp;
-    RCodeCommandSequence seq;
+    RCodeCommandSequence<RCodeParameters> seq;
     EthernetUdpChannelInStream in;
     EthernetUdpChannelOutStream out;
     IPAddress mostRecentIP;
@@ -31,7 +32,7 @@ class EthernetUdpCommandChannel: public RCodeCommandChannel {
         return &udp;
     }
 public:
-    EthernetUdpCommandChannel(uint16_t port, RCode *rcode) :
+    EthernetUdpCommandChannel(uint16_t port, RCode<RCodeParameters> *rcode) :
             udp(), seq(rcode, this), in(this), out(this), mostRecentIP(), mostRecentPort(0) {
         udp.begin(port);
     }
@@ -42,11 +43,11 @@ public:
     uint16_t getPort() {
         return mostRecentPort;
     }
-    virtual RCodeChannelInStream* acquireInStream() {
+    virtual RCodeChannelInStream<RCodeParameters>* acquireInStream() {
         return &in;
     }
 
-    virtual RCodeOutStream* acquireOutStream() {
+    virtual RCodeOutStream<RCodeParameters>* acquireOutStream() {
         return &out;
     }
 
@@ -64,7 +65,7 @@ public:
         }
     }
 
-    virtual RCodeCommandSequence* getCommandSequence() {
+    virtual RCodeCommandSequence<RCodeParameters>* getCommandSequence() {
         return &seq;
     }
 

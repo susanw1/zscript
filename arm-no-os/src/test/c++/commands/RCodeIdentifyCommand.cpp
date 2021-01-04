@@ -7,8 +7,8 @@
 
 #include "RCodeIdentifyCommand.hpp"
 
-void RCodeIdentifyCommand::execute(RCodeCommandSlot *slot,
-        RCodeCommandSequence *sequence, RCodeOutStream *out) {
+void RCodeIdentifyCommand::execute(RCodeCommandSlot<RCodeParameters> *slot, RCodeCommandSequence<RCodeParameters> *sequence,
+        RCodeOutStream<RCodeParameters> *out) {
     out->writeStatus(OK);
     out->writeField('V', 0);
     out->continueField(0);

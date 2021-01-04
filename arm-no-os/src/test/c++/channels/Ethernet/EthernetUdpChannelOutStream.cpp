@@ -11,22 +11,22 @@ void EthernetUdpChannelOutStream::writeByte(uint8_t value) {
     channel->getUdp()->write(value);
 }
 
-RCodeOutStream* EthernetUdpChannelOutStream::writeBytes(uint8_t const *value,
-        bigFieldAddress_t length) {
+RCodeOutStream<RCodeParameters>* EthernetUdpChannelOutStream::writeBytes(uint8_t const *value,
+        RCodeParameters::bigFieldAddress_t length) {
     channel->getUdp()->write(value, length);
     return this;
 }
 
-void EthernetUdpChannelOutStream::openResponse(RCodeCommandChannel *target) {
+void EthernetUdpChannelOutStream::openResponse(RCodeCommandChannel<RCodeParameters> *target) {
     open = true;
     channel->getUdp()->beginPacket(channel->getIp(), channel->getPort());
 }
 
-void EthernetUdpChannelOutStream::openNotification(RCodeCommandChannel *target) {
+void EthernetUdpChannelOutStream::openNotification(RCodeCommandChannel<RCodeParameters> *target) {
     open = true;
     channel->getUdp()->beginPacket(channel->getIp(), channel->getPort());
 }
-void EthernetUdpChannelOutStream::openDebug(RCodeCommandChannel *target) {
+void EthernetUdpChannelOutStream::openDebug(RCodeCommandChannel<RCodeParameters> *target) {
     open = true;
     channel->getUdp()->beginPacket(channel->getIp(), channel->getPort());
 }

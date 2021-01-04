@@ -7,14 +7,14 @@
 
 #include "RCodeI2cReceiveCommand.hpp"
 
-void RCodeI2cReceiveCommand::setAsFinished(I2cTerminationStatus status, RCodeCommandSlot *slot, uint8_t retries) {
+void RCodeI2cReceiveCommand::setAsFinished(I2cTerminationStatus status, RCodeCommandSlot<RCodeParameters> *slot, uint8_t retries) {
     if (status == Complete || retries == 0) {
         slot->setComplete(true);
     } else {
         slot->setNeedsMoveAlong(true);
     }
 }
-void RCodeI2cReceiveCommand::moveAlong(RCodeCommandSlot *slot) const {
+void RCodeI2cReceiveCommand::moveAlong(RCodeCommandSlot<RCodeParameters> *slot) const {
     uint16_t address = slot->getFields()->get('A', 0);
     if (slot->getFields()->countFieldSections('A') > 1) {
         address = (address << 8) | slot->getFields()->get('A', 1, 0);
@@ -24,7 +24,7 @@ void RCodeI2cReceiveCommand::moveAlong(RCodeCommandSlot *slot) const {
     bus->asyncReceive(address, length, slot, &RCodeI2cReceiveCommand::setAsFinished, bus->getCallbackData() - 1);
 }
 
-void RCodeI2cReceiveCommand::finish(RCodeCommandSlot *slot, RCodeOutStream *out) const {
+void RCodeI2cReceiveCommand::finish(RCodeCommandSlot<RCodeParameters> *slot, RCodeOutStream<RCodeParameters> *out) const {
     uint8_t addrLen = slot->getFields()->countFieldSections('A');
     if (addrLen == 0 || addrLen > 2) {
         return;
@@ -56,7 +56,7 @@ void RCodeI2cReceiveCommand::finish(RCodeCommandSlot *slot, RCodeOutStream *out)
         retries = 1;
     }
 
-    RCodeOutStream::writeFieldType(out, 'A', address);
+    RCodeOutStream<RCodeParameters>::writeFieldType(out, 'A', address);
     out->writeField('T', retries - bus->getCallbackData());
     I2cTerminationStatus status = bus->getStatus();
     if (status == AddressNack) {
@@ -76,21 +76,25 @@ void RCodeI2cReceiveCommand::finish(RCodeCommandSlot *slot, RCodeOutStream *out)
     bus->freeReadBuffer();
 }
 
-void RCodeI2cReceiveCommand::execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence, RCodeOutStream *out) {
+void RCodeI2cReceiveCommand::execute(RCodeCommandSlot<RCodeParameters> *slot, RCodeCommandSequence<RCodeParameters> *sequence,
+        RCodeOutStream<RCodeParameters> *out) {
     uint8_t addrLen = slot->getFields()->countFieldSections('A');
     if (addrLen == 0 || addrLen > 2) {
+        slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
         out->writeBigStringField("I2C addresses must be 7 or 10 bit");
         slot->setComplete(true);
         return;
     }
     if (slot->getFields()->countFieldSections('B') > 1) {
+        slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
         out->writeBigStringField("I2C bus cannot be more than 1 byte");
         slot->setComplete(true);
         return;
     }
     if (slot->getFields()->countFieldSections('T') > 1) {
+        slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
         out->writeBigStringField("No more than 255 retries supported");
         slot->setComplete(true);
@@ -98,8 +102,9 @@ void RCodeI2cReceiveCommand::execute(RCodeCommandSlot *slot, RCodeCommandSequenc
     }
     uint8_t bus = slot->getFields()->get('B', 0);
     if (bus >= 4 * RCodeI2cParameters::i2cBussesPerPhyBus) {
+        slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
-        RCodeOutStream::writeFieldType(out, 'B', bus);
+        RCodeOutStream<RCodeParameters>::writeFieldType(out, 'B', bus);
         out->writeBigStringField("Bus given not supported");
         slot->setComplete(true);
         return;
@@ -113,14 +118,16 @@ void RCodeI2cReceiveCommand::execute(RCodeCommandSlot *slot, RCodeCommandSequenc
         address = (address << 8) | slot->getFields()->get('A', 1, 0);
     }
     if (address >= 1024) {
+        slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
-        RCodeOutStream::writeFieldType(out, 'A', address);
+        RCodeOutStream<RCodeParameters>::writeFieldType(out, 'A', address);
         out->writeBigStringField("I2C addresses must be < 1024");
         slot->setComplete(true);
         return;
     }
     uint16_t length = slot->getFields()->get('L', 0);
     if (length == 0) {
+        slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
         out->writeBigStringField("Cannot perform 0 byte I2C read");
         slot->setComplete(true);
@@ -131,7 +138,7 @@ void RCodeI2cReceiveCommand::execute(RCodeCommandSlot *slot, RCodeCommandSequenc
             &RCodeI2cReceiveCommand::setAsFinished, retries - 1);
 }
 
-void RCodeI2cReceiveCommand::setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const {
+void RCodeI2cReceiveCommand::setLocks(RCodeCommandSlot<RCodeParameters> *slot, RCodeLockSet<RCodeParameters> *locks) const {
     if (slot->getFields()->countFieldSections('B') <= 1) {
         locks->addLock(RCodeI2cSubsystem::getRCodeBus(slot->getFields()->get('B', 0))->getBusLock(), true);
     }

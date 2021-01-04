@@ -7,9 +7,10 @@
 
 #include "../persistence/RCodeStoreGiudCommand.hpp"
 
-void RCodeStoreGiudCommand::execute(RCodeCommandSlot *slot,
-        RCodeCommandSequence *sequence, RCodeOutStream *out) {
+void RCodeStoreGiudCommand::execute(RCodeCommandSlot<RCodeParameters> *slot,
+        RCodeCommandSequence<RCodeParameters> *sequence, RCodeOutStream<RCodeParameters> *out) {
     if (slot->getBigField()->getLength() != 16) {
+        slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
         out->writeBigStringField("GUIDs must be 16 bytes long");
     } else {

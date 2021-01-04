@@ -7,18 +7,21 @@
 
 #include "../persistence/RCodePersistentFetchCommand.hpp"
 
-void RCodePersistentFetchCommand::execute(RCodeCommandSlot *slot,
-        RCodeCommandSequence *sequence, RCodeOutStream *out) {
+void RCodePersistentFetchCommand::execute(RCodeCommandSlot<RCodeParameters> *slot,
+        RCodeCommandSequence<RCodeParameters> *sequence, RCodeOutStream<RCodeParameters> *out) {
     if (!slot->getFields()->has('A')) {
+        slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
         out->writeBigStringField("Address must be specified");
     } else if (!slot->getFields()->has('L')) {
+        slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
         out->writeBigStringField("Read length must be specified");
     } else {
         uint8_t addrLen = slot->getFields()->countFieldSections('A');
         uint8_t lengthLen = slot->getFields()->countFieldSections('L');
         if (addrLen > 4) {
+            slot->fail("", BAD_PARAM);
             out->writeStatus(BAD_PARAM);
             out->writeBigStringField(
                     "Cannot read data beyond persistent store length");
@@ -38,6 +41,7 @@ void RCodePersistentFetchCommand::execute(RCodeCommandSlot *slot,
                 addr |= slot->getFields()->get('A', i, 0);
             }
             if (addr + length >= RCodeParameters::persistentMemorySize) {
+                slot->fail("", BAD_PARAM);
                 out->writeStatus(BAD_PARAM);
                 out->writeBigStringField(
                         "Cannot read data beyond persistent store length");

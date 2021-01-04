@@ -13,20 +13,20 @@
 #include "RCodeI2cSubsystem.hpp"
 #include "RCodeI2cBus.hpp"
 
-class RCodeI2cReceiveCommand: public RCodeCommand {
+class RCodeI2cReceiveCommand: public RCodeCommand<RCodeParameters> {
 private:
     const uint8_t code = 0x52;
 
-    static void setAsFinished(I2cTerminationStatus status, RCodeCommandSlot *slot, uint8_t retries);
+    static void setAsFinished(I2cTerminationStatus status, RCodeCommandSlot<RCodeParameters> *slot, uint8_t retries);
 
 public:
-    void finish(RCodeCommandSlot *rCodeCommandSlot, RCodeOutStream *out) const;
+    void finish(RCodeCommandSlot<RCodeParameters> *rCodeCommandSlot, RCodeOutStream<RCodeParameters> *out) const;
 
-    void moveAlong(RCodeCommandSlot *rCodeCommandSlot) const;
+    void moveAlong(RCodeCommandSlot<RCodeParameters> *rCodeCommandSlot) const;
 
-    void execute(RCodeCommandSlot *slot, RCodeCommandSequence *sequence, RCodeOutStream *out);
+    void execute(RCodeCommandSlot<RCodeParameters> *slot, RCodeCommandSequence<RCodeParameters> *sequence, RCodeOutStream<RCodeParameters> *out);
 
-    void setLocks(RCodeCommandSlot *slot, RCodeLockSet *locks) const;
+    void setLocks(RCodeCommandSlot<RCodeParameters> *slot, RCodeLockSet<RCodeParameters> *locks) const;
 
     uint8_t getCode() const {
         return code;
