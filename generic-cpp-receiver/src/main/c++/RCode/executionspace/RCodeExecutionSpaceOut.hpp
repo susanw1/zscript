@@ -16,7 +16,7 @@ class RCodeExecutionSpace;
 template<class RP>
 class RCodeExecutionSpaceOut: public AbstractRCodeOutStream<RP> {
     typedef typename RP::executionSpaceOutLength_t executionSpaceOutLength_t;
-private:
+    private:
     RCodeExecutionSpace<RP> *space;
     uint8_t buffer[RP::executionOutBufferSize];
     executionSpaceOutLength_t length = 0;
@@ -63,21 +63,21 @@ public:
         if (!overLength) {
             lastEndPos = length;
         }
-        return AbstractRCodeOutStream < RP > ::writeCommandSeperator();
+        return AbstractRCodeOutStream<RP>::writeCommandSeperator();
     }
 
     RCodeOutStream<RP>* writeCommandSequenceErrorHandler() {
         if (!overLength) {
             lastEndPos = length;
         }
-        return AbstractRCodeOutStream < RP > ::writeCommandSequenceErrorHandler();
+        return AbstractRCodeOutStream<RP>::writeCommandSequenceErrorHandler();
     }
 
     RCodeOutStream<RP>* writeStatus(RCodeResponseStatus st) {
         if (st != OK) {
             status = st;
         }
-        return AbstractRCodeOutStream < RP > ::writeStatus(st);
+        return AbstractRCodeOutStream<RP>::writeStatus(st);
     }
 
     void openResponse(RCodeCommandChannel<RP> *target) {
@@ -138,7 +138,7 @@ bool RCodeExecutionSpaceOut<RP>::flush() {
         out->openNotification(space->getNotificationChannel());
         out->mostRecent = space;
         out->markNotification();
-        out->writeField('Z', 2);
+        out->writeField('Z', (uint8_t) 2);
         if (overLength) {
             out->writeBytes(buffer, lastEndPos);
             out->writeCommandSeperator();

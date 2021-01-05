@@ -24,7 +24,7 @@ private:
     fieldMapSize_t size = 0;
     mutable char lastSearchedField = 0;
     mutable fieldUnit_t lastFoundValue = 0;
-public:
+    public:
     bool add(char f, fieldUnit_t v) {
         if (size == RP::fieldNum) {
             return false;
@@ -90,6 +90,40 @@ public:
             }
         }
         return def;
+    }
+
+    uint8_t getByte(char f, uint8_t byteNum, uint8_t def) const {
+        if (sizeof(fieldUnit_t) == 1) {
+            return get(f, byteNum, def);
+        }
+        fieldUnit_t start = get(f, def);
+        uint8_t startOffset = sizeof(fieldUnit_t);
+        for (; start != 0; start = (uint8_t) (start >> 8))
+            startOffset--;
+        fieldUnit_t found;
+        if (byteNum + startOffset < sizeof(fieldUnit_t)) {
+            found = start;
+        } else {
+            found = get(f, (byteNum + startOffset) / sizeof(fieldUnit_t), def);
+        }
+        if (found == def) {
+            if (!has(f)) {
+                return def;
+            }
+        }
+        return (found >> (8 * ((byteNum + startOffset) % sizeof(fieldUnit_t)))) & 0xFF;
+    }
+
+    uint8_t getByteCount(char f) const {
+        uint8_t sections = countFieldSections(f);
+        if (sizeof(fieldUnit_t) == 1) {
+            return sections;
+        }
+
+        int startOffset = sizeof(fieldUnit_t);
+        for (fieldUnit_t start = get(f, 0); start != 0; start = (uint8_t) (start >> 8))
+            startOffset--;
+        return (uint8_t) (sections * sizeof(fieldUnit_t) - startOffset);
     }
 
     uint8_t countFieldSections(char f) const {

@@ -17,7 +17,7 @@ template<class RP>
 class RCodeOutStream {
     typedef typename RP::bigFieldAddress_t bigFieldAddress_t;
     typedef typename RP::fieldUnit_t fieldUnit_t;
-public:
+    public:
     bool lockVal;
     void *mostRecent;
 
@@ -45,17 +45,17 @@ public:
 
     virtual RCodeOutStream<RP>* writeStatus(RCodeResponseStatus st) = 0;
 
-    virtual RCodeOutStream<RP>* writeField(char f, fieldUnit_t v) = 0;
+    virtual RCodeOutStream<RP>* writeField(char f, uint8_t v) = 0;
 
-    virtual RCodeOutStream<RP>* continueField(fieldUnit_t v) = 0;
+    virtual RCodeOutStream<RP>* continueField(uint8_t v) = 0;
 
-    virtual RCodeOutStream<RP>* writeBigHexField(uint8_t const *value, bigFieldAddress_t length) = 0;
+    virtual RCodeOutStream<RP>* writeBigHexField(const uint8_t *value, bigFieldAddress_t length) = 0;
 
-    virtual RCodeOutStream<RP>* writeBigStringField(uint8_t const *value, bigFieldAddress_t length) = 0;
+    virtual RCodeOutStream<RP>* writeBigStringField(const uint8_t *value, bigFieldAddress_t length) = 0;
 
-    virtual RCodeOutStream<RP>* writeBigStringField(char const *s) = 0;
+    virtual RCodeOutStream<RP>* writeBigStringField(const char *s) = 0;
 
-    virtual RCodeOutStream<RP>* writeBytes(uint8_t const *value, bigFieldAddress_t length) = 0;
+    virtual RCodeOutStream<RP>* writeBytes(const uint8_t *value, bigFieldAddress_t length) = 0;
 
     virtual RCodeOutStream<RP>* writeCommandSeperator() = 0;
 
@@ -73,115 +73,76 @@ public:
 
     virtual void close() = 0;
 
-    static void writeFieldType(RCodeOutStream<RP> *target, char f, uint8_t value) {
-        target->writeField(f, (fieldUnit_t) value);
+    void writeField(char f, int8_t value) {
+        writeField(f, (uint8_t) value);
     }
-    static void writeFieldType(RCodeOutStream<RP> *target, char f, int8_t value) {
-        writeFieldType(target, f, (uint8_t) value);
-    }
-    static void writeFieldType(RCodeOutStream<RP> *target, char f, uint16_t value) {
-        if (value < 0xFF) {
-            writeFieldType(target, f, (uint8_t) value);
-        } else if (sizeof(fieldUnit_t) >= 2) {
-            target->writeField(f, (fieldUnit_t) value);
+    void writeField(char f, uint16_t value) {
+        if (value <= 0xFF) {
+            writeField(f, (uint8_t) value);
         } else {
-            target->writeField(f, (fieldUnit_t) (value >> 8));
-            target->continueField((fieldUnit_t) value & 0xFF);
+            writeField(f, (uint8_t) (value >> 8));
+            continueField((uint8_t) (value & 0xFF));
         }
     }
-    static void writeFieldType(RCodeOutStream<RP> *target, char f, int16_t value) {
-        writeFieldType(target, f, (uint16_t) value);
+    void writeField(char f, int16_t value) {
+        writeField(f, (uint16_t) value);
     }
-    static void writeFieldType(RCodeOutStream<RP> *target, char f, uint32_t value) {
-        if (value < 0xFF) {
-            writeFieldType(target, f, (uint8_t) value);
-        } else if (value < 0xFFFF) {
-            writeFieldType(target, f, (uint16_t) value);
-        } else if (sizeof(fieldUnit_t) >= 4) {
-            target->writeField(f, (fieldUnit_t) value);
-        } else if (sizeof(fieldUnit_t) == 2) {
-            target->writeField(f, (fieldUnit_t) value >> 16);
-            target->continueField((fieldUnit_t) value & 0xFFFF);
+    void writeField(char f, uint32_t value) {
+        if (value <= 0xFF) {
+            writeField(f, (uint8_t) value);
+        } else if (value <= 0xFFFF) {
+            writeField(f, (uint8_t) (value >> 8));
+            continueField((uint8_t) (value & 0xFF));
         } else {
-            target->writeField(f, (fieldUnit_t) (value >> 24));
-            target->continueField((fieldUnit_t) (value >> 16) & 0xFF);
-            target->continueField((fieldUnit_t) (value >> 8) & 0xFF);
-            target->continueField((fieldUnit_t) value & 0xFF);
+            writeField(f, (uint8_t) (value >> 24));
+            continueField((uint8_t) ((value >> 16) & 0xFF));
+            continueField((uint8_t) ((value >> 8) & 0xFF));
+            continueField((uint8_t) (value & 0xFF));
         }
     }
 
-    static void writeFieldType(RCodeOutStream<RP> *target, char f, int32_t value) {
-        writeFieldType(target, f, (uint32_t) value);
+    void writeField(char f, int32_t value) {
+        writeField(f, (uint32_t) value);
     }
 
-    static void writeFieldType(RCodeOutStream<RP> *target, char f, uint64_t value) {
-        if (value < 0xFF) {
-            writeFieldType(target, f, (uint8_t) value);
-        } else if (value < 0xFFFF) {
-            writeFieldType(target, f, (uint16_t) value);
-        } else if (value < 0xFFFFFFFF) {
-            writeFieldType(target, f, (uint32_t) value);
-        } else if (sizeof(fieldUnit_t) >= 8) {
-            target->writeField(f, (fieldUnit_t) value);
+    void writeField(char f, uint64_t value) {
+        if (value <= 0xFF) {
+            writeField(f, (uint8_t) value);
+        } else if (value <= 0xFFFFFFFF) {
+            writeField(f, (uint32_t) value);
         } else {
-            writeFieldType(target, f, (uint32_t) value & 0xFFFFFFFF);
-            continueFieldType(target, value >> 32);
+            writeField(f, (uint32_t) (value >> 32));
+            continueField((uint32_t) (value & 0xFFFFFFFF));
         }
     }
-    static void continueFieldType(RCodeOutStream<RP> *target, uint64_t value) {
-        if (sizeof(fieldUnit_t) >= 8) {
-            target->continueField((fieldUnit_t) value);
-        } else {
-            continueFieldType(target, (uint32_t) value & 0xFFFFFFFF);
-            continueFieldType(target, value >> 32);
-        }
+    void continueField(uint64_t value) {
+        continueField((uint32_t) (value >> 32));
+        continueField((uint32_t) (value & 0xFFFFFFFF));
     }
-    static void writeFieldType(RCodeOutStream<RP> *target, char f, int64_t value) {
-        writeFieldType(target, f, (uint64_t) value);
+    static void writeField(char f, int64_t value) {
+        writeField(f, (uint64_t) value);
     }
-    static void continueFieldType(RCodeOutStream<RP> *target, int64_t value) {
-        continueFieldType(target, (uint64_t) value);
+    static void continueField(int64_t value) {
+        continueField((uint64_t) value);
     }
 
-    static void writeFieldType(RCodeOutStream<RP> *target, char f, const uint8_t *value, int length) {
+    void writeField(char f, const uint8_t *value, int length) {
         if (length == 0) {
-            target->writeField(f, 0);
+            writeField(f, 0);
             return;
         }
-        int leftover = length % sizeof(fieldUnit_t);
-        fieldUnit_t toWrite = 0;
-        if (leftover == 0) {
-            leftover = sizeof(fieldUnit_t);
-        }
-        for (int i = 0; i < leftover; ++i) {
-            toWrite <<= 8;
-            toWrite += *value++;
-            length--;
-        }
-        target->writeField(f, toWrite);
+        uint8_t toWrite = 0;
         while (length != 0) {
-            toWrite = 0;
-            for (uint8_t i = 0; i < sizeof(fieldUnit_t); ++i) {
-                toWrite <<= 8;
-                toWrite += *value++;
-                length--;
-            }
-            target->continueField(toWrite);
+            length--;
+            continueField(*value++);
         }
     }
 private:
-    static void continueFieldType(RCodeOutStream<RP> *target, uint32_t value) {
-        if (sizeof(fieldUnit_t) >= 4) {
-            target->continueField((fieldUnit_t) value);
-        } else if (sizeof(fieldUnit_t) == 2) {
-            target->continueField((fieldUnit_t) value >> 16);
-            target->continueField((fieldUnit_t) value & 0xFFFF);
-        } else {
-            target->continueField((fieldUnit_t) value >> 24);
-            target->continueField((fieldUnit_t) (value >> 16) & 0xFF);
-            target->continueField((fieldUnit_t) (value >> 8) & 0xFF);
-            target->continueField((fieldUnit_t) value & 0xFF);
-        }
+    void continueField(uint32_t value) {
+        continueField((uint8_t) (value >> 24));
+        continueField((uint8_t) ((value >> 16) & 0xFF));
+        continueField((uint8_t) ((value >> 8) & 0xFF));
+        continueField((uint8_t) (value & 0xFF));
     }
 };
 

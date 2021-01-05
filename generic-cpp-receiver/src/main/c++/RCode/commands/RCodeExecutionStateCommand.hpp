@@ -16,7 +16,7 @@ class RCodeExecutionStateCommand: public RCodeCommand<RP> {
 private:
     const uint8_t code = 0x20;
     RCodeExecutionSpace<RP> *space;
-public:
+    public:
     RCodeExecutionStateCommand(RCodeExecutionSpace<RP> *space) :
             space(space) {
     }
@@ -48,11 +48,11 @@ template<class RP>
 void RCodeExecutionStateCommand<RP>::execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out) {
     out->writeField('D', space->getDelay());
     if (space->hasFailed()) {
-        out->writeField('F', 0);
+        out->writeField('F', (uint8_t) 0);
     }
-    out->writeField('G', space->isRunning());
-    RCodeOutStream<RP>::writeFieldType(out, 'L', space->getLength());
-    RCodeOutStream<RP>::writeFieldType(out, 'M', RP::executionLength);
+    out->writeField('G', (uint8_t) space->isRunning());
+    out->writeField('L', space->getLength());
+    out->writeField('M', RP::executionLength);
     out->writeStatus(OK);
     slot->setComplete(true);
 }

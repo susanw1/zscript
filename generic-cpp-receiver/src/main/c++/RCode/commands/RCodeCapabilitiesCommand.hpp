@@ -20,10 +20,10 @@ class RCode;
 template<class RP>
 class RCodeCapabilitiesCommand: public RCodeCommand<RP> {
     typedef typename RP::fieldUnit_t fieldUnit_t;
-private:
+    private:
     RCode<RP> *rcode;
     const uint8_t code = 0x02;
-public:
+    public:
     RCodeCapabilitiesCommand(RCode<RP> *rcode) :
             rcode(rcode) {
     }
@@ -58,9 +58,9 @@ template<class RP>
 void RCodeCapabilitiesCommand<RP>::execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out) {
     out->writeStatus(OK);
     if (RP::bigBigFieldLength > 0) {
-        RCodeOutStream<RP>::writeFieldType(out, 'B', (uint32_t) RP::bigBigFieldLength);
+        out->writeField('B', (uint32_t) RP::bigBigFieldLength);
     } else {
-        RCodeOutStream<RP>::writeFieldType(out, 'B', (uint32_t) RP::bigFieldLength);
+        out->writeField('B', (uint32_t) RP::bigFieldLength);
     }
     uint8_t capabilities = 0x01;
     if (RP::slotNum > 1) {
@@ -74,11 +74,11 @@ void RCodeCapabilitiesCommand<RP>::execute(RCodeCommandSlot<RP> *slot, RCodeComm
     }
     out->writeField('C', capabilities);
     if (RP::persistentMemorySize != 0) {
-        RCodeOutStream<RP>::writeFieldType(out, 'P', RP::persistentMemorySize);
+        out->writeField('P', RP::persistentMemorySize);
     }
-    RCodeOutStream<RP>::writeFieldType(out, 'N', (uint32_t) RP::fieldNum);
-    RCodeOutStream<RP>::writeFieldType(out, 'M', (uint8_t) 1);
-    out->writeField('U', sizeof(fieldUnit_t));
+    out->writeField('N', (uint32_t) RP::fieldNum);
+    out->writeField('M', (uint8_t) 1);
+    out->writeField('U', (uint8_t) sizeof(fieldUnit_t));
     RCodeSupportedCommandArray<RP> supported = rcode->getCommandFinder()->getSupportedCommands();
     out->writeBigHexField(supported.cmds, supported.cmdNum);
     slot->setComplete(true);

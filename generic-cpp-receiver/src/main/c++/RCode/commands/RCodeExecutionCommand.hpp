@@ -15,10 +15,10 @@ template<class RP>
 class RCodeExecutionCommand: public RCodeCommand<RP> {
     typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
     typedef typename RP::fieldUnit_t fieldUnit_t;
-private:
+    private:
     const uint8_t code = 0x21;
     RCodeExecutionSpace<RP> *space;
-public:
+    public:
     RCodeExecutionCommand(RCodeExecutionSpace<RP> *space) :
             space(space) {
     }
@@ -62,22 +62,12 @@ void RCodeExecutionCommand<RP>::execute(RCodeCommandSlot<RP> *slot, RCodeCommand
     }
     if (worked && slot->getFields()->has('A')) {
         bool fits = false;
-        // FIXME: Converge with ExecutionStoreCommand, but add to FieldMap
         executionSpaceAddress_t address = 0;
-        int fieldSectionNum = slot->getFields()->countFieldSections('A');
-        uint16_t effectiveSize = (uint16_t) ((fieldSectionNum - 1) * sizeof(fieldUnit_t));
-
-        fieldUnit_t first = slot->getFields()->get('A', 0);
-        while (first != 0) {
-            first = (fieldUnit_t) (first >> 8);
-            effectiveSize++;
-        }
+        uint8_t effectiveSize = slot->getFields()->getByteCount('A');
         if (effectiveSize < sizeof(executionSpaceAddress_t)) {
             fits = true;
-        }
-        if (fits) {
-            for (int i = 0; i < fieldSectionNum; i++) {
-                address = (executionSpaceAddress_t) ( (address << (8 * sizeof(fieldUnit_t)) ) | slot->getFields()->get('A', i, 0));
+            for (uint8_t i = 0; i < effectiveSize; i++) {
+                address = (executionSpaceAddress_t) ((address << 8) | slot->getFields()->getByte('A', i, 0));
             }
         }
         if (!fits || address >= space->getLength()) {

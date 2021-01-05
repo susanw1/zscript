@@ -15,10 +15,10 @@ template<class RP>
 class RCodeExecutionStoreCommand: public RCodeCommand<RP> {
     typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
     typedef typename RP::fieldUnit_t fieldUnit_t;
-private:
+    private:
     const uint8_t code = 0x22;
     RCodeExecutionSpace<RP> *space;
-public:
+    public:
     RCodeExecutionStoreCommand(RCodeExecutionSpace<RP> *space) :
             space(space) {
     }
@@ -49,27 +49,18 @@ public:
 template<class RP>
 void RCodeExecutionStoreCommand<RP>::execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out) {
     executionSpaceAddress_t address = 0;
+    bool fits = true;
     if (slot->getFields()->has('A')) {
-        // FIXME: this should go into FieldMap
-        bool fits = false;
-        uint8_t fieldSectionNum = slot->getFields()->countFieldSections('A');
-        uint16_t effectiveSize = (uint16_t) ((fieldSectionNum - 1) * sizeof(fieldUnit_t));
-        fieldUnit_t first = slot->getFields()->get('A', 0);
-        while (first != 0) {
-            first = (fieldUnit_t) (first >> 8);
-            effectiveSize++;
-        }
+        uint8_t effectiveSize = slot->getFields()->getByteCount('A');
         if (effectiveSize < sizeof(executionSpaceAddress_t)) {
-            fits = true;
-        }
-        if (fits) {
-            for (int i = 0; i < fieldSectionNum; i++) {
-                address = (executionSpaceAddress_t) ((address << (8 * sizeof(fieldUnit_t))) | slot->getFields()->get('A', i, 0));
+            for (uint8_t i = 0; i < effectiveSize; i++) {
+                address = (executionSpaceAddress_t) ((address << 8) | slot->getFields()->getByte('A', i, 0));
             }
+        } else {
+            fits = false;
         }
-        // FIXME: needs to fail if !fits
     }
-    if (address + slot->getBigField()->getLength() < RP::executionLength) {
+    if (fits && address + slot->getBigField()->getLength() < RP::executionLength) {
         space->write(slot->getBigField()->getData(), slot->getBigField()->getLength(), address, slot->getFields()->has('L'));
         out->writeStatus(OK);
     } else {

@@ -7,19 +7,20 @@
 
 #include "RCodeI2cBus.hpp"
 
-void RCodeI2cBus::asyncTransmit(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
+void RCodeI2cBus::asyncTransmit(uint16_t addr, bool tenBit, const uint8_t *txBuffer, uint8_t txLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
         void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t), uint8_t callbackData) {
-    phyBus->asyncTransmit(addr, txBuffer, txLen, callbackSlot, callbackFunc, callbackData);
+    phyBus->asyncTransmit(addr, tenBit, txBuffer, txLen, callbackSlot, callbackFunc, callbackData);
 }
 
-void RCodeI2cBus::asyncReceive(uint16_t addr, uint8_t rxLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
+void RCodeI2cBus::asyncReceive(uint16_t addr, bool tenBit, uint8_t rxLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
         void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t), uint8_t callbackData) {
-    phyBus->asyncReceive(addr, rxLen, callbackSlot, callbackFunc, callbackData);
+    phyBus->asyncReceive(addr, tenBit, rxLen, callbackSlot, callbackFunc, callbackData);
 }
 
-void RCodeI2cBus::asyncTransmitReceive(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, uint8_t rxLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
+void RCodeI2cBus::asyncTransmitReceive(uint16_t addr, bool tenBit, const uint8_t *txBuffer, uint8_t txLen, uint8_t rxLen,
+        RCodeCommandSlot<RCodeParameters> *callbackSlot,
         void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t), uint8_t callbackData) {
-    phyBus->asyncTransmitReceive(addr, txBuffer, txLen, rxLen, callbackSlot, callbackFunc, callbackData);
+    phyBus->asyncTransmitReceive(addr, tenBit, txBuffer, txLen, rxLen, callbackSlot, callbackFunc, callbackData);
 }
 
 void RCodeI2cBus::activateBus() {

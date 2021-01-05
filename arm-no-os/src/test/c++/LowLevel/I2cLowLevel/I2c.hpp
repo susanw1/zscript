@@ -33,6 +33,7 @@ private:
     DmaMuxRequest requestTx = DMAMUX_NO_MUX;
     DmaMuxRequest requestRx = DMAMUX_NO_MUX;
     volatile bool lockBool = false;
+    bool tenBit = false;
     uint16_t address = 0;
     uint16_t txLen = 0;
     const uint8_t *txData = NULL;
@@ -66,11 +67,11 @@ public:
 
     void setFrequency(I2cFrequency freq);
 
-    void asyncTransmit(uint16_t address, const uint8_t *txData, uint16_t txLen, void (*callback)(I2c*, I2cTerminationStatus));
+    void asyncTransmit(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, void (*callback)(I2c*, I2cTerminationStatus));
 
-    void asyncReceive(uint16_t address, uint8_t *rxData, uint16_t rxLen, void (*callback)(I2c*, I2cTerminationStatus));
+    void asyncReceive(uint16_t address, bool tenBit, uint8_t *rxData, uint16_t rxLen, void (*callback)(I2c*, I2cTerminationStatus));
 
-    void asyncTransmitReceive(uint16_t address, const uint8_t *txData, uint16_t txLen, uint8_t *rxData, uint16_t rxLen,
+    void asyncTransmitReceive(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, uint8_t *rxData, uint16_t rxLen,
             void (*callback)(I2c*, I2cTerminationStatus));
 
     bool lock() {

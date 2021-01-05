@@ -35,13 +35,14 @@ private:
     uint8_t getBusLock() {
         return busLock;
     }
-    void asyncTransmit(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
+    void asyncTransmit(uint16_t addr, bool tenBit, const uint8_t *txBuffer, uint8_t txLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
             void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t), uint8_t callbackData);
 
-    void asyncReceive(uint16_t addr, uint8_t rxLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
+    void asyncReceive(uint16_t addr, bool tenBit, uint8_t rxLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
             void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t), uint8_t callbackData);
 
-    void asyncTransmitReceive(uint16_t addr, const uint8_t *txBuffer, uint8_t txLen, uint8_t rxLen, RCodeCommandSlot<RCodeParameters> *callbackSlot,
+    void asyncTransmitReceive(uint16_t addr, bool tenBit, const uint8_t *txBuffer, uint8_t txLen, uint8_t rxLen,
+            RCodeCommandSlot<RCodeParameters> *callbackSlot,
             void (*callbackFunc)(I2cTerminationStatus, RCodeCommandSlot<RCodeParameters>*, uint8_t), uint8_t callbackData);
 
     void activateBus();

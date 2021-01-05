@@ -55,16 +55,16 @@ public:
             }
         }
         out->writeStatus(OK);
-        out->writeField('N', 0);
+        out->writeField('N', (uint8_t) 0);
         if (RCodeParameters::findInterruptSourceAddress) {
-            out->writeField('A', 0);
+            out->writeField('A', (uint8_t) 0);
         }
         if (RCodeParameters::isUsingInterruptVector) {
-            out->writeField('I', 0);
+            out->writeField('I', (uint8_t) 0);
         }
-        out->writeField('C', 0x2F);
-        out->writeField('B', RCodeI2cParameters::i2cBussesPerPhyBus * 4);
-        out->writeField('F', 3);
+        out->writeField('C', (uint8_t) 0x2F);
+        out->writeField('B', (uint8_t)(RCodeI2cParameters::i2cBussesPerPhyBus * 4));
+        out->writeField('F', (uint8_t) 3);
     }
 
     void setLocks(RCodeCommandSlot<RCodeParameters> *slot, RCodeLockSet<RCodeParameters> *locks) const {

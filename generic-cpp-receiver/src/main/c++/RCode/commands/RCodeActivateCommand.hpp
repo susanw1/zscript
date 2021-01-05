@@ -19,7 +19,7 @@ class RCodeActivateCommand: public RCodeCommand<RP> {
 private:
     static bool activated;
     const uint8_t code = 0x03;
-public:
+    public:
     static const int MAX_SYSTEM_CODE = 15;
 
     static bool isActivated() {
@@ -32,10 +32,10 @@ public:
 
     void execute(RCodeCommandSlot<RP> *slot, RCodeCommandSequence<RP> *sequence, RCodeOutStream<RP> *out) {
         if (!activated) {
-            out->writeField('A', 0);
+            out->writeField('A', (uint8_t) 0);
             out->writeStatus(OK);
         } else {
-            out->writeField('A', 1);
+            out->writeField('A', (uint8_t) 1);
             out->writeStatus(OK);
         }
         activated = true;
@@ -64,7 +64,6 @@ public:
 
 template<class RP>
 bool RCodeActivateCommand<RP>::activated = false;
-
 
 #include "../RCodeOutStream.hpp"
 #include "../parsing/RCodeCommandSlot.hpp"

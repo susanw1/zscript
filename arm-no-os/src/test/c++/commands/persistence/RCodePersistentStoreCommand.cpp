@@ -14,7 +14,7 @@ void RCodePersistentStoreCommand::execute(RCodeCommandSlot<RCodeParameters> *slo
         out->writeStatus(BAD_PARAM);
         out->writeBigStringField("Address must be specified");
     } else {
-        uint8_t addrLen = slot->getFields()->countFieldSections('A');
+        uint8_t addrLen = slot->getFields()->getByteCount('A');
         if (addrLen > 4) {
             slot->fail("", BAD_PARAM);
             out->writeStatus(BAD_PARAM);
@@ -24,7 +24,7 @@ void RCodePersistentStoreCommand::execute(RCodeCommandSlot<RCodeParameters> *slo
             uint32_t addr = 0;
             for (int i = 0; i < addrLen; ++i) {
                 addr <<= 8;
-                addr |= slot->getFields()->get('A', i, 0);
+                addr |= slot->getFields()->getByte('A', i, 0);
             }
             if (slot->getBigField()->getLength() + addr
                     >= RCodeParameters::persistentMemorySize) {

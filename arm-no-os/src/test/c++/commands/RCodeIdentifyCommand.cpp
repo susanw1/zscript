@@ -10,9 +10,9 @@
 void RCodeIdentifyCommand::execute(RCodeCommandSlot<RCodeParameters> *slot, RCodeCommandSequence<RCodeParameters> *sequence,
         RCodeOutStream<RCodeParameters> *out) {
     out->writeStatus(OK);
-    out->writeField('V', 0);
-    out->continueField(0);
-    out->continueField(1);
+    out->writeField('V', (uint8_t) 0);
+    out->continueField((uint8_t) 0);
+    out->continueField((uint8_t) 1);
     out->writeBigStringField("rcode/arm/no-os/initial-demo");
     slot->setComplete(true);
 }

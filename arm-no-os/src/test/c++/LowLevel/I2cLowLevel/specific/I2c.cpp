@@ -202,7 +202,7 @@ void I2cDmaCallback(Dma *dma, DmaTerminationStatus status) {
         }
     }
 }
-void I2c::asyncTransmit(uint16_t address, const uint8_t *txData, uint16_t txLen, void (*callback)(I2c*, I2cTerminationStatus)) {
+void I2c::asyncTransmit(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, void (*callback)(I2c*, I2cTerminationStatus)) {
 
     if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone) {
         callback(this, BusBusy);
@@ -212,7 +212,7 @@ void I2c::asyncTransmit(uint16_t address, const uint8_t *txData, uint16_t txLen,
         callback(this, BusBusy);
         return;
     }
-    if (address >= 1024) {
+    if (address >= 1024 || (address >= 128 && !tenBit)) {
         callback(this, OtherError);
         return;
     }
@@ -226,12 +226,13 @@ void I2c::asyncTransmit(uint16_t address, const uint8_t *txData, uint16_t txLen,
     this->txData = txData;
     this->txLen = txLen;
     this->address = address;
+    this->tenBit = tenBit;
     if (txLen != 0) {
         dma->peripheralWrite(requestTx, txData, true, (uint8_t*) &i2c.getRegisters()->TXDR, false, txLen + 1, false, Medium, &I2cDmaCallback, false);
     }
     uint32_t cr2r = 0x00001000; //we always want 10 bit addressing to be done properly
     cr2r |= 0x02000000; // set autoend
-    if (address > 127) {
+    if (tenBit) {
         cr2r |= 0x0800; // set 10 bit addressing
     } else {
         address <<= 1;
@@ -248,7 +249,7 @@ void I2c::asyncTransmit(uint16_t address, const uint8_t *txData, uint16_t txLen,
     i2c.getRegisters()->CR2 |= 0x2000;
 }
 
-void I2c::asyncReceive(uint16_t address, uint8_t *rxData, uint16_t rxLen, void (*callback)(I2c*, I2cTerminationStatus)) {
+void I2c::asyncReceive(uint16_t address, bool tenBit, uint8_t *rxData, uint16_t rxLen, void (*callback)(I2c*, I2cTerminationStatus)) {
     if (rxLen == 0) {
         callback(this, OtherError);
         return;
@@ -261,7 +262,7 @@ void I2c::asyncReceive(uint16_t address, uint8_t *rxData, uint16_t rxLen, void (
         callback(this, BusBusy);
         return;
     }
-    if (address >= 1024) {
+    if (address >= 1024 || (address >= 128 && !tenBit)) {
         callback(this, OtherError);
         return;
     }
@@ -275,10 +276,11 @@ void I2c::asyncReceive(uint16_t address, uint8_t *rxData, uint16_t rxLen, void (
     this->rxData = rxData;
     this->rxLen = rxLen;
     this->address = address;
+    this->tenBit = tenBit;
     dma->peripheralRead(requestRx, (uint8_t*) &i2c.getRegisters()->RXDR, false, rxData, true, rxLen + 1, false, Medium, &I2cDmaCallback, false);
     uint32_t cr2r = 0x00003400; //we always want to start, and want 10 bit addressing to be done properly, and we want to read
     cr2r |= 0x02000000; // set autoend
-    if (address > 127) {
+    if (tenBit) {
         cr2r |= 0x0800; // set 10 bit addressing
     } else {
         address <<= 1;
@@ -294,7 +296,7 @@ void I2c::asyncReceive(uint16_t address, uint8_t *rxData, uint16_t rxLen, void (
     i2c.getRegisters()->CR2 = cr2r;
 }
 
-void I2c::asyncTransmitReceive(uint16_t address, const uint8_t *txData, uint16_t txLen, uint8_t *rxData, uint16_t rxLen,
+void I2c::asyncTransmitReceive(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, uint8_t *rxData, uint16_t rxLen,
         void (*callback)(I2c*, I2cTerminationStatus)) {
     if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone) {
         callback(this, BusBusy);
@@ -304,7 +306,7 @@ void I2c::asyncTransmitReceive(uint16_t address, const uint8_t *txData, uint16_t
         callback(this, BusBusy);
         return;
     }
-    if (address >= 1024) {
+    if (address >= 1024 || (address >= 128 && !tenBit)) {
         callback(this, OtherError);
         return;
     }
@@ -322,12 +324,13 @@ void I2c::asyncTransmitReceive(uint16_t address, const uint8_t *txData, uint16_t
     this->txData = txData;
     this->txLen = txLen;
     this->address = address;
+    this->tenBit = tenBit;
     if (txLen != 0) {
         dma->peripheralWrite(requestTx, txData, true, (uint8_t*) &i2c.getRegisters()->TXDR, false, txLen + 1, false, Medium, &I2cDmaCallback, false);
     }
     uint32_t cr2r = 0x00003000; //we always want to start, and want 10 bit addressing to be done properly
     // Do not set auto-end
-    if (address > 127) {
+    if (tenBit) {
         cr2r |= 0x0800; // set 10 bit addressing
     } else {
         address <<= 1;
@@ -368,7 +371,7 @@ void I2c::restartReceive() {
     state.txDone = true;
     dma->peripheralRead(requestRx, (uint8_t*) &i2c.getRegisters()->RXDR, false, rxData, true, rxLen, false, Medium, &I2cDmaCallback, false);
     uint32_t cr2r = 0x00001400; //we always want to start, and want 10 bit addressing to be done properly, and we want to read
-    if (address > 127) {
+    if (tenBit) {
         cr2r |= 0x0800; // set 10 bit addressing
     } else {
         address <<= 1;

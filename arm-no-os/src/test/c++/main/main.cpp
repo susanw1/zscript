@@ -151,28 +151,25 @@ int main(void) {
     c4->setOutputSpeed(MediumSpeed);
     c4->setMode(Output);
     c4->set();
-    uint8_t addr = 0;
     if (!i2c1->isLocked()) {
         i2c1->lock();
         uint8_t data[2] = { 0x0A, 0x80 };
-        i2c1->asyncTransmit(0x20, data, 2, &doNothing);
+        i2c1->asyncTransmit(0x20, false, data, 2, &doNothing);
     }
     while (i2c1->isLocked())
         ;
     if (!i2c1->isLocked()) {
         i2c1->lock();
         uint8_t data[2] = { 0, 0 };
-        i2c1->asyncTransmit(0x20, data, 2, &doNothing);
+        i2c1->asyncTransmit(0x20, false, data, 2, &doNothing);
     }
     while (i2c1->isLocked())
         ;
     if (!i2c1->isLocked()) {
         i2c1->lock();
         uint8_t data[2] = { 0x16, 0xFF };
-        i2c1->asyncTransmit(0x20, data, 2, &doNothing);
+        i2c1->asyncTransmit(0x20, false, data, 2, &doNothing);
     }
-    uint8_t read = 0;
-    bool on = true;
     while (true) {
 //        SystemMilliClock::blockDelayMillis(time);
 //        if (read != 0xff) {

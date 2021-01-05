@@ -28,7 +28,7 @@ class RCodeDebugOutStream: public AbstractRCodeOutStream<RP> {
     typedef typename RP::debugOutputBufferLength_t debugOutputBufferLength_t;
 
     RCodeDebugOutput<RP> *debug;
-public:
+    public:
     RCodeDebugOutStream(RCodeDebugOutput<RP> *debug) :
             debug(debug) {
     }
@@ -67,7 +67,7 @@ template<class RP>
 class RCodeDebugOutput {
     typedef typename RP::bigFieldAddress_t bigFieldAddress_t;
     typedef typename RP::debugOutputBufferLength_t debugOutputBufferLength_t;
-private:
+    private:
     uint8_t debugBuffer[RP::debugBufferLength];
     RCodeCommandChannel<RP> *channel = NULL;
     debugOutputBufferLength_t position;
@@ -162,20 +162,19 @@ void RCodeDebugOutput<RP>::flushBuffer(RCodeOutStream<RP> *stream) {
 
 template<class RP>
 void RCodeDebugOutput<RP>::writeToBuffer(const uint8_t *b, debugOutputBufferLength_t length) {
+    if (position >= RP::debugBufferLength) {
+        return;
+    }
+    debugOutputBufferLength_t lenToCopy = length;
     if (position + length >= RP::debugBufferLength) {
-        int lenToCopy = RP::debugBufferLength - position;
-        if (lenToCopy > 0) {
-            for (int i = 0; i < lenToCopy; ++i) {
-                debugBuffer[position + i] = b[i];
-            }
-        }
-        position = RP::debugBufferLength + 1;
-    } else {
-        for (int i = 0; i < length; ++i) {
+        lenToCopy = RP::debugBufferLength - position;
+    }
+    if (position < RP::debugBufferLength) {
+        for (debugOutputBufferLength_t i = 0; i < lenToCopy; ++i) {
             debugBuffer[position + i] = b[i];
         }
-        position = (debugOutputBufferLength_t)(position + length);
     }
+    position = (debugOutputBufferLength_t) (position + lenToCopy);
 }
 
 template<class RP>
@@ -218,13 +217,13 @@ void RCodeDebugOutput<RP>::println(const char *s, debugOutputBufferLength_t leng
         for (int i = 0; i < length; ++i) {
             if (s[i] == '\n') {
                 stream->markDebug()
-                        ->writeBytes((const uint8_t*) (s + prevPos), (bigFieldAddress_t)(i - prevPos))
+                        ->writeBytes((const uint8_t*) (s + prevPos), (bigFieldAddress_t) (i - prevPos))
                         ->writeCommandSequenceSeperator();
                 prevPos = i + 1;
             }
         }
         if (prevPos != length) {
-            stream->markDebug()->writeBytes((const uint8_t*) (s + prevPos), (bigFieldAddress_t)(length - prevPos))->writeCommandSequenceSeperator();
+            stream->markDebug()->writeBytes((const uint8_t*) (s + prevPos), (bigFieldAddress_t) (length - prevPos))->writeCommandSequenceSeperator();
         }
         stream->close();
         stream->unlock();
@@ -351,7 +350,6 @@ RCodeDebugOutput<RP>& RCodeDebugOutput<RP>::operator <<(int8_t i) {
     return *this;
 }
 
-
 template<class RP>
 RCodeDebugOutput<RP>& RCodeDebugOutput<RP>::operator <<(uint8_t i) {
     if (state.isCharacter) {
@@ -368,16 +366,16 @@ RCodeDebugOutput<RP>& RCodeDebugOutput<RP>::operator <<(uint8_t i) {
         char c = 0;
         int8_t h = i / 100;
         if (h != 0) {
-            c = (char)('0' + h);
+            c = (char) ('0' + h);
             writeToBuffer((const uint8_t*) &c, 1);
         }
         int8_t t = (i / 10) % 10;
         if (t != 0 || h != 0) {
-            c = (char)('0' + t);
+            c = (char) ('0' + t);
             writeToBuffer((const uint8_t*) &c, 1);
         }
         int8_t u = i % 10;
-        c = (char)('0' + u);
+        c = (char) ('0' + u);
         writeToBuffer((const uint8_t*) &c, 1);
     }
     return *this;
