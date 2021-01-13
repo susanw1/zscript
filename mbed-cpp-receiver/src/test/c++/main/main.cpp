@@ -22,20 +22,20 @@
 /* Includes ------------------------------------------------------------------*/
 
 #include <mbed.h>
-#include "UipEthernet.h"
-#include "RCode.hpp"
-#include "commands/RCodeActivateCommand.hpp"
-#include "commands/RCodeSetDebugChannelCommand.hpp"
-#include "commands/RCodeEchoCommand.hpp"
-#include "commands/RCodeExecutionStateCommand.hpp"
-#include "commands/RCodeExecutionCommand.hpp"
-#include "commands/RCodeExecutionStoreCommand.hpp"
-#include "commands/RCodeNotificationHostCommand.hpp"
-#include "commands/RCodeCapabilitiesCommand.hpp"
-#include "executionspace/RCodeExecutionSpaceChannel.hpp"
-#include "../commands/RCodeIdentifyCommand.hpp"
+//#include "UipEthernet.h"
+//#include "RCode.hpp"
+//#include "commands/RCodeActivateCommand.hpp"
+//#include "commands/RCodeSetDebugChannelCommand.hpp"
+//#include "commands/RCodeEchoCommand.hpp"
+//#include "commands/RCodeExecutionStateCommand.hpp"
+//#include "commands/RCodeExecutionCommand.hpp"
+//#include "commands/RCodeExecutionStoreCommand.hpp"
+//#include "commands/RCodeNotificationHostCommand.hpp"
+//#include "commands/RCodeCapabilitiesCommand.hpp"
+//#include "executionspace/RCodeExecutionSpaceChannel.hpp"
+//#include "../commands/RCodeIdentifyCommand.hpp"
 
-#include "UipUdpCommandChannel.hpp"
+//#include "UipUdpCommandChannel.hpp"
 
 int main(void) {
     wait_us(5000000);

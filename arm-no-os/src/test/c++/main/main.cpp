@@ -53,6 +53,15 @@
 #include <I2C/RCodeI2cSendCommand.hpp>
 #include <I2C/RCodeI2cReceiveCommand.hpp>
 
+#include <Pins/RCodePinSystem.hpp>
+#include <Pins/RCodePinSetupCommand.hpp>
+#include <Pins/RCodePinSetCommand.hpp>
+#include <Pins/RCodePinGetCommand.hpp>
+#include <Pins/RCodePinInterruptSource.hpp>
+
+#include "../LowLevel/AToDLowLevel/AtoD.hpp"
+#include "../LowLevel/AToDLowLevel/AtoDManager.hpp"
+
 #include "../LowLevel/GpioLowLevel/GpioManager.hpp"
 #include "../LowLevel/GpioLowLevel/Gpio.hpp"
 
@@ -76,12 +85,14 @@ int main(void) {
     ClockManager::getClock(HCLK)->set(150000, SysClock);
     ClockManager::getClock(PCLK_1)->set(64000, HCLK);
     ClockManager::getClock(PCLK_2)->set(64000, HCLK);
+    RCodePinInterruptSource::init();
+    RCodePinInterruptSource source;
     GpioManager::init();
     I2cManager::init();
     SystemMilliClock::init();
     SystemMilliClock::blockDelayMillis(1000);
-    RCodeFlashPersistence persist = RCodeFlashPersistence();
-    RCode<RCodeParameters> r(NULL, 0);
+    RCodeFlashPersistence persist;
+    RCode<RCodeParameters> r(&source, 1);
     uint8_t *mac;
     uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xaa };
     if (persist.hasMac()) {
@@ -94,33 +105,37 @@ int main(void) {
     while (!Ethernet.begin(mac, 5000, 5000)) {
 
     }
-
+    AtoDManager::init();
     EthernetUdpCommandChannel channel(4889, &r);
-    RCodeExecutionSpaceChannel<RCodeParameters> execCh = RCodeExecutionSpaceChannel<RCodeParameters>(&r, r.getSpace());
+    RCodeExecutionSpaceChannel<RCodeParameters> execCh(&r, r.getSpace());
     RCodeCommandChannel<RCodeParameters> *chptr[2] = { &channel, &execCh };
     RCodeExecutionSpaceChannel<RCodeParameters> **execPtr = (RCodeExecutionSpaceChannel<RCodeParameters>**) chptr + 1;
     r.setChannels(chptr, 2);
     r.getSpace()->setChannels(execPtr, 1);
-    RCodeEchoCommand<RCodeParameters> cmd0 = RCodeEchoCommand<RCodeParameters>();
-    RCodeActivateCommand<RCodeParameters> cmd1 = RCodeActivateCommand<RCodeParameters>();
-    RCodeSetDebugChannelCommand<RCodeParameters> cmd2 = RCodeSetDebugChannelCommand<RCodeParameters>(&r);
-    RCodeCapabilitiesCommand<RCodeParameters> cmd3 = RCodeCapabilitiesCommand<RCodeParameters>(&r);
-    RCodeExecutionStateCommand<RCodeParameters> cmd4 = RCodeExecutionStateCommand<RCodeParameters>(r.getSpace());
-    RCodeExecutionCommand<RCodeParameters> cmd5 = RCodeExecutionCommand<RCodeParameters>(r.getSpace());
-    RCodeExecutionStoreCommand<RCodeParameters> cmd6 = RCodeExecutionStoreCommand<RCodeParameters>(r.getSpace());
-    RCodeNotificationHostCommand<RCodeParameters> cmd7 = RCodeNotificationHostCommand<RCodeParameters>(&r);
+    RCodeEchoCommand<RCodeParameters> cmd0;
+    RCodeActivateCommand<RCodeParameters> cmd1;
+    RCodeSetDebugChannelCommand<RCodeParameters> cmd2(&r);
+    RCodeCapabilitiesCommand<RCodeParameters> cmd3(&r);
+    RCodeExecutionStateCommand<RCodeParameters> cmd4(r.getSpace());
+    RCodeExecutionCommand<RCodeParameters> cmd5(r.getSpace());
+    RCodeExecutionStoreCommand<RCodeParameters> cmd6(r.getSpace());
+    RCodeNotificationHostCommand<RCodeParameters> cmd7(&r);
     RCodeIdentifyCommand cmd8 = RCodeIdentifyCommand();
 
-    RCodeFetchGiudCommand cmd9 = RCodeFetchGiudCommand(&persist);
-//    RCodePersistentFetchCommand cmd10 = RCodePersistentFetchCommand(&persist);
-//    RCodePersistentStoreCommand cmd11 = RCodePersistentStoreCommand(&persist);
-    RCodeStoreGiudCommand cmd12 = RCodeStoreGiudCommand(&persist);
-    RCodeStoreMacAddressCommand cmd13 = RCodeStoreMacAddressCommand(&persist);
+    RCodeFetchGiudCommand cmd9(&persist);
+    RCodePersistentFetchCommand cmd10(&persist);
+    RCodePersistentStoreCommand cmd11(&persist);
+    RCodeStoreGiudCommand cmd12(&persist);
+    RCodeStoreMacAddressCommand cmd13(&persist);
 
     RCodeI2cSubsystem::init();
-    RCodeI2cSetupCommand cmd14 = RCodeI2cSetupCommand();
-    RCodeI2cSendCommand cmd15 = RCodeI2cSendCommand();
-    RCodeI2cReceiveCommand cmd16 = RCodeI2cReceiveCommand();
+    RCodeI2cSetupCommand cmd14;
+    RCodeI2cSendCommand cmd15;
+    RCodeI2cReceiveCommand cmd16;
+
+    RCodePinSetupCommand cmd17;
+    RCodePinSetCommand cmd18;
+    RCodePinGetCommand cmd19;
 
     r.getCommandFinder()->registerCommand(&cmd8);
     r.getCommandFinder()->registerCommand(&cmd0);
@@ -133,14 +148,18 @@ int main(void) {
     r.getCommandFinder()->registerCommand(&cmd6);
 
     r.getCommandFinder()->registerCommand(&cmd9);
-//    r.getCommandFinder()->registerCommand(&cmd10);
-//    r.getCommandFinder()->registerCommand(&cmd11);
+    r.getCommandFinder()->registerCommand(&cmd10);
+    r.getCommandFinder()->registerCommand(&cmd11);
     r.getCommandFinder()->registerCommand(&cmd12);
     r.getCommandFinder()->registerCommand(&cmd13);
 
     r.getCommandFinder()->registerCommand(&cmd14);
     r.getCommandFinder()->registerCommand(&cmd15);
     r.getCommandFinder()->registerCommand(&cmd16);
+
+    r.getCommandFinder()->registerCommand(&cmd17);
+    r.getCommandFinder()->registerCommand(&cmd18);
+    r.getCommandFinder()->registerCommand(&cmd19);
 
     I2c *i2c1 = I2cManager::getI2cById(0);
     i2c1->init();
@@ -171,7 +190,10 @@ int main(void) {
         i2c1->asyncTransmit(0x20, false, data, 2, &doNothing);
     }
     while (true) {
-//        SystemMilliClock::blockDelayMillis(time);
+//        AtoDManager::performAtoD(PA_9);
+//        AtoDManager::getAtoD(4)->performReading(2);
+//        uint16_t result = AtoDManager::getAtoD(4)->performReading(2);
+//        SystemMilliClock::blockDelayMillis (time);
 //        if (read != 0xff) {
 //            time = 500;
 //        } else {
@@ -183,10 +205,10 @@ int main(void) {
 //            uint8_t data[2] = { 0x19 };
 //            i2c1->asyncTransmitReceive(0x20, data, 1, &read, 1, &doNothing);
 //        }
-////        if (!i2c1->isLocked()) {
-////            i2c1->lock();
-////            i2c1->asyncReceive(0x20, &read, 1, &doNothing);
-////        }
+//        if (!i2c1->isLocked()) {
+//            i2c1->lock();
+//            i2c1->asyncReceive(0x20, &read, 1, &doNothing);
+//        }
 //        SystemMilliClock::blockDelayMillis(time);
 //        c4->set();
 //        if (!i2c1->isLocked()) {

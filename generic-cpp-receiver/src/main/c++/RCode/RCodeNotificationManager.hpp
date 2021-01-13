@@ -67,7 +67,7 @@ RCodeNotificationManager<RP>::RCodeNotificationManager(RCode<RP> *rcode, RCodeBu
 
 template<class RP>
 bool RCodeNotificationManager<RP>::canSendNotification() {
-    if (!RP::isUsingInterruptVector) {
+    if (vectorChannel == NULL || !RP::isUsingInterruptVector) {
         return !notificationChannel->hasOutStream() || !notificationChannel->acquireOutStream()->isLocked();
     } else {
         return vectorChannel->canAccept();
@@ -76,7 +76,7 @@ bool RCodeNotificationManager<RP>::canSendNotification() {
 
 template<class RP>
 void RCodeNotificationManager<RP>::sendNotification(RCodeBusInterrupt<RP> interrupt) { // Only called if canSendNotification()
-    if (RP::isUsingInterruptVector && vectorChannel->hasVector(&interrupt)) {
+    if (vectorChannel != NULL && (RP::isUsingInterruptVector && vectorChannel->hasVector(&interrupt))) {
         vectorChannel->acceptInterrupt(interrupt);
     } else {
         RCodeOutStream<RP> *out = notificationChannel->acquireOutStream();
@@ -86,12 +86,11 @@ void RCodeNotificationManager<RP>::sendNotification(RCodeBusInterrupt<RP> interr
         }
         out->openNotification(notificationChannel);
         out->markNotification();
-        out->writeField('Z', 1);
-        out->writeField('A', 1);
+        out->writeField('Z', (uint8_t) 1);
         out->writeField('T', interrupt.getNotificationType());
         out->writeField('I', interrupt.getNotificationBus());
         out->writeStatus(OK);
-        if (RP::findInterruptSourceAddress && interrupt.getSource()->hasAddress()) {
+        if (RP::findInterruptSourceAddress && interrupt.getSource()->hasFindableAddress(interrupt.getId())) {
             out->writeCommandSeperator();
             out->writeField('A', interrupt.getFoundAddress());
             if (interrupt.hasFindableAddress()) {
@@ -120,12 +119,10 @@ void RCodeNotificationManager<RP>::manageNotifications() {
     if (waitingNotificationNumber > 0 && canSendNotification()) {
         for (int i = 0; i < waitingNotificationNumber; i++) {
             RCodeBusInterrupt<RP> interrupt = waitingNotifications[i];
-            if (RP::findInterruptSourceAddress && !interrupt.hasStartedAddressFind()) {
-                if (interrupt.checkFindAddressLocks()) {
-                    interrupt.findAddress();
-                }
+            if (RP::findInterruptSourceAddress && interrupt.hasFindableAddress() && !interrupt.hasStartedAddressFind()) {
+                interrupt.findAddress();
             }
-            if (!RP::findInterruptSourceAddress || interrupt.hasFoundAddress()) {
+            if (!RP::findInterruptSourceAddress || !interrupt.hasFindableAddress() || interrupt.getFoundAddress() != -1) {
                 sendNotification(interrupt);
                 for (int j = i; j < waitingNotificationNumber - 1; j++) {
                     waitingNotifications[j] = waitingNotifications[j + 1];
@@ -138,20 +135,19 @@ void RCodeNotificationManager<RP>::manageNotifications() {
     if (waitingNotificationNumber < RP::interruptStoreNum) {
         for (int i = 0; i < sourceNum; ++i) {
             RCodeBusInterruptSource<RP> *source = sources + i;
-            if (source->hasUncheckedNotifications()) {
-                uint8_t id = source->takeUncheckedNotificationId();
-                if (RP::findInterruptSourceAddress && source->hasAddress()) {
-                    if (source->checkFindAddressLocks(id)) {
-                        source->findAddress(id);
-                    }
-                    if (canSendNotification() && source->hasFoundAddress(id)) {
+            int16_t id = source->takeUncheckedNotificationId();
+            if (id != -1) {
+
+                if (RP::findInterruptSourceAddress && source->hasFindableAddress(id)) {
+                    source->findAddress(id);
+                    if (canSendNotification() && source->getFoundAddress(id) != -1) {
                         sendNotification(RCodeBusInterrupt<RP>(source, id));
                     } else {
                         waitingNotifications[waitingNotificationNumber++] = RCodeBusInterrupt<RP>(source, id);
                         break;
                     }
                 } else {
-                    if (canSendNotification() && (!RP::findInterruptSourceAddress || source->hasFoundAddress(id))) {
+                    if (canSendNotification() && (!RP::findInterruptSourceAddress || source->getFoundAddress(id) != -1)) {
                         sendNotification(RCodeBusInterrupt<RP>(source, id));
                     } else {
                         waitingNotifications[waitingNotificationNumber++] = RCodeBusInterrupt<RP>(source, id);

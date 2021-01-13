@@ -16,7 +16,7 @@
 template<class RP>
 class RCodeInterruptVectorManager {
     typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
-private:
+    private:
     RCodeNotificationManager<RP> *notificationManager;
     RCodeExecutionSpace<RP> space;
     RCodeInterruptVectorOut<RP> out;
@@ -60,7 +60,7 @@ public:
 
     bool hasVector(RCodeBusInterrupt<RP> *busInt) {
         return vectorMap.hasVector(busInt->getNotificationType(), busInt->getNotificationBus(), busInt->getFoundAddress(),
-                busInt->getSource()->hasAddress() && busInt->hasFindableAddress());
+                busInt->getSource()->hasFindableAddress(busInt->getId()) && busInt->hasFindableAddress());
 
     }
 

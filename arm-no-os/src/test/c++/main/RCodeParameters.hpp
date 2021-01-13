@@ -54,15 +54,17 @@ public:
     static const uint8_t i2cPhyBus2Lock = 7;
     static const uint8_t i2cPhyBus3Lock = 8;
     static const uint8_t executionSpaceLock = 32;
+
 };
 
 //#define USE_I2C_STATIC_READ_BUFFERS
 
-class RCodeI2cParameters {
+class RCodePeripheralParameters {
 public:
     static const int i2cReadMaximum = 1024; //if USE_I2C_STATIC_READ_BUFFERS defined, 4 arrays of this length are created - very memory expensive
     static const int i2cBussesPerPhyBus = 2;
 
+    static const int pinNumber = 3;
 };
 
 #endif /* SRC_TEST_CPP_RCODE_RCODEPARAMETERS_HPP_ */

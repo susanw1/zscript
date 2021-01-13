@@ -40,6 +40,8 @@ public:
 
     static const uint8_t systemClockCount = 13;
 
+    static const uint8_t atoDCount = 5;
+
     static const I2cIdentifier i2cCount = 4;
     static const DmaIdentifier dmaCount = 16;
 

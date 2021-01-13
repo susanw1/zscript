@@ -21,12 +21,12 @@ private:
     static RCodeI2cPhysicalBus phyBus1;
     static RCodeI2cPhysicalBus phyBus2;
     static RCodeI2cPhysicalBus phyBus3;
-    static RCodeI2cBus busses[4 * RCodeI2cParameters::i2cBussesPerPhyBus];
+    static RCodeI2cBus busses[4 * RCodePeripheralParameters::i2cBussesPerPhyBus];
     static bool createNotifications;
     public:
     static void init() {
         createNotifications = false;
-        for (int i = 0; i < RCodeI2cParameters::i2cBussesPerPhyBus; ++i) {
+        for (int i = 0; i < RCodePeripheralParameters::i2cBussesPerPhyBus; ++i) {
             busses[i * 4].setup(&phyBus0, i * 4, RCodeParameters::i2cPhyBus0Lock);
             busses[i * 4 + 1].setup(&phyBus1, i * 4 + 1, RCodeParameters::i2cPhyBus1Lock);
             busses[i * 4 + 2].setup(&phyBus2, i * 4 + 2, RCodeParameters::i2cPhyBus2Lock);

@@ -38,7 +38,7 @@ private:
     RCodeCommandChannel<RP> **channels = NULL;
     const char *configFailureState = NULL;
     uint8_t channelNum = 0;
-public:
+    public:
     RCode(RCodeBusInterruptSource<RP> *interruptSources, uint8_t interruptSourceNum) :
             parser(this), runner(this), notificationManager(this, interruptSources, interruptSourceNum), space(&notificationManager), finder(this), debug() {
     }
@@ -57,6 +57,7 @@ public:
 
     void progressRCode() {
         debug.attemptFlush();
+        notificationManager.manageNotifications();
         parser.parseNext();
         runner.runNext();
     }

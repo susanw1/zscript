@@ -48,7 +48,7 @@ void RCodeI2cReceiveCommand::finish(RCodeCommandSlot<RCodeParameters> *slot, RCo
         return;
     }
     RCodeI2cBus *bus = RCodeI2cSubsystem::getRCodeBus(slot->getFields()->get('B', 0));
-    if (slot->getFields()->get('B', 0) >= 4 * RCodeI2cParameters::i2cBussesPerPhyBus) {
+    if (slot->getFields()->get('B', 0) >= 4 * RCodePeripheralParameters::i2cBussesPerPhyBus) {
         return;
     }
     uint16_t length = slot->getFields()->get('L', 0);
@@ -106,7 +106,7 @@ void RCodeI2cReceiveCommand::execute(RCodeCommandSlot<RCodeParameters> *slot, RC
         return;
     }
     uint8_t bus = slot->getFields()->get('B', 0);
-    if (bus >= 4 * RCodeI2cParameters::i2cBussesPerPhyBus) {
+    if (bus >= 4 * RCodePeripheralParameters::i2cBussesPerPhyBus) {
         slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
         out->writeField('B', bus);
