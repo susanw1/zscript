@@ -26,25 +26,24 @@ class SystemMilliClock {
 
     static void resetTimer() {
         TIM6->SR = 0;
-        TIM6->CNT = 0;
         timeBroad++;
     }
 public:
     static void init() {
         RCC->APB1ENR1 |= 0x10;
         bitScaling = 0;
-        uint32_t scaler = 0xFFFFFFFF;
+        uint32_t scaler = 0x00FFFFFF;
         while (scaler > 0x10000) {
             scaler = ClockManager::getClock(PCLK_1)->getDivider(1 << bitScaling++);
         }
         bitScaling--; // we will have over-shot
         NVIC_SetPriority(TIM6_DAC_IRQn, 5);
         NVIC_EnableIRQ(TIM6_DAC_IRQn);
-        TIM6->CNT = 0;
-        TIM6->PSC = scaler;
-        TIM6->ARR = 0xFFFF;
+        TIM6->PSC = scaler - 1;
+        TIM6->CNT = 0xFFFC;
         TIM6->DIER = 1;
         TIM6->CR1 = 0x5;
+        timeBroad = 0;
     }
     static void blockDelayMillis(uint32_t delay) {
         uint32_t end = getTimeMillis() + delay;
@@ -56,16 +55,16 @@ public:
     static uint32_t getTimeMillis() {
         uint32_t result;
         TIM6->DIER = 0;
-        result = (uint16_t)(TIM6->CNT);
+        result = (timeBroad << (16 - bitScaling)) | ((TIM6->CNT) >> bitScaling);
         TIM6->DIER = 1;
-        return (timeBroad << (16 - bitScaling)) | (result >> bitScaling);
+        return result;
     }
     static uint64_t getTimeMillisBig() {
-        uint32_t result;
+        uint64_t result;
         TIM6->DIER = 0;
-        result |= (uint16_t)(TIM6->CNT);
+        result = ((uint64_t) (timeBroad << (16 - bitScaling))) | ((uint64_t) ((TIM6->CNT) >> bitScaling));
         TIM6->DIER = 1;
-        return (((uint64_t) timeBroad) << (16 - bitScaling)) | (result >> bitScaling);
+        return result;
     }
 };
 #endif /* SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_SYSTEMMILLICLOCK_HPP_ */

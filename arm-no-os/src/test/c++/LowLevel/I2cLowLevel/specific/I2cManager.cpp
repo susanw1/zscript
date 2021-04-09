@@ -223,7 +223,6 @@ void I2C4_ER_IRQHandler() {
 }
 
 void I2cManager::init() {
-    DmaManager::init();
     for (int i = 0; i < GeneralHalSetup::i2cCount; ++i) {
         i2cs[i].setI2c(getI2cInternal(i), i, getI2cMuxTxRequest(i), getI2cMuxRxRequest(i));
     }

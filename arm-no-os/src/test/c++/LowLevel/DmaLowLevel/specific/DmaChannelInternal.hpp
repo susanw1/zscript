@@ -59,39 +59,39 @@ class DmaChannelInternal {
     }
 
     bool hasTransferError() {
-        return (8 << channelOffset) & (registers->ISR);
+        return (8 << (channelOffset * 4)) & (registers->ISR);
     }
 
     void clearTransferError() {
-        registers->IFCR |= 8 << channelOffset;
+        registers->IFCR |= 8 << (channelOffset * 4);
     }
 
     bool hasHalfTransferred() {
-        return (4 << channelOffset) & (registers->ISR);
+        return (4 << (channelOffset * 4)) & (registers->ISR);
     }
 
     void clearHalfTransferred() {
-        registers->IFCR |= 4 << channelOffset;
+        registers->IFCR |= 4 << (channelOffset * 4);
     }
 
     bool hasTransferComplete() {
-        return (2 << channelOffset) & (registers->ISR);
+        return (2 << (channelOffset * 4)) & (registers->ISR);
     }
 
     void clearTransferComplete() {
-        registers->IFCR |= 2 << channelOffset;
+        registers->IFCR |= 2 << (channelOffset * 4);
     }
 
     bool hasInterrupt() {
-        return (1 << channelOffset) & (registers->ISR);
+        return (1 << (channelOffset * 4)) & (registers->ISR);
     }
 
     void clearInterrupt() {
-        registers->IFCR |= 1 << channelOffset;
+        registers->IFCR |= 1 << (channelOffset * 4);
     }
 
     void clearAll() {
-        registers->IFCR |= 0xf << channelOffset;
+        registers->IFCR |= 0xf << (channelOffset * 4);
     }
 
     DmaChannelRegisters* getChannelRegisters() {

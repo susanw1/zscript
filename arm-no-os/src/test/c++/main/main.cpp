@@ -87,6 +87,7 @@ int main(void) {
     ClockManager::getClock(PCLK_2)->set(64000, HCLK);
     RCodePinInterruptSource::init();
     RCodePinInterruptSource source;
+    DmaManager::init();
     GpioManager::init();
     I2cManager::init();
     SystemMilliClock::init();

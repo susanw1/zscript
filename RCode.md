@@ -39,7 +39,7 @@ This can specify either the maximum number of seperate fields, with a seperate m
 This means that e.g. 20 bytes of fields can be used, either on lots of small fields or a few big ones. This can also be divided into discrete chunks, for example on a 32 bit processor, these might be 4 byte units.
 In this case, `B` uses a single unit, and so does `C12345678` , but any larger and two units would be used.
 If the limit is violated, in such a way as to cause an error, a `TOO_BIG` error must be given in response.
-(A receiver could, for instance only check validity of echo commands, before doing a basic copy, removing the limit).  
+(A receiver could, for instance, only check validity of echo commands, before doing a basic copy, removing the limit).  
 
 The big field can be in one of two forms: String or Hex.  
 
@@ -56,7 +56,7 @@ In string form, the field is a series of bytes, encoded literally, beginning and
 The two forms both provide the same information, and are interchangeable when using commands, although string is generally more compact, but for binary data, hex is more readable.
 A receiver has a maximum length of big field it can accept, and must give a `TOO_BIG` error in response (unless for whatever reason it is not an issue) when this is violated.
 
-Spaces and tabs can be ignored where they turn up (outside of strings), and must be discarded between fields, while generators can only place them between fields.
+Spaces and tabs can be ignored where they turn up (outside of strings), and must be discarded between fields, while generators may only place them between fields.
 For compatibility any carriage return characters (character 13, `\r` in C, C++, Java) must be ignored when between fields.
 
 There is no defined ordering to fields, including the long field, so `R20A+10` and `+10AR20` are equivalent, 
@@ -89,7 +89,7 @@ There is no defined ordering to fields, including the long field, so `R20A+10` a
 	... etc.  
 	These commands are primarily to give extra information on a failure when one occurs, e.g. in an execution space command.
 	The point at which the first command after the `|` is executed must be seperated by a `|` as seen in the above example.
-	If an error is encountered after the `|`, and this is never executed, then the error cannot be reported, so should be reported on the debug channel.
+	If a parsing error is encountered after the `|`, and this is never executed, then the error cannot be reported, so should be reported on the debug channel.
 
 `\n` separated command sequences should be executed in order, but other command sequences can be put between them. 
 	If an error occurs in one sequence, the next should still be executed. A new packet (over packet based channels such as UDP) is treated effectively the same as a `\n`.
@@ -111,7 +111,7 @@ An S response of `S10` indicates an command specific failure, whereas a lower (n
 	A parse error can be treated differently, and may, for example, halt execution in an execution space, where a non-parse error would not.
 A command failure response does not need to follow the format for the successful command response, and can, 
 	for instance, use the big field string form to give detailed failure information.
-	For this reason the use of fields is not specified any failure condition, except for the `S` field.  
+	For this reason the use of fields is not generally specified any failure condition, except for the `S` field (although commands may have specific mandated failure modes, which do have dictated structure).  
 The E field of a command must always be echoed by a receiver if present, even in the event of command failure, to allow sender to give command numbers, which can be checked on reception of the response.
 The E field does not need to be literally copied, as long as the value stored is the same (so `E00` can be replaced with `E`).  
 An empty command is always given the response `S3`, although empty command seqences are given blank responses:
@@ -151,12 +151,12 @@ The following status responses are defined:
 The receiver can create a block of memory which it can use to store commands. This is called the execution space, and should be run, if active, 
 	whenever no other commands are available, although other commands should get priority.
 	When an execution space command sequence has been begun, it must be completed before other commands can be executed, unless the commands are able to be run in parallel.
-	This space has to be managed by the sender, although to simplify management the `begin execution` RCode can be used to jump to an address in this block of memory.
+	This space must be managed by the sender, although to simplify management the `begin execution` RCode may be used to jump to an address in this block of memory.
 	This command must be implemented so as to jump immediately, without executing any later commands, and be treated as an immediate new line, 
 	starting at the new address as it would at a new command sequence.  
 
-Commands run in the execution space should do so 'quietly' meaning their responses are not reported, unless a command fails. 
-If a command fails with an `S10` status, then execution continues, otherwise it is stopped, as the space may be corrupted.
+Commands run in the execution space must do so 'quietly' meaning their responses are not reported, unless a command fails. 
+If a command fails with an `S10` status, then execution continues, other failures must result in the execution being stopped, as the space may be corrupted.
 The response is sent as a notification, and with A `Z2` notification type. 
 For the command `Rx1&Rx2&Rx3|Rx4&Rx5|Rx6`  
 	if Rx1 failed:	`!Z2S10|S&S`  
@@ -180,7 +180,7 @@ For the command `Rx1&Rx2&Rx3|Rx4&Rx5|Rx6`
 
 The receiver must execute commands coming over any given command channel in exactly the order they arrived in (this rule does not apply to execution space commands, so multiple can be run at once, provided that they are executed once each per full loop), 
 	however, no such rules apply between different channels.
-The receiver can, if it wishes, and two given command sequences strictly do not use the same resources, execute two commands in parallel, 
+The receiver may, if it wishes, and two given command sequences strictly do not use the same resources, execute two commands in parallel, 
 	although the resources must not be shared at any point up to the next new line on both commands, so an entire command sequence may have to be parsed, 
 	or at least scanned for resource use in order to avoid collisions, to simplify the process, the receiver can apply a limit on lookahead, but it MUST NOT execute the sequence in parallel with any other if the limit is exceeded.
 	these resources include things like the I2C channels, pins, and other peripherals, but also include the execution space, 
@@ -189,7 +189,7 @@ The receiver can, if it wishes, and two given command sequences strictly do not 
 		it must also be guaranteed that a jump must mean the next command sequence is not executed, although the current one can be finished, so that the execution follows the jump as if it were sequential, this should be guaranteed through the locking described above).
 	The execution command does not need to lock the interrupt system, but any interrupt set commands must, as must any execution store commands. 
 		These commands must be runnable through the interrupt code, but must wait for other interrupts, and execution space command sequences to finish, before acquiring the lock.
-	This would all perform using read-write locks.
+	This would all work using read-write locks.
 	To perform an interrupt handler, read on interrupt must be acquired.
 	To perform execution space, read on execution space must be acquired.
 	To perform execution command, write on execution space must be acquired.
@@ -220,11 +220,11 @@ To allow fast communication of information from receiver, a notification may be 
 	On a packet based system, the notifications should not be sent in the same packet as a different response.   
   * `Z00` indicates a reset notification. This is sent by any receiver which has reset, and still retains its notification host information.  
 		This will contain the effective response to an `R00` command.
-  * `Z01` indicates a interrupt from an interrupt source, and will contain the effective response of a interrupt poll (`R17`) command, or more as detailed below.
+  * `Z01` indicates a interrupt from an interrupt source, and will contain basic info on the interrupt, or more as detailed below.
   * `Z02` indicates a execution space notification, meaning a command has failed in the space, and will contain the output of the failed command, 
 		and all preceding `&`/`|` separated commands, if they can fit, otherwise a `RESP_TOO_LONG` status.
 			
-##### interrupts
+##### Interrupts
 The receiver has 3 possible responses to a interrupt (an interrupt would usually be some form of line feeding to the receiver from some other device, e.g. the SMBus alert system):
   1.  Generate a notification about what indicates the interrupt occurred, e.g. interrupt on bus 0.
   2.  Attempt to find the address of the source of the interrupt. This is the case for standard SMBus alert systems, 
@@ -235,9 +235,9 @@ The receiver has 3 possible responses to a interrupt (an interrupt would usually
 If an interrupt vector is not present, or there is no execution space, the 1st or 2nd form of interrupt must be used.
 These principles apply to all bus forms, in whatever way possible (on some buses there may only be one possible source per bus, so the 2nd form is redundant).
 An example of an I2C bus 2 interrupt, from a device with address 0x44, and handler writing then reading 1 byte from I2C, with content 0x22 (padded with spaces to make more readable):   
-  1.  "Z1 A1 I2 T S"
-  2.  "Z1 A1 I2 T S& B2 A44 S"
-  3.  "Z1 A1 I2 T S& B2 A44 S& A44 I T1 S& +22 S"
+  1.  "Z1 I2 T S"
+  2.  "Z1 I2 T S& B2 A44 S"
+  3.  "Z1 I2 T S& B2 A44 S& A44 I T1 S& +22 S"
 
 The form 3 allows fast responses to interrupts, even when the RCode is sent over a protocol with high latency.
 The form 3 can deal with the interrupt entirely, or simply collect data for the sender to deal with, depending on how predicable the required response is, 
@@ -253,7 +253,6 @@ The response fields are as follows:
 
 |Form			|Field  |Meaning												|  
 |---------------|-------|-------------------------------------------------------|  
-|1				|A		|1 if interupt present (always 1 in this case)			|  
 |1				|I		|The bus number of the interupt, if no action taken to resolve, otherwise not present|  
 |1				|T		|The interupt type/source								|  
 |1				|S		|Should always be 0, otherwise indicates failure		|  
@@ -271,7 +270,7 @@ The response fields are as follows:
 The RCode receiver can also output debug information over any given channel (usually defaulting to something like serial or USB), 
 	this information can be of any form, but must begin every line with a `#`, and be either new line, or packet separated from RCode data, ideally in its own packet on packet based channels.
 	The receiver can also support the `debug host set` command, which can also disable debug information, and generally should start with debug disabled if it uses a shared communication protocol, such as UDP, to avoid jamming the channel.
-	The sender can choose either to ignore such data, or log it in some form (including simply printing it). 
+	The sender can choose either to ignore such data, or log it in some form (including simply printing it, or writing it to a file). 
 
 ### Peripheral requirements
 
@@ -287,8 +286,8 @@ The RCode receiver can also choose to allow storage of a GUID, and must allow st
 
 The RCode receiver, if it supports I2C, must do its best to avoid bus locking (where the slave misses one or more clock signals during a read, and jams the bus), but in the event it occurs:
 	Should attempt, if possible to recover, by clocking SCL until SDA is released, the sending a stop bit (releasing SDA while SCL floats high)
-	Or if this is not possible (e.g. uncooperative Arduino libraries), should reset using watchdog, and recognise the SDA low, SCL high condition on startup, and, as above, release the bus.
-	The first approach is preferable, but the number of attempts taken should be reported back, with the second approach, no such reporting is necessary, as the sender should recognise the reset notification, or generally send a retry.
+	Or if this is not possible (e.g. uncooperative Arduino libraries), must reset using watchdog, and recognise the SDA low, SCL high condition on startup, and, as above, release the bus.
+	The first approach is preferable, but the number of attempts taken must be reported back, with the second approach, no such reporting is necessary, as the sender must recognise the reset notification, or send a retry.
 	If a watchdog reset is performed like this, then the receiver must start up not activated, so as to not perform half commands, relying on other status which may have been lost.
 The I2C bus system works both for systems with multiple I2C ports, and those with bus repeaters which can be switched off. This means a device with only 1 I2C port can have multiple buses.
 	The bus repeater system is referred to below as 'switching', and the I2C port itself as the 'unswitched' side. 
@@ -299,12 +298,12 @@ The I2C bus system works both for systems with multiple I2C ports, and those wit
 ### Commands
 
 Each command must contain a command code (except empty commands), indicated by the 'R' field, otherwise a `UNKNOWN_CMD` error must be given. If this is less than 0x10, then it is a system command.
-Upon startup, an R Code receiver must be in a `not activated` state, and respond to any non-system command with an `NOT_ACTIVATED` error.
+Upon startup, an RCode receiver must be in a `not activated` state, and respond to any non-system command with an `NOT_ACTIVATED` error.
 
 Any command which is addressed as a broadcast, and is intended to find RCode receivers which have not already been discovered, 
 	must begin with a `*` symbol, as must the response to such a command, this is to allow these commands to occur out of synch with other commands, and be identified separately.
 
-Every command code must be unique, and cannot contain the response fields `S`, `Z` or `E`, or the parameter field `E` (Echo command is exception)
+Every command code must be unique, and cannot contain the response fields `S`, `Z` or `E`, or the parameter field `E` (Echo command is an exception)
 
 Key for Values column (xx means a particular number):  
 
@@ -338,46 +337,146 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	*		|	**?		|	the same as parameters, with same values (including E, Z)  
 |				|	Resp		|	S		|	**?		|	the same as given S, if present, otherwise 00 (the primary use of this is testing error responses)  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Make Code		|				|			|			|	Creates and stores a random 4 byte code  
+|Capabilities	|				|			|			|	Responds with the capabilities of the RCode receiver  
 |				|	Command		|	R		|	02		|  
-|				|	Resp		|	big		|	**		|	The code created  
-|				|	Resp		|	S		|	00		|  
+|				|	Param		|	P		|	*?		|	'page number' selects which set of supported commands/capabilities to look at. The total set is the union of all the pages,   
+|				|				|			|			|		with the big fields combined (this means the non-big fields can also change with page, provided all needed are present on some page), defaults to 0.  
+|				|	Resp		|	C		|	*		|	Binary capability field: [?, ?, Notification, Debug, interrupt handling, parallel execution, single packet newline separated response, GUID]  
+|				|	Resp		|	B		|	**		|	Maximum big field length (should always be more than around 8, just to allow basic functionality)  
+|				|	Resp		|	N		|	**		|	Maximum field number (should always be more than around 5, as otherwise basic commands will not function)  
+|				|	Resp		|	F		|	*		|	Maximum field size, maximum number of bytes given to a field.  
+|				|	Resp		|	U		|	*		|	Field Unit size, minimum number of bytes given to a field.  
+|				|	Resp		|	P		|	**?		|	Size of persistent memory, if not present, not supported. If =0, then only have GUID, MAC  
+|				|	Resp		|	M		|	*		|	Number of pages  
+|				|	Resp		|	big		|	**		|	list, in binary, of supported RCodes, e.g. +0001020304, supports Ident, Echo, Capabilities, Activate, and Soft reset  
+|				|				|			|			|		From this list it must be possible to infer what capabilities are supported in terms of peripherals, as peripherals which appear must be supported.  
+|				|				|			|			|		1 byte commands must come first, then 2, then 3, etc. Before any n > 1 byte commands are sent, n `00`s must be sent.
+|				|	Resp		|	S		|	00,06	|	gives BAD_PARAM if page number exceeds last page  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Match Code		|				|			|			|	Matches the code created with Make Code  
+|Activate		|				|			|			|	Activates the receiver, allowing non-system commands  
 |				|	Command		|	R		|	03		|  
-|				|	Param		|	big		|	**		|	The expected random code  
-|				|	Resp		|	S		|	00,10	|	fail if given code not the same as stored code  
+|				|	Resp		|	A		|	b		|	was activated previously (1 if already set)  
+|				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Soft Reset		|				|			|			|	Performs a soft reset  
 |				|	Command		|	R		|	04		|  
 |				|	Resp		|	None	|			|	has no response whatsoever, as receiver has reset  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Network Init	|				|			|			|	Re-initialises the network connection (if present)  
-|				|	Command		|	R		|	05		|	  
-|				|	Resp		|	S		|	00,None	|	has no response whatsoever if sent over network, as receiver has reset  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Activate		|				|			|			|	Activates the receiver, allowing non-system commands  
-|				|	Command		|	R		|	06		|  
-|				|	Resp		|	A		|	b		|	was activated previously (1 if already set)  
-|				|	Resp		|	S		|	00		|  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Lockup			|				|			|			|	Performs a watchdog reset/hard reset, by entering infinite loop  
-|				|	Command		|	R		|	07		|  
+|Hard Reset		|				|			|			|	Performs a hard reset  
+|				|	Command		|	R		|	05		|  
 |				|	Resp		|	None	|			|	has no response whatsoever, as receiver has reset  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Fetch GUID		|				|			|			|	Fetches the 16 byte GUID  
+|				|	Command		|	R		|	06		|  
+|				|	Resp		|	S		|	00,10	|	fails if the GUID is not set correctly  
+|				|	Resp		|	big		|	**		|	The GUID, if valid  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Notification Host set|				|			|			|	Sets the target of the notifications, to the sending system on the sending channel (e.g. a particular UDP port on a particular address on a network)  
 |				|	Command		|	R		|	08		|  
+|				|	Resp		|	S		|	00,10	|  fails if the channel cannot do notifications  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|	Set Debug	|				|			|			|	Sets the target of the debug info, to the sending system on the sending channel (e.g. a particular UDP port on a particular address on a network)  
+|	Host		|	Command		|	R		|	09		|  
+|				|	Param		|	D		|	?		|	If present enables Debug, otherwise, disable (if possible)  
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Fetch GUID		|				|			|			|	Fetches the 16 byte GUID  
-|				|	Command		|	R		|	09		|  
-|				|	Resp		|	B		|	*		|	the start check byte  
-|				|	Resp		|	C		|	*		|	the end check byte	  
-|				|	Resp		|	S		|	00,10	|	fails if (start check + end check != 0xff), as not set correctly  
-|				|	Resp		|	big		|	**		|	The GUID, if valid  
+|Make Code		|				|			|			|	Creates and stores a pseudo-random 4 byte code  
+|				|	Command		|	R		|	0a		|  
+|				|	Resp		|	big		|	**		|	The code created  
+|				|	Resp		|	S		|	00		|  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Match Code		|				|			|			|	Matches the code created with Make Code  
+|				|	Command		|	R		|	0b		|  
+|				|	Param		|	big		|	**		|	The expected random code  
+|				|	Resp		|	S		|	00,10	|	fails if given code not the same as stored code  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|	Channel		|				|			|			|	Re-initialises the specified command channel (only resets the first in order given here, defaults to current)  
+|	reset		|	Command		|	R		|	0c		|  
+|				|	Param		|	A		|	p		|	Resets all channels, guaranteed no response  
+|				|	Param		|	C		|	p		|	Resets current connection, guaranteed no response  
+|				|	Param		|	N		|	p		|	Resets all network ports (sets MAC address, etc.)  
+|				|				|			|			|  
+|				|	Resp		|	S		|	00		|	has no response whatsoever if used channel has reset  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Persist		|				|			|			|	Stores the given data at the given position in the receiver's persistent store  
+|				|	Command		|	R		|	10		|  
+|				|	Param		|	A		|	**		|	Address to store the data at  
+|				|	Param		|	big		|	**		|	Data to store  
+|				|	Resp		|	S		|	00		|  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Fetch Persisted|				|			|			|	Fetches the data at the given position in the receiver's persistent store  
+|				|	Command		|	R		|	11		|  
+|				|	Param		|	A		|	**		|	Address to read the data from  
+|				|	Param		|	L		|	*		|	Length of data to read  
+|				|	Resp		|	big		|	**		|	Data read  
+|				|	Resp		|	S		|	00,06	|	Gives BAD_PARAM if too much data requested  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Set MAC address|				|			|			|	Stores the given MAC address at the location specified internally by the RCode receiver, so that on startup, the right MAC address will be chosen  
+|				|	Command		|	R		|	12		|		Also adds the two 'check bytes' on the start and end, and performs the increment.  
+|				|	Param		|	big		|	**		|	MAC address. Must be exactly 6 bytes  
+|				|	Resp		|	S		|	00,06	|	Gives BAD_PARAM if wrong length big field given  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Set GUID		|				|			|			|	Stores the given GUID at the location specified internally by the RCode receiver, so that on startup, the right Fetch GUID command will work  
+|				|	Command		|	R		|	13		|  
+|				|	Param		|	big		|	*		|	GUID to store, must be exactly 16 bytes.  
+|				|	Resp		|	S		|	00,06	|	Gives BAD_PARAM if wrong length big field given  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Execution State|				|			|			|	Returns the state of the execution space  
+|				|	Command		|	R		|	20		|  
+|				|	Resp		|	D		|	*		|	Current delay value  
+|				|	Resp		|	F		|	b		|	0->no error   1->halted with system error (S < 0x10)  
+|				|	Resp		|	G		|	b		|	0->not running   1->running  
+|				|	Resp		|	L		|	**		|	Execution space current used length  
+|				|	Resp		|	M		|	**		|	Execution space total length  
+|				|	Resp		|	S		|	00		|  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Execution		|				|			|			|	Starts or stops execution, and sets execution address  
+|				|	Command		|	R		|	21		|  
+|				|	Param		|	A		|	**?		|	new current address (default: unchanged)  
+|				|	Param		|	D		|	*?		|	Sets execution delay to (`2^value` ms), e.g. 5 gives 32ms delay   (default: unchanged)  
+|				|	Param		|	G		|	?		|	If present, begins executing, otherwise, halts  
+|				|	Resp		|	S		|	00		|  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Execution Store|				|			|			|	Stores in the execution space  
+|				|	Command		|	R		|	22		|  
+|				|	Param		|	A		|	**		|	Start address of write  
+|				|	Param		|	L		|	?		|	If present, end is considered the last section of data, and execution will loop.  
+|				|	Param		|	big		|	**		|	The new code to store at the address (in literal binary, good to use string form for)  
+|				|	Resp		|	S		|	00,08	|	Gives TOO_BIG if cannot fit the new code, and writes nothing.  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Interrupt Setup	|				|			|			|	Reports capabilities of interrupt system back, and allows setup of interrupt system  
+|				|	Command		|	R		|	28		|  
+|				|	Resp		|	I		|	*		|	Total number of assignable interrupts  
+|				|	Resp		|	big		|	**		|	Bytes for interrupt types, any included interrupt types can have interrupts assigned  
+|				|	Resp		|	S		|	00		|  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Interrupt Set	|				|			|			|	Sets the jump location of an interrupt handler within the execution space.  
+|				|	Command		|	R		|	29		|  
+|				|	Resp		|	J		|	**		|	Address to execute from in execution space (can be outside of normal execution space length).  
+|				|	Resp		|	A		|	*?		|	Device address on bus (if bus supports addressing)  
+|				|	Resp		|	I		|	*		|	Bus number for target interrupt  
+|				|	Resp		|	T		|	*		|	Interrupt type for target interrupt  
+|				|	Resp		|	S		|	00		|  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|	Pin Setup	|				|			|			|	Reports capabilities of Pins system back  
+|				|	Command		|	R		|	40		|  
+|				|	Param		|	P		|	*?		|	'page number' selects which set of supported commands/capabilities to look at. The total set is the union of all the pages,   
+|				|				|			|			|		with the big fields combined (this means the non-big fields can also change with page, provided all needed are present on some page), defaults to 0.  
+|				|	Param		|	N		|	?		|	If present, indicates sets notifications to be created on interrupt.  
+|				|	Param		|	big		|	**		|	4 bits per pin, enables interrupts, selects source, sets value: [both edge, compare value/edge select, int on change, int en], (int on change, if 1, interrupt on edge, otherwise on compare)  
+|				|				|			|			|		(compare value, if interrupt on compare, if value different to this, interrupt; if interrupt on edge, if 1, rising edge, 0, falling)   
+|				|				|			|			|		(both edge: if in edge mode, if this bit is set, ignore edge select, interrupt on either edge)   
+|				|				|			|			|		These 4 bit commands given in the order (as appearing in long field): [pin 3, pin 2], [pin 1, pin 0]  
+|				|	Resp		|	P		|	*		|	Total number of GPIO pins  
+|				|	Resp		|	N		|	?		|	If present, indicates notifications are available  
+|				|	Resp		|	I		|	?		|	If present, indicates interrupts are available  
+|				|	Resp		|	M		|	*		|	Number of pages  
+|				|	Resp		|	big		|	**		|	1 byte for each IO: (PU->pull-up   PD->pull-down   OD->open-drain): [output, input, input PU, input PD, output OD, output OD-PU, output OD-PD, Analog In] set bits indicate a supported capabilities  
+|				|				|			|			|		in order in message: [pin 3], [pin 2], [pin 1], [pin 0]  
+|				|	Resp		|	S		|	00,06	|	gives BAD_PARAM if page number exceeds last page  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Pin Set		|				|			|			|	Sets the output value of a pin  
-|				|	Command		|	R		|	10		|  
+|				|	Command		|	R		|	41		|  
 |				|	Param		|	P		|	**		|	The pin number (not on the package, but the logical pin number)  
 |				|	Param		|	M		|	0,1,2?	|	The new pin mode: 	0->in   	1->out   	2->input pull-up    3->input pull-down    4->output open drain    5->output open drain pull-up    6->output open drain pull-down    none->no change  
 |				|	Param		|	V		|	0,1?	|	The new pin output: 0->low   	1->high  		none->no change  
@@ -386,43 +485,37 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00,05	|	gives MISSING_PARAM if P not present.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Pin Get		|				|			|			|	Gets the output value of a pin  
-|				|	Command		|	R		|	11		|  
+|				|	Command		|	R		|	42		|  
 |				|	Param		|	P		|	**		|	The pin number (not on the package, but the logical pin number)  
 |				|	Param		|	A		|	?		|	Read mode: 	present->analog   	not->digital  
 |				|	Resp		|	P		|	**		|	Same as P given  
 |				|	Resp		|	V		|	0,1,*	|	if digital read, value of pin 	0->low   1->high	if analog, most significant byte of value  
 |				|	Resp		|	S		|	00,05	|	gives MISSING_PARAM if P not present.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Persist		|				|			|			|	Stores the given data at the given position in the receiver's persistent store  
-|				|	Command		|	R		|	12		|  
-|				|	Param		|	A		|	**		|	Address to store the data at  
-|				|	Param		|	big		|	**		|	Data to store  
-|				|	Resp		|	S		|	00		|  
+|Pin Compare	|				|			|			|	Compares the value of a pin with a given value.  
+|				|	Command		|	R		|	43		|  
+|				|	Param		|	P		|	**		|	The pin number (not on the package, but the logical pin number)  
+|				|	Param		|	A		|	?		|	Read mode: 	present->analog   	not->digital  
+|				|	Param		|	V		|	0,1,*	|	expected value of pin
+|				|	Resp		|	P		|	**		|	Same as P given  
+|				|	Resp		|	V		|	0,1,*	|	if digital read, value of pin 	0->low   1->high	if analog, most significant byte of value  
+|				|	Resp		|	S		|  00,05,10 |	gives MISSING_PARAM if P not present, CMD_FAIL if pin value != expected value.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Fetch Persisted|				|			|			|	Fetches the data at the given position in the receiver's persistent store  
-|				|	Command		|	R		|	13		|  
-|				|	Param		|	A		|	**		|	Address to read the data from  
-|				|	Param		|	L		|	*		|	Length of data to read  
-|				|	Resp		|	big		|	**		|	Data read  
-|				|	Resp		|	S		|	00,06	|	Gives BAD_PARAM if too much data requested  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Set MAC address|				|			|			|	Stores the given MAC address at the location specified internally by the RCode receiver, so that on startup, the right MAC address will be chosen  
-|				|	Command		|	R		|	14		|		Also adds the two 'check bytes' on the start and end, and performs the increment.  
-|				|	Param		|	big		|	**		|	MAC address. Must be exactly 6 bytes  
-|				|	Resp		|	S		|	00,06	|	Gives BAD_PARAM if wrong length big field given  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Set GUID		|				|			|			|	Stores the given GUID at the location specified internally by the RCode receiver, so that on startup, the right Fetch GUID command will work  
-|				|	Command		|	R		|	15		|  
-|				|	Param		|	big		|	*		|	GUID to store, must be exactly 16 bytes.  
-|				|	Resp		|	S		|	00,06	|	Gives BAD_PARAM if wrong length big field given  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Interrupt Poll	|				|			|			|	Checks the interrupt status  
-|				|	Command		|	R		|	17		|  
-|				|	Param		|	N		|	*		|	interrupt number - selects the nth lowest interrupt, in order of interrupt type then bus number - default 0  
-|				|	Resp		|	A		|	b		|	1 if there is an interrupt, 0 otherwise  
-|				|	Resp		|	I		|	*		|	Number of lowest bus causing interrupt (not present if no interrupt)  
-|				|	Resp		|	T		|	*		|	Interrupt type (Lowest causing interrupt) (not present if no interrupt)  
-|				|	Resp		|	S		|	00		|  
+|	I2C Setup	|				|			|			|	Does setup of I2C system, and reports capabilities of I2C system back  
+|				|	Command		|	R		|	50		|  
+|				|	Param		|	F		|  0,1,2,3	|	Set I2C frequency (0->10kHz   1->100kHz   2->400kHz   3->1000kHz)  
+|				|	Param		|	C		|	?		|	Set up a command channel on the I2C port  
+|				|	Param		|	N		|	?		|	If present, indicates sets notifications to be created on interrupt.  
+|				|	Param		|	A		|	*		|	receive Address for I2C command channel  
+|				|	Param		|	B		|	*		|	I2C bus to listen on for command channel, this will set the device as a Master-Slave, cannot be a switched bus  
+|				|				|			|			|		but if buses are switched, then channel sender must be connected to unswitched end, and any of the switched buses connected to that bus source can be specified  
+|				|				|			|			|  
+|				|	Resp		|	N		|	?		|	If present, indicates notifications are available  
+|				|	Resp		|	I		|	?		|	If present, indicates interrupts are available  
+|				|	Resp		|	C		|	*		|	Binary capability field: [?, I2C command channel, Low Speed 10kHz, restart, individual bus interrupt, bus interrupt, bus free without restart, SMBus compatible]  
+|				|	Resp		|	B		|	**		|	Number of I2C buses  
+|				|	Resp		|	F		|	1,2,3	|	Maximum frequency (1->100kHz   2->400kHz   3->1000kHz), receivers have to support all frequencies below their maximum  
+|				|	Resp		|	S		|	00,06	|	gives BAD_PARAM frequency above maximum  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |I2C Send		|				|			|			|	Sends an I2C message over the specified bus, or the previous bus used if unspecified  
 |				|	Command		|	R		|	20		|  
@@ -462,28 +555,59 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		| 00,06,10?	|	CMD_FAIL if I2C failed, or difference detected (and continue on diff disabled)`BAD_PARAM` on restart with no good next command.   
 |				|				|			|			|		Can result in reset and no response, if bus jams and bus freeing requires reset.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Execution		|				|			|			|	Starts or stops execution, and sets execution address  
-|				|	Command		|	R		|	30		|  
-|				|	Param		|	A		|	**?		|	new current address (default: unchanged)  
-|				|	Param		|	D		|	*?		|	Sets execution delay to (`2^value` ms), e.g. 5 gives 32ms delay   (default: unchanged)  
-|				|	Param		|	G		|	?		|	If present, begins executing, otherwise, halts  
-|				|	Resp		|	S		|	00		|  
+|USB-C PD Status|				|			|			|	Gives general info on power delivery status  
+|				|	Command		|	R		|	1110	|  
+|				|	Resp		|	I		|	**		|	Agreed current, 10mA units  
+|				|	Resp		|	V		|	*		|	Agreed voltage, integer (acts as minimum)  
+|				|	Resp		|	A		|	**		|	Minimum voltage, 50mV units  
+|				|	Resp		|	M		|	**?		|	Maximum voltage, 50mV units (not given if same as minimum)  
+|				|	Resp		|	S		|   00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Execution Store|				|			|			|	Stores in the execution space  
-|				|	Command		|	R		|	31		|  
-|				|	Param		|	A		|	**		|	Start address of write  
-|				|	Param		|	L		|	?		|	If present, end is considered the last section of data, and execution will loop.  
-|				|	Param		|	big		|	**		|	The new code to store at the address (in literal binary, good to use string form for)  
-|				|	Resp		|	S		|	00,08	|	Gives TOO_BIG if cannot fit the new code, and writes nothing.  
+|USB-C PD Set	|				|			|			|	Requests a new power set-up  
+|				|	Command		|	R		|	1111	|  
+|				|	Param		|	I		|	**		|	Target current, 10mA units  
+|				|	Param		|	V		|	*		|	Target voltage, integer (acts as minimum if maximum specified)  
+|				|	Param		|	A		|	**		|	Target Minimum voltage, 50mV units (takes priority)  
+|				|	Param		|	M		|	**?		|	Target Maximum voltage, 50mV units (if not given, assumes same as minimum)  
+|				|	Resp		|	S		|   00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Execution State|				|			|			|	Returns the state of the execution space  
-|				|	Command		|	R		|	32		|  
-|				|	Resp		|	D		|	*		|	Current delay value  
-|				|	Resp		|	F		|	b		|	0->no error   1->halted with system error (S < 0x10)  
-|				|	Resp		|	G		|	b		|	0->not running   1->running  
-|				|	Resp		|	L		|	**		|	Execution space current used length  
-|				|	Resp		|	M		|	**		|	Execution space total length  
-|				|	Resp		|	S		|	00		|  
+|USB-C PD Source|				|			|			|	Gives static Source info  
+|				|	Command		|	R		|	1112	|  
+|				|	Param		|	N		|	*?		|	Which PDO to give info on (0 indexed)  
+|				|	Resp		|	I		|	**		|	If N given, the max current of that PDO, 10mA units  
+|				|	Resp		|	V		|	*		|	If N given, the integer minimum voltage  
+|				|	Resp		|	A		|	**		|	If N given, the minimum voltage, 50mV units  
+|				|	Resp		|	M		|	**?		|	If N given, the maximum voltage, 50mV units (not given if same as minimum)  
+|				|				|			|			|	All following are given if N not present:  
+|				|	Resp		|	I		|	**		|	8 bytes: 4 bytes of XID, 2 bytes VID, 2 bytes PID  
+|				|	Resp		|	V		|	**		|	2 bytes: 1st byte firmware version, 2nd byte hardware version  
+|				|	Resp		|	R		|	*		|	The voltage regulation field, as from extended source cap  
+|				|	Resp		|	C		|	**		|	6 bytes: each 2 bytes are the three peak currents, 3 then 2 then 1  
+|				|	Resp		|	F		|	b?		|	If not present, no external supply. If present - 1: unconstrained, 0: constrained  
+|				|	Resp		|	G		|	*		|	The touch current field, as from extended source cap  
+|				|	Resp		|	T		|	*		|	The touch temperature field, as from extended source cap (only the touch temp bits)  
+|				|	Resp		|	B		|	**		|	The battery count, first byte is hotswappable, second is fixed (only present if has batteries)
+|				|	Resp		|	P		|	*		|	The source PDP rating
+|				|	Resp		|	A		|	?		|	If present, source is usb coms capable
+|				|	Resp		|	U		|	?		|	If present, source has unconstrained power
+|				|	Resp		|	O		|	?		|	If present, source requires USB suspend
+|				|	Resp		|	big		|	**		|	The manufacturer info string (in string form, null removed) 
+|				|	Resp		|	S		|   00,06	|   gives BAD_PARAM if given N >= #of PDOs
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|USB-C PD Source Status|				|			|			|	Gives changing Source info  
+|				|	Command		|	R		|	1113	|  
+|				|	Resp		|	H		|	*?		|	The temperature status: Normal = 1, Warning = 2, OverTemperature = 3 (if not present, then not supported)  
+|				|	Resp		|	F		|	*?		|	The Flags, as given by Event flags in the USB-C status message (if not present, then not supported)  
+|				|	Resp		|	T		|	*?		|	The temperature in degrees C - (0 implies temp<=1) (if not present, then not supported)  
+|				|	Resp		|	L		|	*?		|	The limiting factor on power - as in Status message the power status field  
+|				|	Resp		|	D		|	*		|	Power indicator status - as in the Power state change field  
+|				|	Resp		|	A		|	b?		|	If present: has external power, if 1: has external AC power (otherwise has DC)  
+|				|	Resp		|	G		|	?		|	If present: has non battery internal power source (e.g. solar)  
+|				|	Resp		|	B		|	*?		|	The present battery input field from status message - if not present, no internal batteries  
+|				|	Resp		|	P		|	*		|	The power status from power state change field - not present if not supported
+|				|	Resp		|	V		|	**		|	The output voltage of the PPS, (not present implies not supported) - 20mV units
+|				|	Resp		|	I		|	**		|	The output current of the PPS, (not present implies not supported) - 50mA units
+|				|	Resp		|	S		|   00,10	|   gives CMD_FAIL if no status is known  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 
 
@@ -563,97 +687,27 @@ Key for Values column (xx means a particular number):
 | *TCP* 			| b0-bf		|  
 | *User defined*	| f0-ff		|  
 | ***2 byte***		|			|  
+| *USB-C PD*		|			|  
+| USB-C PD Status	| 1110		|  
+| USB-C PD Set		| 1111		|  
+| USB-C PD Source	| 1112		|  
+| USB-C PD Source Status | 1113		|  
 | *User defined*	| ff00-ffff	|  
 
+### General principles of command design:
+
+The level of abstraction in a command should reflect the level of complexity of the system it represents, and multiple commands may be made to represent different abstraction levels.
+The command's requirements on fields should also reflect the level of complexity of the system, as devices with more complex subsystems are likely to be more capable generally - hence pin commands are very simple to implement, whereas USB-C PD commands are not.
+
+The interface a set of commands provide must be abstract enough to work cross-device, so that it can be implemented on a different device later on. 
+Also if RCode is being used to control a system with a specific purpose, then commands should be made to fit the purpose, 
+as this reduces the risk of accidentally breaking a system - this may include limiting the pins available for pin commands to those not used anywhere else, or even not providing low level interfaces on a production system. 
+This avoids some of the risks surrounding a malicious (or simply incompetant) device, connected to the same network, from causing any damage to the receiver. 
+It is reasonable to expect the device to know the circuit surrounding it, and have its programming reflect this, although it is encouraged that such customisations are well parameterised where possible, to allow changes to the circuit without a total re-design.
 
 
-### New possible commands
+### Possible example command structure (can be changed to suit requirements):
 
-|Command		|	Type		|	Field	|	Values	|	Meaning  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|  Capabilities	|				|			|			|	Responds with the capabilities of the RCode receiver  
-|				|	Command		|	R		|	02		|  
-|				|	Param		|	P		|	*?		|	'page number' selects which set of supported commands/capabilities to look at. The total set is the union of all the pages,   
-|				|				|			|			|		with the big fields combined (this means the non-big fields can also change with page, provided all needed are present on some page), defaults to 0.  
-|				|	Resp		|	C		|	*		|	Binary capability field: [?, ?, Notification, Debug, interrupt handling, parallel execution, single packet newline separated response, GUID]  
-|				|	Resp		|	B		|	**		|	Maximum big field length (should always be more than around 8, just to allow basic functionality)  
-|				|	Resp		|	N		|	**		|	Maximum field number (should always be more than around 5, as otherwise basic commands will not function)  
-|				|	Resp		|	F		|	*		|	Maximum field size, maximum number of bytes given to a field.  
-|				|	Resp		|	U		|	*		|	Field Unit size, minimum number of bytes given to a field.  
-|				|	Resp		|	P		|	**?		|	Size of persistent memory, if not present, not supported  
-|				|	Resp		|	M		|	*		|	Number of pages  
-|				|	Resp		|	big		|	**		|	list, in binary, of supported RCodes, e.g. +0001020304, supports Ident, Echo, Capabilities, Activate, and Soft reset  
-|				|				|			|			|		From this list it must be possible to infer what capabilities are supported in terms of peripherals, as peripherals which appear must be supported.  
-|				|	Resp		|	S		|	00,06	|	gives BAD_PARAM if page number exceeds last page  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-  
-  
-  
-|Command		|	Type		|	Field	|	Values	|	Meaning  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Interrupt Setup	|				|			|			|	Reports capabilities of interrupt system back, and allows setup of interrupt system  
-|				|	Command		|	R		|	28		|  
-|				|	Resp		|	I		|	*		|	Total number of assignable interrupts  
-|				|	Resp		|	big		|	**		|	Bytes for interrupt types, any included interrupt types can have interrupts assigned  
-|				|	Resp		|	S		|	00		|  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-  
-  
-|Command		|	Type		|	Field	|	Values	|	Meaning  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Interrupt Set	|				|			|			|	Sets the jump location of an interrupt handler within the execution space.  
-|				|	Command		|	R		|	29		|  
-|				|	Resp		|	J		|	**		|	Address to execute from in execution space (can be outside of normal execution space length).  
-|				|	Resp		|	A		|	*?		|	Device address on bus (if bus supports addressing)  
-|				|	Resp		|	I		|	*		|	Bus number for target interrupt  
-|				|	Resp		|	T		|	*		|	Interrupt type for target interrupt  
-|				|	Resp		|	S		|	00		|  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-  
-  
-  
-  
-|Command		|	Type		|	Field	|	Values	|	Meaning  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|	Pin Setup	|				|			|			|	Reports capabilities of Pins system back  
-|				|	Command		|	R		|	40		|  
-|				|	Param		|	P		|	*?		|	'page number' selects which set of supported commands/capabilities to look at. The total set is the union of all the pages,   
-|				|				|			|			|		with the big fields combined (this means the non-big fields can also change with page, provided all needed are present on some page), defaults to 0.  
-|				|	Param		|	N		|	?		|	If present, indicates sets notifications to be created on interrupt.  
-|				|	Param		|	big		|	**		|	4 bits per pin, enables interrupts, selects source, sets value: [both edge, compare value/edge select, int on change, int en], (int on change, if 1, interrupt on edge, otherwise on compare)  
-|				|				|			|			|		(compare value, if interrupt on compare, if value different to this, interrupt; if interrupt on edge, if 1, rising edge, 0, falling)   
-|				|				|			|			|		(both edge: if in edge mode, if this bit is set, ignore edge select, interrupt on either edge)   
-|				|				|			|			|		These 4 bit commands given in the order (as appearing in long field): [pin 3, pin 2], [pin 1, pin 0]  
-|				|	Resp		|	P		|	*		|	Total number of GPIO pins  
-|				|	Resp		|	N		|	?		|	If present, indicates notifications are available  
-|				|	Resp		|	I		|	?		|	If present, indicates interrupts are available  
-|				|	Resp		|	M		|	*		|	Number of pages  
-|				|	Resp		|	big		|	**		|	1 byte for each IO: (PU->pull-up   PD->pull-down   OD->open-drain): [output, input, input PU, input PD, output OD, output OD-PU, output OD-PD, Analog In] set bits indicate a supported capabilities  
-|				|				|			|			|		in order in message: [pin 3], [pin 2], [pin 1], [pin 0]  
-|				|	Resp		|	S		|	00,06	|	gives BAD_PARAM if page number exceeds last page  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-  
-  
-  
-|Command		|	Type		|	Field	|	Values	|	Meaning  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|	I2C Setup	|				|			|			|	Does setup of I2C system, and reports capabilities of I2C system back  
-|				|	Command		|	R		|	50		|  
-|				|	Param		|	F		|  0,1,2,3	|	Set I2C frequency (0->10kHz   1->100kHz   2->400kHz   3->1000kHz)  
-|				|	Param		|	C		|	?		|	Set up a command channel on the I2C port  
-|				|	Param		|	N		|	?		|	If present, indicates sets notifications to be created on interrupt.  
-|				|	Param		|	A		|	*		|	receive Address for I2C command channel  
-|				|	Param		|	B		|	*		|	I2C bus to listen on for command channel, this will set the device as a Master-Slave, cannot be a switched bus  
-|				|				|			|			|		but if buses are switched, then channel sender must be connected to unswitched end, and any of the switched buses connected to that bus source can be specified  
-|				|				|			|			|  
-|				|	Resp		|	N		|	?		|	If present, indicates notifications are available  
-|				|	Resp		|	I		|	?		|	If present, indicates interrupts are available  
-|				|	Resp		|	C		|	*		|	Binary capability field: [?, I2C command channel, Low Speed 10kHz, restart, individual bus interrupt, bus interrupt, bus free without restart, SMBus compatible]  
-|				|	Resp		|	B		|	**		|	Number of I2C buses  
-|				|	Resp		|	F		|	1,2,3	|	Maximum frequency (1->100kHz   2->400kHz   3->1000kHz), receivers have to support all frequencies below their maximum  
-|				|	Resp		|	S		|	00,06	|	gives BAD_PARAM frequency above maximum  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-  
   
 |Command		|	Type		|	Field	|	Values	|	Meaning  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
@@ -682,26 +736,4 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	T		|	*		|	Attempts taken (1 means worked first time)  
 |				|	Resp		|	S		| 	00,06	|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-  
-  
-  
-|Command		|	Type		|	Field	|	Values	|	Meaning  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|	Set Debug	|				|			|			|	Sets the target of the debug info, to the sending system on the sending channel (e.g. a particular UDP port on a particular address on a network)  
-|	Host		|	Command		|	R		|	09		|  
-|				|	Param		|	D		|	?		|	If present enables Debug, otherwise, disable (if possible)  
-|				|	Resp		|	S		|	00		|  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-  
-  
-  
-|Command		|	Type		|	Field	|	Values	|	Meaning  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|	Channel		|				|			|			|	Re-initialises the specified command channel (only resets the first in order given here, defaults to current)  
-|	reset		|	Command		|	R		|	0C		|  
-|				|	Param		|	A		|	p		|	Resets all channels, guaranteed no response  
-|				|	Param		|	C		|	p		|	Resets current connection, guaranteed no response  
-|				|	Param		|	N		|	p		|	Resets all network ports (sets MAC address, etc.)  
-|				|				|			|			|  
-|				|	Resp		|	S		|	00		|	has no response whatsoever if used channel has reset  
-|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+
