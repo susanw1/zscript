@@ -8,7 +8,7 @@ It is composed of Commands, separated by `&`s built into command sequences, sepa
 RCode is designed to be flexible to the capabilities of the receiver, allowing very simple, or very capable endpoints to work within their capabilities. 
 It is designed to allow accurate peripheral control, such as reads and writes to GPIO pins, SPI, I2C, or other peripherals, 
 	to allow simple expansion, and other features, such as programmable background code execution, or interrupt handlers.
-RCode is provided to the MCU over some form of 'command channel' this might be UDP, TCP, serial, USB, or any other protocol.
+RCode is provided to the MCU over some form of 'command channel' this might be UDP, TCP, serial lines, USB, or any other protocol.
 
 ### Communication
 
@@ -24,6 +24,18 @@ To allow use of USB connections, the MCU can either implement a USB interface, w
 Due to its simplicity, UDP is the recommended network command channel for normal communication, however to allow easier debugging, TCP can also be used. 
 	This is particularly recommended for the default debug channel, in the absence of serial/USB, as a telnet connection can then be used.
 
+An RCode receiver is allowed to implement routing. This is where an `@` is placed at the begining of a command sequence - the rest of the command is skipped by the parser and ignored. 
+No specification is given for the operation of such a command, but it must not involve a newline, and the `@` must be the first character after the newline. 
+The encouraged method of operation is that the begining of the routed command sequence has a dot seperated series of addresses, and the command is send with the first of these stripped off.
+An example:
+
+A receiver receives: `@9.1c*R1A2`
+It then sends `@1c*R1A2` along whichever communication protocol corresponds to address `9`.
+The receiver of this then sends `* R1A2` along the communication path corresponding to address `1c`.
+Any response to the sent communication should put the address back on the begining, so in the above example, 
+when the second receiver is given the response `*SA2`, it sends `@1c*SA2` back, and the original receiver takes this, and sends `@9.1c*SA2` back to where the message comes from.
+
+Note that the contents of a routing command need not be RCode, although that is the general intention if newlines are needed inside the message, any encoding can be chosen (again this is more of an external capability to RCode).
 
 
 ### Command Structure
@@ -489,7 +501,7 @@ Key for Values column (xx means a particular number):
 |				|	Param		|	P		|	**		|	The pin number (not on the package, but the logical pin number)  
 |				|	Param		|	A		|	?		|	Read mode: 	present->analog   	not->digital  
 |				|	Resp		|	P		|	**		|	Same as P given  
-|				|	Resp		|	V		|	0,1,*	|	if digital read, value of pin 	0->low   1->high	if analog, most significant byte of value  
+|				|	Resp		|	V		|	0,1,*	|	if digital read, value of pin 	0->low   1->high  if analog: entire value, left aligned (so if we have a 12 bit A-D, we left shift 4 bits)  
 |				|	Resp		|	S		|	00,05	|	gives MISSING_PARAM if P not present.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Pin Compare	|				|			|			|	Compares the value of a pin with a given value.  
@@ -518,12 +530,11 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00,06	|	gives BAD_PARAM frequency above maximum  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |I2C Send		|				|			|			|	Sends an I2C message over the specified bus, or the previous bus used if unspecified  
-|				|	Command		|	R		|	20		|  
+|				|	Command		|	R		|	51		|  
 |				|	Param		|	A		|	*		|	I2C address  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	C		|	?		|	If present, will continue on failure, useful for probing addresses, where failure is expected.  
 |				|	Param		|	T		|	*?		|	Number of retries, defaults to 5.   (Set to 1 if repeating the command would be bad)  
-|				|	Param		|	E		|	?		|	If present, does not send a stop bit on I2C, instead sends restart (if next command is not I2C, or packet ends here, will fail `BAD_PARAM`)... not supported on all receivers.  
 |				|	Param		|	big		|	**		|	Data to send to target address and bus  
 |				|	Resp		|	A		|	*		|	I2C address (Echoed)  
 |				|	Resp		|	I		| 0,1,2,3,4	|	I2C status response: 0->ok  1->data too long  2->address nack  3->data nack  4->other    (standard responses from arduino wire library)  
@@ -531,22 +542,31 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		| 00,06,10	|	CMD_FAIL if I2C status non-zero, and continue on error disabled, `BAD_PARAM` on restart with no good next command.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |I2C Read		|				|			|			|	Reads an I2C message over the specified bus, or the previous bus used if unspecified (Retries are harder, as auto increment, and bus locking become issues, hence the default to 1)  
-|				|	Command		|	R		|	21		|  
+|				|	Command		|	R		|	52		|  
 |				|	Param		|	A		|	*		|	I2C address  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	T		|	*?		|	Number of retries, defaults to 1 (will always work for address NACK, but for data errors, there is little recovery if bus freeing requires reset).  
-|				|	Param		|	E		|	?		|	If present, does not send a stop bit on I2C, instead sends restart (if next command is not I2C, or packet ends here, will fail `BAD_PARAM`)... not supported on all receivers.  
 |				|	Param		|	L		|	*		|	Length of data to read  
 |				|	Resp		|	big		|	**		|	Data received, will be zero length if failed  
 |				|	Resp		|	T		|	*		|	Attempts taken (1 means worked first time)  
 |				|	Resp		|	S		| 00,10,06?	|	CMD_FAIL if I2C failed, BAD_PARAM if length too long for big field, or restart with invalid next command. Can result in reset and no response, if bus jams and bus freeing requires reset.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|I2C Send + Read|				|			|			|	Sends, then reads an I2C message over the specified bus, or the previous bus used if unspecified (Retries are harder, as auto increment, and bus locking become issues, hence the default to 1)  
+|				|	Command		|	R		|	53		|  
+|				|	Param		|	A		|	*		|	I2C address  
+|				|	Param		|	B		|	*?		|	Target bus  
+|				|	Param		|	L		|	?		|	Length to read
+|				|	Param		|	T		|	*?		|	Number of retries for send, defaults to 5. (No retries supported for read, as then atomicity is broken)  
+|				|	Param		|	big		|	**		|	The data to send.  
+|				|	Resp		|	big		|	**?		|	Data received.  
+|				|	Resp		|	T		|	*		|	Attempts taken for send (1 means worked first time)  
+|				|	Resp		|	S		| 00,06,10?	|	CMD_FAIL if I2C failed for send or read. Can result in reset and no response, if bus jams and bus freeing requires reset.  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |I2C Read And Compare|				|			|			|	Reads an I2C message over the specified bus, or the previous bus used if unspecified (Retries are harder, as auto increment, and bus locking become issues, hence the default to 1)  
-|				|	Command		|	R		|	22		|  
+|				|	Command		|	R		|	54		|  
 |				|	Param		|	A		|	*		|	I2C address  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	C		|	?		|	If present, will continue on difference, useful for getting multiple results.  
-|				|	Param		|	E		|	?		|	If present, does not send a stop bit on I2C, instead sends restart (if next command is not I2C, or packet ends here, will fail `BAD_PARAM`)... not supported on all receivers.  
 |				|	Param		|	T		|	*?		|	Number of retries, defaults to 1 (will always work for address NACK, but for data errors, there is little recovery if bus freeing requires reset).  
 |				|	Param		|	big		|	**		|	set of mask|value pairs, for each read position i, expect (read[i] & field[2*i]==field[2*i+1]) So value must have blank spaces where mask not present.  
 |				|	Resp		|	big		|	**?		|	Data received, not present if no difference.  
@@ -561,6 +581,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	V		|	*		|	Agreed voltage, integer (acts as minimum)  
 |				|	Resp		|	A		|	**		|	Minimum voltage, 50mV units  
 |				|	Resp		|	M		|	**?		|	Maximum voltage, 50mV units (not given if same as minimum)  
+|				|	Resp		|	P		|	*		|	Power Status  
 |				|	Resp		|	S		|   00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |USB-C PD Set	|				|			|			|	Requests a new power set-up  
@@ -671,7 +692,8 @@ Key for Values column (xx means a particular number):
 | I2C Setup			| 50		|  
 | I2C Send			| 51		|  
 | I2C Read			| 52		|  
-| I2C Read + Compare| 53		|  
+| I2C Send + Read	| 53		|  
+| I2C Read + Compare| 54		|  
 | ***Future***		|			|  
 | *SPI*				|			|  
 | SPI Setup			| 60		|  
@@ -693,6 +715,23 @@ Key for Values column (xx means a particular number):
 | USB-C PD Source	| 1112		|  
 | USB-C PD Source Status | 1113		|  
 | *User defined*	| ff00-ffff	|  
+
+#### USB-C PD Power Status:
+
+
+| Value	| Meaning 							|  
+|-------|-----------------------------------|  
+| 0	    | Negotiating						|  
+| 2	    | Unresponsive Source				|  
+| 3	    | Source Cannot provide voltage		|  
+| 4	    | New Voltage Contract Made			|  
+| 5	    | New Voltage, Insufficient Current	|  
+| 6	    | Source cannot provide current		|  
+| 7	    | Hard reset immenent				|  
+| 8	    | Over-current Alert				|  
+| 9	    | Over-temperature Alert			|  
+| 10    | Over-voltage Alert				|  
+
 
 ### General principles of command design:
 
@@ -736,4 +775,13 @@ It is reasonable to expect the device to know the circuit surrounding it, and ha
 |				|	Resp		|	T		|	*		|	Attempts taken (1 means worked first time)  
 |				|	Resp		|	S		| 	00,06	|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+
+
+
+
+
+
+
+
+
 
