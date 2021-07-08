@@ -25,7 +25,7 @@ Due to its simplicity, UDP is the recommended network command channel for normal
 	This is particularly recommended for the default debug channel, in the absence of serial/USB, as a telnet connection can then be used.
 
 An RCode receiver is allowed to implement routing. This is where an `@` is placed at the begining of a command sequence - the rest of the command is skipped by the parser and ignored. 
-No specification is given for the operation of such a command, but it must not involve a newline, and the `@` must be the first character after the newline. 
+No specification is given for the operation of such a command sequence, but it must not involve a newline (otherwise the next command sequence will be considered to have begun) and the `@` must be the first non-whitespace in the sequence. 
 The encouraged method of operation is that the begining of the routed command sequence has a dot seperated series of addresses, and the command is send with the first of these stripped off.
 An example:
 
@@ -276,6 +276,7 @@ The response fields are as follows:
 |3				|*		|Whatever comes from command							|  
 
 
+The UART system uses notifications to indicate 'buffer full' conditions, and 'matched byte' conditions.
 
 ### Debug
 
@@ -516,15 +517,11 @@ Key for Values column (xx means a particular number):
 |	I2C Setup	|				|			|			|	Does setup of I2C system, and reports capabilities of I2C system back  
 |				|	Command		|	R		|	50		|  
 |				|	Param		|	F		|  0,1,2,3	|	Set I2C frequency (0->10kHz   1->100kHz   2->400kHz   3->1000kHz)  
-|				|	Param		|	C		|	?		|	Set up a command channel on the I2C port  
 |				|	Param		|	N		|	?		|	If present, indicates sets notifications to be created on interrupt.  
-|				|	Param		|	A		|	*		|	receive Address for I2C command channel  
-|				|	Param		|	B		|	*		|	I2C bus to listen on for command channel, this will set the device as a Master-Slave, cannot be a switched bus  
-|				|				|			|			|		but if buses are switched, then channel sender must be connected to unswitched end, and any of the switched buses connected to that bus source can be specified  
 |				|				|			|			|  
 |				|	Resp		|	N		|	?		|	If present, indicates notifications are available  
 |				|	Resp		|	I		|	?		|	If present, indicates interrupts are available  
-|				|	Resp		|	C		|	*		|	Binary capability field: [?, I2C command channel, Low Speed 10kHz, restart, individual bus interrupt, bus interrupt, bus free without restart, SMBus compatible]  
+|				|	Resp		|	C		|	*		|	Binary capability field: [?, ?, Low Speed 10kHz, restart, individual bus interrupt, bus interrupt, bus free without restart, SMBus compatible]  
 |				|	Resp		|	B		|	**		|	Number of I2C buses  
 |				|	Resp		|	F		|	1,2,3	|	Maximum frequency (1->100kHz   2->400kHz   3->1000kHz), receivers have to support all frequencies below their maximum  
 |				|	Resp		|	S		|	00,06	|	gives BAD_PARAM frequency above maximum  
@@ -641,12 +638,13 @@ Key for Values column (xx means a particular number):
 |---|-----------|  
 | 0 | I2C		|  
 | 1 | SPI		|  
-| 2 | CAN		|  
+| 2 | UART		|  
 | 3 | Parallel	|  
 | 4 | USB		|  
 | 5 | UDP		|  
 | 6 | TCP		|  
 | 7 | Pin		|  
+| 8 | CAN		|  
 	
 
 
@@ -694,6 +692,11 @@ Key for Values column (xx means a particular number):
 | I2C Read			| 52		|  
 | I2C Send + Read	| 53		|  
 | I2C Read + Compare| 54		|  
+| *UART* 			| 70-7f		|  
+| UART Setup		| 70		|  
+| UART Send			| 71		|  
+| UART Read			| 72		|  
+| UART Available	| 73		|  
 | ***Future***		|			|  
 | *SPI*				|			|  
 | SPI Setup			| 60		|  
@@ -702,11 +705,6 @@ Key for Values column (xx means a particular number):
 | SPI Send + Read(simultanious)			| 63	|  
 | SPI Read + Compare					| 64	|  
 | SPI Send,Read,Compare (simultanious)	| 65	|  
-| *CAN* 			| 70-7f		|  
-| *Parallel* 		| 80-8f		|  
-| *USB* 			| 90-9f		|  
-| *UDP* 			| a0-af		|  
-| *TCP* 			| b0-bf		|  
 | *User defined*	| f0-ff		|  
 | ***2 byte***		|			|  
 | *USB-C PD*		|			|  

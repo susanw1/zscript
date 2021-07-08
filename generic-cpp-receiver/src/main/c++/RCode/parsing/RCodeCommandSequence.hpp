@@ -10,6 +10,7 @@
 #include "../RCodeIncludes.hpp"
 #include "../RCodeLockSet.hpp"
 #include "../instreams/RCodeMarkerInStream.hpp"
+#include "../RCodeAddressingCommandConsumer.hpp"
 
 template<class RP>
 class RCode;
@@ -267,6 +268,14 @@ bool RCodeCommandSequence<RP>::parseFlags() {
     RCodeMarkerInStream<RP> *mIn = in->getMarkerInStream();
     mIn->eatWhitespace();
     mIn->read();
+    if (mIn->reread() == '@') {
+        mIn->close();
+        if (rcode->getAddressingCommandConsumer() != NULL) {
+            rcode->getAddressingCommandConsumer()->consumeAddressedCommandSequence(in);
+        }
+        in->close();
+        return false;
+    }
     if (mIn->reread() == '#') {
         mIn->close();
         in->close();

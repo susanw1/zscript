@@ -25,6 +25,9 @@ template<class RP>
 class RCodeLockSet;
 
 template<class RP>
+class RCodeAddressingCommandConsumer;
+
+template<class RP>
 class RCode {
 private:
     RCodeParser<RP> parser;
@@ -35,6 +38,7 @@ private:
     RCodeDebugOutput<RP> debug;
     RCodeVoidChannel<RP> voidChannel;
     RCodeLocks<RP> locks;
+    RCodeAddressingCommandConsumer<RP> *addressingCommandConsumer = NULL;
     RCodeCommandChannel<RP> **channels = NULL;
     const char *configFailureState = NULL;
     uint8_t channelNum = 0;
@@ -86,6 +90,12 @@ private:
 
     RCodeNotificationManager<RP>* getNotificationManager() {
         return &notificationManager;
+    }
+    void setAddressingCommandConsumer(RCodeAddressingCommandConsumer<RP> *addressingCommandConsumer) {
+        this->addressingCommandConsumer = addressingCommandConsumer;
+    }
+    RCodeAddressingCommandConsumer<RP>* getAddressingCommandConsumer() {
+        return addressingCommandConsumer;
     }
 
     bool canLock(RCodeLockSet<RP> *lockset) {
