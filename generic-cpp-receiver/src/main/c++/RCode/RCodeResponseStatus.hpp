@@ -19,9 +19,11 @@ enum RCodeResponseStatus {
     BAD_PARAM = 6,
     NOT_ACTIVATED = 7,
     TOO_BIG = 8,
+    BAD_ADDRESSING = 9,
+    RETRY_REQEST = 0xa,
     SETUP_ERROR = 0xf,
-
     CMD_FAIL = 0x10,
+
     NOT_EXECUTED = 0x11
 };
 

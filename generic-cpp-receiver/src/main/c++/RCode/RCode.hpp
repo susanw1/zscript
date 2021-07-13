@@ -43,7 +43,7 @@ private:
     const char *configFailureState = NULL;
     uint8_t channelNum = 0;
     public:
-    RCode(RCodeBusInterruptSource<RP> *interruptSources, uint8_t interruptSourceNum) :
+    RCode(RCodeBusInterruptSource<RP> **interruptSources, uint8_t interruptSourceNum) :
             parser(this), runner(this), notificationManager(this, interruptSources, interruptSourceNum), space(&notificationManager), finder(this), debug() {
     }
     void setChannels(RCodeCommandChannel<RP> **channels, uint8_t channelNum) {

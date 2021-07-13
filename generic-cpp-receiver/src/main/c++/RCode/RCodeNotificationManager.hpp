@@ -29,7 +29,7 @@ class RCode;
 template<class RP>
 class RCodeNotificationManager {
 private:
-    RCodeBusInterruptSource<RP> *sources;
+    RCodeBusInterruptSource<RP> **sources;
     RCodeBusInterrupt<RP> waitingNotifications[RP::interruptStoreNum];
     uint8_t waitingNotificationNumber = 0;
     uint8_t sourceNum = 0;
@@ -41,7 +41,7 @@ private:
     void sendNotification(RCodeBusInterrupt<RP> interrupt);
 
 public:
-    RCodeNotificationManager(RCode<RP> *rcode, RCodeBusInterruptSource<RP> *sources, uint8_t sourceNum);
+    RCodeNotificationManager(RCode<RP> *rcode, RCodeBusInterruptSource<RP> **sources, uint8_t sourceNum);
 
     void setVectorChannel(RCodeInterruptVectorManager<RP> *vectorChannel) {
         this->vectorChannel = vectorChannel;
@@ -61,7 +61,7 @@ public:
 };
 
 template<class RP>
-RCodeNotificationManager<RP>::RCodeNotificationManager(RCode<RP> *rcode, RCodeBusInterruptSource<RP> *sources, uint8_t sourceNum) :
+RCodeNotificationManager<RP>::RCodeNotificationManager(RCode<RP> *rcode, RCodeBusInterruptSource<RP> **sources, uint8_t sourceNum) :
         sources(sources), sourceNum(sourceNum), vectorChannel(NULL), notificationChannel(rcode->getVoidChannel()) {
 }
 
@@ -80,6 +80,7 @@ void RCodeNotificationManager<RP>::sendNotification(RCodeBusInterrupt<RP> interr
         vectorChannel->acceptInterrupt(interrupt);
     } else {
         RCodeOutStream<RP> *out = notificationChannel->acquireOutStream();
+        out->lock();
         if (out->isOpen()) {
             out->close();
             out->mostRecent = interrupt.getSource();
@@ -101,6 +102,7 @@ void RCodeNotificationManager<RP>::sendNotification(RCodeBusInterrupt<RP> interr
         }
         out->writeCommandSequenceSeperator();
         out->close();
+        out->unlock();
         interrupt.clear();
     }
 }
@@ -134,7 +136,7 @@ void RCodeNotificationManager<RP>::manageNotifications() {
     }
     if (waitingNotificationNumber < RP::interruptStoreNum) {
         for (int i = 0; i < sourceNum; ++i) {
-            RCodeBusInterruptSource<RP> *source = sources + i;
+            RCodeBusInterruptSource<RP> *source = sources[i];
             int16_t id = source->takeUncheckedNotificationId();
             if (id != -1) {
 

@@ -93,7 +93,8 @@ int main(void) {
     SystemMilliClock::init();
     SystemMilliClock::blockDelayMillis(1000);
     RCodeFlashPersistence persist;
-    RCode<RCodeParameters> r(&source, 1);
+    RCodeBusInterruptSource<RCodeParameters> *sources[] = { &source };
+    RCode<RCodeParameters> r(sources, 1);
     uint8_t *mac;
     uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xaa };
     if (persist.hasMac()) {
