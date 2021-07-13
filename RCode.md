@@ -151,6 +151,9 @@ The following status responses are defined:
 |BAD_PARAM		|6		|	Field in command has invalid value|  
 |NOT_ACTIVATED	|7		|	receiver has not yet received activate command|  
 |TOO_BIG 		|8		|	Big field too long for receiver|  
+|BAD_ADDRESSING	|9		|	Addressing command error (everything else is device specific - don't even have to use this, just a general response)|  
+|RETRY_REQEST	|a		|	Something is malformed in the message received, need a retransmittion|  
+|SETUP_ERROR 	|f		|   Something went wrong in the setup of the device - may even be compile-time|  
 |CMD_FAIL		|10		|	Command specific failure, e.g. pin set command on non-existent pin|  
 |NOT_EXECUTED	|ff		|	Reserved for sender side, indicates that command could not be executed, to give to subcomponents expecting a response.|  
 
@@ -235,6 +238,7 @@ To allow fast communication of information from receiver, a notification may be 
   * `Z01` indicates a interrupt from an interrupt source, and will contain basic info on the interrupt, or more as detailed below.
   * `Z02` indicates a execution space notification, meaning a command has failed in the space, and will contain the output of the failed command, 
 		and all preceding `&`/`|` separated commands, if they can fit, otherwise a `RESP_TOO_LONG` status.
+  * `Z03` indicates an addressing notification - e.g. to inform about a malformed address. All use is device specific.
 			
 ##### Interrupts
 The receiver has 3 possible responses to a interrupt (an interrupt would usually be some form of line feeding to the receiver from some other device, e.g. the SMBus alert system):
@@ -384,7 +388,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00,10	|	fails if the GUID is not set correctly  
 |				|	Resp		|	big		|	**		|	The GUID, if valid  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Notification Host set|				|			|			|	Sets the target of the notifications, to the sending system on the sending channel (e.g. a particular UDP port on a particular address on a network)  
+|Notification Host set|				|			|			|	Sets the target of the notifications, to the sending system on the sending channel (e.g. a particular UDP port on a particular address on a network). Also sets Addressing response target  
 |				|	Command		|	R		|	08		|  
 |				|	Resp		|	S		|	00,10	|  fails if the channel cannot do notifications  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
@@ -536,7 +540,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	A		|	*		|	I2C address (Echoed)  
 |				|	Resp		|	I		| 0,1,2,3,4	|	I2C status response: 0->ok  1->data too long  2->address nack  3->data nack  4->other    (standard responses from arduino wire library)  
 |				|	Resp		|	T		|	*		|	Attempts taken (1 means worked first time)  
-|				|	Resp		|	S		| 00,06,10	|	CMD_FAIL if I2C status non-zero, and continue on error disabled, `BAD_PARAM` on restart with no good next command.  
+|				|	Resp		|	S		| 	00,10	|	CMD_FAIL if I2C status non-zero, and continue on error disabled.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |I2C Read		|				|			|			|	Reads an I2C message over the specified bus, or the previous bus used if unspecified (Retries are harder, as auto increment, and bus locking become issues, hence the default to 1)  
 |				|	Command		|	R		|	52		|  
@@ -546,7 +550,7 @@ Key for Values column (xx means a particular number):
 |				|	Param		|	L		|	*		|	Length of data to read  
 |				|	Resp		|	big		|	**		|	Data received, will be zero length if failed  
 |				|	Resp		|	T		|	*		|	Attempts taken (1 means worked first time)  
-|				|	Resp		|	S		| 00,10,06?	|	CMD_FAIL if I2C failed, BAD_PARAM if length too long for big field, or restart with invalid next command. Can result in reset and no response, if bus jams and bus freeing requires reset.  
+|				|	Resp		|	S		| 00,10,06?	|	CMD_FAIL if I2C failed, BAD_PARAM if length too long for big field. Can result in reset and no response, if bus jams and bus freeing requires reset.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |I2C Send + Read|				|			|			|	Sends, then reads an I2C message over the specified bus, or the previous bus used if unspecified (Retries are harder, as auto increment, and bus locking become issues, hence the default to 1)  
 |				|	Command		|	R		|	53		|  
@@ -559,7 +563,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	T		|	*		|	Attempts taken for send (1 means worked first time)  
 |				|	Resp		|	S		| 00,06,10?	|	CMD_FAIL if I2C failed for send or read. Can result in reset and no response, if bus jams and bus freeing requires reset.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|I2C Read And Compare|				|			|			|	Reads an I2C message over the specified bus, or the previous bus used if unspecified (Retries are harder, as auto increment, and bus locking become issues, hence the default to 1)  
+|I2C Read And Compare|			|			|			|	Reads an I2C message over the specified bus, or the previous bus used if unspecified (Retries are harder, as auto increment, and bus locking become issues, hence the default to 1)  
 |				|	Command		|	R		|	54		|  
 |				|	Param		|	A		|	*		|	I2C address  
 |				|	Param		|	B		|	*?		|	Target bus  
@@ -569,8 +573,50 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	big		|	**?		|	Data received, not present if no difference.  
 |				|	Resp		|	D		|	*?		|	index of first difference, not present if no difference.  
 |				|	Resp		|	T		|	*		|	Attempts taken (1 means worked first time)  
-|				|	Resp		|	S		| 00,06,10?	|	CMD_FAIL if I2C failed, or difference detected (and continue on diff disabled)`BAD_PARAM` on restart with no good next command.   
+|				|	Resp		|	S		| 00,06?	|	CMD_FAIL if I2C failed, or difference detected (and continue on diff disabled).   
 |				|				|			|			|		Can result in reset and no response, if bus jams and bus freeing requires reset.  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Uart Setup		|				|			|			|	Does setup of Uart system, and reports capabilities of Uart system back - Uart always assumes 8 bit bytes  
+|				|	Command		|	R		|	70		|  
+|				|	Param		|	U		|	*		|   the Uart to configure
+|				|	Param		|	B		|	**?		|	sets the baud rate for the Uart (so B258 will set to 9600 baud, B3e800 gives 256000 baud) default 9600
+|				|	Param		|	C		|	**		|	Binary capability select field: [?, ?, ?, use parity, ?, ?, single/Ndouble stop bit, auto baud rate detect, ?]
+|				|				|			|			|  
+|				|	Resp		|	N		|	?		|	If present, indicates notifications will be sent upon buffer over-run  
+|				|	Resp		|	C		|	*		|	Binary capability field: [?, ?, ?, parity check, noise detect, single stop bit, double stop bit, auto baud rate detect]
+|				|	Resp		|	B		|	**		|	The maximum baud rate available  
+|				|	Resp		|	U		|	**		|	Number of Uart buses  
+|				|	Resp		|	T		|	**		|	Transmit buffer length  
+|				|	Resp		|	M		|	**		|	Receive buffer length  
+|				|	Resp		|	S		|	00,06	|	gives BAD_PARAM if frequency above maximum or below minimum  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Uart Send		|				|			|			|	Sends a Uart message over the specified bus, or the previous bus used if unspecified  
+|				|	Command		|	R		|	71		|  
+|				|	Param		|	B		|	*?		|	Target bus  
+|				|	Param		|	big		|	**		|	Data to send to target address and bus  
+|				|	Resp		|	S		| 	00		|	CMD_FAIL if I2C status non-zero, and continue on error disabled.  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Uart Read		|				|			|			|	Reads up to the length requested from the read buffer  
+|				|	Command		|	R		|	72		|  
+|				|	Param		|	B		|	*?		|	Target bus  
+|				|	Param		|	F		|	?		|	Fail if not enough data read  
+|				|	Param		|	L		|	*		|	Length of data to read  
+|				|	Resp		|	big		|	**		|	Data received, will be zero length if failed  
+|				|	Resp		|	F		|	?		|	Present if some form of error occurred (noise or parity)  
+|				|	Resp		|	S		|	00,10	|	CMD_FAIL if not enough data and F flag present  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Uart Available	|				|			|			|	Returns the amount of data in read buffer  
+|				|	Command		|	R		|	73		|  
+|				|	Param		|	B		|	*?		|	Target bus  
+|				|	Resp		|	L		|	*		|	Length of data available  
+|				|	Resp		|	S		|	00		|  
+|---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
+|Uart Skip		|				|			|			|	Skips up to the length requested from the read buffer  
+|				|	Command		|	R		|	74		|  
+|				|	Param		|	B		|	*?		|	Target bus  
+|				|	Param		|	L		|	*		|	Length of data to skip  
+|				|	Resp		|	L		|	*		|	Length of data skipped  
+|				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |USB-C PD Status|				|			|			|	Gives general info on power delivery status  
 |				|	Command		|	R		|	1110	|  
@@ -697,6 +743,7 @@ Key for Values column (xx means a particular number):
 | UART Send			| 71		|  
 | UART Read			| 72		|  
 | UART Available	| 73		|  
+| UART Skip			| 74		|  
 | ***Future***		|			|  
 | *SPI*				|			|  
 | SPI Setup			| 60		|  

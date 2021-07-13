@@ -37,7 +37,15 @@
                             							
                             <targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.1987327622.1137049284" name=""/>
                             							
-                            <builder id="org.eclipse.cdt.build.core.settings.default.builder.1346707128" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+                            <builder id="org.eclipse.cdt.build.core.settings.default.builder.1346707128" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder">
+                                								
+                                <outputEntries>
+                                    									
+                                    <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
+                                    								
+                                </outputEntries>
+                                							
+                            </builder>
                             							
                             <tool id="org.eclipse.cdt.build.core.settings.holder.libs.1273194443" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
                             							
