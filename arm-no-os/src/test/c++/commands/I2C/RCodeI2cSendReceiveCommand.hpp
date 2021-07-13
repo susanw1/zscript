@@ -15,7 +15,7 @@
 
 class RCodeI2cSendReceiveCommand: public RCodeCommand<RCodeParameters> {
 private:
-    const uint8_t code = 0x51;
+    const uint8_t code = 0x53;
 
     static void setAsFinished(I2cTerminationStatus status, RCodeCommandSlot<RCodeParameters> *slot, uint8_t retries);
     public:

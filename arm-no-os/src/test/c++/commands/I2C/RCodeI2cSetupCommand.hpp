@@ -36,12 +36,6 @@ public:
                 return;
             }
         }
-        if (slot->getFields()->has('A') || slot->getFields()->has('C') || slot->getFields()->has('B')) {
-            slot->fail("", CMD_FAIL);
-            out->writeStatus(CMD_FAIL);
-            out->writeBigStringField("This receiver does not support I2C command channels");
-            return;
-        }
         RCodeI2cSubsystem::setCreateNotifications(slot->getFields()->has('N'));
         if (freqCount != 0) {
             if (freq == 0) {

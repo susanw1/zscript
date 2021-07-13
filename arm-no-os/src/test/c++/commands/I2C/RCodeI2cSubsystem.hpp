@@ -23,7 +23,8 @@ private:
     static RCodeI2cPhysicalBus phyBus3;
     static RCodeI2cBus busses[4 * RCodePeripheralParameters::i2cBussesPerPhyBus];
     static bool createNotifications;
-    public:
+
+public:
     static void init() {
         createNotifications = false;
         for (int i = 0; i < RCodePeripheralParameters::i2cBussesPerPhyBus; ++i) {
