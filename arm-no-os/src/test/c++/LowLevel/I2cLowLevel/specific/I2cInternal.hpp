@@ -44,7 +44,8 @@ private:
     GpioPinName scl;
     PinAlternateFunction sclFunction;
     I2cRegisters *registers;
-    public:
+
+public:
     I2cInternal() :
             sda(PA_1), sdaFunction(0), scl(PA_1), sclFunction(0), registers(NULL) {
     }

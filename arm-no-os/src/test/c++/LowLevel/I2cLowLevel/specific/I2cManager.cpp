@@ -5,18 +5,13 @@
  *      Author: robert
  */
 
-#include "../../I2cLowLevel/I2cManager.hpp"
+#include "../I2cManager.hpp"
 
 #define I2C_SDA_Inner(I2C,PIN) I2C##_SDA_##PIN
 #define I2C_SDA(I2C,PIN) I2C_SDA_Inner(I2C, PIN)
 
 #define I2C_SCL_Inner(I2C,PIN) I2C##_SCL_##PIN
 #define I2C_SCL(I2C,PIN) I2C_SCL_Inner(I2C, PIN)
-
-#define GPIO_AF2 2
-#define GPIO_AF3 3
-#define GPIO_AF4 4
-#define GPIO_AF8 8
 
 #define I2C_1_SCL_PA_13_ PA_13,GPIO_AF4
 #define I2C_1_SDA_PA_14_ PA_14,GPIO_AF4
@@ -118,7 +113,20 @@
 #endif
 #endif
 
-I2c I2cManager::i2cs[] = {I2c(), I2c(), I2c(), I2c()};
+I2c I2cManager::i2cs[] = {
+#ifdef USE_I2C_1
+    I2c()
+#endif
+#ifdef USE_I2C_2
+    , I2c()
+#endif
+#ifdef USE_I2C_3
+    , I2c()
+#endif
+#ifdef USE_I2C_4
+    , I2c()
+#endif
+};
 
 class I2cInterruptManager {
     friend void I2C1_EV_IRQHandler();

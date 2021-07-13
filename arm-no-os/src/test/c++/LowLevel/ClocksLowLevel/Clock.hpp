@@ -25,7 +25,6 @@ public:
     uint32_t getDivider(uint32_t targetFreqKhz) {
         return freq / targetFreqKhz;
     }
-
     int set(uint32_t targetFreqKhz, SystemClock source);
 
     uint32_t getFreqKhz() {
