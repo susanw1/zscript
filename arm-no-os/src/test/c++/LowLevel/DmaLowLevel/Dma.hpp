@@ -68,6 +68,7 @@ public:
                 interruptOnHalf);
     }
     uint16_t fetchRemainingTransferLength();
+    void setRemainingTransferLength(uint16_t length);
 
     void halt();
 

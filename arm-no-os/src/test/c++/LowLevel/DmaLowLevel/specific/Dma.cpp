@@ -24,6 +24,9 @@ void Dma::interrupt() {
 uint16_t Dma::fetchRemainingTransferLength() {
     return channel.getChannelRegisters()->CNDTR;
 }
+void Dma::setRemainingTransferLength(uint16_t length) {
+    channel.getChannelRegisters()->CNDTR = length;
+}
 
 void Dma::halt() {
     channel.setMux(DMAMUX_NO_MUX);
