@@ -178,12 +178,12 @@ void I2c::interrupt() {
         }
     } else if (i2c.getRegisters()->ISR & 0x80) {
         // TCR - reload
-        uint16_t length;
+        uint16_t length = 0;
         if (state.hasTx && !state.txDone) {
             length = txLen;
         } else if (state.hasRx) {
             length = rxLen;
-        }
+        } // umm, what if neither - obviously an illegal state, but still
         length -= state.repeatCount * 0xFF;
         if (length > 255) {
             i2c.getRegisters()->CR2 |= 0x1FF << 16;
