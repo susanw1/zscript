@@ -68,11 +68,8 @@ public:
                 interruptOnHalf);
     }
     uint16_t fetchRemainingTransferLength();
-    void setRemainingTransferLength(uint16_t length);
 
     void halt();
-
-    void resume();
 
     void setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize, DmaMuxRequest request,
             const uint8_t *target, bool targetIncrement, uint8_t targetSize, bool memToMem, uint16_t transferLength, uint8_t dir, bool circular,

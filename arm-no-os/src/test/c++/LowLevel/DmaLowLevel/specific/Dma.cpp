@@ -24,18 +24,9 @@ void Dma::interrupt() {
 uint16_t Dma::fetchRemainingTransferLength() {
     return channel.getChannelRegisters()->CNDTR;
 }
-void Dma::setRemainingTransferLength(uint16_t length) {
-    channel.getChannelRegisters()->CNDTR = length;
-}
-
 void Dma::halt() {
-    channel.setMux(DMAMUX_NO_MUX);
     channel.getChannelRegisters()->CCR &= ~1;
-}
-
-void Dma::resume() {
-    channel.getChannelRegisters()->CCR |= 1;
-    channel.setMux(request);
+    channel.setMux(DMAMUX_NO_MUX);
 }
 
 void Dma::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize, DmaMuxRequest request,
