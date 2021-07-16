@@ -38,8 +38,9 @@ public:
                 return;
             }
         }
-        bool worked = UartManager::getUartById(bus)->write(slot->getBigField()->getData(), slot->getBigField()->getLength());
+        bool worked = UartManager::getUartById(bus)->getTxBuffer()->write(slot->getBigField()->getData(), slot->getBigField()->getLength());
         if (worked) {
+            UartManager::getUartById(bus)->transmitWriteBuffer();
             out->writeStatus(OK);
         } else {
             out->writeStatus(CMD_FAIL);

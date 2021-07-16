@@ -57,7 +57,7 @@ public:
             out->writeBigStringField("Read length too long");
             return;
         }
-        bool hasError = UartManager::getUartById(bus)->getError(length) != None;
+        bool hasError = UartManager::getUartById(bus)->getError(length) != UartNoError;
         bool failOnDataOut = slot->getFields()->countFieldSections('F') != 0;
         uint8_t data[length];
         uint16_t lengthRead = UartManager::getUartById(bus)->read(data, length);
