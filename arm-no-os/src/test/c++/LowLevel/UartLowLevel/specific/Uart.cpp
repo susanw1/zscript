@@ -17,73 +17,183 @@ void UartDmaCallback(Dma *dma, DmaTerminationStatus status) {
         }
     }
 }
-
-bool Uart::write(const uint8_t *buffer, uint16_t length) {
-    if (length == 0) { // otherwise things could break a bit...
-        return true;
+void UartTxOverflowCallback(UartIdentifier id) {
+    UartManager::getUartById(id)->txOverflowInterrupt();
+}
+void Uart::transmitWriteBuffer() {
+    if (txDma->lock()) {
+        dmaStartDist = txBuffer.getLinearReadLength();
+        if (dmaStartDist != 0) {
+            txDma->peripheralWrite(requestTx, txBuffer.getCurrentLinearRead(), true, (uint8_t*) uart.getTransmitRegister(), false,
+                    dmaStartDist, false, Medium, &UartDmaCallback, false);
+        }
     }
-    if (!txDma->lock()) { // if DMA is not locked, we go right ahead, otherwise, we need to ensure DMA-perceived atomicity
-        txDma->halt();
-        if (txDma->isLocked()) { //just to be sure...
-            if (!txContinues && txLength + length < GeneralHalSetup::UartBufferTxSize) {
-                txBuffer[txLength] = buffer[0]; // ensure that at least 1 byte is in buffer, so we don't run out of data - just in case
-                txDma->setRemainingTransferLength(txDma->fetchRemainingTransferLength() + length);
-                txLength += length;
-                txDma->resume(); //we can afford the DMA to continue now as we have some data in place, and it can't terminate by accident
-                for (uint16_t i = 1; i < length; i++) {
-                    txBuffer[txLength + i] = buffer[i];
-                }
-                return true;
-            } else if (!txContinues && length < txLength - txDma->fetchRemainingTransferLength() - 1) {
-                txBuffer[0] = buffer[0]; // ensure that at least 1 byte is in buffer, so we don't run out of data - just in case
+}
 
-                txContinues = true;
-                txLength = length; // atomicity again...
-                txDma->resume(); //we can afford the DMA to continue now as we have some data in place, and it can't terminate by accident
-                for (uint16_t i = 1; i < length; i++) {
-                    txBuffer[i] = buffer[i];
-                }
-                return true;
-            } else {
-                txDma->resume();
-                return false;
+void Uart::clearRxFifo() {
+    bool fitted = true; // use boolean to avoid atomicity issues...
+    while (uart.hasRxFifoData()) {
+        if (!rxBuffer.canWrite(4)) { //this ensures that we can always write the current byte + 2 more bytes (for overflow marking)
+            fitted = false;
+            break;
+        }
+        int16_t datum = uart.read();
+        if (datum < 0) {
+            rxBuffer.write(GeneralHalSetup::uartEscapingChar);
+            rxBuffer.write((uint8_t) -datum);
+        } else if (datum == GeneralHalSetup::uartEscapingChar) {
+            rxBuffer.write(GeneralHalSetup::uartEscapingChar);
+            rxBuffer.write(GeneralHalSetup::uartEscapingChar);
+            if (targetValue == GeneralHalSetup::uartEscapingChar) {
+                targetValueCallback(this);
+            }
+            availableData++;
+        } else {
+            rxBuffer.write((uint8_t) datum);
+            if (targetValue == datum) {
+                targetValueCallback(this);
+            }
+            availableData++;
+        }
+    }
+    if (!fitted) {
+        rxBuffer.write(GeneralHalSetup::uartEscapingChar);
+        rxBuffer.write(UartOverflowError);
+        while (uart.hasRxFifoData()) { //flush remaining data, as we can't fit it in...
+            uart.read();
+        }
+    }
+}
+
+UartError Uart::getError(uint16_t length) {
+    clearRxFifo();
+    rxBuffer.resetPeek();
+    for (int16_t i = 0; i < length; ++i) {
+        int16_t val = rxBuffer.peek();
+        if (val == -1) {
+            break;
+        } else if (val == GeneralHalSetup::uartEscapingChar) {
+            val = rxBuffer.peek();
+            if (val != GeneralHalSetup::uartEscapingChar) {
+                rxBuffer.resetPeek();
+                return (UartError) val;
             }
         }
-        txDma->resume();
     }
-    if (length >= GeneralHalSetup::UartBufferTxSize) {
-        return false;
-    }
-    for (uint16_t i = 0; i < length; i++) {
-        txBuffer[i] = buffer[i];
-    }
-    txLength = length;
-    txDma->peripheralWrite(requestTx, txBuffer, true, (uint8_t*) uart.getTransmitRegister(), false, length, false, Medium, &UartDmaCallback,
-            false);
-    return true;
+    rxBuffer.resetPeek();
+    return UartNoError;
 }
 
-void Uart::startWrite() {
-    if (txDma->lock() && txLength != 0) {
-        txDma->peripheralWrite(requestTx, txBuffer, true, (uint8_t*) uart.getTransmitRegister(), false, txLength, false, Medium, &UartDmaCallback,
-                false);
+uint16_t Uart::read(uint8_t *buffer, uint16_t length) {
+    clearRxFifo();
+    uint16_t i;
+    for (i = 0; i < length; ++i) {
+        int16_t val = rxBuffer.read();
+        if (val == -1) {
+            break;
+        } else if (val == GeneralHalSetup::uartEscapingChar) {
+            val = rxBuffer.read();
+            if (val == GeneralHalSetup::uartEscapingChar) {
+                buffer[i] = val;
+            } else {
+                i--;
+            }
+        } else {
+            buffer[i] = val;
+        }
+    }
+    availableData -= i;
+    return i;
+}
+int16_t Uart::read() {
+    clearRxFifo();
+    while (true) {
+        int16_t val = rxBuffer.read();
+        if (val == GeneralHalSetup::uartEscapingChar) {
+            val = rxBuffer.read();
+            if (val == GeneralHalSetup::uartEscapingChar) {
+                availableData--;
+                return val;
+            }
+        } else {
+            if (val != -1) {
+                availableData--;
+            }
+            return val; // this includes if read returned -1
+        }
+    }
+
+}
+
+int32_t Uart::getDistance(uint8_t value) {
+    clearRxFifo();
+    rxBuffer.resetPeek();
+    uint16_t i = 0;
+    while (true) {
+        int16_t val = rxBuffer.peek();
+        if (val == -1) {
+            rxBuffer.resetPeek();
+            return -1;
+        } else if (val == GeneralHalSetup::uartEscapingChar) {
+            val = rxBuffer.peek();
+            if (val == GeneralHalSetup::uartEscapingChar) {
+                if (value == val) {
+                    break;
+                }
+            } else {
+                i--;
+            }
+        } else if (val == value) {
+            break;
+        }
+        i++;
+    }
+    rxBuffer.resetPeek();
+    return i;
+}
+uint16_t Uart::skip(uint16_t length) { // there is no efficient skip, as we need to exclude escaped characters
+    clearRxFifo();
+    uint16_t i;
+    for (i = 0; i < length; ++i) {
+        int16_t val = rxBuffer.read();
+        if (val == -1) {
+            break;
+        } else if (val == GeneralHalSetup::uartEscapingChar) {
+            val = rxBuffer.read();
+            if (val != GeneralHalSetup::uartEscapingChar) {
+                i--;
+            }
+        }
+    }
+    availableData -= i;
+    return i;
+}
+void Uart::txOverflowInterrupt() {
+    transmitWriteBuffer(); // in case somebody forgot, as that would do it...
+    uint16_t completedLength = txDma->fetchRemainingTransferLength();
+    txBuffer.skip(dmaStartDist - completedLength); // move along as much as the DMA has allowed in the time since we last did that
+    dmaStartDist -= completedLength;
+}
+
+void Uart::dmaInterrupt(DmaTerminationStatus status) {
+    txBuffer.skip(dmaStartDist);
+    dmaStartDist = txBuffer.getLinearReadLength();
+    txDma->halt();
+    if (dmaStartDist == 0) {
+        txDma->unlock();
+    } else {
+        txDma->peripheralWrite(requestTx, txBuffer.getCurrentLinearRead(), true, (uint8_t*) uart.getTransmitRegister(), false,
+                dmaStartDist, false, Medium, &UartDmaCallback, false);
     }
 }
-void Uart::dmaInterrupt(DmaTerminationStatus status) {
-    if (txContinues) {
-        txContinues = false;
-        txDma->halt();
-        txDma->peripheralWrite(requestTx, txBuffer, true, (uint8_t*) uart.getTransmitRegister(), false, txLength, false, Medium, &UartDmaCallback,
-                false);
-    } else {
-        txDma->halt();
-        txDma->unlock();
-        txLength = 0;
-    }
+void Uart::init(void (*volatile bufferOverflowCallback)(UartIdentifier), uint32_t baud_rate, bool singleNdoubleStop) {
+// buffer overflow callback can be NULL
+    this->rxBuffer.setCallback(bufferOverflowCallback, uart.getId());
+    this->txBuffer.setCallback(&UartTxOverflowCallback, uart.getId());
+    uart.init(baud_rate, singleNdoubleStop);
 }
 
 void Uart::interrupt() {
     clearRxFifo();
     uart.clearFlags();
 }
-

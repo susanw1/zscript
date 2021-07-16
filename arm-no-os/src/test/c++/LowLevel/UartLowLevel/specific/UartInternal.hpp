@@ -17,36 +17,24 @@ class Uart;
 
 class UartInternal {
 private:
-    void (*volatile targetValueCallback)(Uart*);
-    Uart *uart;
     UartRegisters *registers;
     GpioPinName rx;
     PinAlternateFunction rxFunction;
     GpioPinName tx;
     PinAlternateFunction txFunction;
     UartIdentifier id;
-    uint8_t nextValueToWrite = 0;
-    uint8_t targetValue = 0;
 
 public:
     UartInternal() :
-            targetValueCallback(NULL), uart(NULL), registers(NULL), rx(PA_1), rxFunction(0), tx(PA_1), txFunction(0), id(0) {
+            registers(NULL), rx(PA_1), rxFunction(0), tx(PA_1), txFunction(0), id(0) {
     }
     UartInternal(GpioPinName rx, PinAlternateFunction rxFunction, GpioPinName tx, PinAlternateFunction txFunction, UartRegisters *registers, UartIdentifier id) :
-            targetValueCallback(NULL), uart(NULL), registers(registers), rx(rx), rxFunction(rxFunction), tx(tx), txFunction(txFunction), id(id) {
+            registers(registers), rx(rx), rxFunction(rxFunction), tx(tx), txFunction(txFunction), id(id) {
     }
     UartIdentifier getId() {
         return id;
     }
-    void setTargetValue(void (*volatile targetValueCallback)(Uart*), uint8_t targetValue) {
-        this->targetValueCallback = targetValueCallback;
-        this->targetValue = targetValue;
-    }
-    void clearTargetValue() {
-        this->targetValueCallback = NULL;
-    }
-    void init(uint32_t baud_rate, Uart *uart, bool singleNdoubleStop) {
-        this->uart = uart;
+    void init(uint32_t baud_rate, bool singleNdoubleStop) {
         GpioManager::getPin(rx)->init();
         GpioManager::getPin(tx)->init();
 
@@ -123,7 +111,8 @@ public:
         return (volatile uint8_t*) &registers->TDR;
     }
 
-    uint16_t performRead(uint8_t *buffer, uint16_t maxLength);
+    int16_t read();
+    bool hasRxFifoData();
 };
 #include "../Uart.hpp"
 
