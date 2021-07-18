@@ -579,7 +579,7 @@ Key for Values column (xx means a particular number):
 |Uart Setup		|				|			|			|	Does setup of Uart system, and reports capabilities of Uart system back - Uart always assumes 8 bit bytes  
 |				|	Command		|	R		|	70		|  
 |				|	Param		|	U		|	*		|   the Uart to configure
-|				|	Param		|	B		|	**?		|	sets the baud rate for the Uart (so B258 will set to 9600 baud, B3e800 gives 256000 baud) default 9600
+|				|	Param		|	B		|	**?		|	sets the baud rate for the Uart (so B2580 will set to 9600 baud, B3e800 gives 256000 baud) default 9600
 |				|	Param		|	C		|	**		|	Binary capability select field: [?, ?, ?, use parity, ?, ?, single/Ndouble stop bit, auto baud rate detect, ?]
 |				|				|			|			|  
 |				|	Resp		|	N		|	?		|	If present, indicates notifications will be sent upon buffer over-run  
@@ -594,16 +594,17 @@ Key for Values column (xx means a particular number):
 |				|	Command		|	R		|	71		|  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	big		|	**		|	Data to send to target address and bus  
-|				|	Resp		|	S		| 	00		|	CMD_FAIL if I2C status non-zero, and continue on error disabled.  
+|				|	Resp		|	S		| 	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Uart Read		|				|			|			|	Reads up to the length requested from the read buffer  
 |				|	Command		|	R		|	72		|  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	F		|	?		|	Fail if not enough data read  
+|				|	Param		|	T		|	?		|	Send results in text format (using big string field)  
 |				|	Param		|	L		|	*		|	Length of data to read  
 |				|	Resp		|	big		|	**		|	Data received, will be zero length if failed  
-|				|	Resp		|	F		|	?		|	Present if some form of error occurred (noise or parity)  
-|				|	Resp		|	S		|	00,10	|	CMD_FAIL if not enough data and F flag present  
+|				|	Resp		|	F		|	?		|	Present if some form of error occurred (noise or parity) - has value 1 for parity, 2 for noise, 32 for overflow (0 implies unspecified error)  
+|				|	Resp		|	S		|	00,10	|	CMD_FAIL if not enough data or F flag present  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Uart Available	|				|			|			|	Returns the amount of data in read buffer  
 |				|	Command		|	R		|	73		|  
@@ -616,6 +617,7 @@ Key for Values column (xx means a particular number):
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	L		|	*		|	Length of data to skip  
 |				|	Resp		|	L		|	*		|	Length of data skipped  
+|				|	Resp		|	F		|	?		|	Present if some form of error occurred (noise or parity) - has value 1 for parity, 2 for noise, 32 for overflow (0 implies unspecified error)  
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |USB-C PD Status|				|			|			|	Gives general info on power delivery status  
