@@ -136,25 +136,27 @@ public:
             peekPos = readPos;
             return 0;
         }
+        uint16_t skipped = 0;
         if (writePos < readPos) {
-            if (size - readPos >= length) {
+            if (size - readPos > length) {
                 readPos += length;
                 peekPos = readPos;
-                return length;
+                return length + skipped;
             } else {
-                length = size - readPos;
+                skipped = size - readPos;
+                length = length - (size - readPos);
                 readPos = 0;
             }
         }
         if (writePos - readPos >= length) {
             readPos += length;
             peekPos = readPos;
-            return length;
+            return length + skipped;
         } else {
             uint16_t tmp = writePos - readPos;
             readPos = writePos;
             peekPos = readPos;
-            return tmp;
+            return tmp + skipped;
         }
     }
 
