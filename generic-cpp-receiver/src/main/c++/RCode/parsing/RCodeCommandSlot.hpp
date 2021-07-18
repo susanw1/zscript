@@ -51,9 +51,9 @@ struct RCodeCommandSlotStatus {
 template<class RP>
 class RCodeCommandSlot {
     typedef typename RP::fieldUnit_t fieldUnit_t;
-public:
+    public:
     RCodeCommandSlot<RP> *next = NULL;
-private:
+    private:
     RCodeBigBigField<RP> *bigBig = NULL;
     RCodeCommand<RP> *cmd = NULL;
     char const *errorMessage = "";
@@ -64,7 +64,7 @@ private:
     RCodeCommandSlotStatus slotStatus;
 
     uint8_t getHex(char c) {
-        return (uint8_t)(c >= 'a' ? c - 'a' + 10 : c - '0');
+        return (uint8_t) (c >= 'a' ? c - 'a' + 10 : c - '0');
     }
 
     bool isHex(char c) {
@@ -89,10 +89,10 @@ public:
         map.reset();
         big.reset();
         status = OK;
-        slotStatus.reset();
         if (RP::bigBigFieldLength > 0 && slotStatus.usesBigBig) {
             bigBig->reset();
         }
+        slotStatus.reset();
         cmd = NULL;
     }
 
@@ -184,11 +184,11 @@ bool RCodeCommandSlot<RP>::parseHexField(RCodeCommandInStream<RP> *in, char fiel
     } else if (lookahead == 1) {
         return map.add(field, getHex(in->read()));
     } else if (lookahead == 2) {
-        return map.add(field, (uint8_t)(getHex(in->read()) << 4) | getHex(in->read()));
+        return map.add(field, (uint8_t) (getHex(in->read()) << 4) | getHex(in->read()));
     } else {
         fieldUnit_t current = 0;
         for (int extra = lookahead % (sizeof(fieldUnit_t) * 2); extra > 0; extra--) {
-            current = (fieldUnit_t)((current << 4) | getHex(in->read()));
+            current = (fieldUnit_t) ((current << 4) | getHex(in->read()));
             lookahead--;
         }
         if (current != 0 && !map.add(field, current)) {
@@ -196,9 +196,9 @@ bool RCodeCommandSlot<RP>::parseHexField(RCodeCommandInStream<RP> *in, char fiel
         }
         while (lookahead > 0) {
             for (uint8_t i = 0; i < sizeof(fieldUnit_t) * 2; i++) {
-                current = (fieldUnit_t)((current << 4) | getHex(in->read()));
+                current = (fieldUnit_t) ((current << 4) | getHex(in->read()));
             }
-            lookahead -= (int)(sizeof(fieldUnit_t) * 2);
+            lookahead -= (int) (sizeof(fieldUnit_t) * 2);
             if (!map.add(field, current)) {
                 return false;
             }
@@ -255,13 +255,13 @@ bool RCodeCommandSlot<RP>::parseSingleCommand(RCodeCommandInStream<RP> *in, RCod
                 uint8_t d = getHex(in->peek());
 
                 while (in->hasNext() && isHex(in->peek())) {
-                    d = (uint8_t)(getHex(in->read()) << 4);
+                    d = (uint8_t) (getHex(in->read()) << 4);
                     if (!in->hasNext() || !isHex(in->peek())) {
                         slotStatus.hasCheckedCommand = true;
                         failParse(in, sequence, PARSE_ERROR, "Big field odd digits");
                         return false;
                     }
-                    d = (uint8_t)(d + getHex(in->read()));
+                    d = (uint8_t) (d + getHex(in->read()));
                     if (!target->addByteToBigField(d)) {
                         if (target == &big && RP::bigBigFieldLength > 0) {
                             slotStatus.usesBigBig = true;
