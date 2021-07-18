@@ -59,6 +59,13 @@
 #include <Pins/RCodePinGetCommand.hpp>
 #include <Pins/RCodePinInterruptSource.hpp>
 
+#include <Uart/RCodeUartSubsystem.hpp>
+#include <Uart/RCodeUartSetupCommand.hpp>
+#include <Uart/RCodeUartSendCommand.hpp>
+#include <Uart/RCodeUartReadCommand.hpp>
+#include <Uart/RCodeUartAvailableCommand.hpp>
+#include <Uart/RCodeUartSkipCommand.hpp>
+
 #include "../LowLevel/AToDLowLevel/AtoD.hpp"
 #include "../LowLevel/AToDLowLevel/AtoDManager.hpp"
 
@@ -71,6 +78,9 @@
 
 #include "../LowLevel/I2cLowLevel/I2cManager.hpp"
 #include "../LowLevel/I2cLowLevel/I2c.hpp"
+
+#include "../LowLevel/UartLowLevel/UartManager.hpp"
+#include "../LowLevel/UartLowLevel/Uart.hpp"
 
 #include "stm32g4xx.h"
 #include "stm32g484xx.h"
@@ -90,6 +100,7 @@ int main(void) {
     DmaManager::init();
     GpioManager::init();
     I2cManager::init();
+    UartManager::init();
     SystemMilliClock::init();
     SystemMilliClock::blockDelayMillis(1000);
     RCodeFlashPersistence persist;
@@ -135,6 +146,12 @@ int main(void) {
     RCodeI2cSendCommand cmd15;
     RCodeI2cReceiveCommand cmd16;
 
+    RCodeUartSetupCommand cmd24;
+    RCodeUartSendCommand cmd25;
+    RCodeUartReadCommand cmd26;
+    RCodeUartAvailableCommand cmd27;
+    RCodeUartSkipCommand cmd28;
+
     RCodePinSetupCommand cmd17;
     RCodePinSetCommand cmd18;
     RCodePinGetCommand cmd19;
@@ -158,6 +175,12 @@ int main(void) {
     r.getCommandFinder()->registerCommand(&cmd14);
     r.getCommandFinder()->registerCommand(&cmd15);
     r.getCommandFinder()->registerCommand(&cmd16);
+
+    r.getCommandFinder()->registerCommand(&cmd24);
+    r.getCommandFinder()->registerCommand(&cmd25);
+    r.getCommandFinder()->registerCommand(&cmd26);
+    r.getCommandFinder()->registerCommand(&cmd27);
+    r.getCommandFinder()->registerCommand(&cmd28);
 
     r.getCommandFinder()->registerCommand(&cmd17);
     r.getCommandFinder()->registerCommand(&cmd18);
