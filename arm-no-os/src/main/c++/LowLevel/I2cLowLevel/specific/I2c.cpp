@@ -40,29 +40,29 @@ void I2c::setFrequency(I2cFrequency freq) {
     i2c.getRegisters()->CR1 &= ~1; // turn off peripheral
     // Always uses PCLK_1
     if (freq == kHz10) {
-        uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(4000) - 1;
+        uint8_t scale = ClockManager::getClock(HSI)->getDivider(4000) - 1;
         if (scale > 15) {
             scale = 15;
         }
         i2c.getRegisters()->TIMINGR = 0x0042C3C7 | (scale << 28);
     } else if (freq == kHz100) {
-        uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(4000) - 1;
+        uint8_t scale = ClockManager::getClock(HSI)->getDivider(4000) - 1;
         if (scale > 15) {
             scale = 15;
         }
         i2c.getRegisters()->TIMINGR = 0x00420F13 | (scale << 28);
     } else if (freq == kHz400) {
-        uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(8000) - 1;
+        uint8_t scale = ClockManager::getClock(HSI)->getDivider(8000) - 1;
         if (scale > 15) {
             scale = 15;
         }
         i2c.getRegisters()->TIMINGR = 0x00330309 | (scale << 28);
     } else if (freq == kHz1000) {
-        uint8_t scale = ClockManager::getClock(PCLK_1)->getDivider(10800) - 1;
+        uint8_t scale = ClockManager::getClock(HSI)->getDivider(16000) - 1;
         if (scale > 15) {
             scale = 15;
         }
-        i2c.getRegisters()->TIMINGR = 0x00100103 | (scale << 28);
+        i2c.getRegisters()->TIMINGR = 0x00200103 | (scale << 28);
     }
     i2c.getRegisters()->CR1 |= 1; // turn on peripheral
 }

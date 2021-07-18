@@ -12,12 +12,20 @@ void I2cInternal::activateClock(I2cIdentifier id) {
     GpioManager::getPin(sda)->init();
     if (id == 0) {
         RCC->APB1ENR1 |= 0x00200000;
+        RCC->CCIPR &= ~0x00003000;
+        RCC->CCIPR |= 0x00002000;
     } else if (id == 1) {
         RCC->APB1ENR1 |= 0x00400000;
+        RCC->CCIPR &= ~0x0000C000;
+        RCC->CCIPR |= 0x00008000;
     } else if (id == 2) {
         RCC->APB1ENR1 |= 0x40000000;
+        RCC->CCIPR &= ~0x00030000;
+        RCC->CCIPR |= 0x00020000;
     } else {
         RCC->APB1ENR2 |= 0x00000002;
+        RCC->CCIPR2 &= ~0x00000003;
+        RCC->CCIPR2 |= 0x00000002;
     }
 }
 
