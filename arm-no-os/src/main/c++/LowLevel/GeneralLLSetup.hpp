@@ -35,8 +35,8 @@ typedef uint64_t flashProgramming_t;
 #define I2C_4_SCL PC_6_
 #define USE_I2C_4
 
-#define UART_1_TX PC_4_
-#define UART_1_RX PC_5_
+#define UART_1_TX PA_9_
+#define UART_1_RX PA_10_
 #define USE_UART_1
 
 #define UART_2_TX PA_2_
