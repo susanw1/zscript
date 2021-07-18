@@ -51,26 +51,24 @@ public:
             out->writeBigStringField("Read length must be specified");
             return;
         }
-        if (length >= GeneralHalSetup::UartBufferRxSize) {
-            slot->fail("", BAD_PARAM);
-            out->writeStatus(BAD_PARAM);
-            out->writeBigStringField("Read length too long");
-            return;
-        }
-        bool hasError = UartManager::getUartById(bus)->getError(length) != UartNoError;
+        UartError error = UartManager::getUartById(bus)->getError(length);
         bool failOnDataOut = slot->getFields()->countFieldSections('F') != 0;
+        bool useBigString = slot->getFields()->countFieldSections('T') != 0;
         uint8_t data[length];
         uint16_t lengthRead = UartManager::getUartById(bus)->read(data, length);
-        if (lengthRead != length && failOnDataOut) {
+        if ((lengthRead != length && failOnDataOut) || error != UartNoError) {
             out->writeStatus(CMD_FAIL);
         } else {
             out->writeStatus(OK);
         }
-        if (hasError) {
-            out->writeField('F', (uint8_t) 0);
+        if (error != UartNoError) {
+            out->writeField('F', (uint8_t) error);
         }
-
-        out->writeBigHexField(data, lengthRead);
+        if (useBigString) {
+            out->writeBigStringField(data, lengthRead);
+        } else {
+            out->writeBigHexField(data, lengthRead);
+        }
     }
 
     uint8_t getCode() const {

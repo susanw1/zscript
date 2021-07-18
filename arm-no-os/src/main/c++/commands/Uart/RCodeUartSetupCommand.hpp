@@ -39,12 +39,18 @@ public:
             }
         }
         uint32_t baud = 9600;
-        if (slot->getFields()->countFieldSections('B') != 0) {
+        if (slot->getFields()->getByteCount('B') != 0) {
             baud = 0;
             uint8_t count = slot->getFields()->getByteCount('B');
             for (int i = 0; i < count; i++) {
                 baud <<= 8;
                 baud |= slot->getFields()->getByte('B', i, 0);
+            }
+            if (baud == 0) {
+                slot->fail("", BAD_PARAM);
+                out->writeStatus(BAD_PARAM);
+                out->writeBigStringField("Baud rate cannot be 0");
+                return;
             }
         }
         if (slot->getFields()->getByteCount('C') > 1) {

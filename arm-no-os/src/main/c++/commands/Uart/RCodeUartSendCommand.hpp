@@ -40,6 +40,7 @@ public:
         }
         bool worked = UartManager::getUartById(bus)->getTxBuffer()->write(slot->getBigField()->getData(), slot->getBigField()->getLength());
         if (worked) {
+
             UartManager::getUartById(bus)->transmitWriteBuffer();
             out->writeStatus(OK);
         } else {

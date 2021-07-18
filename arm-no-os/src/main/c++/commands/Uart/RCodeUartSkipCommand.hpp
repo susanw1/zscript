@@ -48,17 +48,15 @@ public:
         } else {
             slot->fail("", BAD_PARAM);
             out->writeStatus(BAD_PARAM);
-            out->writeBigStringField("Read length must be specified");
+            out->writeBigStringField("Skip length must be specified");
             return;
         }
-        if (length >= GeneralHalSetup::UartBufferRxSize) {
-            slot->fail("", BAD_PARAM);
-            out->writeStatus(BAD_PARAM);
-            out->writeBigStringField("Read length too long");
-            return;
-        }
+        UartError error = UartManager::getUartById(bus)->getError(length);
         uint16_t lengthSkipped = UartManager::getUartById(bus)->skip(length);
         out->writeStatus(OK);
+        if (error != UartNoError) {
+            out->writeField('F', (uint8_t) error);
+        }
         out->writeField('L', (uint16_t) lengthSkipped);
     }
 
