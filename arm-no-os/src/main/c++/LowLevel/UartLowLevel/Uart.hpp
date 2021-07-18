@@ -18,7 +18,8 @@ enum UartError {
     UartNoError = 0,
     UartParityError = 1,
     UartNoiseError = 2,
-    UartOverflowError = 3
+    UartFramingError = 3,
+    UartOverflowError = 32
 };
 
 class UartManager;
@@ -27,6 +28,7 @@ class UartInterruptManager;
 class Uart {
 private:
     void (*volatile targetValueCallback)(Uart*);
+    void (*rxOverflowCallback)(UartIdentifier);
     UartRingBuffer<GeneralHalSetup::UartBufferRxSize> rxBuffer;
     UartRingBuffer<GeneralHalSetup::UartBufferTxSize> txBuffer;
     UartInternal uart;
@@ -52,6 +54,7 @@ public:
         this->uart = uart;
         this->txDma = txDma;
         this->requestTx = requestTx;
+
     }
     void init(void (*volatile bufferOverflowCallback)(UartIdentifier), uint32_t baud_rate, bool singleNdoubleStop);
     //the buffer overflow handler can read/skip in the callback to clear space - if it doesn't clear enough space we abort the write

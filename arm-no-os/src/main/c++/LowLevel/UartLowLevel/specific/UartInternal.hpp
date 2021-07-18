@@ -13,6 +13,21 @@
 #include "../../GpioLowLevel/Gpio.hpp"
 #include "../../GpioLowLevel/GpioManager.hpp"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+void USART1_IRQHandler();
+void USART2_IRQHandler();
+void USART3_IRQHandler();
+
+void UART4_IRQHandler();
+void UART5_IRQHandler();
+
+void LPUART1_IRQHandler();
+#ifdef __cplusplus
+}
+#endif
+
 class Uart;
 
 class UartInternal {
@@ -35,6 +50,7 @@ public:
         return id;
     }
     void init(uint32_t baud_rate, bool singleNdoubleStop) {
+        registers->CR1 &= ~0x01; //disable the peripheral
         GpioManager::getPin(rx)->init();
         GpioManager::getPin(tx)->init();
 
@@ -77,7 +93,7 @@ public:
 
         registers->CR1 = 0xA000001C; // enable RX FIFO full and IDLE interrupts. Enables transmitter, receiver, and FIFOs
         registers->CR2 = singleNdoubleStop ? 0x00000000 : 0x00002000; // sets standard logic levels, and MSB first
-        registers->CR3 = 0x16001080; // disable the overrun for rx (there isn't anything to do with it anyway), sets the FIFO to interrupt on 3/4 full (6 bytes) and sets DMA for tx
+        registers->CR3 = 0x16000080; // sets the FIFO to interrupt on 3/4 full (6 bytes) and sets DMA for tx
         registers->PRESC = 0;
         uint32_t freq = ClockManager::getClock(SysClock)->getFreqKhz() * 1000;
         uint32_t freqPresc = freq;

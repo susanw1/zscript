@@ -224,19 +224,19 @@ UartInternal getUartInternal(UartIdentifier id) {
 #endif
     } else if (id == 3) {
 #ifdef USE_UART_4
-        return UartInternal(UART_RX(UART_3, UART_3_RX), UART_TX(UART_3, UART_3_TX), (UartRegisters*) 0x40004C00, id);
+        return UartInternal(UART_RX(UART_4, UART_4_RX), UART_TX(UART_4, UART_4_TX), (UartRegisters*) 0x40004C00, id);
 #else
         return UartInternal();
 #endif
     } else if (id == 4) {
 #ifdef USE_UART_5
-        return UartInternal(UART_RX(UART_3, UART_3_RX), UART_TX(UART_3, UART_3_TX), (UartRegisters*) 0x40005000, id);
+        return UartInternal(UART_RX(UART_5, UART_5_RX), UART_TX(UART_5, UART_5_TX), (UartRegisters*) 0x40005000, id);
 #else
         return UartInternal();
 #endif
     } else {
 #ifdef USE_UART_6
-        return UartInternal(UART_RX(UART_3, UART_3_RX), UART_TX(UART_3, UART_3_TX), (UartRegisters*) 0x40008000, id);
+        return UartInternal(UART_RX(UART_6, UART_6_RX), UART_TX(UART_6, UART_6_TX), (UartRegisters*) 0x40008000, id);
 #else
         return UartInternal();
 #endif

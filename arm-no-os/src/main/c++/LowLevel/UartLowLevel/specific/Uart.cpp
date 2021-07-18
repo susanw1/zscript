@@ -39,26 +39,31 @@ void Uart::clearRxFifo() {
         }
         int16_t datum = uart.read();
         if (datum < 0) {
-            rxBuffer.write(GeneralHalSetup::uartEscapingChar);
-            rxBuffer.write((uint8_t) -datum);
+            if (datum != -UartFramingError) {
+                rxBuffer.write(GeneralHalSetup::uartEscapingChar);
+                rxBuffer.write((uint8_t) -datum);
+            }
         } else if (datum == GeneralHalSetup::uartEscapingChar) {
             rxBuffer.write(GeneralHalSetup::uartEscapingChar);
             rxBuffer.write(GeneralHalSetup::uartEscapingChar);
-            if (targetValue == GeneralHalSetup::uartEscapingChar) {
+            if (targetValueCallback != NULL && targetValue == GeneralHalSetup::uartEscapingChar) {
                 targetValueCallback(this);
             }
             availableData++;
         } else {
             rxBuffer.write((uint8_t) datum);
-            if (targetValue == datum) {
+            if (targetValueCallback != NULL && targetValue == datum) {
                 targetValueCallback(this);
             }
             availableData++;
         }
     }
     if (!fitted) {
-        rxBuffer.write(GeneralHalSetup::uartEscapingChar);
-        rxBuffer.write(UartOverflowError);
+        if (rxBuffer.canWrite(2)) { // the first time we overrun, we can always write this, but if we repeatedly overrun, we might not
+            rxBuffer.write(GeneralHalSetup::uartEscapingChar);
+            rxBuffer.write(UartOverflowError);
+        }
+        rxOverflowCallback(uart.getId());
         while (uart.hasRxFifoData()) { //flush remaining data, as we can't fit it in...
             uart.read();
         }
@@ -188,7 +193,7 @@ void Uart::dmaInterrupt(DmaTerminationStatus status) {
 }
 void Uart::init(void (*volatile bufferOverflowCallback)(UartIdentifier), uint32_t baud_rate, bool singleNdoubleStop) {
 // buffer overflow callback can be NULL
-    this->rxBuffer.setCallback(bufferOverflowCallback, uart.getId());
+    this->rxOverflowCallback = bufferOverflowCallback;
     this->txBuffer.setCallback(&UartTxOverflowCallback, uart.getId());
     uart.init(baud_rate, singleNdoubleStop);
 }
