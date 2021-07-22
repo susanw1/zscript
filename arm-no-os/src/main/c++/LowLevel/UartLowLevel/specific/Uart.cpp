@@ -154,7 +154,7 @@ int32_t Uart::getDistance(uint8_t value) {
         i++;
     }
     rxBuffer.resetPeek();
-    return i;
+    return i + 1;
 }
 uint16_t Uart::skip(uint16_t length) { // there is no efficient skip, as we need to exclude escaped characters
     clearRxFifo();
