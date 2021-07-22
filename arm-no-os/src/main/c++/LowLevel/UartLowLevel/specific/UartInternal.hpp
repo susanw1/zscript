@@ -97,9 +97,11 @@ public:
         registers->PRESC = 0;
         uint32_t freq = ClockManager::getClock(SysClock)->getFreqKhz() * 1000;
         uint32_t freqPresc = freq;
-        while (baud_rate * 32768 <= freqPresc) { // if we have a really low baud rate, engage the prescaler to cope
-            freqPresc /= 2;
-            registers->PRESC++;
+        if (baud_rate < 100000) { //avoid overflows
+            while (baud_rate * 32768 <= freqPresc) { // if we have a really low baud rate, engage the prescaler to cope
+                freqPresc /= 2;
+                registers->PRESC++;
+            }
         }
         registers->BRR = freqPresc / baud_rate;
         registers->CR1 |= 0x01; //enable the peripheral

@@ -60,7 +60,7 @@ public:
             return;
         }
         bool singleNdoubleStop = (slot->getFields()->getByte('C', 0, 0) & 0x04) != 0;
-        if (baud > 10000000) {
+        if (baud > ClockManager::getClock(SysClock)->getFreqKhz() * 1000 / 16) {
             slot->fail("", BAD_PARAM);
             out->writeStatus(BAD_PARAM);
             out->writeBigStringField("Baud rate too large");
@@ -70,7 +70,7 @@ public:
         out->writeStatus(OK);
         out->writeField('N', (uint8_t) 0);
         out->writeField('C', (uint8_t) 0x04);
-        out->writeField('B', (uint32_t) 10000000);
+        out->writeField('B', (uint32_t) ClockManager::getClock(SysClock)->getFreqKhz() * 1000 / 16);
         out->writeField('U', (uint8_t) GeneralHalSetup::uartCount);
         out->writeField('T', (uint16_t) GeneralHalSetup::UartBufferTxSize);
         out->writeField('M', (uint16_t) GeneralHalSetup::UartBufferRxSize);
