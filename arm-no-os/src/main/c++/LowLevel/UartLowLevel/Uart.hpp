@@ -69,8 +69,33 @@ public:
     UartIdentifier getId() {
         return uart.getId();
     }
-    UartRingBuffer<GeneralHalSetup::UartBufferTxSize>* getTxBuffer() {
-        return &txBuffer;
+    bool write(uint8_t datum) {
+        return txBuffer.write(datum);
+    }
+
+    bool write(const uint8_t *buffer, uint16_t length) {
+        return txBuffer.write(buffer, length);
+    }
+    bool canWrite(uint16_t length) {
+        return txBuffer.canWrite(length);
+    }
+
+    bool attemptWrite(const uint8_t *buffer, uint16_t length) { //starts writing without allowing read yet - used to discover if a message will fit
+        return txBuffer.attemptWrite(buffer, length);
+    }
+    bool attemptWrite(uint8_t datum) {
+        return txBuffer.attemptWrite(datum);
+    }
+
+    bool canAttemptWrite(uint16_t length) {
+        return txBuffer.canAttemptWrite(length);
+    }
+
+    void cancelWrite() { //undoes an attempted write
+        txBuffer.cancelWrite();
+    }
+    void completeWrite() { //allows reading of any attempted write
+        txBuffer.completeWrite();
     }
     void transmitWriteBuffer();
 

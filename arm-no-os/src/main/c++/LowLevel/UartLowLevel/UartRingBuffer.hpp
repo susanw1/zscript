@@ -228,6 +228,7 @@ public:
         readPos = peekPos;
     }
 
+    //The following are all for DMA based emptying/filling
     uint8_t* getCurrentLinearRead() {
         return data + readPos;
     }
@@ -237,6 +238,25 @@ public:
             return size - readPos;
         } else {
             return writePos - readPos;
+        }
+    }
+
+    uint8_t* getCurrentLinearWrite() {
+        return data + writePos;
+    }
+
+    uint16_t getLinearWriteLength() {
+        if (writePos < readPos) {
+            return readPos - writePos - 1;
+        } else {
+            return size - writePos; // -1 due to not filling last space...
+        }
+    }
+    void skipWrite(uint16_t length) {
+        if (writePos + length < size) {
+            writePos += length;
+        } else {
+            writePos = writePos + length - size;
         }
     }
 };
