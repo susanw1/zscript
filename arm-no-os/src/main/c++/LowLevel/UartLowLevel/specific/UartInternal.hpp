@@ -37,16 +37,17 @@ private:
     PinAlternateFunction rxFunction;
     GpioPinName tx;
     PinAlternateFunction txFunction;
-    UartIdentifier id;
+    SerialIdentifier id;
 
 public:
     UartInternal() :
             registers(NULL), rx(PA_1), rxFunction(0), tx(PA_1), txFunction(0), id(0) {
     }
-    UartInternal(GpioPinName rx, PinAlternateFunction rxFunction, GpioPinName tx, PinAlternateFunction txFunction, UartRegisters *registers, UartIdentifier id) :
+    UartInternal(GpioPinName rx, PinAlternateFunction rxFunction, GpioPinName tx, PinAlternateFunction txFunction, UartRegisters *registers,
+            SerialIdentifier id) :
             registers(registers), rx(rx), rxFunction(rxFunction), tx(tx), txFunction(txFunction), id(id) {
     }
-    UartIdentifier getId() {
+    SerialIdentifier getId() {
         return id;
     }
     void init(uint32_t baud_rate, bool singleNdoubleStop) {

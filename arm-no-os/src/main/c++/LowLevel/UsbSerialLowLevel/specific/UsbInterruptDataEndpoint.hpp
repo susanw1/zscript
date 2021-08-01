@@ -8,7 +8,7 @@
 #ifndef LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBINTERRUPTDATAENDPOINT_HPP_
 #define LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBINTERRUPTDATAENDPOINT_HPP_
 #include "../../GeneralLLSetup.hpp"
-#include "../../UartLowLevel/UartRingBuffer.hpp"
+#include "../../UartLowLevel/SerialRingBuffer.hpp"
 #include "UsbRegisters.hpp"
 #include "UsbEndpointRegister.hpp"
 
@@ -20,8 +20,8 @@ class UsbInterruptDataEndpoint {
 
     UsbPbm *pbm;
     UsbEndpointRegister endpointRegister;
-    UartRingBuffer<GeneralHalSetup::UsbBufferRxSize> rxBuffer;
-    UartRingBuffer<GeneralHalSetup::UsbBufferTxSize> txBuffer;
+    SerialRingBuffer<GeneralHalSetup::UsbBufferRxSize> rxBuffer;
+    SerialRingBuffer<GeneralHalSetup::UsbBufferTxSize> txBuffer;
 
     uint16_t txPbmBufferStart;
     uint16_t rxPbmBufferStart;
@@ -119,10 +119,10 @@ public:
             ackRx();
         }
     }
-    UartRingBuffer<GeneralHalSetup::UsbBufferRxSize>* getRxBuffer() {
+    SerialRingBuffer<GeneralHalSetup::UsbBufferRxSize>* getRxBuffer() {
         return &rxBuffer;
     }
-    UartRingBuffer<GeneralHalSetup::UsbBufferTxSize>* getTxBuffer() {
+    SerialRingBuffer<GeneralHalSetup::UsbBufferTxSize>* getTxBuffer() {
         return &txBuffer;
     }
 };

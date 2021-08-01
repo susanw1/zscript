@@ -10,17 +10,17 @@
 int16_t UartInternal::read() {
     if ((registers->ISR & 0x01) != 0) {
         registers->ICR |= 0x01;
-        return -UartParityError;
+        return -SerialParityError;
     } else if ((registers->ISR & 0x02) != 0) {
         registers->ICR |= 0x02;
         registers->RDR;
-        return -UartFramingError;
+        return -SerialFramingError;
     } else if ((registers->ISR & 0x04) != 0) {
         registers->ICR |= 0x04;
-        return -UartNoiseError;
+        return -SerialNoiseError;
     } else if ((registers->ISR & 0x08) != 0) {
         registers->ICR |= 0x08;
-        return -UartOverflowError;
+        return -SerialOverflowError;
     } else {
         return registers->RDR;
     }

@@ -39,10 +39,14 @@ class UsbInternal {
 
         if ((registers->ISTR & 0x0400) != 0) { // we are in a reset... do that thing!
             reset();
-        } else if ((registers->ISTR & 0x0F) == 0) {
-            defaultEndpoint.interrupt();
+        } else if ((registers->ISTR & 0x8000) != 0) {
+            if ((registers->ISTR & 0x0F) == 0) {
+                defaultEndpoint.interrupt();
+            } else {
+                dataEndpoint.interrupt();
+            }
         } else {
-            dataEndpoint.interrupt();
+            registers->ISTR = 0;
         }
     }
 
@@ -132,10 +136,10 @@ public:
     void checkBuffers() {
         dataEndpoint.checkBuffers();
     }
-    UartRingBuffer<GeneralHalSetup::UsbBufferRxSize>* getRxBuffer() {
+    SerialRingBuffer<GeneralHalSetup::UsbBufferRxSize>* getRxBuffer() {
         return dataEndpoint.getRxBuffer();
     }
-    UartRingBuffer<GeneralHalSetup::UsbBufferTxSize>* getTxBuffer() {
+    SerialRingBuffer<GeneralHalSetup::UsbBufferTxSize>* getTxBuffer() {
         return dataEndpoint.getTxBuffer();
     }
 };

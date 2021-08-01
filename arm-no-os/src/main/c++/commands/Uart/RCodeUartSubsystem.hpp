@@ -15,7 +15,7 @@
 class RCodeUartSubsystem {
 public:
 
-    static void uartBufferOverflowCallback(UartIdentifier id) {
+    static void uartBufferOverflowCallback(SerialIdentifier id) {
         RCodeUartInterruptSource::setInterrupt(id);
     }
 

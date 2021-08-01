@@ -34,8 +34,8 @@ enum UsbClassControlMessageType {
 
 class UsbDefaultEndpoint {
     static const uint16_t maxPacketLength = 64;
-    static constexpr uint8_t deviceDescriptor[18] = { 18, 0x01, 0x00, 0x02, 0x02, 0x02, 1, 64, 0x00, 0x00, 0x00, 0x00, 0, 0, 0, 0, 0, 1 };
-    static constexpr uint8_t configurationDescriptor[9] = { 9, 0x02, 48, 0, 2, 1, 0, 0x80, 0 };
+    static constexpr uint8_t deviceDescriptor[18] = { 18, 0x01, 0x00, 0x02, 0x02, 0x02, 1, 64, 0x83, 0x04, 0x40, 0x57, 0x10, 0, 0, 0, 0, 1 };
+    static constexpr uint8_t configurationDescriptor[9] = { 9, 0x02, 67, 0, 2, 1, 0, 0x80, 0 };
     static constexpr uint8_t interface0Descriptor[9] = { 9, 0x04, 0, 0, 1, 0x02, 0x02, 1, 0 };
     static constexpr uint8_t interface0HeaderDescriptor[5] = { 5, 0x24, 0x00, 0x20, 0x01 };
     static constexpr uint8_t interface0CallManagementDescriptor[5] = { 5, 0x24, 0x01, 0x01, 0x01 };
@@ -55,7 +55,7 @@ class UsbDefaultEndpoint {
             5, 0x24, 0x01, 0x01, 0x01,
             4, 0x24, 0x02, 0x00,
             5, 0x24, 0x06, 0x00, 0x01,
-            7, 0x05, 0x81, 0x03, 8, 1, 0xFF,
+            7, 0x05, 0x81, 0x03, 8, 0, 0xFF,
             9, 0x04, 1, 0, 2, 0x0A, 0x00, 0, 0,
             7, 0x05, 0x82, 0x03, 64, 0, 1,
             7, 0x05, 0x02, 0x03, 64, 0, 1 };
@@ -84,7 +84,7 @@ class UsbDefaultEndpoint {
 
     uint8_t nextAddr = 0;
 
-    void stallAll() {
+    void __attribute__((noinline)) stallAll() {
         //reset both interrupt sources as well
         expectedLength = 0;
         statusExpected = false;
@@ -132,10 +132,10 @@ class UsbDefaultEndpoint {
     void nackTx() {
         endpointRegister.setEndpointTxStatus(UsbEndpointNak);
     }
-    void stallRx() {
+    void __attribute__((noinline)) stallRx() {
         endpointRegister.setEndpointRxStatus(UsbEndpointStall);
     }
-    void stallTx() {
+    void __attribute__((noinline)) stallTx() {
         endpointRegister.setEndpointTxStatus(UsbEndpointStall);
     }
 
@@ -184,6 +184,30 @@ class UsbDefaultEndpoint {
                 }
                 configured = wValue != 0;
                 sendStatusNext();
+                return;
+            case GET_CONFIGURATION:
+                if (wValue != 0 || wIndex != 0 || wLength != 1 || recipient != 0 || !expectedRxNTx) {
+                    stallAll();
+                    return;
+                }
+                pbm->buffer[txBufferStart] = configured ? 1 : 0;
+                pbm->getbufferDescriptor()[0] = txBufferStart * sizeof(uint16_t);
+                pbm->getbufferDescriptor()[1] = 1;
+                expectedLength = 0;
+                ackTx();
+                ackRx();
+                return;
+            case GET_STATUS: //simply transmit a zero...
+                if (wValue != 0 || wIndex != 0 || wLength != 2 || recipient > 2 || !expectedRxNTx) {
+                    stallAll();
+                    return;
+                }
+                pbm->buffer[txBufferStart] = 0;
+                pbm->getbufferDescriptor()[0] = txBufferStart * sizeof(uint16_t);
+                pbm->getbufferDescriptor()[1] = 2;
+                expectedLength = 0;
+                ackTx();
+                stallRx();
                 return;
             default:
                 stallAll();

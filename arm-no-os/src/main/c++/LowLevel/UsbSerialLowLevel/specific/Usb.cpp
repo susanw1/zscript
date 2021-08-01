@@ -12,7 +12,7 @@ void UsbTargetValueCallback() {
     Usb::usb->targetValueCallback(Usb::usb->id);
 }
 
-void Usb::setTargetValue(void (*volatile targetValueCallback)(UartIdentifier), uint8_t targetValue) {
+void Usb::setTargetValue(void (*volatile targetValueCallback)(SerialIdentifier), uint8_t targetValue) {
     this->targetValueCallback = targetValueCallback;
     internal.setTargetValue(&UsbTargetValueCallback, targetValue);
 }

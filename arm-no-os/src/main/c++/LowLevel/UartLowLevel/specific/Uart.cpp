@@ -11,14 +11,14 @@
 
 void UartDmaCallback(Dma *dma, DmaTerminationStatus status) {
     for (int i = 0; i < GeneralHalSetup::uartCount; ++i) {
-        if (UartManager::getUartById(i)->txDma == dma) {
-            UartManager::getUartById(i)->dmaInterrupt(status);
+        if (((Uart*) UartManager::getUartById(i))->txDma == dma) {
+            ((Uart*) UartManager::getUartById(i))->dmaInterrupt(status);
             break;
         }
     }
 }
-void UartTxOverflowCallback(UartIdentifier id) {
-    UartManager::getUartById(id)->txOverflowInterrupt();
+void UartTxOverflowCallback(SerialIdentifier id) {
+    ((Uart*) UartManager::getUartById(id))->txOverflowInterrupt();
 }
 void Uart::transmitWriteBuffer() {
     if (txDma->lock()) {
@@ -39,7 +39,7 @@ void Uart::clearRxFifo() {
         }
         int16_t datum = uart.read();
         if (datum < 0) {
-            if (datum != -UartFramingError) {
+            if (datum != -SerialFramingError) {
                 rxBuffer.write(GeneralHalSetup::uartEscapingChar);
                 rxBuffer.write((uint8_t) -datum);
             }
@@ -61,7 +61,7 @@ void Uart::clearRxFifo() {
     if (!fitted) {
         if (rxBuffer.canWrite(2)) { // the first time we overrun, we can always write this, but if we repeatedly overrun, we might not
             rxBuffer.write(GeneralHalSetup::uartEscapingChar);
-            rxBuffer.write(UartOverflowError);
+            rxBuffer.write(SerialOverflowError);
         }
         rxOverflowCallback(uart.getId());
         while (uart.hasRxFifoData()) { //flush remaining data, as we can't fit it in...
@@ -70,7 +70,7 @@ void Uart::clearRxFifo() {
     }
 }
 
-UartError Uart::getError(uint16_t length) {
+SerialError Uart::getError(uint16_t length) {
     clearRxFifo();
     rxBuffer.resetPeek();
     for (int16_t i = 0; i < length; ++i) {
@@ -81,12 +81,12 @@ UartError Uart::getError(uint16_t length) {
             val = rxBuffer.peek();
             if (val != GeneralHalSetup::uartEscapingChar) {
                 rxBuffer.resetPeek();
-                return (UartError) val;
+                return (SerialError) val;
             }
         }
     }
     rxBuffer.resetPeek();
-    return UartNoError;
+    return SerialNoError;
 }
 
 uint16_t Uart::read(uint8_t *buffer, uint16_t length) {
@@ -191,7 +191,7 @@ void Uart::dmaInterrupt(DmaTerminationStatus status) {
                 dmaStartDist, false, Medium, &UartDmaCallback, false);
     }
 }
-void Uart::init(void (*volatile bufferOverflowCallback)(UartIdentifier), uint32_t baud_rate, bool singleNdoubleStop) {
+void Uart::init(void (*volatile bufferOverflowCallback)(SerialIdentifier), uint32_t baud_rate, bool singleNdoubleStop) {
 // buffer overflow callback can be NULL
     this->rxOverflowCallback = bufferOverflowCallback;
     this->txBuffer.setCallback(&UartTxOverflowCallback, uart.getId());

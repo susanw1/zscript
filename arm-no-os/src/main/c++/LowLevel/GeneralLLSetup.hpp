@@ -13,7 +13,7 @@
 #include "stm32g484xx.h"
 
 typedef uint8_t DmaIdentifier;
-typedef uint8_t UartIdentifier;
+typedef uint8_t SerialIdentifier;
 typedef uint8_t I2cIdentifier;
 typedef uint8_t PinAlternateFunction;
 
@@ -59,6 +59,8 @@ typedef uint64_t flashProgramming_t;
 #define UART_6_RX PC_0_
 #define USE_UART_6
 
+#define USE_USB_SERIAL
+
 class GeneralHalSetup {
 public:
     static const uint8_t pinCount = 52;
@@ -70,13 +72,14 @@ public:
     static const uint16_t UsbBufferRxSize = 1024;
     static const uint16_t UsbBufferTxSize = 1024;
 
-    static const UartIdentifier UsbUartId = 6;
+    static const SerialIdentifier UsbSerialId = 6;
 
     static const uint16_t UartBufferRxSize = 1024;
     static const uint16_t UartBufferTxSize = 256;  // want rx buffer much larger, as it has to store any data which hasn't yet been read.
 
     static const I2cIdentifier i2cCount = 4;
-    static const UartIdentifier uartCount = 6;
+    static const SerialIdentifier uartCount = 6;
+    static const SerialIdentifier serialCount = 7;
     static const DmaIdentifier dmaCount = 16;
 
     static const DmaIdentifier i2c1Dma = 0;

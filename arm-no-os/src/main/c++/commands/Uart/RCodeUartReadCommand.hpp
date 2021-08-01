@@ -51,17 +51,17 @@ public:
             out->writeBigStringField("Read length must be specified");
             return;
         }
-        UartError error = UartManager::getUartById(bus)->getError(length);
+        SerialError error = UartManager::getUartById(bus)->getError(length);
         bool failOnDataOut = slot->getFields()->countFieldSections('F') != 0;
         bool useBigString = slot->getFields()->countFieldSections('T') != 0;
         uint8_t data[length];
         uint16_t lengthRead = UartManager::getUartById(bus)->read(data, length);
-        if ((lengthRead != length && failOnDataOut) || error != UartNoError) {
+        if ((lengthRead != length && failOnDataOut) || error != SerialNoError) {
             out->writeStatus(CMD_FAIL);
         } else {
             out->writeStatus(OK);
         }
-        if (error != UartNoError) {
+        if (error != SerialNoError) {
             out->writeField('F', (uint8_t) error);
         }
         if (useBigString) {

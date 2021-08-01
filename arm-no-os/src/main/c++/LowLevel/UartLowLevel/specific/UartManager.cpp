@@ -154,26 +154,30 @@
 #endif
 #endif
 
+#ifdef USE_USB_SERIAL
+Usb UartManager::usb(GeneralHalSetup::UsbSerialId);
+#endif
+
 Uart UartManager::uarts[] = {
-#ifdef USE_UART_1
-    Uart()
-#endif
+        #ifdef USE_UART_1
+        Uart()
+        #endif
 #ifdef USE_UART_2
-    , Uart()
-#endif
+        , Uart()
+        #endif
 #ifdef USE_UART_3
-    , Uart()
-#endif
+        , Uart()
+        #endif
 #ifdef USE_UART_4
-    , Uart()
-#endif
+        , Uart()
+        #endif
 #ifdef USE_UART_5
-    , Uart()
-#endif
+        , Uart()
+        #endif
 #ifdef USE_UART_6
-    , Uart()
+        , Uart()
 #endif
-};
+        };
 
 class UartInterruptManager {
     friend void USART1_IRQHandler();
@@ -203,7 +207,7 @@ class UartInterruptManager {
     }
 };
 
-UartInternal getUartInternal(UartIdentifier id) {
+UartInternal getUartInternal(SerialIdentifier id) {
     if (id == 0) {
 #ifdef USE_UART_1
         return UartInternal(UART_RX(UART_1, UART_1_RX), UART_TX(UART_1, UART_1_TX), (UartRegisters*) 0x40013800, id);
@@ -242,7 +246,7 @@ UartInternal getUartInternal(UartIdentifier id) {
 #endif
     }
 }
-DmaMuxRequest getUartMuxTxRequest(UartIdentifier id) {
+DmaMuxRequest getUartMuxTxRequest(SerialIdentifier id) {
     if (id == 0) {
         return DMAMUX_USART1_TX;
     } else if (id == 1) {

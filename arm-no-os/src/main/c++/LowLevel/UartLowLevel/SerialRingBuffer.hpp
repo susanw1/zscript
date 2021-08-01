@@ -8,29 +8,30 @@
 #ifndef SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTRINGBUFFER_HPP_
 #define SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTRINGBUFFER_HPP_
 #include "../GeneralLLSetup.hpp"
+#include "Serial.hpp"
 
 template<uint16_t size>
 
-class UartRingBuffer { // in theory, everything should work, but if the optimiser changes the order a bit,
+class SerialRingBuffer { // in theory, everything should work, but if the optimiser changes the order a bit,
     // there could be conditions (in extreme conditions) where the current read byte gets overwritten... would need to check the machine code to be sure
 
     // we don't fill in the last possible space, so we know the difference between full and empty...
-    void (*overflowCallback)(UartIdentifier); // this is called from both write and attemptWrite - a bit weird but kind of useful...
+    void (*overflowCallback)(SerialIdentifier); // this is called from both write and attemptWrite - a bit weird but kind of useful...
     uint16_t writePos;
     uint16_t tempWritePos;
     uint16_t readPos;
     uint16_t peekPos;
-    UartIdentifier id;
+    SerialIdentifier id;
     uint8_t data[size];
 
 public:
-    UartRingBuffer() :
+    SerialRingBuffer() :
             overflowCallback(NULL), writePos(0), tempWritePos(0), readPos(0), peekPos(0), id(0) {
     }
-    UartRingBuffer(void (*overflowCallback)(UartIdentifier), UartIdentifier id) :
+    SerialRingBuffer(void (*overflowCallback)(SerialIdentifier), SerialIdentifier id) :
             overflowCallback(overflowCallback), writePos(0), tempWritePos(0), readPos(0), peekPos(0), id(id) {
     }
-    void setCallback(void (*overflowCallback)(UartIdentifier), UartIdentifier id) {
+    void setCallback(void (*overflowCallback)(SerialIdentifier), SerialIdentifier id) {
         this->overflowCallback = overflowCallback;
         this->id = id;
     }

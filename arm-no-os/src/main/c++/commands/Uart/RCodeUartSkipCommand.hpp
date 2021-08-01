@@ -51,10 +51,10 @@ public:
             out->writeBigStringField("Skip length must be specified");
             return;
         }
-        UartError error = UartManager::getUartById(bus)->getError(length);
+        SerialError error = UartManager::getUartById(bus)->getError(length);
         uint16_t lengthSkipped = UartManager::getUartById(bus)->skip(length);
         out->writeStatus(OK);
-        if (error != UartNoError) {
+        if (error != SerialNoError) {
             out->writeField('F', (uint8_t) error);
         }
         out->writeField('L', (uint16_t) lengthSkipped);
