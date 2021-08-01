@@ -34,7 +34,7 @@ enum UsbClassControlMessageType {
 
 class UsbDefaultEndpoint {
     static const uint16_t maxPacketLength = 64;
-    static constexpr uint8_t deviceDescriptor[18] = { 18, 0x01, 0x00, 0x02, 0x02, 0x02, 1, 64, 0x83, 0x04, 0x40, 0x57, 0x10, 0, 0, 0, 0, 1 };
+    static constexpr uint8_t deviceDescriptor[18] = { 18, 0x01, 0x00, 0x02, 0x02, 0x00, 1, 64, 0x00, 0x00, 0x00, 0x00, 0x10, 0, 0, 0, 0, 1 };
     static constexpr uint8_t configurationDescriptor[9] = { 9, 0x02, 67, 0, 2, 1, 0, 0x80, 0 };
     static constexpr uint8_t interface0Descriptor[9] = { 9, 0x04, 0, 0, 1, 0x02, 0x02, 1, 0 };
     static constexpr uint8_t interface0HeaderDescriptor[5] = { 5, 0x24, 0x00, 0x20, 0x01 };
