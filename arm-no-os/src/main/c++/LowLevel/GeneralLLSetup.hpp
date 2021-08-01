@@ -29,7 +29,7 @@ typedef uint64_t flashProgramming_t;
 
 #define I2C_3_SDA PC_9_
 #define I2C_3_SCL PC_8_
-#define USE_I2C_3
+//#define USE_I2C_3
 
 #define I2C_4_SDA PC_7_
 #define I2C_4_SCL PC_6_
@@ -66,6 +66,11 @@ public:
     static const uint8_t systemClockCount = 13;
 
     static const uint8_t atoDCount = 5;
+
+    static const uint16_t UsbBufferRxSize = 1024;
+    static const uint16_t UsbBufferTxSize = 1024;
+
+    static const UartIdentifier UsbUartId = 6;
 
     static const uint16_t UartBufferRxSize = 1024;
     static const uint16_t UartBufferTxSize = 256;  // want rx buffer much larger, as it has to store any data which hasn't yet been read.

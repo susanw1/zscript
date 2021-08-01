@@ -179,6 +179,26 @@ public:
         peekPos = readPos;
         return i;
     }
+    uint16_t read16(uint16_t *buffer, uint16_t length) {
+        uint16_t bufferPos = 0;
+        uint16_t i = 0;
+        bool halfWord = false;
+        while (i < length && readPos != writePos) {
+            if (halfWord) {
+                buffer[bufferPos++] |= data[readPos] << 8;
+            } else {
+                buffer[bufferPos] = data[readPos];
+            }
+            halfWord = !halfWord;
+            i++;
+            readPos++;
+            if (readPos == size) {
+                readPos = 0;
+            }
+        }
+        peekPos = readPos;
+        return i;
+    }
     int16_t read() { //-1 if no data
         if (readPos == writePos) {
             return -1;
