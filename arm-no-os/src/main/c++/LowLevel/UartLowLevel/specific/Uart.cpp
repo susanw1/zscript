@@ -47,13 +47,13 @@ void Uart::clearRxFifo() {
             rxBuffer.write(GeneralHalSetup::uartEscapingChar);
             rxBuffer.write(GeneralHalSetup::uartEscapingChar);
             if (targetValueCallback != NULL && targetValue == GeneralHalSetup::uartEscapingChar) {
-                targetValueCallback(this);
+                targetValueCallback(uart.getId());
             }
             availableData++;
         } else {
             rxBuffer.write((uint8_t) datum);
             if (targetValueCallback != NULL && targetValue == datum) {
-                targetValueCallback(this);
+                targetValueCallback(uart.getId());
             }
             availableData++;
         }

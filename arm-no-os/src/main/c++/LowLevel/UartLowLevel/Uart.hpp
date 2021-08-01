@@ -27,7 +27,7 @@ class UartInterruptManager;
 //always does 8 bit bytes, no parity - just for simplicity
 class Uart {
 private:
-    void (*volatile targetValueCallback)(Uart*);
+    void (*volatile targetValueCallback)(UartIdentifier);
     void (*rxOverflowCallback)(UartIdentifier);
     UartRingBuffer<GeneralHalSetup::UartBufferRxSize> rxBuffer;
     UartRingBuffer<GeneralHalSetup::UartBufferTxSize> txBuffer;
@@ -59,7 +59,7 @@ public:
     void init(void (*volatile bufferOverflowCallback)(UartIdentifier), uint32_t baud_rate, bool singleNdoubleStop);
     //the buffer overflow handler can read/skip in the callback to clear space - if it doesn't clear enough space we abort the write
 
-    void setTargetValue(void (*volatile targetValueCallback)(Uart*), uint8_t targetValue) {
+    void setTargetValue(void (*volatile targetValueCallback)(UartIdentifier), uint8_t targetValue) {
         this->targetValueCallback = targetValueCallback;
         this->targetValue = targetValue;
     }
