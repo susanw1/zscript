@@ -72,6 +72,7 @@ void Uart::clearRxFifo() {
 
 SerialError Uart::getError(uint16_t length) {
     clearRxFifo();
+    peekDist = 0;
     rxBuffer.resetPeek();
     for (int16_t i = 0; i < length; ++i) {
         int16_t val = rxBuffer.peek();
@@ -91,6 +92,7 @@ SerialError Uart::getError(uint16_t length) {
 
 uint16_t Uart::read(uint8_t *buffer, uint16_t length) {
     clearRxFifo();
+    peekDist = 0;
     uint16_t i;
     for (i = 0; i < length; ++i) {
         int16_t val = rxBuffer.read();
@@ -112,6 +114,7 @@ uint16_t Uart::read(uint8_t *buffer, uint16_t length) {
 }
 int16_t Uart::read() {
     clearRxFifo();
+    peekDist = 0;
     while (true) {
         int16_t val = rxBuffer.read();
         if (val == GeneralHalSetup::uartEscapingChar) {
@@ -154,6 +157,7 @@ int32_t Uart::getDistance(uint8_t value) {
         i++;
     }
     rxBuffer.resetPeek();
+    peekDist = 0;
     return i + 1;
 }
 uint16_t Uart::skip(uint16_t length) { // there is no efficient skip, as we need to exclude escaped characters
@@ -171,8 +175,66 @@ uint16_t Uart::skip(uint16_t length) { // there is no efficient skip, as we need
         }
     }
     availableData -= i;
+    peekDist = 0;
     return i;
 }
+
+uint16_t Uart::availablePeek() {
+    clearRxFifo();
+    return availableData - peekDist;
+}
+uint16_t Uart::peek(uint8_t *buffer, uint16_t length) {
+    clearRxFifo();
+    uint16_t i;
+    for (i = 0; i < length; ++i) {
+        int16_t val = rxBuffer.peek();
+        if (val == -1) {
+            break;
+        } else if (val == GeneralHalSetup::uartEscapingChar) {
+            val = rxBuffer.peek();
+            if (val == GeneralHalSetup::uartEscapingChar) {
+                buffer[i] = val;
+            } else {
+                i--;
+            }
+        } else {
+            buffer[i] = val;
+        }
+    }
+    peekDist += i;
+    return i;
+}
+int16_t Uart::peek() {
+    clearRxFifo();
+    while (true) {
+        int16_t val = rxBuffer.peek();
+        if (val == GeneralHalSetup::uartEscapingChar) {
+            val = rxBuffer.peek();
+            if (val == GeneralHalSetup::uartEscapingChar) {
+                peekDist++;
+                return val;
+            }
+        } else {
+            if (val != -1) {
+                peekDist++;
+            }
+            return val; // this includes if read returned -1
+        }
+    }
+} //-1 if no data
+
+void Uart::resetPeek() {
+    clearRxFifo();
+    peekDist = 0;
+    rxBuffer.resetPeek();
+}
+void Uart::skipToPeek() {
+    clearRxFifo();
+    availableData -= peekDist;
+    peekDist = 0;
+    rxBuffer.skipToPeek();
+}
+
 void Uart::txOverflowInterrupt() {
     transmitWriteBuffer(); // in case somebody forgot, as that would do it...
     uint16_t completedLength = txDma->fetchRemainingTransferLength();

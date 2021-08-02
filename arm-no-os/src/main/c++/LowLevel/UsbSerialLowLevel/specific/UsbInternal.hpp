@@ -25,6 +25,7 @@ void USB_HP_IRQHandler();
 }
 #endif
 
+void UsbDataTxOverflowCallback(SerialIdentifier);
 class UsbInternal {
     static UsbInternal *usbI;
     UsbDefaultEndpoint defaultEndpoint;
@@ -34,6 +35,7 @@ class UsbInternal {
     UsbPbm *pbm;
     friend void USB_LP_IRQHandler();
     friend void USB_HP_IRQHandler();
+    friend void UsbDataTxOverflowCallback(SerialIdentifier);
 
     void interrupt() {
 
@@ -109,6 +111,7 @@ public:
         registers->CNTR &= ~0x0010;
         NVIC_EnableIRQ(USB_HP_IRQn);
         NVIC_EnableIRQ(USB_LP_IRQn);
+        dataEndpoint.getTxBuffer()->setCallback(&UsbDataTxOverflowCallback, GeneralHalSetup::UsbSerialId);
     }
 
     void reset() {

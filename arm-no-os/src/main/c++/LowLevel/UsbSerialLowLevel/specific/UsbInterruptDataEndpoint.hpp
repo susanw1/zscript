@@ -13,6 +13,7 @@
 #include "UsbEndpointRegister.hpp"
 
 class UsbInterruptDataEndpoint {
+
     static const uint16_t maxPacketLength = 64;
 
     void (*volatile targetValueCallback)() = NULL;

@@ -28,6 +28,7 @@ private:
     Dma *txDma = NULL;
     uint16_t dmaStartDist = 0;
     uint16_t availableData = 0;
+    uint16_t peekDist = 0;
     uint8_t targetValue = 0;
 
     friend void UartDmaCallback(Dma*, DmaTerminationStatus);
@@ -102,6 +103,13 @@ public:
     }
     virtual uint16_t read(uint8_t *buffer, uint16_t length);
     virtual int16_t read(); //-1 if no data
+
+    virtual uint16_t availablePeek();
+    virtual uint16_t peek(uint8_t *buffer, uint16_t length);
+    virtual int16_t peek(); //-1 if no data
+
+    virtual void resetPeek();
+    virtual void skipToPeek();
 
     virtual int32_t getDistance(uint8_t value);  //returns the number of bytes until the specified value appears, including the value
 

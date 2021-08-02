@@ -47,6 +47,13 @@ public:
     virtual uint16_t read(uint8_t *buffer, uint16_t length) = 0;
     virtual int16_t read() = 0; //-1 if no data
 
+    virtual uint16_t availablePeek() = 0;
+    virtual uint16_t peek(uint8_t *buffer, uint16_t length) = 0;
+    virtual int16_t peek() = 0; //-1 if no data
+
+    virtual void resetPeek() = 0;
+    virtual void skipToPeek() = 0;
+
     virtual int32_t getDistance(uint8_t value) = 0;  //returns the number of bytes until the specified value appears, including the value
 
 };

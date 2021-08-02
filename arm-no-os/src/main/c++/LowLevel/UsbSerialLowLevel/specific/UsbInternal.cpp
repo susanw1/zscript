@@ -14,3 +14,7 @@ void USB_HP_IRQHandler() {
     UsbInternal::usbI->interrupt();
 }
 UsbInternal *UsbInternal::usbI = NULL;
+
+void UsbDataTxOverflowCallback(SerialIdentifier id) {
+    UsbInternal::usbI->checkBuffers();
+}

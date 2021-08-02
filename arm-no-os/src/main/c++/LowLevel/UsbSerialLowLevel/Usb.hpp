@@ -94,6 +94,23 @@ public:
         internal.checkBuffers();
         return result;
     }
+    virtual uint16_t availablePeek() {
+        return internal.getRxBuffer()->availablePeek();
+    }
+    virtual uint16_t peek(uint8_t *buffer, uint16_t length) {
+        return internal.getRxBuffer()->peek(buffer, length);
+    }
+    virtual int16_t peek() { //-1 if no data
+        return internal.getRxBuffer()->peek();
+    }
+
+    virtual void resetPeek() {
+        internal.getRxBuffer()->resetPeek();
+    }
+    virtual void skipToPeek() {
+        internal.getRxBuffer()->skipToPeek();
+        internal.checkBuffers();
+    }
 
     virtual int32_t getDistance(uint8_t value) {  //returns the number of bytes until the specified value appears, including the value
         int16_t i = 1;
