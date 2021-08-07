@@ -30,9 +30,15 @@ class SystemMilliClock {
     }
 public:
     static void init() {
-        RCC->APB1ENR1 |= 0x10;
+        const uint32_t enableTim6Registers = 0x10;
+        const uint32_t setUpdateRequestToOverUnderFlow = 0x4;
+        const uint32_t enableCounter = 0x1;
+        const uint32_t enableUpdateInterrupt = 0x1;
+        const uint32_t counterStart = 0xFFFC;
+
+        RCC->APB1ENR1 |= enableTim6Registers;
         bitScaling = 0;
-        uint32_t scaler = 0x00FFFFFF;
+        uint32_t scaler = 0x00FFFFFF; //something which is too large for the prescaler
         while (scaler > 0x10000) {
             scaler = ClockManager::getClock(PCLK_1)->getDivider(1 << bitScaling++);
         }
@@ -40,9 +46,9 @@ public:
         NVIC_SetPriority(TIM6_DAC_IRQn, 5);
         NVIC_EnableIRQ(TIM6_DAC_IRQn);
         TIM6->PSC = scaler - 1;
-        TIM6->CNT = 0xFFFC;
-        TIM6->DIER = 1;
-        TIM6->CR1 = 0x5;
+        TIM6->CNT = counterStart;
+        TIM6->DIER = enableUpdateInterrupt;
+        TIM6->CR1 = setUpdateRequestToOverUnderFlow | enableCounter;
         timeBroad = 0;
     }
     static void blockDelayMillis(uint32_t delay) {

@@ -84,7 +84,7 @@ class UsbDefaultEndpoint {
 
     uint8_t nextAddr = 0;
 
-    void __attribute__((noinline)) stallAll() {
+    void __attribute__ ((noinline)) stallAll() {
         //reset both interrupt sources as well
         expectedLength = 0;
         statusExpected = false;
@@ -149,6 +149,8 @@ class UsbDefaultEndpoint {
         uint16_t wValue = pbm->buffer[rxBufferStart + 1];
         uint16_t wIndex = pbm->buffer[rxBufferStart + 2];
         uint16_t wLength = pbm->buffer[rxBufferStart + 3];
+
+        // the following parses bits of the USB setup message... read the USB 2.0 spec for more details.
         if ((bmReqType & 0x80) != 0) {
             expectedRxNTx = false;
         } else {
@@ -384,10 +386,14 @@ public:
         descriptorOffset = 0;
         nextAddr = 0;
         setupNext();
+
+        const uint16_t rxBlockSize32Byte = 0x8000;
+        const uint16_t rx2Blocks = 0x0400;
+
         pbm->getbufferDescriptor()[0] = txBufferStart * sizeof(uint16_t);
-        pbm->getbufferDescriptor()[1] = 0x0000;
+        pbm->getbufferDescriptor()[1] = 0;
         pbm->getbufferDescriptor()[2] = rxBufferStart * sizeof(uint16_t);
-        pbm->getbufferDescriptor()[3] = 0x8400; // give us 64 bytes of input - should be enough.
+        pbm->getbufferDescriptor()[3] = rxBlockSize32Byte | rx2Blocks; // give us 64 bytes of input - should be enough.
     }
 
     void interrupt() {

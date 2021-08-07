@@ -8,9 +8,18 @@
 #include "SPI.h"
 
 void SPIClass::begin() {
-    RCC->APB2ENR |= 0x1000;
-    SPI1->CR2 = 0x1700;
-    SPI1->CR1 = 0x0304;
+    const uint16_t enableSpiRegisterClock = 0x1000;
+    const uint16_t setFifo1_4Full = 0x1000;
+    const uint16_t dataSize8bit = 0x0700;
+    const uint16_t setSoftwareSlaveManagement = 0x0200;
+    const uint16_t setInternalSlaveSelect = 0x0100;
+    const uint16_t setAsMaster = 0x0004;
+    const uint16_t enableSpi = 0x0040;
+
+    RCC->APB2ENR |= enableSpiRegisterClock;
+    SPI1->CR2 = setFifo1_4Full | dataSize8bit;
+    SPI1->CR1 = setAsMaster | setSoftwareSlaveManagement | setInternalSlaveSelect;
+
     GpioPin *sck = GpioManager::getPin(PA_5);
     sck->init();
     sck->setAlternateFunction(5);
@@ -34,16 +43,18 @@ void SPIClass::begin() {
     mosi->setMode(AlternateFunction);
     mosi->setOutputMode(PushPull);
     mosi->setPullMode(NoPull);
-    SPI1->CR1 |= 0x040;
+    SPI1->CR1 |= enableSpi;
 }
 
 void SPIClass::beginTransaction() {
 }
 #pragma GCC optimize ("-O0")
 uint8_t SPIClass::transfer(uint8_t data) {
+    const uint16_t fifoLevelMask = 0x0600;
+
     // Forces 8 bit read/write, to allow 1 byte at a time
     *((volatile uint8_t*) &(SPI1->DR)) = data;
-    while (!(((volatile uint16_t) SPI1->SR) & 0x0600))
+    while (!(((volatile uint16_t) SPI1->SR) & fifoLevelMask))
         ;
     return *((volatile uint8_t*) &(SPI1->DR));
 }

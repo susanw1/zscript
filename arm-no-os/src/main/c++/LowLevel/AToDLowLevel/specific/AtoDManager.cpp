@@ -9,8 +9,14 @@
 AtoD AtoDManager::atoDs[] = { AtoD(ADC1), AtoD(ADC2), AtoD(ADC3), AtoD(ADC4), AtoD(ADC5) };
 
 void AtoDManager::init() {
-    RCC->AHB2ENR |= 0x6000; //enable clock to ADC
-    RCC->CCIPR |= 0xA0000000; //set peripheral clock inputs
+    const uint32_t enableADC345Registers = 0x4000;
+    const uint32_t enableADC12Registers = 0x2000;
+
+    const uint32_t aToD345SetSysClk = 0x80000000;
+    const uint32_t aToD12SetSysClk = 0x20000000;
+
+    RCC->AHB2ENR |= enableADC12Registers | enableADC345Registers; //enable clock to ADCs
+    RCC->CCIPR |= aToD345SetSysClk | aToD12SetSysClk; //set peripheral clock inputs
     uint32_t divider = ClockManager::getClock(SysClock)->getDivider(20000 * 2);
     if (divider > 6) {
         // work out how many halvings are required to reduce the number below zero

@@ -32,6 +32,17 @@ void Dma::halt() {
 void Dma::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize, DmaMuxRequest request,
         const uint8_t *target, bool targetIncrement, uint8_t targetSize, bool memToMem, uint16_t transferLength, uint8_t dir, bool circular,
         DmaPriority priority, void (*callback)(Dma*, DmaTerminationStatus), bool interruptOnHalf) {
+
+    const uint32_t enableDma = 0x01;
+    const uint32_t transferCompleteInterruptEnable = 0x02;
+    const uint32_t transferErrorInterruptEnable = 0x08;
+    const uint32_t dmaMem2Mem = 0x4000;
+    const uint32_t targetIncrementBit = 0x80;
+    const uint32_t sourceIncrementBit = 0x40;
+    const uint32_t circularBit = 0x20;
+    const uint32_t dirBit = 0x10;
+    const uint32_t interruptOnHalfBit = 0x4;
+
     this->callback = callback;
 
     channel.clearTransferError();
@@ -42,30 +53,30 @@ void Dma::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourc
     channel.getChannelRegisters()->CNDTR = transferLength;
     channel.getChannelRegisters()->CPAR = (uint32_t) peripheralOrSource;
     channel.getChannelRegisters()->CMAR = (uint32_t) target;
-    uint32_t config = 0x000a;
+    uint32_t config = transferErrorInterruptEnable | transferCompleteInterruptEnable;
     if (memToMem) {
-        config |= 0x4000;
+        config |= dmaMem2Mem;
     }
     config |= priority << 12;
     config |= targetSize << 10;
     config |= peripheralOrSourceSize << 8;
     if (targetIncrement) {
-        config |= 0x80;
+        config |= targetIncrementBit;
     }
     if (peripheralOrSourceIncrement) {
-        config |= 0x40;
+        config |= sourceIncrementBit;
     }
     if (circular) {
-        config |= 0x20;
+        config |= circularBit;
     }
     if (dir) {
-        config |= 0x10;
+        config |= dirBit;
     }
     if (interruptOnHalf) {
-        config |= 0x4;
+        config |= interruptOnHalfBit;
     }
     this->request = request;
     channel.getChannelRegisters()->CCR = config;
     channel.setMux(request);
-    channel.getChannelRegisters()->CCR |= 1;
+    channel.getChannelRegisters()->CCR |= enableDma;
 }

@@ -38,11 +38,13 @@ class UsbInternal {
     friend void UsbDataTxOverflowCallback(SerialIdentifier);
 
     void interrupt() {
-
-        if ((registers->ISTR & 0x0400) != 0) { // we are in a reset... do that thing!
+        const uint16_t resetRequested = 0x0400;
+        const uint16_t dataReceived = 0x8000;
+        const uint16_t receivedEndpointMask = 0x0F;
+        if ((registers->ISTR & resetRequested) != 0) { // we are in a reset... do that thing!
             reset();
-        } else if ((registers->ISTR & 0x8000) != 0) {
-            if ((registers->ISTR & 0x0F) == 0) {
+        } else if ((registers->ISTR & dataReceived) != 0) {
+            if ((registers->ISTR & receivedEndpointMask) == 0) {
                 defaultEndpoint.interrupt();
             } else {
                 dataEndpoint.interrupt();
@@ -58,6 +60,22 @@ public:
         usbI = this;
     }
     void setup() {
+        const uint32_t clockRecoveryRegisterClockEnable = 0x100;
+        const uint32_t usbRegisterClockEnable = 0x00800000;
+        const uint32_t clockRecoveryEnable = 0x20;
+        const uint32_t clockRecoveryAutoTuneEnable = 0x40;
+
+        const uint32_t usbClockSelectMask = 0x0C000000;
+
+        const uint16_t transferCompleteInterruptEnable = 0x8000;
+        const uint16_t resetInterruptEnable = 0x0400;
+        const uint16_t usbPowerDisable = 0x0002;
+
+        const uint16_t dpPullUpEnable = 0x8000;
+        const uint16_t enableReception = 0x0080;
+
+        const uint16_t sendResume = 0x0010;
+
         SystemMilliClock::blockDelayMillis(1);
         NVIC_SetPriority(USB_LP_IRQn, 1);
         NVIC_DisableIRQ(USB_LP_IRQn);
@@ -77,21 +95,22 @@ public:
         GpioManager::getPin(PA_12)->setOutputMode(PushPull);
 
         ClockManager::getClock(HSI48)->set(48000, NONE);
-        RCC->APB1ENR1 |= 0x00800100;
-        *((uint32_t*) 0x40002000) |= 0x60; //enable the CRS system for clock generation, with auto trim enabled
-        RCC->CCIPR &= ~0x0C000000;
+        RCC->APB1ENR1 |= usbRegisterClockEnable | clockRecoveryRegisterClockEnable;
+        *((uint32_t*) 0x40002000) |= clockRecoveryAutoTuneEnable | clockRecoveryEnable; //enable the CRS system for clock generation, with auto trim enabled
+        RCC->CCIPR &= ~usbClockSelectMask;
         SystemMilliClock::blockDelayMillis(1);
 
         registers = (UsbRegisters*) 0x40005C40;
         endpointRegisters = (UsbEndpointRegisters*) 0x40005C00;
         pbm = (UsbPbm*) 0x40006000;
-        registers->CNTR = 0x8402;
+
+        registers->CNTR = transferCompleteInterruptEnable | resetInterruptEnable | usbPowerDisable;
         SystemMilliClock::blockDelayMillis(1);
-        registers->CNTR = 0x8400;
+        registers->CNTR = transferCompleteInterruptEnable | resetInterruptEnable;
         SystemMilliClock::blockDelayMillis(5);
-        registers->ISTR = 0x0000;
-        registers->BTABLE = 0x0000;
-        registers->LPMCSR = 0x0000;
+        registers->ISTR = 0;
+        registers->BTABLE = 0;
+        registers->LPMCSR = 0;
 
         defaultEndpoint.setup(registers, pbm, (volatile uint16_t*) &(endpointRegisters->EP0R), 32, 96);
 
@@ -103,22 +122,28 @@ public:
 
         dataEndpoint.setup(pbm, (volatile uint16_t*) &(endpointRegisters->EP2R), 160, 224, 2);
 
-        registers->BCDR = 0x8000;
-        registers->DADDR = 0x0080;
+        registers->BCDR = dpPullUpEnable;
+        registers->DADDR = enableReception;
         SystemMilliClock::blockDelayMillis(1);
-        registers->CNTR |= 0x0010;
+        registers->CNTR |= sendResume;
         SystemMilliClock::blockDelayMillis(5);
-        registers->CNTR &= ~0x0010;
+        registers->CNTR &= ~sendResume;
         NVIC_EnableIRQ(USB_HP_IRQn);
         NVIC_EnableIRQ(USB_LP_IRQn);
         dataEndpoint.getTxBuffer()->setCallback(&UsbDataTxOverflowCallback, GeneralHalSetup::UsbSerialId);
     }
 
     void reset() {
-        registers->CNTR = 0x8400;
-        registers->ISTR = 0x0000;
-        registers->BTABLE = 0x0000;
-        registers->LPMCSR = 0x0000;
+        const uint16_t transferCompleteInterruptEnable = 0x8000;
+        const uint16_t resetInterruptEnable = 0x0400;
+
+        const uint16_t dpPullUpEnable = 0x8000;
+        const uint16_t enableReception = 0x0080;
+
+        registers->CNTR = transferCompleteInterruptEnable | resetInterruptEnable;
+        registers->ISTR = 0;
+        registers->BTABLE = 0;
+        registers->LPMCSR = 0;
         defaultEndpoint.setup(registers, pbm, (volatile uint16_t*) &(endpointRegisters->EP0R), 32, 96);
 
         endpointRegisters->EP1R = ((endpointRegisters->EP1R) & 0x0000) | (((endpointRegisters->EP1R) ^ 0x0000) & 0x7070);
@@ -126,8 +151,8 @@ public:
 
         dataEndpoint.setup(pbm, (volatile uint16_t*) &(endpointRegisters->EP2R), 160, 224, 2);
 
-        registers->BCDR = 0x8000;
-        registers->DADDR = 0x0080;
+        registers->BCDR = dpPullUpEnable;
+        registers->DADDR = enableReception;
     }
 
     void setTargetValue(void (*volatile targetValueCallback)(), uint8_t targetValue) {

@@ -24,13 +24,25 @@ enum UsbResponseStatus {
 };
 
 class UsbEndpointRegister {
+    static const uint16_t rxComplete = 0x8000;
+    static const uint16_t rxDataToggle = 0x4000;
+    static const uint16_t rxStat = 0x3000;
+    static const uint16_t setupLast = 0x0800;
+    static const uint16_t epType = 0x0600;
+    static const uint16_t epKind = 0x0100;
+    static const uint16_t txComplete = 0x0080;
+    static const uint16_t txDataToggle = 0x0040;
+    static const uint16_t txStat = 0x0030;
+    static const uint16_t epAddr = 0x000F;
+
     volatile uint16_t *reg;
 
     uint16_t generateNoOpValue() {
-        uint16_t val = 0x8080;
-        val |= (*reg) & 0x070F;
+        uint16_t val = rxComplete | txComplete;
+        val |= (*reg) & (epType | epKind | epAddr);
         return val;
     }
+
 public:
     UsbEndpointRegister() :
             reg(NULL) {
@@ -39,83 +51,83 @@ public:
             reg(reg) {
     }
     void setEndpointAddress(uint8_t addr) {
-        uint16_t val = generateNoOpValue() | (addr & 0x0F);
+        uint16_t val = (generateNoOpValue() & ~epAddr) | (addr & epAddr);
         *reg = val;
     }
     void setEndpointType(UsbEndpointType type) {
-        uint16_t val = generateNoOpValue() | (type << 9);
+        uint16_t val = (generateNoOpValue() & ~epType) | (type << 9);
         *reg = val;
     }
     void setEndpointRxStatus(UsbResponseStatus status) {
         uint16_t current = *reg;
-        current &= 0x3000;
         current ^= status << 12;
+        current &= rxStat;
         uint16_t val = generateNoOpValue() | current;
         *reg = val;
     }
     void setEndpointTxStatus(UsbResponseStatus status) {
         uint16_t current = *reg;
-        current &= 0x0030;
         current ^= status << 4;
+        current &= txStat;
         uint16_t val = generateNoOpValue() | current;
         *reg = val;
     }
     void setEndpointKind(bool highNLow) {
         uint16_t val = generateNoOpValue();
         if (highNLow) {
-            val |= 0x0100;
+            val |= epKind;
         } else {
-            val &= ~0x0100;
+            val &= ~epKind;
         }
         *reg = val;
     }
     void clearRxComplete() {
-        uint16_t val = generateNoOpValue() & ~0x8000;
+        uint16_t val = generateNoOpValue() & ~rxComplete;
         *reg = val;
     }
     void clearTxComplete() {
-        uint16_t val = generateNoOpValue() & ~0x0080;
+        uint16_t val = generateNoOpValue() & ~txComplete;
         *reg = val;
     }
     void clearRxDataToggle() {
         uint16_t current = *reg;
-        current &= 0x0040;
+        current &= rxDataToggle;
         uint16_t val = generateNoOpValue() | current;
         *reg = val;
     }
     void setRxDataToggle() {
         uint16_t current = *reg;
-        current &= 0x0040;
-        current ^= 0x0040;
+        current ^= rxDataToggle;
+        current &= rxDataToggle;
         uint16_t val = generateNoOpValue() | current;
         *reg = val;
     }
     void clearTxDataToggle() {
         uint16_t current = *reg;
-        current &= 0x4000;
+        current &= txDataToggle;
         uint16_t val = generateNoOpValue() | current;
         *reg = val;
     }
     void setTxDataToggle() {
         uint16_t current = *reg;
-        current &= 0x4000;
-        current ^= 0x4000;
+        current ^= txDataToggle;
+        current &= txDataToggle;
         uint16_t val = generateNoOpValue() | current;
         *reg = val;
     }
     bool getRxComplete() {
-        return (*reg & 0x8000) != 0;
+        return (*reg & rxComplete) != 0;
     }
     bool getTxComplete() {
-        return (*reg & 0x0080) != 0;
+        return (*reg & txComplete) != 0;
     }
     bool getSetupLast() {
-        return (*reg & 0x0800) != 0;
+        return (*reg & setupLast) != 0;
     }
     void resetAll() {
         uint16_t val = *reg;
         val ^= 0x0000;
-        val &= 0x7070;
+        val &= (rxDataToggle | rxStat | txDataToggle | txStat);
         *reg = val;
     }
 };

@@ -160,7 +160,11 @@ DmaChannelInternal createChannelInternalFromId(DmaIdentifier id) {
     }
 }
 void DmaManager::init() {
-    RCC->AHB1ENR |= 0x00000007;
+    const uint32_t enableDma1Registers = 0x01;
+    const uint32_t enableDma2Registers = 0x02;
+    const uint32_t enableDmaMuxRegisters = 0x04;
+
+    RCC->AHB1ENR |= enableDma1Registers | enableDma2Registers | enableDmaMuxRegisters;
 
     for (int i = 0; i < GeneralHalSetup::dmaCount; ++i) {
         dmas[i].setDma(createChannelInternalFromId(i));

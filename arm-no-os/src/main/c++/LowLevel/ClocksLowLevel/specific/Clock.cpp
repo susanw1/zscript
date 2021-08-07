@@ -8,45 +8,60 @@
 #include "../Clock.hpp"
 
 void activateHSI48() {
-    RCC->CRRCR |= 0x1;
-    while (!(RCC->CRRCR & 0x2))
+    const uint32_t enableHSI48 = 0x1;
+    const uint32_t HSI48Ready = 0x2;
+
+    RCC->CRRCR |= enableHSI48;
+    while (!(RCC->CRRCR & HSI48Ready))
         ;
     return;
 }
 void activateHSI() {
-    RCC->CR |= 0x100;
-    while (!(RCC->CR & 0x400))
+    const uint32_t enableHSI16 = 0x100;
+    const uint32_t HSI16Ready = 0x400;
+
+    RCC->CR |= enableHSI16;
+    while (!(RCC->CR & HSI16Ready))
         ;
     return;
 }
 void activateLSI() {
-    RCC->CSR |= 1;
-    while (!(RCC->CSR & 2))
+    const uint32_t enableLSI = 0x1;
+    const uint32_t LSIReady = 0x2;
+
+    RCC->CSR |= enableLSI;
+    while (!(RCC->CSR & LSIReady))
         ;
     return;
 }
 
 int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
     if (clock == SysClock) {
+        const uint32_t sysClkSwitchMask = 0x03;
+        const uint32_t sysClkSwitchHSI16 = 0x01;
+        const uint32_t sysClkSwitchHSE = 0x02;
+        const uint32_t sysClkSwitchPLL = 0x03;
+
         uint32_t cfgr = RCC->CFGR;
         if (source == PLL_R && (ClockManager::getClock(source)->freq != 0 || ClockManager::getClock(source)->set(targetFreqKhz, NONE) == 0)) {
             freq = ClockManager::getClock(source)->freq;
             this->source = source;
-            cfgr |= 0x03;
+            cfgr &= ~sysClkSwitchMask;
+            cfgr |= sysClkSwitchPLL;
             RCC->CFGR = cfgr;
             return 0;
         } else if (source == HSI && (ClockManager::getClock(source)->freq != 0 || ClockManager::getClock(source)->set(targetFreqKhz, NONE) == 0)) {
             freq = ClockManager::getClock(source)->freq;
             this->source = source;
-            cfgr &= ~0x3;
-            cfgr |= 0x01;
+            cfgr &= ~sysClkSwitchMask;
+            cfgr |= sysClkSwitchHSI16;
             RCC->CFGR = cfgr;
             return 0;
         } else if (source == HSE && (ClockManager::getClock(source)->freq != 0 || ClockManager::getClock(source)->set(targetFreqKhz, NONE) == 0)) {
             freq = ClockManager::getClock(source)->freq;
             this->source = source;
-            cfgr &= ~0x3;
-            cfgr |= 0x02;
+            cfgr &= ~sysClkSwitchMask;
+            cfgr |= sysClkSwitchHSE;
             RCC->CFGR = cfgr;
             return 0;
         } else {
@@ -69,6 +84,19 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
     } else if (clock == LSE) {
         return -1;
     } else if (clock == VCO) {
+        const uint32_t pllEnable = 0x01000000;
+        const uint32_t pllReady = 0x02000000;
+
+        const uint32_t pllQEnable = 0x00100000;
+        const uint32_t pllPEnable = 0x00010000;
+        const uint32_t pllREnable = 0x01000000;
+
+        const uint32_t pllSrcMask = 0x3;
+        const uint32_t pllSrcHSE = 0x2;
+        const uint32_t pllSrcHSI16 = 0x3;
+
+        const uint32_t pllDividerMask = 0x7ff3;
+
         if (targetFreqKhz > 344000) {
             return -1;
         }
@@ -79,18 +107,18 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
         } else {
             return -1;
         }
-        RCC->CR &= ~0x01000000; // Disable PLL (needed to change things)
-        bool has_p = RCC->PLLCFGR & 0x00010000;
-        bool has_q = RCC->PLLCFGR & 0x00100000;
-        bool has_r = RCC->PLLCFGR & 0x01000000;
-        RCC->PLLCFGR &= ~0x01110000; // Disable all the PLLs
-        RCC->PLLCFGR &= ~0x00000003;
+        RCC->CR &= ~pllEnable; // Disable PLL (needed to change things)
+        bool has_p = RCC->PLLCFGR & pllQEnable;
+        bool has_q = RCC->PLLCFGR & pllPEnable;
+        bool has_r = RCC->PLLCFGR & pllREnable;
+        RCC->PLLCFGR &= ~(pllQEnable | pllPEnable | pllREnable); // Disable all the PLLs
+        RCC->PLLCFGR &= ~pllSrcMask;
         uint32_t sourceFreq = ClockManager::getClock(source)->freq;
 
         // Pick the best scaler/divider combo we can
         uint8_t n = 1;
         uint8_t m = 1;
-        int32_t prevDiff = 0x7FFFFFFF;
+        int32_t prevDiff = 0x7FFFFFFF; //something really big, so anything is better
         for (uint8_t i = 1; i <= 16; i++) {
             uint32_t currentN = (targetFreqKhz * i) / sourceFreq;
             if (currentN > 127) {
@@ -110,17 +138,17 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
         }
         freq = sourceFreq * n / m;
         uint32_t cfg = RCC->PLLCFGR;
-        cfg &= ~0x7ff3;
+        cfg &= ~pllDividerMask;
         cfg |= n << 8;
         cfg |= (m - 1) << 4;
         if (source == HSI) {
-            cfg |= 2;
+            cfg |= pllSrcHSE;
         } else if (source == HSE) {
-            cfg |= 3;
+            cfg |= pllSrcHSI16;
         }
         RCC->PLLCFGR = cfg;
-        RCC->CR |= 0x01000000; // Enable PLL
-        while (!(RCC->CR & 0x02000000))
+        RCC->CR |= pllEnable; // Enable PLL
+        while (!(RCC->CR & pllReady))
             ;
         if (has_p) {
             ClockManager::getClock(PLL_P)->set(ClockManager::getClock(PLL_P)->freq, VCO);
@@ -133,6 +161,12 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
         }
         return 0;
     } else if (clock == PLL_P) {
+        const uint32_t pllEnable = 0x01000000;
+        const uint32_t pllReady = 0x02000000;
+
+        const uint32_t pllPEnable = 0x00010000;
+        const uint32_t pllPDivMask = 0xF8000000;
+
         if (targetFreqKhz > 170000) {
             return -1;
         } else if (targetFreqKhz < 2065) {
@@ -142,7 +176,7 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
             return -1;
         }
 
-        RCC->CR &= ~0x01000000; // Disable PLL (needed to change things)
+        RCC->CR &= ~pllEnable; // Disable PLL (needed to change things)
         uint8_t div = ClockManager::getClock(VCO)->freq / targetFreqKhz;
         if (div > 31) {
             div = 31;
@@ -150,16 +184,22 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
             div = 2;
         }
         uint32_t cfg = RCC->PLLCFGR;
-        cfg &= ~0xF8000000;
-        cfg |= 0x10000;
+        cfg &= ~pllPDivMask;
+        cfg |= pllPEnable;
         cfg |= (div - 1) << 27;
         RCC->PLLCFGR = cfg;
         freq = ClockManager::getClock(VCO)->freq / div;
-        RCC->CR |= 0x01000000; // Enable PLL
-        while (!(RCC->CR & 0x02000000))
+        RCC->CR |= pllEnable; // Enable PLL
+        while (!(RCC->CR & pllReady))
             ;
         return 0;
     } else if (clock == PLL_Q) {
+        const uint32_t pllEnable = 0x01000000;
+        const uint32_t pllReady = 0x02000000;
+
+        const uint32_t pllQEnable = 0x00100000;
+        const uint32_t pllQDivMask = 0x00600000;
+
         if (targetFreqKhz > 170000) {
             return -1;
         } else if (targetFreqKhz < 8000) {
@@ -169,7 +209,7 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
             return -1;
         }
 
-        RCC->CR &= ~0x01000000; // Disable PLL (needed to change things)
+        RCC->CR &= ~pllEnable; // Disable PLL (needed to change things)
         uint8_t div = ClockManager::getClock(VCO)->freq / 2 / targetFreqKhz;
         if (div > 4) {
             div = 4;
@@ -177,16 +217,22 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
             div = 1;
         }
         uint32_t cfg = RCC->PLLCFGR;
-        cfg &= ~0x00600000;
-        cfg |= 0x100000;
+        cfg &= ~pllQDivMask;
+        cfg |= pllQEnable;
         cfg |= (div - 1) << 21;
         RCC->PLLCFGR = cfg;
         freq = ClockManager::getClock(VCO)->freq / div / 2;
-        RCC->CR |= 0x01000000; // Enable PLL
-        while (!(RCC->CR & 0x02000000))
+        RCC->CR |= pllEnable; // Enable PLL
+        while (!(RCC->CR & pllReady))
             ;
         return 0;
     } else if (clock == PLL_R) {
+        const uint32_t pllEnable = 0x01000000;
+        const uint32_t pllReady = 0x02000000;
+
+        const uint32_t pllREnable = 0x01000000;
+        const uint32_t pllRDivMask = 0x06000000;
+
         if (targetFreqKhz > 170000) {
             return -1;
         } else if (targetFreqKhz < 8000) {
@@ -196,7 +242,7 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
             return -1;
         }
 
-        RCC->CR &= ~0x01000000; // Disable PLL (needed to change things)
+        RCC->CR &= ~pllEnable; // Disable PLL (needed to change things)
         uint8_t div = ClockManager::getClock(VCO)->freq / 2 / targetFreqKhz;
         if (div > 4) {
             div = 4;
@@ -204,16 +250,18 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
             div = 1;
         }
         uint32_t cfg = RCC->PLLCFGR;
-        cfg &= ~0x06000000;
-        cfg |= 0x01000000;
+        cfg &= ~pllRDivMask;
+        cfg |= pllREnable;
         cfg |= (div - 1) << 25;
         RCC->PLLCFGR = cfg;
         freq = ClockManager::getClock(VCO)->freq / div / 2;
-        RCC->CR |= 0x01000000; // Enable PLL
-        while (!(RCC->CR & 0x02000000))
+        RCC->CR |= pllEnable; // Enable PLL
+        while (!(RCC->CR & pllReady))
             ;
         return 0;
     } else if (clock == HCLK) {
+        const uint32_t hclkPrescalerMask = 0xF0;
+
         uint32_t sourceFreq = ClockManager::getClock(SysClock)->freq;
         uint32_t bestDiff = 0xFFFFFFFF;
         uint8_t presc = 0;
@@ -236,11 +284,13 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
             presc += 7;
         }
         uint32_t cfgr = RCC->CFGR;
-        cfgr &= ~0xF0;
+        cfgr &= ~hclkPrescalerMask;
         cfgr |= presc << 4;
         RCC->CFGR = cfgr;
         return 0;
     } else if (clock == PCLK_1) {
+        const uint32_t pclk1PrescalerMask = 0x700;
+
         uint32_t sourceFreq = ClockManager::getClock(HCLK)->freq;
         uint32_t bestDiff = 0xFFFFFFFF;
         uint8_t presc = 0;
@@ -263,11 +313,13 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
             presc += 3;
         }
         uint32_t cfgr = RCC->CFGR;
-        cfgr &= ~0x700;
+        cfgr &= ~pclk1PrescalerMask;
         cfgr |= presc << 8;
         RCC->CFGR = cfgr;
         return 0;
     } else if (clock == PCLK_2) {
+        const uint32_t pclk2PrescalerMask = 0x3800;
+
         uint32_t sourceFreq = ClockManager::getClock(HCLK)->freq;
         uint32_t bestDiff = 0xFFFFFFFF;
         uint8_t presc = 0;
@@ -290,7 +342,7 @@ int Clock::set(uint32_t targetFreqKhz, SystemClock source) {
             presc += 3;
         }
         uint32_t cfgr = RCC->CFGR;
-        cfgr &= ~0x3100;
+        cfgr &= ~pclk2PrescalerMask;
         cfgr |= presc << 11;
         RCC->CFGR = cfgr;
         return 0;

@@ -10,16 +10,23 @@ FlashPage::FlashPage(uint16_t pageNum) :
         pageNum(pageNum), start((flashProgramming_t*) (pageNum * GeneralHalSetup::pageSize + 0x08000000)) {
 }
 void FlashPage::unlockFlashWrite() {
+    // magic keys...
     FLASH->KEYR = 0x45670123;
     FLASH->KEYR = 0xCDEF89AB;
 }
 
 void FlashPage::lockFlashWrite() {
-    FLASH->CR = 0xC0000000;
+    // magic keys...
+    const uint32_t lock = 0x80000000;
+    const uint32_t lockOptions = 0x40000000;
+    FLASH->CR = lock | lockOptions;
 }
 void FlashPage::beginProgram() {
-    FLASH->SR |= 0xFFFFFFFF;
-    FLASH->CR = 0x1;
+    const uint32_t clearAllStatus = 0x0001C3FB;
+    const uint32_t enableProgram = 0x1;
+
+    FLASH->SR |= clearAllStatus;
+    FLASH->CR = enableProgram;
 }
 
 void FlashPage::endProgram() {
@@ -27,15 +34,21 @@ void FlashPage::endProgram() {
 }
 
 void FlashPage::erase() {
-    FLASH->SR |= 0xFFFFFFFF;
+    const uint32_t clearAllStatus = 0x0001C3FB;
+    const uint32_t enablePageErase = 0x2;
+    const uint32_t bank2Erase = 0x800;
+    const uint32_t start = 0x10000;
+
+    FLASH->SR |= clearAllStatus;
     if (pageNum > 127) {
-        FLASH->CR = ((pageNum & 0x7F) << 3) | 0x802; // use bank 2
+        FLASH->CR = ((pageNum & 0x7F) << 3) | bank2Erase | enablePageErase; // use bank 2
     } else {
-        FLASH->CR = (pageNum << 3) | 0x02;
+        FLASH->CR = (pageNum << 3) | enablePageErase;
     }
-    FLASH->CR |= 0x10000;
+    FLASH->CR |= start;
 }
 
 bool FlashPage::isBusy() {
-    return (FLASH->SR &= 0x10000) != 0;
+    const uint32_t start = 0x10000;
+    return (FLASH->SR &= start) != 0;
 }

@@ -50,7 +50,9 @@ class UsbInterruptDataEndpoint {
 // we don't use DMAs because setting them up would take longer than iterating the transmit loop a few times
 // 64 bytes isn't much, and it doesn't happen that often.
     void __attribute__ ((noinline)) parseRxData() {
-        uint16_t rxLength = pbm->getbufferDescriptor()[4 * endpointIndex + 3] & 0x3FF;
+        const uint16_t rxByteCountMask = 0x3FF;
+
+        uint16_t rxLength = pbm->getbufferDescriptor()[4 * endpointIndex + 3] & rxByteCountMask;
         uint8_t *data = (uint8_t*) (pbm->buffer + rxPbmBufferStart);
         if (targetValueCallback != NULL) {
             for (int i = 0; i < rxLength; ++i) {
@@ -90,10 +92,14 @@ public:
         nackRx();
 
         checkBuffers();
+
+        const uint16_t rxBlockSize32Byte = 0x8000;
+        const uint16_t rx2Blocks = 0x0400;
+
         pbm->getbufferDescriptor()[endpointIndex * 4 + 0] = txBufferStart * sizeof(uint16_t);
-        pbm->getbufferDescriptor()[endpointIndex * 4 + 1] = 0x0000;
+        pbm->getbufferDescriptor()[endpointIndex * 4 + 1] = 0;
         pbm->getbufferDescriptor()[endpointIndex * 4 + 2] = rxBufferStart * sizeof(uint16_t);
-        pbm->getbufferDescriptor()[endpointIndex * 4 + 3] = 0x8800; // give us 64 bytes of input space - the maximum packet size
+        pbm->getbufferDescriptor()[endpointIndex * 4 + 3] = rxBlockSize32Byte | rx2Blocks; // give us 64 bytes of input space - the maximum packet size
     }
     void setTargetValue(void (*volatile targetValueCallback)(), uint8_t targetValue) {
         this->targetValueCallback = targetValueCallback;
