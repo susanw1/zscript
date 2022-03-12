@@ -18,7 +18,7 @@
 #include "UipUdpWrapper.hpp"
 
 class UipUdpChannelManager {
-    RCode *rcode;
+    RCode *zcode;
     UipUdpChannelInStream seqIn;
     RCodeInStream in;
     UipUdpOutStream out;
@@ -26,12 +26,12 @@ class UipUdpChannelManager {
     UdpSocket sockets[RCodeParameters::uipChannelNum];
     bool waitingForSlot = false;
     friend void setupChannels(UipUdpChannelManager *manager, UipEthernet *eth,
-            RCode *rcode);
+            RCode *zcode);
 //    void findChannelForRun();
 public:
-    UipUdpChannelManager(UipEthernet *eth, UdpSocket *socket, RCode *rcode) :
-            rcode(rcode), seqIn(), in(&seqIn), out(socket) {
-        setupChannels(this, eth, rcode);
+    UipUdpChannelManager(UipEthernet *eth, UdpSocket *socket, RCode *zcode) :
+            zcode(zcode), seqIn(), in(&seqIn), out(socket) {
+        setupChannels(this, eth, zcode);
     }
 
     UipUdpCommandChannel* getChannels() {

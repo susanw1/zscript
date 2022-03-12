@@ -26,8 +26,8 @@ private:
     uint16_t port = 0;
 
 public:
-    UipUdpCommandChannel(RCode *rcode, UipEthernet *eth, uint16_t localPort) :
-            sequence(rcode, this), socket(eth, 1000), in(&socket), out(&socket) {
+    UipUdpCommandChannel(RCode *zcode, UipEthernet *eth, uint16_t localPort) :
+            sequence(zcode, this), socket(eth, 1000), in(&socket), out(&socket) {
         socket.begin(localPort);
         for (int i = 0; i < 4; i++) {
             ip[i] = 0;

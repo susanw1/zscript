@@ -11,7 +11,7 @@ UipUdpChannelInStream* UipUdpCommandChannel::acquireInStream() {
     return &in;
 }
 
-RCodeOutStream* UipUdpCommandChannel::acquireOutStream() {
+ZcodeOutStream* UipUdpCommandChannel::acquireOutStream() {
     return &out;
 }
 

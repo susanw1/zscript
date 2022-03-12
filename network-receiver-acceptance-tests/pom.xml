@@ -4,18 +4,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.wittsfamily.rcode</groupId>
-        <artifactId>rcode-all</artifactId>
+        <groupId>org.zcode</groupId>
+        <artifactId>zcode-all</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.wittsfamily.rcode.acceptancetests</groupId>
+    <groupId>org.zcode.acceptancetests</groupId>
     <artifactId>network-receiver-acceptance-tests</artifactId>
     <name>network-receiver-acceptance-tests</name>
 
     <dependencies>
         <dependency>
-            <groupId>com.wittsfamily.rcode.acceptancetests</groupId>
+            <groupId>org.zcode.acceptancetests</groupId>
             <artifactId>acceptance-tests</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

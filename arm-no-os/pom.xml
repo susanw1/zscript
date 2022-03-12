@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.zcode</groupId>
+        <artifactId>zcode-all</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.zcode.cpp</groupId>
+    <artifactId>arm-no-os</artifactId>
+    <name>ARM bare - no OS</name>
+
+    <packaging>nar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.zcode.cpp</groupId>
+            <artifactId>generic-cpp-receiver</artifactId>
+            <version>${project.version}</version>
+            <type>nar</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.maven-nar</groupId>
+                <artifactId>nar-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <arch>arm</arch>
+                    <os>no-os</os>
+                    <linker></linker>
+                    <cpp>
+                        <name>arm-none-eabi-g++</name>
+                        <options>
+                            <option>-Wall -Wno-long-long -Wpointer-arith
+                                -Wconversion -m32</option>
+                        </options>
+                    </cpp>
+                    <linker>
+                        <name>gcc</name>
+                        <sysLibs>
+                            <sysLib>
+                                <name>stdc++</name>
+                            </sysLib>
+                            ...
+                        </sysLibs>
+                    </linker>
+
+                </configuration>
+            </plugin>
+
+            <!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>exec-maven-plugin</artifactId> 
+                <executions> <execution> <id>default-cli</id> <configuration> <executable>${project.build.directory}/test-nar/bin/amd64-Linux-gpp/default-cli</executable> 
+                <workingDirectory>${project.build.directory}</workingDirectory> </configuration> 
+                </execution> </executions> </plugin> -->
+        </plugins>
+    </build>
+</project>

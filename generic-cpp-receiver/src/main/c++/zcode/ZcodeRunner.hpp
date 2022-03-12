@@ -1,0 +1,220 @@
+/*
+ * ZcodeRunner.hpp
+ *
+ *  Created on: 9 Sep 2020
+ *      Author: robert
+ */
+
+#ifndef SRC_TEST_CPP_ZCODE_ZCODERUNNER_HPP_
+#define SRC_TEST_CPP_ZCODE_ZCODERUNNER_HPP_
+#include "ZcodeIncludes.hpp"
+#include "parsing/ZcodeCommandSequence.hpp"
+#include "commands/ZcodeActivateCommand.hpp"
+
+template<class RP>
+class Zcode;
+
+template<class RP>
+class ZcodeCommandSequence;
+
+template<class RP>
+class ZcodeRunner {
+private:
+    Zcode<RP> *const zcode;
+    ZcodeCommandSequence<RP> *running[RP::maxParallelRunning];
+    uint8_t parallelNum = 0;
+    bool canBeParallel = false;
+
+    void runSequence(ZcodeCommandSequence<RP> *target, int targetInd);
+
+    bool finishRunning(ZcodeCommandSequence<RP> *target, int targetInd);
+
+    ZcodeCommandSequence<RP>* findNextToRun();
+public:
+    ZcodeRunner(Zcode<RP> *zcode) :
+            zcode(zcode) {
+    }
+
+    void runNext();
+};
+
+template<class RP>
+ZcodeCommandSequence<RP>* ZcodeRunner<RP>::findNextToRun() {
+    ZcodeCommandSequence <RP>*current = NULL;
+    ZcodeCommandChannel<RP> **channels = zcode->getChannels();
+    if (canBeParallel || parallelNum == 0) {
+        canBeParallel = true;
+        for (int i = 0; i < zcode->getChannelNumber(); i++) {
+            if (channels[i]->getCommandSequence()->isFullyParsed()
+                    && channels[i]->getCommandSequence()->canBeParallel()
+                    && channels[i]->getCommandSequence()->canLock()
+                    && channels[i]->canLock()
+                    && (!channels[i]->hasOutStream()
+                            || !channels[i]->acquireOutStream()->isLocked())) {
+                current = channels[i]->getCommandSequence();
+                current->lock();
+                channels[i]->lock();
+                break;
+            }
+        }
+    }
+    if (canBeParallel && current == NULL && parallelNum == 0) {
+        for (int i = 0; i < zcode->getChannelNumber(); i++) {
+            if (channels[i]->getCommandSequence()->hasParsed()
+                    && channels[i]->canLock()
+                    && (!channels[i]->hasOutStream()
+                            || !channels[i]->acquireOutStream()->isLocked())) {
+                current = channels[i]->getCommandSequence();
+                channels[i]->lock();
+                canBeParallel = false;
+                break;
+            }
+        }
+    }
+    if (current != NULL) {
+        ZcodeOutStream<RP> *out = current->acquireOutStream();
+        if (out->isOpen() && out->mostRecent != current) {
+            out->close();
+        }
+        out->mostRecent = current;
+        if (!out->isOpen()) {
+            out->openResponse(current->getChannel());
+        }
+        if (current->isBroadcast()) {
+            out->markBroadcast();
+        }
+        running[parallelNum++] = current;
+    }
+    return current;
+}
+
+template<class RP>
+void ZcodeRunner<RP>::runNext() {
+    ZcodeCommandSequence<RP> *current = NULL;
+    int targetInd = 0;
+    for (; targetInd < parallelNum; targetInd++) {
+        if (!running[targetInd]->hasParsed()
+                || running[targetInd]->peekFirst()->isComplete()
+                || running[targetInd]->peekFirst()->needsMoveAlong()
+                || !running[targetInd]->peekFirst()->isStarted()) {
+            current = running[targetInd];
+            break;
+        }
+    }
+    if (current != NULL && current->peekFirst() != NULL && current->peekFirst()->needsMoveAlong()) {
+        current->peekFirst()->setNeedsMoveAlong(false);
+        current->peekFirst()->getCommand(zcode)->moveAlong(
+                current->peekFirst());
+        current = NULL;
+    }
+    if (current != NULL
+            && (!current->hasParsed() || current->peekFirst()->isComplete())) {
+        if (finishRunning(current, targetInd)) {
+            current = NULL;
+        }
+    }
+    if (current == NULL && !canBeParallel && parallelNum == 1
+            && running[0]->canBeParallel() && running[0]->isFullyParsed()
+            && running[0]->canLock()) {
+        running[0]->lock();
+        canBeParallel = true;
+    }
+    if (current == NULL && parallelNum < RP::maxParallelRunning) {
+        targetInd = parallelNum;
+        current = findNextToRun();
+    }
+    if (current != NULL && current->hasParsed()) {
+        runSequence(current, targetInd);
+    }
+}
+
+template<class RP>
+bool ZcodeRunner<RP>::finishRunning(ZcodeCommandSequence<RP> *target, int targetInd) {
+    if (target->hasParsed()) {
+        ZcodeCommandSlot<RP> *slot = target->peekFirst();
+        if (slot->isStarted()) {
+            slot->getCommand(zcode)->finish(slot, target->acquireOutStream());
+        }
+        if (slot->isStarted() && slot->getStatus() != OK) {
+            if (target->fail(slot->getStatus())) {
+                target->acquireOutStream()->writeCommandSequenceErrorHandler();
+            } else {
+                target->acquireOutStream()->writeCommandSequenceSeperator();
+            }
+        } else if (slot->getEnd() == '\n'
+                || (target->isFullyParsed() && slot->next == NULL)) {
+            target->acquireOutStream()->writeCommandSequenceSeperator();
+        } else if (slot->getEnd() == '&') {
+            target->acquireOutStream()->writeCommandSeperator();
+        } else {
+            target->fail(UNKNOWN_ERROR);
+            target->acquireOutStream()->writeCommandSequenceSeperator();
+        }
+        if (target->hasParsed()) {
+            target->popFirst();
+            slot->reset();
+        }
+    } else if (target->isEmpty()) {
+        target->acquireOutStream()->writeCommandSequenceSeperator();
+        target->releaseOutStream();
+    }
+    if (!target->hasParsed() && target->isFullyParsed()) {
+        if (!target->getChannel()->isPacketBased()
+                || (target->isFullyParsed()
+                        && !target->getChannel()->hasCommandSequence())) {
+            target->acquireOutStream()->close();
+        }
+        target->releaseOutStream();
+        if (!target->canBeParallel()) {
+            canBeParallel = true;
+        } else if (parallelNum == 1) {
+            canBeParallel = true;
+        }
+        target->unlock();
+        target->getChannel()->unlock();
+        target->reset();
+        for (int i = targetInd; i < parallelNum - 1; i++) {
+            running[i] = running[i + 1];
+        }
+        parallelNum--;
+        return true;
+    }
+    return false;
+}
+
+template<class RP>
+void ZcodeRunner<RP>::runSequence(ZcodeCommandSequence<RP> *target, int targetInd) {
+    ZcodeOutStream<RP> *out = target->acquireOutStream();
+    ZcodeCommandSlot<RP> *cmd = target->peekFirst();
+    cmd->getFields()->copyFieldTo(out, 'E');
+    if (cmd->getStatus() != OK) {
+        cmd->setComplete(true);
+        out->writeStatus(cmd->getStatus());
+        out->writeBigStringField(cmd->getErrorMessage());
+    } else {
+        ZcodeCommand<RP> *c = cmd->getCommand(zcode);
+        if (c == NULL) {
+            out->writeStatus(UNKNOWN_CMD);
+            out->writeBigStringField("Command not found");
+            out->writeCommandSequenceSeperator();
+            target->fail(UNKNOWN_CMD);
+            finishRunning(target, targetInd);
+        } else if (cmd->getFields()->get('R', 0xFF)
+                > ZcodeActivateCommand<RP>::MAX_SYSTEM_CODE
+                && !ZcodeActivateCommand<RP>::isActivated()) {
+            out->writeStatus(NOT_ACTIVATED);
+            out->writeBigStringField("Not a system command, and not activated");
+            out->writeCommandSequenceSeperator();
+            target->fail(NOT_ACTIVATED);
+            finishRunning(target, targetInd);
+        } else {
+            cmd->start();
+            c->execute(cmd, target, out);
+        }
+    }
+}
+
+#include "ZcodeOutStream.hpp"
+#include "Zcode.hpp"
+
+#endif /* SRC_TEST_CPP_ZCODE_ZCODERUNNER_HPP_ */
