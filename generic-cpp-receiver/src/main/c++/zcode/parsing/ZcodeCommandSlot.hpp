@@ -15,19 +15,19 @@
 #include "instreams/ZcodeLookaheadStream.hpp"
 #include "instreams/ZcodeMarkerInStream.hpp"
 
-template<class RP>
+template<class ZP>
 class Zcode;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommand;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandInStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandSequence;
 
-template<class RP>
+template<class ZP>
 class ZcodeParser;
 
 struct ZcodeCommandSlotStatus {
@@ -35,7 +35,7 @@ struct ZcodeCommandSlotStatus {
     bool complete :1;
     bool needsMoveAlong :1;
     bool started :1;
-    bool usesBigBig :1;
+    bool usesHuge :1;
     bool hasCheckedCommand :1;
 
     void reset() {
@@ -43,22 +43,22 @@ struct ZcodeCommandSlotStatus {
         complete = false;
         needsMoveAlong = false;
         started = false;
-        usesBigBig = false;
+        usesHuge = false;
         hasCheckedCommand = false;
     }
 };
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandSlot {
-    typedef typename RP::fieldUnit_t fieldUnit_t;
+    typedef typename ZP::fieldUnit_t fieldUnit_t;
     public:
-    ZcodeCommandSlot<RP> *next = NULL;
+    ZcodeCommandSlot<ZP> *next = NULL;
     private:
-    ZcodeBigBigField<RP> *bigBig = NULL;
-    ZcodeCommand<RP> *cmd = NULL;
+    ZcodeHugeField<ZP> *huge = NULL;
+    ZcodeCommand<ZP> *cmd = NULL;
     char const *errorMessage = "";
-    ZcodeStandardBigField<RP> big;
-    ZcodeFieldMap<RP> map;
+    ZcodeStandardBigField<ZP> big;
+    ZcodeFieldMap<ZP> map;
     ZcodeResponseStatus status = OK;
     char end = 0;
     ZcodeCommandSlotStatus slotStatus;
@@ -71,17 +71,17 @@ class ZcodeCommandSlot {
         return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
     }
 
-    bool parseHexField(ZcodeCommandInStream<RP> *in, char field);
+    bool parseHexField(ZcodeCommandInStream<ZP> *in, char field);
 
-    void failParse(ZcodeCommandInStream<RP> *in, ZcodeCommandSequence<RP> *sequence, ZcodeResponseStatus errorStatus, char const *errorMessage);
+    void failParse(ZcodeCommandInStream<ZP> *in, ZcodeCommandSequence<ZP> *sequence, ZcodeResponseStatus errorStatus, char const *errorMessage);
 
 public:
     ZcodeCommandSlot() {
         slotStatus.reset();
     }
 
-    void setup(ZcodeBigBigField<RP> *bigBig) {
-        this->bigBig = bigBig;
+    void setup(ZcodeHugeField<ZP> *huge) {
+        this->huge = huge;
     }
 
     void reset() {
@@ -89,8 +89,8 @@ public:
         map.reset();
         big.reset();
         status = OK;
-        if (RP::bigBigFieldLength > 0 && slotStatus.usesBigBig) {
-            bigBig->reset();
+        if (ZP::hugeFieldLength > 0 && slotStatus.usesHuge) {
+            huge->reset();
         }
         slotStatus.reset();
         cmd = NULL;
@@ -117,12 +117,12 @@ public:
     void setNeedsMoveAlong(bool needsMoveAlong) {
         this->slotStatus.needsMoveAlong = needsMoveAlong;
     }
-    ZcodeFieldMap<RP>* getFields() {
+    ZcodeFieldMap<ZP>* getFields() {
         return &map;
     }
-    ZcodeBigField<RP>* getBigField() {
-        if (RP::bigBigFieldLength > 0 && slotStatus.usesBigBig) {
-            return bigBig;
+    ZcodeBigField<ZP>* getBigField() {
+        if (ZP::hugeFieldLength > 0 && slotStatus.usesHuge) {
+            return huge;
         }
         return &big;
     }
@@ -145,9 +145,9 @@ public:
         return errorMessage;
     }
 
-    ZcodeCommand<RP>* getCommand(Zcode<RP> *zcode);
+    ZcodeCommand<ZP>* getCommand(Zcode<ZP> *zcode);
 
-    bool parseSingleCommand(ZcodeCommandInStream<RP> *in, ZcodeCommandSequence<RP> *sequence);
+    bool parseSingleCommand(ZcodeCommandInStream<ZP> *in, ZcodeCommandSequence<ZP> *sequence);
 
     void fail(const char *errorMessage, ZcodeResponseStatus status) {
         this->errorMessage = errorMessage;
@@ -156,8 +156,8 @@ public:
     }
 };
 
-template<class RP>
-void ZcodeCommandSlot<RP>::failParse(ZcodeCommandInStream<RP> *in, ZcodeCommandSequence<RP> *sequence, ZcodeResponseStatus errorStatus,
+template<class ZP>
+void ZcodeCommandSlot<ZP>::failParse(ZcodeCommandInStream<ZP> *in, ZcodeCommandSequence<ZP> *sequence, ZcodeResponseStatus errorStatus,
         char const *errorMessage) {
     status = errorStatus;
     this->errorMessage = errorMessage;
@@ -167,12 +167,12 @@ void ZcodeCommandSlot<RP>::failParse(ZcodeCommandInStream<RP> *in, ZcodeCommandS
     end = '\n';
 }
 
-template<class RP>
-bool ZcodeCommandSlot<RP>::parseHexField(ZcodeCommandInStream<RP> *in, char field) {
+template<class ZP>
+bool ZcodeCommandSlot<ZP>::parseHexField(ZcodeCommandInStream<ZP> *in, char field) {
     while (in->hasNext() && in->peek() == '0') {
         in->read();
     }
-    ZcodeLookaheadStream<RP> *l = in->getLookahead();
+    ZcodeLookaheadStream<ZP> *l = in->getLookahead();
     char c = l->read();
     int lookahead = 0;
     while (isHex(c)) {
@@ -208,8 +208,8 @@ bool ZcodeCommandSlot<RP>::parseHexField(ZcodeCommandInStream<RP> *in, char fiel
     }
 }
 
-template<class RP>
-ZcodeCommand<RP>* ZcodeCommandSlot<RP>::getCommand(Zcode<RP> *zcode) {
+template<class ZP>
+ZcodeCommand<ZP>* ZcodeCommandSlot<ZP>::getCommand(Zcode<ZP> *zcode) {
     if (cmd == NULL && !slotStatus.hasCheckedCommand) {
         slotStatus.hasCheckedCommand = true;
         cmd = zcode->getCommandFinder()->findCommand(this);
@@ -217,9 +217,9 @@ ZcodeCommand<RP>* ZcodeCommandSlot<RP>::getCommand(Zcode<RP> *zcode) {
     return cmd;
 }
 
-template<class RP>
-bool ZcodeCommandSlot<RP>::parseSingleCommand(ZcodeCommandInStream<RP> *in, ZcodeCommandSequence<RP> *sequence) {
-    ZcodeBigField<RP> *target = &big;
+template<class ZP>
+bool ZcodeCommandSlot<ZP>::parseSingleCommand(ZcodeCommandInStream<ZP> *in, ZcodeCommandSequence<ZP> *sequence) {
+    ZcodeBigField<ZP> *target = &big;
     in->open();
     reset();
     in->eatWhitespace();
@@ -263,11 +263,11 @@ bool ZcodeCommandSlot<RP>::parseSingleCommand(ZcodeCommandInStream<RP> *in, Zcod
                     }
                     d = (uint8_t) (d + getHex(in->read()));
                     if (!target->addByteToBigField(d)) {
-                        if (target == &big && RP::bigBigFieldLength > 0) {
-                            slotStatus.usesBigBig = true;
-                            target = bigBig;
-                            bigBig->copyFrom(&big);
-                            bigBig->addByteToBigField(d);
+                        if (target == &big && ZP::hugeFieldLength > 0) {
+                            slotStatus.usesHuge = true;
+                            target = huge;
+                            huge->copyFrom(&big);
+                            huge->addByteToBigField(d);
                         } else {
                             slotStatus.hasCheckedCommand = true;
                             failParse(in, sequence, TOO_BIG, "Big field too long");
@@ -296,11 +296,11 @@ bool ZcodeCommandSlot<RP>::parseSingleCommand(ZcodeCommandInStream<RP> *in, Zcod
                             }
                         }
                         if (!target->addByteToBigField((uint8_t) c)) {
-                            if (target == &big && RP::bigBigFieldLength > 0) {
-                                slotStatus.usesBigBig = true;
-                                target = bigBig;
-                                bigBig->copyFrom(&big);
-                                bigBig->addByteToBigField((uint8_t) c);
+                            if (target == &big && ZP::hugeFieldLength > 0) {
+                                slotStatus.usesHuge = true;
+                                target = huge;
+                                huge->copyFrom(&big);
+                                huge->addByteToBigField((uint8_t) c);
                             } else {
                                 slotStatus.hasCheckedCommand = true;
                                 failParse(in, sequence, TOO_BIG, "Big field too long");

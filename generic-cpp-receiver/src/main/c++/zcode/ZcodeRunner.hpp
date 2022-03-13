@@ -11,37 +11,37 @@
 #include "parsing/ZcodeCommandSequence.hpp"
 #include "commands/ZcodeActivateCommand.hpp"
 
-template<class RP>
+template<class ZP>
 class Zcode;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandSequence;
 
-template<class RP>
+template<class ZP>
 class ZcodeRunner {
 private:
-    Zcode<RP> *const zcode;
-    ZcodeCommandSequence<RP> *running[RP::maxParallelRunning];
+    Zcode<ZP> *const zcode;
+    ZcodeCommandSequence<ZP> *running[ZP::maxParallelRunning];
     uint8_t parallelNum = 0;
     bool canBeParallel = false;
 
-    void runSequence(ZcodeCommandSequence<RP> *target, int targetInd);
+    void runSequence(ZcodeCommandSequence<ZP> *target, int targetInd);
 
-    bool finishRunning(ZcodeCommandSequence<RP> *target, int targetInd);
+    bool finishRunning(ZcodeCommandSequence<ZP> *target, int targetInd);
 
-    ZcodeCommandSequence<RP>* findNextToRun();
+    ZcodeCommandSequence<ZP>* findNextToRun();
 public:
-    ZcodeRunner(Zcode<RP> *zcode) :
+    ZcodeRunner(Zcode<ZP> *zcode) :
             zcode(zcode) {
     }
 
     void runNext();
 };
 
-template<class RP>
-ZcodeCommandSequence<RP>* ZcodeRunner<RP>::findNextToRun() {
-    ZcodeCommandSequence <RP>*current = NULL;
-    ZcodeCommandChannel<RP> **channels = zcode->getChannels();
+template<class ZP>
+ZcodeCommandSequence<ZP>* ZcodeRunner<ZP>::findNextToRun() {
+    ZcodeCommandSequence <ZP>*current = NULL;
+    ZcodeCommandChannel<ZP> **channels = zcode->getChannels();
     if (canBeParallel || parallelNum == 0) {
         canBeParallel = true;
         for (int i = 0; i < zcode->getChannelNumber(); i++) {
@@ -72,7 +72,7 @@ ZcodeCommandSequence<RP>* ZcodeRunner<RP>::findNextToRun() {
         }
     }
     if (current != NULL) {
-        ZcodeOutStream<RP> *out = current->acquireOutStream();
+        ZcodeOutStream<ZP> *out = current->acquireOutStream();
         if (out->isOpen() && out->mostRecent != current) {
             out->close();
         }
@@ -88,9 +88,9 @@ ZcodeCommandSequence<RP>* ZcodeRunner<RP>::findNextToRun() {
     return current;
 }
 
-template<class RP>
-void ZcodeRunner<RP>::runNext() {
-    ZcodeCommandSequence<RP> *current = NULL;
+template<class ZP>
+void ZcodeRunner<ZP>::runNext() {
+    ZcodeCommandSequence<ZP> *current = NULL;
     int targetInd = 0;
     for (; targetInd < parallelNum; targetInd++) {
         if (!running[targetInd]->hasParsed()
@@ -119,7 +119,7 @@ void ZcodeRunner<RP>::runNext() {
         running[0]->lock();
         canBeParallel = true;
     }
-    if (current == NULL && parallelNum < RP::maxParallelRunning) {
+    if (current == NULL && parallelNum < ZP::maxParallelRunning) {
         targetInd = parallelNum;
         current = findNextToRun();
     }
@@ -128,10 +128,10 @@ void ZcodeRunner<RP>::runNext() {
     }
 }
 
-template<class RP>
-bool ZcodeRunner<RP>::finishRunning(ZcodeCommandSequence<RP> *target, int targetInd) {
+template<class ZP>
+bool ZcodeRunner<ZP>::finishRunning(ZcodeCommandSequence<ZP> *target, int targetInd) {
     if (target->hasParsed()) {
-        ZcodeCommandSlot<RP> *slot = target->peekFirst();
+        ZcodeCommandSlot<ZP> *slot = target->peekFirst();
         if (slot->isStarted()) {
             slot->getCommand(zcode)->finish(slot, target->acquireOutStream());
         }
@@ -182,17 +182,17 @@ bool ZcodeRunner<RP>::finishRunning(ZcodeCommandSequence<RP> *target, int target
     return false;
 }
 
-template<class RP>
-void ZcodeRunner<RP>::runSequence(ZcodeCommandSequence<RP> *target, int targetInd) {
-    ZcodeOutStream<RP> *out = target->acquireOutStream();
-    ZcodeCommandSlot<RP> *cmd = target->peekFirst();
+template<class ZP>
+void ZcodeRunner<ZP>::runSequence(ZcodeCommandSequence<ZP> *target, int targetInd) {
+    ZcodeOutStream<ZP> *out = target->acquireOutStream();
+    ZcodeCommandSlot<ZP> *cmd = target->peekFirst();
     cmd->getFields()->copyFieldTo(out, 'E');
     if (cmd->getStatus() != OK) {
         cmd->setComplete(true);
         out->writeStatus(cmd->getStatus());
         out->writeBigStringField(cmd->getErrorMessage());
     } else {
-        ZcodeCommand<RP> *c = cmd->getCommand(zcode);
+        ZcodeCommand<ZP> *c = cmd->getCommand(zcode);
         if (c == NULL) {
             out->writeStatus(UNKNOWN_CMD);
             out->writeBigStringField("Command not found");
@@ -200,8 +200,8 @@ void ZcodeRunner<RP>::runSequence(ZcodeCommandSequence<RP> *target, int targetIn
             target->fail(UNKNOWN_CMD);
             finishRunning(target, targetInd);
         } else if (cmd->getFields()->get('R', 0xFF)
-                > ZcodeActivateCommand<RP>::MAX_SYSTEM_CODE
-                && !ZcodeActivateCommand<RP>::isActivated()) {
+                > ZcodeActivateCommand<ZP>::MAX_SYSTEM_CODE
+                && !ZcodeActivateCommand<ZP>::isActivated()) {
             out->writeStatus(NOT_ACTIVATED);
             out->writeBigStringField("Not a system command, and not activated");
             out->writeCommandSequenceSeperator();

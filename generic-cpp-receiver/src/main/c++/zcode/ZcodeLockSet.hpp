@@ -12,13 +12,13 @@
 /**
  * Set of locks being requested.
  */
-template<class RP>
+template<class ZP>
 class ZcodeLockSet {
-    typedef typename RP::lockNumber_t lockNumber_t;
+    typedef typename ZP::lockNumber_t lockNumber_t;
 private:
     // FIXME: locks are lockIds
-    uint8_t locks[RP::lockNum];
-    uint8_t w_nr[(RP::lockNum + 7) / 8];
+    uint8_t locks[ZP::lockNum];
+    uint8_t w_nr[(ZP::lockNum + 7) / 8];
     bool active = false;
     lockNumber_t lockNum = 0;
 

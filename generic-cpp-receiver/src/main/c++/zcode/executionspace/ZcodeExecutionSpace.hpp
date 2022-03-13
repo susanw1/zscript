@@ -12,46 +12,46 @@
 #include "ZcodeExecutionSpaceChannelIn.hpp"
 #include "ZcodeExecutionSpaceOut.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeNotificationManager;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandChannel;
 
-template<class RP>
+template<class ZP>
 class ZcodeExecutionSpaceChannel;
 
-template<class RP>
+template<class ZP>
 class ZcodeExecutionSpace {
-    typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
+    typedef typename ZP::executionSpaceAddress_t executionSpaceAddress_t;
 public:
     ZcodeExecutionSpace();
 private:
-    ZcodeExecutionSpaceChannelIn<RP> inStreams[RP::executionInNum];
-    ZcodeExecutionSpaceOut<RP> outStreams[RP::executionOutNum];
-    ZcodeNotificationManager<RP> *notifications;
-    ZcodeExecutionSpaceChannel<RP> **channels = NULL;
+    ZcodeExecutionSpaceChannelIn<ZP> inStreams[ZP::executionInNum];
+    ZcodeExecutionSpaceOut<ZP> outStreams[ZP::executionOutNum];
+    ZcodeNotificationManager<ZP> *notifications;
+    ZcodeExecutionSpaceChannel<ZP> **channels = NULL;
     uint8_t channelNum = 0;
     executionSpaceAddress_t length = 0;
     uint8_t delay = 0;
-    uint8_t space[RP::executionLength];
+    uint8_t space[ZP::executionLength];
     bool running = false;
     bool failed = false;
 
 public:
-    ZcodeExecutionSpace(ZcodeNotificationManager<RP> *notifications) :
+    ZcodeExecutionSpace(ZcodeNotificationManager<ZP> *notifications) :
             notifications(notifications) {
-        for (int i = 0; i < RP::executionInNum; ++i) {
+        for (int i = 0; i < ZP::executionInNum; ++i) {
             inStreams[i].initialSetup(this);
         }
-        for (int i = 0; i < RP::executionOutNum; ++i) {
+        for (int i = 0; i < ZP::executionOutNum; ++i) {
             outStreams[i].initialSetup(this);
         }
-        for (int i = 0; i < RP::executionLength; ++i) {
+        for (int i = 0; i < ZP::executionLength; ++i) {
             space[i] = 0;
         }
     }
-    void setChannels(ZcodeExecutionSpaceChannel<RP> **channels, uint8_t channelNum) {
+    void setChannels(ZcodeExecutionSpaceChannel<ZP> **channels, uint8_t channelNum) {
         this->channels = channels;
         this->channelNum = channelNum;
     }
@@ -60,7 +60,7 @@ public:
         return channelNum;
     }
 
-    ZcodeExecutionSpaceChannel<RP>** getChannels() {
+    ZcodeExecutionSpaceChannel<ZP>** getChannels() {
         return channels;
     }
 
@@ -73,7 +73,7 @@ public:
     }
 
     bool hasInStream() {
-        for (int i = 0; i < RP::executionInNum; i++) {
+        for (int i = 0; i < ZP::executionInNum; i++) {
             if (!inStreams[i].isInUse()) {
                 return true;
             }
@@ -81,8 +81,8 @@ public:
         return false;
     }
 
-    ZcodeExecutionSpaceChannelIn<RP>* acquireInStream(executionSpaceAddress_t position) {
-        for (int i = 0; i < RP::executionInNum; i++) {
+    ZcodeExecutionSpaceChannelIn<ZP>* acquireInStream(executionSpaceAddress_t position) {
+        for (int i = 0; i < ZP::executionInNum; i++) {
             if (!inStreams[i].isInUse()) {
                 inStreams[i].setup(position);
                 return inStreams + i;
@@ -91,12 +91,12 @@ public:
         return NULL;
     }
 
-    void releaseInStream(ZcodeExecutionSpaceChannelIn<RP> *stream) {
+    void releaseInStream(ZcodeExecutionSpaceChannelIn<ZP> *stream) {
         stream->release();
     }
 
     bool hasOutStream() {
-        for (int i = 0; i < RP::executionOutNum; i++) {
+        for (int i = 0; i < ZP::executionOutNum; i++) {
             if (!outStreams[i].isInUse()) {
                 return true;
             }
@@ -104,8 +104,8 @@ public:
         return false;
     }
 
-    ZcodeExecutionSpaceOut<RP>* acquireOutStream() {
-        for (int i = 0; i < RP::executionOutNum; i++) {
+    ZcodeExecutionSpaceOut<ZP>* acquireOutStream() {
+        for (int i = 0; i < ZP::executionOutNum; i++) {
             if (!outStreams[i].isInUse()) {
                 outStreams[i].setInUse(true);
                 return outStreams + i;
@@ -114,21 +114,21 @@ public:
         return NULL;
     }
 
-    void releaseOutStream(ZcodeExecutionSpaceOut<RP> *stream) {
+    void releaseOutStream(ZcodeExecutionSpaceOut<ZP> *stream) {
         if (!stream->isDataBufferFull()) {
             stream->setInUse(false);
         }
     }
 
     void flush() {
-        for (int i = 0; i < RP::executionOutNum; i++) {
+        for (int i = 0; i < ZP::executionOutNum; i++) {
             if (outStreams[i].isDataBufferFull() && outStreams[i].flush()) {
                 outStreams[i].setInUse(false);
             }
         }
     }
 
-    ZcodeCommandChannel<RP>* getNotificationChannel() {
+    ZcodeCommandChannel<ZP>* getNotificationChannel() {
         return notifications->getNotificationChannel();
     }
 

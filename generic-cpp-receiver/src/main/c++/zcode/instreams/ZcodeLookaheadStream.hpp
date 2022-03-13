@@ -9,7 +9,7 @@
 #define SRC_TEST_CPP_ZCODE_PARSING_ZCODELOOKAHEADSTREAM_HPP_
 #include "../ZcodeIncludes.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeLookaheadStream {
 public:
     virtual char read() = 0;

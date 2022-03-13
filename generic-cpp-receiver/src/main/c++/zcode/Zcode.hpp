@@ -15,38 +15,38 @@
 #include "ZcodeNotificationManager.hpp"
 #include "ZcodeRunner.hpp"
 #include "ZcodeDebugOutput.hpp"
-#include "ZcodeVoidChannel.hpp"
+#include "ZcodeNoopChannel.hpp"
 #include "ZcodeLocks.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandChannel;
 
-template<class RP>
+template<class ZP>
 class ZcodeLockSet;
 
-template<class RP>
+template<class ZP>
 class ZcodeAddressingCommandConsumer;
 
-template<class RP>
+template<class ZP>
 class Zcode {
 private:
-    ZcodeParser<RP> parser;
-    ZcodeRunner<RP> runner;
-    ZcodeNotificationManager<RP> notificationManager;
-    ZcodeExecutionSpace<RP> space;
-    ZcodeCommandFinder<RP> finder;
-    ZcodeDebugOutput<RP> debug;
-    ZcodeVoidChannel<RP> voidChannel;
-    ZcodeLocks<RP> locks;
-    ZcodeAddressingCommandConsumer<RP> *addressingCommandConsumer = NULL;
-    ZcodeCommandChannel<RP> **channels = NULL;
+    ZcodeParser<ZP> parser;
+    ZcodeRunner<ZP> runner;
+    ZcodeNotificationManager<ZP> notificationManager;
+    ZcodeExecutionSpace<ZP> space;
+    ZcodeCommandFinder<ZP> finder;
+    ZcodeDebugOutput<ZP> debug;
+    ZcodeNoopChannel<ZP> noopChannel;
+    ZcodeLocks<ZP> locks;
+    ZcodeAddressingCommandConsumer<ZP> *addressingCommandConsumer = NULL;
+    ZcodeCommandChannel<ZP> **channels = NULL;
     const char *configFailureState = NULL;
     uint8_t channelNum = 0;
-    public:
-    Zcode(ZcodeBusInterruptSource<RP> **interruptSources, uint8_t interruptSourceNum) :
+public:
+    Zcode(ZcodeBusInterruptSource<ZP> **interruptSources, uint8_t interruptSourceNum) :
             parser(this), runner(this), notificationManager(this, interruptSources, interruptSourceNum), space(&notificationManager), finder(this), debug() {
     }
-    void setChannels(ZcodeCommandChannel<RP> **channels, uint8_t channelNum) {
+    void setChannels(ZcodeCommandChannel<ZP> **channels, uint8_t channelNum) {
         this->channels = channels;
         this->channelNum = channelNum;
     }
@@ -66,47 +66,48 @@ private:
         runner.runNext();
     }
 
-    ZcodeCommandChannel<RP>* getVoidChannel() {
-        return &voidChannel;
+    ZcodeCommandChannel<ZP>* getNoopChannel() {
+        return &noopChannel;
     }
 
-    ZcodeExecutionSpace<RP>* getSpace() {
+    ZcodeExecutionSpace<ZP>* getSpace() {
         return &space;
     }
 
-    ZcodeCommandChannel<RP>** getChannels() {
+    ZcodeCommandChannel<ZP>** getChannels() {
         return channels;
     }
     uint8_t getChannelNumber() {
         return channelNum;
     }
-    ZcodeCommandFinder<RP>* getCommandFinder() {
+    ZcodeCommandFinder<ZP>* getCommandFinder() {
         return &finder;
     }
 
-    ZcodeDebugOutput<RP>& getDebug() {
+    ZcodeDebugOutput<ZP>& getDebug() {
         return debug;
     }
 
-    ZcodeNotificationManager<RP>* getNotificationManager() {
+    ZcodeNotificationManager<ZP>* getNotificationManager() {
         return &notificationManager;
     }
-    void setAddressingCommandConsumer(ZcodeAddressingCommandConsumer<RP> *addressingCommandConsumer) {
+    void setAddressingCommandConsumer(ZcodeAddressingCommandConsumer<ZP> *addressingCommandConsumer) {
         this->addressingCommandConsumer = addressingCommandConsumer;
     }
-    ZcodeAddressingCommandConsumer<RP>* getAddressingCommandConsumer() {
+
+    ZcodeAddressingCommandConsumer<ZP>* getAddressingCommandConsumer() {
         return addressingCommandConsumer;
     }
 
-    bool canLock(ZcodeLockSet<RP> *lockset) {
+    bool canLock(ZcodeLockSet<ZP> *lockset) {
         return locks.canLock(lockset);
     }
 
-    void lock(ZcodeLockSet<RP> *lockset) {
+    void lock(ZcodeLockSet<ZP> *lockset) {
         locks.lock(lockset);
     }
 
-    void unlock(ZcodeLockSet<RP> *lockset) {
+    void unlock(ZcodeLockSet<ZP> *lockset) {
         locks.unlock(lockset);
     }
 };

@@ -9,17 +9,17 @@
 #define SRC_MAIN_CPP_ZCODE_INSTREAMS_ZCODEMARKERINSTREAM_HPP_
 #include "../ZcodeIncludes.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeSequenceInStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeMarkerInStream {
 private:
-    ZcodeSequenceInStream<RP> *sequenceIn;
+    ZcodeSequenceInStream<ZP> *sequenceIn;
     bool hasRead = false;
 
 public:
-    ZcodeMarkerInStream(ZcodeSequenceInStream<RP> *sequenceIn) :
+    ZcodeMarkerInStream(ZcodeSequenceInStream<ZP> *sequenceIn) :
             sequenceIn(sequenceIn) {
     }
 

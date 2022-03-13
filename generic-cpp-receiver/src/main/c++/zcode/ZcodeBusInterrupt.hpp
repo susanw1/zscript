@@ -11,10 +11,10 @@
 #include "ZcodeIncludes.hpp"
 #include "ZcodeBusInterruptSource.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeBusInterrupt {
 private:
-    ZcodeBusInterruptSource<RP> *source;
+    ZcodeBusInterruptSource<ZP> *source;
     uint8_t id;
 
 public:
@@ -22,11 +22,11 @@ public:
     ZcodeBusInterrupt() :
             source(NULL), id(0) {
     }
-    ZcodeBusInterrupt(ZcodeBusInterruptSource<RP> *source, uint8_t id) :
+    ZcodeBusInterrupt(ZcodeBusInterruptSource<ZP> *source, uint8_t id) :
             source(source), id(id) {
     }
 
-    ZcodeBusInterruptSource<RP>* getSource() {
+    ZcodeBusInterruptSource<ZP>* getSource() {
         return source;
     }
 

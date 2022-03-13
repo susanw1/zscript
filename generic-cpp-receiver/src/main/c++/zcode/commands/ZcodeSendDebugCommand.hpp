@@ -11,28 +11,28 @@
 #include "../ZcodeIncludes.hpp"
 #include "ZcodeCommand.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeOutStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeDebugOutput;
 
-template<class RP>
+template<class ZP>
 class Zcode;
 
-template<class RP>
-class ZcodeSendDebugCommand: public ZcodeCommand<RP> {
+template<class ZP>
+class ZcodeSendDebugCommand: public ZcodeCommand<ZP> {
 private:
     const uint8_t code = 0x1f;
-    Zcode<RP> *const zcode;
+    Zcode<ZP> *const zcode;
 public:
-    ZcodeSendDebugCommand(Zcode<RP> *const zcode) :
+    ZcodeSendDebugCommand(Zcode<ZP> *const zcode) :
             zcode(zcode) {
     }
 
-    void execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out);
+    void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
 
-    void setLocks(ZcodeCommandSlot<RP> *slot, ZcodeLockSet<RP> *locks) const {
+    void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
     }
 
     uint8_t getCode() const {
@@ -52,8 +52,8 @@ public:
     }
 };
 
-template<class RP>
-void ZcodeSendDebugCommand<RP>::execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out) {
+template<class ZP>
+void ZcodeSendDebugCommand<ZP>::execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) {
     zcode->getDebug().println((const char*) slot->getBigField()->getData(), slot->getBigField()->getLength());
     out->writeStatus(OK);
     slot->setComplete(true);

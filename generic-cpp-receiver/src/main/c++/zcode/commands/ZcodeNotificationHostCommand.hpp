@@ -11,28 +11,28 @@
 #include "../ZcodeIncludes.hpp"
 #include "ZcodeCommand.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeOutStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeDebugOutput;
 
-template<class RP>
+template<class ZP>
 class Zcode;
 
-template<class RP>
-class ZcodeNotificationHostCommand: public ZcodeCommand<RP> {
+template<class ZP>
+class ZcodeNotificationHostCommand: public ZcodeCommand<ZP> {
 private:
     const uint8_t code = 0x08;
-    Zcode<RP> *const zcode;
+    Zcode<ZP> *const zcode;
 public:
-    ZcodeNotificationHostCommand(Zcode<RP> *const zcode) :
+    ZcodeNotificationHostCommand(Zcode<ZP> *const zcode) :
             zcode(zcode) {
     }
 
-    void execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out);
+    void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
 
-    void setLocks(ZcodeCommandSlot<RP> *slot, ZcodeLockSet<RP> *locks) const {
+    void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
     }
 
     uint8_t getCode() const {
@@ -52,8 +52,8 @@ public:
     }
 };
 
-template<class RP>
-void ZcodeNotificationHostCommand<RP>::execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out) {
+template<class ZP>
+void ZcodeNotificationHostCommand<ZP>::execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) {
     zcode->getNotificationManager()->setNotificationChannel(sequence->getChannel());
     out->writeStatus(OK);
     slot->setComplete(true);

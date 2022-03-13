@@ -11,29 +11,29 @@
 #include "ZcodeBigField.hpp"
 #include "ZcodeCommandSlot.hpp"
 
-template<class RP>
+template<class ZP>
 class Zcode;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandSequence;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandChannel;
 
-template<class RP>
+template<class ZP>
 class ZcodeParser {
 private:
-    Zcode<RP> *const zcode;
-    ZcodeCommandSequence<RP> *mostRecent = NULL;
-    ZcodeCommandSlot<RP> slots[RP::slotNum];
-    ZcodeBigBigField<RP> bigBig;
+    Zcode<ZP> *const zcode;
+    ZcodeCommandSequence<ZP> *mostRecent = NULL;
+    ZcodeCommandSlot<ZP> slots[ZP::slotNum];
+    ZcodeHugeField<ZP> huge;
 
-    ZcodeCommandSequence<RP>* beginSequenceParse(ZcodeCommandSlot<RP> *targetSlot, ZcodeCommandChannel<RP> *channel);
-    void parse(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence);
+    ZcodeCommandSequence<ZP>* beginSequenceParse(ZcodeCommandSlot<ZP> *targetSlot, ZcodeCommandChannel<ZP> *channel);
+    void parse(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence);
 
-    void report_failure(ZcodeCommandChannel<RP> *channel);
+    void report_failure(ZcodeCommandChannel<ZP> *channel);
 public:
-    ZcodeParser(Zcode<RP> *zcode) :
+    ZcodeParser(Zcode<ZP> *zcode) :
             zcode(zcode) {
         setupSlots();
     }
@@ -43,15 +43,15 @@ public:
     void setupSlots();
 };
 
-template<class RP>
-void ZcodeParser<RP>::setupSlots() {
-    for (int i = 0; i < RP::slotNum; ++i) {
-        slots[i].setup(&bigBig);
+template<class ZP>
+void ZcodeParser<ZP>::setupSlots() {
+    for (int i = 0; i < ZP::slotNum; ++i) {
+        slots[i].setup(&huge);
     }
 }
 
-template<class RP>
-void ZcodeParser<RP>::report_failure(ZcodeCommandChannel<RP> *channel) {
+template<class ZP>
+void ZcodeParser<ZP>::report_failure(ZcodeCommandChannel<ZP> *channel) {
     if (!channel->hasOutStream() || !channel->acquireOutStream()->isLocked()) {
         channel->acquireOutStream()->lock();
         channel->acquireOutStream()->openResponse(channel);
@@ -64,11 +64,11 @@ void ZcodeParser<RP>::report_failure(ZcodeCommandChannel<RP> *channel) {
     }
 }
 
-template<class RP>
-void ZcodeParser<RP>::parseNext() {
-    ZcodeCommandSlot<RP> *targetSlot = NULL;
-    if (!bigBig.isInUse()) {
-        for (int i = 0; i < RP::slotNum; i++) {
+template<class ZP>
+void ZcodeParser<ZP>::parseNext() {
+    ZcodeCommandSlot<ZP> *targetSlot = NULL;
+    if (!huge.isInUse()) {
+        for (int i = 0; i < ZP::slotNum; i++) {
             if (!slots[i].isParsed()) {
                 targetSlot = &slots[i];
                 break;
@@ -85,7 +85,7 @@ void ZcodeParser<RP>::parseNext() {
                 }
                 mostRecent = NULL;
                 for (int i = 0; i < zcode->getChannelNumber(); i++) {
-                    ZcodeCommandChannel<RP> *channel = zcode->getChannels()[i];
+                    ZcodeCommandChannel<ZP> *channel = zcode->getChannels()[i];
                     if (channel->canLock() && channel->hasCommandSequence() && !channel->getCommandSequence()->isActive()
                             && (!channel->hasInStream() || !channel->acquireInStream()->getSequenceInStream()->isLocked())) {
                         if (zcode->getConfigFailureState() == NULL) {
@@ -104,9 +104,9 @@ void ZcodeParser<RP>::parseNext() {
     }
 }
 
-template<class RP>
-ZcodeCommandSequence<RP>* ZcodeParser<RP>::beginSequenceParse(ZcodeCommandSlot<RP> *targetSlot, ZcodeCommandChannel<RP> *channel) {
-    ZcodeCommandSequence<RP> *candidateSequence = channel->getCommandSequence();
+template<class ZP>
+ZcodeCommandSequence<ZP>* ZcodeParser<ZP>::beginSequenceParse(ZcodeCommandSlot<ZP> *targetSlot, ZcodeCommandChannel<ZP> *channel) {
+    ZcodeCommandSequence<ZP> *candidateSequence = channel->getCommandSequence();
     channel->lock();
     candidateSequence->acquireInStream()->open();
     if (candidateSequence->parseFlags()) { // returns false if a debug sequence, true otherwise
@@ -130,8 +130,8 @@ ZcodeCommandSequence<RP>* ZcodeParser<RP>::beginSequenceParse(ZcodeCommandSlot<R
     }
 }
 
-template<class RP>
-void ZcodeParser<RP>::parse(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence <RP>*sequence) {
+template<class ZP>
+void ZcodeParser<ZP>::parse(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence <ZP>*sequence) {
     bool worked = slot->parseSingleCommand(sequence->acquireInStream()->getCommandInStream(), sequence);
     sequence->addLast(slot);
     if (!worked) {

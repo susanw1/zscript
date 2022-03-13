@@ -11,10 +11,10 @@
 #include "ZcodeIncludes.hpp"
 #include "ZcodeOutStream.hpp"
 
-template<class RP>
-class AbstractZcodeOutStream: public ZcodeOutStream<RP> {
-    typedef typename RP::bigFieldAddress_t bigFieldAddress_t;
-    typedef typename RP::fieldUnit_t fieldUnit_t;
+template<class ZP>
+class AbstractZcodeOutStream: public ZcodeOutStream<ZP> {
+    typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
+    typedef typename ZP::fieldUnit_t fieldUnit_t;
 private:
     uint8_t toHexDigit(int i) {
         return (uint8_t) (i > 9 ? 'a' + i - 10 : '0' + i);
@@ -22,21 +22,21 @@ private:
 public:
     virtual void writeByte(uint8_t value) = 0;
 
-    virtual ZcodeOutStream<RP>* markDebug() {
+    virtual ZcodeOutStream<ZP>* markDebug() {
         writeByte('#');
         return this;
     }
-    virtual ZcodeOutStream<RP>* markNotification() {
+    virtual ZcodeOutStream<ZP>* markNotification() {
         writeByte('!');
         return this;
     }
 
-    virtual ZcodeOutStream<RP>* markBroadcast() {
+    virtual ZcodeOutStream<ZP>* markBroadcast() {
         writeByte('*');
         return this;
     }
 
-    virtual ZcodeOutStream<RP>* writeStatus(ZcodeResponseStatus st) {
+    virtual ZcodeOutStream<ZP>* writeStatus(ZcodeResponseStatus st) {
         writeByte('S');
         if (st != OK) {
             if (st >= 0x10) {
@@ -47,7 +47,7 @@ public:
         return this;
     }
 
-    virtual ZcodeOutStream<RP>* writeField(char f, fieldUnit_t v) {
+    virtual ZcodeOutStream<ZP>* writeField(char f, fieldUnit_t v) {
         writeByte(f);
         if (sizeof(fieldUnit_t) == 1 || v <= 255) {
             if (v != 0) {
@@ -68,7 +68,7 @@ public:
         return this;
     }
 
-    virtual ZcodeOutStream<RP>* continueField(fieldUnit_t v) {
+    virtual ZcodeOutStream<ZP>* continueField(fieldUnit_t v) {
         if (sizeof(fieldUnit_t) == 1) {
             writeByte(toHexDigit((v >> 4) & 0x0F));
             writeByte(toHexDigit(v & 0x0F));
@@ -81,7 +81,7 @@ public:
         return this;
     }
 
-    virtual ZcodeOutStream<RP>* writeBigHexField(uint8_t const *value, bigFieldAddress_t length) {
+    virtual ZcodeOutStream<ZP>* writeBigHexField(uint8_t const *value, bigFieldAddress_t length) {
         writeByte('+');
         for (int i = 0; i < length; i++) {
             writeByte(toHexDigit(value[i] >> 4));
@@ -90,7 +90,7 @@ public:
         return this;
     }
 
-    virtual ZcodeOutStream<RP>* writeBigStringField(uint8_t const *value, bigFieldAddress_t length) {
+    virtual ZcodeOutStream<ZP>* writeBigStringField(uint8_t const *value, bigFieldAddress_t length) {
         writeByte('"');
         for (bigFieldAddress_t i = 0; i < length; ++i) {
             if (value[i] == '\n') {
@@ -107,7 +107,7 @@ public:
         return this;
     }
 
-    virtual ZcodeOutStream<RP>* writeBigStringField(char const *s) {
+    virtual ZcodeOutStream<ZP>* writeBigStringField(char const *s) {
         if (sizeof(uint8_t) == sizeof(char)) {
             bigFieldAddress_t i;
             for (i = 0; s[i] != '\0'; ++i)
@@ -133,16 +133,16 @@ public:
         return this;
     }
 
-    virtual ZcodeOutStream<RP>* writeCommandSeperator() {
+    virtual ZcodeOutStream<ZP>* writeCommandSeperator() {
         writeByte('&');
         return this;
     }
-    virtual ZcodeOutStream<RP>* writeCommandSequenceErrorHandler() {
+    virtual ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() {
         writeByte('|');
         return this;
     }
 
-    virtual ZcodeOutStream<RP>* writeCommandSequenceSeperator() {
+    virtual ZcodeOutStream<ZP>* writeCommandSequenceSeperator() {
         writeByte('\n');
         return this;
     }

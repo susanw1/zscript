@@ -11,75 +11,75 @@
 #include "ZcodeBusInterruptSource.hpp"
 #include "ZcodeBusInterrupt.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeBusInterruptSource;
 
-template<class RP>
+template<class ZP>
 class ZcodeBusInterrupt;
 
-template<class RP>
+template<class ZP>
 class ZcodeInterruptVectorManager;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandChannel;
 
-template<class RP>
+template<class ZP>
 class Zcode;
 
-template<class RP>
+template<class ZP>
 class ZcodeNotificationManager {
 private:
-    ZcodeBusInterruptSource<RP> **sources;
-    ZcodeBusInterrupt<RP> waitingNotifications[RP::interruptStoreNum];
+    ZcodeBusInterruptSource<ZP> **sources;
+    ZcodeBusInterrupt<ZP> waitingNotifications[ZP::interruptStoreNum];
     uint8_t waitingNotificationNumber = 0;
     uint8_t sourceNum = 0;
-    ZcodeInterruptVectorManager<RP> *vectorChannel;
-    ZcodeCommandChannel<RP> *notificationChannel;
+    ZcodeInterruptVectorManager<ZP> *vectorChannel;
+    ZcodeCommandChannel<ZP> *notificationChannel;
 
     bool canSendNotification();
 
-    void sendNotification(ZcodeBusInterrupt<RP> interrupt);
+    void sendNotification(ZcodeBusInterrupt<ZP> interrupt);
 
 public:
-    ZcodeNotificationManager(Zcode<RP> *zcode, ZcodeBusInterruptSource<RP> **sources, uint8_t sourceNum);
+    ZcodeNotificationManager(Zcode<ZP> *zcode, ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum);
 
-    void setVectorChannel(ZcodeInterruptVectorManager<RP> *vectorChannel) {
+    void setVectorChannel(ZcodeInterruptVectorManager<ZP> *vectorChannel) {
         this->vectorChannel = vectorChannel;
     }
 
-    void setNotificationChannel(ZcodeCommandChannel<RP> *notificationChannel);
+    void setNotificationChannel(ZcodeCommandChannel<ZP> *notificationChannel);
 
-    ZcodeCommandChannel<RP>* getNotificationChannel() {
+    ZcodeCommandChannel<ZP>* getNotificationChannel() {
         return notificationChannel;
     }
 
-    ZcodeInterruptVectorManager<RP>* getVectorChannel() {
+    ZcodeInterruptVectorManager<ZP>* getVectorChannel() {
         return vectorChannel;
     }
 
     void manageNotifications();
 };
 
-template<class RP>
-ZcodeNotificationManager<RP>::ZcodeNotificationManager(Zcode<RP> *zcode, ZcodeBusInterruptSource<RP> **sources, uint8_t sourceNum) :
-        sources(sources), sourceNum(sourceNum), vectorChannel(NULL), notificationChannel(zcode->getVoidChannel()) {
+template<class ZP>
+ZcodeNotificationManager<ZP>::ZcodeNotificationManager(Zcode<ZP> *zcode, ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum) :
+        sources(sources), sourceNum(sourceNum), vectorChannel(NULL), notificationChannel(zcode->getNoopChannel()) {
 }
 
-template<class RP>
-bool ZcodeNotificationManager<RP>::canSendNotification() {
-    if (vectorChannel == NULL || !RP::isUsingInterruptVector) {
+template<class ZP>
+bool ZcodeNotificationManager<ZP>::canSendNotification() {
+    if (vectorChannel == NULL || !ZP::isUsingInterruptVector) {
         return !notificationChannel->hasOutStream() || !notificationChannel->acquireOutStream()->isLocked();
     } else {
         return vectorChannel->canAccept();
     }
 }
 
-template<class RP>
-void ZcodeNotificationManager<RP>::sendNotification(ZcodeBusInterrupt<RP> interrupt) { // Only called if canSendNotification()
-    if (vectorChannel != NULL && (RP::isUsingInterruptVector && vectorChannel->hasVector(&interrupt))) {
+template<class ZP>
+void ZcodeNotificationManager<ZP>::sendNotification(ZcodeBusInterrupt<ZP> interrupt) { // Only called if canSendNotification()
+    if (vectorChannel != NULL && (ZP::isUsingInterruptVector && vectorChannel->hasVector(&interrupt))) {
         vectorChannel->acceptInterrupt(interrupt);
     } else {
-        ZcodeOutStream<RP> *out = notificationChannel->acquireOutStream();
+        ZcodeOutStream<ZP> *out = notificationChannel->acquireOutStream();
         out->lock();
         if (out->isOpen()) {
             out->close();
@@ -91,7 +91,7 @@ void ZcodeNotificationManager<RP>::sendNotification(ZcodeBusInterrupt<RP> interr
         out->writeField('T', interrupt.getNotificationType());
         out->writeField('I', interrupt.getNotificationBus());
         out->writeStatus(OK);
-        if (RP::findInterruptSourceAddress && interrupt.getSource()->hasFindableAddress(interrupt.getId())) {
+        if (ZP::findInterruptSourceAddress && interrupt.getSource()->hasFindableAddress(interrupt.getId())) {
             out->writeCommandSeperator();
             out->writeField('A', interrupt.getFoundAddress());
             if (interrupt.hasFindableAddress()) {
@@ -107,8 +107,8 @@ void ZcodeNotificationManager<RP>::sendNotification(ZcodeBusInterrupt<RP> interr
     }
 }
 
-template<class RP>
-void ZcodeNotificationManager<RP>::setNotificationChannel(ZcodeCommandChannel<RP> *notificationChannel) {
+template<class ZP>
+void ZcodeNotificationManager<ZP>::setNotificationChannel(ZcodeCommandChannel<ZP> *notificationChannel) {
     if (this->notificationChannel != NULL) {
         this->notificationChannel->releaseFromNotificationChannel();
     }
@@ -116,15 +116,15 @@ void ZcodeNotificationManager<RP>::setNotificationChannel(ZcodeCommandChannel<RP
     this->notificationChannel->setAsNotificationChannel();
 }
 
-template<class RP>
-void ZcodeNotificationManager<RP>::manageNotifications() {
+template<class ZP>
+void ZcodeNotificationManager<ZP>::manageNotifications() {
     if (waitingNotificationNumber > 0 && canSendNotification()) {
         for (int i = 0; i < waitingNotificationNumber; i++) {
-            ZcodeBusInterrupt<RP> interrupt = waitingNotifications[i];
-            if (RP::findInterruptSourceAddress && interrupt.hasFindableAddress() && !interrupt.hasStartedAddressFind()) {
+            ZcodeBusInterrupt<ZP> interrupt = waitingNotifications[i];
+            if (ZP::findInterruptSourceAddress && interrupt.hasFindableAddress() && !interrupt.hasStartedAddressFind()) {
                 interrupt.findAddress();
             }
-            if (!RP::findInterruptSourceAddress || !interrupt.hasFindableAddress() || interrupt.getFoundAddress() != -1) {
+            if (!ZP::findInterruptSourceAddress || !interrupt.hasFindableAddress() || interrupt.getFoundAddress() != -1) {
                 sendNotification(interrupt);
                 for (int j = i; j < waitingNotificationNumber - 1; j++) {
                     waitingNotifications[j] = waitingNotifications[j + 1];
@@ -134,25 +134,25 @@ void ZcodeNotificationManager<RP>::manageNotifications() {
             }
         }
     }
-    if (waitingNotificationNumber < RP::interruptStoreNum) {
+    if (waitingNotificationNumber < ZP::interruptStoreNum) {
         for (int i = 0; i < sourceNum; ++i) {
-            ZcodeBusInterruptSource<RP> *source = sources[i];
+            ZcodeBusInterruptSource<ZP> *source = sources[i];
             int16_t id = source->takeUncheckedNotificationId();
             if (id != -1) {
 
-                if (RP::findInterruptSourceAddress && source->hasFindableAddress(id)) {
+                if (ZP::findInterruptSourceAddress && source->hasFindableAddress(id)) {
                     source->findAddress(id);
                     if (canSendNotification() && source->getFoundAddress(id) != -1) {
-                        sendNotification(ZcodeBusInterrupt<RP>(source, id));
+                        sendNotification(ZcodeBusInterrupt<ZP>(source, id));
                     } else {
-                        waitingNotifications[waitingNotificationNumber++] = ZcodeBusInterrupt<RP>(source, id);
+                        waitingNotifications[waitingNotificationNumber++] = ZcodeBusInterrupt<ZP>(source, id);
                         break;
                     }
                 } else {
-                    if (canSendNotification() && (!RP::findInterruptSourceAddress || source->getFoundAddress(id) != -1)) {
-                        sendNotification(ZcodeBusInterrupt<RP>(source, id));
+                    if (canSendNotification() && (!ZP::findInterruptSourceAddress || source->getFoundAddress(id) != -1)) {
+                        sendNotification(ZcodeBusInterrupt<ZP>(source, id));
                     } else {
-                        waitingNotifications[waitingNotificationNumber++] = ZcodeBusInterrupt<RP>(source, id);
+                        waitingNotifications[waitingNotificationNumber++] = ZcodeBusInterrupt<ZP>(source, id);
                         break;
                     }
                 }

@@ -1,26 +1,26 @@
 /*
- * ZcodeVoidChannel.hpp
+ * ZcodeNoopChannel.hpp
  *
  *  Created on: 29 Sep 2020
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_ZCODEVOIDCHANNEL_HPP_
-#define SRC_TEST_CPP_ZCODE_ZCODEVOIDCHANNEL_HPP_
+#ifndef SRC_TEST_CPP_ZCODE_ZCODENOOPCHANNEL_HPP_
+#define SRC_TEST_CPP_ZCODE_ZCODENOOPCHANNEL_HPP_
 
 #include "parsing/ZcodeCommandChannel.hpp"
 #include "ZcodeOutStream.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandSequence;
 
-template<class RP>
+template<class ZP>
 class ZcodeChannelInStream;
 
-template<class RP>
-class ZcodeVoidChannel: public ZcodeCommandChannel<RP> {
+template<class ZP>
+class ZcodeNoopChannel: public ZcodeCommandChannel<ZP> {
     template<class RP1>
-    class ZcodeVoidOutStream : public ZcodeOutStream<RP1> {
+    class ZcodeNoopOutStream : public ZcodeOutStream<RP1> {
         bool isLocked() {
             return false;
         }
@@ -91,16 +91,16 @@ class ZcodeVoidChannel: public ZcodeCommandChannel<RP> {
         virtual void close() {
         }
     };
-    ZcodeVoidOutStream<RP> out;
+    ZcodeNoopOutStream<ZP> out;
 public:
-    virtual ZcodeChannelInStream<RP>* acquireInStream() {
+    virtual ZcodeChannelInStream<ZP>* acquireInStream() {
         return NULL;
     }
     bool hasInStream() {
         return true;
     }
 
-    virtual ZcodeOutStream<RP>* acquireOutStream() {
+    virtual ZcodeOutStream<ZP>* acquireOutStream() {
         return &out;
     }
     virtual bool hasOutStream() {
@@ -110,7 +110,7 @@ public:
         return false;
     }
 
-    virtual ZcodeCommandSequence<RP>* getCommandSequence() {
+    virtual ZcodeCommandSequence<ZP>* getCommandSequence() {
         return NULL;
     }
 
@@ -146,4 +146,4 @@ public:
     virtual void unlock() {
     }
 };
-#endif /* SRC_TEST_CPP_ZCODE_ZCODEVOIDCHANNEL_HPP_ */
+#endif /* SRC_TEST_CPP_ZCODE_ZCODENOOPCHANNEL_HPP_ */

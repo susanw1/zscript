@@ -9,19 +9,19 @@
 #define SRC_TEST_CPP_ZCODE_PARSING_ZCODEBIGFIELD_HPP_
 #include "../ZcodeIncludes.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeOutStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeBigField {
-    typedef typename RP::bigFieldAddress_t bigFieldAddress_t;
+    typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
 protected:
     bigFieldAddress_t length = 0;
     bool string = false;
 public:
     virtual bool addByteToBigField(uint8_t b) = 0;
 
-    virtual void copyTo(ZcodeOutStream<RP> *out) const = 0;
+    virtual void copyTo(ZcodeOutStream<ZP> *out) const = 0;
 
     virtual uint8_t const* getData() const = 0;
 
@@ -49,26 +49,26 @@ public:
     }
 };
 
-template<class RP>
-class ZcodeStandardBigField: public ZcodeBigField<RP> {
+template<class ZP>
+class ZcodeStandardBigField: public ZcodeBigField<ZP> {
 private:
-    uint8_t data[RP::bigFieldLength];
+    uint8_t data[ZP::bigFieldLength];
 public:
     virtual uint8_t const* getData() const {
         return data;
     }
 
     virtual bool addByteToBigField(uint8_t b) {
-        if (this->length >= RP::bigFieldLength) {
+        if (this->length >= ZP::bigFieldLength) {
             return false;
         }
         data[this->length++] = b;
         return true;
     }
 
-    virtual void copyTo(ZcodeOutStream<RP> *out) const {
+    virtual void copyTo(ZcodeOutStream<ZP> *out) const {
         if (this->length != 0) {
-            if (ZcodeStandardBigField<RP>::isString()) {
+            if (ZcodeStandardBigField<ZP>::isString()) {
                 out->writeBigStringField(data, this->length);
             } else {
                 out->writeBigHexField(data, this->length);
@@ -77,13 +77,13 @@ public:
     }
 };
 
-template<class RP>
-class ZcodeBigBigField: public ZcodeBigField<RP> {
+template<class ZP>
+class ZcodeHugeField: public ZcodeBigField<ZP> {
 private:
-    uint8_t data[RP::bigBigFieldLength];
+    uint8_t data[ZP::hugeFieldLength];
 public:
     virtual bool addByteToBigField(uint8_t b) {
-        if (this->length >= RP::bigBigFieldLength) {
+        if (this->length >= ZP::hugeFieldLength) {
             return false;
         }
         data[this->length++] = b;
@@ -94,7 +94,7 @@ public:
         return data;
     }
 
-    virtual void copyTo(ZcodeOutStream<RP> *out) const {
+    virtual void copyTo(ZcodeOutStream<ZP> *out) const {
         if (this->length != 0) {
             if (this->isString()) {
                 out->writeBigStringField(data, this->length);
@@ -104,7 +104,7 @@ public:
         }
     }
 
-    void copyFrom(ZcodeStandardBigField<RP> const *source) {
+    void copyFrom(ZcodeStandardBigField<ZP> const *source) {
         this->length = source->getLength();
         uint8_t const *sourceData = source->getData();
         for (int i = 0; i < this->length; i++) {

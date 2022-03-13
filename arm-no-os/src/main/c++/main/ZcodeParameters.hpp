@@ -23,7 +23,7 @@ public:
     typedef uint8_t lockNumber_t;
 
     static const int bigFieldLength = 32;
-    static const int bigBigFieldLength = 1024;
+    static const int hugeFieldLength = 1024;
     static const int fieldNum = 20;
     static const bool cacheFieldResults = true;
     static const bool isUsingInterruptVector = true;

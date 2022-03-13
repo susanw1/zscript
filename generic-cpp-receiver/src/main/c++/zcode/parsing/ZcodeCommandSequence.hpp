@@ -12,33 +12,33 @@
 #include "../instreams/ZcodeMarkerInStream.hpp"
 #include "../ZcodeAddressingCommandConsumer.hpp"
 
-template<class RP>
+template<class ZP>
 class Zcode;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandSlot;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandChannel;
 
-template<class RP>
+template<class ZP>
 class ZcodeSequenceInStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeOutStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandSequence {
 private:
-    Zcode<RP> *const zcode;
-    ZcodeCommandChannel<RP> *const channel;
+    Zcode<ZP> *const zcode;
+    ZcodeCommandChannel<ZP> *const channel;
 
-    ZcodeSequenceInStream<RP> *in = NULL;
-    ZcodeOutStream<RP> *out = NULL;
-    ZcodeLockSet<RP> locks;
+    ZcodeSequenceInStream<ZP> *in = NULL;
+    ZcodeOutStream<ZP> *out = NULL;
+    ZcodeLockSet<ZP> locks;
 
-    ZcodeCommandSlot<RP> *first = NULL;
-    ZcodeCommandSlot<RP> *last = NULL;
+    ZcodeCommandSlot<ZP> *first = NULL;
+    ZcodeCommandSlot<ZP> *last = NULL;
     bool parallel = false;
     bool broadcast = false;
 
@@ -48,19 +48,19 @@ private:
     bool empty = false;
 
 public:
-    ZcodeCommandSequence(Zcode<RP> *zcode, ZcodeCommandChannel<RP> *channel) :
+    ZcodeCommandSequence(Zcode<ZP> *zcode, ZcodeCommandChannel<ZP> *channel) :
             zcode(zcode), channel(channel), locks() {
     }
 
-    Zcode<RP>* getZcode() {
+    Zcode<ZP>* getZcode() {
         return zcode;
     }
 
-    ZcodeSequenceInStream<RP>* acquireInStream();
+    ZcodeSequenceInStream<ZP>* acquireInStream();
 
     void releaseInStream();
 
-    ZcodeOutStream<RP>* acquireOutStream();
+    ZcodeOutStream<ZP>* acquireOutStream();
 
     void releaseOutStream();
 
@@ -107,15 +107,15 @@ public:
         return active;
     }
 
-    void addLast(ZcodeCommandSlot<RP> *slot);
+    void addLast(ZcodeCommandSlot<ZP> *slot);
 
-    ZcodeCommandSlot<RP>* popFirst();
+    ZcodeCommandSlot<ZP>* popFirst();
 
-    ZcodeCommandSlot<RP>* peekFirst() const {
+    ZcodeCommandSlot<ZP>* peekFirst() const {
         return first;
     }
 
-    ZcodeCommandChannel<RP>* getChannel() const {
+    ZcodeCommandChannel<ZP>* getChannel() const {
         return channel;
     }
 
@@ -144,8 +144,8 @@ public:
     void unlock();
 };
 
-template<class RP>
-ZcodeSequenceInStream<RP>* ZcodeCommandSequence<RP>::acquireInStream() {
+template<class ZP>
+ZcodeSequenceInStream<ZP>* ZcodeCommandSequence<ZP>::acquireInStream() {
     if (in == NULL) {
         in = channel->acquireInStream()->getSequenceInStream();
         in->lock();
@@ -153,8 +153,8 @@ ZcodeSequenceInStream<RP>* ZcodeCommandSequence<RP>::acquireInStream() {
     return in;
 }
 
-template<class RP>
-void ZcodeCommandSequence<RP>::releaseInStream() {
+template<class ZP>
+void ZcodeCommandSequence<ZP>::releaseInStream() {
     if (in != NULL) {
         in->unlock();
     }
@@ -162,8 +162,8 @@ void ZcodeCommandSequence<RP>::releaseInStream() {
     in = NULL;
 }
 
-template<class RP>
-ZcodeOutStream<RP>* ZcodeCommandSequence<RP>::acquireOutStream() {
+template<class ZP>
+ZcodeOutStream<ZP>* ZcodeCommandSequence<ZP>::acquireOutStream() {
     if (out == NULL) {
         out = channel->acquireOutStream();
         out->lock();
@@ -171,15 +171,15 @@ ZcodeOutStream<RP>* ZcodeCommandSequence<RP>::acquireOutStream() {
     return out;
 }
 
-template<class RP>
-void ZcodeCommandSequence<RP>::releaseOutStream() {
+template<class ZP>
+void ZcodeCommandSequence<ZP>::releaseOutStream() {
     out->unlock();
     channel->releaseOutStream();
     out = NULL;
 }
 
-template<class RP>
-void ZcodeCommandSequence<RP>::addLast(ZcodeCommandSlot<RP> *slot) {
+template<class ZP>
+void ZcodeCommandSequence<ZP>::addLast(ZcodeCommandSlot<ZP> *slot) {
     if (last != NULL) {
         last->next = slot;
         last = slot;
@@ -192,9 +192,9 @@ void ZcodeCommandSequence<RP>::addLast(ZcodeCommandSlot<RP> *slot) {
     }
 }
 
-template<class RP>
-ZcodeCommandSlot<RP>* ZcodeCommandSequence<RP>::popFirst() {
-    ZcodeCommandSlot<RP> *target = first;
+template<class ZP>
+ZcodeCommandSlot<ZP>* ZcodeCommandSequence<ZP>::popFirst() {
+    ZcodeCommandSlot<ZP> *target = first;
     if (first == NULL) {
         return NULL;
     } else if (first->next != NULL) {
@@ -206,11 +206,11 @@ ZcodeCommandSlot<RP>* ZcodeCommandSequence<RP>::popFirst() {
     return target;
 }
 
-template<class RP>
-bool ZcodeCommandSequence<RP>::fail(ZcodeResponseStatus status) {
+template<class ZP>
+bool ZcodeCommandSequence<ZP>::fail(ZcodeResponseStatus status) {
     if (status != CMD_FAIL) {
-        ZcodeCommandSlot<RP> *next = NULL;
-        for (ZcodeCommandSlot<RP> *current = first; current != NULL; current = next) {
+        ZcodeCommandSlot<ZP> *next = NULL;
+        for (ZcodeCommandSlot<ZP> *current = first; current != NULL; current = next) {
             next = current->next;
             current->reset();
         }
@@ -227,8 +227,8 @@ bool ZcodeCommandSequence<RP>::fail(ZcodeResponseStatus status) {
         return false;
     } else {
         bool found = false;
-        ZcodeCommandSlot<RP> *next = NULL;
-        for (ZcodeCommandSlot<RP> *current = first; current != NULL; current = next) {
+        ZcodeCommandSlot<ZP> *next = NULL;
+        for (ZcodeCommandSlot<ZP> *current = first; current != NULL; current = next) {
             next = current->next;
             if (current->getEnd() == '|') {
                 found = true;
@@ -263,9 +263,9 @@ bool ZcodeCommandSequence<RP>::fail(ZcodeResponseStatus status) {
     }
 }
 
-template<class RP>
-bool ZcodeCommandSequence<RP>::parseFlags() {
-    ZcodeMarkerInStream<RP> *mIn = in->getMarkerInStream();
+template<class ZP>
+bool ZcodeCommandSequence<ZP>::parseFlags() {
+    ZcodeMarkerInStream<ZP> *mIn = in->getMarkerInStream();
     mIn->eatWhitespace();
     mIn->read();
     if (mIn->reread() == '@') {
@@ -302,11 +302,11 @@ bool ZcodeCommandSequence<RP>::parseFlags() {
     return true;
 }
 
-template<class RP>
-bool ZcodeCommandSequence<RP>::canLock() {
+template<class ZP>
+bool ZcodeCommandSequence<ZP>::canLock() {
     if (!locks.isActive()) {
         locks.activate();
-        for (ZcodeCommandSlot<RP> *slot = first; slot != NULL; slot = slot->next) {
+        for (ZcodeCommandSlot<ZP> *slot = first; slot != NULL; slot = slot->next) {
             if (slot->getCommand(zcode) != NULL) {
                 slot->getCommand(zcode)->setLocks(slot, &locks);
             }
@@ -315,11 +315,11 @@ bool ZcodeCommandSequence<RP>::canLock() {
     return zcode->canLock(&locks);
 }
 
-template<class RP>
-void ZcodeCommandSequence<RP>::lock() {
+template<class ZP>
+void ZcodeCommandSequence<ZP>::lock() {
     if (!locks.isActive()) {
         locks.activate();
-        for (ZcodeCommandSlot<RP> *slot = first; slot != NULL; slot = slot->next) {
+        for (ZcodeCommandSlot<ZP> *slot = first; slot != NULL; slot = slot->next) {
             if (slot->getCommand(zcode) != NULL) {
                 slot->getCommand(zcode)->setLocks(slot, &locks);
             }
@@ -328,8 +328,8 @@ void ZcodeCommandSequence<RP>::lock() {
     zcode->lock(&locks);
 }
 
-template<class RP>
-void ZcodeCommandSequence<RP>::unlock() {
+template<class ZP>
+void ZcodeCommandSequence<ZP>::unlock() {
     if (!locks.isActive()) {
         zcode->unlock(&locks);
         locks.reset();

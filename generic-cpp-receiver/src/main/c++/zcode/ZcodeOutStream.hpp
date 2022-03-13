@@ -10,13 +10,13 @@
 #include "ZcodeIncludes.hpp"
 #include "ZcodeResponseStatus.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandChannel;
 
-template<class RP>
+template<class ZP>
 class ZcodeOutStream {
-    typedef typename RP::bigFieldAddress_t bigFieldAddress_t;
-    typedef typename RP::fieldUnit_t fieldUnit_t;
+    typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
+    typedef typename ZP::fieldUnit_t fieldUnit_t;
     public:
     bool lockVal;
     void *mostRecent;
@@ -37,37 +37,37 @@ class ZcodeOutStream {
     virtual bool isLocked() {
         return lockVal;
     }
-    virtual ZcodeOutStream<RP>* markDebug() = 0;
+    virtual ZcodeOutStream<ZP>* markDebug() = 0;
 
-    virtual ZcodeOutStream<RP>* markNotification() = 0;
+    virtual ZcodeOutStream<ZP>* markNotification() = 0;
 
-    virtual ZcodeOutStream<RP>* markBroadcast() = 0;
+    virtual ZcodeOutStream<ZP>* markBroadcast() = 0;
 
-    virtual ZcodeOutStream<RP>* writeStatus(ZcodeResponseStatus st) = 0;
+    virtual ZcodeOutStream<ZP>* writeStatus(ZcodeResponseStatus st) = 0;
 
-    virtual ZcodeOutStream<RP>* writeField(char f, uint8_t v) = 0;
+    virtual ZcodeOutStream<ZP>* writeField(char f, uint8_t v) = 0;
 
-    virtual ZcodeOutStream<RP>* continueField(uint8_t v) = 0;
+    virtual ZcodeOutStream<ZP>* continueField(uint8_t v) = 0;
 
-    virtual ZcodeOutStream<RP>* writeBigHexField(const uint8_t *value, bigFieldAddress_t length) = 0;
+    virtual ZcodeOutStream<ZP>* writeBigHexField(const uint8_t *value, bigFieldAddress_t length) = 0;
 
-    virtual ZcodeOutStream<RP>* writeBigStringField(const uint8_t *value, bigFieldAddress_t length) = 0;
+    virtual ZcodeOutStream<ZP>* writeBigStringField(const uint8_t *value, bigFieldAddress_t length) = 0;
 
-    virtual ZcodeOutStream<RP>* writeBigStringField(const char *s) = 0;
+    virtual ZcodeOutStream<ZP>* writeBigStringField(const char *s) = 0;
 
-    virtual ZcodeOutStream<RP>* writeBytes(const uint8_t *value, bigFieldAddress_t length) = 0;
+    virtual ZcodeOutStream<ZP>* writeBytes(const uint8_t *value, bigFieldAddress_t length) = 0;
 
-    virtual ZcodeOutStream<RP>* writeCommandSeperator() = 0;
+    virtual ZcodeOutStream<ZP>* writeCommandSeperator() = 0;
 
-    virtual ZcodeOutStream<RP>* writeCommandSequenceErrorHandler() = 0;
+    virtual ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() = 0;
 
-    virtual ZcodeOutStream<RP>* writeCommandSequenceSeperator() = 0;
+    virtual ZcodeOutStream<ZP>* writeCommandSequenceSeperator() = 0;
 
-    virtual void openResponse(ZcodeCommandChannel<RP> *target) = 0;
+    virtual void openResponse(ZcodeCommandChannel<ZP> *target) = 0;
 
-    virtual void openNotification(ZcodeCommandChannel<RP> *target) = 0;
+    virtual void openNotification(ZcodeCommandChannel<ZP> *target) = 0;
 
-    virtual void openDebug(ZcodeCommandChannel<RP> *target) = 0;
+    virtual void openDebug(ZcodeCommandChannel<ZP> *target) = 0;
 
     virtual bool isOpen() = 0;
 

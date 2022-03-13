@@ -9,17 +9,17 @@
 #define SRC_MAIN_CPP_ZCODE_EXECUTIONSPACE_ZCODEINTERRUPTVECTORMAP_HPP_
 #include "../ZcodeIncludes.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeInterruptVectorMap {
-    typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
+    typedef typename ZP::executionSpaceAddress_t executionSpaceAddress_t;
 private:
     uint16_t vectorNum = 0;
     uint16_t mostRecent = 0;
-    executionSpaceAddress_t vectors[RP::interruptVectorNum];
-    uint8_t addresses[RP::interruptVectorNum];
-    uint8_t specificities[RP::interruptVectorNum];
-    uint8_t busses[RP::interruptVectorNum];
-    uint8_t types[RP::interruptVectorNum];
+    executionSpaceAddress_t vectors[ZP::interruptVectorNum];
+    uint8_t addresses[ZP::interruptVectorNum];
+    uint8_t specificities[ZP::interruptVectorNum];
+    uint8_t busses[ZP::interruptVectorNum];
+    uint8_t types[ZP::interruptVectorNum];
 
     bool setVectorInternal(uint8_t type, uint8_t bus, uint8_t addr, uint8_t specificity, executionSpaceAddress_t vector) {
         for (int i = 0; i < vectorNum; i++) {
@@ -29,7 +29,7 @@ private:
                 return true;
             }
         }
-        if (vectorNum >= RP::interruptVectorNum) {
+        if (vectorNum >= ZP::interruptVectorNum) {
             return false;
         }
         specificities[vectorNum] = specificity;

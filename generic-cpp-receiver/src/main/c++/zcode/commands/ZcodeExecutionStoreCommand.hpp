@@ -11,22 +11,22 @@
 #include "ZcodeCommand.hpp"
 #include "../executionspace/ZcodeExecutionSpace.hpp"
 
-template<class RP>
-class ZcodeExecutionStoreCommand: public ZcodeCommand<RP> {
-    typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
-    typedef typename RP::fieldUnit_t fieldUnit_t;
+template<class ZP>
+class ZcodeExecutionStoreCommand: public ZcodeCommand<ZP> {
+    typedef typename ZP::executionSpaceAddress_t executionSpaceAddress_t;
+    typedef typename ZP::fieldUnit_t fieldUnit_t;
     private:
     const uint8_t code = 0x22;
-    ZcodeExecutionSpace<RP> *space;
+    ZcodeExecutionSpace<ZP> *space;
     public:
-    ZcodeExecutionStoreCommand(ZcodeExecutionSpace<RP> *space) :
+    ZcodeExecutionStoreCommand(ZcodeExecutionSpace<ZP> *space) :
             space(space) {
     }
 
-    virtual void execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out);
+    virtual void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
 
-    virtual void setLocks(ZcodeCommandSlot<RP> *slot, ZcodeLockSet<RP> *locks) const {
-        locks->addLock(RP::executionSpaceLock, true);
+    virtual void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
+        locks->addLock(ZP::executionSpaceLock, true);
     }
 
     virtual uint8_t getCode() const {
@@ -46,8 +46,8 @@ class ZcodeExecutionStoreCommand: public ZcodeCommand<RP> {
     }
 };
 
-template<class RP>
-void ZcodeExecutionStoreCommand<RP>::execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out) {
+template<class ZP>
+void ZcodeExecutionStoreCommand<ZP>::execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) {
     executionSpaceAddress_t address = 0;
     bool fits = true;
     if (slot->getFields()->has('A')) {
@@ -60,7 +60,7 @@ void ZcodeExecutionStoreCommand<RP>::execute(ZcodeCommandSlot<RP> *slot, ZcodeCo
             fits = false;
         }
     }
-    if (fits && address + slot->getBigField()->getLength() < RP::executionLength) {
+    if (fits && address + slot->getBigField()->getLength() < ZP::executionLength) {
         space->write(slot->getBigField()->getData(), slot->getBigField()->getLength(), address, slot->getFields()->has('L'));
         out->writeStatus(OK);
     } else {

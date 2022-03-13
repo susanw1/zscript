@@ -12,32 +12,32 @@
 #include "../parsing/ZcodeCommandChannel.hpp"
 #include "ZcodeExecutionSpaceChannelIn.hpp"
 
-template<class RP>
+template<class ZP>
 class Zcode;
 
-template<class RP>
+template<class ZP>
 class ZcodeExecutionSpace;
 
-template<class RP>
-class ZcodeExecutionSpaceChannel: public ZcodeCommandChannel<RP> {
-    typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
+template<class ZP>
+class ZcodeExecutionSpaceChannel: public ZcodeCommandChannel<ZP> {
+    typedef typename ZP::executionSpaceAddress_t executionSpaceAddress_t;
 private:
-    Zcode<RP> *zcode;
-    ZcodeExecutionSpace<RP> *space;
-    ZcodeCommandSequence<RP> sequence;
-    ZcodeExecutionSpaceChannelIn<RP> *in;
-    ZcodeOutStream<RP> *out = NULL;
-    ZcodeLockSet<RP> locks;
+    Zcode<ZP> *zcode;
+    ZcodeExecutionSpace<ZP> *space;
+    ZcodeCommandSequence<ZP> sequence;
+    ZcodeExecutionSpaceChannelIn<ZP> *in;
+    ZcodeOutStream<ZP> *out = NULL;
+    ZcodeLockSet<ZP> locks;
     executionSpaceAddress_t position = 0;
     uint8_t delayCounter = 0;
     uint8_t lockCount = 0;
 public:
-    ZcodeExecutionSpaceChannel(Zcode<RP> *zcode, ZcodeExecutionSpace<RP> *space) :
+    ZcodeExecutionSpaceChannel(Zcode<ZP> *zcode, ZcodeExecutionSpace<ZP> *space) :
             zcode(zcode), space(space), sequence(zcode, this), in(NULL) {
-        locks.addLock(RP::executionSpaceLock, false);
+        locks.addLock(ZP::executionSpaceLock, false);
     }
 
-    ZcodeCommandSequence<RP>* getCommandSequence() {
+    ZcodeCommandSequence<ZP>* getCommandSequence() {
         return &sequence;
     }
 
@@ -48,7 +48,7 @@ public:
     bool isPacketBased() {
         return false;
     }
-    ZcodeExecutionSpaceChannelIn<RP>* acquireInStream() {
+    ZcodeExecutionSpaceChannelIn<ZP>* acquireInStream() {
         if (this->in == NULL) {
             in = space->acquireInStream(position);
         }
@@ -59,7 +59,7 @@ public:
         return in != NULL;
     }
 
-    ZcodeOutStream<RP>* acquireOutStream() {
+    ZcodeOutStream<ZP>* acquireOutStream() {
         if (out == NULL) {
             out = space->acquireOutStream();
         }
@@ -89,7 +89,7 @@ public:
     }
 
     void releaseOutStream() {
-        space->releaseOutStream((ZcodeExecutionSpaceOut<RP>*) out);
+        space->releaseOutStream((ZcodeExecutionSpaceOut<ZP>*) out);
         out = NULL;
     }
 

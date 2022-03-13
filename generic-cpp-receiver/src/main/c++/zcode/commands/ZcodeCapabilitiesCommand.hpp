@@ -11,26 +11,26 @@
 #include "../ZcodeIncludes.hpp"
 #include "ZcodeCommand.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeOutStream;
 
-template<class RP>
+template<class ZP>
 class Zcode;
 
-template<class RP>
-class ZcodeCapabilitiesCommand: public ZcodeCommand<RP> {
-    typedef typename RP::fieldUnit_t fieldUnit_t;
+template<class ZP>
+class ZcodeCapabilitiesCommand: public ZcodeCommand<ZP> {
+    typedef typename ZP::fieldUnit_t fieldUnit_t;
     private:
-    Zcode<RP> *zcode;
+    Zcode<ZP> *zcode;
     const uint8_t code = 0x02;
     public:
-    ZcodeCapabilitiesCommand(Zcode<RP> *zcode) :
+    ZcodeCapabilitiesCommand(Zcode<ZP> *zcode) :
             zcode(zcode) {
     }
 
-    void execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out);
+    void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
 
-    void setLocks(ZcodeCommandSlot<RP> *slot, ZcodeLockSet<RP> *locks) const {
+    void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
     }
 
     uint8_t getCode() const {
@@ -54,32 +54,32 @@ class ZcodeCapabilitiesCommand: public ZcodeCommand<RP> {
 #include "../parsing/ZcodeCommandSlot.hpp"
 #include "../parsing/ZcodeCommandFinder.hpp"
 
-template<class RP>
-void ZcodeCapabilitiesCommand<RP>::execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out) {
+template<class ZP>
+void ZcodeCapabilitiesCommand<ZP>::execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) {
     out->writeStatus(OK);
-    if (RP::bigBigFieldLength > 0) {
-        out->writeField('B', (uint32_t) RP::bigBigFieldLength);
+    if (ZP::hugeFieldLength > 0) {
+        out->writeField('B', (uint32_t) ZP::hugeFieldLength);
     } else {
-        out->writeField('B', (uint32_t) RP::bigFieldLength);
+        out->writeField('B', (uint32_t) ZP::bigFieldLength);
     }
     uint8_t capabilities = 0x01;
-    if (RP::slotNum > 1) {
+    if (ZP::slotNum > 1) {
         capabilities |= 0x02;
     }
-    if (RP::findInterruptSourceAddress) {
+    if (ZP::findInterruptSourceAddress) {
         capabilities |= 0x04;
     }
-    if (RP::isUsingInterruptVector) {
+    if (ZP::isUsingInterruptVector) {
         capabilities |= 0x08;
     }
     out->writeField('C', capabilities);
-    if (RP::persistentMemorySize != 0) {
-        out->writeField('P', RP::persistentMemorySize);
+    if (ZP::persistentMemorySize != 0) {
+        out->writeField('P', ZP::persistentMemorySize);
     }
-    out->writeField('N', (uint32_t) RP::fieldNum);
+    out->writeField('N', (uint32_t) ZP::fieldNum);
     out->writeField('M', (uint8_t) 1);
     out->writeField('U', (uint8_t) sizeof(fieldUnit_t));
-    ZcodeSupportedCommandArray<RP> supported = zcode->getCommandFinder()->getSupportedCommands();
+    ZcodeSupportedCommandArray<ZP> supported = zcode->getCommandFinder()->getSupportedCommands();
     out->writeBigHexField(supported.cmds, supported.cmdNum);
     slot->setComplete(true);
 }

@@ -10,15 +10,15 @@
 #include "../ZcodeIncludes.hpp"
 #include "../AbstractZcodeOutStream.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeExecutionSpace;
 
-template<class RP>
-class ZcodeExecutionSpaceOut: public AbstractZcodeOutStream<RP> {
-    typedef typename RP::executionSpaceOutLength_t executionSpaceOutLength_t;
+template<class ZP>
+class ZcodeExecutionSpaceOut: public AbstractZcodeOutStream<ZP> {
+    typedef typename ZP::executionSpaceOutLength_t executionSpaceOutLength_t;
     private:
-    ZcodeExecutionSpace<RP> *space;
-    uint8_t buffer[RP::executionOutBufferSize];
+    ZcodeExecutionSpace<ZP> *space;
+    uint8_t buffer[ZP::executionOutBufferSize];
     executionSpaceOutLength_t length = 0;
     executionSpaceOutLength_t lastEndPos = 0;
     bool overLength = false;
@@ -31,12 +31,12 @@ public:
     ZcodeExecutionSpaceOut() :
             space(NULL) {
     }
-    void initialSetup(ZcodeExecutionSpace<RP> *space) {
+    void initialSetup(ZcodeExecutionSpace<ZP> *space) {
         this->space = space;
     }
 
     void writeByte(uint8_t value) {
-        if (length == RP::executionOutBufferSize) {
+        if (length == ZP::executionOutBufferSize) {
             overLength = true;
         }
         if (open && !overLength) {
@@ -44,14 +44,14 @@ public:
         }
     }
 
-    virtual ZcodeOutStream<RP>* writeBytes(uint8_t const *value, uint16_t l) {
+    virtual ZcodeOutStream<ZP>* writeBytes(uint8_t const *value, uint16_t l) {
         if (open) {
-            if (length == RP::executionOutBufferSize) {
+            if (length == ZP::executionOutBufferSize) {
                 overLength = true;
             }
             for (int i = 0; i < l && !overLength; i++) {
                 buffer[length++] = value[i];
-                if (length == RP::executionOutBufferSize) {
+                if (length == ZP::executionOutBufferSize) {
                     overLength = true;
                 }
             }
@@ -59,37 +59,37 @@ public:
         return this;
     }
 
-    ZcodeOutStream<RP>* writeCommandSeperator() {
+    ZcodeOutStream<ZP>* writeCommandSeperator() {
         if (!overLength) {
             lastEndPos = length;
         }
-        return AbstractZcodeOutStream<RP>::writeCommandSeperator();
+        return AbstractZcodeOutStream<ZP>::writeCommandSeperator();
     }
 
-    ZcodeOutStream<RP>* writeCommandSequenceErrorHandler() {
+    ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() {
         if (!overLength) {
             lastEndPos = length;
         }
-        return AbstractZcodeOutStream<RP>::writeCommandSequenceErrorHandler();
+        return AbstractZcodeOutStream<ZP>::writeCommandSequenceErrorHandler();
     }
 
-    ZcodeOutStream<RP>* writeStatus(ZcodeResponseStatus st) {
+    ZcodeOutStream<ZP>* writeStatus(ZcodeResponseStatus st) {
         if (st != OK) {
             status = st;
         }
-        return AbstractZcodeOutStream<RP>::writeStatus(st);
+        return AbstractZcodeOutStream<ZP>::writeStatus(st);
     }
 
-    void openResponse(ZcodeCommandChannel<RP> *target) {
+    void openResponse(ZcodeCommandChannel<ZP> *target) {
         open = true;
         length = 0;
         overLength = false;
     }
 
-    void openNotification(ZcodeCommandChannel<RP> *target) {
+    void openNotification(ZcodeCommandChannel<ZP> *target) {
     }
 
-    void openDebug(ZcodeCommandChannel<RP> *target) {
+    void openDebug(ZcodeCommandChannel<ZP> *target) {
     }
 
     bool isOpen() {
@@ -123,14 +123,14 @@ public:
 #include "../parsing/ZcodeCommandChannel.hpp"
 #include "ZcodeExecutionSpace.hpp"
 
-template<class RP>
-bool ZcodeExecutionSpaceOut<RP>::flush() {
+template<class ZP>
+bool ZcodeExecutionSpaceOut<ZP>::flush() {
     if (status != CMD_FAIL && status != OK) {
         space->setRunning(false);
         space->setFailed(true);
     }
     if (!space->getNotificationChannel()->hasOutStream() || !space->getNotificationChannel()->acquireOutStream()->isLocked()) {
-        ZcodeOutStream<RP> *out = space->getNotificationChannel()->acquireOutStream();
+        ZcodeOutStream<ZP> *out = space->getNotificationChannel()->acquireOutStream();
         out->lock();
         if (out->isOpen()) {
             out->close();

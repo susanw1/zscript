@@ -11,23 +11,23 @@
 #include "ZcodeLookaheadStream.hpp"
 #include "ZcodeSequenceInStream.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeChannelInStream {
 private:
-    ZcodeSequenceInStream<RP> seqInStream;
+    ZcodeSequenceInStream<ZP> seqInStream;
 
 public:
     ZcodeChannelInStream() :
             seqInStream(this) {
     }
 
-    ZcodeSequenceInStream<RP>* getSequenceInStream() {
+    ZcodeSequenceInStream<ZP>* getSequenceInStream() {
         return &seqInStream;
     }
 
     virtual int16_t read() = 0;
 
-    virtual ZcodeLookaheadStream<RP>* getLookahead() = 0;
+    virtual ZcodeLookaheadStream<ZP>* getLookahead() = 0;
 
     virtual ~ZcodeChannelInStream() {
     }

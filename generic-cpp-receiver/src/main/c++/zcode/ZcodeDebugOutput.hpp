@@ -19,31 +19,31 @@ struct ZcodeDebugOutputState {
     bool isCharacter :1;
 };
 
-template<class RP>
+template<class ZP>
 class ZcodeDebugOutput;
 
-template<class RP>
-class ZcodeDebugOutStream: public AbstractZcodeOutStream<RP> {
-    typedef typename RP::bigFieldAddress_t bigFieldAddress_t;
-    typedef typename RP::debugOutputBufferLength_t debugOutputBufferLength_t;
+template<class ZP>
+class ZcodeDebugOutStream: public AbstractZcodeOutStream<ZP> {
+    typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
+    typedef typename ZP::debugOutputBufferLength_t debugOutputBufferLength_t;
 
-    ZcodeDebugOutput<RP> *debug;
+    ZcodeDebugOutput<ZP> *debug;
     public:
-    ZcodeDebugOutStream(ZcodeDebugOutput<RP> *debug) :
+    ZcodeDebugOutStream(ZcodeDebugOutput<ZP> *debug) :
             debug(debug) {
     }
 
     virtual void writeByte(uint8_t value);
 
-    virtual ZcodeOutStream<RP>* writeBytes(uint8_t const *value, bigFieldAddress_t length);
+    virtual ZcodeOutStream<ZP>* writeBytes(uint8_t const *value, bigFieldAddress_t length);
 
-    void openResponse(ZcodeCommandChannel<RP> *target) {
+    void openResponse(ZcodeCommandChannel<ZP> *target) {
     }
 
-    void openNotification(ZcodeCommandChannel<RP> *target) {
+    void openNotification(ZcodeCommandChannel<ZP> *target) {
     }
 
-    void openDebug(ZcodeCommandChannel<RP> *target) {
+    void openDebug(ZcodeCommandChannel<ZP> *target) {
     }
 
     bool isOpen() {
@@ -54,28 +54,28 @@ class ZcodeDebugOutStream: public AbstractZcodeOutStream<RP> {
     }
 };
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandChannel;
 
-template<class RP>
+template<class ZP>
 class ZcodeOutStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandSlot;
 
-template<class RP>
+template<class ZP>
 class ZcodeDebugOutput {
-    typedef typename RP::bigFieldAddress_t bigFieldAddress_t;
-    typedef typename RP::debugOutputBufferLength_t debugOutputBufferLength_t;
+    typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
+    typedef typename ZP::debugOutputBufferLength_t debugOutputBufferLength_t;
     private:
-    uint8_t debugBuffer[RP::debugBufferLength];
-    ZcodeCommandChannel<RP> *channel = NULL;
+    uint8_t debugBuffer[ZP::debugBufferLength];
+    ZcodeCommandChannel<ZP> *channel = NULL;
     debugOutputBufferLength_t position;
     ZcodeDebugOutputState state;
 
-    friend ZcodeDebugOutStream<RP> ;
+    friend ZcodeDebugOutStream<ZP> ;
 
-    void flushBuffer(ZcodeOutStream<RP> *stream);
+    void flushBuffer(ZcodeOutStream<ZP> *stream);
 
     void writeToBuffer(const uint8_t *b, debugOutputBufferLength_t length);
 
@@ -84,58 +84,58 @@ class ZcodeDebugOutput {
     }
 
 public:
-    void setDebugChannel(ZcodeCommandChannel<RP> *channel);
+    void setDebugChannel(ZcodeCommandChannel<ZP> *channel);
 
     void println(const char *s);
 
-    ZcodeDebugOutput<RP>& operator <<(ZcodeDebugOutputMode m);
+    ZcodeDebugOutput<ZP>& operator <<(ZcodeDebugOutputMode m);
 
-    ZcodeDebugOutput<RP>& operator <<(const char *s);
+    ZcodeDebugOutput<ZP>& operator <<(const char *s);
 
-    ZcodeDebugOutput<RP>& operator <<(bool b);
+    ZcodeDebugOutput<ZP>& operator <<(bool b);
 
-    ZcodeDebugOutput<RP>& operator <<(char c);
+    ZcodeDebugOutput<ZP>& operator <<(char c);
 
-    ZcodeDebugOutput<RP>& operator <<(int8_t i);
+    ZcodeDebugOutput<ZP>& operator <<(int8_t i);
 
-    ZcodeDebugOutput<RP>& operator <<(uint8_t i);
+    ZcodeDebugOutput<ZP>& operator <<(uint8_t i);
 
-    ZcodeDebugOutput<RP>& operator <<(int16_t i);
+    ZcodeDebugOutput<ZP>& operator <<(int16_t i);
 
-    ZcodeDebugOutput<RP>& operator <<(uint16_t i);
+    ZcodeDebugOutput<ZP>& operator <<(uint16_t i);
 
-    ZcodeDebugOutput<RP>& operator <<(int32_t i);
+    ZcodeDebugOutput<ZP>& operator <<(int32_t i);
 
-    ZcodeDebugOutput<RP>& operator <<(uint32_t i);
+    ZcodeDebugOutput<ZP>& operator <<(uint32_t i);
 
-    ZcodeDebugOutput<RP>& operator <<(int64_t i);
+    ZcodeDebugOutput<ZP>& operator <<(int64_t i);
 
-    ZcodeDebugOutput<RP>& operator <<(uint64_t i);
+    ZcodeDebugOutput<ZP>& operator <<(uint64_t i);
 
-    ZcodeDebugOutput<RP>& operator <<(ZcodeCommandSlot<RP> *s);
+    ZcodeDebugOutput<ZP>& operator <<(ZcodeCommandSlot<ZP> *s);
 
     void println(const char *s, debugOutputBufferLength_t length);
 
     void attemptFlush();
 
-    ZcodeDebugOutStream<RP> getAsOutStream() {
-        return ZcodeDebugOutStream<RP>(this);
+    ZcodeDebugOutStream<ZP> getAsOutStream() {
+        return ZcodeDebugOutStream<ZP>(this);
     }
 };
 
-template<class RP>
-void ZcodeDebugOutStream<RP>::writeByte(uint8_t value) {
+template<class ZP>
+void ZcodeDebugOutStream<ZP>::writeByte(uint8_t value) {
     debug->writeToBuffer(&value, 1);
 }
 
-template<class RP>
-ZcodeOutStream<RP>* ZcodeDebugOutStream<RP>::writeBytes(uint8_t const *value, bigFieldAddress_t length) {
+template<class ZP>
+ZcodeOutStream<ZP>* ZcodeDebugOutStream<ZP>::writeBytes(uint8_t const *value, bigFieldAddress_t length) {
     debug->writeToBuffer(value, length);
     return this;
 }
 
-template<class RP>
-void ZcodeDebugOutput<RP>::flushBuffer(ZcodeOutStream<RP> *stream) {
+template<class ZP>
+void ZcodeDebugOutput<ZP>::flushBuffer(ZcodeOutStream<ZP> *stream) {
     state.isCharacter = false;
     state.isDecimal = false;
     state.isHex = false;
@@ -143,13 +143,13 @@ void ZcodeDebugOutput<RP>::flushBuffer(ZcodeOutStream<RP> *stream) {
     int prevPos = 0;
     while (curPos < position) {
         prevPos = curPos;
-        while (curPos < RP::debugBufferLength && debugBuffer[curPos] != '\n') {
+        while (curPos < ZP::debugBufferLength && debugBuffer[curPos] != '\n') {
             curPos++;
         }
         stream->markDebug()->writeBytes(debugBuffer + prevPos, (bigFieldAddress_t) (curPos - prevPos))->writeCommandSequenceSeperator();
         curPos++;
     }
-    if (position == RP::debugBufferLength + 1) {
+    if (position == ZP::debugBufferLength + 1) {
         const char *overRunMessage = "#Debug buffer out of space, some data lost\n";
         bigFieldAddress_t l = 0;
         while (overRunMessage[l] != 0) {
@@ -160,16 +160,16 @@ void ZcodeDebugOutput<RP>::flushBuffer(ZcodeOutStream<RP> *stream) {
     position = 0;
 }
 
-template<class RP>
-void ZcodeDebugOutput<RP>::writeToBuffer(const uint8_t *b, debugOutputBufferLength_t length) {
-    if (position >= RP::debugBufferLength) {
+template<class ZP>
+void ZcodeDebugOutput<ZP>::writeToBuffer(const uint8_t *b, debugOutputBufferLength_t length) {
+    if (position >= ZP::debugBufferLength) {
         return;
     }
     debugOutputBufferLength_t lenToCopy = length;
-    if (position + length >= RP::debugBufferLength) {
-        lenToCopy = RP::debugBufferLength - position;
+    if (position + length >= ZP::debugBufferLength) {
+        lenToCopy = ZP::debugBufferLength - position;
     }
-    if (position < RP::debugBufferLength) {
+    if (position < ZP::debugBufferLength) {
         for (debugOutputBufferLength_t i = 0; i < lenToCopy; ++i) {
             debugBuffer[position + i] = b[i];
         }
@@ -177,8 +177,8 @@ void ZcodeDebugOutput<RP>::writeToBuffer(const uint8_t *b, debugOutputBufferLeng
     position = (debugOutputBufferLength_t) (position + lenToCopy);
 }
 
-template<class RP>
-void ZcodeDebugOutput<RP>::setDebugChannel(ZcodeCommandChannel<RP> *channel) {
+template<class ZP>
+void ZcodeDebugOutput<ZP>::setDebugChannel(ZcodeCommandChannel<ZP> *channel) {
     if (this->channel != NULL) {
         this->channel->releaseFromDebugChannel();
     }
@@ -186,8 +186,8 @@ void ZcodeDebugOutput<RP>::setDebugChannel(ZcodeCommandChannel<RP> *channel) {
     this->channel->setAsDebugChannel();
 }
 
-template<class RP>
-void ZcodeDebugOutput<RP>::println(const char *s) {
+template<class ZP>
+void ZcodeDebugOutput<ZP>::println(const char *s) {
     debugOutputBufferLength_t l = 0;
     while (s[l] != '\0') {
         l++;
@@ -195,10 +195,10 @@ void ZcodeDebugOutput<RP>::println(const char *s) {
     println(s, l);
 }
 
-template<class RP>
-void ZcodeDebugOutput<RP>::println(const char *s, debugOutputBufferLength_t length) {
+template<class ZP>
+void ZcodeDebugOutput<ZP>::println(const char *s, debugOutputBufferLength_t length) {
     if (channel != NULL && (!channel->hasOutStream() || !channel->acquireOutStream()->lock())) {
-        ZcodeOutStream<RP> *stream = channel->acquireOutStream();
+        ZcodeOutStream<ZP> *stream = channel->acquireOutStream();
         if (stream->mostRecent == this) {
             if (!stream->isOpen()) {
                 stream->openDebug(channel);
@@ -235,11 +235,11 @@ void ZcodeDebugOutput<RP>::println(const char *s, debugOutputBufferLength_t leng
     }
 }
 
-template<class RP>
-void ZcodeDebugOutput<RP>::attemptFlush() {
+template<class ZP>
+void ZcodeDebugOutput<ZP>::attemptFlush() {
     if (position != 0 && channel != NULL && (!channel->hasOutStream() || !channel->acquireOutStream()->isLocked())) {
         channel->acquireOutStream()->lock();
-        ZcodeOutStream<RP> *stream = channel->acquireOutStream();
+        ZcodeOutStream<ZP> *stream = channel->acquireOutStream();
         if (stream->mostRecent == this) {
             if (!stream->isOpen()) {
                 stream->openDebug(channel);
@@ -258,8 +258,8 @@ void ZcodeDebugOutput<RP>::attemptFlush() {
     }
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(ZcodeDebugOutputMode m) {
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(ZcodeDebugOutputMode m) {
     switch (m) {
     case ZcodeDebugOutputMode::hex:
         state.isCharacter = false;
@@ -290,8 +290,8 @@ ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(ZcodeDebugOutputMode m) 
     return *this;
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(const char *s) {
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(const char *s) {
     debugOutputBufferLength_t l = 0;
     while (s[l] != 0) {
         l++;
@@ -300,8 +300,8 @@ ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(const char *s) {
     return *this;
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(bool b) {
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(bool b) {
     if (b) {
         writeToBuffer((const uint8_t*) "true", 4);
     } else {
@@ -310,8 +310,8 @@ ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(bool b) {
     return *this;
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(char c) {
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(char c) {
     if (state.isHex || state.isDecimal) {
         *this << (uint8_t) c;
     } else {
@@ -320,8 +320,8 @@ ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(char c) {
     return *this;
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(int8_t i) {
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(int8_t i) {
     if (state.isCharacter) {
         *this << (char) i;
     } else if (state.isHex) {
@@ -350,8 +350,8 @@ ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(int8_t i) {
     return *this;
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(uint8_t i) {
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(uint8_t i) {
     if (state.isCharacter) {
         *this << (char) i;
     } else if (state.isHex) {
@@ -381,8 +381,8 @@ ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(uint8_t i) {
     return *this;
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(int16_t i) {
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(int16_t i) {
     if (state.isCharacter) {
         *this << (char) (i >> 8);
         *this << (char) i;
@@ -400,8 +400,8 @@ ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(int16_t i) {
     return *this;
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(uint16_t v) {
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(uint16_t v) {
     if (state.isCharacter) {
         *this << (char) (v >> 8);
         *this << (char) v;
@@ -427,8 +427,8 @@ ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(uint16_t v) {
     return *this;
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(int32_t i) {
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(int32_t i) {
     if (state.isCharacter) {
         *this << (char) (i >> 24);
         *this << (char) (i >> 16);
@@ -448,8 +448,8 @@ ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(int32_t i) {
     return *this;
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(uint32_t v) {
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(uint32_t v) {
     if (state.isCharacter) {
         *this << (char) (v >> 24);
         *this << (char) (v >> 16);
@@ -478,8 +478,8 @@ ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(uint32_t v) {
 
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(int64_t i) {
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(int64_t i) {
     if (state.isCharacter) {
         *this << (char) i;
     } else if (state.isHex) {
@@ -496,8 +496,8 @@ ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(int64_t i) {
     return *this;
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(uint64_t v) {
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(uint64_t v) {
     if (state.isCharacter) {
         for (int i = 7; i >= 0; i--) {
             *this << (char) (v >> (i * 8));
@@ -525,9 +525,9 @@ ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(uint64_t v) {
     return *this;
 }
 
-template<class RP>
-ZcodeDebugOutput<RP>& ZcodeDebugOutput<RP>::operator <<(ZcodeCommandSlot<RP> *s) {
-    ZcodeDebugOutStream<RP> str = getAsOutStream();
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(ZcodeCommandSlot<ZP> *s) {
+    ZcodeDebugOutStream<ZP> str = getAsOutStream();
     s->getFields()->copyFieldTo(&str, 'R');
     s->getFields()->copyFieldTo(&str, 'E');
     s->getFields()->copyTo(&str);

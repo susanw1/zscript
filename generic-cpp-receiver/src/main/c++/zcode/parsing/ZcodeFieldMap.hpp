@@ -10,23 +10,23 @@
 
 #include "../ZcodeIncludes.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeOutStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeFieldMap {
-    typedef typename RP::fieldUnit_t fieldUnit_t;
-    typedef typename RP::fieldMapSize_t fieldMapSize_t;
+    typedef typename ZP::fieldUnit_t fieldUnit_t;
+    typedef typename ZP::fieldMapSize_t fieldMapSize_t;
 
 private:
-    char fields[RP::fieldNum];
-    fieldUnit_t values[RP::fieldNum];
+    char fields[ZP::fieldNum];
+    fieldUnit_t values[ZP::fieldNum];
     fieldMapSize_t size = 0;
     mutable char lastSearchedField = 0;
     mutable fieldUnit_t lastFoundValue = 0;
     public:
     bool add(char f, fieldUnit_t v) {
-        if (size == RP::fieldNum) {
+        if (size == ZP::fieldNum) {
             return false;
         }
         fields[size] = f;
@@ -37,12 +37,12 @@ private:
     }
 
     bool has(char f) const {
-        if (RP::fieldNum && f == lastSearchedField) {
+        if (ZP::fieldNum && f == lastSearchedField) {
             return true;
         }
         for (uint8_t i = 0; i < size; i++) {
             if (fields[i] == f) {
-                if (RP::cacheFieldResults) {
+                if (ZP::cacheFieldResults) {
                     lastSearchedField = f;
                     lastFoundValue = values[i];
                 }
@@ -65,12 +65,12 @@ private:
     }
 
     fieldUnit_t get(char f, fieldUnit_t def) const {
-        if (RP::cacheFieldResults && f == lastSearchedField) {
+        if (ZP::cacheFieldResults && f == lastSearchedField) {
             return lastFoundValue;
         }
         for (uint8_t i = 0; i < size; i++) {
             if (fields[i] == f) {
-                if (RP::cacheFieldResults) {
+                if (ZP::cacheFieldResults) {
                     lastSearchedField = f;
                     lastFoundValue = values[i];
                 }
@@ -142,13 +142,13 @@ private:
 
     void reset() {
         size = 0;
-        if (RP::cacheFieldResults) {
+        if (ZP::cacheFieldResults) {
             lastSearchedField = 0;
             lastFoundValue = 0;
         }
     }
 
-    void copyFieldTo(ZcodeOutStream<RP> *out, char c) const {
+    void copyFieldTo(ZcodeOutStream<ZP> *out, char c) const {
         bool hasSeenBefore = false;
         for (int i = 0; i < size; i++) {
             if (fields[i] == c) {
@@ -165,7 +165,7 @@ private:
 
     }
 
-    void copyTo(ZcodeOutStream<RP> *out) const {
+    void copyTo(ZcodeOutStream<ZP> *out) const {
         char last = 0;
         for (int i = 0; i < size; i++) {
             if (fields[i] != 'E' && fields[i] != 'R' && fields[i] != 'S') {

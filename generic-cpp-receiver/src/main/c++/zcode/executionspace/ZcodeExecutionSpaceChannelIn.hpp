@@ -10,20 +10,20 @@
 #include "../instreams/ZcodeChannelInStream.hpp"
 #include "../ZcodeIncludes.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeExecutionSpace;
 
-template<class RP>
+template<class ZP>
 class ZcodeExecutionSpaceChannelIn;
 
-template<class RP>
-class ZcodeExecutionSpaceLookahead: public ZcodeLookaheadStream<RP> {
-    typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
+template<class ZP>
+class ZcodeExecutionSpaceLookahead: public ZcodeLookaheadStream<ZP> {
+    typedef typename ZP::executionSpaceAddress_t executionSpaceAddress_t;
 private:
-    ZcodeExecutionSpaceChannelIn<RP> *parent = NULL;
+    ZcodeExecutionSpaceChannelIn<ZP> *parent = NULL;
     executionSpaceAddress_t offset = 0;
 public:
-    ZcodeExecutionSpaceLookahead(ZcodeExecutionSpaceChannelIn<RP> *parent) :
+    ZcodeExecutionSpaceLookahead(ZcodeExecutionSpaceChannelIn<ZP> *parent) :
             parent(parent) {
     }
 
@@ -37,12 +37,12 @@ public:
     }
 };
 
-template<class RP>
-class ZcodeExecutionSpaceChannelIn: public ZcodeChannelInStream<RP> {
-    typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
+template<class ZP>
+class ZcodeExecutionSpaceChannelIn: public ZcodeChannelInStream<ZP> {
+    typedef typename ZP::executionSpaceAddress_t executionSpaceAddress_t;
 private:
-    ZcodeExecutionSpaceLookahead<RP> lookahead;
-    ZcodeExecutionSpace<RP> *space;
+    ZcodeExecutionSpaceLookahead<ZP> lookahead;
+    ZcodeExecutionSpace<ZP> *space;
     executionSpaceAddress_t pos = 0;
     bool inUse = false;
 
@@ -50,7 +50,7 @@ public:
     ZcodeExecutionSpaceChannelIn() :
             lookahead(this), space(NULL) {
     }
-    void initialSetup(ZcodeExecutionSpace<RP> *space) {
+    void initialSetup(ZcodeExecutionSpace<ZP> *space) {
         this->space = space;
     }
 
@@ -83,7 +83,7 @@ public:
         }
     }
 
-    virtual ZcodeLookaheadStream<RP>* getLookahead() {
+    virtual ZcodeLookaheadStream<ZP>* getLookahead() {
         lookahead.reset();
         return &lookahead;
     }

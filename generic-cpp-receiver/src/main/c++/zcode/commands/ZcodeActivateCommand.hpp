@@ -11,11 +11,11 @@
 #include "../ZcodeIncludes.hpp"
 #include "ZcodeCommand.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeOutStream;
 
-template<class RP>
-class ZcodeActivateCommand: public ZcodeCommand<RP> {
+template<class ZP>
+class ZcodeActivateCommand: public ZcodeCommand<ZP> {
 private:
     static bool activated;
     const uint8_t code = 0x03;
@@ -30,7 +30,7 @@ private:
         activated = false;
     }
 
-    void execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out) {
+    void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) {
         if (!activated) {
             out->writeField('A', (uint8_t) 0);
             out->writeStatus(OK);
@@ -42,7 +42,7 @@ private:
         slot->setComplete(true);
     }
 
-    void setLocks(ZcodeCommandSlot<RP> *slot, ZcodeLockSet<RP> *locks) const {
+    void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
     }
 
     uint8_t getCode() const {
@@ -62,8 +62,8 @@ private:
     }
 };
 
-template<class RP>
-bool ZcodeActivateCommand<RP>::activated = false;
+template<class ZP>
+bool ZcodeActivateCommand<ZP>::activated = false;
 
 #include "../ZcodeOutStream.hpp"
 #include "../parsing/ZcodeCommandSlot.hpp"

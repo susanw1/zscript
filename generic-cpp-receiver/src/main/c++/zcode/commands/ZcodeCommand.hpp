@@ -9,33 +9,33 @@
 #define SRC_TEST_CPP_ZCODE_COMMANDS_ZCODECOMMAND_HPP_
 #include "../ZcodeIncludes.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandChannel;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandSlot;
 
-template<class RP>
+template<class ZP>
 class ZcodeOutStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandSequence;
 
-template<class RP>
+template<class ZP>
 class ZcodeLockSet;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommand {
 public:
-    virtual void finish(ZcodeCommandSlot<RP> *rCodeCommandSlot, ZcodeOutStream<RP> *out) const {
+    virtual void finish(ZcodeCommandSlot<ZP> *rCodeCommandSlot, ZcodeOutStream<ZP> *out) const {
     }
 
-    virtual void moveAlong(ZcodeCommandSlot<RP> *rCodeCommandSlot) const {
+    virtual void moveAlong(ZcodeCommandSlot<ZP> *rCodeCommandSlot) const {
     }
 
-    virtual void execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out) = 0;
+    virtual void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) = 0;
 
-    virtual void setLocks(ZcodeCommandSlot<RP> *slot, ZcodeLockSet<RP> *locks) const = 0;
+    virtual void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const = 0;
 
     virtual uint8_t getCode() const = 0;
 

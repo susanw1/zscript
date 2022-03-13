@@ -11,20 +11,20 @@
 #include "ZcodeCommand.hpp"
 #include "../executionspace/ZcodeExecutionSpace.hpp"
 
-template<class RP>
-class ZcodeExecutionStateCommand: public ZcodeCommand<RP> {
+template<class ZP>
+class ZcodeExecutionStateCommand: public ZcodeCommand<ZP> {
 private:
     const uint8_t code = 0x20;
-    ZcodeExecutionSpace<RP> *space;
+    ZcodeExecutionSpace<ZP> *space;
     public:
-    ZcodeExecutionStateCommand(ZcodeExecutionSpace<RP> *space) :
+    ZcodeExecutionStateCommand(ZcodeExecutionSpace<ZP> *space) :
             space(space) {
     }
 
-    virtual void execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out);
+    virtual void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
 
-    virtual void setLocks(ZcodeCommandSlot<RP> *slot, ZcodeLockSet<RP> *locks) const {
-        locks->addLock(RP::executionSpaceLock, false);
+    virtual void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
+        locks->addLock(ZP::executionSpaceLock, false);
     }
 
     virtual uint8_t getCode() const {
@@ -44,15 +44,15 @@ private:
     }
 };
 
-template<class RP>
-void ZcodeExecutionStateCommand<RP>::execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out) {
+template<class ZP>
+void ZcodeExecutionStateCommand<ZP>::execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) {
     out->writeField('D', space->getDelay());
     if (space->hasFailed()) {
         out->writeField('F', (uint8_t) 0);
     }
     out->writeField('G', (uint8_t) space->isRunning());
     out->writeField('L', space->getLength());
-    out->writeField('M', RP::executionLength);
+    out->writeField('M', ZP::executionLength);
     out->writeStatus(OK);
     slot->setComplete(true);
 }

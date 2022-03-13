@@ -10,7 +10,7 @@
 
 #include "ZcodeIncludes.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeBusInterruptSource {
 public:
 

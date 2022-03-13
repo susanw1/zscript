@@ -13,31 +13,31 @@
 #include "ZcodeInterruptVectorMap.hpp"
 #include "ZcodeExecutionSpace.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeInterruptVectorManager {
-    typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
+    typedef typename ZP::executionSpaceAddress_t executionSpaceAddress_t;
     private:
-    ZcodeNotificationManager<RP> *notificationManager;
-    ZcodeExecutionSpace<RP> space;
-    ZcodeInterruptVectorOut<RP> out;
-    ZcodeInterruptVectorMap<RP> vectorMap;
-    ZcodeBusInterrupt<RP> waitingInterrupts[RP::interruptVectorWorkingNum];
+    ZcodeNotificationManager<ZP> *notificationManager;
+    ZcodeExecutionSpace<ZP> space;
+    ZcodeInterruptVectorOut<ZP> out;
+    ZcodeInterruptVectorMap<ZP> vectorMap;
+    ZcodeBusInterrupt<ZP> waitingInterrupts[ZP::interruptVectorWorkingNum];
     int waitingNum = 0;
 
 public:
-    ZcodeInterruptVectorManager(ZcodeNotificationManager<RP> *notificationManager, ZcodeExecutionSpace<RP> space) :
+    ZcodeInterruptVectorManager(ZcodeNotificationManager<ZP> *notificationManager, ZcodeExecutionSpace<ZP> space) :
             notificationManager(notificationManager), space(space), out(notificationManager) {
     }
 
-    ZcodeInterruptVectorMap<RP>* getVectorMap() {
+    ZcodeInterruptVectorMap<ZP>* getVectorMap() {
         return &vectorMap;
     }
 
     bool canAccept() {
-        return waitingNum < RP::interruptVectorWorkingNum;
+        return waitingNum < ZP::interruptVectorWorkingNum;
     }
 
-    void acceptInterrupt(ZcodeBusInterrupt<RP> i) {
+    void acceptInterrupt(ZcodeBusInterrupt<ZP> i) {
         waitingInterrupts[waitingNum++] = i;
     }
 
@@ -45,8 +45,8 @@ public:
         return waitingNum > 0;
     }
 
-    ZcodeBusInterrupt<RP> takeInterrupt() {
-        ZcodeBusInterrupt<RP> interrupt = waitingInterrupts[0];
+    ZcodeBusInterrupt<ZP> takeInterrupt() {
+        ZcodeBusInterrupt<ZP> interrupt = waitingInterrupts[0];
         for (int i = 0; i < waitingNum - 1; i++) {
             waitingInterrupts[i] = waitingInterrupts[i + 1];
         }
@@ -54,26 +54,26 @@ public:
         return interrupt;
     }
 
-    ZcodeExecutionSpace<RP> getSpace() {
+    ZcodeExecutionSpace<ZP> getSpace() {
         return space;
     }
 
-    bool hasVector(ZcodeBusInterrupt<RP> *busInt) {
+    bool hasVector(ZcodeBusInterrupt<ZP> *busInt) {
         return vectorMap.hasVector(busInt->getNotificationType(), busInt->getNotificationBus(), busInt->getFoundAddress(),
                 busInt->getSource()->hasFindableAddress(busInt->getId()) && busInt->hasFindableAddress());
 
     }
 
-    executionSpaceAddress_t findVector(ZcodeBusInterrupt<RP> *busInt) {
+    executionSpaceAddress_t findVector(ZcodeBusInterrupt<ZP> *busInt) {
         return vectorMap.getVector(busInt->getNotificationType(), busInt->getNotificationBus(), busInt->getFoundAddress(),
                 busInt->getSource()->hasAddress() && busInt->hasFindableAddress());
     }
 
-    ZcodeInterruptVectorOut<RP>* getOut() {
+    ZcodeInterruptVectorOut<ZP>* getOut() {
         return &out;
     }
 
-    ZcodeNotificationManager<RP>* getNotificationManager() {
+    ZcodeNotificationManager<ZP>* getNotificationManager() {
         return notificationManager;
     }
 };

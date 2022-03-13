@@ -9,35 +9,35 @@
 #define SRC_TEST_CPP_ZCODE_PARSING_ZCODECOMMANDCHANNEL_HPP_
 #include "../ZcodeIncludes.hpp"
 
-template <class RP>
+template <class ZP>
 class ZcodeLockSet;
 
-template <class RP>
+template <class ZP>
 class ZcodeChannelInStream;
 
-template <class RP>
+template <class ZP>
 class ZcodeOutStream;
 
-template <class RP>
+template <class ZP>
 class ZcodeCommandSequence;
 
 
-template <class RP>
+template <class ZP>
 class ZcodeCommandChannel {
 public:
-    virtual ZcodeChannelInStream<RP>* acquireInStream() = 0;
+    virtual ZcodeChannelInStream<ZP>* acquireInStream() = 0;
 
     virtual bool hasInStream() = 0; // This method must be implemented such that if it returns true, calling acquireInStream() does not change the state of the channel,
                                     // and if it returns false, acquireInStream() returns an unlocked out stream.
 
-    virtual ZcodeOutStream<RP>* acquireOutStream() = 0;
+    virtual ZcodeOutStream<ZP>* acquireOutStream() = 0;
 
     virtual bool hasOutStream() = 0; // This method must be implemented such that if it returns true, calling acquireOutStream() does not change the state of the channel,
                                      // and if it returns false, acquireOutStream() returns an unlocked out stream.
 
     virtual bool hasCommandSequence() = 0;
 
-    virtual ZcodeCommandSequence<RP>* getCommandSequence() = 0;
+    virtual ZcodeCommandSequence<ZP>* getCommandSequence() = 0;
 
     virtual bool isPacketBased() = 0;
 

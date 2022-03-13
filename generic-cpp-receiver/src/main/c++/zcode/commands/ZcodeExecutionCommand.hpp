@@ -11,22 +11,22 @@
 #include "ZcodeCommand.hpp"
 #include "../executionspace/ZcodeExecutionSpace.hpp"
 
-template<class RP>
-class ZcodeExecutionCommand: public ZcodeCommand<RP> {
-    typedef typename RP::executionSpaceAddress_t executionSpaceAddress_t;
-    typedef typename RP::fieldUnit_t fieldUnit_t;
+template<class ZP>
+class ZcodeExecutionCommand: public ZcodeCommand<ZP> {
+    typedef typename ZP::executionSpaceAddress_t executionSpaceAddress_t;
+    typedef typename ZP::fieldUnit_t fieldUnit_t;
     private:
     const uint8_t code = 0x21;
-    ZcodeExecutionSpace<RP> *space;
+    ZcodeExecutionSpace<ZP> *space;
     public:
-    ZcodeExecutionCommand(ZcodeExecutionSpace<RP> *space) :
+    ZcodeExecutionCommand(ZcodeExecutionSpace<ZP> *space) :
             space(space) {
     }
 
-    virtual void execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out);
+    virtual void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
 
-    virtual void setLocks(ZcodeCommandSlot<RP> *slot, ZcodeLockSet<RP> *locks) const {
-        locks->addLock(RP::executionSpaceLock, false);
+    virtual void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
+        locks->addLock(ZP::executionSpaceLock, false);
     }
 
     virtual uint8_t getCode() const {
@@ -46,8 +46,8 @@ class ZcodeExecutionCommand: public ZcodeCommand<RP> {
     }
 };
 
-template<class RP>
-void ZcodeExecutionCommand<RP>::execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out) {
+template<class ZP>
+void ZcodeExecutionCommand<ZP>::execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) {
     bool worked = true;
     int16_t target = -1;
     if (slot->getFields()->has('T')) {

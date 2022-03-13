@@ -10,83 +10,83 @@
 #include "../ZcodeIncludes.hpp"
 #include "../ZcodeOutStream.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeNotificationManager;
 
-template<class RP>
+template<class ZP>
 class ZcodeInterruptVectorChannel;
 
-template<class RP>
-class ZcodeInterruptVectorOut: public ZcodeOutStream<RP> {
-    typedef typename RP::bigFieldAddress_t bigFieldAddress_t;
-    typedef typename RP::fieldUnit_t fieldUnit_t;
+template<class ZP>
+class ZcodeInterruptVectorOut: public ZcodeOutStream<ZP> {
+    typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
+    typedef typename ZP::fieldUnit_t fieldUnit_t;
 private:
-    ZcodeNotificationManager<RP> *notificationManager;
-    ZcodeOutStream<RP> *out = NULL;
+    ZcodeNotificationManager<ZP> *notificationManager;
+    ZcodeOutStream<ZP> *out = NULL;
 
 public:
-    ZcodeInterruptVectorOut(ZcodeNotificationManager<RP> *notificationManager) :
+    ZcodeInterruptVectorOut(ZcodeNotificationManager<ZP> *notificationManager) :
             notificationManager(notificationManager) {
     }
 
-    ZcodeOutStream<RP>* markDebug() {
+    ZcodeOutStream<ZP>* markDebug() {
         return out->markDebug();
     }
 
-    ZcodeOutStream<RP>* markNotification() {
+    ZcodeOutStream<ZP>* markNotification() {
         return out->markNotification();
     }
 
-    ZcodeOutStream<RP>* markBroadcast() {
+    ZcodeOutStream<ZP>* markBroadcast() {
         return out->markBroadcast();
     }
 
-    ZcodeOutStream<RP>* writeStatus(ZcodeResponseStatus st) {
+    ZcodeOutStream<ZP>* writeStatus(ZcodeResponseStatus st) {
         return out->writeStatus(st);
     }
 
-    ZcodeOutStream<RP>* writeField(char f, fieldUnit_t v) {
+    ZcodeOutStream<ZP>* writeField(char f, fieldUnit_t v) {
         return out->writeField(f, v);
     }
 
-    ZcodeOutStream<RP>* continueField(fieldUnit_t v) {
+    ZcodeOutStream<ZP>* continueField(fieldUnit_t v) {
         return out->continueField(v);
     }
 
-    ZcodeOutStream<RP>* writeBigHexField(uint8_t const *value, bigFieldAddress_t length) {
+    ZcodeOutStream<ZP>* writeBigHexField(uint8_t const *value, bigFieldAddress_t length) {
         return out->writeBigHexField(value, length);
     }
 
-    ZcodeOutStream<RP>* writeBigStringField(uint8_t const *value, bigFieldAddress_t length) {
+    ZcodeOutStream<ZP>* writeBigStringField(uint8_t const *value, bigFieldAddress_t length) {
         return out->writeBigStringField(value, length);
     }
 
-    ZcodeOutStream<RP>* writeBigStringField(char const *s) {
+    ZcodeOutStream<ZP>* writeBigStringField(char const *s) {
         return out->writeBigStringField(s);
     }
 
-    ZcodeOutStream<RP>* writeBytes(uint8_t const *value, bigFieldAddress_t length) {
+    ZcodeOutStream<ZP>* writeBytes(uint8_t const *value, bigFieldAddress_t length) {
         return out->writeBytes(value, length);
     }
 
-    ZcodeOutStream<RP>* writeCommandSeperator() {
+    ZcodeOutStream<ZP>* writeCommandSeperator() {
         return out->writeCommandSeperator();
     }
 
-    ZcodeOutStream<RP>* writeCommandSequenceSeperator() {
+    ZcodeOutStream<ZP>* writeCommandSequenceSeperator() {
         return out->writeCommandSequenceSeperator();
     }
 
-    ZcodeOutStream<RP>* writeCommandSequenceErrorHandler() {
+    ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() {
         return out->writeCommandSequenceErrorHandler();
     }
 
-    void openResponse(ZcodeCommandChannel<RP> *target);
+    void openResponse(ZcodeCommandChannel<ZP> *target);
 
-    void openNotification(ZcodeCommandChannel<RP> *target) {
+    void openNotification(ZcodeCommandChannel<ZP> *target) {
     }
 
-    void openDebug(ZcodeCommandChannel<RP> *target) {
+    void openDebug(ZcodeCommandChannel<ZP> *target) {
     }
 
     bool isOpen() {
@@ -104,9 +104,9 @@ public:
     void unlock();
 };
 
-template<class RP>
-void ZcodeInterruptVectorOut<RP>::openResponse(ZcodeCommandChannel<RP> *target) {
-    ZcodeInterruptVectorChannel<RP> *channel = (ZcodeInterruptVectorChannel<RP>*) target;
+template<class ZP>
+void ZcodeInterruptVectorOut<ZP>::openResponse(ZcodeCommandChannel<ZP> *target) {
+    ZcodeInterruptVectorChannel<ZP> *channel = (ZcodeInterruptVectorChannel<ZP>*) target;
     if (out->isOpen()) {
         out->close();
     }
@@ -118,7 +118,7 @@ void ZcodeInterruptVectorOut<RP>::openResponse(ZcodeCommandChannel<RP> *target) 
     out->writeField('T', channel->getInterrupt()->getNotificationType());
     out->writeField('I', channel->getInterrupt()->getNotificationBus());
     out->writeStatus(OK);
-    if (RP::findInterruptSourceAddress && channel->getInterrupt()->getSource()->hasAddress()) {
+    if (ZP::findInterruptSourceAddress && channel->getInterrupt()->getSource()->hasAddress()) {
         out->writeCommandSeperator();
         out->writeField('A', channel->getInterrupt()->getFoundAddress());
         if (channel->getInterrupt()->hasFindableAddress()) {
@@ -131,24 +131,24 @@ void ZcodeInterruptVectorOut<RP>::openResponse(ZcodeCommandChannel<RP> *target) 
     channel->getInterrupt()->clear();
 }
 
-template<class RP>
-bool ZcodeInterruptVectorOut<RP>::lock() {
+template<class ZP>
+bool ZcodeInterruptVectorOut<ZP>::lock() {
     if (out == NULL) {
         out = notificationManager->getNotificationChannel()->acquireOutStream();
     }
     return out->lock();
 }
 
-template<class RP>
-bool ZcodeInterruptVectorOut<RP>::isLocked() {
+template<class ZP>
+bool ZcodeInterruptVectorOut<ZP>::isLocked() {
     if (out == NULL) {
         out = notificationManager->getNotificationChannel()->acquireOutStream();
     }
     return out->isLocked();
 }
 
-template<class RP>
-void ZcodeInterruptVectorOut<RP>::unlock() {
+template<class ZP>
+void ZcodeInterruptVectorOut<ZP>::unlock() {
     out->unlock();
     notificationManager->getNotificationChannel()->releaseOutStream();
     out = NULL;

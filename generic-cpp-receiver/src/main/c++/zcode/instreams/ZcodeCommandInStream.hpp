@@ -10,20 +10,20 @@
 #include "../ZcodeIncludes.hpp"
 #include "ZcodeLookaheadStream.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeSequenceInStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeLookaheadStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandInStream;
 
-template<class RP>
-class ZcodeCommandLookaheadStream: public ZcodeLookaheadStream<RP> {
+template<class ZP>
+class ZcodeCommandLookaheadStream: public ZcodeLookaheadStream<ZP> {
 private:
-    ZcodeLookaheadStream<RP> *parent;
-    ZcodeCommandInStream<RP> *commandIn;
+    ZcodeLookaheadStream<ZP> *parent;
+    ZcodeCommandInStream<ZP> *commandIn;
     uint8_t lookahead = 2;
 public:
     ZcodeCommandLookaheadStream() :
@@ -40,27 +40,27 @@ public:
         }
     }
 
-    void reset(ZcodeCommandInStream<RP> *commandIn) {
+    void reset(ZcodeCommandInStream<ZP> *commandIn) {
         this->commandIn = commandIn;
         this->parent = commandIn->sequenceIn->getChannelInStream()->getLookahead();
         this->lookahead = 2;
     }
 };
 
-template<class RP>
+template<class ZP>
 class ZcodeCommandInStream {
 private:
-    ZcodeSequenceInStream<RP> *sequenceIn;
-    ZcodeCommandLookaheadStream<RP> lookahead;
+    ZcodeSequenceInStream<ZP> *sequenceIn;
+    ZcodeCommandLookaheadStream<ZP> lookahead;
     char current = 0;
     bool opened = false;
     bool inString = false;
     bool backslash = false;
 
     void readInternal();
-    friend ZcodeCommandLookaheadStream<RP> ;
+    friend ZcodeCommandLookaheadStream<ZP> ;
 public:
-    ZcodeCommandInStream(ZcodeSequenceInStream<RP> *sequenceIn) :
+    ZcodeCommandInStream(ZcodeSequenceInStream<ZP> *sequenceIn) :
             sequenceIn(sequenceIn), lookahead() {
     }
 
@@ -113,14 +113,14 @@ public:
         }
     }
 
-    ZcodeLookaheadStream<RP>* getLookahead() {
+    ZcodeLookaheadStream<ZP>* getLookahead() {
         lookahead.reset(this);
         return &lookahead;
     }
 };
 
-template<class RP>
-void ZcodeCommandInStream<RP>::readInternal() {
+template<class ZP>
+void ZcodeCommandInStream<ZP>::readInternal() {
     current = sequenceIn->read();
 
     if (current == '\n' || (!inString && (current == '&' || current == '|'))) {

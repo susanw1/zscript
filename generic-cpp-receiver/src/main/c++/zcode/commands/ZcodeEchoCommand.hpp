@@ -10,15 +10,15 @@
 #include "../ZcodeIncludes.hpp"
 #include "ZcodeCommand.hpp"
 
-template <class RP>
-class ZcodeEchoCommand: public ZcodeCommand<RP> {
+template <class ZP>
+class ZcodeEchoCommand: public ZcodeCommand<ZP> {
 private:
     const uint8_t code = 0x01;
 public:
 
-    virtual void execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out);
+    virtual void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
 
-    virtual void setLocks(ZcodeCommandSlot<RP> *slot, ZcodeLockSet<RP> *locks) const {
+    virtual void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
     }
 
     virtual uint8_t getCode() const {
@@ -38,8 +38,8 @@ public:
     }
 };
 
-template<class RP>
-void ZcodeEchoCommand<RP>::execute(ZcodeCommandSlot<RP> *slot, ZcodeCommandSequence<RP> *sequence, ZcodeOutStream<RP> *out) {
+template<class ZP>
+void ZcodeEchoCommand<ZP>::execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) {
     if (!slot->getFields()->has('S')) {
         out->writeStatus(OK);
     } else {

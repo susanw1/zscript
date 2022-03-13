@@ -12,52 +12,52 @@
 #include "../parsing/ZcodeCommandSequence.hpp"
 #include "../ZcodeLockSet.hpp"
 
-template<class RP>
+template<class ZP>
 class Zcode;
 
-template<class RP>
+template<class ZP>
 class ZcodeInterruptVectorManager;
 
-template<class RP>
+template<class ZP>
 class ZcodeBusInterrupt;
 
-template<class RP>
+template<class ZP>
 class ZcodeExecutionSpace;
 
-template<class RP>
+template<class ZP>
 class ZcodeExecutionSpaceChannelIn;
 
-template<class RP>
-class ZcodeInterruptVectorChannel: public ZcodeCommandChannel<RP> {
+template<class ZP>
+class ZcodeInterruptVectorChannel: public ZcodeCommandChannel<ZP> {
 private:
-    Zcode<RP> *zcode;
-    ZcodeExecutionSpace<RP> *space;
-    ZcodeInterruptVectorManager<RP> *vectorManager;
-    ZcodeCommandSequence<RP> sequence;
-    ZcodeBusInterrupt<RP> interrupt;
-    ZcodeExecutionSpaceChannelIn<RP> *in = NULL;
-    ZcodeLockSet<RP> locks;
+    Zcode<ZP> *zcode;
+    ZcodeExecutionSpace<ZP> *space;
+    ZcodeInterruptVectorManager<ZP> *vectorManager;
+    ZcodeCommandSequence<ZP> sequence;
+    ZcodeBusInterrupt<ZP> interrupt;
+    ZcodeExecutionSpaceChannelIn<ZP> *in = NULL;
+    ZcodeLockSet<ZP> locks;
 
 public:
-    ZcodeInterruptVectorChannel(ZcodeExecutionSpace<RP> *space, ZcodeInterruptVectorManager<RP> *vectorManager, Zcode<RP> *z) :
+    ZcodeInterruptVectorChannel(ZcodeExecutionSpace<ZP> *space, ZcodeInterruptVectorManager<ZP> *vectorManager, Zcode<ZP> *z) :
             zcode(z), space(space), vectorManager(vectorManager), sequence(z, this) {
-        locks.addLock(RP::executionSpaceLock, false);
+        locks.addLock(ZP::executionSpaceLock, false);
     }
 
-    ZcodeChannelInStream<RP>* acquireInStream();
+    ZcodeChannelInStream<ZP>* acquireInStream();
 
     bool hasInStream() {
         return in != NULL;
     }
 
-    ZcodeOutStream<RP>* acquireOutStream();
+    ZcodeOutStream<ZP>* acquireOutStream();
 
     bool hasOutStream() {
         return true;
     }
     bool hasCommandSequence();
 
-    ZcodeCommandSequence<RP>* getCommandSequence() {
+    ZcodeCommandSequence<ZP>* getCommandSequence() {
         return &sequence;
     }
 
@@ -73,10 +73,10 @@ public:
     }
 
     void releaseOutStream() {
-        interrupt = ZcodeBusInterrupt<RP>();
+        interrupt = ZcodeBusInterrupt<ZP>();
     }
 
-    ZcodeBusInterrupt<RP>* getInterrupt() {
+    ZcodeBusInterrupt<ZP>* getInterrupt() {
         return &interrupt;
     }
 
@@ -101,8 +101,8 @@ public:
 };
 #include "ZcodeInterruptVectorManager.hpp"
 
-template<class RP>
-ZcodeChannelInStream<RP>* ZcodeInterruptVectorChannel<RP>::acquireInStream() {
+template<class ZP>
+ZcodeChannelInStream<ZP>* ZcodeInterruptVectorChannel<ZP>::acquireInStream() {
     if (interrupt.getSource() == NULL) {
         interrupt = vectorManager->takeInterrupt();
     }
@@ -112,29 +112,29 @@ ZcodeChannelInStream<RP>* ZcodeInterruptVectorChannel<RP>::acquireInStream() {
     return in;
 }
 
-template<class RP>
-ZcodeOutStream<RP>* ZcodeInterruptVectorChannel<RP>::acquireOutStream() {
+template<class ZP>
+ZcodeOutStream<ZP>* ZcodeInterruptVectorChannel<ZP>::acquireOutStream() {
     return vectorManager->getOut();
 }
 
-template<class RP>
-bool ZcodeInterruptVectorChannel<RP>::hasCommandSequence() {
+template<class ZP>
+bool ZcodeInterruptVectorChannel<ZP>::hasCommandSequence() {
     return interrupt.getSource() == NULL && vectorManager->hasInterruptSource()
             && space->hasInStream();
 }
 
-template<class RP>
-void ZcodeInterruptVectorChannel<RP>::lock() {
+template<class ZP>
+void ZcodeInterruptVectorChannel<ZP>::lock() {
     zcode->lock(&locks);
 }
 
-template<class RP>
-bool ZcodeInterruptVectorChannel<RP>::canLock() {
+template<class ZP>
+bool ZcodeInterruptVectorChannel<ZP>::canLock() {
     return zcode->canLock(&locks);
 }
 
-template<class RP>
-void ZcodeInterruptVectorChannel<RP>::unlock() {
+template<class ZP>
+void ZcodeInterruptVectorChannel<ZP>::unlock() {
     zcode->unlock(&locks);
 }
 

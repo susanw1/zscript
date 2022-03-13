@@ -11,20 +11,20 @@
 #include "ZcodeCommandInStream.hpp"
 #include "ZcodeMarkerInStream.hpp"
 
-template<class RP>
+template<class ZP>
 class ZcodeChannelInStream;
 
-template<class RP>
+template<class ZP>
 class ZcodeSequenceInStream {
 private:
-    ZcodeChannelInStream<RP> *channelIn;
-    ZcodeCommandInStream<RP> commandIn;
-    ZcodeMarkerInStream<RP> markerIn;
+    ZcodeChannelInStream<ZP> *channelIn;
+    ZcodeCommandInStream<ZP> commandIn;
+    ZcodeMarkerInStream<ZP> markerIn;
     char current = 0;
     bool opened = false;
     bool locked = false;
 public:
-    ZcodeSequenceInStream(ZcodeChannelInStream<RP> *channelIn) :
+    ZcodeSequenceInStream(ZcodeChannelInStream<ZP> *channelIn) :
             channelIn(channelIn), commandIn(this), markerIn(this) {
     }
 
@@ -80,15 +80,15 @@ public:
         }
     }
 
-    ZcodeChannelInStream<RP>* getChannelInStream() {
+    ZcodeChannelInStream<ZP>* getChannelInStream() {
         return channelIn;
     }
 
-    ZcodeCommandInStream<RP>* getCommandInStream() {
+    ZcodeCommandInStream<ZP>* getCommandInStream() {
         return &commandIn;
     }
 
-    ZcodeMarkerInStream<RP>* getMarkerInStream() {
+    ZcodeMarkerInStream<ZP>* getMarkerInStream() {
         markerIn.reset();
         return &markerIn;
     }
@@ -111,8 +111,8 @@ public:
     }
 };
 
-template<class RP>
-void ZcodeSequenceInStream<RP>::readInternal() {
+template<class ZP>
+void ZcodeSequenceInStream<ZP>::readInternal() {
     int next = channelIn->read();
     if (next == -1) {
         current = '\n';
