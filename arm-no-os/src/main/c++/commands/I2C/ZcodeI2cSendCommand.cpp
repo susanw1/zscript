@@ -49,7 +49,7 @@ void ZcodeI2cSendCommand::finish(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeO
         return;
     }
     ZcodeI2cBus *bus = ZcodeI2cSubsystem::getZcodeBus(slot->getFields()->get('B', 0));
-    if (slot->getFields()->get('B', 0) >= 4 * ZcodePeripheralParameters::i2cBussesPerPhyBus) {
+    if (slot->getFields()->get('B', 0) >= 4 * ZcodePeripheralParameters::i2cBusesPerPhyBus) {
         return;
     }
     uint8_t retries = slot->getFields()->get('T', 5);
@@ -103,7 +103,7 @@ void ZcodeI2cSendCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, Zcode
         return;
     }
     uint8_t bus = slot->getFields()->get('B', 0);
-    if (bus >= 4 * ZcodePeripheralParameters::i2cBussesPerPhyBus) {
+    if (bus >= 4 * ZcodePeripheralParameters::i2cBusesPerPhyBus) {
         slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
         out->writeField('B', bus);

@@ -57,11 +57,11 @@ class ZcodeOutStream {
 
     virtual ZcodeOutStream<ZP>* writeBytes(const uint8_t *value, bigFieldAddress_t length) = 0;
 
-    virtual ZcodeOutStream<ZP>* writeCommandSeperator() = 0;
+    virtual ZcodeOutStream<ZP>* writeCommandSeparator() = 0;
 
     virtual ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() = 0;
 
-    virtual ZcodeOutStream<ZP>* writeCommandSequenceSeperator() = 0;
+    virtual ZcodeOutStream<ZP>* writeCommandSequenceSeparator() = 0;
 
     virtual void openResponse(ZcodeCommandChannel<ZP> *target) = 0;
 

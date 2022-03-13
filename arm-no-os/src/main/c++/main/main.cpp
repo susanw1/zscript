@@ -25,7 +25,7 @@
 #include <stm32g484xx.h>
 #include "ZcodeParameters.hpp"
 
-#include <ArduinoSpiLayer/src/Ethernet.h>
+#include <../LowLevel/ArduinoSpiLayer/src/Ethernet.h>
 
 #include <Zcode.hpp>
 #include <commands/ZcodeActivateCommand.hpp>
@@ -37,10 +37,10 @@
 #include <commands/ZcodeNotificationHostCommand.hpp>
 #include <commands/ZcodeCapabilitiesCommand.hpp>
 #include <executionspace/ZcodeExecutionSpaceChannel.hpp>
-#include <ZcodeIdentifyCommand.hpp>
 
-#include <EthernetUdpCommandChannel.hpp>
+#include "../channels/Ethernet/EthernetUdpCommandChannel.hpp"
 
+#include "../commands/ZcodeIdentifyCommand.hpp"
 #include "../commands/persistence/ZcodeFetchGuidCommand.hpp"
 #include "../commands/persistence/ZcodePersistentFetchCommand.hpp"
 #include "../commands/persistence/ZcodePersistentStoreCommand.hpp"
@@ -48,23 +48,23 @@
 #include "../commands/persistence/ZcodeStoreMacAddressCommand.hpp"
 #include "../commands/persistence/ZcodeFlashPersistence.hpp"
 
-#include <I2C/ZcodeI2cSubsystem.hpp>
-#include <I2C/ZcodeI2cSetupCommand.hpp>
-#include <I2C/ZcodeI2cSendCommand.hpp>
-#include <I2C/ZcodeI2cReceiveCommand.hpp>
+#include "../commands/I2C/ZcodeI2cSubsystem.hpp"
+#include "../commands/I2C/ZcodeI2cSetupCommand.hpp"
+#include "../commands/I2C/ZcodeI2cSendCommand.hpp"
+#include "../commands/I2C/ZcodeI2cReceiveCommand.hpp"
 
-#include <Pins/ZcodePinSystem.hpp>
-#include <Pins/ZcodePinSetupCommand.hpp>
-#include <Pins/ZcodePinSetCommand.hpp>
-#include <Pins/ZcodePinGetCommand.hpp>
-#include <Pins/ZcodePinInterruptSource.hpp>
+#include "../commands/Pins/ZcodePinSystem.hpp"
+#include "../commands/Pins/ZcodePinSetupCommand.hpp"
+#include "../commands/Pins/ZcodePinSetCommand.hpp"
+#include "../commands/Pins/ZcodePinGetCommand.hpp"
+#include "../commands/Pins/ZcodePinInterruptSource.hpp"
 
-#include <Uart/ZcodeUartSubsystem.hpp>
-#include <Uart/ZcodeUartSetupCommand.hpp>
-#include <Uart/ZcodeUartSendCommand.hpp>
-#include <Uart/ZcodeUartReadCommand.hpp>
-#include <Uart/ZcodeUartAvailableCommand.hpp>
-#include <Uart/ZcodeUartSkipCommand.hpp>
+#include "../commands/Uart/ZcodeUartSubsystem.hpp"
+#include "../commands/Uart/ZcodeUartSetupCommand.hpp"
+#include "../commands/Uart/ZcodeUartSendCommand.hpp"
+#include "../commands/Uart/ZcodeUartReadCommand.hpp"
+#include "../commands/Uart/ZcodeUartAvailableCommand.hpp"
+#include "../commands/Uart/ZcodeUartSkipCommand.hpp"
 
 #include "../LowLevel/AToDLowLevel/AtoD.hpp"
 #include "../LowLevel/AToDLowLevel/AtoDManager.hpp"
@@ -88,6 +88,7 @@
 void doNothing(I2c *i2c, I2cTerminationStatus status) {
     i2c->unlock();
 }
+
 int main(void) {
     ClockManager::getClock(VCO)->set(300000, HSI);
     ClockManager::getClock(PLL_R)->set(150000, VCO);

@@ -92,7 +92,7 @@ void ZcodeNotificationManager<ZP>::sendNotification(ZcodeBusInterrupt<ZP> interr
         out->writeField('I', interrupt.getNotificationBus());
         out->writeStatus(OK);
         if (ZP::findInterruptSourceAddress && interrupt.getSource()->hasFindableAddress(interrupt.getId())) {
-            out->writeCommandSeperator();
+            out->writeCommandSeparator();
             out->writeField('A', interrupt.getFoundAddress());
             if (interrupt.hasFindableAddress()) {
                 out->writeStatus(OK);
@@ -100,7 +100,7 @@ void ZcodeNotificationManager<ZP>::sendNotification(ZcodeBusInterrupt<ZP> interr
                 out->writeStatus(CMD_FAIL);
             }
         }
-        out->writeCommandSequenceSeperator();
+        out->writeCommandSequenceSeparator();
         out->close();
         out->unlock();
         interrupt.clear();

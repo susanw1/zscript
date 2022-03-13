@@ -69,12 +69,12 @@ public:
         return out->writeBytes(value, length);
     }
 
-    ZcodeOutStream<ZP>* writeCommandSeperator() {
-        return out->writeCommandSeperator();
+    ZcodeOutStream<ZP>* writeCommandSeparator() {
+        return out->writeCommandSeparator();
     }
 
-    ZcodeOutStream<ZP>* writeCommandSequenceSeperator() {
-        return out->writeCommandSequenceSeperator();
+    ZcodeOutStream<ZP>* writeCommandSequenceSeparator() {
+        return out->writeCommandSequenceSeparator();
     }
 
     ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() {
@@ -119,7 +119,7 @@ void ZcodeInterruptVectorOut<ZP>::openResponse(ZcodeCommandChannel<ZP> *target) 
     out->writeField('I', channel->getInterrupt()->getNotificationBus());
     out->writeStatus(OK);
     if (ZP::findInterruptSourceAddress && channel->getInterrupt()->getSource()->hasAddress()) {
-        out->writeCommandSeperator();
+        out->writeCommandSeparator();
         out->writeField('A', channel->getInterrupt()->getFoundAddress());
         if (channel->getInterrupt()->hasFindableAddress()) {
             out->writeStatus(OK);
@@ -127,7 +127,7 @@ void ZcodeInterruptVectorOut<ZP>::openResponse(ZcodeCommandChannel<ZP> *target) 
             out->writeStatus(CMD_FAIL);
         }
     }
-    out->writeCommandSeperator();
+    out->writeCommandSeparator();
     channel->getInterrupt()->clear();
 }
 

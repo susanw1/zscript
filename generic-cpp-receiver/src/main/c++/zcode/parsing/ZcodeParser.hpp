@@ -57,7 +57,7 @@ void ZcodeParser<ZP>::report_failure(ZcodeCommandChannel<ZP> *channel) {
         channel->acquireOutStream()->openResponse(channel);
         channel->acquireOutStream()->writeStatus(SETUP_ERROR);
         channel->acquireOutStream()->writeBigStringField(zcode->getConfigFailureState());
-        channel->acquireOutStream()->writeCommandSequenceSeperator();
+        channel->acquireOutStream()->writeCommandSequenceSeparator();
         channel->acquireOutStream()->close();
         channel->acquireOutStream()->unlock();
         channel->releaseOutStream();

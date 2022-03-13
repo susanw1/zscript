@@ -57,7 +57,7 @@ public:
             out->writeField('I', (uint8_t) 0);
         }
         out->writeField('C', (uint8_t) 0x2F);
-        out->writeField('B', (uint8_t)(ZcodePeripheralParameters::i2cBussesPerPhyBus * 4));
+        out->writeField('B', (uint8_t)(ZcodePeripheralParameters::i2cBusesPerPhyBus * 4));
         out->writeField('F', (uint8_t) 3);
     }
 

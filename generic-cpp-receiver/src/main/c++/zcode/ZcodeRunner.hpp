@@ -139,23 +139,23 @@ bool ZcodeRunner<ZP>::finishRunning(ZcodeCommandSequence<ZP> *target, int target
             if (target->fail(slot->getStatus())) {
                 target->acquireOutStream()->writeCommandSequenceErrorHandler();
             } else {
-                target->acquireOutStream()->writeCommandSequenceSeperator();
+                target->acquireOutStream()->writeCommandSequenceSeparator();
             }
         } else if (slot->getEnd() == '\n'
                 || (target->isFullyParsed() && slot->next == NULL)) {
-            target->acquireOutStream()->writeCommandSequenceSeperator();
+            target->acquireOutStream()->writeCommandSequenceSeparator();
         } else if (slot->getEnd() == '&') {
-            target->acquireOutStream()->writeCommandSeperator();
+            target->acquireOutStream()->writeCommandSeparator();
         } else {
             target->fail(UNKNOWN_ERROR);
-            target->acquireOutStream()->writeCommandSequenceSeperator();
+            target->acquireOutStream()->writeCommandSequenceSeparator();
         }
         if (target->hasParsed()) {
             target->popFirst();
             slot->reset();
         }
     } else if (target->isEmpty()) {
-        target->acquireOutStream()->writeCommandSequenceSeperator();
+        target->acquireOutStream()->writeCommandSequenceSeparator();
         target->releaseOutStream();
     }
     if (!target->hasParsed() && target->isFullyParsed()) {
@@ -196,7 +196,7 @@ void ZcodeRunner<ZP>::runSequence(ZcodeCommandSequence<ZP> *target, int targetIn
         if (c == NULL) {
             out->writeStatus(UNKNOWN_CMD);
             out->writeBigStringField("Command not found");
-            out->writeCommandSequenceSeperator();
+            out->writeCommandSequenceSeparator();
             target->fail(UNKNOWN_CMD);
             finishRunning(target, targetInd);
         } else if (cmd->getFields()->get('R', 0xFF)
@@ -204,7 +204,7 @@ void ZcodeRunner<ZP>::runSequence(ZcodeCommandSequence<ZP> *target, int targetIn
                 && !ZcodeActivateCommand<ZP>::isActivated()) {
             out->writeStatus(NOT_ACTIVATED);
             out->writeBigStringField("Not a system command, and not activated");
-            out->writeCommandSequenceSeperator();
+            out->writeCommandSequenceSeparator();
             target->fail(NOT_ACTIVATED);
             finishRunning(target, targetInd);
         } else {

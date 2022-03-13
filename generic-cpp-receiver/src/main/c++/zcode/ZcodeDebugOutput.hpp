@@ -146,7 +146,7 @@ void ZcodeDebugOutput<ZP>::flushBuffer(ZcodeOutStream<ZP> *stream) {
         while (curPos < ZP::debugBufferLength && debugBuffer[curPos] != '\n') {
             curPos++;
         }
-        stream->markDebug()->writeBytes(debugBuffer + prevPos, (bigFieldAddress_t) (curPos - prevPos))->writeCommandSequenceSeperator();
+        stream->markDebug()->writeBytes(debugBuffer + prevPos, (bigFieldAddress_t) (curPos - prevPos))->writeCommandSequenceSeparator();
         curPos++;
     }
     if (position == ZP::debugBufferLength + 1) {
@@ -218,12 +218,12 @@ void ZcodeDebugOutput<ZP>::println(const char *s, debugOutputBufferLength_t leng
             if (s[i] == '\n') {
                 stream->markDebug()
                         ->writeBytes((const uint8_t*) (s + prevPos), (bigFieldAddress_t) (i - prevPos))
-                        ->writeCommandSequenceSeperator();
+                        ->writeCommandSequenceSeparator();
                 prevPos = i + 1;
             }
         }
         if (prevPos != length) {
-            stream->markDebug()->writeBytes((const uint8_t*) (s + prevPos), (bigFieldAddress_t) (length - prevPos))->writeCommandSequenceSeperator();
+            stream->markDebug()->writeBytes((const uint8_t*) (s + prevPos), (bigFieldAddress_t) (length - prevPos))->writeCommandSequenceSeparator();
         }
         stream->close();
         stream->unlock();

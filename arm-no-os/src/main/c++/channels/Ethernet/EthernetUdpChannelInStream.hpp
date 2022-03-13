@@ -7,6 +7,7 @@
 
 #ifndef SRC_TEST_CPP_CHANNELS_ETHERNET_ETHERNETUDPCHANNELINSTREAM_HPP_
 #define SRC_TEST_CPP_CHANNELS_ETHERNET_ETHERNETUDPCHANNELINSTREAM_HPP_
+
 #include <stdint.h>
 #include <stdlib.h>
 #include "../../LowLevel/ArduinoSpiLayer/src/Ethernet.h"

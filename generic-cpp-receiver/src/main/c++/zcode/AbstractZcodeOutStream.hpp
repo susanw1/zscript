@@ -133,7 +133,7 @@ public:
         return this;
     }
 
-    virtual ZcodeOutStream<ZP>* writeCommandSeperator() {
+    virtual ZcodeOutStream<ZP>* writeCommandSeparator() {
         writeByte('&');
         return this;
     }
@@ -142,7 +142,7 @@ public:
         return this;
     }
 
-    virtual ZcodeOutStream<ZP>* writeCommandSequenceSeperator() {
+    virtual ZcodeOutStream<ZP>* writeCommandSequenceSeparator() {
         writeByte('\n');
         return this;
     }

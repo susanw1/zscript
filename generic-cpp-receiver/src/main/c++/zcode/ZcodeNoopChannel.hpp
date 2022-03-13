@@ -63,7 +63,7 @@ class ZcodeNoopChannel: public ZcodeCommandChannel<ZP> {
             return this;
         }
 
-        virtual ZcodeOutStream<RP1>* writeCommandSeperator() {
+        virtual ZcodeOutStream<RP1>* writeCommandSeparator() {
             return this;
         }
 
@@ -71,7 +71,7 @@ class ZcodeNoopChannel: public ZcodeCommandChannel<ZP> {
             return this;
         }
 
-        virtual ZcodeOutStream<RP1>* writeCommandSequenceSeperator() {
+        virtual ZcodeOutStream<RP1>* writeCommandSequenceSeparator() {
             return this;
         }
 

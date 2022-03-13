@@ -8,8 +8,8 @@
 #ifndef SRC_TEST_C___COMMANDS_PINS_RCODEPINSYSTEM_HPP_
 #define SRC_TEST_C___COMMANDS_PINS_RCODEPINSYSTEM_HPP_
 #include <ZcodeParameters.hpp>
-#include <GpioLowLevel/Gpio.hpp>
-#include <GpioLowLevel/GpioManager.hpp>
+#include "../../LowLevel/GpioLowLevel/Gpio.hpp"
+#include "../../LowLevel/GpioLowLevel/GpioManager.hpp"
 
 class ZcodePinSystem {
     static GpioPinName names[ZcodePeripheralParameters::pinNumber];

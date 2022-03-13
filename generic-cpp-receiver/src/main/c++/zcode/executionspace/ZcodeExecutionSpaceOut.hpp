@@ -59,11 +59,11 @@ public:
         return this;
     }
 
-    ZcodeOutStream<ZP>* writeCommandSeperator() {
+    ZcodeOutStream<ZP>* writeCommandSeparator() {
         if (!overLength) {
             lastEndPos = length;
         }
-        return AbstractZcodeOutStream<ZP>::writeCommandSeperator();
+        return AbstractZcodeOutStream<ZP>::writeCommandSeparator();
     }
 
     ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() {
@@ -141,11 +141,11 @@ bool ZcodeExecutionSpaceOut<ZP>::flush() {
         out->writeField('Z', (uint8_t) 2);
         if (overLength) {
             out->writeBytes(buffer, lastEndPos);
-            out->writeCommandSeperator();
+            out->writeCommandSeparator();
             out->writeStatus(RESP_TOO_LONG);
-            out->writeCommandSeperator();
+            out->writeCommandSeparator();
             out->writeStatus(status);
-            out->writeCommandSequenceSeperator();
+            out->writeCommandSequenceSeparator();
         } else {
             out->writeBytes(buffer, length);
         }

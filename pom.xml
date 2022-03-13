@@ -21,6 +21,7 @@
         <module>java-receiver-acceptance-tests</module>
         <module>network-receiver-acceptance-tests</module>
         <module>generic-cpp-receiver</module>
+        <module>arm-no-os</module>
     </modules>
 
     <dependencyManagement>

@@ -21,13 +21,13 @@ private:
     static ZcodeI2cPhysicalBus phyBus1;
     static ZcodeI2cPhysicalBus phyBus2;
     static ZcodeI2cPhysicalBus phyBus3;
-    static ZcodeI2cBus busses[4 * ZcodePeripheralParameters::i2cBussesPerPhyBus];
+    static ZcodeI2cBus busses[4 * ZcodePeripheralParameters::i2cBusesPerPhyBus];
     static bool createNotifications;
 
 public:
     static void init() {
         createNotifications = false;
-        for (int i = 0; i < ZcodePeripheralParameters::i2cBussesPerPhyBus; ++i) {
+        for (int i = 0; i < ZcodePeripheralParameters::i2cBusesPerPhyBus; ++i) {
             busses[i * 4].setup(&phyBus0, i * 4, ZcodeParameters::i2cPhyBus0Lock);
             busses[i * 4 + 1].setup(&phyBus1, i * 4 + 1, ZcodeParameters::i2cPhyBus1Lock);
             busses[i * 4 + 2].setup(&phyBus2, i * 4 + 2, ZcodeParameters::i2cPhyBus2Lock);

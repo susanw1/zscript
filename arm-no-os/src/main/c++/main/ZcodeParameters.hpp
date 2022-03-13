@@ -62,7 +62,7 @@ public:
 class ZcodePeripheralParameters {
 public:
     static const int i2cReadMaximum = 1024; //if USE_I2C_STATIC_READ_BUFFERS defined, 4 arrays of this length are created - very memory expensive
-    static const int i2cBussesPerPhyBus = 2;
+    static const int i2cBusesPerPhyBus = 2;
 
     static const int pinNumber = 3;
 };

@@ -12,8 +12,8 @@
 #include <Zcode.hpp>
 #include "ZcodePinSystem.hpp"
 #include "ZcodePinInterruptSource.hpp"
-#include <AToDLowLevel/AtoD.hpp>
-#include <AToDLowLevel/AtoDManager.hpp>
+#include "../../LowLevel/AToDLowLevel/AtoD.hpp"
+#include "../../LowLevel/AToDLowLevel/AtoDManager.hpp"
 
 class ZcodePinSetupCommand: public ZcodeCommand<ZcodeParameters> {
 private:

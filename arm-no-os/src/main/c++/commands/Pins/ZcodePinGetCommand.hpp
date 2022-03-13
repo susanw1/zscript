@@ -7,12 +7,13 @@
 
 #ifndef SRC_TEST_C___COMMANDS_PINS_RCODEPINGETCOMMAND_HPP_
 #define SRC_TEST_C___COMMANDS_PINS_RCODEPINGETCOMMAND_HPP_
+
 #include "ZcodeIncludes.hpp"
 #include "ZcodeParameters.hpp"
 #include <Zcode.hpp>
 #include "ZcodePinSystem.hpp"
-#include <AToDLowLevel/AtoD.hpp>
-#include <AToDLowLevel/AtoDManager.hpp>
+#include "../../LowLevel/AToDLowLevel/AtoD.hpp"
+#include "../../LowLevel/AToDLowLevel/AtoDManager.hpp"
 
 class ZcodePinGetCommand: public ZcodeCommand<ZcodeParameters> {
 private:
