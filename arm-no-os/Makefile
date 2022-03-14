@@ -11,7 +11,7 @@ COMMANDDIR = src/main/c++/commands
 LLDIR = src/main/c++/LowLevel
 SRCDIR = src/main/c++/main
 COMDIR = src/main/c++/common
-RCODEDIR = ../generic-cpp-receiver/src/main/c++/RCode
+ZCODEDIR = ../generic-cpp-receiver/src/main/c++/zcode
 BINDIR = bin
 OBJDIR = obj
 INCDIR = src/main/c++/include
@@ -26,11 +26,11 @@ DEVICE = STM32G484RE
 
 # Sources
 CSRC = $(wildcard $(SRCDIR)/*.c) $(wildcard $(COMDIR)/*.c)
-CPPSRC = $(wildcard $(SRCDIR)/*.cpp) $(wildcard $(COMDIR)/*.cpp) $(wildcard $(LLDIR)/*.cpp) $(wildcard $(LLDIR)/*/*.cpp) $(wildcard $(COMMANDDIR)/*.cpp) $(wildcard $(COMMANDDIR)/*/*.cpp) $(wildcard $(CHANNELDIR)/*.cpp) $(wildcard $(LLDIR)/*/*/*.cpp) $(wildcard $(LLDIR)/*/*/*/*.cpp) $(wildcard $(RCODEDIR)/*.cpp) $(wildcard $(RCODEDIR)/*/*.cpp)
+CPPSRC = $(wildcard $(SRCDIR)/*.cpp) $(wildcard $(COMDIR)/*.cpp) $(wildcard $(LLDIR)/*.cpp) $(wildcard $(LLDIR)/*/*.cpp) $(wildcard $(COMMANDDIR)/*.cpp) $(wildcard $(COMMANDDIR)/*/*.cpp) $(wildcard $(CHANNELDIR)/*.cpp) $(wildcard $(LLDIR)/*/*/*.cpp) $(wildcard $(LLDIR)/*/*/*/*.cpp) $(wildcard $(ZCODEDIR)/*.cpp) $(wildcard $(ZCODEDIR)/*/*.cpp)
 ASM = $(wildcard $(SRCDIR)/*.s) $(wildcard $(COMDIR)/*.s)
 
 # Include directories
-INCLUDE  = -I$(INCDIR) -I$(INCDIR)/Core -I$(INCDIR)/STM32G4xx -I$(RCODEDIR)/ $(wildcard -I$(RCODEDIR)/*/) -I$(SRCDIR) -I$(CHANNELDIR) -I$(COMMANDDIR) -I$(LLDIR)
+INCLUDE  = -I$(INCDIR) -I$(INCDIR)/Core -I$(INCDIR)/STM32G4xx -I$(ZCODEDIR)/ $(wildcard -I$(ZCODEDIR)/*/) -I$(SRCDIR) -I$(CHANNELDIR) -I$(COMMANDDIR) -I$(LLDIR)
 
 # Linker 
 #LSCRIPT = STM32F103X8_FLASH.ld
@@ -126,11 +126,11 @@ $(OBJDIR)/%.o: $(LLDIR)/*/*/*/%.cpp
 	
 	
 		
-$(OBJDIR)/%.o: $(RCODEDIR)/%.cpp
+$(OBJDIR)/%.o: $(ZCODEDIR)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CC) $(GCFLAGS) -c $< -o $@
 	
-$(OBJDIR)/%.o: $(RCODEDIR)/*/%.cpp
+$(OBJDIR)/%.o: $(ZCODEDIR)/*/%.cpp
 	@mkdir -p $(dir $@)
 	$(CC) $(GCFLAGS) -c $< -o $@
 

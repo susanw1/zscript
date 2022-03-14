@@ -23,17 +23,17 @@
 
 #include <mbed.h>
 //#include "UipEthernet.h"
-//#include "RCode.hpp"
-//#include "commands/RCodeActivateCommand.hpp"
-//#include "commands/RCodeSetDebugChannelCommand.hpp"
-//#include "commands/RCodeEchoCommand.hpp"
-//#include "commands/RCodeExecutionStateCommand.hpp"
-//#include "commands/RCodeExecutionCommand.hpp"
-//#include "commands/RCodeExecutionStoreCommand.hpp"
-//#include "commands/RCodeNotificationHostCommand.hpp"
-//#include "commands/RCodeCapabilitiesCommand.hpp"
-//#include "executionspace/RCodeExecutionSpaceChannel.hpp"
-//#include "../commands/RCodeIdentifyCommand.hpp"
+//#include "Zcode.hpp"
+//#include "commands/ZcodeActivateCommand.hpp"
+//#include "commands/ZcodeSetDebugChannelCommand.hpp"
+//#include "commands/ZcodeEchoCommand.hpp"
+//#include "commands/ZcodeExecutionStateCommand.hpp"
+//#include "commands/ZcodeExecutionCommand.hpp"
+//#include "commands/ZcodeExecutionStoreCommand.hpp"
+//#include "commands/ZcodeNotificationHostCommand.hpp"
+//#include "commands/ZcodeCapabilitiesCommand.hpp"
+//#include "executionspace/ZcodeExecutionSpaceChannel.hpp"
+//#include "../commands/ZcodeIdentifyCommand.hpp"
 
 //#include "UipUdpCommandChannel.hpp"
 
@@ -43,35 +43,35 @@ int main(void) {
     UipEthernet uip(mac, PA_7, PA_6, PA_5, PA_4);
     while (uip.connect(5))
         ;
-    RCode r(NULL, 0);
-    UipUdpCommandChannel channel(&r, &uip, 4889);
-    RCodeExecutionSpaceChannel execCh = RCodeExecutionSpaceChannel(&r, r.getSpace());
-    RCodeCommandChannel *chptr[2] = { &channel, &execCh };
-    RCodeExecutionSpaceChannel **execPtr = (RCodeExecutionSpaceChannel**) chptr + 1;
-    r.setChannels(chptr, 2);
-    r.getSpace()->setChannels(execPtr, 1);
-    RCodeEchoCommand cmd0 = RCodeEchoCommand();
-    RCodeActivateCommand cmd1 = RCodeActivateCommand();
-    RCodeSetDebugChannelCommand cmd2 = RCodeSetDebugChannelCommand(&r);
-    RCodeCapabilitiesCommand cmd3 = RCodeCapabilitiesCommand(&r);
-    RCodeExecutionStateCommand cmd4 = RCodeExecutionStateCommand(r.getSpace());
-    RCodeExecutionCommand cmd5 = RCodeExecutionCommand(r.getSpace());
-    RCodeExecutionStoreCommand cmd6 = RCodeExecutionStoreCommand(r.getSpace());
-    RCodeNotificationHostCommand cmd7 = RCodeNotificationHostCommand(&r);
-    RCodeIdentifyCommand cmd8 = RCodeIdentifyCommand();
+    Zcode z(NULL, 0);
+    UipUdpCommandChannel channel(&z, &uip, 4889);
+    ZcodeExecutionSpaceChannel execCh = ZcodeExecutionSpaceChannel(&z, z.getSpace());
+    ZcodeCommandChannel *chptr[2] = { &channel, &execCh };
+    ZcodeExecutionSpaceChannel **execPtr = (ZcodeExecutionSpaceChannel**) chptr + 1;
+    z.setChannels(chptr, 2);
+    z.getSpace()->setChannels(execPtr, 1);
+    ZcodeEchoCommand cmd0 = ZcodeEchoCommand();
+    ZcodeActivateCommand cmd1 = ZcodeActivateCommand();
+    ZcodeSetDebugChannelCommand cmd2 = ZcodeSetDebugChannelCommand(&z);
+    ZcodeCapabilitiesCommand cmd3 = ZcodeCapabilitiesCommand(&z);
+    ZcodeExecutionStateCommand cmd4 = ZcodeExecutionStateCommand(z.getSpace());
+    ZcodeExecutionCommand cmd5 = ZcodeExecutionCommand(z.getSpace());
+    ZcodeExecutionStoreCommand cmd6 = ZcodeExecutionStoreCommand(z.getSpace());
+    ZcodeNotificationHostCommand cmd7 = ZcodeNotificationHostCommand(&z);
+    ZcodeIdentifyCommand cmd8 = ZcodeIdentifyCommand();
 
-    r.getCommandFinder()->registerCommand(&cmd8);
-    r.getCommandFinder()->registerCommand(&cmd0);
-    r.getCommandFinder()->registerCommand(&cmd3);
-    r.getCommandFinder()->registerCommand(&cmd1);
-    r.getCommandFinder()->registerCommand(&cmd7);
-    r.getCommandFinder()->registerCommand(&cmd2);
-    r.getCommandFinder()->registerCommand(&cmd4);
-    r.getCommandFinder()->registerCommand(&cmd5);
-    r.getCommandFinder()->registerCommand(&cmd6);
+    z.getCommandFinder()->registerCommand(&cmd8);
+    z.getCommandFinder()->registerCommand(&cmd0);
+    z.getCommandFinder()->registerCommand(&cmd3);
+    z.getCommandFinder()->registerCommand(&cmd1);
+    z.getCommandFinder()->registerCommand(&cmd7);
+    z.getCommandFinder()->registerCommand(&cmd2);
+    z.getCommandFinder()->registerCommand(&cmd4);
+    z.getCommandFinder()->registerCommand(&cmd5);
+    z.getCommandFinder()->registerCommand(&cmd6);
 
     while (true) {
-        r.progressRCode();
+        z.progressZcode();
         uip.tick();
         uip.dhcpClient.checkLease();
     }

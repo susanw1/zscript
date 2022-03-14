@@ -9,12 +9,12 @@
 #define SRC_TEST_CPP_CHANNELS_ETHERNET_ETHERNETUDPCHANNELOUTSTREAM_HPP_
 #include <stdint.h>
 #include <stdlib.h>
-#include <RCodeParameters.hpp>
-#include <AbstractRCodeOutStream.hpp>
+#include <ZcodeParameters.hpp>
+#include <AbstractZcodeOutStream.hpp>
 
 class EthernetUdpCommandChannel;
 
-class EthernetUdpChannelOutStream: public AbstractRCodeOutStream<RCodeParameters> {
+class EthernetUdpChannelOutStream: public AbstractZcodeOutStream<ZcodeParameters> {
     EthernetUdpCommandChannel *channel;
     bool open = false;
 
@@ -27,12 +27,12 @@ public:
 
     virtual void writeByte(uint8_t value);
 
-    virtual RCodeOutStream<RCodeParameters>* writeBytes(uint8_t const *value,
-            RCodeParameters::bigFieldAddress_t length);
+    virtual ZcodeOutStream<ZcodeParameters>* writeBytes(uint8_t const *value,
+            ZcodeParameters::bigFieldAddress_t length);
 
-    virtual void openResponse(RCodeCommandChannel<RCodeParameters> *target);
-    virtual void openNotification(RCodeCommandChannel<RCodeParameters> *target);
-    virtual void openDebug(RCodeCommandChannel<RCodeParameters> *target);
+    virtual void openResponse(ZcodeCommandChannel<ZcodeParameters> *target);
+    virtual void openNotification(ZcodeCommandChannel<ZcodeParameters> *target);
+    virtual void openDebug(ZcodeCommandChannel<ZcodeParameters> *target);
 
     virtual bool isOpen();
 

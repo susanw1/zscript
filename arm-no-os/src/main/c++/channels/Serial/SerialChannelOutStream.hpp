@@ -9,12 +9,12 @@
 #define CHANNELS_SERIAL_SERIALCHANNELOUTSTREAM_HPP_
 #include <stdint.h>
 #include <stdlib.h>
-#include <RCodeParameters.hpp>
-#include <AbstractRCodeOutStream.hpp>
+#include <ZcodeParameters.hpp>
+#include <AbstractZcodeOutStream.hpp>
 
 class SerialCommandChannel;
 
-class SerialChannelOutStream: public AbstractRCodeOutStream<RCodeParameters> {
+class SerialChannelOutStream: public AbstractZcodeOutStream<ZcodeParameters> {
     SerialCommandChannel *channel;
     bool open = false;
 
@@ -27,16 +27,16 @@ public:
 
     virtual void writeByte(uint8_t value);
 
-    virtual RCodeOutStream<RCodeParameters>* writeBytes(uint8_t const *value,
-            RCodeParameters::bigFieldAddress_t length);
+    virtual ZcodeOutStream<ZcodeParameters>* writeBytes(uint8_t const *value,
+            ZcodeParameters::bigFieldAddress_t length);
 
-    virtual void openResponse(RCodeCommandChannel<RCodeParameters> *target) {
+    virtual void openResponse(ZcodeCommandChannel<ZcodeParameters> *target) {
         open = true;
     }
-    virtual void openNotification(RCodeCommandChannel<RCodeParameters> *target) {
+    virtual void openNotification(ZcodeCommandChannel<ZcodeParameters> *target) {
         open = true;
     }
-    virtual void openDebug(RCodeCommandChannel<RCodeParameters> *target) {
+    virtual void openDebug(ZcodeCommandChannel<ZcodeParameters> *target) {
         open = true;
     }
 

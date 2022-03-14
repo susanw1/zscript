@@ -4,24 +4,24 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.wittsfamily.rcode</groupId>
-        <artifactId>rcode-all</artifactId>
+        <groupId>org.zcode</groupId>
+        <artifactId>zcode-all</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.wittsfamily.rcode.acceptancetests</groupId>
+    <groupId>org.zcode.acceptancetests</groupId>
     <artifactId>java-receiver-acceptance-tests</artifactId>
     <name>java-receiver-acceptance-tests</name>
 
     <dependencies>
         <dependency>
-            <groupId>com.wittsfamily.rcode.acceptancetests</groupId>
+            <groupId>org.zcode.acceptancetests</groupId>
             <artifactId>acceptance-tests</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.wittsfamily.rcode.javareceiver</groupId>
+            <groupId>org.zcode.javareceiver</groupId>
             <artifactId>java-receiver</artifactId>
             <version>${project.version}</version>
         </dependency>

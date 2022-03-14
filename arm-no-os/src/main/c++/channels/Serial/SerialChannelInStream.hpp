@@ -10,13 +10,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../../LowLevel/UartLowLevel/Serial.hpp"
-#include <instreams/RCodeChannelInStream.hpp>
-#include <RCodeParameters.hpp>
+#include <instreams/ZcodeChannelInStream.hpp>
+#include <ZcodeParameters.hpp>
 
 class SerialCommandChannel;
 class SerialChannelInStream;
 
-class SerialChannelLookahead: public RCodeLookaheadStream<RCodeParameters> {
+class SerialChannelLookahead: public ZcodeLookaheadStream<ZcodeParameters> {
     SerialChannelInStream *parent;
     friend SerialChannelInStream;
     public:
@@ -25,7 +25,7 @@ class SerialChannelLookahead: public RCodeLookaheadStream<RCodeParameters> {
     }
     virtual char read();
 };
-class SerialChannelInStream: public RCodeChannelInStream<RCodeParameters> {
+class SerialChannelInStream: public ZcodeChannelInStream<ZcodeParameters> {
     SerialCommandChannel *channel;
     SerialChannelLookahead lookahead;
     friend SerialChannelLookahead;
@@ -39,7 +39,7 @@ public:
     }
     virtual int16_t read();
 
-    virtual RCodeLookaheadStream<RCodeParameters>* getLookahead();
+    virtual ZcodeLookaheadStream<ZcodeParameters>* getLookahead();
 };
 #include "SerialCommandChannel.hpp"
 

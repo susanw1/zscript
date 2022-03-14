@@ -6,17 +6,17 @@
  */
 #include "UipUdpOutStream.hpp"
 
-void UipUdpOutStream::openResponse(RCodeCommandChannel *target) {
+void UipUdpOutStream::openResponse(ZcodeCommandChannel *target) {
     ((UipUdpCommandChannel*) target)->open(&write);
     open = true;
 }
 
-void UipUdpOutStream::openNotification(RCodeCommandChannel *target) {
+void UipUdpOutStream::openNotification(ZcodeCommandChannel *target) {
     ((UipUdpCommandChannel*) target)->open(&write);
     open = true;
 }
 
-void UipUdpOutStream::openDebug(RCodeCommandChannel *target) {
+void UipUdpOutStream::openDebug(ZcodeCommandChannel *target) {
     ((UipUdpCommandChannel*) target)->open(&write);
     open = true;
 }

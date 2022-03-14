@@ -14,8 +14,8 @@ void SerialChannelOutStream::close() {
 void SerialChannelOutStream::writeByte(uint8_t value) {
     channel->getSerial()->write(value);
 }
-RCodeOutStream<RCodeParameters>* SerialChannelOutStream::writeBytes(uint8_t const *value,
-        RCodeParameters::bigFieldAddress_t length) {
+ZcodeOutStream<ZcodeParameters>* SerialChannelOutStream::writeBytes(uint8_t const *value,
+        ZcodeParameters::bigFieldAddress_t length) {
     channel->getSerial()->write(value, length);
     return this;
 }
