@@ -9,16 +9,16 @@
 #define SRC_TEST_CPP_CHANNELS_ETHERNETCOMMANDCHANNEL_HPP_
 #include <stdint.h>
 #include <stdlib.h>
-#include <RCodeParameters.hpp>
-#include <parsing/RCodeCommandChannel.hpp>
-#include <parsing/RCodeCommandSequence.hpp>
+#include <ZcodeParameters.hpp>
+#include <parsing/ZcodeCommandChannel.hpp>
+#include <parsing/ZcodeCommandSequence.hpp>
 #include "../../LowLevel/ArduinoSpiLayer/src/Ethernet.h"
 #include "EthernetUdpChannelInStream.hpp"
 #include "EthernetUdpChannelOutStream.hpp"
 
-class EthernetUdpCommandChannel: public RCodeCommandChannel<RCodeParameters> {
+class EthernetUdpCommandChannel: public ZcodeCommandChannel<ZcodeParameters> {
     EthernetUDP udp;
-    RCodeCommandSequence<RCodeParameters> seq;
+    ZcodeCommandSequence<ZcodeParameters> seq;
     EthernetUdpChannelInStream in;
     EthernetUdpChannelOutStream out;
     IPAddress mostRecentIP;
@@ -32,8 +32,8 @@ class EthernetUdpCommandChannel: public RCodeCommandChannel<RCodeParameters> {
         return &udp;
     }
 public:
-    EthernetUdpCommandChannel(uint16_t port, RCode<RCodeParameters> *rcode) :
-            udp(), seq(rcode, this), in(this), out(this), mostRecentIP(), mostRecentPort(0) {
+    EthernetUdpCommandChannel(uint16_t port, Zcode<ZcodeParameters> *zcode) :
+            udp(), seq(zcode, this), in(this), out(this), mostRecentIP(), mostRecentPort(0) {
         udp.begin(port);
     }
 
@@ -43,11 +43,11 @@ public:
     uint16_t getPort() {
         return mostRecentPort;
     }
-    virtual RCodeChannelInStream<RCodeParameters>* acquireInStream() {
+    virtual ZcodeChannelInStream<ZcodeParameters>* acquireInStream() {
         return &in;
     }
 
-    virtual RCodeOutStream<RCodeParameters>* acquireOutStream() {
+    virtual ZcodeOutStream<ZcodeParameters>* acquireOutStream() {
         return &out;
     }
 
@@ -65,7 +65,7 @@ public:
         }
     }
 
-    virtual RCodeCommandSequence<RCodeParameters>* getCommandSequence() {
+    virtual ZcodeCommandSequence<ZcodeParameters>* getCommandSequence() {
         return &seq;
     }
 

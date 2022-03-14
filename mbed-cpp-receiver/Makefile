@@ -7,7 +7,7 @@ PROJECT = usb-test
 
 # Project Structure
 CPPDIR = src/test/c++/
-RCODEDIR = ../generic-cpp-receiver/src/main/c++/
+ZCODEDIR = ../generic-cpp-receiver/src/main/c++/
 BUILDDIR = build
 OCDDIR = src/test/openocd
 
@@ -20,7 +20,7 @@ MBED_TARGET = NUCLEO_G474RE
 MBED_COMPILER = GCC_ARM
 
 # Sources
-SOURCES  = --source $(MBEDDIR) --source $(CPPDIR)main --source $(CPPDIR)UIP --source $(CPPDIR)channels  --source $(CPPDIR)commands --source $(RCODEDIR)RCode
+SOURCES  = --source $(MBEDDIR) --source $(CPPDIR)main --source $(CPPDIR)UIP --source $(CPPDIR)channels  --source $(CPPDIR)commands --source $(ZCODEDIR)ZCode
 
 # MBED Flags
 MBEDFLAGS = -m $(MBED_TARGET) -t $(MBED_COMPILER) $(SOURCES) --build $(BUILDDIR) --profile $(MBEDPROFILE) $(MBEDPROFILE_EXTRA)

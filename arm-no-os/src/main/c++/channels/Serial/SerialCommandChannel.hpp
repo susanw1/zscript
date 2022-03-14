@@ -9,19 +9,19 @@
 #define CHANNELS_SERIAL_SERIALCOMMANDCHANNEL_HPP_
 #include <stdint.h>
 #include <stdlib.h>
-#include <RCodeParameters.hpp>
-#include <parsing/RCodeCommandChannel.hpp>
-#include <parsing/RCodeCommandSequence.hpp>
+#include <ZcodeParameters.hpp>
+#include <parsing/ZcodeCommandChannel.hpp>
+#include <parsing/ZcodeCommandSequence.hpp>
 #include "../../LowLevel/UartLowLevel/Serial.hpp"
 #include "SerialChannelInStream.hpp"
 #include "SerialChannelOutStream.hpp"
 
 void SerialCommandChannelNewlineCallback(SerialIdentifier id);
 
-class SerialCommandChannel: public RCodeCommandChannel<RCodeParameters> {
+class SerialCommandChannel: public ZcodeCommandChannel<ZcodeParameters> {
     static SerialCommandChannel *channel;
     Serial *serial;
-    RCodeCommandSequence<RCodeParameters> seq;
+    ZcodeCommandSequence<ZcodeParameters> seq;
     SerialChannelInStream in;
     SerialChannelOutStream out;
     bool hasNewline = false;
@@ -35,18 +35,18 @@ class SerialCommandChannel: public RCodeCommandChannel<RCodeParameters> {
         return serial;
     }
 public:
-    SerialCommandChannel(Serial *serial, RCode<RCodeParameters> *rcode) :
-            serial(serial), seq(rcode, this), in(this), out(this) {
+    SerialCommandChannel(Serial *serial, Zcode<ZcodeParameters> *zcode) :
+            serial(serial), seq(zcode, this), in(this), out(this) {
         channel = this;
         serial->init(NULL, 0, false);
         serial->setTargetValue(&SerialCommandChannelNewlineCallback, '\n');
     }
 
-    virtual RCodeChannelInStream<RCodeParameters>* acquireInStream() {
+    virtual ZcodeChannelInStream<ZcodeParameters>* acquireInStream() {
         return &in;
     }
 
-    virtual RCodeOutStream<RCodeParameters>* acquireOutStream() {
+    virtual ZcodeOutStream<ZcodeParameters>* acquireOutStream() {
         return &out;
     }
 
@@ -54,7 +54,7 @@ public:
         return hasNewline;
     }
 
-    virtual RCodeCommandSequence<RCodeParameters>* getCommandSequence() {
+    virtual ZcodeCommandSequence<ZcodeParameters>* getCommandSequence() {
         return &seq;
     }
 

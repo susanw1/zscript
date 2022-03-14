@@ -8,11 +8,11 @@
 #ifndef SRC_TEST_CPP_CHANNELS_UIPUDPCHANNELINSTREAM_HPP_
 #define SRC_TEST_CPP_CHANNELS_UIPUDPCHANNELINSTREAM_HPP_
 
-#include "instreams/RCodeChannelInStream.hpp"
+#include "instreams/ZcodeChannelInStream.hpp"
 #include "UipUdpWrapper.hpp"
 
 class UipUdpChannelInStream;
-class UipUdpLookaheadStream: public RCodeLookaheadStream {
+class UipUdpLookaheadStream: public ZcodeLookaheadStream {
 private:
     UipUdpReadWrapper *reader;
     int pos = 0;
@@ -29,7 +29,7 @@ public:
         pos = 0;
     }
 };
-class UipUdpChannelInStream: public RCodeChannelInStream {
+class UipUdpChannelInStream: public ZcodeChannelInStream {
 private:
     UipUdpReadWrapper reader;
     UipUdpLookaheadStream lookahead;
@@ -51,7 +51,7 @@ public:
         }
         return read;
     }
-    virtual RCodeLookaheadStream* getLookahead() {
+    virtual ZcodeLookaheadStream* getLookahead() {
         lookahead.reset();
         return &lookahead;
     }

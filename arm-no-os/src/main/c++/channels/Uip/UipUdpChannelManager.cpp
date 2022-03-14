@@ -11,15 +11,15 @@
 //    uint16_t port = reader.remotePort();
 //    uint8_t *addr = ip.rawAddress();
 //    UipUdpCommandChannel *match = NULL;
-//    for (int i = 0; i < RCodeParameters::uipChannelNum; i++) {
+//    for (int i = 0; i < ZcodeParameters::uipChannelNum; i++) {
 //        if (channels[i].matches(addr, port)) {
-//            rcode->getDebug()->println("Known Address");
+//            zcode->getDebug()->println("Known Address");
 //            match = channels + i;
 //            break;
 //        }
 //    }
 //    if (match == NULL) {
-//        for (int i = 0; i < RCodeParameters::uipChannelNum; i++) {
+//        for (int i = 0; i < ZcodeParameters::uipChannelNum; i++) {
 //            if (!channels[i].isInUse()) {
 //                match = channels + i;
 //                break;
@@ -40,11 +40,11 @@
 //
 //void UipUdpChannelManager::checkSequences() {
 //    if (!reader.isReading()) {
-//        for (int i = 0; i < RCodeParameters::uipChannelNum; i++) {
+//        for (int i = 0; i < ZcodeParameters::uipChannelNum; i++) {
 //            channels[i].unsetHasSequence();
 //        }
 //        if (reader.open()) {
-//            rcode->getDebug()->println("Received");
+//            zcode->getDebug()->println("Received");
 //            findChannelForRun();
 //        }
 //    } else if (waitingForSlot) {

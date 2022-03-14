@@ -7,16 +7,17 @@
 
 #ifndef SRC_TEST_CPP_CHANNELS_ETHERNET_ETHERNETUDPCHANNELINSTREAM_HPP_
 #define SRC_TEST_CPP_CHANNELS_ETHERNET_ETHERNETUDPCHANNELINSTREAM_HPP_
+
 #include <stdint.h>
 #include <stdlib.h>
 #include "../../LowLevel/ArduinoSpiLayer/src/Ethernet.h"
-#include <instreams/RCodeChannelInStream.hpp>
-#include <RCodeParameters.hpp>
+#include <instreams/ZcodeChannelInStream.hpp>
+#include <ZcodeParameters.hpp>
 
 class EthernetUdpCommandChannel;
 class EthernetUdpChannelInStream;
 
-class EthernetUdpChannelLookahead: public RCodeLookaheadStream<RCodeParameters> {
+class EthernetUdpChannelLookahead: public ZcodeLookaheadStream<ZcodeParameters> {
     EthernetUdpChannelInStream *parent;
     uint8_t dist = 0;
     friend EthernetUdpChannelInStream;
@@ -26,7 +27,7 @@ class EthernetUdpChannelLookahead: public RCodeLookaheadStream<RCodeParameters> 
     }
     virtual char read();
 };
-class EthernetUdpChannelInStream: public RCodeChannelInStream<RCodeParameters> {
+class EthernetUdpChannelInStream: public ZcodeChannelInStream<ZcodeParameters> {
     EthernetUdpCommandChannel *channel;
     EthernetUdpChannelLookahead lookahead;
     friend EthernetUdpChannelLookahead;
@@ -40,11 +41,12 @@ public:
     }
     virtual int16_t read();
 
-    virtual RCodeLookaheadStream<RCodeParameters>* getLookahead() {
+    virtual ZcodeLookaheadStream<ZcodeParameters>* getLookahead() {
         lookahead.dist = 0;
         return &lookahead;
     }
 };
+
 #include "EthernetUdpCommandChannel.hpp"
 
 #endif /* SRC_TEST_CPP_CHANNELS_ETHERNET_ETHERNETUDPCHANNELINSTREAM_HPP_ */

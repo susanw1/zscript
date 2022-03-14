@@ -23,48 +23,48 @@
 
 #include <stm32g4xx.h>
 #include <stm32g484xx.h>
-#include "RCodeParameters.hpp"
+#include "ZcodeParameters.hpp"
 
-#include <ArduinoSpiLayer/src/Ethernet.h>
+#include <../LowLevel/ArduinoSpiLayer/src/Ethernet.h>
 
-#include <RCode.hpp>
-#include <commands/RCodeActivateCommand.hpp>
-#include <commands/RCodeSetDebugChannelCommand.hpp>
-#include <commands/RCodeEchoCommand.hpp>
-#include <commands/RCodeExecutionStateCommand.hpp>
-#include <commands/RCodeExecutionCommand.hpp>
-#include <commands/RCodeExecutionStoreCommand.hpp>
-#include <commands/RCodeNotificationHostCommand.hpp>
-#include <commands/RCodeCapabilitiesCommand.hpp>
-#include <executionspace/RCodeExecutionSpaceChannel.hpp>
-#include <RCodeIdentifyCommand.hpp>
+#include <Zcode.hpp>
+#include <commands/ZcodeActivateCommand.hpp>
+#include <commands/ZcodeSetDebugChannelCommand.hpp>
+#include <commands/ZcodeEchoCommand.hpp>
+#include <commands/ZcodeExecutionStateCommand.hpp>
+#include <commands/ZcodeExecutionCommand.hpp>
+#include <commands/ZcodeExecutionStoreCommand.hpp>
+#include <commands/ZcodeNotificationHostCommand.hpp>
+#include <commands/ZcodeCapabilitiesCommand.hpp>
+#include <executionspace/ZcodeExecutionSpaceChannel.hpp>
 
-#include <EthernetUdpCommandChannel.hpp>
+#include "../channels/Ethernet/EthernetUdpCommandChannel.hpp"
 
-#include "../commands/persistence/RCodeFetchGiudCommand.hpp"
-#include "../commands/persistence/RCodePersistentFetchCommand.hpp"
-#include "../commands/persistence/RCodePersistentStoreCommand.hpp"
-#include "../commands/persistence/RCodeStoreGiudCommand.hpp"
-#include "../commands/persistence/RCodeStoreMacAddressCommand.hpp"
-#include "../commands/persistence/RCodeFlashPersistence.hpp"
+#include "../commands/ZcodeIdentifyCommand.hpp"
+#include "../commands/persistence/ZcodeFetchGuidCommand.hpp"
+#include "../commands/persistence/ZcodePersistentFetchCommand.hpp"
+#include "../commands/persistence/ZcodePersistentStoreCommand.hpp"
+#include "../commands/persistence/ZcodeStoreGuidCommand.hpp"
+#include "../commands/persistence/ZcodeStoreMacAddressCommand.hpp"
+#include "../commands/persistence/ZcodeFlashPersistence.hpp"
 
-#include <I2C/RCodeI2cSubsystem.hpp>
-#include <I2C/RCodeI2cSetupCommand.hpp>
-#include <I2C/RCodeI2cSendCommand.hpp>
-#include <I2C/RCodeI2cReceiveCommand.hpp>
+#include "../commands/I2C/ZcodeI2cSubsystem.hpp"
+#include "../commands/I2C/ZcodeI2cSetupCommand.hpp"
+#include "../commands/I2C/ZcodeI2cSendCommand.hpp"
+#include "../commands/I2C/ZcodeI2cReceiveCommand.hpp"
 
-#include <Pins/RCodePinSystem.hpp>
-#include <Pins/RCodePinSetupCommand.hpp>
-#include <Pins/RCodePinSetCommand.hpp>
-#include <Pins/RCodePinGetCommand.hpp>
-#include <Pins/RCodePinInterruptSource.hpp>
+#include "../commands/Pins/ZcodePinSystem.hpp"
+#include "../commands/Pins/ZcodePinSetupCommand.hpp"
+#include "../commands/Pins/ZcodePinSetCommand.hpp"
+#include "../commands/Pins/ZcodePinGetCommand.hpp"
+#include "../commands/Pins/ZcodePinInterruptSource.hpp"
 
-#include <Uart/RCodeUartSubsystem.hpp>
-#include <Uart/RCodeUartSetupCommand.hpp>
-#include <Uart/RCodeUartSendCommand.hpp>
-#include <Uart/RCodeUartReadCommand.hpp>
-#include <Uart/RCodeUartAvailableCommand.hpp>
-#include <Uart/RCodeUartSkipCommand.hpp>
+#include "../commands/Uart/ZcodeUartSubsystem.hpp"
+#include "../commands/Uart/ZcodeUartSetupCommand.hpp"
+#include "../commands/Uart/ZcodeUartSendCommand.hpp"
+#include "../commands/Uart/ZcodeUartReadCommand.hpp"
+#include "../commands/Uart/ZcodeUartAvailableCommand.hpp"
+#include "../commands/Uart/ZcodeUartSkipCommand.hpp"
 
 #include "../LowLevel/AToDLowLevel/AtoD.hpp"
 #include "../LowLevel/AToDLowLevel/AtoDManager.hpp"
@@ -88,6 +88,7 @@
 void doNothing(I2c *i2c, I2cTerminationStatus status) {
     i2c->unlock();
 }
+
 int main(void) {
     ClockManager::getClock(VCO)->set(300000, HSI);
     ClockManager::getClock(PLL_R)->set(150000, VCO);
@@ -95,96 +96,96 @@ int main(void) {
     ClockManager::getClock(HCLK)->set(150000, SysClock);
     ClockManager::getClock(PCLK_1)->set(64000, HCLK);
     ClockManager::getClock(PCLK_2)->set(64000, HCLK);
-    RCodePinInterruptSource::init();
-    RCodePinInterruptSource source;
+    ZcodePinInterruptSource::init();
+    ZcodePinInterruptSource source;
     DmaManager::init();
     GpioManager::init();
     I2cManager::init();
     UartManager::init();
     SystemMilliClock::init();
     SystemMilliClock::blockDelayMillis(1000);
-    RCodeFlashPersistence persist;
-    RCodeBusInterruptSource<RCodeParameters> *sources[] = { &source };
-    RCode<RCodeParameters> r(sources, 1);
+    ZcodeFlashPersistence persist;
+    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &source };
+    Zcode<ZcodeParameters> z(sources, 1);
     uint8_t *mac;
     uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xaa };
     if (persist.hasMac()) {
-        r.getDebug() << "Has Mac" << endl;
+        z.getDebug() << "Has Mac" << endl;
         mac = persist.getMac();
     } else {
-        r.getDebug() << "Has No Mac" << endl;
+        z.getDebug() << "Has No Mac" << endl;
         mac = macHardCoded;
     }
     while (!Ethernet.begin(mac, 5000, 5000)) {
 
     }
     AtoDManager::init();
-    EthernetUdpCommandChannel channel(4889, &r);
-    RCodeExecutionSpaceChannel<RCodeParameters> execCh(&r, r.getSpace());
-    RCodeCommandChannel<RCodeParameters> *chptr[2] = { &channel, &execCh };
-    RCodeExecutionSpaceChannel<RCodeParameters> **execPtr = (RCodeExecutionSpaceChannel<RCodeParameters>**) chptr + 1;
-    r.setChannels(chptr, 2);
-    r.getSpace()->setChannels(execPtr, 1);
-    RCodeEchoCommand<RCodeParameters> cmd0;
-    RCodeActivateCommand<RCodeParameters> cmd1;
-    RCodeSetDebugChannelCommand<RCodeParameters> cmd2(&r);
-    RCodeCapabilitiesCommand<RCodeParameters> cmd3(&r);
-    RCodeExecutionStateCommand<RCodeParameters> cmd4(r.getSpace());
-    RCodeExecutionCommand<RCodeParameters> cmd5(r.getSpace());
-    RCodeExecutionStoreCommand<RCodeParameters> cmd6(r.getSpace());
-    RCodeNotificationHostCommand<RCodeParameters> cmd7(&r);
-    RCodeIdentifyCommand cmd8 = RCodeIdentifyCommand();
+    EthernetUdpCommandChannel channel(4889, &z);
+    ZcodeExecutionSpaceChannel<ZcodeParameters> execCh(&z, z.getSpace());
+    ZcodeCommandChannel<ZcodeParameters> *chptr[2] = { &channel, &execCh };
+    ZcodeExecutionSpaceChannel<ZcodeParameters> **execPtr = (ZcodeExecutionSpaceChannel<ZcodeParameters>**) chptr + 1;
+    z.setChannels(chptr, 2);
+    z.getSpace()->setChannels(execPtr, 1);
+    ZcodeEchoCommand<ZcodeParameters> cmd0;
+    ZcodeActivateCommand<ZcodeParameters> cmd1;
+    ZcodeSetDebugChannelCommand<ZcodeParameters> cmd2(&z);
+    ZcodeCapabilitiesCommand<ZcodeParameters> cmd3(&z);
+    ZcodeExecutionStateCommand<ZcodeParameters> cmd4(z.getSpace());
+    ZcodeExecutionCommand<ZcodeParameters> cmd5(z.getSpace());
+    ZcodeExecutionStoreCommand<ZcodeParameters> cmd6(z.getSpace());
+    ZcodeNotificationHostCommand<ZcodeParameters> cmd7(&z);
+    ZcodeIdentifyCommand cmd8 = ZcodeIdentifyCommand();
 
-    RCodeFetchGiudCommand cmd9(&persist);
-    RCodePersistentFetchCommand cmd10(&persist);
-    RCodePersistentStoreCommand cmd11(&persist);
-    RCodeStoreGiudCommand cmd12(&persist);
-    RCodeStoreMacAddressCommand cmd13(&persist);
+    ZcodeFetchGuidCommand cmd9(&persist);
+    ZcodePersistentFetchCommand cmd10(&persist);
+    ZcodePersistentStoreCommand cmd11(&persist);
+    ZcodeStoreGuidCommand cmd12(&persist);
+    ZcodeStoreMacAddressCommand cmd13(&persist);
 
-    RCodeI2cSubsystem::init();
-    RCodeI2cSetupCommand cmd14;
-    RCodeI2cSendCommand cmd15;
-    RCodeI2cReceiveCommand cmd16;
+    ZcodeI2cSubsystem::init();
+    ZcodeI2cSetupCommand cmd14;
+    ZcodeI2cSendCommand cmd15;
+    ZcodeI2cReceiveCommand cmd16;
 
-    RCodeUartSetupCommand cmd24;
-    RCodeUartSendCommand cmd25;
-    RCodeUartReadCommand cmd26;
-    RCodeUartAvailableCommand cmd27;
-    RCodeUartSkipCommand cmd28;
+    ZcodeUartSetupCommand cmd24;
+    ZcodeUartSendCommand cmd25;
+    ZcodeUartReadCommand cmd26;
+    ZcodeUartAvailableCommand cmd27;
+    ZcodeUartSkipCommand cmd28;
 
-    RCodePinSetupCommand cmd17;
-    RCodePinSetCommand cmd18;
-    RCodePinGetCommand cmd19;
+    ZcodePinSetupCommand cmd17;
+    ZcodePinSetCommand cmd18;
+    ZcodePinGetCommand cmd19;
 
-    r.getCommandFinder()->registerCommand(&cmd8);
-    r.getCommandFinder()->registerCommand(&cmd0);
-    r.getCommandFinder()->registerCommand(&cmd3);
-    r.getCommandFinder()->registerCommand(&cmd1);
-    r.getCommandFinder()->registerCommand(&cmd7);
-    r.getCommandFinder()->registerCommand(&cmd2);
-    r.getCommandFinder()->registerCommand(&cmd4);
-    r.getCommandFinder()->registerCommand(&cmd5);
-    r.getCommandFinder()->registerCommand(&cmd6);
+    z.getCommandFinder()->registerCommand(&cmd8);
+    z.getCommandFinder()->registerCommand(&cmd0);
+    z.getCommandFinder()->registerCommand(&cmd3);
+    z.getCommandFinder()->registerCommand(&cmd1);
+    z.getCommandFinder()->registerCommand(&cmd7);
+    z.getCommandFinder()->registerCommand(&cmd2);
+    z.getCommandFinder()->registerCommand(&cmd4);
+    z.getCommandFinder()->registerCommand(&cmd5);
+    z.getCommandFinder()->registerCommand(&cmd6);
 
-    r.getCommandFinder()->registerCommand(&cmd9);
-    r.getCommandFinder()->registerCommand(&cmd10);
-    r.getCommandFinder()->registerCommand(&cmd11);
-    r.getCommandFinder()->registerCommand(&cmd12);
-    r.getCommandFinder()->registerCommand(&cmd13);
+    z.getCommandFinder()->registerCommand(&cmd9);
+    z.getCommandFinder()->registerCommand(&cmd10);
+    z.getCommandFinder()->registerCommand(&cmd11);
+    z.getCommandFinder()->registerCommand(&cmd12);
+    z.getCommandFinder()->registerCommand(&cmd13);
 
-    r.getCommandFinder()->registerCommand(&cmd14);
-    r.getCommandFinder()->registerCommand(&cmd15);
-    r.getCommandFinder()->registerCommand(&cmd16);
+    z.getCommandFinder()->registerCommand(&cmd14);
+    z.getCommandFinder()->registerCommand(&cmd15);
+    z.getCommandFinder()->registerCommand(&cmd16);
 
-    r.getCommandFinder()->registerCommand(&cmd24);
-    r.getCommandFinder()->registerCommand(&cmd25);
-    r.getCommandFinder()->registerCommand(&cmd26);
-    r.getCommandFinder()->registerCommand(&cmd27);
-    r.getCommandFinder()->registerCommand(&cmd28);
+    z.getCommandFinder()->registerCommand(&cmd24);
+    z.getCommandFinder()->registerCommand(&cmd25);
+    z.getCommandFinder()->registerCommand(&cmd26);
+    z.getCommandFinder()->registerCommand(&cmd27);
+    z.getCommandFinder()->registerCommand(&cmd28);
 
-    r.getCommandFinder()->registerCommand(&cmd17);
-    r.getCommandFinder()->registerCommand(&cmd18);
-    r.getCommandFinder()->registerCommand(&cmd19);
+    z.getCommandFinder()->registerCommand(&cmd17);
+    z.getCommandFinder()->registerCommand(&cmd18);
+    z.getCommandFinder()->registerCommand(&cmd19);
 
     I2c *i2c1 = I2cManager::getI2cById(0);
     i2c1->init();
@@ -245,7 +246,7 @@ int main(void) {
 //            }
 //            i2c1->asyncTransmit(0x20, data, 2, &doNothing);
 //        }
-        r.progressRCode();
+        z.progressZcode();
         Ethernet.maintain();
 //        uip.tick();
 //        uip.dhcpClient.checkLease();
@@ -257,49 +258,49 @@ int main(void) {
 //    while (uip.connect(5))
 //        ;
 //    I2cManager::init();
-//    RCode r(NULL, 0);
-//    UipUdpCommandChannel channel(&r, &uip, 4889);
-//    RCodeExecutionSpaceChannel execCh = RCodeExecutionSpaceChannel(&r, r.getSpace());
-//    RCodeCommandChannel *chptr[2] = { &channel, &execCh };
-//    RCodeExecutionSpaceChannel **execPtr = (RCodeExecutionSpaceChannel**) chptr + 1;
-//    r.setChannels(chptr, 2);
-//    r.getSpace()->setChannels(execPtr, 1);
-//    RCodeEchoCommand cmd0 = RCodeEchoCommand();
-//    RCodeActivateCommand cmd1 = RCodeActivateCommand();
-//    RCodeSetDebugChannelCommand cmd2 = RCodeSetDebugChannelCommand(&r);
-//    RCodeCapabilitiesCommand cmd3 = RCodeCapabilitiesCommand(&r);
-//    RCodeExecutionStateCommand cmd4 = RCodeExecutionStateCommand(r.getSpace());
-//    RCodeExecutionCommand cmd5 = RCodeExecutionCommand(r.getSpace());
-//    RCodeExecutionStoreCommand cmd6 = RCodeExecutionStoreCommand(r.getSpace());
-//    RCodeNotificationHostCommand cmd7 = RCodeNotificationHostCommand(&r);
-//    RCodeIdentifyCommand cmd8 = RCodeIdentifyCommand();
+//    Zcode z(NULL, 0);
+//    UipUdpCommandChannel channel(&z, &uip, 4889);
+//    ZcodeExecutionSpaceChannel execCh = ZcodeExecutionSpaceChannel(&z, z.getSpace());
+//    ZcodeCommandChannel *chptr[2] = { &channel, &execCh };
+//    ZcodeExecutionSpaceChannel **execPtr = (ZcodeExecutionSpaceChannel**) chptr + 1;
+//    z.setChannels(chptr, 2);
+//    z.getSpace()->setChannels(execPtr, 1);
+//    ZcodeEchoCommand cmd0 = ZcodeEchoCommand();
+//    ZcodeActivateCommand cmd1 = ZcodeActivateCommand();
+//    ZcodeSetDebugChannelCommand cmd2 = ZcodeSetDebugChannelCommand(&z);
+//    ZcodeCapabilitiesCommand cmd3 = ZcodeCapabilitiesCommand(&z);
+//    ZcodeExecutionStateCommand cmd4 = ZcodeExecutionStateCommand(z.getSpace());
+//    ZcodeExecutionCommand cmd5 = ZcodeExecutionCommand(z.getSpace());
+//    ZcodeExecutionStoreCommand cmd6 = ZcodeExecutionStoreCommand(z.getSpace());
+//    ZcodeNotificationHostCommand cmd7 = ZcodeNotificationHostCommand(&z);
+//    ZcodeIdentifyCommand cmd8 = ZcodeIdentifyCommand();
 
-//    RCodeMbedFlashPersistence persist = RCodeMbedFlashPersistence();
-//    RCodeFetchGiudCommand cmd9 = RCodeFetchGiudCommand(&persist);
-//    RCodePersistentFetchCommand cmd10 = RCodePersistentFetchCommand(&persist);
-//    RCodePersistentStoreCommand cmd11 = RCodePersistentStoreCommand(&persist);
-//    RCodeStoreGiudCommand cmd12 = RCodeStoreGiudCommand(&persist);
-//    RCodeStoreMacAddressCommand cmd13 = RCodeStoreMacAddressCommand(&persist);
+//    ZcodeMbedFlashPersistence persist = ZcodeMbedFlashPersistence();
+//    ZcodeFetchGuidCommand cmd9 = ZcodeFetchGuidCommand(&persist);
+//    ZcodePersistentFetchCommand cmd10 = ZcodePersistentFetchCommand(&persist);
+//    ZcodePersistentStoreCommand cmd11 = ZcodePersistentStoreCommand(&persist);
+//    ZcodeStoreGuidCommand cmd12 = ZcodeStoreGuidCommand(&persist);
+//    ZcodeStoreMacAddressCommand cmd13 = ZcodeStoreMacAddressCommand(&persist);
 
-//    RCodeI2cSubsystem::init();
-//    RCodeI2cSetupCommand cmd14 = RCodeI2cSetupCommand();
-//    RCodeI2cSendCommand cmd15 = RCodeI2cSendCommand();
-//    r.getCommandFinder()->registerCommand(&cmd8);
-//    r.getCommandFinder()->registerCommand(&cmd0);
-//    r.getCommandFinder()->registerCommand(&cmd3);
-//    r.getCommandFinder()->registerCommand(&cmd1);
-//    r.getCommandFinder()->registerCommand(&cmd7);
-//    r.getCommandFinder()->registerCommand(&cmd2);
-//    r.getCommandFinder()->registerCommand(&cmd4);
-//    r.getCommandFinder()->registerCommand(&cmd5);
-//    r.getCommandFinder()->registerCommand(&cmd6);
+//    ZcodeI2cSubsystem::init();
+//    ZcodeI2cSetupCommand cmd14 = ZcodeI2cSetupCommand();
+//    ZcodeI2cSendCommand cmd15 = ZcodeI2cSendCommand();
+//    z.getCommandFinder()->registerCommand(&cmd8);
+//    z.getCommandFinder()->registerCommand(&cmd0);
+//    z.getCommandFinder()->registerCommand(&cmd3);
+//    z.getCommandFinder()->registerCommand(&cmd1);
+//    z.getCommandFinder()->registerCommand(&cmd7);
+//    z.getCommandFinder()->registerCommand(&cmd2);
+//    z.getCommandFinder()->registerCommand(&cmd4);
+//    z.getCommandFinder()->registerCommand(&cmd5);
+//    z.getCommandFinder()->registerCommand(&cmd6);
 
-//    r.getCommandFinder()->registerCommand(&cmd9);
-//    r.getCommandFinder()->registerCommand(&cmd10);
-//    r.getCommandFinder()->registerCommand(&cmd11);
-//    r.getCommandFinder()->registerCommand(&cmd12);
-//    r.getCommandFinder()->registerCommand(&cmd13);
+//    z.getCommandFinder()->registerCommand(&cmd9);
+//    z.getCommandFinder()->registerCommand(&cmd10);
+//    z.getCommandFinder()->registerCommand(&cmd11);
+//    z.getCommandFinder()->registerCommand(&cmd12);
+//    z.getCommandFinder()->registerCommand(&cmd13);
 
-//    r.getCommandFinder()->registerCommand(&cmd14);
-//    r.getCommandFinder()->registerCommand(&cmd15);
+//    z.getCommandFinder()->registerCommand(&cmd14);
+//    z.getCommandFinder()->registerCommand(&cmd15);
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.wittsfamily.rcode</groupId>
-        <artifactId>rcode-all</artifactId>
+        <groupId>org.zcode</groupId>
+        <artifactId>zcode-all</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.wittsfamily.rcode.javareceiver</groupId>
+    <groupId>org.zcode.javareceiver</groupId>
     <artifactId>java-receiver</artifactId>
     <name>java-receiver</name>
 

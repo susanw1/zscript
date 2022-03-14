@@ -7,6 +7,10 @@
 target/
 RemoteSystemTempFiles/
 .recommenders/
+.cproject
+.externalToolBuilders
+*.iml
+
 
 # Log file
 *.log
@@ -31,80 +35,6 @@ RemoteSystemTempFiles/
 **/bin
 **/build
 
-# OpenSCAD output
-*.stl
-
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-# mplab x
-**/pic/**/*.d
-**/pic/**/*.pre
-**/pic/**/*.p1
-**/pic/**/*.lst
-**/pic/**/*.sym
-**/pic/**/*.obj
-**/pic/**/*.o
-**/pic/**/*.sdb
-**/pic/**/*.obj.dmp
-**/pic/**/nbproject/private/
-**/pic/**/nbproject/Package-*.bash
-**/pic/**/build/
-**/pic/**/nbbuild/
-**/pic/**/dist/
-**/pic/**/nbdist/
-**/pic/**/nbactions.xml
-**/pic/**/nb-configuration.xml
-**/pic/**/funclist
-**/pic/**/nbproject/Makefile-*
-**/pic/**/disassembly/
-**/pic/**/*.map
-
-
-# WinCupl
-
-**/pld/**/*.pdf
-**/pld/**/*.sim
-**/pld/**/*.abs
-
-# kicad
-
-
-**/kicad/**/*.000
-**/kicad/**/*.bak
-**/kicad/**/*.bck
-**/kicad/**/*.kicad_pcb-bak
-**/kicad/**/*.sch-bak
-**/kicad/**/*~
-**/kicad/**/_autosave-*
-**/kicad/**/*.tmp
-**/kicad/**/*-save.pro
-**/kicad/**/*-save.kicad_pcb
-**/kicad/**/fp-info-cache
-
-# Netlist files (exported from Eeschema)
-**/kicad/**/*.net
-
-# Autorouter files (exported from Pcbnew)
-**/kicad/**/*.dsn
-**/kicad/**/*.ses
-
-# Exported BOM files
-**/kicad/**/*.xml
-**/kicad/**/*.csv
-/track-controller/src/main/pic/QuadPWM.X/build/
-/track-controller/src/main/pic/QuadPWM.X/dist/
-/track-controller/src/main/pic/ClockSynchTest.X/dist/
-/track-controller/src/main/pic/ClockSynchTest.X/build/
-/track-controller/src/main/pic/TrackController.X/dist/
-/track-controller/src/main/pic/TrackController.X/build/
-/track-controller/src/main/pic/NewPicTest.X/build/
-/track-controller/src/main/pic/NewPicTest.X/dist/
-/track-controller/src/main/pic/testI2C.X/dist/
-/track-controller/src/main/pic/testI2C.X/build/
-/rail-controller/src/main/pic/RailController.X/dist/
-/rail-controller/src/main/pic/RailController.X/build/
-/alpha-board/src/main/pic/NewDccController.X/dist/
-/alpha-board/src/main/pic/NewDccController.X/build/
-/alpha-board/src/main/pic/TestI2C.X/dist/
-/alpha-board/src/main/pic/TestI2C.X/build/

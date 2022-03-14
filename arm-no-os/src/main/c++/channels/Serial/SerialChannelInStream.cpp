@@ -22,7 +22,7 @@ char SerialChannelLookahead::read() {
     return result;
 }
 
-RCodeLookaheadStream<RCodeParameters>* SerialChannelInStream::getLookahead() {
+ZcodeLookaheadStream<ZcodeParameters>* SerialChannelInStream::getLookahead() {
     channel->getSerial()->resetPeek();
     return &lookahead;
 }
