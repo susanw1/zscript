@@ -5,8 +5,8 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CSUBSYSTEM_HPP_
-#define SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CSUBSYSTEM_HPP_
+#ifndef SRC_TEST_CPP_COMMANDS_I2C_ZCODEI2CSUBSYSTEM_HPP_
+#define SRC_TEST_CPP_COMMANDS_I2C_ZCODEI2CSUBSYSTEM_HPP_
 #include "ZcodeIncludes.hpp"
 #include "ZcodeParameters.hpp"
 #include "ZcodeI2cPhysicalBus.hpp"
@@ -53,4 +53,4 @@ public:
     }
 };
 
-#endif /* SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CSUBSYSTEM_HPP_ */
+#endif /* SRC_TEST_CPP_COMMANDS_I2C_ZCODEI2CSUBSYSTEM_HPP_ */

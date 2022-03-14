@@ -11,15 +11,15 @@
 #include "ZcodeParameters.hpp"
 #include "commands/ZcodeCommand.hpp"
 
-class ZcodeIdentifyCommand: public ZcodeCommand<ZcodeParameters> {
+class ZcodeIdentifyCommand: public ZcodeCommand {
 private:
     const uint8_t code = 0x00;
-    public:
+public:
 
-    void execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeCommandSequence<ZcodeParameters> *sequence,
-            ZcodeOutStream<ZcodeParameters> *out);
+    void execute(ZcodeCommandSlot *slot, ZcodeCommandSequence *sequence,
+            ZcodeOutStream *out);
 
-    void setLocks(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeLockSet<ZcodeParameters> *locks) const {
+    void setLocks(ZcodeCommandSlot *slot, ZcodeLockSet *locks) const {
     }
 
     uint8_t getCode() const {
@@ -38,7 +38,6 @@ private:
         return &code;
     }
 };
-
 #include "ZcodeOutStream.hpp"
 #include "parsing/ZcodeCommandSlot.hpp"
 

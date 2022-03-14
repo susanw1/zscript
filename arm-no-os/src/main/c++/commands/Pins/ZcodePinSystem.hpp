@@ -5,8 +5,8 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_C___COMMANDS_PINS_RCODEPINSYSTEM_HPP_
-#define SRC_TEST_C___COMMANDS_PINS_RCODEPINSYSTEM_HPP_
+#ifndef SRC_TEST_C___COMMANDS_PINS_ZCODEPINSYSTEM_HPP_
+#define SRC_TEST_C___COMMANDS_PINS_ZCODEPINSYSTEM_HPP_
 #include <ZcodeParameters.hpp>
 #include "../../LowLevel/GpioLowLevel/Gpio.hpp"
 #include "../../LowLevel/GpioLowLevel/GpioManager.hpp"
@@ -15,7 +15,7 @@ class ZcodePinSystem {
     static GpioPinName names[ZcodePeripheralParameters::pinNumber];
 
 public:
-    static GpioPinName getRcodePinName(uint8_t number) {
+    static GpioPinName getZcodePinName(uint8_t number) {
         return names[number];
     }
     static uint8_t getPinNumber(GpioPinName name) {
@@ -28,4 +28,4 @@ public:
     }
 };
 
-#endif /* SRC_TEST_C___COMMANDS_PINS_RCODEPINSYSTEM_HPP_ */
+#endif /* SRC_TEST_C___COMMANDS_PINS_ZCODEPINSYSTEM_HPP_ */

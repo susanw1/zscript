@@ -5,8 +5,8 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_COMMANDS_RCODEFETCHGIUDCOMMAND_HPP_
-#define SRC_TEST_CPP_COMMANDS_RCODEFETCHGIUDCOMMAND_HPP_
+#ifndef SRC_TEST_CPP_COMMANDS_ZCODEFETCHGIUDCOMMAND_HPP_
+#define SRC_TEST_CPP_COMMANDS_ZCODEFETCHGIUDCOMMAND_HPP_
 #include "ZcodeIncludes.hpp"
 #include "ZcodeParameters.hpp"
 #include "commands/ZcodeCommand.hpp"
@@ -46,4 +46,4 @@ private:
 #include "ZcodeOutStream.hpp"
 #include "parsing/ZcodeCommandSlot.hpp"
 
-#endif /* SRC_TEST_CPP_COMMANDS_RCODEFETCHGIUDCOMMAND_HPP_ */
+#endif /* SRC_TEST_CPP_COMMANDS_ZCODEFETCHGIUDCOMMAND_HPP_ */

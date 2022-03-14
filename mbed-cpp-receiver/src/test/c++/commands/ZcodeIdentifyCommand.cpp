@@ -1,14 +1,14 @@
 /*
- * RCodeEchoCommand.cpp
+ * ZcodeEchoCommand.cpp
  *
  *  Created on: 9 Sep 2020
  *      Author: robert
  */
 
-#include "RCodeIdentifyCommand.hpp"
+#include "ZcodeIdentifyCommand.hpp"
 
-void RCodeIdentifyCommand::execute(RCodeCommandSlot *slot,
-        RCodeCommandSequence *sequence, RCodeOutStream *out) {
+void ZcodeIdentifyCommand::execute(ZcodeCommandSlot *slot,
+        ZcodeCommandSequence *sequence, ZcodeOutStream *out) {
     out->writeStatus(OK);
     out->writeField('V', 0);
     out->continueField(0);

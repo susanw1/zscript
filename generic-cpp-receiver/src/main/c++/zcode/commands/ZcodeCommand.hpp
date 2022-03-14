@@ -27,10 +27,10 @@ class ZcodeLockSet;
 template<class ZP>
 class ZcodeCommand {
 public:
-    virtual void finish(ZcodeCommandSlot<ZP> *rCodeCommandSlot, ZcodeOutStream<ZP> *out) const {
+    virtual void finish(ZcodeCommandSlot<ZP> *zcodeCommandSlot, ZcodeOutStream<ZP> *out) const {
     }
 
-    virtual void moveAlong(ZcodeCommandSlot<ZP> *rCodeCommandSlot) const {
+    virtual void moveAlong(ZcodeCommandSlot<ZP> *zcodeCommandSlot) const {
     }
 
     virtual void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) = 0;

@@ -5,8 +5,8 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_C___COMMANDS_I2C_RCODEI2CSENDRECEIVECOMMAND_HPP_
-#define SRC_TEST_C___COMMANDS_I2C_RCODEI2CSENDRECEIVECOMMAND_HPP_
+#ifndef SRC_TEST_C___COMMANDS_I2C_ZCODEI2CSENDRECEIVECOMMAND_HPP_
+#define SRC_TEST_C___COMMANDS_I2C_ZCODEI2CSENDRECEIVECOMMAND_HPP_
 #include "ZcodeIncludes.hpp"
 #include "ZcodeParameters.hpp"
 #include "commands/ZcodeCommand.hpp"
@@ -19,9 +19,9 @@ private:
 
     static void setAsFinished(I2cTerminationStatus status, ZcodeCommandSlot<ZcodeParameters> *slot, uint8_t retries);
     public:
-    void finish(ZcodeCommandSlot<ZcodeParameters> *rCodeCommandSlot, ZcodeOutStream<ZcodeParameters> *out) const;
+    void finish(ZcodeCommandSlot<ZcodeParameters> *zcodeCommandSlot, ZcodeOutStream<ZcodeParameters> *out) const;
 
-    void moveAlong(ZcodeCommandSlot<ZcodeParameters> *rCodeCommandSlot) const;
+    void moveAlong(ZcodeCommandSlot<ZcodeParameters> *zcodeCommandSlot) const;
 
     void execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out);
 
@@ -48,4 +48,4 @@ private:
 #include "ZcodeOutStream.hpp"
 #include "ZcodeLockSet.hpp"
 
-#endif /* SRC_TEST_C___COMMANDS_I2C_RCODEI2CSENDRECEIVECOMMAND_HPP_ */
+#endif /* SRC_TEST_C___COMMANDS_I2C_ZCODEI2CSENDRECEIVECOMMAND_HPP_ */

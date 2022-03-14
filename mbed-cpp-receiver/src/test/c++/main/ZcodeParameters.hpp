@@ -1,13 +1,13 @@
 /*
- * RCodeParameters.hpp
+ * ZcodeParameters.hpp
  *
  *  Created on: 7 Sep 2020
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_RCODE_RCODEPARAMETERS_HPP_
-#define SRC_TEST_CPP_RCODE_RCODEPARAMETERS_HPP_
-#include "RCodeIncludes.hpp"
+#ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
+#define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
+#include "ZcodeIncludes.hpp"
 
 #include <mbed.h>
 
@@ -24,7 +24,7 @@ typedef uint8_t commandNum_t;
 typedef uint16_t debugOutputBufferLength_t;
 typedef uint8_t lockNumber_t;
 
-class RCodeParameters {
+class ZcodeParameters {
 public:
     static const int bigFieldLength = 32;
     static const int hugeFieldLength = 1024;
@@ -53,7 +53,7 @@ public:
     static const bool persistentGUID = true;
     static const bool persistentMAC = true;
 };
-class RCodeLockValues {
+class ZcodeLockValues {
 public:
     static const uint8_t i2cPhyBus0Lock = 5;
     static const uint8_t i2cPhyBus1Lock = 6;
@@ -64,11 +64,11 @@ public:
 
 //#define USE_I2C_STATIC_READ_BUFFERS
 
-class RCodePeripheralParameters {
+class ZcodePeripheralParameters {
 public:
     static const int i2cReadMaximum = 1024; //if USE_I2C_STATIC_READ_BUFFERS defined, 4 arrays of this length are created - very memory expensive
     static const int i2cBusesPerPhyBus = 2;
 
 };
 
-#endif /* SRC_TEST_CPP_RCODE_RCODEPARAMETERS_HPP_ */
+#endif /* SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_ */

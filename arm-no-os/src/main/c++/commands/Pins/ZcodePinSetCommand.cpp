@@ -30,7 +30,7 @@ void ZcodePinSetCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeC
         out->writeBigStringField("Must specify valid pin");
         return;
     }
-    GpioPin *pin = GpioManager::getPin(ZcodePinSystem::getRcodePinName(pinNum));
+    GpioPin *pin = GpioManager::getPin(ZcodePinSystem::getZcodePinName(pinNum));
     if (slot->getFields()->has('V')) {
         if (slot->getFields()->getByteCount('V') > 1 || slot->getFields()->getByte('V', 0, 0) > 1) {
             slot->fail("", BAD_PARAM);

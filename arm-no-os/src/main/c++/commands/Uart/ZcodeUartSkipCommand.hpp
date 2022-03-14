@@ -5,8 +5,8 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_C___COMMANDS_UART_RCODEUARTSKIPCOMMAND_HPP_
-#define SRC_TEST_C___COMMANDS_UART_RCODEUARTSKIPCOMMAND_HPP_
+#ifndef SRC_TEST_C___COMMANDS_UART_ZCODEUARTSKIPCOMMAND_HPP_
+#define SRC_TEST_C___COMMANDS_UART_ZCODEUARTSKIPCOMMAND_HPP_
 #include "ZcodeIncludes.hpp"
 #include "ZcodeParameters.hpp"
 #include "commands/ZcodeCommand.hpp"
@@ -77,4 +77,4 @@ public:
     }
 };
 
-#endif /* SRC_TEST_C___COMMANDS_UART_RCODEUARTSKIPCOMMAND_HPP_ */
+#endif /* SRC_TEST_C___COMMANDS_UART_ZCODEUARTSKIPCOMMAND_HPP_ */

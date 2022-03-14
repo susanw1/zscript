@@ -5,8 +5,8 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CBUS_HPP_
-#define SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CBUS_HPP_
+#ifndef SRC_TEST_CPP_COMMANDS_I2C_ZCODEI2CBUS_HPP_
+#define SRC_TEST_CPP_COMMANDS_I2C_ZCODEI2CBUS_HPP_
 #include "ZcodeIncludes.hpp"
 #include "ZcodeParameters.hpp"
 #include <parsing/ZcodeCommandSlot.hpp>
@@ -55,4 +55,4 @@ private:
 };
 
 #include "ZcodeI2cPhysicalBus.hpp"
-#endif /* SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CBUS_HPP_ */
+#endif /* SRC_TEST_CPP_COMMANDS_I2C_ZCODEI2CBUS_HPP_ */

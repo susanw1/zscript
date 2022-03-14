@@ -5,8 +5,8 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_RCODE_RCODEPARAMETERS_HPP_
-#define SRC_TEST_CPP_RCODE_RCODEPARAMETERS_HPP_
+#ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
+#define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
 #include "ZcodeIncludes.hpp"
 
@@ -67,4 +67,4 @@ public:
     static const int pinNumber = 3;
 };
 
-#endif /* SRC_TEST_CPP_RCODE_RCODEPARAMETERS_HPP_ */
+#endif /* SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_ */

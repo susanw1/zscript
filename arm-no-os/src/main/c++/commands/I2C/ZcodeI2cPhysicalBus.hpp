@@ -5,8 +5,8 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CPHYSICALBUS_HPP_
-#define SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CPHYSICALBUS_HPP_
+#ifndef SRC_TEST_CPP_COMMANDS_I2C_ZCODEI2CPHYSICALBUS_HPP_
+#define SRC_TEST_CPP_COMMANDS_I2C_ZCODEI2CPHYSICALBUS_HPP_
 #include "ZcodeIncludes.hpp"
 #include "ZcodeParameters.hpp"
 #include "../LowLevel/I2cLowLevel/I2c.hpp"
@@ -79,4 +79,4 @@ private:
 };
 #include "ZcodeI2cSubsystem.hpp"
 
-#endif /* SRC_TEST_CPP_COMMANDS_I2C_RCODEI2CPHYSICALBUS_HPP_ */
+#endif /* SRC_TEST_CPP_COMMANDS_I2C_ZCODEI2CPHYSICALBUS_HPP_ */

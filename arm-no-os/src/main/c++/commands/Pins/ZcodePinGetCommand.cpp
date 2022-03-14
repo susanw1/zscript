@@ -30,17 +30,17 @@ void ZcodePinGetCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeC
         out->writeBigStringField("Must specify valid pin");
         return;
     }
-    GpioPin *pin = GpioManager::getPin(ZcodePinSystem::getRcodePinName(pinNum));
+    GpioPin *pin = GpioManager::getPin(ZcodePinSystem::getZcodePinName(pinNum));
 
     if (slot->getFields()->has('A')) {
-        if (!AtoDManager::canPerformAtoD(ZcodePinSystem::getRcodePinName(pinNum))) {
+        if (!AtoDManager::canPerformAtoD(ZcodePinSystem::getZcodePinName(pinNum))) {
             slot->fail("", BAD_PARAM);
             out->writeStatus(BAD_PARAM);
             out->writeBigStringField("Pin cannot perform analog read");
             return;
         }
         pin->setMode(Analog);
-        out->writeField('V', (uint16_t)(AtoDManager::performAtoD(ZcodePinSystem::getRcodePinName(pinNum)) << 4));
+        out->writeField('V', (uint16_t)(AtoDManager::performAtoD(ZcodePinSystem::getZcodePinName(pinNum)) << 4));
     } else {
         if (pin->read()) {
             out->writeField('V', (uint8_t) 1);

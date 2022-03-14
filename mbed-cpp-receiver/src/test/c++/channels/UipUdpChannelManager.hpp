@@ -8,9 +8,9 @@
 #ifndef SRC_TEST_CPP_MAIN_UIPUDPCHANNELMANAGER_HPP_
 #define SRC_TEST_CPP_MAIN_UIPUDPCHANNELMANAGER_HPP_
 
-#include "../RCode/RCodeParameters.hpp"
-#include "../RCode/RCodeOutStream.hpp"
-#include "../RCode/parsing/RCodeInStream.hpp"
+#include "../Zcode/ZcodeParameters.hpp"
+#include "../Zcode/ZcodeOutStream.hpp"
+#include "../Zcode/parsing/ZcodeInStream.hpp"
 #include "../UIP/UdpSocket.h"
 #include "UipUdpChannelInStream.hpp"
 #include "UipUdpCommandChannel.hpp"
@@ -18,18 +18,18 @@
 #include "UipUdpWrapper.hpp"
 
 class UipUdpChannelManager {
-    RCode *zcode;
+    Zcode *zcode;
     UipUdpChannelInStream seqIn;
-    RCodeInStream in;
+    ZcodeInStream in;
     UipUdpOutStream out;
-    UipUdpCommandChannel channels[RCodeParameters::uipChannelNum];
-    UdpSocket sockets[RCodeParameters::uipChannelNum];
+    UipUdpCommandChannel channels[ZcodeParameters::uipChannelNum];
+    UdpSocket sockets[ZcodeParameters::uipChannelNum];
     bool waitingForSlot = false;
     friend void setupChannels(UipUdpChannelManager *manager, UipEthernet *eth,
-            RCode *zcode);
+            Zcode *zcode);
 //    void findChannelForRun();
 public:
-    UipUdpChannelManager(UipEthernet *eth, UdpSocket *socket, RCode *zcode) :
+    UipUdpChannelManager(UipEthernet *eth, UdpSocket *socket, Zcode *zcode) :
             zcode(zcode), seqIn(), in(&seqIn), out(socket) {
         setupChannels(this, eth, zcode);
     }
@@ -38,11 +38,11 @@ public:
         return channels;
     }
 
-    RCodeInStream* getInStream() {
+    ZcodeInStream* getInStream() {
         return &in;
     }
 
-    RCodeOutStream* getOutStream() {
+    ZcodeOutStream* getOutStream() {
         return &out;
     }
     void inReleased() {

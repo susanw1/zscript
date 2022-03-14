@@ -8,17 +8,17 @@
 #ifndef SRC_TEST_CPP_CHANNELS_UIPUDPCOMMANDCHANNEL_HPP_
 #define SRC_TEST_CPP_CHANNELS_UIPUDPCOMMANDCHANNEL_HPP_
 
-#include "parsing/RCodeCommandChannel.hpp"
-#include "parsing/RCodeCommandSequence.hpp"
-#include "RCodeParameters.hpp"
+#include "parsing/ZcodeCommandChannel.hpp"
+#include "parsing/ZcodeCommandSequence.hpp"
+#include "ZcodeParameters.hpp"
 #include "../UIP/UipEthernet.h"
 #include "UipUdpChannelInStream.hpp"
 #include "UipUdpWrapper.hpp"
 #include "UipUdpOutStream.hpp"
 
-class UipUdpCommandChannel: public RCodeCommandChannel {
+class UipUdpCommandChannel: public ZcodeCommandChannel {
 private:
-    RCodeCommandSequence sequence;
+    ZcodeCommandSequence sequence;
     UdpSocket socket;
     UipUdpChannelInStream in;
     UipUdpOutStream out;
@@ -26,7 +26,7 @@ private:
     uint16_t port = 0;
 
 public:
-    UipUdpCommandChannel(RCode *zcode, UipEthernet *eth, uint16_t localPort) :
+    UipUdpCommandChannel(Zcode *zcode, UipEthernet *eth, uint16_t localPort) :
             sequence(zcode, this), socket(eth, 1000), in(&socket), out(&socket) {
         socket.begin(localPort);
         for (int i = 0; i < 4; i++) {
@@ -56,7 +56,7 @@ public:
     bool hasInStream() {
         return true;
     }
-    virtual RCodeOutStream* acquireOutStream();
+    virtual ZcodeOutStream* acquireOutStream();
 
     bool hasOutStream() {
         return true;
@@ -64,7 +64,7 @@ public:
 
     virtual bool hasCommandSequence();
 
-    virtual RCodeCommandSequence* getCommandSequence() {
+    virtual ZcodeCommandSequence* getCommandSequence() {
         return &sequence;
     }
 

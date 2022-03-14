@@ -29,7 +29,7 @@ void ZcodePinSetupCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, Zcod
     for (int i = 0; i < slot->getBigField()->getLength(); ++i) {
         uint8_t data1 = slot->getBigField()->getData()[i] & 0xF;
         if (data1 & 0x8) {
-            if (!ZcodePinInterruptSource::setInterrupt(ZcodePinSystem::getRcodePinName(i * 2), data1 & 0x1, data1 & 0x2)) {
+            if (!ZcodePinInterruptSource::setInterrupt(ZcodePinSystem::getZcodePinName(i * 2), data1 & 0x1, data1 & 0x2)) {
                 ZcodePinInterruptSource::clearInterrupts();
                 slot->fail("", CMD_FAIL);
                 out->writeStatus(CMD_FAIL);
@@ -41,7 +41,7 @@ void ZcodePinSetupCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, Zcod
     uint8_t pinData[ZcodePeripheralParameters::pinNumber];
     for (int i = 0; i < ZcodePeripheralParameters::pinNumber; i++) {
         pinData[i] = 0xFE;
-        if (AtoDManager::canPerformAtoD(ZcodePinSystem::getRcodePinName(ZcodePeripheralParameters::pinNumber - i))) {
+        if (AtoDManager::canPerformAtoD(ZcodePinSystem::getZcodePinName(ZcodePeripheralParameters::pinNumber - i))) {
             pinData[i] |= 1;
         }
     }

@@ -23,17 +23,17 @@
 
 #include <mbed.h>
 //#include "UipEthernet.h"
-//#include "RCode.hpp"
-//#include "commands/RCodeActivateCommand.hpp"
-//#include "commands/RCodeSetDebugChannelCommand.hpp"
-//#include "commands/RCodeEchoCommand.hpp"
-//#include "commands/RCodeExecutionStateCommand.hpp"
-//#include "commands/RCodeExecutionCommand.hpp"
-//#include "commands/RCodeExecutionStoreCommand.hpp"
-//#include "commands/RCodeNotificationHostCommand.hpp"
-//#include "commands/RCodeCapabilitiesCommand.hpp"
-//#include "executionspace/RCodeExecutionSpaceChannel.hpp"
-//#include "../commands/RCodeIdentifyCommand.hpp"
+//#include "Zcode.hpp"
+//#include "commands/ZcodeActivateCommand.hpp"
+//#include "commands/ZcodeSetDebugChannelCommand.hpp"
+//#include "commands/ZcodeEchoCommand.hpp"
+//#include "commands/ZcodeExecutionStateCommand.hpp"
+//#include "commands/ZcodeExecutionCommand.hpp"
+//#include "commands/ZcodeExecutionStoreCommand.hpp"
+//#include "commands/ZcodeNotificationHostCommand.hpp"
+//#include "commands/ZcodeCapabilitiesCommand.hpp"
+//#include "executionspace/ZcodeExecutionSpaceChannel.hpp"
+//#include "../commands/ZcodeIdentifyCommand.hpp"
 
 //#include "UipUdpCommandChannel.hpp"
 
@@ -43,22 +43,22 @@ int main(void) {
     UipEthernet uip(mac, PA_7, PA_6, PA_5, PA_4);
     while (uip.connect(5))
         ;
-    RCode z(NULL, 0);
+    Zcode z(NULL, 0);
     UipUdpCommandChannel channel(&z, &uip, 4889);
-    RCodeExecutionSpaceChannel execCh = RCodeExecutionSpaceChannel(&z, z.getSpace());
-    RCodeCommandChannel *chptr[2] = { &channel, &execCh };
-    RCodeExecutionSpaceChannel **execPtr = (RCodeExecutionSpaceChannel**) chptr + 1;
+    ZcodeExecutionSpaceChannel execCh = ZcodeExecutionSpaceChannel(&z, z.getSpace());
+    ZcodeCommandChannel *chptr[2] = { &channel, &execCh };
+    ZcodeExecutionSpaceChannel **execPtr = (ZcodeExecutionSpaceChannel**) chptr + 1;
     z.setChannels(chptr, 2);
     z.getSpace()->setChannels(execPtr, 1);
-    RCodeEchoCommand cmd0 = RCodeEchoCommand();
-    RCodeActivateCommand cmd1 = RCodeActivateCommand();
-    RCodeSetDebugChannelCommand cmd2 = RCodeSetDebugChannelCommand(&z);
-    RCodeCapabilitiesCommand cmd3 = RCodeCapabilitiesCommand(&z);
-    RCodeExecutionStateCommand cmd4 = RCodeExecutionStateCommand(z.getSpace());
-    RCodeExecutionCommand cmd5 = RCodeExecutionCommand(z.getSpace());
-    RCodeExecutionStoreCommand cmd6 = RCodeExecutionStoreCommand(z.getSpace());
-    RCodeNotificationHostCommand cmd7 = RCodeNotificationHostCommand(&z);
-    RCodeIdentifyCommand cmd8 = RCodeIdentifyCommand();
+    ZcodeEchoCommand cmd0 = ZcodeEchoCommand();
+    ZcodeActivateCommand cmd1 = ZcodeActivateCommand();
+    ZcodeSetDebugChannelCommand cmd2 = ZcodeSetDebugChannelCommand(&z);
+    ZcodeCapabilitiesCommand cmd3 = ZcodeCapabilitiesCommand(&z);
+    ZcodeExecutionStateCommand cmd4 = ZcodeExecutionStateCommand(z.getSpace());
+    ZcodeExecutionCommand cmd5 = ZcodeExecutionCommand(z.getSpace());
+    ZcodeExecutionStoreCommand cmd6 = ZcodeExecutionStoreCommand(z.getSpace());
+    ZcodeNotificationHostCommand cmd7 = ZcodeNotificationHostCommand(&z);
+    ZcodeIdentifyCommand cmd8 = ZcodeIdentifyCommand();
 
     z.getCommandFinder()->registerCommand(&cmd8);
     z.getCommandFinder()->registerCommand(&cmd0);
@@ -71,7 +71,7 @@ int main(void) {
     z.getCommandFinder()->registerCommand(&cmd6);
 
     while (true) {
-        z.progressRCode();
+        z.progressZcode();
         uip.tick();
         uip.dhcpClient.checkLease();
     }
