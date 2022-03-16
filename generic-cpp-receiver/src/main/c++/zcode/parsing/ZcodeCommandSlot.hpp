@@ -103,7 +103,7 @@ public:
         return slotStatus.started;
     }
     void terminate() {
-        end = '\n';
+        end = Zchars::EOL_SYMBOL;
     }
     bool isComplete() const {
         return slotStatus.complete;
@@ -134,7 +134,7 @@ public:
         return end;
     }
     bool isEndOfSequence() const {
-        return end == '\n';
+        return end == Zchars::EOL_SYMBOL;
     }
 
     ZcodeResponseStatus getStatus() const {
@@ -152,7 +152,7 @@ public:
     void fail(const char *errorMessage, ZcodeResponseStatus status) {
         this->errorMessage = errorMessage;
         this->status = status;
-        this->end = '\n';
+        this->end = Zchars::EOL_SYMBOL;
     }
 };
 
@@ -164,7 +164,7 @@ void ZcodeCommandSlot<ZP>::failParse(ZcodeCommandInStream<ZP> *in, ZcodeCommandS
 
     sequence->getZcode()->getDebug() << errorMessage << "\n";
     in->close();
-    end = '\n';
+    end = Zchars::EOL_SYMBOL;
 }
 
 template<class ZP>
@@ -245,7 +245,7 @@ bool ZcodeCommandSlot<ZP>::parseSingleCommand(ZcodeCommandInStream<ZP> *in, Zcod
                     failParse(in, sequence, TOO_BIG, "Too many fields");
                     return false;
                 }
-            } else if (c == '+') {
+            } else if (c == Zchars::BIGFIELD_PREFIX_MARKER) {
                 if (target->getLength() != 0) {
                     slotStatus.hasCheckedCommand = true;
                     failParse(in, sequence, PARSE_ERROR, "Multiple big fields");
@@ -275,7 +275,7 @@ bool ZcodeCommandSlot<ZP>::parseSingleCommand(ZcodeCommandInStream<ZP> *in, Zcod
                         }
                     }
                 }
-            } else if (c == '"') {
+            } else if (c == Zchars::BIGFIELD_QUOTE_MARKER) {
                 if (target->getLength() != 0) {
                     slotStatus.hasCheckedCommand = true;
                     failParse(in, sequence, PARSE_ERROR, "Multiple big fields");
@@ -285,14 +285,14 @@ bool ZcodeCommandSlot<ZP>::parseSingleCommand(ZcodeCommandInStream<ZP> *in, Zcod
                 target->setIsString(true);
                 while (in->hasNext()) {
                     c = in->read();
-                    if (c != '"') {
+                    if (c != Zchars::BIGFIELD_QUOTE_MARKER) {
                         if (c == '\\') {
                             if (!in->hasNext()) {
                                 break;
                             }
                             c = in->read();
                             if (c == 'n') {
-                                c = '\n';
+                                c = Zchars::EOL_SYMBOL;
                             }
                         }
                         if (!target->addByteToBigField((uint8_t) c)) {
@@ -311,7 +311,7 @@ bool ZcodeCommandSlot<ZP>::parseSingleCommand(ZcodeCommandInStream<ZP> *in, Zcod
                         break;
                     }
                 }
-                if (c != '"') {
+                if (c != Zchars::BIGFIELD_QUOTE_MARKER) {
                     slotStatus.hasCheckedCommand = true;
                     failParse(in, sequence, PARSE_ERROR, "Command sequence ended before end of big string field");
                     return false;
@@ -322,7 +322,7 @@ bool ZcodeCommandSlot<ZP>::parseSingleCommand(ZcodeCommandInStream<ZP> *in, Zcod
                 status = PARSE_ERROR;
                 errorMessage = "Unknown field marker";
                 in->close();
-                end = '\n';
+                end = Zchars::EOL_SYMBOL;
                 return false;
             }
         } else {

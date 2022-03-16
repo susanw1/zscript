@@ -1,5 +1,7 @@
 package org.zcode.javareceiver.instreams;
 
+import org.zcode.javareceiver.Zchars;
+
 public class ZcodeCommandInStream {
     private final ZcodeSequenceInStream sequenceIn;
 
@@ -58,9 +60,9 @@ public class ZcodeCommandInStream {
     private void readInternal() {
         current = sequenceIn.read();
 
-        if (current == '\n' || (!inString && (current == '&' || current == '|'))) {
+        if (current == Zchars.EOL_SYMBOL.ch || (!inString && (current == Zchars.ANDTHEN_SYMBOL.ch || current == Zchars.ORELSE_SYMBOL.ch))) {
             open = false;
-        } else if (current == '"' && !backslash) {
+        } else if (current == Zchars.BIGFIELD_QUOTE_MARKER.ch && !backslash) {
             inString = !inString;
         } else if (inString) {
             if (current == '\\') {

@@ -22,7 +22,7 @@ public:
     }
     virtual char read() {
         int result = reader->peek(pos++);
-        return result == -1 ? '\n' : result;
+        return result == -1 ? Zchars::EOL_SYMBOL : result;
     }
 
     void reset() {

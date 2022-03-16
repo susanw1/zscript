@@ -59,12 +59,12 @@ ZcodeCommandFinder<ZP>* ZcodeCommandFinder<ZP>::registerCommand(ZcodeCommand<ZP>
 
 template<class ZP>
 ZcodeCommand<ZP>* ZcodeCommandFinder<ZP>::findCommand(ZcodeCommandSlot<ZP> *slot) {
-    int fieldSectionNum = slot->getFields()->countFieldSections('R');
+    int fieldSectionNum = slot->getFields()->countFieldSections(Zchars::CMD_PARAM);
     if (fieldSectionNum == 0) {
         zcode->getDebug() << "No R field in command\n";
         return NULL;
     } else if (fieldSectionNum == 1) {
-        uint8_t rVal = slot->getFields()->get('R', 0xFF);
+        uint8_t rVal = slot->getFields()->get(Zchars::CMD_PARAM, 0xFF);
         for (int i = 0; i < commandNum; i++) {
             if (commands[i]->getCode() == rVal && commands[i]->getCodeLength() == 1) {
                 return commands[i];
@@ -76,7 +76,7 @@ ZcodeCommand<ZP>* ZcodeCommandFinder<ZP>::findCommand(ZcodeCommandSlot<ZP> *slot
         ZcodeFieldMap<ZP> *map = slot->getFields();
         uint8_t code[fieldSectionNum];
         for (int i = 0; i < fieldSectionNum; i++) {
-            code[i] = map->get('R', i, 0xFF);
+            code[i] = map->get(Zchars::CMD_PARAM, i, 0xFF);
         }
         for (int i = 0; i < commandNum; i++) {
             if (commands[i]->getCodeLength() == fieldSectionNum && commands[i]->matchesCode(code, fieldSectionNum)) {

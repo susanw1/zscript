@@ -33,7 +33,7 @@ public:
 
     char read() {
         int16_t ch = parent->getAtOffset(offset);
-        return (ch != -1)? (offset++, (char)ch) : '\n';
+        return (ch != -1)? (offset++, (char)ch) : Zchars::EOL_SYMBOL;
     }
 };
 
@@ -76,7 +76,7 @@ public:
     }
 
     int16_t getAtOffset(executionSpaceAddress_t offset) {
-        if (pos + offset >= space->getLength() || space->get((executionSpaceAddress_t)(pos + offset)) == '\n') {
+        if (pos + offset >= space->getLength() || space->get((executionSpaceAddress_t)(pos + offset)) == Zchars::EOL_SYMBOL) {
             return -1;
         } else {
             return (char) space->get(pos);
@@ -93,7 +93,7 @@ public:
     }
 
     bool needsDelayNext() {
-        return pos >= space->getLength() || (pos == space->getLength() - 1 && space->get(pos) == '\n');
+        return pos >= space->getLength() || (pos == space->getLength() - 1 && space->get(pos) == Zchars::EOL_SYMBOL);
     }
 };
 

@@ -23,7 +23,7 @@ public class ZcodeNoopInStream implements ZcodeChannelInStream {
 
             @Override
             public char read() {
-                return '\n';
+                return Zchars.EOL_SYMBOL.ch;
             }
         };
     }

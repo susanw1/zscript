@@ -100,7 +100,7 @@ public class ZcodeNotificationManager {
             }
             out.openNotification(notificationChannel);
             out.markNotification();
-            out.writeField('Z', (byte) 1);
+            out.writeField(Zchars.NOTIFY_TYPE_PARAM.ch, (byte) 1);
             out.writeField('A', (byte) 1);
             out.writeField('T', interrupt.getNotificationType());
             out.writeField('I', interrupt.getNotificationBus());

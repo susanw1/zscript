@@ -13,7 +13,7 @@ int16_t EthernetUdpChannelInStream::read() {
 char EthernetUdpChannelLookahead::read() {
     int result = parent->getChannel()->getUdp()->peek(dist++);
     if (result == -1) {
-        return '\n';
+        return Zchars::EOL_SYMBOL;
     }
     return result;
 }

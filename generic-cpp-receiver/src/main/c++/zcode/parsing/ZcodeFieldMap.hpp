@@ -168,7 +168,7 @@ private:
     void copyTo(ZcodeOutStream<ZP> *out) const {
         char last = 0;
         for (int i = 0; i < size; i++) {
-            if (fields[i] != 'E' && fields[i] != 'R' && fields[i] != 'S') {
+            if (fields[i] != Zchars::ECHO_PARAM && fields[i] != Zchars::CMD_PARAM && fields[i] != Zchars::STATUS_RESP_PARAM) {
                 if (last == fields[i]) {
                     out->continueField(values[i]);
                 } else {

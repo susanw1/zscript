@@ -1,5 +1,6 @@
 package org.zcode.javareceiver.parsing;
 
+import org.zcode.javareceiver.Zchars;
 import org.zcode.javareceiver.Zcode;
 import org.zcode.javareceiver.ZcodeParameters;
 import org.zcode.javareceiver.ZcodeResponseStatus;
@@ -59,7 +60,7 @@ public class ZcodeCommandSlot {
     }
 
     public void terminate() {
-        end = '\n';
+        end = Zchars.EOL_SYMBOL.ch;
     }
 
     public boolean needsMoveAlong() {
@@ -150,7 +151,7 @@ public class ZcodeCommandSlot {
         status = errorStatus;
         errorMessage = message;
         in.close();
-        end = '\n';
+        end = Zchars.EOL_SYMBOL.ch;
     }
 
     public boolean parseSingleCommand(final ZcodeCommandInStream in, final ZcodeCommandSequence sequence) {
@@ -178,7 +179,7 @@ public class ZcodeCommandSlot {
                         failParse(in, ZcodeResponseStatus.TOO_BIG, "Too many fields");
                         return false;
                     }
-                } else if (c == '+') {
+                } else if (c == Zchars.BIGFIELD_PREFIX_MARKER.ch) {
                     if (target.getLength() != 0) {
                         failParse(in, ZcodeResponseStatus.PARSE_ERROR, "Multiple big fields");
                         return false;
@@ -206,7 +207,7 @@ public class ZcodeCommandSlot {
                             }
                         }
                     }
-                } else if (c == '"') {
+                } else if (c == Zchars.BIGFIELD_QUOTE_MARKER.ch) {
                     if (target.getLength() != 0) {
                         failParse(in, ZcodeResponseStatus.PARSE_ERROR, "Multiple big fields");
                         return false;
@@ -215,14 +216,14 @@ public class ZcodeCommandSlot {
                     c = 0;
                     while (in.hasNext()) {
                         c = in.read();
-                        if (c != '"') {
+                        if (c != Zchars.BIGFIELD_QUOTE_MARKER.ch) {
                             if (c == '\\') {
                                 if (!in.hasNext()) {
                                     break;
                                 }
                                 c = in.read();
                                 if (c == 'n') {
-                                    c = '\n';
+                                    c = Zchars.EOL_SYMBOL.ch;
                                 }
                             }
                             if (!target.addByteToBigField((byte) c)) {
@@ -241,7 +242,7 @@ public class ZcodeCommandSlot {
                             break;
                         }
                     }
-                    if (c != '"') {
+                    if (c != Zchars.BIGFIELD_QUOTE_MARKER.ch) {
                         failParse(in, ZcodeResponseStatus.PARSE_ERROR, "Command sequence ended before end of big string field");
                         return false;
                     }
@@ -270,7 +271,7 @@ public class ZcodeCommandSlot {
     }
 
     public boolean isEndOfSequence() {
-        return end == '\n';
+        return end == Zchars.EOL_SYMBOL.ch;
     }
 
     public ZcodeResponseStatus getStatus() {

@@ -1,5 +1,6 @@
 package org.zcode.javareceiver.util;
 
+import org.zcode.javareceiver.Zchars;
 import org.zcode.javareceiver.ZcodeLockSet;
 import org.zcode.javareceiver.ZcodeOutStream;
 import org.zcode.javareceiver.ZcodeResponseStatus;
@@ -15,7 +16,7 @@ public class ZcodeTmpCommand implements ZcodeCommand {
 
     @Override
     public void execute(final ZcodeCommandSlot slot, final ZcodeCommandSequence sequence, final ZcodeOutStream out) {
-        if (!slot.getFields().has('S')) {
+        if (!slot.getFields().has(Zchars.STATUS_RESP_PARAM.ch)) {
             out.writeStatus(ZcodeResponseStatus.OK);
         }
         slot.getFields().copyTo(out);

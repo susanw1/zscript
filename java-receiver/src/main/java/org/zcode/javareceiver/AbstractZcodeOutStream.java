@@ -8,19 +8,19 @@ public abstract class AbstractZcodeOutStream extends ZcodeOutStream {
 
     @Override
     public ZcodeOutStream markNotification() {
-        writeByte((byte) '!');
+        writeByte((byte) Zchars.NOTIFY_PREFIX.ch);
         return this;
     }
 
     @Override
     public ZcodeOutStream markBroadcast() {
-        writeByte((byte) '*');
+        writeByte((byte) Zchars.BROADCAST_PREFIX.ch);
         return this;
     }
 
     @Override
     public ZcodeOutStream writeStatus(final ZcodeResponseStatus st) {
-        writeByte((byte) 'S');
+        writeByte((byte) Zchars.STATUS_RESP_PARAM.ch);
         if (st.getValue() != 0) {
             final byte[] arr = Integer.toHexString(st.getValue()).getBytes(StandardCharsets.US_ASCII);
             return writeBytes(arr, arr.length);
@@ -54,7 +54,7 @@ public abstract class AbstractZcodeOutStream extends ZcodeOutStream {
 
     @Override
     public ZcodeOutStream writeBigHexField(final byte[] value, final int length) {
-        writeByte((byte) '+');
+        writeByte((byte) Zchars.BIGFIELD_PREFIX_MARKER.ch);
         for (int i = 0; i < length; i++) {
             writeByte(toHexDigit((value[i] >>> 4) & 0x0F));
             writeByte(toHexDigit(value[i] & 0x0F));
@@ -64,9 +64,9 @@ public abstract class AbstractZcodeOutStream extends ZcodeOutStream {
 
     @Override
     public ZcodeOutStream writeBigStringField(final byte[] value, final int length) {
-        writeByte((byte) '"');
+        writeByte((byte) Zchars.BIGFIELD_QUOTE_MARKER.ch);
         for (int i = 0; i < length; i++) {
-            if (value[i] == '\n') {
+            if (value[i] == Zchars.EOL_SYMBOL.ch) {
                 writeByte((byte) '\\');
                 writeByte((byte) 'n');
             } else if (value[i] == '\\' || value[i] == '"') {
@@ -76,34 +76,34 @@ public abstract class AbstractZcodeOutStream extends ZcodeOutStream {
                 writeByte(value[i]);
             }
         }
-        writeByte((byte) '"');
+        writeByte((byte) Zchars.BIGFIELD_QUOTE_MARKER.ch);
         return this;
     }
 
     @Override
     public ZcodeOutStream writeBigStringField(final String s) {
-        writeByte((byte) '"');
+        writeByte((byte) Zchars.BIGFIELD_QUOTE_MARKER.ch);
         final byte[] arr = s.replace("\\", "\\\\").replace("\n", "\\n").replace("\"", "\\\"").getBytes(StandardCharsets.UTF_8);
         writeBytes(arr, arr.length);
-        writeByte((byte) '"');
+        writeByte((byte) Zchars.BIGFIELD_QUOTE_MARKER.ch);
         return this;
     }
 
     @Override
     public ZcodeOutStream writeCommandSeparator() {
-        writeByte((byte) '&');
+        writeByte((byte) Zchars.ANDTHEN_SYMBOL.ch);
         return this;
     }
 
     @Override
     public ZcodeOutStream writeCommandSequenceErrorHandler() {
-        writeByte((byte) '|');
+        writeByte((byte) Zchars.ORELSE_SYMBOL.ch);
         return this;
     }
 
     @Override
     public ZcodeOutStream writeCommandSequenceSeparator() {
-        writeByte((byte) '\n');
+        writeByte((byte) Zchars.EOL_SYMBOL.ch);
         return this;
     }
 

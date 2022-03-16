@@ -7,7 +7,10 @@
 
 #ifndef SRC_TEST_CPP_ZCODE_ABSTRACTZCODEOUTSTREAM_HPP_
 #define SRC_TEST_CPP_ZCODE_ABSTRACTZCODEOUTSTREAM_HPP_
-#include "climits"
+
+#include <climits>
+#include <cassert>
+
 #include "ZcodeIncludes.hpp"
 #include "ZcodeOutStream.hpp"
 
@@ -23,21 +26,21 @@ public:
     virtual void writeByte(uint8_t value) = 0;
 
     virtual ZcodeOutStream<ZP>* markDebug() {
-        writeByte('#');
+        writeByte(Zchars::DEBUG_PREFIX);
         return this;
     }
     virtual ZcodeOutStream<ZP>* markNotification() {
-        writeByte('!');
+        writeByte(Zchars::NOTIFY_PREFIX);
         return this;
     }
 
     virtual ZcodeOutStream<ZP>* markBroadcast() {
-        writeByte('*');
+        writeByte(Zchars::BROADCAST_PREFIX);
         return this;
     }
 
     virtual ZcodeOutStream<ZP>* writeStatus(ZcodeResponseStatus st) {
-        writeByte('S');
+        writeByte(Zchars::STATUS_RESP_PARAM);
         if (st != OK) {
             if (st >= 0x10) {
                 writeByte(toHexDigit((st >> 4) & 0x0F));
@@ -82,7 +85,7 @@ public:
     }
 
     virtual ZcodeOutStream<ZP>* writeBigHexField(uint8_t const *value, bigFieldAddress_t length) {
-        writeByte('+');
+        writeByte(BIGFIELD_PREFIX_MARKER);
         for (int i = 0; i < length; i++) {
             writeByte(toHexDigit(value[i] >> 4));
             writeByte(toHexDigit(value[i] & 0x0F));
@@ -91,59 +94,43 @@ public:
     }
 
     virtual ZcodeOutStream<ZP>* writeBigStringField(uint8_t const *value, bigFieldAddress_t length) {
-        writeByte('"');
+        writeByte(BIGFIELD_QUOTE_MARKER);
         for (bigFieldAddress_t i = 0; i < length; ++i) {
-            if (value[i] == '\n') {
+            if (value[i] == Zchars::EOL_SYMBOL) {
                 writeByte('\\');
                 writeByte('n');
-            } else if (value[i] == '\\' || value[i] == '"') {
+            } else if (value[i] == '\\' || value[i] == BIGFIELD_QUOTE_MARKER) {
                 writeByte('\\');
                 writeByte(value[i]);
             } else {
                 writeByte(value[i]);
             }
         }
-        writeByte('"');
+        writeByte(BIGFIELD_QUOTE_MARKER);
         return this;
     }
 
-    virtual ZcodeOutStream<ZP>* writeBigStringField(char const *s) {
-        if (sizeof(uint8_t) == sizeof(char)) {
-            bigFieldAddress_t i;
-            for (i = 0; s[i] != '\0'; ++i)
-                ;
-            writeBigStringField((uint8_t const*) s, i);
-        } else {
-            writeByte('"');
-            int i;
-            char c;
-            for (i = 0; s[i] != '\0'; ++i) {
-                if (c == '\n') {
-                    writeByte('\\');
-                    writeByte('n');
-                } else if (c == '\\' || c == '"') {
-                    writeByte('\\');
-                    writeByte((uint8_t) c);
-                } else {
-                    writeByte((uint8_t) c);
-                }
-            }
-            writeByte('"');
+    virtual ZcodeOutStream<ZP>* writeBigStringField(char const *nullTerminated) {
+        assert(sizeof(uint8_t) == sizeof(char));
+        bigFieldAddress_t i;
+        for (i = 0; nullTerminated[i] != '\0'; ++i) {
         }
+        writeBigStringField((uint8_t const*) nullTerminated, i);
+
         return this;
     }
 
     virtual ZcodeOutStream<ZP>* writeCommandSeparator() {
-        writeByte('&');
+        writeByte(Zchars::ANDTHEN_SYMBOL);
         return this;
     }
     virtual ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() {
-        writeByte('|');
+        writeByte(Zchars::ORELSE_SYMBOL);
         return this;
     }
 
     virtual ZcodeOutStream<ZP>* writeCommandSequenceSeparator() {
-        writeByte('\n');
+        writeByte(Zchars::EOL_SYMBOL);
         return this;
     }
 };

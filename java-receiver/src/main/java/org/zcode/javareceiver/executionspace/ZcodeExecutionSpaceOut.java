@@ -1,6 +1,7 @@
 package org.zcode.javareceiver.executionspace;
 
 import org.zcode.javareceiver.AbstractZcodeOutStream;
+import org.zcode.javareceiver.Zchars;
 import org.zcode.javareceiver.ZcodeOutStream;
 import org.zcode.javareceiver.ZcodeParameters;
 import org.zcode.javareceiver.ZcodeResponseStatus;
@@ -108,7 +109,7 @@ public class ZcodeExecutionSpaceOut extends AbstractZcodeOutStream {
             out.openNotification(space.getNotificationChannel());
             out.mostRecent = space;
             out.markNotification();
-            out.writeField('Z', (byte) 2);
+            out.writeField(Zchars.NOTIFY_TYPE_PARAM.ch, (byte) 2);
             if (overLength) {
                 out.writeBytes(buffer, lastEndPos);
                 out.writeCommandSeparator();

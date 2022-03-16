@@ -1,5 +1,7 @@
 package org.zcode.javareceiver.instreams;
 
+import org.zcode.javareceiver.Zchars;
+
 public class ZcodeSequenceInStream {
     private final ZcodeChannelInStream channelIn;
     private final ZcodeCommandInStream commandIn = new ZcodeCommandInStream(this);
@@ -24,7 +26,7 @@ public class ZcodeSequenceInStream {
     public void close() {
         commandIn.reset();
         if (open) {
-            while (current != '\n') {
+            while (current != Zchars.EOL_SYMBOL.ch) {
                 readInternal();
             }
             open = false;
@@ -35,12 +37,12 @@ public class ZcodeSequenceInStream {
         if (open) {
             final char prev = current;
             readInternal();
-            if (open && current == '\n') {
+            if (open && current == Zchars.EOL_SYMBOL.ch) {
                 open = false;
             }
             return prev;
         } else {
-            return '\n';
+            return Zchars.EOL_SYMBOL.ch;
         }
     }
 
@@ -48,7 +50,7 @@ public class ZcodeSequenceInStream {
         if (open) {
             return current;
         } else {
-            return '\n';
+            return Zchars.EOL_SYMBOL.ch;
         }
     }
 
@@ -59,7 +61,7 @@ public class ZcodeSequenceInStream {
     private void readInternal() {
         final int next = channelIn.read();
         if (next == -1) {
-            current = '\n';
+            current = Zchars.EOL_SYMBOL.ch;
             open = false;
         } else {
             current = (char) next;
@@ -68,7 +70,7 @@ public class ZcodeSequenceInStream {
 
     public void skipToError() {
         commandIn.close();
-        while (commandIn.read() != '|' && open) {
+        while (commandIn.read() != Zchars.ORELSE_SYMBOL.ch && open) {
             commandIn.open();
             commandIn.close();
         }

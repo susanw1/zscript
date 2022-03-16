@@ -1,5 +1,6 @@
 package org.zcode.javareceiver.executionspace;
 
+import org.zcode.javareceiver.Zchars;
 import org.zcode.javareceiver.instreams.ZcodeChannelInStream;
 import org.zcode.javareceiver.instreams.ZcodeLookaheadStream;
 import org.zcode.javareceiver.instreams.ZcodeSequenceInStream;
@@ -29,7 +30,7 @@ public class ZcodeExecutionSpaceInStream implements ZcodeChannelInStream {
 
     @Override
     public int read() {
-        if (pos >= space.getLength() || space.get(pos) == '\n') {
+        if (pos >= space.getLength() || space.get(pos) == Zchars.EOL_SYMBOL.ch) {
             return -1;
         } else {
             return (char) space.get(pos++);
@@ -43,8 +44,8 @@ public class ZcodeExecutionSpaceInStream implements ZcodeChannelInStream {
 
             @Override
             public char read() {
-                if (pos + offset >= space.getLength() || space.get(pos + offset) == '\n') {
-                    return '\n';
+                if (pos + offset >= space.getLength() || space.get(pos + offset) == Zchars.EOL_SYMBOL.ch) {
+                    return Zchars.EOL_SYMBOL.ch;
                 } else {
                     return (char) space.get(pos + offset++);
                 }
@@ -57,7 +58,7 @@ public class ZcodeExecutionSpaceInStream implements ZcodeChannelInStream {
     }
 
     public boolean needsDelayNext() {
-        return pos >= space.getLength() || (pos == space.getLength() - 1 && space.get(pos) == '\n');
+        return pos >= space.getLength() || (pos == space.getLength() - 1 && space.get(pos) == Zchars.EOL_SYMBOL.ch);
     }
 
     @Override

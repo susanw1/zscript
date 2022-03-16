@@ -123,9 +123,9 @@ template<class ZP>
 void ZcodeCommandInStream<ZP>::readInternal() {
     current = sequenceIn->read();
 
-    if (current == '\n' || (!inString && (current == '&' || current == '|'))) {
+    if (current == Zchars::EOL_SYMBOL || (!inString && (current == Zchars::ANDTHEN_SYMBOL || current == Zchars::ORELSE_SYMBOL))) {
         opened = false;
-    } else if (current == '"' && !backslash) {
+    } else if (current == Zchars::BIGFIELD_QUOTE_MARKER && !backslash) {
         inString = !inString;
     } else if (inString) {
         if (current == '\\') {

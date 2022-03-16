@@ -39,7 +39,7 @@ public:
     void close() {
         commandIn.reset();
         if (opened) {
-            while (current != '\n') {
+            while (current != Zchars::EOL_SYMBOL) {
                 readInternal();
             }
             opened = false;
@@ -49,12 +49,12 @@ public:
         if (opened) {
             char prev = current;
             readInternal();
-            if (opened && current == '\n') {
+            if (opened && current == Zchars::EOL_SYMBOL) {
                 opened = false;
             }
             return prev;
         } else {
-            return '\n';
+            return Zchars::EOL_SYMBOL;
         }
     }
 
@@ -62,7 +62,7 @@ public:
         if (opened) {
             return current;
         } else {
-            return '\n';
+            return Zchars::EOL_SYMBOL;
         }
     }
 
@@ -74,7 +74,7 @@ public:
 
     void skipToError() {
         commandIn.close();
-        while (commandIn.read() != '|' && opened) {
+        while (commandIn.read() != Zchars::ORELSE_SYMBOL && opened) {
             commandIn.open();
             commandIn.close();
         }
@@ -115,7 +115,7 @@ template<class ZP>
 void ZcodeSequenceInStream<ZP>::readInternal() {
     int next = channelIn->read();
     if (next == -1) {
-        current = '\n';
+        current = Zchars::EOL_SYMBOL;
         opened = false;
     } else {
         current = (char) next;
