@@ -15,20 +15,24 @@ import org.zcode.zcode_acceptance_tests.ZcodeAcceptanceTestConnectionManager;
 import io.cucumber.java.en.Given;
 
 public class JavaReceiverCucumberStartup {
-    private static boolean hasStarted = false;
+    private static boolean         hasStarted = false;
     private static ExecutorService execs;
 
     @Given("the target is running and connected")
     public void the_target_is_running_and_connected() {
         if (!hasStarted) {
             hasStarted = true;
-            Zcode z = new Zcode(new ZcodeParameters(false), new ZcodeBusInterruptSource[0]);
-            LocalTestConnection con = new LocalTestConnection(z, new ZcodeParameters(false), false);
+            final ZcodeParameters     params = new ZcodeParameters(false);
+            final Zcode               z      = new Zcode(params, new ZcodeBusInterruptSource[0]);
+            final LocalTestConnection con    = new LocalTestConnection(z, params, false);
+            
             z.setChannels(new ZcodeCommandChannel[] { con });
-            z.getCommandFinder().registerCommand(new ZcodeIdentifyCommand());
-            z.getCommandFinder().registerCommand(new ZcodeEchoCommand());
-            z.getCommandFinder().registerCommand(new ZcodeCapabilitiesCommand(new ZcodeParameters(false), z));
-            z.getCommandFinder().registerCommand(new ZcodeActivateCommand());
+
+            z.getCommandFinder().registerCommand(new ZcodeIdentifyCommand())
+                    .registerCommand(new ZcodeEchoCommand())
+                    .registerCommand(new ZcodeCapabilitiesCommand(params, z))
+                    .registerCommand(new ZcodeActivateCommand());
+
             ZcodeAcceptanceTestConnectionManager.registerConnection(con);
             execs = Executors.newSingleThreadExecutor();
             execs.submit(() -> {
@@ -36,7 +40,7 @@ public class JavaReceiverCucumberStartup {
                     while (true) {
                         z.progressZcode();
                     }
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     t.printStackTrace();
                 }
             });

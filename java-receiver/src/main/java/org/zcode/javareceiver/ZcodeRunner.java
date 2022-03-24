@@ -9,6 +9,7 @@ import org.zcode.javareceiver.parsing.ZcodeCommandSlot;
 public class ZcodeRunner {
     private final Zcode                  zcode;
     private final ZcodeCommandSequence[] running;
+    
     private int                          parallelNum   = 0;
     private boolean                      canBeParallel = false;
 

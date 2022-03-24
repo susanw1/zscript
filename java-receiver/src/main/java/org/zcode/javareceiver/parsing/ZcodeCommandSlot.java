@@ -94,9 +94,11 @@ public class ZcodeCommandSlot {
         while (in.hasNext() && in.peek() == '0') {
             in.read();
         }
-        final ZcodeLookaheadStream l         = in.getLookahead();
-        char                       c         = l.read();
-        int                        lookahead = 0;
+        final ZcodeLookaheadStream l = in.getLookahead();
+
+        char c         = l.read();
+        int  lookahead = 0;
+        
         while (isHex(c)) {
             c = l.read();
             lookahead++;

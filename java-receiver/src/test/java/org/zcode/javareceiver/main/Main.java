@@ -1,4 +1,4 @@
-package org.zcode.javareceiver.util;
+package org.zcode.javareceiver.main;
 
 import java.nio.charset.StandardCharsets;
 
@@ -12,6 +12,9 @@ import org.zcode.javareceiver.commands.ZcodeSetDebugChannelCommand;
 import org.zcode.javareceiver.commands.ZcodeSetNotificationHostCommand;
 import org.zcode.javareceiver.executionspace.ZcodeExecutionSpaceChannel;
 import org.zcode.javareceiver.parsing.ZcodeCommandChannel;
+import org.zcode.javareceiver.util.DirectCommandChannel;
+import org.zcode.javareceiver.util.PrintingOutStream;
+import org.zcode.javareceiver.util.TestInterruptSource;
 
 public class Main {
 
@@ -22,11 +25,11 @@ public class Main {
         Zcode z = new Zcode(params, new ZcodeBusInterruptSource[] { intSrc });
 
         z.setChannels(new ZcodeCommandChannel[] {
-                new DirectCommandChannel(params, z, "R6&R8&R9\n", new PrintingOutStream(), false, 80),
+                new DirectCommandChannel(params, z, "Z1&Z8&Z9\n", new PrintingOutStream(), false, 80),
                 new ZcodeExecutionSpaceChannel(params, z, z.getSpace())
         });
 
-        z.getSpace().write("R1+10a0&R13A1\nR1+10a1&R11A2\nR33".getBytes(StandardCharsets.US_ASCII), 0, true);
+        z.getSpace().write("Z1+10a0&Z13A1\nZ1+10a1&Z11A2\nZ33".getBytes(StandardCharsets.US_ASCII), 0, true);
 
         z.getCommandFinder().registerCommand(new ZcodeEchoCommand())
                 .registerCommand(new ZcodeActivateCommand())

@@ -37,9 +37,9 @@ class InterruptVectorTest {
         intVect.getVectorMap().setVector((byte) 0x01, (byte) 0x03, (byte) 0x04, true, 0);
         intVect.getVectorMap().setVector((byte) 0x01, (byte) 0x03, (byte) 0x05, false, 8);
         intVect.getVectorMap().setVector((byte) 0x04, 22);
-        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "R8&R3", out, false, 1), new ZcodeInterruptVectorChannel(z.getSpace(), intVect, z, params) });
+        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "Z8&Z3", out, false, 1), new ZcodeInterruptVectorChannel(z.getSpace(), intVect, z, params) });
         z.getSpace().setRunning(true);
-        z.getSpace().write("R1+10a0&R13A1\nR1+10a0&R11A2\nR33".getBytes(StandardCharsets.US_ASCII), 0, true);
+        z.getSpace().write("Z1+10a0&Z13A1\nZ1+10a0&Z11A2\nZ33".getBytes(StandardCharsets.US_ASCII), 0, true);
         z.getCommandFinder()
                 .registerCommand(new ZcodeEchoCommand())
                 .registerCommand(new ZcodeActivateCommand())
@@ -81,9 +81,9 @@ class InterruptVectorTest {
         intVect.getVectorMap().setVector((byte) 0x01, (byte) 0x03, (byte) 0x04, true, 0);
         intVect.getVectorMap().setVector((byte) 0x01, (byte) 0x03, (byte) 0x05, false, 8);
         intVect.getVectorMap().setVector((byte) 0x04, 22);
-        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "R3", out, false, 1), new ZcodeInterruptVectorChannel(z.getSpace(), intVect, z, params) });
+        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "Z3", out, false, 1), new ZcodeInterruptVectorChannel(z.getSpace(), intVect, z, params) });
         z.getSpace().setRunning(true);
-        z.getSpace().write("R1+10a0;R13A1\nR1+10a0;R11A2\nR33".getBytes(StandardCharsets.US_ASCII), 0, true);
+        z.getSpace().write("Z1+10a0;Z13A1\nZ1+10a0;Z11A2\nZ33".getBytes(StandardCharsets.US_ASCII), 0, true);
         z.getCommandFinder()
                 .registerCommand(new ZcodeEchoCommand())
                 .registerCommand(new ZcodeActivateCommand())
