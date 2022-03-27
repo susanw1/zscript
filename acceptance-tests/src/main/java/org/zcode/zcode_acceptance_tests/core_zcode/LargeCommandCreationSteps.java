@@ -71,7 +71,7 @@ public class LargeCommandCreationSteps {
             int l   = 1;
             int b   = 0;
             int pos = 0;
-            for (char c = 'A'; c < 'Z' && pos + l < maxFieldCount; c++) {
+            for (char c = 'A'; c < 'Y' && pos + l < maxFieldCount; c++) {
                 String current = "";
                 for (int j = 0; j < l * ZcodeAcceptanceTestCapabilityResult.getFieldSizeUnit(); j++) {
                     String s = Integer.toHexString(Byte.toUnsignedInt((byte) (b++)));
@@ -84,17 +84,17 @@ public class LargeCommandCreationSteps {
                 pos += l;
                 l++;
             }
-//            if (pos < fieldl) {
-//                String current = "";
-//                for (int j = 0; j + pos < (fieldl) * ZcodeAcceptanceTestCapabilityResult.getFieldSizeUnit(); j++) {
-//                    String s = Integer.toHexString(Byte.toUnsignedInt((byte) (b++)));
-//                    if (s.length() == 1) {
-//                        current += '0';
-//                    }
-//                    current += s;
-//                }
-//                fields.put('Z', current);
-//            }
+            if (pos < maxFieldCount) {
+                String current = "";
+                for (int j = 0; j + pos < (maxFieldCount) * ZcodeAcceptanceTestCapabilityResult.getFieldSizeUnit(); j++) {
+                    String s = Integer.toHexString(Byte.toUnsignedInt((byte) (b++)));
+                    if (s.length() == 1) {
+                        current += '0';
+                    }
+                    current += s;
+                }
+                fields.put('Y', current);
+            }
         }
         String fieldStr = "";
         for (Entry<Character, String> e : fields.entrySet()) {
