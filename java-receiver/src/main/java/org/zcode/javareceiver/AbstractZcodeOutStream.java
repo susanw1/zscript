@@ -67,10 +67,10 @@ public abstract class AbstractZcodeOutStream extends ZcodeOutStream {
         writeByte((byte) Zchars.BIGFIELD_QUOTE_MARKER.ch);
         for (int i = 0; i < length; i++) {
             if (value[i] == Zchars.EOL_SYMBOL.ch) {
-                writeByte((byte) '\\');
+                writeByte((byte) Zchars.STRING_ESCAPE_SYMBOL.ch);
                 writeByte((byte) 'n');
-            } else if (value[i] == '\\' || value[i] == '"') {
-                writeByte((byte) '\\');
+            } else if (value[i] == Zchars.STRING_ESCAPE_SYMBOL.ch || value[i] == '"') {
+                writeByte((byte) Zchars.STRING_ESCAPE_SYMBOL.ch);
                 writeByte(value[i]);
             } else {
                 writeByte(value[i]);

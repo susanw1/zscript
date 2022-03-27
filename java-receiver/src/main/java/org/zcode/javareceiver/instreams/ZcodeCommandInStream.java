@@ -65,7 +65,7 @@ public class ZcodeCommandInStream {
         } else if (current == Zchars.BIGFIELD_QUOTE_MARKER.ch && !backslash) {
             inString = !inString;
         } else if (inString) {
-            if (current == '\\') {
+            if (current == Zchars.STRING_ESCAPE_SYMBOL.ch) {
                 backslash = !backslash;
             } else {
                 backslash = false;

@@ -7,6 +7,7 @@ enum Zchars {
     ANDTHEN_SYMBOL = '&',
     ORELSE_SYMBOL = '|',
     EOL_SYMBOL = '\n',
+    STRING_ESCAPE_SYMBOL = '\\',
 
     BIGFIELD_PREFIX_MARKER = '+',
     BIGFIELD_QUOTE_MARKER = '"',

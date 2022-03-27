@@ -98,7 +98,7 @@ public class ZcodeCommandSlot {
 
         char c         = l.read();
         int  lookahead = 0;
-        
+
         while (isHex(c)) {
             c = l.read();
             lookahead++;
@@ -219,7 +219,7 @@ public class ZcodeCommandSlot {
                     while (in.hasNext()) {
                         c = in.read();
                         if (c != Zchars.BIGFIELD_QUOTE_MARKER.ch) {
-                            if (c == '\\') {
+                            if (c == Zchars.STRING_ESCAPE_SYMBOL.ch) {
                                 if (!in.hasNext()) {
                                     break;
                                 }
