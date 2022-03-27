@@ -1,5 +1,6 @@
 package org.zcode.javareceiver.commands;
 
+import org.zcode.javareceiver.Zchars;
 import org.zcode.javareceiver.ZcodeLockSet;
 import org.zcode.javareceiver.ZcodeOutStream;
 import org.zcode.javareceiver.ZcodeResponseStatus;
@@ -10,11 +11,11 @@ public class ZcodeEchoCommand implements ZcodeCommand {
 
     @Override
     public void execute(final ZcodeCommandSlot slot, final ZcodeCommandSequence sequence, final ZcodeOutStream out) {
-        if (!slot.getFields().has('S')) {
+        if (!slot.getFields().has(Zchars.STATUS_RESP_PARAM.ch)) {
             out.writeStatus(ZcodeResponseStatus.OK);
         } else {
             ZcodeResponseStatus stat = ZcodeResponseStatus.OK;
-            final byte          val  = slot.getFields().get('S', (byte) 0);
+            final byte          val  = slot.getFields().get(Zchars.STATUS_RESP_PARAM.ch, (byte) 0);
             for (final ZcodeResponseStatus r : ZcodeResponseStatus.values()) {
                 if (r.getValue() == val) {
                     stat = r;

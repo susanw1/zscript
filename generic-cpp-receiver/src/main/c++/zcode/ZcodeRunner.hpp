@@ -141,10 +141,10 @@ bool ZcodeRunner<ZP>::finishRunning(ZcodeCommandSequence<ZP> *target, int target
             } else {
                 target->acquireOutStream()->writeCommandSequenceSeparator();
             }
-        } else if (slot->getEnd() == '\n'
+        } else if (slot->getEnd() == Zchars::EOL_SYMBOL
                 || (target->isFullyParsed() && slot->next == NULL)) {
             target->acquireOutStream()->writeCommandSequenceSeparator();
-        } else if (slot->getEnd() == '&') {
+        } else if (slot->getEnd() == Zchars::ANDTHEN_SYMBOL) {
             target->acquireOutStream()->writeCommandSeparator();
         } else {
             target->fail(UNKNOWN_ERROR);
@@ -186,7 +186,7 @@ template<class ZP>
 void ZcodeRunner<ZP>::runSequence(ZcodeCommandSequence<ZP> *target, int targetInd) {
     ZcodeOutStream<ZP> *out = target->acquireOutStream();
     ZcodeCommandSlot<ZP> *cmd = target->peekFirst();
-    cmd->getFields()->copyFieldTo(out, 'E');
+    cmd->getFields()->copyFieldTo(out, Zchars::ECHO_PARAM);
     if (cmd->getStatus() != OK) {
         cmd->setComplete(true);
         out->writeStatus(cmd->getStatus());
@@ -199,7 +199,7 @@ void ZcodeRunner<ZP>::runSequence(ZcodeCommandSequence<ZP> *target, int targetIn
             out->writeCommandSequenceSeparator();
             target->fail(UNKNOWN_CMD);
             finishRunning(target, targetInd);
-        } else if (cmd->getFields()->get('R', 0xFF)
+        } else if (cmd->getFields()->get(Zchars::CMD_PARAM, 0xFF)
                 > ZcodeActivateCommand<ZP>::MAX_SYSTEM_CODE
                 && !ZcodeActivateCommand<ZP>::isActivated()) {
             out->writeStatus(NOT_ACTIVATED);

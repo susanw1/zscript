@@ -1,5 +1,6 @@
 package org.zcode.javareceiver.executionspace;
 
+import org.zcode.javareceiver.Zchars;
 import org.zcode.javareceiver.ZcodeNotificationManager;
 import org.zcode.javareceiver.ZcodeOutStream;
 import org.zcode.javareceiver.ZcodeParameters;
@@ -62,13 +63,13 @@ public class ZcodeInterruptVectorOut extends ZcodeOutStream {
     }
 
     @Override
-    public ZcodeOutStream writeCommandSeperator() {
-        return out.writeCommandSeperator();
+    public ZcodeOutStream writeCommandSeparator() {
+        return out.writeCommandSeparator();
     }
 
     @Override
-    public ZcodeOutStream writeCommandSequenceSeperator() {
-        return out.writeCommandSequenceSeperator();
+    public ZcodeOutStream writeCommandSequenceSeparator() {
+        return out.writeCommandSequenceSeparator();
     }
 
     @Override
@@ -85,13 +86,13 @@ public class ZcodeInterruptVectorOut extends ZcodeOutStream {
         out.mostRecent = this;
         out.openNotification(notificationManager.getNotificationChannel());
         out.markNotification();
-        out.writeField('Z', (byte) 1);
+        out.writeField(Zchars.NOTIFY_TYPE_PARAM.ch, (byte) 1);
         out.writeField('A', (byte) 1);
         out.writeField('T', channel.getInterrupt().getNotificationType());
         out.writeField('I', channel.getInterrupt().getNotificationBus());
         out.writeStatus(ZcodeResponseStatus.OK);
         if (params.findInterruptSourceAddress && channel.getInterrupt().getSource().hasAddress()) {
-            out.writeCommandSeperator();
+            out.writeCommandSeparator();
             out.writeField('A', channel.getInterrupt().getFoundAddress());
             if (channel.getInterrupt().hasFindableAddress()) {
                 out.writeStatus(ZcodeResponseStatus.OK);
@@ -99,7 +100,7 @@ public class ZcodeInterruptVectorOut extends ZcodeOutStream {
                 out.writeStatus(ZcodeResponseStatus.CMD_FAIL);
             }
         }
-        out.writeCommandSeperator();
+        out.writeCommandSeparator();
         channel.getInterrupt().clear();
     }
 

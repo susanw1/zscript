@@ -100,13 +100,13 @@ public class ZcodeNotificationManager {
             }
             out.openNotification(notificationChannel);
             out.markNotification();
-            out.writeField('Z', (byte) 1);
+            out.writeField(Zchars.NOTIFY_TYPE_PARAM.ch, (byte) 1);
             out.writeField('A', (byte) 1);
             out.writeField('T', interrupt.getNotificationType());
             out.writeField('I', interrupt.getNotificationBus());
             out.writeStatus(ZcodeResponseStatus.OK);
             if (params.findInterruptSourceAddress && interrupt.getSource().hasAddress()) {
-                out.writeCommandSeperator();
+                out.writeCommandSeparator();
                 out.writeField('A', interrupt.getFoundAddress());
                 if (interrupt.hasFindableAddress()) {
                     out.writeStatus(ZcodeResponseStatus.OK);
@@ -114,7 +114,7 @@ public class ZcodeNotificationManager {
                     out.writeStatus(ZcodeResponseStatus.CMD_FAIL);
                 }
             }
-            out.writeCommandSequenceSeperator();
+            out.writeCommandSequenceSeparator();
             out.close();
             notificationChannel.releaseOutStream();
             interrupt.clear();

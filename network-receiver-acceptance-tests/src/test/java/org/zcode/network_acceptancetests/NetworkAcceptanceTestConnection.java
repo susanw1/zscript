@@ -23,10 +23,12 @@ import org.zcode.zcode_acceptance_tests.acceptancetest_asserts.ZcodeAcceptanceTe
 
 public class NetworkAcceptanceTestConnection implements ZcodeAcceptanceTestConnection {
     private final Lock lock = new ReentrantLock();
-    private final List<Consumer<byte[]>> handlers = new ArrayList<>();
+
+    private final List<Consumer<byte[]>>         handlers          = new ArrayList<>();
     private final List<Consumer<DatagramPacket>> broadcastHandlers = new ArrayList<>();
-    private final ExecutorService exec;
-    private final DatagramSocket s;
+    private final ExecutorService                exec;
+    private final DatagramSocket                 s;
+
     private SocketAddress target = null;
 
     public NetworkAcceptanceTestConnection() throws SocketException {
@@ -37,8 +39,8 @@ public class NetworkAcceptanceTestConnection implements ZcodeAcceptanceTestConne
     public void watchResponses() {
         exec.submit(() -> {
             while (true) {
-                byte[] received = new byte[10000];
-                DatagramPacket p = new DatagramPacket(received, received.length);
+                byte[]         received = new byte[10000];
+                DatagramPacket p        = new DatagramPacket(received, received.length);
                 s.receive(p);
                 lock.lock();
                 try {

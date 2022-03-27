@@ -49,7 +49,7 @@ public:
     }
 
     char charAt(int relative) {
-        return relative + pos >= lengthRead ? '\n' : buffer[relative + pos];
+        return relative + pos >= lengthRead ? Zchars::EOL_SYMBOL : buffer[relative + pos];
     }
 
     virtual int16_t read() {
@@ -74,7 +74,7 @@ public:
         if (!opened && timer <= 0) {
             std::cin.getline(buffer, MAX_BUFLEN - 1);
             lengthRead = std::cin.gcount() - 1;
-            buffer[lengthRead] = '\n';
+            buffer[lengthRead] = Zchars::EOL_SYMBOL;
             opened = true;
             pos = 0;
             timer = 100;

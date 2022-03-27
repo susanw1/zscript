@@ -143,7 +143,7 @@ void ZcodeDebugOutput<ZP>::flushBuffer(ZcodeOutStream<ZP> *stream) {
     int prevPos = 0;
     while (curPos < position) {
         prevPos = curPos;
-        while (curPos < ZP::debugBufferLength && debugBuffer[curPos] != '\n') {
+        while (curPos < ZP::debugBufferLength && debugBuffer[curPos] != Zchars::EOL_SYMBOL) {
             curPos++;
         }
         stream->markDebug()->writeBytes(debugBuffer + prevPos, (bigFieldAddress_t) (curPos - prevPos))->writeCommandSequenceSeparator();
@@ -215,7 +215,7 @@ void ZcodeDebugOutput<ZP>::println(const char *s, debugOutputBufferLength_t leng
         }
         int prevPos = 0;
         for (int i = 0; i < length; ++i) {
-            if (s[i] == '\n') {
+            if (s[i] == Zchars::EOL_SYMBOL) {
                 stream->markDebug()
                         ->writeBytes((const uint8_t*) (s + prevPos), (bigFieldAddress_t) (i - prevPos))
                         ->writeCommandSequenceSeparator();
@@ -230,7 +230,7 @@ void ZcodeDebugOutput<ZP>::println(const char *s, debugOutputBufferLength_t leng
         channel->releaseOutStream();
     } else {
         writeToBuffer((const uint8_t*) s, length);
-        char c = '\n';
+        char c = Zchars::EOL_SYMBOL;
         writeToBuffer((uint8_t*) &c, 1);
     }
 }
@@ -282,7 +282,7 @@ ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(ZcodeDebugOutputMode m) 
         state.isHex = false;
         break;
     case endl:
-        char c = '\n';
+        char c = Zchars::EOL_SYMBOL;
         writeToBuffer((const uint8_t*) &c, 1);
         attemptFlush();
         break;
@@ -528,11 +528,11 @@ ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(uint64_t v) {
 template<class ZP>
 ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(ZcodeCommandSlot<ZP> *s) {
     ZcodeDebugOutStream<ZP> str = getAsOutStream();
-    s->getFields()->copyFieldTo(&str, 'R');
-    s->getFields()->copyFieldTo(&str, 'E');
+    s->getFields()->copyFieldTo(&str, Zchars::CMD_PARAM);
+    s->getFields()->copyFieldTo(&str, Zchars::ECHO_PARAM);
     s->getFields()->copyTo(&str);
     s->getBigField()->copyTo(&str);
-    s->getFields()->copyFieldTo(&str, 'S');
+    s->getFields()->copyFieldTo(&str, Zchars::STATUS_RESP_PARAM);
     return *this;
 }
 

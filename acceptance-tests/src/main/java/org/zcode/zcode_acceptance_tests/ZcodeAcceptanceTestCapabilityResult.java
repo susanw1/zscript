@@ -8,7 +8,7 @@ public class ZcodeAcceptanceTestCapabilityResult {
     private static int     maxFieldSize         = -1;
     private static int     fieldSizeUnit        = 1;
     private static int     maxPageNum           = -1;
-    private static long    persistantMemorySize = -1;
+    private static long    persistentMemorySize = -1;
     private static boolean hasBeenRead          = false;
 
     public static void addSupportedCodes(byte[] supportedCodes) {
@@ -46,8 +46,8 @@ public class ZcodeAcceptanceTestCapabilityResult {
         ZcodeAcceptanceTestCapabilityResult.maxPageNum = maxPageNum;
     }
 
-    public static void setPersistantMemorySize(long persistantMemorySize) {
-        ZcodeAcceptanceTestCapabilityResult.persistantMemorySize = persistantMemorySize;
+    public static void setPersistentMemorySize(long persistentMemorySize) {
+        ZcodeAcceptanceTestCapabilityResult.persistentMemorySize = persistentMemorySize;
     }
 
     public static void setHasBeenRead() {
@@ -82,8 +82,8 @@ public class ZcodeAcceptanceTestCapabilityResult {
         return maxPageNum;
     }
 
-    public static long getPersistantMemorySize() {
-        return persistantMemorySize;
+    public static long getPersistentMemorySize() {
+        return persistentMemorySize;
     }
 
     public static boolean hasBeenRead() {

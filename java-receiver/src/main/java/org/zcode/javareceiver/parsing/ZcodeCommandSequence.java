@@ -1,5 +1,6 @@
 package org.zcode.javareceiver.parsing;
 
+import org.zcode.javareceiver.Zchars;
 import org.zcode.javareceiver.Zcode;
 import org.zcode.javareceiver.ZcodeLockSet;
 import org.zcode.javareceiver.ZcodeOutStream;
@@ -174,7 +175,7 @@ public class ZcodeCommandSequence {
             ZcodeCommandSlot next  = null;
             for (ZcodeCommandSlot current = first; current != null; current = next) {
                 next = current.next;
-                if (current.getEnd() == '|') {
+                if (current.getEnd() == Zchars.ORELSE_SYMBOL.ch) {
                     found = true;
                 }
                 current.reset();
@@ -191,7 +192,7 @@ public class ZcodeCommandSequence {
                     return false;
                 } else {
                     in.skipToError();
-                    if (in.peek() == '\n') {
+                    if (in.peek() == Zchars.EOL_SYMBOL.ch) {
                         if (!isFullyParsed) {
                             failed = true;
                             isFullyParsed = true;
@@ -240,22 +241,22 @@ public class ZcodeCommandSequence {
         final ZcodeMarkerInStream mIn = in.getMarkerInStream();
         mIn.eatWhitespace();
         mIn.read();
-        if (mIn.reread() == '#') {
+        if (mIn.reread() == Zchars.DEBUG_PREFIX.ch) {
             mIn.close();
             in.close();
             return false;
         }
-        if (mIn.reread() == '*') {
+        if (mIn.reread() == Zchars.BROADCAST_PREFIX.ch) {
             mIn.read();
             isBroadcast = true;
             mIn.eatWhitespace();
         }
-        if (mIn.reread() == '%') {
+        if (mIn.reread() == Zchars.PARALLEL_PREFIX.ch) {
             mIn.read();
             canBeParallel = true;
             mIn.eatWhitespace();
         }
-        if (mIn.reread() == '\n') {
+        if (mIn.reread() == Zchars.EOL_SYMBOL.ch) {
             empty = true;
             canBeParallel = true;
             isFullyParsed = true;

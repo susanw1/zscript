@@ -87,7 +87,7 @@ void ZcodeNotificationManager<ZP>::sendNotification(ZcodeBusInterrupt<ZP> interr
         }
         out->openNotification(notificationChannel);
         out->markNotification();
-        out->writeField('Z', (uint8_t) 1);
+        out->writeField(Zchars::NOTIFY_TYPE_PARAM, (uint8_t) 1);
         out->writeField('T', interrupt.getNotificationType());
         out->writeField('I', interrupt.getNotificationBus());
         out->writeStatus(OK);

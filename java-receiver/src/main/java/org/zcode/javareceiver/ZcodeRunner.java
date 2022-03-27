@@ -9,6 +9,7 @@ import org.zcode.javareceiver.parsing.ZcodeCommandSlot;
 public class ZcodeRunner {
     private final Zcode                  zcode;
     private final ZcodeCommandSequence[] running;
+    
     private int                          parallelNum   = 0;
     private boolean                      canBeParallel = false;
 
@@ -98,7 +99,7 @@ public class ZcodeRunner {
     private void runSequence(final ZcodeCommandSequence target, final int targetInd) {
         final ZcodeOutStream   out = target.acquireOutStream();
         final ZcodeCommandSlot cmd = target.peekFirst();
-        cmd.getFields().copyFieldTo(out, 'E');
+        cmd.getFields().copyFieldTo(out, Zchars.ECHO_PARAM.ch);
 
         if (cmd.getStatus() != ZcodeResponseStatus.OK) {
             cmd.setComplete(true);
@@ -109,13 +110,13 @@ public class ZcodeRunner {
             if (c == null) {
                 out.writeStatus(ZcodeResponseStatus.UNKNOWN_CMD);
                 out.writeBigStringField("Command not found");
-                target.acquireOutStream().writeCommandSequenceSeperator();
+                target.acquireOutStream().writeCommandSequenceSeparator();
                 target.fail(ZcodeResponseStatus.UNKNOWN_CMD);
                 finishRunning(target, targetInd);
-            } else if (Byte.toUnsignedInt(cmd.getFields().get('R', (byte) 0xFF)) > ZcodeActivateCommand.MAX_SYSTEM_CODE && !ZcodeActivateCommand.isActivated()) {
+            } else if (Byte.toUnsignedInt(cmd.getFields().get(Zchars.CMD_PARAM.ch, (byte) 0xFF)) > ZcodeActivateCommand.MAX_SYSTEM_CODE && !ZcodeActivateCommand.isActivated()) {
                 out.writeStatus(ZcodeResponseStatus.NOT_ACTIVATED);
                 out.writeBigStringField("Not a system command, and not activated");
-                target.acquireOutStream().writeCommandSequenceSeperator();
+                target.acquireOutStream().writeCommandSequenceSeparator();
                 target.fail(ZcodeResponseStatus.NOT_ACTIVATED);
                 finishRunning(target, targetInd);
             } else {
@@ -135,20 +136,20 @@ public class ZcodeRunner {
                 if (target.fail(slot.getStatus())) {
                     target.acquireOutStream().writeCommandSequenceErrorHandler();
                 } else {
-                    target.acquireOutStream().writeCommandSequenceSeperator();
+                    target.acquireOutStream().writeCommandSequenceSeparator();
                 }
-            } else if (slot.getEnd() == '\n' || (target.isFullyParsed() && slot.next == null)) {
-                target.acquireOutStream().writeCommandSequenceSeperator();
-            } else if (slot.getEnd() == '&') {
-                target.acquireOutStream().writeCommandSeperator();
+            } else if (slot.getEnd() == Zchars.EOL_SYMBOL.ch || (target.isFullyParsed() && slot.next == null)) {
+                target.acquireOutStream().writeCommandSequenceSeparator();
+            } else if (slot.getEnd() == Zchars.ANDTHEN_SYMBOL.ch) {
+                target.acquireOutStream().writeCommandSeparator();
             } else {
                 target.fail(ZcodeResponseStatus.UNKNOWN_ERROR);
-                target.acquireOutStream().writeCommandSequenceSeperator();
+                target.acquireOutStream().writeCommandSequenceSeparator();
             }
             target.popFirst();
             slot.reset();
         } else if (target.isEmpty()) {
-            target.acquireOutStream().writeCommandSequenceSeperator();
+            target.acquireOutStream().writeCommandSequenceSeparator();
             target.releaseOutStream();
         }
         if (!target.hasParsed() && target.isFullyParsed()) {

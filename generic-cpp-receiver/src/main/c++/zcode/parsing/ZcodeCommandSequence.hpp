@@ -230,7 +230,7 @@ bool ZcodeCommandSequence<ZP>::fail(ZcodeResponseStatus status) {
         ZcodeCommandSlot<ZP> *next = NULL;
         for (ZcodeCommandSlot<ZP> *current = first; current != NULL; current = next) {
             next = current->next;
-            if (current->getEnd() == '|') {
+            if (current->getEnd() == Zchars::ORELSE_SYMBOL) {
                 found = true;
             }
             current->reset();
@@ -247,7 +247,7 @@ bool ZcodeCommandSequence<ZP>::fail(ZcodeResponseStatus status) {
                 return false;
             } else {
                 in->skipToError();
-                if (in->peek() == '\n') {
+                if (in->peek() == Zchars::EOL_SYMBOL) {
                     if (!fullyParsed) {
                         failed = true;
                         fullyParsed = true;
@@ -268,7 +268,7 @@ bool ZcodeCommandSequence<ZP>::parseFlags() {
     ZcodeMarkerInStream<ZP> *mIn = in->getMarkerInStream();
     mIn->eatWhitespace();
     mIn->read();
-    if (mIn->reread() == '@') {
+    if (mIn->reread() == Zchars::ADDRESS_PREFIX) {
         mIn->close();
         if (zcode->getAddressingCommandConsumer() != NULL) {
             zcode->getAddressingCommandConsumer()->consumeAddressedCommandSequence(in);
@@ -276,22 +276,22 @@ bool ZcodeCommandSequence<ZP>::parseFlags() {
         in->close();
         return false;
     }
-    if (mIn->reread() == '#') {
+    if (mIn->reread() == Zchars::DEBUG_PREFIX) {
         mIn->close();
         in->close();
         return false;
     }
-    if (mIn->reread() == '*') {
+    if (mIn->reread() == Zchars::BROADCAST_PREFIX) {
         mIn->read();
         broadcast = true;
         mIn->eatWhitespace();
     }
-    if (mIn->reread() == '%') {
+    if (mIn->reread() == Zchars::PARALLEL_PREFIX) {
         mIn->read();
         parallel = true;
         mIn->eatWhitespace();
     }
-    if (mIn->reread() == '\n') {
+    if (mIn->reread() == Zchars::EOL_SYMBOL) {
         mIn->read();
         empty = true;
         parallel = true;

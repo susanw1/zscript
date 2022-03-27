@@ -41,9 +41,9 @@ public abstract class ZcodeOutStream {
 
     public abstract ZcodeOutStream writeBytes(byte[] value, int length);
 
-    public abstract ZcodeOutStream writeCommandSeperator();
+    public abstract ZcodeOutStream writeCommandSeparator();
 
-    public abstract ZcodeOutStream writeCommandSequenceSeperator();
+    public abstract ZcodeOutStream writeCommandSequenceSeparator();
 
     public abstract ZcodeOutStream writeCommandSequenceErrorHandler();
 

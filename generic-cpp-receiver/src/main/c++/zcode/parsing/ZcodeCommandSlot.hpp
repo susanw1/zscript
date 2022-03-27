@@ -31,129 +31,129 @@ template<class ZP>
 class ZcodeParser;
 
 struct ZcodeCommandSlotStatus {
-    bool parsed :1;
-    bool complete :1;
-    bool needsMoveAlong :1;
-    bool started :1;
-    bool usesHuge :1;
-    bool hasCheckedCommand :1;
+        bool parsed :1;
+        bool complete :1;
+        bool needsMoveAlong :1;
+        bool started :1;
+        bool usesHuge :1;
+        bool hasCheckedCommand :1;
 
-    void reset() {
-        parsed = false;
-        complete = false;
-        needsMoveAlong = false;
-        started = false;
-        usesHuge = false;
-        hasCheckedCommand = false;
-    }
+        void reset() {
+            parsed = false;
+            complete = false;
+            needsMoveAlong = false;
+            started = false;
+            usesHuge = false;
+            hasCheckedCommand = false;
+        }
 };
 
 template<class ZP>
 class ZcodeCommandSlot {
-    typedef typename ZP::fieldUnit_t fieldUnit_t;
+        typedef typename ZP::fieldUnit_t fieldUnit_t;
+        public:
+        ZcodeCommandSlot<ZP> *next = NULL;
+        private:
+        ZcodeHugeField<ZP> *huge = NULL;
+        ZcodeCommand<ZP> *cmd = NULL;
+        char const *errorMessage = "";
+        ZcodeStandardBigField<ZP> big;
+        ZcodeFieldMap<ZP> map;
+        ZcodeResponseStatus status = OK;
+        char end = 0;
+        ZcodeCommandSlotStatus slotStatus;
+
+        uint8_t getHex(char c) {
+            return (uint8_t) (c >= 'a' ? c - 'a' + 10 : c - '0');
+        }
+
+        bool isHex(char c) {
+            return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
+        }
+
+        bool parseHexField(ZcodeCommandInStream<ZP> *in, char field);
+
+        void failParse(ZcodeCommandInStream<ZP> *in, ZcodeCommandSequence<ZP> *sequence, ZcodeResponseStatus errorStatus, char const *errorMessage);
+
     public:
-    ZcodeCommandSlot<ZP> *next = NULL;
-    private:
-    ZcodeHugeField<ZP> *huge = NULL;
-    ZcodeCommand<ZP> *cmd = NULL;
-    char const *errorMessage = "";
-    ZcodeStandardBigField<ZP> big;
-    ZcodeFieldMap<ZP> map;
-    ZcodeResponseStatus status = OK;
-    char end = 0;
-    ZcodeCommandSlotStatus slotStatus;
-
-    uint8_t getHex(char c) {
-        return (uint8_t) (c >= 'a' ? c - 'a' + 10 : c - '0');
-    }
-
-    bool isHex(char c) {
-        return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
-    }
-
-    bool parseHexField(ZcodeCommandInStream<ZP> *in, char field);
-
-    void failParse(ZcodeCommandInStream<ZP> *in, ZcodeCommandSequence<ZP> *sequence, ZcodeResponseStatus errorStatus, char const *errorMessage);
-
-public:
-    ZcodeCommandSlot() {
-        slotStatus.reset();
-    }
-
-    void setup(ZcodeHugeField<ZP> *huge) {
-        this->huge = huge;
-    }
-
-    void reset() {
-        next = NULL;
-        map.reset();
-        big.reset();
-        status = OK;
-        if (ZP::hugeFieldLength > 0 && slotStatus.usesHuge) {
-            huge->reset();
+        ZcodeCommandSlot() {
+            slotStatus.reset();
         }
-        slotStatus.reset();
-        cmd = NULL;
-    }
 
-    void start() {
-        slotStatus.started = true;
-    }
-    bool isStarted() const {
-        return slotStatus.started;
-    }
-    void terminate() {
-        end = '\n';
-    }
-    bool isComplete() const {
-        return slotStatus.complete;
-    }
-    void setComplete(bool complete) {
-        this->slotStatus.complete = complete;
-    }
-    bool needsMoveAlong() const {
-        return slotStatus.needsMoveAlong;
-    }
-    void setNeedsMoveAlong(bool needsMoveAlong) {
-        this->slotStatus.needsMoveAlong = needsMoveAlong;
-    }
-    ZcodeFieldMap<ZP>* getFields() {
-        return &map;
-    }
-    ZcodeBigField<ZP>* getBigField() {
-        if (ZP::hugeFieldLength > 0 && slotStatus.usesHuge) {
-            return huge;
+        void setup(ZcodeHugeField<ZP> *huge) {
+            this->huge = huge;
         }
-        return &big;
-    }
-    bool isParsed() const {
-        return slotStatus.parsed;
-    }
 
-    char getEnd() const {
-        return end;
-    }
-    bool isEndOfSequence() const {
-        return end == '\n';
-    }
+        void reset() {
+            next = NULL;
+            map.reset();
+            big.reset();
+            status = OK;
+            if (ZP::hugeFieldLength > 0 && slotStatus.usesHuge) {
+                huge->reset();
+            }
+            slotStatus.reset();
+            cmd = NULL;
+        }
 
-    ZcodeResponseStatus getStatus() const {
-        return status;
-    }
+        void start() {
+            slotStatus.started = true;
+        }
+        bool isStarted() const {
+            return slotStatus.started;
+        }
+        void terminate() {
+            end = Zchars::EOL_SYMBOL;
+        }
+        bool isComplete() const {
+            return slotStatus.complete;
+        }
+        void setComplete(bool complete) {
+            this->slotStatus.complete = complete;
+        }
+        bool needsMoveAlong() const {
+            return slotStatus.needsMoveAlong;
+        }
+        void setNeedsMoveAlong(bool needsMoveAlong) {
+            this->slotStatus.needsMoveAlong = needsMoveAlong;
+        }
+        ZcodeFieldMap<ZP>* getFields() {
+            return &map;
+        }
+        ZcodeBigField<ZP>* getBigField() {
+            if (ZP::hugeFieldLength > 0 && slotStatus.usesHuge) {
+                return huge;
+            }
+            return &big;
+        }
+        bool isParsed() const {
+            return slotStatus.parsed;
+        }
 
-    char const* getErrorMessage() const {
-        return errorMessage;
-    }
+        char getEnd() const {
+            return end;
+        }
+        bool isEndOfSequence() const {
+            return end == Zchars::EOL_SYMBOL;
+        }
 
-    ZcodeCommand<ZP>* getCommand(Zcode<ZP> *zcode);
+        ZcodeResponseStatus getStatus() const {
+            return status;
+        }
 
-    bool parseSingleCommand(ZcodeCommandInStream<ZP> *in, ZcodeCommandSequence<ZP> *sequence);
+        char const* getErrorMessage() const {
+            return errorMessage;
+        }
 
-    void fail(const char *errorMessage, ZcodeResponseStatus status) {
-        this->errorMessage = errorMessage;
-        this->status = status;
-        this->end = '\n';
-    }
+        ZcodeCommand<ZP>* getCommand(Zcode<ZP> *zcode);
+
+        bool parseSingleCommand(ZcodeCommandInStream<ZP> *in, ZcodeCommandSequence<ZP> *sequence);
+
+        void fail(const char *errorMessage, ZcodeResponseStatus status) {
+            this->errorMessage = errorMessage;
+            this->status = status;
+            this->end = Zchars::EOL_SYMBOL;
+        }
 };
 
 template<class ZP>
@@ -164,7 +164,7 @@ void ZcodeCommandSlot<ZP>::failParse(ZcodeCommandInStream<ZP> *in, ZcodeCommandS
 
     sequence->getZcode()->getDebug() << errorMessage << "\n";
     in->close();
-    end = '\n';
+    end = Zchars::EOL_SYMBOL;
 }
 
 template<class ZP>
@@ -245,7 +245,7 @@ bool ZcodeCommandSlot<ZP>::parseSingleCommand(ZcodeCommandInStream<ZP> *in, Zcod
                     failParse(in, sequence, TOO_BIG, "Too many fields");
                     return false;
                 }
-            } else if (c == '+') {
+            } else if (c == Zchars::BIGFIELD_PREFIX_MARKER) {
                 if (target->getLength() != 0) {
                     slotStatus.hasCheckedCommand = true;
                     failParse(in, sequence, PARSE_ERROR, "Multiple big fields");
@@ -275,7 +275,7 @@ bool ZcodeCommandSlot<ZP>::parseSingleCommand(ZcodeCommandInStream<ZP> *in, Zcod
                         }
                     }
                 }
-            } else if (c == '"') {
+            } else if (c == Zchars::BIGFIELD_QUOTE_MARKER) {
                 if (target->getLength() != 0) {
                     slotStatus.hasCheckedCommand = true;
                     failParse(in, sequence, PARSE_ERROR, "Multiple big fields");
@@ -285,14 +285,14 @@ bool ZcodeCommandSlot<ZP>::parseSingleCommand(ZcodeCommandInStream<ZP> *in, Zcod
                 target->setIsString(true);
                 while (in->hasNext()) {
                     c = in->read();
-                    if (c != '"') {
-                        if (c == '\\') {
+                    if (c != Zchars::BIGFIELD_QUOTE_MARKER) {
+                        if (c == Zchars::STRING_ESCAPE_SYMBOL) {
                             if (!in->hasNext()) {
                                 break;
                             }
                             c = in->read();
                             if (c == 'n') {
-                                c = '\n';
+                                c = Zchars::EOL_SYMBOL;
                             }
                         }
                         if (!target->addByteToBigField((uint8_t) c)) {
@@ -311,7 +311,7 @@ bool ZcodeCommandSlot<ZP>::parseSingleCommand(ZcodeCommandInStream<ZP> *in, Zcod
                         break;
                     }
                 }
-                if (c != '"') {
+                if (c != Zchars::BIGFIELD_QUOTE_MARKER) {
                     slotStatus.hasCheckedCommand = true;
                     failParse(in, sequence, PARSE_ERROR, "Command sequence ended before end of big string field");
                     return false;
@@ -322,7 +322,7 @@ bool ZcodeCommandSlot<ZP>::parseSingleCommand(ZcodeCommandInStream<ZP> *in, Zcod
                 status = PARSE_ERROR;
                 errorMessage = "Unknown field marker";
                 in->close();
-                end = '\n';
+                end = Zchars::EOL_SYMBOL;
                 return false;
             }
         } else {

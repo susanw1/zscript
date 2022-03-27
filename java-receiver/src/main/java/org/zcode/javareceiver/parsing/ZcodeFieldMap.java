@@ -1,5 +1,6 @@
 package org.zcode.javareceiver.parsing;
 
+import org.zcode.javareceiver.Zchars;
 import org.zcode.javareceiver.ZcodeOutStream;
 import org.zcode.javareceiver.ZcodeParameters;
 
@@ -126,7 +127,7 @@ public class ZcodeFieldMap {
     public void copyTo(final ZcodeOutStream out) {
         char last = 0;
         for (byte i = 0; i < size; i++) {
-            if (fields[i] != 'E' && fields[i] != 'R') {
+            if (fields[i] != Zchars.ECHO_PARAM.ch && fields[i] != Zchars.CMD_PARAM.ch) {
                 if (last == fields[i]) {
                     out.continueField(values[i]);
                 } else {

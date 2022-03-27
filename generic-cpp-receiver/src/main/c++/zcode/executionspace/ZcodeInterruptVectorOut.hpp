@@ -113,7 +113,7 @@ void ZcodeInterruptVectorOut<ZP>::openResponse(ZcodeCommandChannel<ZP> *target) 
     out->mostRecent = this;
     out->openNotification(notificationManager->getNotificationChannel());
     out->markNotification();
-    out->writeField('Z', 1);
+    out->writeField(Zchars::NOTIFY_TYPE_PARAM, 1);
     out->writeField('A', 1);
     out->writeField('T', channel->getInterrupt()->getNotificationType());
     out->writeField('I', channel->getInterrupt()->getNotificationBus());

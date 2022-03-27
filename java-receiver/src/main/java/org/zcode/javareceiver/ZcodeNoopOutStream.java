@@ -50,12 +50,12 @@ public class ZcodeNoopOutStream extends ZcodeOutStream {
     }
 
     @Override
-    public ZcodeOutStream writeCommandSeperator() {
+    public ZcodeOutStream writeCommandSeparator() {
         return this;
     }
 
     @Override
-    public ZcodeOutStream writeCommandSequenceSeperator() {
+    public ZcodeOutStream writeCommandSequenceSeparator() {
         return this;
     }
 

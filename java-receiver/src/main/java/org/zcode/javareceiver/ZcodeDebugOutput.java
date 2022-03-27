@@ -43,16 +43,16 @@ public class ZcodeDebugOutput {
                 if (position != 0) {
                     flushBuffer(stream);
                 }
-                stream.writeBytes(new byte[] { '#' }, 1);
+                stream.writeBytes(new byte[] { (byte) Zchars.DEBUG_PREFIX.ch }, 1);
                 final byte[] strBytes = s.getBytes(StandardCharsets.UTF_8);
                 stream.writeBytes(strBytes, strBytes.length);
-                stream.writeBytes(new byte[] { '\n' }, 1);
+                stream.writeBytes(new byte[] { (byte) Zchars.EOL_SYMBOL.ch }, 1);
                 stream.close();
                 stream.unlock();
                 channel.releaseOutStream();
             } else {
                 writeToBuffer(s.getBytes(StandardCharsets.UTF_8));
-                writeToBuffer(new byte[] { (byte) '\n' });
+                writeToBuffer(new byte[] { (byte) Zchars.EOL_SYMBOL.ch });
             }
         }
     }
@@ -84,12 +84,12 @@ public class ZcodeDebugOutput {
         int prevPos = 0;
         while (curPos < position) {
             prevPos = curPos;
-            while (curPos < params.debugBufferLength && debugBuffer[curPos] != '\n') {
+            while (curPos < params.debugBufferLength && debugBuffer[curPos] != Zchars.EOL_SYMBOL.ch) {
                 curPos++;
             }
-            stream.writeBytes(new byte[] { '#' }, 1);
+            stream.writeBytes(new byte[] { (byte) Zchars.DEBUG_PREFIX.ch }, 1);
             stream.writeBytes(Arrays.copyOfRange(debugBuffer, prevPos, curPos), curPos - prevPos);
-            stream.writeBytes(new byte[] { '\n' }, 1);
+            stream.writeBytes(new byte[] { (byte) Zchars.EOL_SYMBOL.ch }, 1);
             curPos++;
         }
         if (position == params.debugBufferLength + 1) {

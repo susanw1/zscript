@@ -1,5 +1,5 @@
 Feature: Core Zcode communication
-	The target must support the basic Zcode functionality (R0, R1, R2), and should support the general functionality most Zcode systems can be expected to have (R6, R3), 
+	The target must support the basic Zcode functionality (Z0, Z1, Z2), and should support the general functionality most Zcode systems can be expected to have (Z6, Z3), 
 	as well as any of the more optional functionality it claims to support, all within the core (system) Zcode space. This does not include any peripherals, 
 	although requires that at least one peripheral is supported, as anything else is meaningless.
 	
@@ -19,18 +19,18 @@ Feature: Core Zcode communication
     And the target must support all required functionality
     
 	@Standard-operation
-  Scenario: the target echos data sent with the echo command
+  Scenario: the target echoes data sent with the echo command
     When the target is sent an echo command with various fields
     Then the target must respond with the expected fields
     
 	@Standard-operation
-  Scenario: the target echos data sent with the echo command, including multi-byte fields
+  Scenario: the target echoes data sent with the echo command, including multi-byte fields
   	Given the target supports multi-byte fields
     When the target is sent an echo command with multi-byte fields
     Then the target must respond with the expected fields
     
 	@Standard-operation
-  Scenario: the target echos data sent with the echo command, including an override for status
+  Scenario: the target echoes data sent with the echo command, including an override for status
     When the target is sent an echo command with an override for status
     Then the target must respond with the expected fields
     
@@ -38,9 +38,10 @@ Feature: Core Zcode communication
   Scenario: the target is given a big string field containing command separators
     When the target is sent a string field containing command separators
     Then the target must respond with the expected fields
-    
+
+# this keeps failing
 	@Standard-operation
-  Scenario: the target echos data sent with the echo command, to its limits on both fields and big field
+  Scenario: the target echoes data sent with the echo command, to its limits on both fields and big field
   	Given the targets capabilities are known
     When the target is sent an echo command with as much data as possible
     Then the target must respond with the expected fields

@@ -19,7 +19,7 @@ class DebugOutputTest {
         ZcodeActivateCommand.reset();
         Zcode           z   = new Zcode(new ZcodeParameters(false), new ZcodeBusInterruptSource[0]);
         StringOutStream out = new StringOutStream();
-        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(new ZcodeParameters(false), z, "#234342\nR3&R1B01\n#&1&2&3&1&2&3&\nR1CV40\"hello\"", out, false, 100) });
+        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(new ZcodeParameters(false), z, "#234342\nZ3&Z1B01\n#&1&2&3&1&2&3&\nZ1CV40\"hello\"", out, false, 100) });
         z.getCommandFinder().registerCommand(new ZcodeEchoCommand())
                 .registerCommand(new ZcodeActivateCommand())
                 .registerCommand(new ZcodeTmpCommand())
@@ -37,8 +37,8 @@ class DebugOutputTest {
         StringOutStream out1 = new StringOutStream();
         StringOutStream out2 = new StringOutStream();
         z.setChannels(
-                new ZcodeCommandChannel[] { new DirectCommandChannel(new ZcodeParameters(false), z, "R3&R9\nR60\"hello123123testing\\nhello123123testing\"", out1, false, 100),
-                        new DirectCommandChannel(new ZcodeParameters(false), z, "R60\"demodemo\"", out2, false, 100) });
+                new ZcodeCommandChannel[] { new DirectCommandChannel(new ZcodeParameters(false), z, "Z3&Z9\nZ60\"hello123123testing\\nhello123123testing\"", out1, false, 100),
+                        new DirectCommandChannel(new ZcodeParameters(false), z, "Z60\"demodemo\"", out2, false, 100) });
         z.getCommandFinder().registerCommand(new ZcodeEchoCommand())
                 .registerCommand(new ZcodeActivateCommand())
                 .registerCommand(new ZcodeTmpCommand())
@@ -56,8 +56,8 @@ class DebugOutputTest {
         Zcode           z    = new Zcode(new ZcodeParameters(false), new ZcodeBusInterruptSource[0]);
         StringOutStream out1 = new StringOutStream();
         StringOutStream out2 = new StringOutStream();
-        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(new ZcodeParameters(false), z, "R3\nR60\"hello123123testing\\nhello123123testing\"", out1, false, 100),
-                new DirectCommandChannel(new ZcodeParameters(false), z, "R60\"demodemo\"", out2, false, 100) });
+        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(new ZcodeParameters(false), z, "Z3\nZ60\"hello123123testing\\nhello123123testing\"", out1, false, 100),
+                new DirectCommandChannel(new ZcodeParameters(false), z, "Z60\"demodemo\"", out2, false, 100) });
         z.getCommandFinder().registerCommand(new ZcodeEchoCommand())
                 .registerCommand(new ZcodeActivateCommand())
                 .registerCommand(new ZcodeTmpCommand())

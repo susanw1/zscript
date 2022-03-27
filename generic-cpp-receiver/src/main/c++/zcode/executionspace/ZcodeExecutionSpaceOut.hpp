@@ -138,7 +138,7 @@ bool ZcodeExecutionSpaceOut<ZP>::flush() {
         out->openNotification(space->getNotificationChannel());
         out->mostRecent = space;
         out->markNotification();
-        out->writeField('Z', (uint8_t) 2);
+        out->writeField(Zchars::NOTIFY_TYPE_PARAM, (uint8_t) 2);
         if (overLength) {
             out->writeBytes(buffer, lastEndPos);
             out->writeCommandSeparator();

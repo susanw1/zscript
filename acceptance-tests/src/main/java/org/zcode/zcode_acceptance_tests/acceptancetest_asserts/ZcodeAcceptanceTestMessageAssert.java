@@ -49,19 +49,24 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
     public ZcodeAcceptanceTestMessageAssert hasStatus(ZcodeAcceptanceTestResponseStatus r) {
         conditions.add((seq, prev) -> {
             prev.add('S');
-            if (seq.peekFirst().getFields().getFieldLength('S') != 1) {
-                if (seq.peekFirst().getFields().getFieldLength('S') < 1) {
-                    String str = seq.peekFirst().getFields().asString() + seq.peekFirst().getBigField().asString();
+            
+            ZcodeAcceptanceTestFieldMap fields = seq.peekFirst().getFields();
+            ZcodeAcceptanceTestBigField bigField = seq.peekFirst().getBigField();
+
+            if (fields.getFieldLength('S') != 1) {
+                if (fields.getFieldLength('S') < 1) {
+                    String str = fields.asString() + bigField.asString();
                     throw new AssertionError("\nResponse received contained no S field, where S" + Integer.toHexString(r.getValue()) + " was expected.\nInstead received:\n" + str);
                 } else {
-                    String str = seq.peekFirst().getFields().asString() + seq.peekFirst().getBigField().asString();
+                    String str = fields.asString() + bigField.asString();
                     throw new AssertionError(
                             "\nResponse received contained multi-byte S field, where S" + Integer.toHexString(r.getValue()) + " was expected.\nInstead received:\n" + str);
                 }
             }
-            byte b = seq.peekFirst().getFields().getField('S')[0];
+            
+            byte b = fields.getField('S')[0];
             if (b != r.getValue()) {
-                String str = seq.peekFirst().getFields().asString() + seq.peekFirst().getBigField().asString();
+                String str = fields.asString() + bigField.asString();
                 ZcodeAcceptanceTestResponseStatus actual = null;
                 for (ZcodeAcceptanceTestResponseStatus v : ZcodeAcceptanceTestResponseStatus.values()) {
                     if (v.getValue() == b) {

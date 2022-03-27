@@ -39,7 +39,7 @@ public:
             serial(serial), seq(zcode, this), in(this), out(this) {
         channel = this;
         serial->init(NULL, 0, false);
-        serial->setTargetValue(&SerialCommandChannelNewlineCallback, '\n');
+        serial->setTargetValue(&SerialCommandChannelNewlineCallback, Zchars::EOL_SYMBOL);
     }
 
     virtual ZcodeChannelInStream<ZcodeParameters>* acquireInStream() {
@@ -63,8 +63,8 @@ public:
     }
 
     virtual void releaseInStream() {
-        serial->skip(serial->getDistance('\n'));
-        hasNewline = channel->getSerial()->getDistance('\n') >= 0;
+        serial->skip(serial->getDistance(Zchars::EOL_SYMBOL));
+        hasNewline = channel->getSerial()->getDistance(Zchars::EOL_SYMBOL) >= 0;
     }
 
     virtual void releaseOutStream() {

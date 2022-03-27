@@ -30,8 +30,8 @@ class ExecutionSpaceTest {
         TestInterruptSource intSrc = new TestInterruptSource();
         Zcode               z      = new Zcode(params, new ZcodeBusInterruptSource[] { intSrc });
         StringOutStream     out    = new StringOutStream();
-        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "R8&R3\nR21G\n", out, false, 10), new ZcodeExecutionSpaceChannel(params, z, z.getSpace()) });
-        z.getSpace().write("R1+10a0&R13A1\nR1+10a1&R11A2\nR33\nR1+10a2&R11A2\n".getBytes(StandardCharsets.US_ASCII), 0, true);
+        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "Z8&Z3\nZ21G\n", out, false, 10), new ZcodeExecutionSpaceChannel(params, z, z.getSpace()) });
+        z.getSpace().write("Z1+10a0&Z13A1\nZ1+10a1&Z11A2\nZ33\nZ1+10a2&Z11A2\n".getBytes(StandardCharsets.US_ASCII), 0, true);
         z.getCommandFinder()
                 .registerCommand(new ZcodeEchoCommand())
                 .registerCommand(new ZcodeActivateCommand())
@@ -49,8 +49,8 @@ class ExecutionSpaceTest {
         TestInterruptSource intSrc = new TestInterruptSource();
         Zcode               z      = new Zcode(params, new ZcodeBusInterruptSource[] { intSrc });
         StringOutStream     out    = new StringOutStream();
-        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "R8&R3\nR21\n", out, false, 10), new ZcodeExecutionSpaceChannel(params, z, z.getSpace()) });
-        z.getSpace().write("R1+10a0&R13A1\nR1+10a1&R11A2\nR33\nR1+10a2&R11A2\n".getBytes(StandardCharsets.US_ASCII), 0, true);
+        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "Z8&Z3\nZ21\n", out, false, 10), new ZcodeExecutionSpaceChannel(params, z, z.getSpace()) });
+        z.getSpace().write("Z1+10a0&Z13A1\nZ1+10a1&Z11A2\nZ33\nZ1+10a2&Z11A2\n".getBytes(StandardCharsets.US_ASCII), 0, true);
         z.getCommandFinder()
                 .registerCommand(new ZcodeEchoCommand())
                 .registerCommand(new ZcodeActivateCommand())
@@ -68,9 +68,9 @@ class ExecutionSpaceTest {
         TestInterruptSource intSrc = new TestInterruptSource();
         Zcode               z      = new Zcode(params, new ZcodeBusInterruptSource[] { intSrc });
         StringOutStream     out    = new StringOutStream();
-        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "R8&R3\nR21G\nR1+00\nR1+01\nR1+02", out, false, 40),
+        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "Z8&Z3\nZ21G\nZ1+00\nZ1+01\nZ1+02", out, false, 40),
                 new ZcodeExecutionSpaceChannel(params, z, z.getSpace()) });
-        z.getSpace().write("R11A2\nR11A3\nR11A4\nR11A5\nR1+10&R21\n".getBytes(StandardCharsets.US_ASCII), 0, true);
+        z.getSpace().write("Z11A2\nZ11A3\nZ11A4\nZ11A5\nZ1+10&Z21\n".getBytes(StandardCharsets.US_ASCII), 0, true);
         z.getCommandFinder()
                 .registerCommand(new ZcodeEchoCommand())
                 .registerCommand(new ZcodeActivateCommand())
@@ -88,8 +88,8 @@ class ExecutionSpaceTest {
         TestInterruptSource intSrc = new TestInterruptSource();
         Zcode               z      = new Zcode(params, new ZcodeBusInterruptSource[] { intSrc });
         StringOutStream     out    = new StringOutStream();
-        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "R8&R3\nR21G\n", out, false, 12), new ZcodeExecutionSpaceChannel(params, z, z.getSpace()) });
-        z.getSpace().write("R1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&R1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&R11A7\n".getBytes(StandardCharsets.US_ASCII), 0, true);
+        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "Z8&Z3\nZ21G\n", out, false, 12), new ZcodeExecutionSpaceChannel(params, z, z.getSpace()) });
+        z.getSpace().write("Z1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&Z1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&Z11A7\n".getBytes(StandardCharsets.US_ASCII), 0, true);
         z.getSpace().setDelay(5);
         z.getCommandFinder()
                 .registerCommand(new ZcodeEchoCommand())
@@ -109,8 +109,8 @@ class ExecutionSpaceTest {
         Zcode               z      = new Zcode(params, new ZcodeBusInterruptSource[] { intSrc });
         StringOutStream     out    = new StringOutStream();
 
-        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "R8&R3\nR21G\n", out, false, 12), new ZcodeExecutionSpaceChannel(params, z, z.getSpace()) });
-        z.getSpace().write("R1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&R11A7\n".getBytes(StandardCharsets.US_ASCII), 0, true);
+        z.setChannels(new ZcodeCommandChannel[] { new DirectCommandChannel(params, z, "Z8&Z3\nZ21G\n", out, false, 12), new ZcodeExecutionSpaceChannel(params, z, z.getSpace()) });
+        z.getSpace().write("Z1\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"&Z11A7\n".getBytes(StandardCharsets.US_ASCII), 0, true);
         z.getSpace().setDelay(2);
 
         z.getCommandFinder()

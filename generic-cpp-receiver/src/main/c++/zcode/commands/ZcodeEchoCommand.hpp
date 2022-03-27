@@ -40,11 +40,11 @@ public:
 
 template<class ZP>
 void ZcodeEchoCommand<ZP>::execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) {
-    if (!slot->getFields()->has('S')) {
+    if (!slot->getFields()->has(Zchars::STATUS_RESP_PARAM)) {
         out->writeStatus(OK);
     } else {
-        slot->fail("", (ZcodeResponseStatus) slot->getFields()->get('S', 0));
-        out->writeStatus((ZcodeResponseStatus) slot->getFields()->get('S', 0));
+        slot->fail("", (ZcodeResponseStatus) slot->getFields()->get(Zchars::STATUS_RESP_PARAM, 0));
+        out->writeStatus((ZcodeResponseStatus) slot->getFields()->get(Zchars::STATUS_RESP_PARAM, 0));
     }
     slot->getFields()->copyTo(out);
     slot->getBigField()->copyTo(out);

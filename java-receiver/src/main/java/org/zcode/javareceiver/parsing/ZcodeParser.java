@@ -65,7 +65,7 @@ public class ZcodeParser {
             channel.acquireOutStream().openResponse(channel);
             channel.acquireOutStream().writeStatus(ZcodeResponseStatus.SETUP_ERROR);
             channel.acquireOutStream().writeBigStringField(zcode.getConfigFailureState());
-            channel.acquireOutStream().writeCommandSequenceSeperator();
+            channel.acquireOutStream().writeCommandSequenceSeparator();
             channel.acquireOutStream().close();
             channel.acquireOutStream().unlock();
             channel.releaseOutStream();

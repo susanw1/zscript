@@ -11,40 +11,40 @@
 #include "../ZcodeIncludes.hpp"
 #include "../ZcodeDebugOutput.hpp"
 
-template <class ZP>
+template<class ZP>
 class Zcode;
 
-template <class ZP>
+template<class ZP>
 class ZcodeCommand;
 
-template <class ZP>
+template<class ZP>
 class ZcodeCommandSlot;
 
 template<class ZP>
 struct ZcodeSupportedCommandArray {
-    typedef typename ZP::commandNum_t commandNum_t;
+        typedef typename ZP::commandNum_t commandNum_t;
 
-    uint8_t cmds[ZP::commandCapabilitiesReturnArrayMaxSize];
-    commandNum_t cmdNum;
+        uint8_t cmds[ZP::commandCapabilitiesReturnArrayMaxSize];
+        commandNum_t cmdNum;
 };
 
 template<class ZP>
 class ZcodeCommandFinder {
-    typedef typename ZP::commandNum_t commandNum_t;
-private:
-    Zcode<ZP> *zcode;
-    ZcodeCommand<ZP> *commands[ZP::commandNum];
-    commandNum_t commandNum = 0;
+        typedef typename ZP::commandNum_t commandNum_t;
+        private:
+        Zcode<ZP> *zcode;
+        ZcodeCommand<ZP> *commands[ZP::commandNum];
+        commandNum_t commandNum = 0;
 
-public:
-    ZcodeCommandFinder(Zcode<ZP> *zcode) :
-            zcode(zcode) {
-    }
-    ZcodeCommandFinder<ZP>* registerCommand(ZcodeCommand<ZP> *cmd);
+    public:
+        ZcodeCommandFinder(Zcode<ZP> *zcode) :
+                zcode(zcode) {
+        }
+        ZcodeCommandFinder<ZP>* registerCommand(ZcodeCommand<ZP> *cmd);
 
-    ZcodeCommand<ZP>* findCommand(ZcodeCommandSlot<ZP> *slot);
+        ZcodeCommand<ZP>* findCommand(ZcodeCommandSlot<ZP> *slot);
 
-    ZcodeSupportedCommandArray<ZP> getSupportedCommands();
+        ZcodeSupportedCommandArray<ZP> getSupportedCommands();
 };
 
 template<class ZP>
@@ -59,31 +59,31 @@ ZcodeCommandFinder<ZP>* ZcodeCommandFinder<ZP>::registerCommand(ZcodeCommand<ZP>
 
 template<class ZP>
 ZcodeCommand<ZP>* ZcodeCommandFinder<ZP>::findCommand(ZcodeCommandSlot<ZP> *slot) {
-    int fieldSectionNum = slot->getFields()->countFieldSections('R');
+    int fieldSectionNum = slot->getFields()->countFieldSections(Zchars::CMD_PARAM);
     if (fieldSectionNum == 0) {
-        zcode->getDebug() << "No R field in command\n";
+        zcode->getDebug() << "No Z field in command\n";
         return NULL;
     } else if (fieldSectionNum == 1) {
-        uint8_t rVal = slot->getFields()->get('R', 0xFF);
+        uint8_t rVal = slot->getFields()->get(Zchars::CMD_PARAM, 0xFF);
         for (int i = 0; i < commandNum; i++) {
             if (commands[i]->getCode() == rVal && commands[i]->getCodeLength() == 1) {
                 return commands[i];
             }
         }
-        zcode->getDebug() << "Unknown command: R" << ZcodeDebugOutputMode::hex << rVal << "\n";
+        zcode->getDebug() << "Unknown command: Z" << ZcodeDebugOutputMode::hex << rVal << "\n";
         return NULL;
     } else if (ZP::hasMultiByteCommands) {
         ZcodeFieldMap<ZP> *map = slot->getFields();
         uint8_t code[fieldSectionNum];
         for (int i = 0; i < fieldSectionNum; i++) {
-            code[i] = map->get('R', i, 0xFF);
+            code[i] = map->get(Zchars::CMD_PARAM, i, 0xFF);
         }
         for (int i = 0; i < commandNum; i++) {
             if (commands[i]->getCodeLength() == fieldSectionNum && commands[i]->matchesCode(code, fieldSectionNum)) {
                 return commands[i];
             }
         }
-        zcode->getDebug() << "Unknown command: R" << ZcodeDebugOutputMode::hex;
+        zcode->getDebug() << "Unknown command: Z" << ZcodeDebugOutputMode::hex;
         for (int i = 0; i < fieldSectionNum; i++) {
             zcode->getDebug() << code[i];
         }
@@ -139,7 +139,6 @@ ZcodeSupportedCommandArray<ZP> ZcodeCommandFinder<ZP>::getSupportedCommands() {
     }
     return result;
 }
-
 
 #include "../commands/ZcodeCommand.hpp"
 #include "ZcodeCommandSlot.hpp"
