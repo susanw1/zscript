@@ -7,6 +7,7 @@
 
 #ifndef SRC_TEST_CPP_ZCODE_ZCODERUNNER_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODERUNNER_HPP_
+
 #include "ZcodeIncludes.hpp"
 #include "parsing/ZcodeCommandSequence.hpp"
 #include "commands/ZcodeActivateCommand.hpp"
@@ -19,28 +20,29 @@ class ZcodeCommandSequence;
 
 template<class ZP>
 class ZcodeRunner {
-private:
-    Zcode<ZP> *const zcode;
-    ZcodeCommandSequence<ZP> *running[ZP::maxParallelRunning];
-    uint8_t parallelNum = 0;
-    bool canBeParallel = false;
+    private:
+        Zcode<ZP> *const zcode;
+        ZcodeCommandSequence<ZP> *running[ZP::maxParallelRunning];
+        uint8_t parallelNum = 0;
+        bool canBeParallel = false;
 
-    void runSequence(ZcodeCommandSequence<ZP> *target, int targetInd);
+        void runSequence(ZcodeCommandSequence<ZP> *target, int targetInd);
 
-    bool finishRunning(ZcodeCommandSequence<ZP> *target, int targetInd);
+        bool finishRunning(ZcodeCommandSequence<ZP> *target, int targetInd);
 
-    ZcodeCommandSequence<ZP>* findNextToRun();
-public:
-    ZcodeRunner(Zcode<ZP> *zcode) :
-            zcode(zcode) {
-    }
+        ZcodeCommandSequence<ZP>* findNextToRun();
 
-    void runNext();
+    public:
+        ZcodeRunner(Zcode<ZP> *zcode) :
+                zcode(zcode) {
+        }
+
+        void runNext();
 };
 
 template<class ZP>
 ZcodeCommandSequence<ZP>* ZcodeRunner<ZP>::findNextToRun() {
-    ZcodeCommandSequence <ZP>*current = NULL;
+    ZcodeCommandSequence<ZP> *current = NULL;
     ZcodeCommandChannel<ZP> **channels = zcode->getChannels();
     if (canBeParallel || parallelNum == 0) {
         canBeParallel = true;
@@ -135,6 +137,7 @@ bool ZcodeRunner<ZP>::finishRunning(ZcodeCommandSequence<ZP> *target, int target
         if (slot->isStarted()) {
             slot->getCommand(zcode)->finish(slot, target->acquireOutStream());
         }
+
         if (slot->isStarted() && slot->getStatus() != OK) {
             if (target->fail(slot->getStatus())) {
                 target->acquireOutStream()->writeCommandSequenceErrorHandler();
@@ -150,6 +153,7 @@ bool ZcodeRunner<ZP>::finishRunning(ZcodeCommandSequence<ZP> *target, int target
             target->fail(UNKNOWN_ERROR);
             target->acquireOutStream()->writeCommandSequenceSeparator();
         }
+
         if (target->hasParsed()) {
             target->popFirst();
             slot->reset();
@@ -158,6 +162,7 @@ bool ZcodeRunner<ZP>::finishRunning(ZcodeCommandSequence<ZP> *target, int target
         target->acquireOutStream()->writeCommandSequenceSeparator();
         target->releaseOutStream();
     }
+
     if (!target->hasParsed() && target->isFullyParsed()) {
         if (!target->getChannel()->isPacketBased()
                 || (target->isFullyParsed()

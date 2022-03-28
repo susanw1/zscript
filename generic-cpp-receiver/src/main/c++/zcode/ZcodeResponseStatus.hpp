@@ -7,6 +7,7 @@
 
 #ifndef SRC_TEST_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_
+
 #include "ZcodeIncludes.hpp"
 #include "Zchars.hpp"
 

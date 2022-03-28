@@ -22,25 +22,26 @@ class ZcodeCommandChannel;
 
 template<class ZP>
 class ZcodeParser {
-private:
-    Zcode<ZP> *const zcode;
-    ZcodeCommandSequence<ZP> *mostRecent = NULL;
-    ZcodeCommandSlot<ZP> slots[ZP::slotNum];
-    ZcodeHugeField<ZP> huge;
+    private:
+        Zcode<ZP> *const zcode;
+        ZcodeCommandSequence<ZP> *mostRecent = NULL;
+        ZcodeCommandSlot<ZP> slots[ZP::slotNum];
+        ZcodeHugeField<ZP> huge;
 
-    ZcodeCommandSequence<ZP>* beginSequenceParse(ZcodeCommandSlot<ZP> *targetSlot, ZcodeCommandChannel<ZP> *channel);
-    void parse(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence);
+        ZcodeCommandSequence<ZP>* beginSequenceParse(ZcodeCommandSlot<ZP> *targetSlot, ZcodeCommandChannel<ZP> *channel);
+        void parse(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence);
 
-    void report_failure(ZcodeCommandChannel<ZP> *channel);
-public:
-    ZcodeParser(Zcode<ZP> *zcode) :
-            zcode(zcode) {
-        setupSlots();
-    }
+        void report_failure(ZcodeCommandChannel<ZP> *channel);
 
-    void parseNext();
+    public:
+        ZcodeParser(Zcode<ZP> *zcode) :
+                zcode(zcode) {
+            setupSlots();
+        }
 
-    void setupSlots();
+        void parseNext();
+
+        void setupSlots();
 };
 
 template<class ZP>
@@ -131,7 +132,7 @@ ZcodeCommandSequence<ZP>* ZcodeParser<ZP>::beginSequenceParse(ZcodeCommandSlot<Z
 }
 
 template<class ZP>
-void ZcodeParser<ZP>::parse(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence <ZP>*sequence) {
+void ZcodeParser<ZP>::parse(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence) {
     bool worked = slot->parseSingleCommand(sequence->acquireInStream()->getCommandInStream(), sequence);
     sequence->addLast(slot);
     if (!worked) {
@@ -143,8 +144,6 @@ void ZcodeParser<ZP>::parse(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence <ZP
         sequence->getChannel()->unlock();
     }
 }
-
-
 
 #include "../Zcode.hpp"
 #include "ZcodeCommandChannel.hpp"

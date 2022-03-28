@@ -7,16 +7,16 @@
 
 #ifndef SRC_TEST_CPP_ZCODE_PARSING_ZCODELOOKAHEADSTREAM_HPP_
 #define SRC_TEST_CPP_ZCODE_PARSING_ZCODELOOKAHEADSTREAM_HPP_
+
 #include "../ZcodeIncludes.hpp"
 
 template<class ZP>
 class ZcodeLookaheadStream {
-public:
-    virtual char read() = 0;
+    public:
+        virtual char read() = 0;
 
-    virtual ~ZcodeLookaheadStream() {
-    }
+        virtual ~ZcodeLookaheadStream() {
+        }
 };
-
 
 #endif /* SRC_TEST_CPP_ZCODE_PARSING_ZCODELOOKAHEADSTREAM_HPP_ */

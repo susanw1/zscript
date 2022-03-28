@@ -7,6 +7,7 @@
 
 #ifndef SRC_TEST_CPP_ZCODE_EXECUTIONSPACE_ZCODEEXECUTIONSPACEOUT_HPP_
 #define SRC_TEST_CPP_ZCODE_EXECUTIONSPACE_ZCODEEXECUTIONSPACEOUT_HPP_
+
 #include "../ZcodeIncludes.hpp"
 #include "../AbstractZcodeOutStream.hpp"
 
@@ -15,109 +16,110 @@ class ZcodeExecutionSpace;
 
 template<class ZP>
 class ZcodeExecutionSpaceOut: public AbstractZcodeOutStream<ZP> {
-    typedef typename ZP::executionSpaceOutLength_t executionSpaceOutLength_t;
     private:
-    ZcodeExecutionSpace<ZP> *space;
-    uint8_t buffer[ZP::executionOutBufferSize];
-    executionSpaceOutLength_t length = 0;
-    executionSpaceOutLength_t lastEndPos = 0;
-    bool overLength = false;
-    bool inUse = false;
-    bool dataBufferFull = false;
-    bool open = false;
-    ZcodeResponseStatus status = OK;
+        typedef typename ZP::executionSpaceOutLength_t executionSpaceOutLength_t;
+        ZcodeExecutionSpace<ZP> *space;
+        uint8_t buffer[ZP::executionOutBufferSize];
+        executionSpaceOutLength_t length = 0;
+        executionSpaceOutLength_t lastEndPos = 0;
+        bool overLength = false;
+        bool inUse = false;
+        bool dataBufferFull = false;
+        bool open = false;
+        ZcodeResponseStatus status = OK;
 
-public:
-    ZcodeExecutionSpaceOut() :
-            space(NULL) {
-    }
-    void initialSetup(ZcodeExecutionSpace<ZP> *space) {
-        this->space = space;
-    }
-
-    void writeByte(uint8_t value) {
-        if (length == ZP::executionOutBufferSize) {
-            overLength = true;
+    public:
+        ZcodeExecutionSpaceOut() :
+                space(NULL) {
         }
-        if (open && !overLength) {
-            buffer[length++] = value;
-        }
-    }
 
-    virtual ZcodeOutStream<ZP>* writeBytes(uint8_t const *value, uint16_t l) {
-        if (open) {
+        void initialSetup(ZcodeExecutionSpace<ZP> *space) {
+            this->space = space;
+        }
+
+        void writeByte(uint8_t value) {
             if (length == ZP::executionOutBufferSize) {
                 overLength = true;
             }
-            for (int i = 0; i < l && !overLength; i++) {
-                buffer[length++] = value[i];
+            if (open && !overLength) {
+                buffer[length++] = value;
+            }
+        }
+
+        virtual ZcodeOutStream<ZP>* writeBytes(uint8_t const *value, uint16_t l) {
+            if (open) {
                 if (length == ZP::executionOutBufferSize) {
                     overLength = true;
                 }
+                for (int i = 0; i < l && !overLength; i++) {
+                    buffer[length++] = value[i];
+                    if (length == ZP::executionOutBufferSize) {
+                        overLength = true;
+                    }
+                }
+            }
+            return this;
+        }
+
+        ZcodeOutStream<ZP>* writeCommandSeparator() {
+            if (!overLength) {
+                lastEndPos = length;
+            }
+            return AbstractZcodeOutStream<ZP>::writeCommandSeparator();
+        }
+
+        ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() {
+            if (!overLength) {
+                lastEndPos = length;
+            }
+            return AbstractZcodeOutStream<ZP>::writeCommandSequenceErrorHandler();
+        }
+
+        ZcodeOutStream<ZP>* writeStatus(ZcodeResponseStatus st) {
+            if (st != OK) {
+                status = st;
+            }
+            return AbstractZcodeOutStream<ZP>::writeStatus(st);
+        }
+
+        void openResponse(ZcodeCommandChannel<ZP> *target) {
+            open = true;
+            length = 0;
+            overLength = false;
+        }
+
+        void openNotification(ZcodeCommandChannel<ZP> *target) {
+        }
+
+        void openDebug(ZcodeCommandChannel<ZP> *target) {
+        }
+
+        bool isOpen() {
+            return open;
+        }
+
+        void close() {
+            open = false;
+            if (status != OK) {
+                flush();
+            } else {
+                inUse = false;
             }
         }
-        return this;
-    }
 
-    ZcodeOutStream<ZP>* writeCommandSeparator() {
-        if (!overLength) {
-            lastEndPos = length;
+        bool flush();
+
+        bool isDataBufferFull() {
+            return dataBufferFull;
         }
-        return AbstractZcodeOutStream<ZP>::writeCommandSeparator();
-    }
 
-    ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() {
-        if (!overLength) {
-            lastEndPos = length;
+        void setInUse(bool inUse) {
+            this->inUse = inUse;
         }
-        return AbstractZcodeOutStream<ZP>::writeCommandSequenceErrorHandler();
-    }
 
-    ZcodeOutStream<ZP>* writeStatus(ZcodeResponseStatus st) {
-        if (st != OK) {
-            status = st;
+        bool isInUse() {
+            return inUse;
         }
-        return AbstractZcodeOutStream<ZP>::writeStatus(st);
-    }
-
-    void openResponse(ZcodeCommandChannel<ZP> *target) {
-        open = true;
-        length = 0;
-        overLength = false;
-    }
-
-    void openNotification(ZcodeCommandChannel<ZP> *target) {
-    }
-
-    void openDebug(ZcodeCommandChannel<ZP> *target) {
-    }
-
-    bool isOpen() {
-        return open;
-    }
-
-    void close() {
-        open = false;
-        if (status != OK) {
-            flush();
-        } else {
-            inUse = false;
-        }
-    }
-
-    bool flush();
-
-    bool isDataBufferFull() {
-        return dataBufferFull;
-    }
-
-    void setInUse(bool inUse) {
-        this->inUse = inUse;
-    }
-
-    bool isInUse() {
-        return inUse;
-    }
 };
 
 #include "../parsing/ZcodeCommandChannel.hpp"

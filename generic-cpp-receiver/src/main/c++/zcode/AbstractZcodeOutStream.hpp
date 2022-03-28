@@ -16,9 +16,10 @@
 
 template<class ZP>
 class AbstractZcodeOutStream: public ZcodeOutStream<ZP> {
+    private:
         typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
         typedef typename ZP::fieldUnit_t fieldUnit_t;
-        private:
+
         uint8_t toHexDigit(int i) {
             return (uint8_t) (i > 9 ? 'a' + i - 10 : '0' + i);
         }

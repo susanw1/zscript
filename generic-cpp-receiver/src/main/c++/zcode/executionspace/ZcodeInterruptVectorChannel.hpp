@@ -7,6 +7,7 @@
 
 #ifndef SRC_MAIN_CPP_ZCODE_EXECUTIONSPACE_ZCODEINTERRUPTVECTORCHANNEL_HPP_
 #define SRC_MAIN_CPP_ZCODE_EXECUTIONSPACE_ZCODEINTERRUPTVECTORCHANNEL_HPP_
+
 #include "../ZcodeIncludes.hpp"
 #include "../parsing/ZcodeCommandChannel.hpp"
 #include "../parsing/ZcodeCommandSequence.hpp"
@@ -29,74 +30,74 @@ class ZcodeExecutionSpaceChannelIn;
 
 template<class ZP>
 class ZcodeInterruptVectorChannel: public ZcodeCommandChannel<ZP> {
-private:
-    Zcode<ZP> *zcode;
-    ZcodeExecutionSpace<ZP> *space;
-    ZcodeInterruptVectorManager<ZP> *vectorManager;
-    ZcodeCommandSequence<ZP> sequence;
-    ZcodeBusInterrupt<ZP> interrupt;
-    ZcodeExecutionSpaceChannelIn<ZP> *in = NULL;
-    ZcodeLockSet<ZP> locks;
+    private:
+        Zcode<ZP> *zcode;
+        ZcodeExecutionSpace<ZP> *space;
+        ZcodeInterruptVectorManager<ZP> *vectorManager;
+        ZcodeCommandSequence<ZP> sequence;
+        ZcodeBusInterrupt<ZP> interrupt;
+        ZcodeExecutionSpaceChannelIn<ZP> *in = NULL;
+        ZcodeLockSet<ZP> locks;
 
-public:
-    ZcodeInterruptVectorChannel(ZcodeExecutionSpace<ZP> *space, ZcodeInterruptVectorManager<ZP> *vectorManager, Zcode<ZP> *z) :
-            zcode(z), space(space), vectorManager(vectorManager), sequence(z, this) {
-        locks.addLock(ZP::executionSpaceLock, false);
-    }
-
-    ZcodeChannelInStream<ZP>* acquireInStream();
-
-    bool hasInStream() {
-        return in != NULL;
-    }
-
-    ZcodeOutStream<ZP>* acquireOutStream();
-
-    bool hasOutStream() {
-        return true;
-    }
-    bool hasCommandSequence();
-
-    ZcodeCommandSequence<ZP>* getCommandSequence() {
-        return &sequence;
-    }
-
-    bool isPacketBased() {
-        return false;
-    }
-
-    void releaseInStream() {
-        if (in != NULL) {
-            space->releaseInStream(in);
+    public:
+        ZcodeInterruptVectorChannel(ZcodeExecutionSpace<ZP> *space, ZcodeInterruptVectorManager<ZP> *vectorManager, Zcode<ZP> *z) :
+                zcode(z), space(space), vectorManager(vectorManager), sequence(z, this) {
+            locks.addLock(ZP::executionSpaceLock, false);
         }
-        in = NULL;
-    }
 
-    void releaseOutStream() {
-        interrupt = ZcodeBusInterrupt<ZP>();
-    }
+        ZcodeChannelInStream<ZP>* acquireInStream();
 
-    ZcodeBusInterrupt<ZP>* getInterrupt() {
-        return &interrupt;
-    }
+        bool hasInStream() {
+            return in != NULL;
+        }
 
-    void setAsNotificationChannel() {
-    }
+        ZcodeOutStream<ZP>* acquireOutStream();
 
-    void releaseFromNotificationChannel() {
-    }
+        bool hasOutStream() {
+            return true;
+        }
+        bool hasCommandSequence();
 
-    void setAsDebugChannel() {
-    }
+        ZcodeCommandSequence<ZP>* getCommandSequence() {
+            return &sequence;
+        }
 
-    void releaseFromDebugChannel() {
-    }
+        bool isPacketBased() {
+            return false;
+        }
 
-    void lock();
+        void releaseInStream() {
+            if (in != NULL) {
+                space->releaseInStream(in);
+            }
+            in = NULL;
+        }
 
-    bool canLock();
+        void releaseOutStream() {
+            interrupt = ZcodeBusInterrupt<ZP>();
+        }
 
-    void unlock();
+        ZcodeBusInterrupt<ZP>* getInterrupt() {
+            return &interrupt;
+        }
+
+        void setAsNotificationChannel() {
+        }
+
+        void releaseFromNotificationChannel() {
+        }
+
+        void setAsDebugChannel() {
+        }
+
+        void releaseFromDebugChannel() {
+        }
+
+        void lock();
+
+        bool canLock();
+
+        void unlock();
 
 };
 #include "ZcodeInterruptVectorManager.hpp"

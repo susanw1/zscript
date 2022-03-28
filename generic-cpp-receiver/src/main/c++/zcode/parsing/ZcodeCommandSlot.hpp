@@ -7,6 +7,7 @@
 
 #ifndef SRC_TEST_CPP_ZCODE_PARSING_ZCODECOMMANDSLOT_HPP_
 #define SRC_TEST_CPP_ZCODE_PARSING_ZCODECOMMANDSLOT_HPP_
+
 #include "../ZcodeIncludes.hpp"
 
 #include "ZcodeBigField.hpp"
@@ -50,10 +51,12 @@ struct ZcodeCommandSlotStatus {
 
 template<class ZP>
 class ZcodeCommandSlot {
-        typedef typename ZP::fieldUnit_t fieldUnit_t;
-        public:
+    public:
         ZcodeCommandSlot<ZP> *next = NULL;
-        private:
+
+    private:
+        typedef typename ZP::fieldUnit_t fieldUnit_t;
+
         ZcodeHugeField<ZP> *huge = NULL;
         ZcodeCommand<ZP> *cmd = NULL;
         char const *errorMessage = "";
@@ -99,33 +102,42 @@ class ZcodeCommandSlot {
         void start() {
             slotStatus.started = true;
         }
+
         bool isStarted() const {
             return slotStatus.started;
         }
+
         void terminate() {
             end = Zchars::EOL_SYMBOL;
         }
+
         bool isComplete() const {
             return slotStatus.complete;
         }
+
         void setComplete(bool complete) {
             this->slotStatus.complete = complete;
         }
+
         bool needsMoveAlong() const {
             return slotStatus.needsMoveAlong;
         }
+
         void setNeedsMoveAlong(bool needsMoveAlong) {
             this->slotStatus.needsMoveAlong = needsMoveAlong;
         }
+
         ZcodeFieldMap<ZP>* getFields() {
             return &map;
         }
+
         ZcodeBigField<ZP>* getBigField() {
             if (ZP::hugeFieldLength > 0 && slotStatus.usesHuge) {
                 return huge;
             }
             return &big;
         }
+
         bool isParsed() const {
             return slotStatus.parsed;
         }
@@ -133,6 +145,7 @@ class ZcodeCommandSlot {
         char getEnd() const {
             return end;
         }
+
         bool isEndOfSequence() const {
             return end == Zchars::EOL_SYMBOL;
         }

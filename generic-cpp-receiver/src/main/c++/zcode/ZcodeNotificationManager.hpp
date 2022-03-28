@@ -7,6 +7,7 @@
 
 #ifndef SRC_TEST_CPP_ZCODE_ZCODENOTIFICATIONMANAGER_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODENOTIFICATIONMANAGER_HPP_
+
 #include "ZcodeIncludes.hpp"
 #include "ZcodeBusInterruptSource.hpp"
 #include "ZcodeBusInterrupt.hpp"
@@ -28,36 +29,36 @@ class Zcode;
 
 template<class ZP>
 class ZcodeNotificationManager {
-private:
-    ZcodeBusInterruptSource<ZP> **sources;
-    ZcodeBusInterrupt<ZP> waitingNotifications[ZP::interruptStoreNum];
-    uint8_t waitingNotificationNumber = 0;
-    uint8_t sourceNum = 0;
-    ZcodeInterruptVectorManager<ZP> *vectorChannel;
-    ZcodeCommandChannel<ZP> *notificationChannel;
+    private:
+        ZcodeBusInterruptSource<ZP> **sources;
+        ZcodeBusInterrupt<ZP> waitingNotifications[ZP::interruptStoreNum];
+        uint8_t waitingNotificationNumber = 0;
+        uint8_t sourceNum = 0;
+        ZcodeInterruptVectorManager<ZP> *vectorChannel;
+        ZcodeCommandChannel<ZP> *notificationChannel;
 
-    bool canSendNotification();
+        bool canSendNotification();
 
-    void sendNotification(ZcodeBusInterrupt<ZP> interrupt);
+        void sendNotification(ZcodeBusInterrupt<ZP> interrupt);
 
-public:
-    ZcodeNotificationManager(Zcode<ZP> *zcode, ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum);
+    public:
+        ZcodeNotificationManager(Zcode<ZP> *zcode, ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum);
 
-    void setVectorChannel(ZcodeInterruptVectorManager<ZP> *vectorChannel) {
-        this->vectorChannel = vectorChannel;
-    }
+        void setVectorChannel(ZcodeInterruptVectorManager<ZP> *vectorChannel) {
+            this->vectorChannel = vectorChannel;
+        }
 
-    void setNotificationChannel(ZcodeCommandChannel<ZP> *notificationChannel);
+        void setNotificationChannel(ZcodeCommandChannel<ZP> *notificationChannel);
 
-    ZcodeCommandChannel<ZP>* getNotificationChannel() {
-        return notificationChannel;
-    }
+        ZcodeCommandChannel<ZP>* getNotificationChannel() {
+            return notificationChannel;
+        }
 
-    ZcodeInterruptVectorManager<ZP>* getVectorChannel() {
-        return vectorChannel;
-    }
+        ZcodeInterruptVectorManager<ZP>* getVectorChannel() {
+            return vectorChannel;
+        }
 
-    void manageNotifications();
+        void manageNotifications();
 };
 
 template<class ZP>

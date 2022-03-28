@@ -16,50 +16,51 @@ class ZcodeOutStream;
 
 template<class ZP>
 class ZcodeActivateCommand: public ZcodeCommand<ZP> {
-private:
-    static bool activated;
-    const uint8_t code = 0x03;
+    private:
+        static bool activated;
+        const uint8_t code = 0x03;
+
     public:
-    static const int MAX_SYSTEM_CODE = 15;
+        static const int MAX_SYSTEM_CODE = 15;
 
-    static bool isActivated() {
-        return activated;
-    }
-
-    static void reset() {
-        activated = false;
-    }
-
-    void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) {
-        if (!activated) {
-            out->writeField('A', (uint8_t) 0);
-            out->writeStatus(OK);
-        } else {
-            out->writeField('A', (uint8_t) 1);
-            out->writeStatus(OK);
+        static bool isActivated() {
+            return activated;
         }
-        activated = true;
-        slot->setComplete(true);
-    }
 
-    void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
-    }
+        static void reset() {
+            activated = false;
+        }
 
-    uint8_t getCode() const {
-        return code;
-    }
+        void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out) {
+            if (!activated) {
+                out->writeField('A', (uint8_t) 0);
+                out->writeStatus(OK);
+            } else {
+                out->writeField('A', (uint8_t) 1);
+                out->writeStatus(OK);
+            }
+            activated = true;
+            slot->setComplete(true);
+        }
 
-    bool matchesCode(uint8_t code[], uint8_t length) const {
-        return length == 1 && code[0] == ZcodeActivateCommand::code;
-    }
+        void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
+        }
 
-    uint8_t getCodeLength() const {
-        return 1;
-    }
+        uint8_t getCode() const {
+            return code;
+        }
 
-    uint8_t const* getFullCode() const {
-        return &code;
-    }
+        bool matchesCode(uint8_t code[], uint8_t length) const {
+            return length == 1 && code[0] == ZcodeActivateCommand::code;
+        }
+
+        uint8_t getCodeLength() const {
+            return 1;
+        }
+
+        uint8_t const* getFullCode() const {
+            return &code;
+        }
 };
 
 template<class ZP>
