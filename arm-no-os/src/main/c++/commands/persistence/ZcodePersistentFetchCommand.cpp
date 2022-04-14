@@ -5,10 +5,9 @@
  *      Author: robert
  */
 
-#include "../persistence/ZcodePersistentFetchCommand.hpp"
+#include "ZcodePersistentFetchCommand.hpp"
 
-void ZcodePersistentFetchCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot,
-        ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out) {
+void ZcodePersistentFetchCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out) {
     if (!slot->getFields()->has('A')) {
         slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);
@@ -23,8 +22,7 @@ void ZcodePersistentFetchCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slo
         if (addrLen > 4 || lengthLen > 4) {
             slot->fail("", BAD_PARAM);
             out->writeStatus(BAD_PARAM);
-            out->writeBigStringField(
-                    "Cannot read data beyond persistent store length");
+            out->writeBigStringField("Cannot read data beyond persistent store length");
         } else {
             uint32_t length = 0;
             for (int i = 0; i < lengthLen; ++i) {
@@ -39,8 +37,7 @@ void ZcodePersistentFetchCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slo
             if (addr + length >= ZcodeParameters::persistentMemorySize) {
                 slot->fail("", BAD_PARAM);
                 out->writeStatus(BAD_PARAM);
-                out->writeBigStringField(
-                        "Cannot read data beyond persistent store length");
+                out->writeBigStringField("Cannot read data beyond persistent store length");
             } else {
                 out->writeStatus(OK);
                 out->writeBigHexField(persist->getPersistentMemory(), length);

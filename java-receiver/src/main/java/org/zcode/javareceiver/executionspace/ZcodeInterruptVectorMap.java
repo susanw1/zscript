@@ -5,7 +5,7 @@ import org.zcode.javareceiver.ZcodeParameters;
 public class ZcodeInterruptVectorMap {
     private final byte[] addresses;
     private final byte[] specificities;
-    private final byte[] busses;
+    private final byte[] buses;
     private final byte[] types;
     private final int[]  vectors;
     private int          vectorNum  = 0;
@@ -14,7 +14,7 @@ public class ZcodeInterruptVectorMap {
     public ZcodeInterruptVectorMap(final ZcodeParameters params) {
         addresses = new byte[params.interruptVectorNum];
         specificities = new byte[params.interruptVectorNum];
-        busses = new byte[params.interruptVectorNum];
+        buses = new byte[params.interruptVectorNum];
         types = new byte[params.interruptVectorNum];
         vectors = new int[params.interruptVectorNum];
     }
@@ -42,7 +42,7 @@ public class ZcodeInterruptVectorMap {
     private boolean setVector(final byte type, final byte bus, final byte addr, final byte specificity, final int vector) {
         for (int i = 0; i < vectorNum; i++) {
             if (specificities[i] == specificity
-                    && (specificity == 0 || types[i] == type && (specificity == 1 || busses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))) {
+                    && (specificity == 0 || types[i] == type && (specificity == 1 || buses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))) {
                 vectors[i] = vector;
                 return true;
             }
@@ -52,7 +52,7 @@ public class ZcodeInterruptVectorMap {
         }
         specificities[vectorNum] = specificity;
         addresses[vectorNum] = addr;
-        busses[vectorNum] = bus;
+        buses[vectorNum] = bus;
         types[vectorNum] = type;
         vectors[vectorNum] = vector;
         vectorNum++;
@@ -61,12 +61,12 @@ public class ZcodeInterruptVectorMap {
 
     private boolean hasVector(final byte type, final byte bus, final byte addr, final byte specificity) {
         if (specificities[mostRecent] == specificity
-                && (specificity == 0 || types[mostRecent] == type && (specificity == 1 || busses[mostRecent] == bus && (specificity == 0x02 || addresses[mostRecent] == addr)))) {
+                && (specificity == 0 || types[mostRecent] == type && (specificity == 1 || buses[mostRecent] == bus && (specificity == 0x02 || addresses[mostRecent] == addr)))) {
             return true;
         }
         for (int i = 0; i < vectorNum; i++) {
             if (specificities[i] == specificity
-                    && (specificity == 0 || types[i] == type && (specificity == 1 || busses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))) {
+                    && (specificity == 0 || types[i] == type && (specificity == 1 || buses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))) {
                 mostRecent = i;
                 return true;
             }
@@ -76,12 +76,12 @@ public class ZcodeInterruptVectorMap {
 
     private int getVector(final byte type, final byte bus, final byte addr, final byte specificity) {
         if (specificities[mostRecent] == specificity
-                && (specificity == 0 || types[mostRecent] == type && (specificity == 1 || busses[mostRecent] == bus && (specificity == 0x02 || addresses[mostRecent] == addr)))) {
+                && (specificity == 0 || types[mostRecent] == type && (specificity == 1 || buses[mostRecent] == bus && (specificity == 0x02 || addresses[mostRecent] == addr)))) {
             return vectors[mostRecent];
         }
         for (int i = 0; i < vectorNum; i++) {
             if (specificities[i] == specificity
-                    && (specificity == 0 || types[i] == type && (specificity == 1 || busses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))) {
+                    && (specificity == 0 || types[i] == type && (specificity == 1 || buses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))) {
                 mostRecent = i;
                 return vectors[i];
             }

@@ -7,8 +7,7 @@
 
 #include "ZcodePinSetCommand.hpp"
 
-void ZcodePinSetCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeCommandSequence<ZcodeParameters> *sequence,
-        ZcodeOutStream<ZcodeParameters> *out) {
+void ZcodePinSetCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out) {
     slot->setComplete(true);
     slot->getFields()->copyFieldTo(out, 'P');
     if (!slot->getFields()->has('P')) {

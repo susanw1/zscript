@@ -10,9 +10,11 @@
 void USB_LP_IRQHandler() {
     UsbInternal::usbI->interrupt();
 }
+
 void USB_HP_IRQHandler() {
     UsbInternal::usbI->interrupt();
 }
+
 UsbInternal *UsbInternal::usbI = NULL;
 
 void UsbDataTxOverflowCallback(SerialIdentifier id) {

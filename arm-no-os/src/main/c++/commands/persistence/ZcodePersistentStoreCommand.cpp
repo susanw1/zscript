@@ -5,10 +5,9 @@
  *      Author: robert
  */
 
-#include "../persistence/ZcodePersistentStoreCommand.hpp"
+#include "ZcodePersistentStoreCommand.hpp"
 
-void ZcodePersistentStoreCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot,
-        ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out) {
+void ZcodePersistentStoreCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out) {
     if (!slot->getFields()->has('A')) {
         slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);

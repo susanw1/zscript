@@ -7,8 +7,7 @@
 
 #include "ZcodeIdentifyCommand.hpp"
 
-void ZcodeIdentifyCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeCommandSequence<ZcodeParameters> *sequence,
-        ZcodeOutStream<ZcodeParameters> *out) {
+void ZcodeIdentifyCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out) {
     out->writeStatus(OK);
     out->writeField('V', (uint8_t) 0);
     out->continueField((uint8_t) 0);

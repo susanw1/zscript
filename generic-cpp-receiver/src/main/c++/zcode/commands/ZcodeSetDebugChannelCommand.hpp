@@ -22,34 +22,35 @@ class Zcode;
 
 template<class ZP>
 class ZcodeSetDebugChannelCommand: public ZcodeCommand<ZP> {
-private:
-    const uint8_t code = 0x09;
-    Zcode<ZP> *const zcode;
-public:
-    ZcodeSetDebugChannelCommand(Zcode<ZP> *const zcode) :
-            zcode(zcode) {
-    }
+    private:
+        const uint8_t code = 0x09;
+        Zcode<ZP> *const zcode;
 
-    void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
+    public:
+        ZcodeSetDebugChannelCommand(Zcode<ZP> *const zcode) :
+                zcode(zcode) {
+        }
 
-    void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
-    }
+        void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
 
-    uint8_t getCode() const {
-        return code;
-    }
+        void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
+        }
 
-    bool matchesCode(uint8_t code[], uint8_t length) const {
-        return length == 1 && code[0] == ZcodeSetDebugChannelCommand::code;
-    }
+        uint8_t getCode() const {
+            return code;
+        }
 
-    uint8_t getCodeLength() const {
-        return 1;
-    }
+        bool matchesCode(uint8_t code[], uint8_t length) const {
+            return length == 1 && code[0] == ZcodeSetDebugChannelCommand::code;
+        }
 
-    uint8_t const* getFullCode() const {
-        return &code;
-    }
+        uint8_t getCodeLength() const {
+            return 1;
+        }
+
+        uint8_t const* getFullCode() const {
+            return &code;
+        }
 };
 
 template<class ZP>

@@ -17,9 +17,11 @@ void UartDmaCallback(Dma *dma, DmaTerminationStatus status) {
         }
     }
 }
+
 void UartTxOverflowCallback(SerialIdentifier id) {
     ((Uart*) UartManager::getUartById(id))->txOverflowInterrupt();
 }
+
 void Uart::transmitWriteBuffer() {
     if (txDma->lock()) {
         dmaStartDist = txBuffer.getLinearReadLength();
@@ -112,6 +114,7 @@ uint16_t Uart::read(uint8_t *buffer, uint16_t length) {
     availableData -= i;
     return i;
 }
+
 int16_t Uart::read() {
     clearRxFifo();
     peekDist = 0;
@@ -160,6 +163,7 @@ int32_t Uart::getDistance(uint8_t value) {
     peekDist = 0;
     return i + 1;
 }
+
 uint16_t Uart::skip(uint16_t length) { // there is no efficient skip, as we need to exclude escaped characters
     clearRxFifo();
     uint16_t i;
@@ -183,6 +187,7 @@ uint16_t Uart::availablePeek() {
     clearRxFifo();
     return availableData - peekDist;
 }
+
 uint16_t Uart::peek(uint8_t *buffer, uint16_t length) {
     clearRxFifo();
     uint16_t i;
@@ -204,6 +209,7 @@ uint16_t Uart::peek(uint8_t *buffer, uint16_t length) {
     peekDist += i;
     return i;
 }
+
 int16_t Uart::peek() {
     clearRxFifo();
     while (true) {
@@ -228,6 +234,7 @@ void Uart::resetPeek() {
     peekDist = 0;
     rxBuffer.resetPeek();
 }
+
 void Uart::skipToPeek() {
     clearRxFifo();
     availableData -= peekDist;
@@ -253,6 +260,7 @@ void Uart::dmaInterrupt(DmaTerminationStatus status) {
                 dmaStartDist, false, Medium, &UartDmaCallback, false);
     }
 }
+
 void Uart::init(void (*volatile bufferOverflowCallback)(SerialIdentifier), uint32_t baud_rate, bool singleNdoubleStop) {
 // buffer overflow callback can be NULL
     this->rxOverflowCallback = bufferOverflowCallback;

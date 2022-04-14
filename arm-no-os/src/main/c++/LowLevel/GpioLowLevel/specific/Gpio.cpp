@@ -9,6 +9,7 @@
 void GpioPin::init() {
     GpioManager::activateClock(pin);
 }
+
 void GpioPin::write(bool value) {
     if (value) {
         port->setPin(pin);
@@ -44,6 +45,7 @@ void GpioPin::setMode(PinMode mode) {
 void GpioPin::setOutputSpeed(PinSpeed speed) {
     port->setOutputSpeed(pin, speed);
 }
+
 void GpioPin::setAlternateFunction(uint8_t function) {
     port->setAlternateFunction(pin, function);
 }

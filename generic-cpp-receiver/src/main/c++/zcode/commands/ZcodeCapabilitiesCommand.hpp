@@ -19,35 +19,38 @@ class Zcode;
 
 template<class ZP>
 class ZcodeCapabilitiesCommand: public ZcodeCommand<ZP> {
-    typedef typename ZP::fieldUnit_t fieldUnit_t;
+
     private:
-    Zcode<ZP> *zcode;
-    const uint8_t code = 0x02;
+        typedef typename ZP::fieldUnit_t fieldUnit_t;
+
+        Zcode<ZP> *zcode;
+        const uint8_t code = 0x02;
+
     public:
-    ZcodeCapabilitiesCommand(Zcode<ZP> *zcode) :
-            zcode(zcode) {
-    }
+        ZcodeCapabilitiesCommand(Zcode<ZP> *zcode) :
+                zcode(zcode) {
+        }
 
-    void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
+        void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
 
-    void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
-    }
+        void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
+        }
 
-    uint8_t getCode() const {
-        return code;
-    }
+        uint8_t getCode() const {
+            return code;
+        }
 
-    bool matchesCode(uint8_t code[], uint8_t length) const {
-        return length == 1 && code[0] == ZcodeCapabilitiesCommand::code;
-    }
+        bool matchesCode(uint8_t code[], uint8_t length) const {
+            return length == 1 && code[0] == ZcodeCapabilitiesCommand::code;
+        }
 
-    uint8_t getCodeLength() const {
-        return 1;
-    }
+        uint8_t getCodeLength() const {
+            return 1;
+        }
 
-    uint8_t const* getFullCode() const {
-        return &code;
-    }
+        uint8_t const* getFullCode() const {
+            return &code;
+        }
 };
 
 #include "../ZcodeOutStream.hpp"

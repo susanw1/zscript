@@ -26,6 +26,7 @@ void EthernetUdpChannelOutStream::openNotification(ZcodeCommandChannel<ZcodePara
     open = true;
     channel->getUdp()->beginPacket(channel->getIp(), channel->getPort());
 }
+
 void EthernetUdpChannelOutStream::openDebug(ZcodeCommandChannel<ZcodeParameters> *target) {
     open = true;
     channel->getUdp()->beginPacket(channel->getIp(), channel->getPort());

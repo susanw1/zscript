@@ -7,16 +7,18 @@
 
 #ifndef SRC_TEST_CPP_ZCODE_ZCODEDEBUGOUTPUT_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODEDEBUGOUTPUT_HPP_
+
 #include "ZcodeIncludes.hpp"
 #include "AbstractZcodeOutStream.hpp"
 
 enum ZcodeDebugOutputMode {
     hex, decimal, character, normal, endl
 };
+
 struct ZcodeDebugOutputState {
-    bool isHex :1;
-    bool isDecimal :1;
-    bool isCharacter :1;
+        bool isHex :1;
+        bool isDecimal :1;
+        bool isCharacter :1;
 };
 
 template<class ZP>
@@ -24,34 +26,36 @@ class ZcodeDebugOutput;
 
 template<class ZP>
 class ZcodeDebugOutStream: public AbstractZcodeOutStream<ZP> {
-    typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
-    typedef typename ZP::debugOutputBufferLength_t debugOutputBufferLength_t;
+    private:
+        typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
+        typedef typename ZP::debugOutputBufferLength_t debugOutputBufferLength_t;
 
-    ZcodeDebugOutput<ZP> *debug;
+        ZcodeDebugOutput<ZP> *debug;
+
     public:
-    ZcodeDebugOutStream(ZcodeDebugOutput<ZP> *debug) :
-            debug(debug) {
-    }
+        ZcodeDebugOutStream(ZcodeDebugOutput<ZP> *debug) :
+                debug(debug) {
+        }
 
-    virtual void writeByte(uint8_t value);
+        virtual void writeByte(uint8_t value);
 
-    virtual ZcodeOutStream<ZP>* writeBytes(uint8_t const *value, bigFieldAddress_t length);
+        virtual ZcodeOutStream<ZP>* writeBytes(uint8_t const *value, bigFieldAddress_t length);
 
-    void openResponse(ZcodeCommandChannel<ZP> *target) {
-    }
+        void openResponse(ZcodeCommandChannel<ZP> *target) {
+        }
 
-    void openNotification(ZcodeCommandChannel<ZP> *target) {
-    }
+        void openNotification(ZcodeCommandChannel<ZP> *target) {
+        }
 
-    void openDebug(ZcodeCommandChannel<ZP> *target) {
-    }
+        void openDebug(ZcodeCommandChannel<ZP> *target) {
+        }
 
-    bool isOpen() {
-        return true;
-    }
+        bool isOpen() {
+            return true;
+        }
 
-    void close() {
-    }
+        void close() {
+        }
 };
 
 template<class ZP>
@@ -65,62 +69,63 @@ class ZcodeCommandSlot;
 
 template<class ZP>
 class ZcodeDebugOutput {
-    typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
-    typedef typename ZP::debugOutputBufferLength_t debugOutputBufferLength_t;
     private:
-    uint8_t debugBuffer[ZP::debugBufferLength];
-    ZcodeCommandChannel<ZP> *channel = NULL;
-    debugOutputBufferLength_t position;
-    ZcodeDebugOutputState state;
+        typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
+        typedef typename ZP::debugOutputBufferLength_t debugOutputBufferLength_t;
 
-    friend ZcodeDebugOutStream<ZP> ;
+        uint8_t debugBuffer[ZP::debugBufferLength];
+        ZcodeCommandChannel<ZP> *channel = NULL;
+        debugOutputBufferLength_t position;
+        ZcodeDebugOutputState state;
 
-    void flushBuffer(ZcodeOutStream<ZP> *stream);
+        friend ZcodeDebugOutStream<ZP> ;
 
-    void writeToBuffer(const uint8_t *b, debugOutputBufferLength_t length);
+        void flushBuffer(ZcodeOutStream<ZP> *stream);
 
-    char toHex(int i) {
-        return (char) (i >= 10 ? i + 'a' - 10 : i + '0');
-    }
+        void writeToBuffer(const uint8_t *b, debugOutputBufferLength_t length);
 
-public:
-    void setDebugChannel(ZcodeCommandChannel<ZP> *channel);
+        char toHex(int i) {
+            return (char) (i >= 10 ? i + 'a' - 10 : i + '0');
+        }
 
-    void println(const char *s);
+    public:
+        void setDebugChannel(ZcodeCommandChannel<ZP> *channel);
 
-    ZcodeDebugOutput<ZP>& operator <<(ZcodeDebugOutputMode m);
+        void println(const char *s);
 
-    ZcodeDebugOutput<ZP>& operator <<(const char *s);
+        ZcodeDebugOutput<ZP>& operator <<(ZcodeDebugOutputMode m);
 
-    ZcodeDebugOutput<ZP>& operator <<(bool b);
+        ZcodeDebugOutput<ZP>& operator <<(const char *s);
 
-    ZcodeDebugOutput<ZP>& operator <<(char c);
+        ZcodeDebugOutput<ZP>& operator <<(bool b);
 
-    ZcodeDebugOutput<ZP>& operator <<(int8_t i);
+        ZcodeDebugOutput<ZP>& operator <<(char c);
 
-    ZcodeDebugOutput<ZP>& operator <<(uint8_t i);
+        ZcodeDebugOutput<ZP>& operator <<(int8_t i);
 
-    ZcodeDebugOutput<ZP>& operator <<(int16_t i);
+        ZcodeDebugOutput<ZP>& operator <<(uint8_t i);
 
-    ZcodeDebugOutput<ZP>& operator <<(uint16_t i);
+        ZcodeDebugOutput<ZP>& operator <<(int16_t i);
 
-    ZcodeDebugOutput<ZP>& operator <<(int32_t i);
+        ZcodeDebugOutput<ZP>& operator <<(uint16_t i);
 
-    ZcodeDebugOutput<ZP>& operator <<(uint32_t i);
+        ZcodeDebugOutput<ZP>& operator <<(int32_t i);
 
-    ZcodeDebugOutput<ZP>& operator <<(int64_t i);
+        ZcodeDebugOutput<ZP>& operator <<(uint32_t i);
 
-    ZcodeDebugOutput<ZP>& operator <<(uint64_t i);
+        ZcodeDebugOutput<ZP>& operator <<(int64_t i);
 
-    ZcodeDebugOutput<ZP>& operator <<(ZcodeCommandSlot<ZP> *s);
+        ZcodeDebugOutput<ZP>& operator <<(uint64_t i);
 
-    void println(const char *s, debugOutputBufferLength_t length);
+        ZcodeDebugOutput<ZP>& operator <<(ZcodeCommandSlot<ZP> *s);
 
-    void attemptFlush();
+        void println(const char *s, debugOutputBufferLength_t length);
 
-    ZcodeDebugOutStream<ZP> getAsOutStream() {
-        return ZcodeDebugOutStream<ZP>(this);
-    }
+        void attemptFlush();
+
+        ZcodeDebugOutStream<ZP> getAsOutStream() {
+            return ZcodeDebugOutStream<ZP>(this);
+        }
 };
 
 template<class ZP>

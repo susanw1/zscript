@@ -18,35 +18,37 @@
 #include "UipUdpWrapper.hpp"
 
 class UipUdpChannelManager {
-    Zcode *zcode;
-    UipUdpChannelInStream seqIn;
-    ZcodeInStream in;
-    UipUdpOutStream out;
-    UipUdpCommandChannel channels[ZcodeParameters::uipChannelNum];
-    UdpSocket sockets[ZcodeParameters::uipChannelNum];
-    bool waitingForSlot = false;
-    friend void setupChannels(UipUdpChannelManager *manager, UipEthernet *eth,
-            Zcode *zcode);
-//    void findChannelForRun();
-public:
-    UipUdpChannelManager(UipEthernet *eth, UdpSocket *socket, Zcode *zcode) :
-            zcode(zcode), seqIn(), in(&seqIn), out(socket) {
-        setupChannels(this, eth, zcode);
-    }
+    private:
+        Zcode *zcode;
+        UipUdpChannelInStream seqIn;
+        ZcodeInStream in;
+        UipUdpOutStream out;
+        UipUdpCommandChannel channels[ZcodeParameters::uipChannelNum];
+        UdpSocket sockets[ZcodeParameters::uipChannelNum];
+        bool waitingForSlot = false;
+        friend void setupChannels(UipUdpChannelManager *manager, UipEthernet *eth,
+                Zcode *zcode);
+        //    void findChannelForRun();
+    public:
+        UipUdpChannelManager(UipEthernet *eth, UdpSocket *socket, Zcode *zcode) :
+                zcode(zcode), seqIn(), in(&seqIn), out(socket) {
+            setupChannels(this, eth, zcode);
+        }
 
-    UipUdpCommandChannel* getChannels() {
-        return channels;
-    }
+        UipUdpCommandChannel* getChannels() {
+            return channels;
+        }
 
-    ZcodeInStream* getInStream() {
-        return &in;
-    }
+        ZcodeInStream* getInStream() {
+            return &in;
+        }
 
-    ZcodeOutStream* getOutStream() {
-        return &out;
-    }
-    void inReleased() {
-    }
+        ZcodeOutStream* getOutStream() {
+            return &out;
+        }
+
+        void inReleased() {
+        }
 //    void checkSequences();
 };
 

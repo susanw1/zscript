@@ -7,6 +7,7 @@
 
 #ifndef SRC_MAIN_CPP_ZCODE_INSTREAMS_ZCODECOMMANDINSTREAM_HPP_
 #define SRC_MAIN_CPP_ZCODE_INSTREAMS_ZCODECOMMANDINSTREAM_HPP_
+
 #include "../ZcodeIncludes.hpp"
 #include "ZcodeLookaheadStream.hpp"
 
@@ -25,7 +26,8 @@ class ZcodeCommandLookaheadStream: public ZcodeLookaheadStream<ZP> {
         ZcodeLookaheadStream<ZP> *parent;
         ZcodeCommandInStream<ZP> *commandIn;
         uint8_t lookahead = 2;
-        public:
+
+    public:
         ZcodeCommandLookaheadStream() :
                 parent(NULL), commandIn(NULL) {
         }
@@ -59,7 +61,8 @@ class ZcodeCommandInStream {
 
         void readInternal();
         friend ZcodeCommandLookaheadStream<ZP> ;
-        public:
+
+    public:
         ZcodeCommandInStream(ZcodeSequenceInStream<ZP> *sequenceIn) :
                 sequenceIn(sequenceIn), lookahead() {
         }

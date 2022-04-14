@@ -30,8 +30,9 @@ struct ZcodeSupportedCommandArray {
 
 template<class ZP>
 class ZcodeCommandFinder {
+    private:
         typedef typename ZP::commandNum_t commandNum_t;
-        private:
+
         Zcode<ZP> *zcode;
         ZcodeCommand<ZP> *commands[ZP::commandNum];
         commandNum_t commandNum = 0;

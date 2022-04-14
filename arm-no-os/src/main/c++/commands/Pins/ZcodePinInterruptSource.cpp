@@ -12,6 +12,7 @@ uint16_t ZcodePinInterruptSource::interruptConditions = 0;
 void EXTI0_IRQHandler() {
     ZcodePinInterruptSource::interrupt();
 }
+
 void EXTI1_IRQHandler() {
     ZcodePinInterruptSource::interrupt();
 }
@@ -19,6 +20,7 @@ void EXTI1_IRQHandler() {
 void EXTI2_IRQHandler() {
     ZcodePinInterruptSource::interrupt();
 }
+
 void EXTI3_IRQHandler() {
     ZcodePinInterruptSource::interrupt();
 }
@@ -26,6 +28,7 @@ void EXTI3_IRQHandler() {
 void EXTI4_IRQHandler() {
     ZcodePinInterruptSource::interrupt();
 }
+
 void EXTI9_5_IRQHandler() {
     ZcodePinInterruptSource::interrupt();
 }

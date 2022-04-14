@@ -13,35 +13,36 @@
 
 template<class ZP>
 class ZcodeExecutionStateCommand: public ZcodeCommand<ZP> {
-private:
-    const uint8_t code = 0x20;
-    ZcodeExecutionSpace<ZP> *space;
+    private:
+        const uint8_t code = 0x20;
+        ZcodeExecutionSpace<ZP> *space;
+
     public:
-    ZcodeExecutionStateCommand(ZcodeExecutionSpace<ZP> *space) :
-            space(space) {
-    }
+        ZcodeExecutionStateCommand(ZcodeExecutionSpace<ZP> *space) :
+                space(space) {
+        }
 
-    virtual void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
+        virtual void execute(ZcodeCommandSlot<ZP> *slot, ZcodeCommandSequence<ZP> *sequence, ZcodeOutStream<ZP> *out);
 
-    virtual void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
-        locks->addLock(ZP::executionSpaceLock, false);
-    }
+        virtual void setLocks(ZcodeCommandSlot<ZP> *slot, ZcodeLockSet<ZP> *locks) const {
+            locks->addLock(ZP::executionSpaceLock, false);
+        }
 
-    virtual uint8_t getCode() const {
-        return code;
-    }
+        virtual uint8_t getCode() const {
+            return code;
+        }
 
-    virtual bool matchesCode(uint8_t code[], uint8_t length) const {
-        return length == 1 && code[0] == ZcodeExecutionStateCommand::code;
-    }
+        virtual bool matchesCode(uint8_t code[], uint8_t length) const {
+            return length == 1 && code[0] == ZcodeExecutionStateCommand::code;
+        }
 
-    virtual uint8_t getCodeLength() const {
-        return 1;
-    }
+        virtual uint8_t getCodeLength() const {
+            return 1;
+        }
 
-    virtual uint8_t const* getFullCode() const {
-        return &code;
-    }
+        virtual uint8_t const* getFullCode() const {
+            return &code;
+        }
 };
 
 template<class ZP>

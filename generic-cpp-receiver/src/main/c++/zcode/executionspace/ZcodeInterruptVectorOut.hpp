@@ -7,6 +7,7 @@
 
 #ifndef SRC_MAIN_CPP_ZCODE_EXECUTIONSPACE_ZCODEINTERRUPTVECTOROUT_HPP_
 #define SRC_MAIN_CPP_ZCODE_EXECUTIONSPACE_ZCODEINTERRUPTVECTOROUT_HPP_
+
 #include "../ZcodeIncludes.hpp"
 #include "../ZcodeOutStream.hpp"
 
@@ -18,90 +19,91 @@ class ZcodeInterruptVectorChannel;
 
 template<class ZP>
 class ZcodeInterruptVectorOut: public ZcodeOutStream<ZP> {
-    typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
-    typedef typename ZP::fieldUnit_t fieldUnit_t;
-private:
-    ZcodeNotificationManager<ZP> *notificationManager;
-    ZcodeOutStream<ZP> *out = NULL;
+    private:
+        typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
+        typedef typename ZP::fieldUnit_t fieldUnit_t;
 
-public:
-    ZcodeInterruptVectorOut(ZcodeNotificationManager<ZP> *notificationManager) :
-            notificationManager(notificationManager) {
-    }
+        ZcodeNotificationManager<ZP> *notificationManager;
+        ZcodeOutStream<ZP> *out = NULL;
 
-    ZcodeOutStream<ZP>* markDebug() {
-        return out->markDebug();
-    }
+    public:
+        ZcodeInterruptVectorOut(ZcodeNotificationManager<ZP> *notificationManager) :
+                notificationManager(notificationManager) {
+        }
 
-    ZcodeOutStream<ZP>* markNotification() {
-        return out->markNotification();
-    }
+        ZcodeOutStream<ZP>* markDebug() {
+            return out->markDebug();
+        }
 
-    ZcodeOutStream<ZP>* markBroadcast() {
-        return out->markBroadcast();
-    }
+        ZcodeOutStream<ZP>* markNotification() {
+            return out->markNotification();
+        }
 
-    ZcodeOutStream<ZP>* writeStatus(ZcodeResponseStatus st) {
-        return out->writeStatus(st);
-    }
+        ZcodeOutStream<ZP>* markBroadcast() {
+            return out->markBroadcast();
+        }
 
-    ZcodeOutStream<ZP>* writeField(char f, fieldUnit_t v) {
-        return out->writeField(f, v);
-    }
+        ZcodeOutStream<ZP>* writeStatus(ZcodeResponseStatus st) {
+            return out->writeStatus(st);
+        }
 
-    ZcodeOutStream<ZP>* continueField(fieldUnit_t v) {
-        return out->continueField(v);
-    }
+        ZcodeOutStream<ZP>* writeField(char f, fieldUnit_t v) {
+            return out->writeField(f, v);
+        }
 
-    ZcodeOutStream<ZP>* writeBigHexField(uint8_t const *value, bigFieldAddress_t length) {
-        return out->writeBigHexField(value, length);
-    }
+        ZcodeOutStream<ZP>* continueField(fieldUnit_t v) {
+            return out->continueField(v);
+        }
 
-    ZcodeOutStream<ZP>* writeBigStringField(uint8_t const *value, bigFieldAddress_t length) {
-        return out->writeBigStringField(value, length);
-    }
+        ZcodeOutStream<ZP>* writeBigHexField(uint8_t const *value, bigFieldAddress_t length) {
+            return out->writeBigHexField(value, length);
+        }
 
-    ZcodeOutStream<ZP>* writeBigStringField(char const *s) {
-        return out->writeBigStringField(s);
-    }
+        ZcodeOutStream<ZP>* writeBigStringField(uint8_t const *value, bigFieldAddress_t length) {
+            return out->writeBigStringField(value, length);
+        }
 
-    ZcodeOutStream<ZP>* writeBytes(uint8_t const *value, bigFieldAddress_t length) {
-        return out->writeBytes(value, length);
-    }
+        ZcodeOutStream<ZP>* writeBigStringField(char const *s) {
+            return out->writeBigStringField(s);
+        }
 
-    ZcodeOutStream<ZP>* writeCommandSeparator() {
-        return out->writeCommandSeparator();
-    }
+        ZcodeOutStream<ZP>* writeBytes(uint8_t const *value, bigFieldAddress_t length) {
+            return out->writeBytes(value, length);
+        }
 
-    ZcodeOutStream<ZP>* writeCommandSequenceSeparator() {
-        return out->writeCommandSequenceSeparator();
-    }
+        ZcodeOutStream<ZP>* writeCommandSeparator() {
+            return out->writeCommandSeparator();
+        }
 
-    ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() {
-        return out->writeCommandSequenceErrorHandler();
-    }
+        ZcodeOutStream<ZP>* writeCommandSequenceSeparator() {
+            return out->writeCommandSequenceSeparator();
+        }
 
-    void openResponse(ZcodeCommandChannel<ZP> *target);
+        ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() {
+            return out->writeCommandSequenceErrorHandler();
+        }
 
-    void openNotification(ZcodeCommandChannel<ZP> *target) {
-    }
+        void openResponse(ZcodeCommandChannel<ZP> *target);
 
-    void openDebug(ZcodeCommandChannel<ZP> *target) {
-    }
+        void openNotification(ZcodeCommandChannel<ZP> *target) {
+        }
 
-    bool isOpen() {
-        return out->isOpen() && out->mostRecent == this;
-    }
+        void openDebug(ZcodeCommandChannel<ZP> *target) {
+        }
 
-    void close() {
-        out->close();
-    }
+        bool isOpen() {
+            return out->isOpen() && out->mostRecent == this;
+        }
 
-    bool lock();
+        void close() {
+            out->close();
+        }
 
-    bool isLocked();
+        bool lock();
 
-    void unlock();
+        bool isLocked();
+
+        void unlock();
 };
 
 template<class ZP>

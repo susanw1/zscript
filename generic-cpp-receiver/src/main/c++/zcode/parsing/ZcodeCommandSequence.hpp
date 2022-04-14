@@ -7,6 +7,7 @@
 
 #ifndef SRC_TEST_CPP_ZCODE_PARSING_ZCODECOMMANDSEQUENCE_HPP_
 #define SRC_TEST_CPP_ZCODE_PARSING_ZCODECOMMANDSEQUENCE_HPP_
+
 #include "../ZcodeIncludes.hpp"
 #include "../ZcodeLockSet.hpp"
 #include "../instreams/ZcodeMarkerInStream.hpp"
@@ -29,119 +30,119 @@ class ZcodeOutStream;
 
 template<class ZP>
 class ZcodeCommandSequence {
-private:
-    Zcode<ZP> *const zcode;
-    ZcodeCommandChannel<ZP> *const channel;
+    private:
+        Zcode<ZP> *const zcode;
+        ZcodeCommandChannel<ZP> *const channel;
 
-    ZcodeSequenceInStream<ZP> *in = NULL;
-    ZcodeOutStream<ZP> *out = NULL;
-    ZcodeLockSet<ZP> locks;
+        ZcodeSequenceInStream<ZP> *in = NULL;
+        ZcodeOutStream<ZP> *out = NULL;
+        ZcodeLockSet<ZP> locks;
 
-    ZcodeCommandSlot<ZP> *first = NULL;
-    ZcodeCommandSlot<ZP> *last = NULL;
-    bool parallel = false;
-    bool broadcast = false;
+        ZcodeCommandSlot<ZP> *first = NULL;
+        ZcodeCommandSlot<ZP> *last = NULL;
+        bool parallel = false;
+        bool broadcast = false;
 
-    bool fullyParsed = false;
-    bool active = false;
-    bool failed = false;
-    bool empty = false;
+        bool fullyParsed = false;
+        bool active = false;
+        bool failed = false;
+        bool empty = false;
 
-public:
-    ZcodeCommandSequence(Zcode<ZP> *zcode, ZcodeCommandChannel<ZP> *channel) :
-            zcode(zcode), channel(channel), locks() {
-    }
-
-    Zcode<ZP>* getZcode() {
-        return zcode;
-    }
-
-    ZcodeSequenceInStream<ZP>* acquireInStream();
-
-    void releaseInStream();
-
-    ZcodeOutStream<ZP>* acquireOutStream();
-
-    void releaseOutStream();
-
-    bool isEmpty() {
-        return empty;
-    }
-
-    bool canBeParallel() const {
-        return parallel;
-    }
-    bool isBroadcast() const {
-        return broadcast;
-    }
-    void setFullyParsed(bool b) {
-        fullyParsed = b;
-    }
-
-    bool isFullyParsed() const {
-        return fullyParsed;
-    }
-
-    bool hasParsed() const {
-        return first != NULL;
-    }
-
-    void setFailed() {
-        failed = true;
-    }
-    void unsetFailed() {
-        failed = false;
-    }
-    bool hasFailed() const {
-        return failed;
-    }
-    bool canContinueParse() {
-        return active && !fullyParsed && !failed;
-    }
-
-    void setActive() {
-        active = true;
-    }
-
-    bool isActive() const {
-        return active;
-    }
-
-    void addLast(ZcodeCommandSlot<ZP> *slot);
-
-    ZcodeCommandSlot<ZP>* popFirst();
-
-    ZcodeCommandSlot<ZP>* peekFirst() const {
-        return first;
-    }
-
-    ZcodeCommandChannel<ZP>* getChannel() const {
-        return channel;
-    }
-
-    void reset() {
-        broadcast = false;
-        parallel = false;
-        active = false;
-        last = NULL;
-        first = NULL;
-        fullyParsed = false;
-        if (locks.isActive()) {
-            unlock();
+    public:
+        ZcodeCommandSequence(Zcode<ZP> *zcode, ZcodeCommandChannel<ZP> *channel) :
+                zcode(zcode), channel(channel), locks() {
         }
-        locks.reset();
-        empty = false;
-    }
 
-    bool fail(ZcodeResponseStatus status);
+        Zcode<ZP>* getZcode() {
+            return zcode;
+        }
 
-    bool parseFlags();
+        ZcodeSequenceInStream<ZP>* acquireInStream();
 
-    bool canLock();
+        void releaseInStream();
 
-    void lock();
+        ZcodeOutStream<ZP>* acquireOutStream();
 
-    void unlock();
+        void releaseOutStream();
+
+        bool isEmpty() {
+            return empty;
+        }
+
+        bool canBeParallel() const {
+            return parallel;
+        }
+        bool isBroadcast() const {
+            return broadcast;
+        }
+        void setFullyParsed(bool b) {
+            fullyParsed = b;
+        }
+
+        bool isFullyParsed() const {
+            return fullyParsed;
+        }
+
+        bool hasParsed() const {
+            return first != NULL;
+        }
+
+        void setFailed() {
+            failed = true;
+        }
+        void unsetFailed() {
+            failed = false;
+        }
+        bool hasFailed() const {
+            return failed;
+        }
+        bool canContinueParse() {
+            return active && !fullyParsed && !failed;
+        }
+
+        void setActive() {
+            active = true;
+        }
+
+        bool isActive() const {
+            return active;
+        }
+
+        void addLast(ZcodeCommandSlot<ZP> *slot);
+
+        ZcodeCommandSlot<ZP>* popFirst();
+
+        ZcodeCommandSlot<ZP>* peekFirst() const {
+            return first;
+        }
+
+        ZcodeCommandChannel<ZP>* getChannel() const {
+            return channel;
+        }
+
+        void reset() {
+            broadcast = false;
+            parallel = false;
+            active = false;
+            last = NULL;
+            first = NULL;
+            fullyParsed = false;
+            if (locks.isActive()) {
+                unlock();
+            }
+            locks.reset();
+            empty = false;
+        }
+
+        bool fail(ZcodeResponseStatus status);
+
+        bool parseFlags();
+
+        bool canLock();
+
+        void lock();
+
+        void unlock();
 };
 
 template<class ZP>

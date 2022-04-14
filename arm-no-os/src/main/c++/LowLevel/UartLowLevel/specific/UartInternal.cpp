@@ -29,6 +29,7 @@ int16_t UartInternal::read() {
         return registers->RDR;
     }
 }
+
 bool UartInternal::hasRxFifoData() {
     const uint32_t rxFifoNotEmpty = 0x20;
     return (registers->ISR & rxFifoNotEmpty) != 0;

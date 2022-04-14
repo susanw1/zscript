@@ -5,10 +5,9 @@
  *      Author: robert
  */
 
-#include "../persistence/ZcodeStoreMacAddressCommand.hpp"
+#include "ZcodeStoreMacAddressCommand.hpp"
 
-void ZcodeStoreMacAddressCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot,
-        ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out) {
+void ZcodeStoreMacAddressCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out) {
     if (slot->getBigField()->getLength() != 6) {
         slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);

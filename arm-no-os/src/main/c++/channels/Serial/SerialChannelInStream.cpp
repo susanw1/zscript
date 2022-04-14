@@ -14,6 +14,7 @@ int16_t SerialChannelInStream::read() {
     }
     return v;
 }
+
 char SerialChannelLookahead::read() {
     int result = parent->getChannel()->getSerial()->peek();
     if (result == -1) {
