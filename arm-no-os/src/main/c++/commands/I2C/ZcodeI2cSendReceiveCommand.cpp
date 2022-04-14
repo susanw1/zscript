@@ -14,6 +14,7 @@ void ZcodeI2cSendReceiveCommand::setAsFinished(I2cTerminationStatus status, Zcod
         slot->setNeedsMoveAlong(true);
     }
 }
+
 void ZcodeI2cSendReceiveCommand::moveAlong(ZcodeCommandSlot<ZcodeParameters> *slot) const {
     bool tenBit = slot->getFields()->has('N');
     uint16_t address = slot->getFields()->getByte('A', 0, 0);

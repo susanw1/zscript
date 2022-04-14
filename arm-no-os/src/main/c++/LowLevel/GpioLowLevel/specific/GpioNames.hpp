@@ -7,6 +7,7 @@
 
 #ifndef SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIONAMES_HPP_
 #define SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIONAMES_HPP_
+
 #include "../../GeneralLLSetup.hpp"
 
 #define PortA 0
@@ -109,8 +110,8 @@
 #define GPIO_AF15 15
 
 struct GpioPinName {
-    uint8_t port :4;
-    uint8_t pin :4;
+        uint8_t port :4;
+        uint8_t pin :4;
 };
 
 #endif /* SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIONAMES_HPP_ */

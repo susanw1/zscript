@@ -5,10 +5,9 @@
  *      Author: robert
  */
 
-#include "../persistence/ZcodeFetchGuidCommand.hpp"
+#include "ZcodeFetchGuidCommand.hpp"
 
-void ZcodeFetchGuidCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot,
-        ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out) {
+void ZcodeFetchGuidCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out) {
     if (persist->hasGuid()) {
         out->writeStatus(OK);
     } else {

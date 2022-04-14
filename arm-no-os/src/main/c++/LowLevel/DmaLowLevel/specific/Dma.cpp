@@ -6,6 +6,7 @@
  */
 
 #include "../Dma.hpp"
+
 void Dma::interrupt() {
     if (channel.hasTransferError()) {
         callback(this, DmaError);
@@ -21,9 +22,11 @@ void Dma::interrupt() {
         channel.clearInterrupt();
     }
 }
+
 uint16_t Dma::fetchRemainingTransferLength() {
     return channel.getChannelRegisters()->CNDTR;
 }
+
 void Dma::halt() {
     channel.getChannelRegisters()->CCR &= ~1;
     channel.setMux(DMAMUX_NO_MUX);

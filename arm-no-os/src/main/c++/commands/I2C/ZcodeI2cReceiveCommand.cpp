@@ -14,6 +14,7 @@ void ZcodeI2cReceiveCommand::setAsFinished(I2cTerminationStatus status, ZcodeCom
         slot->setNeedsMoveAlong(true);
     }
 }
+
 void ZcodeI2cReceiveCommand::moveAlong(ZcodeCommandSlot<ZcodeParameters> *slot) const {
     bool tenBit = slot->getFields()->has('N');
     uint16_t address = slot->getFields()->getByte('A', 0, 0);
@@ -36,6 +37,7 @@ void ZcodeI2cReceiveCommand::finish(ZcodeCommandSlot<ZcodeParameters> *slot, Zco
     if (slot->getFields()->countFieldSections('T') > 1) {
         return;
     }
+
     bool tenBit = slot->getFields()->has('N');
     uint16_t address = slot->getFields()->getByte('A', 0, 0);
     if (addrLen > 1) {
@@ -147,6 +149,7 @@ void ZcodeI2cReceiveCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, Zc
         slot->setComplete(true);
         return;
     }
+
     ZcodeI2cSubsystem::getZcodeBus(bus)->activateBus();
     ZcodeI2cSubsystem::getZcodeBus(bus)->asyncReceive(address, tenBit, length, slot,
             &ZcodeI2cReceiveCommand::setAsFinished, retries - 1);

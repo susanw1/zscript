@@ -10,6 +10,7 @@
 int16_t EthernetUdpChannelInStream::read() {
     return channel->getUdp()->read();
 }
+
 char EthernetUdpChannelLookahead::read() {
     int result = parent->getChannel()->getUdp()->peek(dist++);
     if (result == -1) {

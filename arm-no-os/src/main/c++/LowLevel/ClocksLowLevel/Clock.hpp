@@ -7,32 +7,36 @@
 
 #ifndef SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_CLOCK_HPP_
 #define SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_CLOCK_HPP_
+
 #include "../GeneralLLSetup.hpp"
 #include "specific/SystemClocks.hpp"
 
 class Clock {
-    uint32_t freq;
-    SystemClock clock;
-    SystemClock source;
+    private:
+        uint32_t freq;
+        SystemClock clock;
+        SystemClock source;
 
-public:
-    Clock(uint32_t freq,
-            SystemClock clock,
-            SystemClock source) :
-            freq(freq), clock(clock), source(source) {
-    }
+    public:
+        Clock(uint32_t freq,
+                SystemClock clock,
+                SystemClock source) :
+                freq(freq), clock(clock), source(source) {
+        }
 
-    uint32_t getDivider(uint32_t targetFreqKhz) {
-        return freq / targetFreqKhz;
-    }
-    int set(uint32_t targetFreqKhz, SystemClock source);
+        uint32_t getDivider(uint32_t targetFreqKhz) {
+            return freq / targetFreqKhz;
+        }
 
-    uint32_t getFreqKhz() {
-        return freq;
-    }
-    SystemClock getSource() {
-        return source;
-    }
+        int set(uint32_t targetFreqKhz, SystemClock source);
+
+        uint32_t getFreqKhz() {
+            return freq;
+        }
+
+        SystemClock getSource() {
+            return source;
+        }
 };
 
 #include "ClockManager.hpp"

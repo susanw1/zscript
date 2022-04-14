@@ -14,6 +14,7 @@ void ZcodeI2cSendCommand::setAsFinished(I2cTerminationStatus status, ZcodeComman
         slot->setNeedsMoveAlong(true);
     }
 }
+
 void ZcodeI2cSendCommand::moveAlong(ZcodeCommandSlot<ZcodeParameters> *slot) const {
     bool tenBit = slot->getFields()->has('N');
     uint16_t address = slot->getFields()->getByte('A', 0, 0);
@@ -58,7 +59,7 @@ void ZcodeI2cSendCommand::finish(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeO
     }
 
     out->writeField('A', address);
-    out->writeField('T', (uint8_t)(retries - bus->getCallbackData()));
+    out->writeField('T', (uint8_t) (retries - bus->getCallbackData()));
     I2cTerminationStatus status = bus->getStatus();
     if (status == AddressNack) {
         out->writeField('I', (uint8_t) 2);
@@ -102,6 +103,7 @@ void ZcodeI2cSendCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, Zcode
         slot->setComplete(true);
         return;
     }
+
     uint8_t bus = slot->getFields()->get('B', 0);
     if (bus >= 4 * ZcodePeripheralParameters::i2cBusesPerPhyBus) {
         slot->fail("", BAD_PARAM);
@@ -111,15 +113,18 @@ void ZcodeI2cSendCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, Zcode
         slot->setComplete(true);
         return;
     }
+
     uint8_t retries = slot->getFields()->get('T', 5);
     if (retries == 0) {
         retries = 1;
     }
+
     bool tenBit = slot->getFields()->has('N');
     uint16_t address = slot->getFields()->getByte('A', 0, 0);
     if (addrLen > 1) {
         address = (address << 8) | slot->getFields()->getByte('A', 1, 0);
     }
+
     if (address > 127 && !tenBit) {
         slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);

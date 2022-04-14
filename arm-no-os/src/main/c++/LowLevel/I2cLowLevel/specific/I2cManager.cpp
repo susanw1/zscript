@@ -114,42 +114,42 @@
 #endif
 
 I2c I2cManager::i2cs[] = {
-#ifdef USE_I2C_1
-    I2c()
-#endif
+        #ifdef USE_I2C_1
+        I2c()
+        #endif
 #ifdef USE_I2C_2
-    , I2c()
-#endif
+        , I2c()
+        #endif
 #ifdef USE_I2C_3
     , I2c()
 #endif
 #ifdef USE_I2C_4
-    , I2c()
+        , I2c()
 #endif
 };
 
 class I2cInterruptManager {
-    friend void I2C1_EV_IRQHandler();
-    friend void I2C1_ER_IRQHandler();
-    friend void I2C2_EV_IRQHandler();
-    friend void I2C2_ER_IRQHandler();
-    friend void I2C3_EV_IRQHandler();
-    friend void I2C3_ER_IRQHandler();
-    friend void I2C4_EV_IRQHandler();
-    friend void I2C4_ER_IRQHandler();
+        friend void I2C1_EV_IRQHandler();
+        friend void I2C1_ER_IRQHandler();
+        friend void I2C2_EV_IRQHandler();
+        friend void I2C2_ER_IRQHandler();
+        friend void I2C3_EV_IRQHandler();
+        friend void I2C3_ER_IRQHandler();
+        friend void I2C4_EV_IRQHandler();
+        friend void I2C4_ER_IRQHandler();
 
-    static void IRQI2C1() {
-        I2cManager::i2cs[0].interrupt();
-    }
-    static void IRQI2C2() {
-        I2cManager::i2cs[1].interrupt();
-    }
-    static void IRQI2C3() {
-        I2cManager::i2cs[2].interrupt();
-    }
-    static void IRQI2C4() {
-        I2cManager::i2cs[3].interrupt();
-    }
+        static void IRQI2C1() {
+            I2cManager::i2cs[0].interrupt();
+        }
+        static void IRQI2C2() {
+            I2cManager::i2cs[1].interrupt();
+        }
+        static void IRQI2C3() {
+            I2cManager::i2cs[2].interrupt();
+        }
+        static void IRQI2C4() {
+            I2cManager::i2cs[3].interrupt();
+        }
 };
 
 I2cInternal getI2cInternal(I2cIdentifier id) {
@@ -179,6 +179,7 @@ I2cInternal getI2cInternal(I2cIdentifier id) {
 #endif
     }
 }
+
 DmaMuxRequest getI2cMuxTxRequest(I2cIdentifier id) {
     if (id == 0) {
         return DMAMUX_I2C1_TX;
@@ -190,6 +191,7 @@ DmaMuxRequest getI2cMuxTxRequest(I2cIdentifier id) {
         return DMAMUX_I2C4_TX;
     }
 }
+
 DmaMuxRequest getI2cMuxRxRequest(I2cIdentifier id) {
     if (id == 0) {
         return DMAMUX_I2C1_RX;

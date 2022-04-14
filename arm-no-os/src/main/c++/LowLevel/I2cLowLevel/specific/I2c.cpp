@@ -7,10 +7,12 @@
 
 #include "../I2c.hpp"
 #include "../../ClocksLowLevel/ClockManager.hpp"
+
 I2c::I2c(I2c &&o) :
         i2c(o.i2c), id(o.id), dma(o.dma), requestTx(o.requestTx), requestRx(o.requestRx), lockBool(o.lockBool), state(((I2cState&) o.state)), callback(
                 o.callback) {
 }
+
 I2c::I2c() :
         i2c(), id(0), state( { 0, false, false, false, false }), callback(NULL) {
 }
@@ -117,6 +119,7 @@ void I2c::dmaInterrupt(DmaTerminationStatus status) {
         }
     }
 }
+
 void I2c::interrupt() {
     const uint32_t i2cBusError = 0x100;
     const uint32_t i2cArbitrationLoss = 0x200;
@@ -241,6 +244,7 @@ void I2c::interrupt() {
         state.repeatCount++;
     }
 }
+
 void I2cDmaCallback(Dma *dma, DmaTerminationStatus status) {
     for (int i = 0; i < GeneralHalSetup::i2cCount; ++i) {
         if (I2cManager::getI2cById(i)->dma == dma) {
@@ -249,6 +253,7 @@ void I2cDmaCallback(Dma *dma, DmaTerminationStatus status) {
         }
     }
 }
+
 void I2c::asyncTransmit(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, void (*callback)(I2c*, I2cTerminationStatus)) {
     const uint32_t i2cBusy = 0x8000;
     const uint32_t enableI2c10BitAddress = 0x00001000;
@@ -409,6 +414,7 @@ void I2c::asyncTransmitReceive(uint16_t address, bool tenBit, const uint8_t *txD
     cr2r |= chunking << 16;
     i2c.getRegisters()->CR2 = cr2r;
 }
+
 void I2c::restartReceive() {
     const uint32_t i2cStop = 0x4000;
     const uint32_t enableI2c10BitAddress = 0x00001000;

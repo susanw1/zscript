@@ -20,13 +20,13 @@ class ZcodeInterruptVectorMap {
         executionSpaceAddress_t vectors[ZP::interruptVectorNum];
         uint8_t addresses[ZP::interruptVectorNum];
         uint8_t specificities[ZP::interruptVectorNum];
-        uint8_t busses[ZP::interruptVectorNum];
+        uint8_t buses[ZP::interruptVectorNum];
         uint8_t types[ZP::interruptVectorNum];
 
         bool setVectorInternal(uint8_t type, uint8_t bus, uint8_t addr, uint8_t specificity, executionSpaceAddress_t vector) {
             for (int i = 0; i < vectorNum; i++) {
                 if (specificities[i] == specificity
-                        && (specificity == 0 || (types[i] == type && (specificity == 1 || (busses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))))) {
+                        && (specificity == 0 || (types[i] == type && (specificity == 1 || (buses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))))) {
                     vectors[i] = vector;
                     return true;
                 }
@@ -36,7 +36,7 @@ class ZcodeInterruptVectorMap {
             }
             specificities[vectorNum] = specificity;
             addresses[vectorNum] = addr;
-            busses[vectorNum] = bus;
+            buses[vectorNum] = bus;
             types[vectorNum] = type;
             vectors[vectorNum] = vector;
             vectorNum++;
@@ -47,12 +47,12 @@ class ZcodeInterruptVectorMap {
             if (specificities[mostRecent] == specificity
                     && (specificity == 0
                             || (types[mostRecent] == type
-                                    && (specificity == 1 || (busses[mostRecent] == bus && (specificity == 0x02 || addresses[mostRecent] == addr)))))) {
+                                    && (specificity == 1 || (buses[mostRecent] == bus && (specificity == 0x02 || addresses[mostRecent] == addr)))))) {
                 return true;
             }
             for (int i = 0; i < vectorNum; i++) {
                 if (specificities[i] == specificity
-                        && (specificity == 0 || (types[i] == type && (specificity == 1 || (busses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))))) {
+                        && (specificity == 0 || (types[i] == type && (specificity == 1 || (buses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))))) {
                     mostRecent = i;
                     return true;
                 }
@@ -64,12 +64,12 @@ class ZcodeInterruptVectorMap {
             if (specificities[mostRecent] == specificity
                     && (specificity == 0
                             || (types[mostRecent] == type
-                                    && (specificity == 1 || (busses[mostRecent] == bus && (specificity == 0x02 || addresses[mostRecent] == addr)))))) {
+                                    && (specificity == 1 || (buses[mostRecent] == bus && (specificity == 0x02 || addresses[mostRecent] == addr)))))) {
                 return vectors[mostRecent];
             }
             for (int i = 0; i < vectorNum; i++) {
                 if (specificities[i] == specificity
-                        && (specificity == 0 || (types[i] == type && (specificity == 1 || (busses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))))) {
+                        && (specificity == 0 || (types[i] == type && (specificity == 1 || (buses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))))) {
                     mostRecent = i;
                     return vectors[i];
                 }

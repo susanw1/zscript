@@ -17,8 +17,7 @@ void ZcodeI2cBus::asyncReceive(uint16_t addr, bool tenBit, uint8_t rxLen, ZcodeC
     phyBus->asyncReceive(addr, tenBit, rxLen, callbackSlot, callbackFunc, callbackData);
 }
 
-void ZcodeI2cBus::asyncTransmitReceive(uint16_t addr, bool tenBit, const uint8_t *txBuffer, uint8_t txLen, uint8_t rxLen,
-        ZcodeCommandSlot<ZcodeParameters> *callbackSlot,
+void ZcodeI2cBus::asyncTransmitReceive(uint16_t addr, bool tenBit, const uint8_t *txBuffer, uint8_t txLen, uint8_t rxLen, ZcodeCommandSlot<ZcodeParameters> *callbackSlot,
         void (*callbackFunc)(I2cTerminationStatus, ZcodeCommandSlot<ZcodeParameters>*, uint8_t), uint8_t callbackData) {
     phyBus->asyncTransmitReceive(addr, tenBit, txBuffer, txLen, rxLen, callbackSlot, callbackFunc, callbackData);
 }
@@ -30,12 +29,15 @@ void ZcodeI2cBus::activateBus() {
 uint8_t* ZcodeI2cBus::getReadBuffer() {
     return phyBus->getReadBuffer();
 }
+
 void ZcodeI2cBus::freeReadBuffer() {
     return phyBus->freeReadBuffer();
 }
+
 uint8_t ZcodeI2cBus::getCallbackData() {
     return phyBus->getCallbackData();
 }
+
 I2cTerminationStatus ZcodeI2cBus::getStatus() {
     return phyBus->getStatus();
 }

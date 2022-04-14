@@ -14,6 +14,7 @@ static const uint16_t mainPersistentMemoryLocation = 48;
 ZcodeFlashPersistence::ZcodeFlashPersistence() :
         page1(254), page2(255) {
 }
+
 FlashPage* ZcodeFlashPersistence::getCurrentValid() {
     uint8_t p1_n = ((uint8_t) * page1.getStart());
     uint8_t p2_n = ((uint8_t) * page2.getStart());
@@ -47,21 +48,27 @@ FlashPage* ZcodeFlashPersistence::getCurrentValid() {
         return &page1;
     }
 }
+
 bool ZcodeFlashPersistence::hasGuid() {
     return *(((uint8_t*) (getCurrentValid()->getStart())) + guidLocation) == 0xAA;
 }
+
 bool ZcodeFlashPersistence::hasMac() {
     return *(((uint8_t*) (getCurrentValid()->getStart())) + macAddressLocation) == 0xAA;
 }
+
 uint8_t* ZcodeFlashPersistence::getGuid() {
     return ((uint8_t*) (getCurrentValid()->getStart())) + guidLocation + 1;
 }
+
 uint8_t* ZcodeFlashPersistence::getMac() {
     return ((uint8_t*) (getCurrentValid()->getStart())) + macAddressLocation + 1;
 }
+
 uint8_t* ZcodeFlashPersistence::getPersistentMemory() {
     return ((uint8_t*) (getCurrentValid()->getStart())) + mainPersistentMemoryLocation;
 }
+
 void ZcodeFlashPersistence::writeGuid(const uint8_t *guid) {
     uint8_t guidWithMarker[17];
     for (int i = 0; i < 16; ++i) {
@@ -70,6 +77,7 @@ void ZcodeFlashPersistence::writeGuid(const uint8_t *guid) {
     guidWithMarker[0] = 0xAA;
     writePersistentInternal(guidLocation, guidWithMarker, 17);
 }
+
 void ZcodeFlashPersistence::writeMac(const uint8_t *mac) {
     uint8_t macWithMarker[7];
     for (int i = 0; i < 6; ++i) {
@@ -78,13 +86,13 @@ void ZcodeFlashPersistence::writeMac(const uint8_t *mac) {
     macWithMarker[0] = 0xAA;
     writePersistentInternal(macAddressLocation, macWithMarker, 7);
 }
-void ZcodeFlashPersistence::writePersistent(uint8_t location,
-        const uint8_t *memory, uint8_t length) {
+
+void ZcodeFlashPersistence::writePersistent(uint8_t location, const uint8_t *memory, uint8_t length) {
     writePersistentInternal(location + mainPersistentMemoryLocation,
             memory, length);
 }
-void ZcodeFlashPersistence::writePersistentInternal(uint16_t location,
-        const uint8_t *toWrite, uint16_t length) {
+
+void ZcodeFlashPersistence::writePersistentInternal(uint16_t location, const uint8_t *toWrite, uint16_t length) {
     FlashPage *oldPage = getCurrentValid();
     FlashPage *newPage;
     if (oldPage == &page1) {

@@ -48,6 +48,7 @@ void SPIClass::begin() {
 
 void SPIClass::beginTransaction() {
 }
+
 #pragma GCC optimize ("-O0")
 uint8_t SPIClass::transfer(uint8_t data) {
     const uint16_t fifoLevelMask = 0x0600;

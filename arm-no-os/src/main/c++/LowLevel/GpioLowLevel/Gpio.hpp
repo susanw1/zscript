@@ -12,34 +12,36 @@
 #include "specific/GpioPort.hpp"
 
 class GpioPin {
-private:
-    GpioPort *port;
-    GpioPinName pin;
-    bool lockBool;
+    private:
+        GpioPort *port;
+        GpioPinName pin;
+        bool lockBool;
+
     public:
-    GpioPin(GpioPort *port, GpioPinName pin) :
-            port(port), pin(pin), lockBool(false) {
-    }
-    void init();
+        GpioPin(GpioPort *port, GpioPinName pin) :
+                port(port), pin(pin), lockBool(false) {
+        }
+        void init();
 
-    void write(bool value);
+        void write(bool value);
 
-    void set();
+        void set();
 
-    void reset();
+        void reset();
 
-    bool read();
+        bool read();
 
-    void setMode(PinMode mode);
+        void setMode(PinMode mode);
 
-    void setOutputMode(OutputMode mode);
+        void setOutputMode(OutputMode mode);
 
-    void setOutputSpeed(PinSpeed speed);
+        void setOutputSpeed(PinSpeed speed);
 
-    void setPullMode(PullMode mode);
+        void setPullMode(PullMode mode);
 
-    void setAlternateFunction(uint8_t function);
+        void setAlternateFunction(uint8_t function);
 };
+
 #include "GpioManager.hpp"
 
 #endif /* SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_GPIO_HPP_ */

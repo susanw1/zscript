@@ -9,6 +9,7 @@
 FlashPage::FlashPage(uint16_t pageNum) :
         pageNum(pageNum), start((flashProgramming_t*) (pageNum * GeneralHalSetup::pageSize + 0x08000000)) {
 }
+
 void FlashPage::unlockFlashWrite() {
     // magic keys...
     FLASH->KEYR = 0x45670123;
@@ -21,6 +22,7 @@ void FlashPage::lockFlashWrite() {
     const uint32_t lockOptions = 0x40000000;
     FLASH->CR = lock | lockOptions;
 }
+
 void FlashPage::beginProgram() {
     const uint32_t clearAllStatus = 0x0001C3FB;
     const uint32_t enableProgram = 0x1;

@@ -16,6 +16,7 @@ void activateHSI48() {
         ;
     return;
 }
+
 void activateHSI() {
     const uint32_t enableHSI16 = 0x100;
     const uint32_t HSI16Ready = 0x400;
@@ -25,6 +26,7 @@ void activateHSI() {
         ;
     return;
 }
+
 void activateLSI() {
     const uint32_t enableLSI = 0x1;
     const uint32_t LSIReady = 0x2;

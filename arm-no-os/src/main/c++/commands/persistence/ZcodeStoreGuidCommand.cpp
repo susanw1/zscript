@@ -5,10 +5,9 @@
  *      Author: robert
  */
 
-#include "../persistence/ZcodeStoreGuidCommand.hpp"
+#include "ZcodeStoreGuidCommand.hpp"
 
-void ZcodeStoreGuidCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot,
-        ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out) {
+void ZcodeStoreGuidCommand::execute(ZcodeCommandSlot<ZcodeParameters> *slot, ZcodeCommandSequence<ZcodeParameters> *sequence, ZcodeOutStream<ZcodeParameters> *out) {
     if (slot->getBigField()->getLength() != 16) {
         slot->fail("", BAD_PARAM);
         out->writeStatus(BAD_PARAM);

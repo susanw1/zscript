@@ -5,6 +5,7 @@
  *      Author: robert
  */
 #include "../GpioManager.hpp"
+
 #define PortAAddr ((GpioPort*) 0x48000000)
 #define PortBAddr ((GpioPort*) 0x48000400)
 #define PortCAddr ((GpioPort*) 0x48000800)

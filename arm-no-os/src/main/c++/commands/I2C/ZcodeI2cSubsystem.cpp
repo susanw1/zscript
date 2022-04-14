@@ -11,7 +11,8 @@ ZcodeI2cPhysicalBus ZcodeI2cSubsystem::phyBus0 = ZcodeI2cPhysicalBus(I2cManager:
 ZcodeI2cPhysicalBus ZcodeI2cSubsystem::phyBus1 = ZcodeI2cPhysicalBus(I2cManager::getI2cById(1));
 ZcodeI2cPhysicalBus ZcodeI2cSubsystem::phyBus2 = ZcodeI2cPhysicalBus(I2cManager::getI2cById(2));
 ZcodeI2cPhysicalBus ZcodeI2cSubsystem::phyBus3 = ZcodeI2cPhysicalBus(I2cManager::getI2cById(3));
-ZcodeI2cBus ZcodeI2cSubsystem::busses[] = { ZcodeI2cBus(), ZcodeI2cBus(), ZcodeI2cBus(), ZcodeI2cBus(), ZcodeI2cBus(), ZcodeI2cBus(), ZcodeI2cBus(),
+
+ZcodeI2cBus ZcodeI2cSubsystem::buses[] = { ZcodeI2cBus(), ZcodeI2cBus(), ZcodeI2cBus(), ZcodeI2cBus(), ZcodeI2cBus(), ZcodeI2cBus(), ZcodeI2cBus(),
         ZcodeI2cBus() };
 bool ZcodeI2cSubsystem::createNotifications = false;
 

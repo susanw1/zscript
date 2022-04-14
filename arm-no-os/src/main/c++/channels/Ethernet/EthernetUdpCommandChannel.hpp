@@ -7,8 +7,10 @@
 
 #ifndef SRC_TEST_CPP_CHANNELS_ETHERNETCOMMANDCHANNEL_HPP_
 #define SRC_TEST_CPP_CHANNELS_ETHERNETCOMMANDCHANNEL_HPP_
+
 #include <stdint.h>
 #include <stdlib.h>
+
 #include <ZcodeParameters.hpp>
 #include <parsing/ZcodeCommandChannel.hpp>
 #include <parsing/ZcodeCommandSequence.hpp>
@@ -17,97 +19,102 @@
 #include "EthernetUdpChannelOutStream.hpp"
 
 class EthernetUdpCommandChannel: public ZcodeCommandChannel<ZcodeParameters> {
-    EthernetUDP udp;
-    ZcodeCommandSequence<ZcodeParameters> seq;
-    EthernetUdpChannelInStream in;
-    EthernetUdpChannelOutStream out;
-    IPAddress mostRecentIP;
-    uint16_t mostRecentPort;
+    private:
+        EthernetUDP udp;
+        ZcodeCommandSequence<ZcodeParameters> seq;
+        EthernetUdpChannelInStream in;
+        EthernetUdpChannelOutStream out;
+        IPAddress mostRecentIP;
+        uint16_t mostRecentPort;
 
-    friend EthernetUdpChannelInStream;
-    friend EthernetUdpChannelLookahead;
-    friend EthernetUdpChannelOutStream;
+        friend EthernetUdpChannelInStream;
+        friend EthernetUdpChannelLookahead;
+        friend EthernetUdpChannelOutStream;
 
-    EthernetUDP* getUdp() {
-        return &udp;
-    }
-public:
-    EthernetUdpCommandChannel(uint16_t port, Zcode<ZcodeParameters> *zcode) :
-            udp(), seq(zcode, this), in(this), out(this), mostRecentIP(), mostRecentPort(0) {
-        udp.begin(port);
-    }
+        EthernetUDP* getUdp() {
+            return &udp;
+        }
 
-    IPAddress getIp() {
-        return mostRecentIP;
-    }
-    uint16_t getPort() {
-        return mostRecentPort;
-    }
-    virtual ZcodeChannelInStream<ZcodeParameters>* acquireInStream() {
-        return &in;
-    }
+    public:
+        EthernetUdpCommandChannel(uint16_t port, Zcode<ZcodeParameters> *zcode) :
+                udp(), seq(zcode, this), in(this), out(this), mostRecentIP(), mostRecentPort(0) {
+            udp.begin(port);
+        }
 
-    virtual ZcodeOutStream<ZcodeParameters>* acquireOutStream() {
-        return &out;
-    }
+        IPAddress getIp() {
+            return mostRecentIP;
+        }
 
-    virtual bool hasCommandSequence() {
-        if (udp.available()) {
-            return true;
-        } else {
-            if (udp.parsePacket()) {
-                mostRecentIP = udp.remoteIP();
-                mostRecentPort = udp.remotePort();
+        uint16_t getPort() {
+            return mostRecentPort;
+        }
+
+        virtual ZcodeChannelInStream<ZcodeParameters>* acquireInStream() {
+            return &in;
+        }
+
+        virtual ZcodeOutStream<ZcodeParameters>* acquireOutStream() {
+            return &out;
+        }
+
+        virtual bool hasCommandSequence() {
+            if (udp.available()) {
                 return true;
             } else {
-                return false;
+                if (udp.parsePacket()) {
+                    mostRecentIP = udp.remoteIP();
+                    mostRecentPort = udp.remotePort();
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
-    }
 
-    virtual ZcodeCommandSequence<ZcodeParameters>* getCommandSequence() {
-        return &seq;
-    }
+        virtual ZcodeCommandSequence<ZcodeParameters>* getCommandSequence() {
+            return &seq;
+        }
 
-    virtual bool isPacketBased() {
-        return true;
-    }
+        virtual bool isPacketBased() {
+            return true;
+        }
 
-    virtual void releaseInStream() {
-        udp.flush();
-    }
+        virtual void releaseInStream() {
+            udp.flush();
+        }
 
-    virtual void releaseOutStream() {
-    }
+        virtual void releaseOutStream() {
+        }
 
-    virtual bool hasInStream() {
-        return true;
-    }
-    virtual bool hasOutStream() {
-        return true;
-    }
-    virtual void setAsNotificationChannel() {
-    }
+        virtual bool hasInStream() {
+            return true;
+        }
 
-    virtual void releaseFromNotificationChannel() {
-    }
+        virtual bool hasOutStream() {
+            return true;
+        }
 
-    virtual void setAsDebugChannel() {
-    }
+        virtual void setAsNotificationChannel() {
+        }
 
-    virtual void releaseFromDebugChannel() {
-    }
+        virtual void releaseFromNotificationChannel() {
+        }
 
-    virtual void lock() {
+        virtual void setAsDebugChannel() {
+        }
 
-    }
+        virtual void releaseFromDebugChannel() {
+        }
 
-    virtual bool canLock() {
-        return true;
-    }
+        virtual void lock() {
+        }
 
-    virtual void unlock() {
-    }
+        virtual bool canLock() {
+            return true;
+        }
+
+        virtual void unlock() {
+        }
 };
 
 #endif /* SRC_TEST_CPP_CHANNELS_ETHERNETCOMMANDCHANNEL_HPP_ */

@@ -156,9 +156,9 @@
 
 #ifdef USE_USB_SERIAL
 Usb UartManager::usb(GeneralHalSetup::UsbSerialId);
-#endif
+        #endif
 
-Uart UartManager::uarts[] = {
+        Uart UartManager::uarts[] = {
         #ifdef USE_UART_1
         Uart()
         #endif
@@ -173,38 +173,38 @@ Uart UartManager::uarts[] = {
         #endif
 #ifdef USE_UART_5
         , Uart()
-        #endif
-#ifdef USE_UART_6
-        , Uart()
 #endif
-        };
+#ifdef USE_UART_6
+, Uart()
+#endif
+};
 
 class UartInterruptManager {
-    friend void USART1_IRQHandler();
-    friend void USART2_IRQHandler();
-    friend void USART3_IRQHandler();
-    friend void UART4_IRQHandler();
-    friend void UART5_IRQHandler();
-    friend void LPUART1_IRQHandler();
+        friend void USART1_IRQHandler();
+        friend void USART2_IRQHandler();
+        friend void USART3_IRQHandler();
+        friend void UART4_IRQHandler();
+        friend void UART5_IRQHandler();
+        friend void LPUART1_IRQHandler();
 
-    static void IRQUART1() {
-        UartManager::uarts[0].interrupt();
-    }
-    static void IRQUART2() {
-        UartManager::uarts[1].interrupt();
-    }
-    static void IRQUART3() {
-        UartManager::uarts[2].interrupt();
-    }
-    static void IRQUART4() {
-        UartManager::uarts[3].interrupt();
-    }
-    static void IRQUART5() {
-        UartManager::uarts[4].interrupt();
-    }
-    static void IRQUART6() {
-        UartManager::uarts[5].interrupt();
-    }
+        static void IRQUART1() {
+            UartManager::uarts[0].interrupt();
+        }
+        static void IRQUART2() {
+            UartManager::uarts[1].interrupt();
+        }
+        static void IRQUART3() {
+            UartManager::uarts[2].interrupt();
+        }
+        static void IRQUART4() {
+            UartManager::uarts[3].interrupt();
+        }
+        static void IRQUART5() {
+            UartManager::uarts[4].interrupt();
+        }
+        static void IRQUART6() {
+            UartManager::uarts[5].interrupt();
+        }
 };
 
 UartInternal getUartInternal(SerialIdentifier id) {

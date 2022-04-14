@@ -58,6 +58,7 @@ void I2cInternal::activatePins() {
     GpioManager::getPin(sda)->setOutputSpeed(VeryHighSpeed);
     GpioManager::getPin(sda)->setMode(AlternateFunction);
 }
+
 bool I2cInternal::recoverSdaJam() {
     int attempts = 18;
     GpioPin *sdaPin = GpioManager::getPin(sda);
