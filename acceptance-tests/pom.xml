@@ -9,9 +9,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.zcode.acceptancetests</groupId>
+    <groupId>org.zcode</groupId>
     <artifactId>acceptance-tests</artifactId>
-    <name>acceptance-tests</name>
+    <name>Zcode Acceptance Tests</name>
     
     <dependencies>
         <dependency>

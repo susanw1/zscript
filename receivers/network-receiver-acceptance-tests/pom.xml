@@ -4,19 +4,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-all</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+	    <groupId>org.zcode</groupId>
+	    <artifactId>zcode-receivers</artifactId>
+	    <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.zcode.javareceiver</groupId>
-    <artifactId>java-receiver</artifactId>
-    <name>java-receiver</name>
+    <groupId>org.zcode</groupId>
+    <artifactId>network-receiver-acceptance-tests</artifactId>
+    <name>Zcode Acceptance Tests over Network Connection</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
+            <groupId>org.zcode</groupId>
+            <artifactId>acceptance-tests</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

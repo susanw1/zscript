@@ -4,20 +4,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-all</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+	    <groupId>org.zcode</groupId>
+	    <artifactId>zcode-receivers-native</artifactId>
+	    <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.zcode.cpp</groupId>
+    <groupId>org.zcode</groupId>
     <artifactId>generic-cpp-receiver</artifactId>
-    <name>generic-cpp-receiver</name>
-
     <packaging>nar</packaging>
-
-
-    <dependencies>
-    </dependencies>
+    <name>Zcode Generic C++ Receiver Core</name>
 
     <build>
         <plugins>

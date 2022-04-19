@@ -7,22 +7,29 @@
     <artifactId>zcode-all</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>zcode-all</name>
+    <name>Zcode</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.source.version>11</java.source.version>
         <java.target.version>11</java.target.version>
-        <cucumber.version>7.2.3</cucumber.version>
+        <junit.version>5.8.2</junit.version>
+      	<cucumber.version>7.2.3</cucumber.version>
+        <assertj.version>3.22.0</assertj.version>
+        <awaitility.version>4.2.0</awaitility.version>
+        <nar-maven-plugin.version>3.10.1</nar-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
+        <m2e-nar.version>1.0.5</m2e-nar.version>
+        <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
+        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
     </properties>
  
     <modules>
-        <module>java-receiver</module>
+        <module>receivers</module>
+        <module>clients</module>
         <module>acceptance-tests</module>
-        <module>java-receiver-acceptance-tests</module>
-        <module>network-receiver-acceptance-tests</module>
-        <module>generic-cpp-receiver</module>
-        <module>arm-no-os</module>
     </modules>
 
     <dependencyManagement>
@@ -30,22 +37,22 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
-                <version>5.8.2</version>
+                <version>${junit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.vintage</groupId>
                 <artifactId>junit-vintage-engine</artifactId>
-                <version>5.8.2</version>
+                <version>${junit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.22.0</version>
+                <version>${assertj.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.awaitility</groupId>
                 <artifactId>awaitility</artifactId>
-                <version>4.2.0</version>
+                <version>${awaitility.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.cucumber</groupId>
@@ -81,13 +88,13 @@
                 <plugin>
                     <groupId>com.github.maven-nar</groupId>
                     <artifactId>nar-maven-plugin</artifactId>
-                    <version>3.10.1</version>
+                    <version>${nar-maven-plugin.version}</version>
                     <extensions>true</extensions>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.7</version>
+                    <version>${jacoco-maven-plugin.version}</version>
                     <executions>
                         <execution>
                             <goals>
@@ -106,12 +113,12 @@
                 <plugin>
                     <groupId>com.github.sdedwards.m2e-nar</groupId>
                     <artifactId>m2e-nar</artifactId>
-                    <version>1.0.5</version>
+                    <version>${m2e-nar.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>${exec-maven-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -119,7 +126,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>${java.source.version}</source>
                     <target>${java.target.version}</target>
@@ -128,7 +135,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                 </configuration>
@@ -136,7 +143,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>${maven-failsafe-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>com.github.sdedwards.m2e-nar</groupId>
