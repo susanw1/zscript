@@ -7,11 +7,10 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<groupId>org.zcode</groupId>
 	<artifactId>arm-no-os</artifactId>
+	<packaging>nar</packaging>
 	<name>Zcode ARM Bare Metal (no OS) Receiver</name>
 
-	<packaging>nar</packaging>
 
 	<dependencies>
 		<dependency>
@@ -112,6 +111,11 @@
                 <executions> <execution> <id>default-cli</id> <configuration> <executable>${project.build.directory}/test-nar/bin/amd64-Linux-gpp/default-cli</executable> 
                 <workingDirectory>${project.build.directory}</workingDirectory> </configuration> 
                 </execution> </executions> </plugin> -->
+
+			<plugin>
+				<groupId>com.github.sdedwards.m2e-nar</groupId>
+				<artifactId>m2e-nar</artifactId>
+			</plugin>
 		</plugins>
 	</build>
 </project>

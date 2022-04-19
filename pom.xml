@@ -145,10 +145,6 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven-failsafe-plugin.version}</version>
             </plugin>
-            <plugin>
-                <groupId>com.github.sdedwards.m2e-nar</groupId>
-                <artifactId>m2e-nar</artifactId>
-            </plugin>
         </plugins>
     </build>
 </project>

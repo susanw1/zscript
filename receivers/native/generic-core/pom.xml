@@ -9,8 +9,7 @@
 	    <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.zcode</groupId>
-    <artifactId>generic-cpp-receiver</artifactId>
+    <artifactId>generic-receiver-core</artifactId>
     <packaging>nar</packaging>
     <name>Zcode Generic C++ Receiver Core</name>
 
@@ -75,7 +74,10 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>com.github.sdedwards.m2e-nar</groupId>
+                <artifactId>m2e-nar</artifactId>
+            </plugin>
         </plugins>
     </build>
 </project>

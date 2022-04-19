@@ -9,7 +9,6 @@
 	    <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.zcode</groupId>
     <artifactId>zcode-receivers-arduino</artifactId>
     <packaging>nar</packaging>
     <name>Zcode Arduino Receiver - TBD</name>

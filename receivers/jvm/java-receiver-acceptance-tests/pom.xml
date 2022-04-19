@@ -9,7 +9,6 @@
 	    <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.zcode</groupId>
     <artifactId>java-receiver-acceptance-tests</artifactId>
     <name>Zcode Acceptance Tests for Java</name>
 

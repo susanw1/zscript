@@ -9,7 +9,6 @@
 	    <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.zcode</groupId>
     <artifactId>zcode-receivers-jvm</artifactId>
     <packaging>pom</packaging>
     <name>Zcode JVM Receiver</name>

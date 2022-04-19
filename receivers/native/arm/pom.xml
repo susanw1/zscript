@@ -9,7 +9,6 @@
 	    <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.zcode</groupId>
     <artifactId>zcode-receivers-arm</artifactId>
     <packaging>pom</packaging>
     <name>Zcode ARM Receivers</name>
