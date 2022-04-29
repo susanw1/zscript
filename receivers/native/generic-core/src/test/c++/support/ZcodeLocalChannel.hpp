@@ -20,176 +20,178 @@
 class ZcodeLocalChannelInStream;
 
 class ZcodeLocalLookaheadStream: public ZcodeLookaheadStream<TestParams> {
-public:
-    ZcodeLocalChannelInStream *parent;
-    int relativePos = 0;
-    virtual char read();
-    ZcodeLocalLookaheadStream(ZcodeLocalChannelInStream *parent) :
-            parent(parent) {
-    }
+    public:
+        ZcodeLocalChannelInStream *parent;
+        int relativePos = 0;
+        virtual char read();
+        ZcodeLocalLookaheadStream(ZcodeLocalChannelInStream *parent) :
+                parent(parent) {
+        }
 };
 
 class ZcodeLocalChannelInStream: public ZcodeChannelInStream<TestParams> {
-private:
-    static const int MAX_BUFLEN = 10000;
+    private:
+        static const int MAX_BUFLEN = 10000;
 
-    char buffer[MAX_BUFLEN];
+        char buffer[MAX_BUFLEN];
 
-    std::streamsize lengthRead = 0;
-    std::streamsize pos = 0;
-    int timer = 100;
-    bool opened = false;
-    ZcodeLocalLookaheadStream lookAhead;
-public:
-    ZcodeLocalChannelInStream() :
-            lookAhead(this) {
-    }
-
-    virtual ~ZcodeLocalChannelInStream() {
-    }
-
-    char charAt(int relative) {
-        return relative + pos >= lengthRead ? Zchars::EOL_SYMBOL : buffer[relative + pos];
-    }
-
-    virtual int16_t read() {
-        if (pos >= lengthRead) {
-            opened = false;
-            return -1;
-        } else {
-            return buffer[pos++];
+        std::streamsize lengthRead = 0;
+        std::streamsize pos = 0;
+        int timer = 100;
+        bool opened = false;
+        ZcodeLocalLookaheadStream lookAhead;
+        public:
+        ZcodeLocalChannelInStream() :
+                lookAhead(this) {
         }
-    }
 
-    virtual bool hasNext() {
-        return pos < lengthRead;
-    }
-
-    virtual ZcodeLookaheadStream<TestParams>* getLookahead() {
-        lookAhead.relativePos = 0;
-        return &lookAhead;
-    }
-
-    bool hasNextCommandSequence() {
-        if (!opened && timer <= 0) {
-            std::cin.getline(buffer, MAX_BUFLEN - 1);
-            lengthRead = std::cin.gcount() - 1;
-            buffer[lengthRead] = Zchars::EOL_SYMBOL;
-            opened = true;
-            pos = 0;
-            timer = 100;
-        } else {
-            timer--;
-            return false;
+        virtual ~ZcodeLocalChannelInStream() {
         }
-        return true;
-    }
+
+        char charAt(int relative) {
+            return relative + pos >= lengthRead ? Zchars::EOL_SYMBOL : buffer[relative + pos];
+        }
+
+        virtual int16_t read() {
+            if (pos >= lengthRead) {
+                opened = false;
+                return -1;
+            } else {
+                return buffer[pos++];
+            }
+        }
+
+        virtual bool hasNext() {
+            return pos < lengthRead;
+        }
+
+        virtual ZcodeLookaheadStream<TestParams>* getLookahead() {
+            lookAhead.relativePos = 0;
+            return &lookAhead;
+        }
+
+        bool hasNextCommandSequence() {
+            if (!opened && timer <= 0) {
+                std::cin.getline(buffer, MAX_BUFLEN - 1);
+                lengthRead = std::cin.gcount() - 1;
+                buffer[lengthRead] = Zchars::EOL_SYMBOL;
+                opened = true;
+                pos = 0;
+                timer = 100;
+            } else {
+                timer--;
+                return false;
+            }
+            return true;
+        }
 };
 
 class ZcodeLocalOutStream: public AbstractZcodeOutStream<TestParams> {
-private:
-    bool open = false;
-public:
-    virtual void openResponse(ZcodeCommandChannel<TestParams> *target) {
-        open = true;
-    }
+    private:
+        bool open = false;
 
-    virtual void openNotification(ZcodeCommandChannel<TestParams> *target) {
-        open = true;
-    }
-
-    virtual void openDebug(ZcodeCommandChannel<TestParams> *target) {
-        open = true;
-    }
-
-    virtual bool isOpen() {
-        return open;
-    }
-
-    virtual void close() {
-        open = false;
-    }
-
-    virtual void writeByte(uint8_t value) {
-        std::cout << (char) value;
-    }
-
-    virtual ZcodeOutStream<TestParams>* writeBytes(uint8_t const *value, uint16_t length) {
-        for (int i = 0; i < length; ++i) {
-            std::cout << (char) value[i];
+    public:
+        virtual void openResponse(ZcodeCommandChannel<TestParams> *target) {
+            open = true;
         }
-        return this;
-    }
+
+        virtual void openNotification(ZcodeCommandChannel<TestParams> *target) {
+            open = true;
+        }
+
+        virtual void openDebug(ZcodeCommandChannel<TestParams> *target) {
+            open = true;
+        }
+
+        virtual bool isOpen() {
+            return open;
+        }
+
+        virtual void close() {
+            open = false;
+        }
+
+        virtual void writeByte(uint8_t value) {
+            std::cout << (char) value;
+        }
+
+        virtual ZcodeOutStream<TestParams>* writeBytes(uint8_t const *value, uint16_t length) {
+            for (int i = 0; i < length; ++i) {
+                std::cout << (char) value[i];
+            }
+            return this;
+        }
 };
 
 class ZcodeLocalChannel: public ZcodeCommandChannel<TestParams> {
-    ZcodeLocalChannelInStream seqin;
-    ZcodeLocalOutStream out;
-    ZcodeCommandSequence<TestParams> seq;
-public:
-    ZcodeLocalChannel(Zcode<TestParams> *zcode) :
-            seq(zcode, this) {
-    }
+        ZcodeLocalChannelInStream seqin;
+        ZcodeLocalOutStream out;
+        ZcodeCommandSequence<TestParams> seq;
 
-    virtual ~ZcodeLocalChannel() {
+    public:
+        ZcodeLocalChannel(Zcode<TestParams> *zcode) :
+                seq(zcode, this) {
+        }
 
-    }
+        virtual ~ZcodeLocalChannel() {
 
-    virtual ZcodeLocalChannelInStream* acquireInStream() {
-        return &seqin;
-    }
+        }
 
-    bool hasInStream() {
-        return true;
-    }
+        virtual ZcodeLocalChannelInStream* acquireInStream() {
+            return &seqin;
+        }
 
-    virtual ZcodeOutStream<TestParams>* acquireOutStream() {
-        return &out;
-    }
+        bool hasInStream() {
+            return true;
+        }
 
-    virtual bool hasOutStream() {
-        return true;
-    }
+        virtual ZcodeOutStream<TestParams>* acquireOutStream() {
+            return &out;
+        }
 
-    virtual bool hasCommandSequence() {
-        return seqin.hasNextCommandSequence();
-    }
+        virtual bool hasOutStream() {
+            return true;
+        }
 
-    virtual ZcodeCommandSequence<TestParams>* getCommandSequence() {
-        return &seq;
-    }
+        virtual bool hasCommandSequence() {
+            return seqin.hasNextCommandSequence();
+        }
 
-    virtual bool isPacketBased() {
-        return false;
-    }
+        virtual ZcodeCommandSequence<TestParams>* getCommandSequence() {
+            return &seq;
+        }
 
-    virtual void releaseInStream() {
-    }
+        virtual bool isPacketBased() {
+            return false;
+        }
 
-    virtual void releaseOutStream() {
-    }
+        virtual void releaseInStream() {
+        }
 
-    virtual void setAsNotificationChannel() {
-    }
+        virtual void releaseOutStream() {
+        }
 
-    virtual void releaseFromNotificationChannel() {
-    }
+        virtual void setAsNotificationChannel() {
+        }
 
-    virtual void setAsDebugChannel() {
-    }
+        virtual void releaseFromNotificationChannel() {
+        }
 
-    virtual void releaseFromDebugChannel() {
-    }
+        virtual void setAsDebugChannel() {
+        }
 
-    virtual void lock() {
-    }
+        virtual void releaseFromDebugChannel() {
+        }
 
-    virtual bool canLock() {
-        return true;
-    }
+        virtual void lock() {
+        }
 
-    virtual void unlock() {
-    }
+        virtual bool canLock() {
+            return true;
+        }
+
+        virtual void unlock() {
+        }
 };
 
 #endif /* SRC_TEST_CPP_ZCODE_TEST_ZCODELOCALCHANNEL_HPP_ */

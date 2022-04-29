@@ -1,5 +1,5 @@
 enum Zchars {
-    CMD_PARAM = 'R',
+    CMD_PARAM = 'Z',
     ECHO_PARAM = 'E',
     STATUS_RESP_PARAM = 'S',
     NOTIFY_TYPE_PARAM = 'Z',

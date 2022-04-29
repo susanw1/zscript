@@ -99,7 +99,7 @@ class ZcodeFieldMap {
             }
             fieldUnit_t start = get(f, def);
             uint8_t startOffset = sizeof(fieldUnit_t);
-            for (; start != 0; start = (uint8_t) (start >> 8))
+            for (; start != 0; start = (uint8_t)(start >> 8))
                 startOffset--;
             fieldUnit_t found;
             if (byteNum + startOffset < sizeof(fieldUnit_t)) {
@@ -122,10 +122,10 @@ class ZcodeFieldMap {
             }
 
             int startOffset = sizeof(fieldUnit_t);
-            for (fieldUnit_t start = get(f, 0); start != 0; start = (uint8_t) (start >> 8)) {
+            for (fieldUnit_t start = get(f, 0); start != 0; start = (uint8_t)(start >> 8)) {
                 startOffset--;
             }
-            return (uint8_t) (sections * sizeof(fieldUnit_t) - startOffset);
+            return (uint8_t)(sections * sizeof(fieldUnit_t) - startOffset);
         }
 
         uint8_t countFieldSections(char f) const {
