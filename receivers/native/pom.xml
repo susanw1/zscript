@@ -16,4 +16,13 @@
 		<module>arduino</module>
 		<module>arm</module>
 	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.github.sdedwards.m2e-nar</groupId>
+				<artifactId>m2e-nar</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 </project>
