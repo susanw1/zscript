@@ -56,6 +56,7 @@ class ZcodeMarkerInStream {
             while (c == ' ' || c == '\t' || c == '\r') {
                 c = read();
             }
+            unread();
         }
 };
 
