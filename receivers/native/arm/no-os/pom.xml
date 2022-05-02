@@ -1,0 +1,116 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.zcode</groupId>
+        <artifactId>zcode-receivers-arm</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>arm-no-os</artifactId>
+    <packaging>nar</packaging>
+    <name>Zcode ARM Bare Metal (no OS) Receiver</name>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.zcode</groupId>
+            <artifactId>generic-cpp-receiver</artifactId>
+            <version>${project.version}</version>
+            <type>nar</type>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <cpu>cortex-m4</cpu>
+        <device-family>STM32G484xx</device-family>
+        <device>STM32G484RE</device>
+        <!-- 		<cpp-warnings>-Wall -Wno-long-long -Wpointer-arith -Wconversion</cpp-warnings> -->
+        <cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
+        <cpp-optimizations>-O3 -flto</cpp-optimizations>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.maven-nar</groupId>
+                <artifactId>nar-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <architecture>arm32g4</architecture>
+                    <os>no_os</os>
+                    <cpp>
+                        <name>g++</name>
+                        <prefix>arm-none-eabi-</prefix>
+                        <exceptions>false</exceptions>
+                        <debug>true</debug>
+                        <sourceDirectory>src/main/c++</sourceDirectory>
+
+                        <includes>
+                            <include>**/*.cpp</include>
+                            <include>**/*.cxx</include>
+                            <include>**/*.cc</include>
+                        </includes>
+                        <excludes>
+                            <exclude>channels/Serial/**</exclude>
+                            <exclude>channels/Uip/**</exclude>
+                        </excludes>
+
+                        <includePaths>
+                            <includePath>
+                                <path>${project.basedir}/src/main/c++/include/Core</path>
+                                <includes>
+                                    <include>*.h</include>
+                                </includes>
+                            </includePath>
+                            <includePath>
+                                <path>${project.basedir}/src/main/c++/include/STM32G4xx</path>
+                                <includes>
+                                    <include>*.h</include>
+                                </includes>
+                            </includePath>
+                            <includePath>
+                                <path>${project.basedir}/src/main/c++/main</path>
+                                <includes>
+                                    <include>*.hpp</include>
+                                </includes>
+                            </includePath>
+                        </includePaths>
+
+                        <optionSet>${cpp-warnings} ${cpp-optimizations}</optionSet>
+                        <options>
+                            <option>-mthumb</option>
+                            <option>-fno-common</option>
+                            <option>-mcpu=${cpu}</option>
+                            <option>--specs=nosys.specs</option>
+                        </options>
+                        <defines>
+                            <define>${device-family}</define>
+                        </defines>
+                    </cpp>
+                    <libraries>
+                        <library>
+                            <type>static</type>
+                        </library>
+                    </libraries>
+                    <linker>
+                        <name>ld</name>
+                        <prefix>arm-none-eabi-</prefix>
+                        <!-- 						<sysLibs>
+							<sysLib>
+								<name>stdc++</name>
+							</sysLib>
+						</sysLibs>
+-->
+                    </linker>
+
+                </configuration>
+            </plugin>
+
+            <!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>exec-maven-plugin</artifactId> 
+                <executions> <execution> <id>default-cli</id> <configuration> <executable>${project.build.directory}/test-nar/bin/amd64-Linux-gpp/default-cli</executable> 
+                <workingDirectory>${project.build.directory}</workingDirectory> </configuration> 
+                </execution> </executions> </plugin> -->
+        </plugins>
+    </build>
+</project>

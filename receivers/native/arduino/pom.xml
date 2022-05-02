@@ -1,0 +1,93 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.zcode</groupId>
+        <artifactId>zcode-receivers-native</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>zcode-receivers-arduino</artifactId>
+    <packaging>nar</packaging>
+    <name>Zcode Arduino Receiver - TBD</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.zcode</groupId>
+            <artifactId>generic-cpp-receiver</artifactId>
+            <version>${project.version}</version>
+            <type>nar</type>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <!-- 
+		<cpu>cortex-m4</cpu>
+		<device-family>STM32G484xx</device-family>
+		<device>STM32G484RE</device>
+		<cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
+		<cpp-optimizations>-O3 -flto</cpp-optimizations>
+-->
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.maven-nar</groupId>
+                <artifactId>nar-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <architecture>avr</architecture>
+                    <os>arduino</os>
+                    <cpp>
+                        <name>g++</name>
+                        <prefix>avr-</prefix>
+                        <exceptions>false</exceptions>
+                        <debug>true</debug>
+                        <sourceDirectory>src/main/c++</sourceDirectory>
+
+                        <includes>
+                            <include>**/*.cpp</include>
+                            <include>**/*.cxx</include>
+                            <include>**/*.cc</include>
+                        </includes>
+                        <excludes>
+                            <exclude>channels/Serial/**</exclude>
+                            <exclude>channels/Uip/**</exclude>
+                        </excludes>
+
+                        <includePaths></includePaths>
+
+                        <optionSet>${cpp-warnings} ${cpp-optimizations}</optionSet>
+                        <options>
+                            <option>-mthumb</option>
+                            <option>-fno-common</option>
+                            <option>-mcpu=${cpu}</option>
+                            <option>--specs=nosys.specs</option>
+                        </options>
+                        <defines>
+                            <define>${device-family}</define>
+                        </defines>
+                    </cpp>
+                    <libraries>
+                        <library>
+                            <type>static</type>
+                        </library>
+                    </libraries>
+                    <linker>
+                        <name>ld</name>
+                        <prefix>avr-</prefix>
+                        <!-- 						
+						<sysLibs>
+							<sysLib>
+								<name>stdc++</name>
+							</sysLib>
+						</sysLibs>
+-->
+                    </linker>
+
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

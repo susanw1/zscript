@@ -8,7 +8,7 @@ It is composed of Commands, separated by `&`s built into command sequences, sepa
 Zcode is designed to be flexible to the capabilities of the receiver, allowing very simple, or very capable end-points to work within their capabilities. 
 It is designed to allow accurate peripheral control, such as reads and writes to GPIO pins, SPI, I2C, or other peripherals, 
 	to allow simple expansion, and other features, such as programmable background code execution, or interrupt handlers.
-Zcode is provided to the MCU over some form of 'command channel' this might be UDP, TCP, serial lines, USB, or any other protocol.
+Zcode is provided to the MCU over some form of 'command channel'; this might be UDP, TCP, serial lines, USB, or any other protocol.
 
 ### Communication
 
@@ -29,9 +29,9 @@ No specification is given for the operation of such a command sequence, but it m
 The encouraged method of operation is that the beginning of the routed command sequence has a dot separated series of addresses, and the command is send with the first of these stripped off.
 An example:
 
-A receiver receives: `@9.1c*R1A2`
-It then sends `@1c*R1A2` along whichever communication protocol corresponds to address `9`.
-The receiver of this then sends `* R1A2` along the communication path corresponding to address `1c`.
+A receiver receives: `@9.1c*Z1A2`
+It then sends `@1c*Z1A2` along whichever communication protocol corresponds to address `9`.
+The receiver of this then sends `* Z1A2` along the communication path corresponding to address `1c`.
 Any response to the sent communication should put the address back on the beginning, so in the above example, 
 when the second receiver is given the response `*SA2`, it sends `@1c*SA2` back, and the original receiver takes this, and sends `@9.1c*SA2` back to where the message comes from.
 
@@ -43,7 +43,7 @@ Note that the contents of a routing command need not be Zcode, although that is 
 A single command is a series of fields, and a possible big field.
 A field is a single capital letter, followed by hex digits (lower case only) multi-byte fields can be considered to be single byte fields with virtual markers for the other bytes.
 A single hex digit is taken to mean the least significant digit and no value at all means 0.  
-These are all fields: `A01` `F00` `R13` `C` `D1` `G0000` `L900`  
+These are all fields: `A01` `F00` `Z13` `C` `D1` `G0000` `L900`  
 These all have the same value: `C` `C0` `C00` `C000` `C0000`  
 The parser must allocate only one byte to the `C000` and `C0000`, even though they appear two byte, in general leading `0`s must be ignored.
 A receiver can have a maximum number of fields (or not, if memory allocation is used, but then at least 255 fields must be allowed). 
@@ -71,7 +71,7 @@ A receiver has a maximum length of big field it can accept, and must give a `TOO
 Spaces and tabs can be ignored where they turn up (outside of strings), and must be discarded between fields, while generators may only place them between fields.
 For compatibility any carriage return characters (character 13, `\r` in C, C++, Java) must be ignored when between fields.
 
-There is no defined ordering to fields, including the long field, so `R20A+10` and `+10AR20` are equivalent, 
+There is no defined ordering to fields, including the long field, so `Z20A+10` and `+10AZ20` are equivalent, 
 	although it is recommended to place the command identifier at the beginning, and the long field at the end, to make it more readable.
 
 ### Command Sequences
@@ -82,7 +82,7 @@ There is no defined ordering to fields, including the long field, so `R20A+10` a
 	`&` separated commands must be executed in a way that appears atomic to the rest of the system, 
 	this means that no other command may be executed between two `&` separated commands 
 	(unless it would have no effect on them, such as by using other resources, which have not been, and will not be, used in this command sequence).  
-	This also means that any commands received over any channel (including execution space) must be executed as a single unit until a new line or end of packet is reached. 
+	This also means that any commands received over any channel (including Script space) must be executed as a single unit until a new line or end of packet is reached. 
 	This is to avoid situations where I2C style 'write then read' being two commands are split up.
 	The responses to two commands, separated by a `&`, must be separated by a `&`. 
 
@@ -99,7 +99,7 @@ There is no defined ordering to fields, including the long field, so `R20A+10` a
 	if Rx1, Rx3 fail with S10: `S10|S10|S\n`  
 	if Rx2, Rx4 fail with S10: `S&S10|S&S10|S\n`  
 	... etc.  
-	These commands are primarily to give extra information on a failure when one occurs, e.g. in an execution space command.
+	These commands are primarily to give extra information on a failure when one occurs, e.g. in an Script space command.
 	The point at which the first command after the `|` is executed must be separated by a `|` as seen in the above example.
 	If a parsing error is encountered after the `|`, and this is never executed, then the error cannot be reported, so should be reported on the debug channel.
 
@@ -120,7 +120,7 @@ Even though the `\n` separated command sequences should be executed in the order
 Every command must be given a response, including empty commands (reset commands are exceptions to this, as there can be no response).
 	This response must contain a status field, with the letter `S`. This is zero if the command succeeded, and non-zero for a failure.
 An S response of `S10` indicates an command specific failure, whereas a lower (non-zero) code indicates an invalid command/parse error.  
-	A parse error can be treated differently, and may, for example, halt execution in an execution space, where a non-parse error would not.
+	A parse error can be treated differently, and may, for example, halt execution in an Script space, where a non-parse error would not.
 A command failure response does not need to follow the format for the successful command response, and can, 
 	for instance, use the big field string form to give detailed failure information.
 	For this reason the use of fields is not generally specified any failure condition, except for the `S` field (although commands may have specific mandated failure modes, which do have dictated structure).  
@@ -159,18 +159,18 @@ The following status responses are defined:
 
 
 
-### Execution Space
+### Script Space
 
 
 
-The receiver can create a block of memory which it can use to store commands. This is called the execution space, and should be run, if active, 
+The receiver can create a block of memory which it can use to store commands. This is called the Script space, and should be run, if active, 
 	whenever no other commands are available, although other commands should get priority.
-	When an execution space command sequence has been begun, it must be completed before other commands can be executed, unless the commands are able to be run in parallel.
+	When an Script space command sequence has been begun, it must be completed before other commands can be executed, unless the commands are able to be run in parallel.
 	This space must be managed by the sender, although to simplify management the `begin execution` Zcode may be used to jump to an address in this block of memory.
 	This command must be implemented so as to jump immediately, without executing any later commands, and be treated as an immediate new line, 
 	starting at the new address as it would at a new command sequence.  
 
-Commands run in the execution space must do so 'quietly' meaning their responses are not reported, unless a command fails. 
+Commands run in the Script space must do so 'quietly' meaning their responses are not reported, unless a command fails. 
 If a command fails with an `S10` status, then execution continues, other failures must result in the execution being stopped, as the space may be corrupted.
 The response is sent as a notification, and with A `Z2` notification type. 
 For the command `Rx1&Rx2&Rx3|Rx4&Rx5|Rx6`  
@@ -193,33 +193,33 @@ For the command `Rx1&Rx2&Rx3|Rx4&Rx5|Rx6`
 	
 ### Parallel Execution
 
-The receiver must execute commands coming over any given command channel in exactly the order they arrived in (this rule does not apply to execution space commands, so multiple can be run at once, provided that they are executed once each per full loop), 
+The receiver must execute commands coming over any given command channel in exactly the order they arrived in (this rule does not apply to Script space commands, so multiple can be run at once, provided that they are executed once each per full loop), 
 	however, no such rules apply between different channels.
 The receiver may, if it wishes, and two given command sequences strictly do not use the same resources, execute two commands in parallel, 
 	although the resources must not be shared at any point up to the next new line on both commands, so an entire command sequence may have to be parsed, 
 	or at least scanned for resource use in order to avoid collisions, to simplify the process, the receiver can apply a limit on lookahead, but it MUST NOT execute the sequence in parallel with any other if the limit is exceeded.
-	these resources include things like the I2C channels, pins, and other peripherals, but also include the execution space, 
-	so that the execution space lock must be acquired to execute a store, a state or an execution command, and cannot be acquired if a different execution space command sequence is being executed
-		(although an execution space command can run these, but only if no other execution space commands are running, optionally, multiple execution space commands can be run simultaneously, 
+	these resources include things like the I2C channels, pins, and other peripherals, but also include the Script space, 
+	so that the Script space lock must be acquired to execute a store, a state or an execution command, and cannot be acquired if a different Script space command sequence is being executed
+		(although an Script space command can run these, but only if no other Script space commands are running, optionally, multiple Script space commands can be run simultaneously, 
 		it must also be guaranteed that a jump must mean the next command sequence is not executed, although the current one can be finished, so that the execution follows the jump as if it were sequential, this should be guaranteed through the locking described above).
-	The execution command does not need to lock the interrupt system, but any interrupt set commands must, as must any execution store commands. 
-		These commands must be runnable through the interrupt code, but must wait for other interrupts, and execution space command sequences to finish, before acquiring the lock.
+	The execution command does not need to lock the interrupt system, but any interrupt set commands must, as must any Script store commands. 
+		These commands must be runnable through the interrupt code, but must wait for other interrupts, and Script space command sequences to finish, before acquiring the lock.
 	This would all work using read-write locks.
 	To perform an interrupt handler, read on interrupt must be acquired.
-	To perform execution space, read on execution space must be acquired.
-	To perform execution command, write on execution space must be acquired.
-	To perform execution state, read on execution space must be acquired.
+	To perform Script space, read on Script space must be acquired.
+	To perform execution command, write on Script space must be acquired.
+	To perform execution state, read on Script space must be acquired.
 	To perform interrupt set, write on interrupt must be acquired.
-	To perform execution store, write on execution space AND write on interrupt must be acquired.
-	If something has the write lock, it always has the read lock as well (so an interrupt thread can write to execution space)
+	To perform Script store, write on Script space AND write on interrupt must be acquired.
+	If something has the write lock, it always has the read lock as well (so an interrupt thread can write to Script space)
 	For performance benefits, the lock state can be checked before the lock is acquired, 
-	so an execution space command can check if it can acquire the lock, then scan the command, then acquire the lock.
+	so an Script space command can check if it can acquire the lock, then scan the command, then acquire the lock.
 
 A command which begins with a % marker (after a * marker if present) can be run in parallel with other commands. 
 Any command not beginning with such a marker cannot be run in parallel, to avoid weird errors in code that would work fine on one system, due to another being parallel.
 
-This means that these cannot be in parallel: "R00&R00&R10P4V0\n" and "R00&R01E58&R11P4\n" or any other similar pair, 
-	however "R10P4V0" and "R11P5" can, provided it can be guaranteed that one command will not effect the other.
+This means that these cannot be in parallel: "Z00&Z00&Z10P4V0\n" and "Z00&Z01E58&Z11P4\n" or any other similar pair, 
+	however "Z10P4V0" and "Z11P5" can, provided it can be guaranteed that one command will not effect the other.
 	The purpose of the parallel system is to allow high performance MCUs (like ARMs) running low performance buses (like I2C) to use more of their capabilities. 
 	Since performing GPIO operations is almost instant on most MCUs, these would most likely not be done in parallel.
 	The absolute priority in implementing any parallel execution on the receiver is avoiding deadlocks and avoiding breaking the atomicity of a command sequence, on the resources it uses. 
@@ -234,9 +234,9 @@ To allow fast communication of information from receiver, a notification may be 
 	The notification is considered over after the end of a packet, or at a new line.  
 	On a packet based system, the notifications should not be sent in the same packet as a different response.   
   * `Z00` indicates a reset notification. This is sent by any receiver which has reset, and still retains its notification host information.  
-		This will contain the effective response to an `R00` command.
+		This will contain the effective response to an `Z00` command.
   * `Z01` indicates a interrupt from an interrupt source, and will contain basic info on the interrupt, or more as detailed below.
-  * `Z02` indicates a execution space notification, meaning a command has failed in the space, and will contain the output of the failed command, 
+  * `Z02` indicates a Script space notification, meaning a command has failed in the space, and will contain the output of the failed command, 
 		and all preceding `&`/`|` separated commands, if they can fit, otherwise a `RESP_TOO_LONG` status.
   * `Z03` indicates an addressing notification - e.g. to inform about a malformed address. All use is device specific.
 			
@@ -245,10 +245,10 @@ The receiver has 3 possible responses to a interrupt (an interrupt would usually
   1.  Generate a notification about what indicates the interrupt occurred, e.g. interrupt on bus 0.
   2.  Attempt to find the address of the source of the interrupt. This is the case for standard SMBus alert systems, 
 	  and this would be fed back, along with the information given in 1, in a notification
-  3.  Use some form of interrupt vector for this source of interrupt (given by an interrupt vector set command) to jump into the execution space, 
+  3.  Use some form of interrupt vector for this source of interrupt (given by an interrupt vector set command) to jump into the Script space, 
 	  and report the information given in 2, and the responses to the commands at the vector.
 
-If an interrupt vector is not present, or there is no execution space, the 1st or 2nd form of interrupt must be used.
+If an interrupt vector is not present, or there is no Script space, the 1st or 2nd form of interrupt must be used.
 These principles apply to all bus forms, in whatever way possible (on some buses there may only be one possible source per bus, so the 2nd form is redundant).
 An example of an I2C bus 2 interrupt, from a device with address 0x44, and handler writing then reading 1 byte from I2C, with content 0x22 (padded with spaces to make more readable):   
   1.  "Z1 I2 T S"
@@ -314,7 +314,7 @@ The I2C bus system works both for systems with multiple I2C ports, and those wit
 
 ### Commands
 
-Each command must contain a command code (except empty commands), indicated by the 'R' field, otherwise a `UNKNOWN_CMD` error must be given. If this is less than 0x10, then it is a system command.
+Each command must contain a command code (except empty commands), indicated by the 'Z' field, otherwise a `UNKNOWN_CMD` error must be given. If this is less than 0x10, then it is a system command.
 Upon startup, an Zcode receiver must be in a `not activated` state, and respond to any non-system command with an `NOT_ACTIVATED` error.
 
 Any command which is addressed as a broadcast, and is intended to find Zcode receivers which have not already been discovered, 
@@ -341,7 +341,7 @@ Key for Values column (xx means a particular number):
 |Command		|	Type		|	Field	|	Values	|	Meaning  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Ident			|				|			|			|	Self identification  
-|				|	Command		|	R		|	00		|  
+|				|	Command		|	Z		|	00		|  
 |				|	Resp		|	A		|	*		|	Major version  
 |				|	Resp		|	B		|	*		|	Minor version  
 |				|	Resp		|	W		|	*		|	Watchdog reset number  
@@ -349,13 +349,13 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Echo			|				|			|			|	Direct, literal echo  
-|				|	Command		|	R		|	01		|  	
+|				|	Command		|	Z		|	01		|  	
 |				|	Param		|	*		|	**?		|	any parameter (including E, Z, S)  
 |				|	Resp		|	*		|	**?		|	the same as parameters, with same values (including E, Z)  
 |				|	Resp		|	S		|	**?		|	the same as given S, if present, otherwise 00 (the primary use of this is testing error responses)  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Capabilities	|				|			|			|	Responds with the capabilities of the Zcode receiver  
-|				|	Command		|	R		|	02		|  
+|				|	Command		|	Z		|	02		|  
 |				|	Param		|	P		|	*?		|	'page number' selects which set of supported commands/capabilities to look at. The total set is the union of all the pages,   
 |				|				|			|			|		with the big fields combined (this means the non-big fields can also change with page, provided all needed are present on some page), defaults to 0.  
 |				|	Resp		|	C		|	*		|	Binary capability field: [?, ?, Notification, Debug, interrupt handling, parallel execution, single packet newline separated response, GUID]  
@@ -371,44 +371,44 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00,06	|	gives BAD_PARAM if page number exceeds last page  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Activate		|				|			|			|	Activates the receiver, allowing non-system commands  
-|				|	Command		|	R		|	03		|  
+|				|	Command		|	Z		|	03		|  
 |				|	Resp		|	A		|	b		|	was activated previously (1 if already set)  
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Soft Reset		|				|			|			|	Performs a soft reset  
-|				|	Command		|	R		|	04		|  
+|				|	Command		|	Z		|	04		|  
 |				|	Resp		|	None	|			|	has no response whatsoever, as receiver has reset  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Hard Reset		|				|			|			|	Performs a hard reset  
-|				|	Command		|	R		|	05		|  
+|				|	Command		|	Z		|	05		|  
 |				|	Resp		|	None	|			|	has no response whatsoever, as receiver has reset  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Fetch GUID		|				|			|			|	Fetches the 16 byte GUID  
-|				|	Command		|	R		|	06		|  
+|				|	Command		|	Z		|	06		|  
 |				|	Resp		|	S		|	00,10	|	fails if the GUID is not set correctly  
 |				|	Resp		|	big		|	**		|	The GUID, if valid  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Notification Host set|				|			|			|	Sets the target of the notifications, to the sending system on the sending channel (e.g. a particular UDP port on a particular address on a network). Also sets Addressing response target  
-|				|	Command		|	R		|	08		|  
+|				|	Command		|	Z		|	08		|  
 |				|	Resp		|	S		|	00,10	|  fails if the channel cannot do notifications  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |	Set Debug	|				|			|			|	Sets the target of the debug info, to the sending system on the sending channel (e.g. a particular UDP port on a particular address on a network)  
-|	Host		|	Command		|	R		|	09		|  
+|	Host		|	Command		|	Z		|	09		|  
 |				|	Param		|	D		|	?		|	If present enables Debug, otherwise, disable (if possible)  
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Make Code		|				|			|			|	Creates and stores a pseudo-random 4 byte code  
-|				|	Command		|	R		|	0a		|  
+|				|	Command		|	Z		|	0a		|  
 |				|	Resp		|	big		|	**		|	The code created  
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Match Code		|				|			|			|	Matches the code created with Make Code  
-|				|	Command		|	R		|	0b		|  
+|				|	Command		|	Z		|	0b		|  
 |				|	Param		|	big		|	**		|	The expected random code  
 |				|	Resp		|	S		|	00,10	|	fails if given code not the same as stored code  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |	Channel		|				|			|			|	Re-initialises the specified command channel (only resets the first in order given here, defaults to current)  
-|	reset		|	Command		|	R		|	0c		|  
+|	reset		|	Command		|	Z		|	0c		|  
 |				|	Param		|	A		|	p		|	Resets all channels, guaranteed no response  
 |				|	Param		|	C		|	p		|	Resets current connection, guaranteed no response  
 |				|	Param		|	N		|	p		|	Resets all network ports (sets MAC address, etc.)  
@@ -416,67 +416,67 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00		|	has no response whatsoever if used channel has reset  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Persist		|				|			|			|	Stores the given data at the given position in the receiver's persistent store  
-|				|	Command		|	R		|	10		|  
+|				|	Command		|	Z		|	10		|  
 |				|	Param		|	A		|	**		|	Address to store the data at  
 |				|	Param		|	big		|	**		|	Data to store  
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Fetch Persisted|				|			|			|	Fetches the data at the given position in the receiver's persistent store  
-|				|	Command		|	R		|	11		|  
+|				|	Command		|	Z		|	11		|  
 |				|	Param		|	A		|	**		|	Address to read the data from  
 |				|	Param		|	L		|	*		|	Length of data to read  
 |				|	Resp		|	big		|	**		|	Data read  
 |				|	Resp		|	S		|	00,06	|	Gives BAD_PARAM if too much data requested  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Set MAC address|				|			|			|	Stores the given MAC address at the location specified internally by the Zcode receiver, so that on startup, the right MAC address will be chosen  
-|				|	Command		|	R		|	12		|		Also adds the two 'check bytes' on the start and end, and performs the increment.  
+|				|	Command		|	Z		|	12		|		Also adds the two 'check bytes' on the start and end, and performs the increment.  
 |				|	Param		|	big		|	**		|	MAC address. Must be exactly 6 bytes  
 |				|	Resp		|	S		|	00,06	|	Gives BAD_PARAM if wrong length big field given  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Set GUID		|				|			|			|	Stores the given GUID at the location specified internally by the Zcode receiver, so that on startup, the right Fetch GUID command will work  
-|				|	Command		|	R		|	13		|  
+|				|	Command		|	Z		|	13		|  
 |				|	Param		|	big		|	*		|	GUID to store, must be exactly 16 bytes.  
 |				|	Resp		|	S		|	00,06	|	Gives BAD_PARAM if wrong length big field given  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Execution State|				|			|			|	Returns the state of the execution space  
-|				|	Command		|	R		|	20		|  
+|Script State   |				|			|			|	Returns the state of the script space  
+|				|	Command		|	Z		|	20		|  
 |				|	Resp		|	D		|	*		|	Current delay value  
 |				|	Resp		|	F		|	b		|	0->no error   1->halted with system error (S < 0x10)  
 |				|	Resp		|	G		|	b		|	0->not running   1->running  
-|				|	Resp		|	L		|	**		|	Execution space current used length  
-|				|	Resp		|	M		|	**		|	Execution space total length  
+|				|	Resp		|	L		|	**		|	Script space current used length  
+|				|	Resp		|	M		|	**		|	Script space total length  
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Execution		|				|			|			|	Starts or stops execution, and sets execution address  
-|				|	Command		|	R		|	21		|  
+|Script Execute |				|			|			|	Starts or stops execution, and sets execution address  
+|				|	Command		|	Z		|	21		|  
 |				|	Param		|	A		|	**?		|	new current address (default: unchanged)  
 |				|	Param		|	D		|	*?		|	Sets execution delay to (`2^value` ms), e.g. 5 gives 32ms delay   (default: unchanged)  
 |				|	Param		|	G		|	?		|	If present, begins executing, otherwise, halts  
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Execution Store|				|			|			|	Stores in the execution space  
-|				|	Command		|	R		|	22		|  
+|Script Store   |				|			|			|	Stores in the Script space  
+|				|	Command		|	Z		|	22		|  
 |				|	Param		|	A		|	**		|	Start address of write  
 |				|	Param		|	L		|	?		|	If present, end is considered the last section of data, and execution will loop.  
 |				|	Param		|	big		|	**		|	The new code to store at the address (in literal binary, good to use string form for)  
 |				|	Resp		|	S		|	00,08	|	Gives TOO_BIG if cannot fit the new code, and writes nothing.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Interrupt Setup	|				|			|			|	Reports capabilities of interrupt system back, and allows setup of interrupt system  
-|				|	Command		|	R		|	28		|  
+|				|	Command		|	Z		|	28		|  
 |				|	Resp		|	I		|	*		|	Total number of assignable interrupts  
 |				|	Resp		|	big		|	**		|	Bytes for interrupt types, any included interrupt types can have interrupts assigned  
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Interrupt Set	|				|			|			|	Sets the jump location of an interrupt handler within the execution space.  
-|				|	Command		|	R		|	29		|  
-|				|	Resp		|	J		|	**		|	Address to execute from in execution space (can be outside of normal execution space length).  
+|Interrupt Set	|				|			|			|	Sets the jump location of an interrupt handler within the Script space.  
+|				|	Command		|	Z		|	29		|  
+|				|	Resp		|	J		|	**		|	Address to execute from in Script space (can be outside of normal Script space length).  
 |				|	Resp		|	A		|	*?		|	Device address on bus (if bus supports addressing)  
 |				|	Resp		|	I		|	*		|	Bus number for target interrupt  
 |				|	Resp		|	T		|	*		|	Interrupt type for target interrupt  
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |	Pin Setup	|				|			|			|	Reports capabilities of Pins system back  
-|				|	Command		|	R		|	40		|  
+|				|	Command		|	Z		|	40		|  
 |				|	Param		|	P		|	*?		|	'page number' selects which set of supported commands/capabilities to look at. The total set is the union of all the pages,   
 |				|				|			|			|		with the big fields combined (this means the non-big fields can also change with page, provided all needed are present on some page), defaults to 0.  
 |				|	Param		|	N		|	?		|	If present, indicates sets notifications to be created on interrupt.  
@@ -493,7 +493,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00,06	|	gives BAD_PARAM if page number exceeds last page  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Pin Set		|				|			|			|	Sets the output value of a pin  
-|				|	Command		|	R		|	41		|  
+|				|	Command		|	Z		|	41		|  
 |				|	Param		|	P		|	**		|	The pin number (not on the package, but the logical pin number)  
 |				|	Param		|	M		|	0,1,2?	|	The new pin mode: 	0->in   	1->out   	2->input pull-up    3->input pull-down    4->output open drain    5->output open drain pull-up    6->output open drain pull-down    none->no change  
 |				|	Param		|	V		|	0,1?	|	The new pin output: 0->low   	1->high  		none->no change  
@@ -502,7 +502,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00,05	|	gives MISSING_PARAM if P not present.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Pin Get		|				|			|			|	Gets the output value of a pin  
-|				|	Command		|	R		|	42		|  
+|				|	Command		|	Z		|	42		|  
 |				|	Param		|	P		|	**		|	The pin number (not on the package, but the logical pin number)  
 |				|	Param		|	A		|	?		|	Read mode: 	present->analog   	not->digital  
 |				|	Resp		|	P		|	**		|	Same as P given  
@@ -510,7 +510,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00,05	|	gives MISSING_PARAM if P not present.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |Pin Compare	|				|			|			|	Compares the value of a pin with a given value.  
-|				|	Command		|	R		|	43		|  
+|				|	Command		|	Z		|	43		|  
 |				|	Param		|	P		|	**		|	The pin number (not on the package, but the logical pin number)  
 |				|	Param		|	A		|	?		|	Read mode: 	present->analog   	not->digital  
 |				|	Param		|	V		|	0,1,*	|	expected value of pin
@@ -519,7 +519,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|  00,05,10 |	gives MISSING_PARAM if P not present, CMD_FAIL if pin value != expected value.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |	I2C Setup	|				|			|			|	Does setup of I2C system, and reports capabilities of I2C system back  
-|				|	Command		|	R		|	50		|  
+|				|	Command		|	Z		|	50		|  
 |				|	Param		|	F		|  0,1,2,3	|	Set I2C frequency (0->10kHz   1->100kHz   2->400kHz   3->1000kHz)  
 |				|	Param		|	N		|	?		|	If present, indicates sets notifications to be created on interrupt.  
 |				|				|			|			|  
@@ -531,7 +531,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00,06	|	gives BAD_PARAM frequency above maximum  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |I2C Send		|				|			|			|	Sends an I2C message over the specified bus, or the previous bus used if unspecified  
-|				|	Command		|	R		|	51		|  
+|				|	Command		|	Z		|	51		|  
 |				|	Param		|	A		|	*		|	I2C address  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	C		|	?		|	If present, will continue on failure, useful for probing addresses, where failure is expected.  
@@ -543,7 +543,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		| 	00,10	|	CMD_FAIL if I2C status non-zero, and continue on error disabled.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |I2C Read		|				|			|			|	Reads an I2C message over the specified bus, or the previous bus used if unspecified (Retries are harder, as auto increment, and bus locking become issues, hence the default to 1)  
-|				|	Command		|	R		|	52		|  
+|				|	Command		|	Z		|	52		|  
 |				|	Param		|	A		|	*		|	I2C address  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	T		|	*?		|	Number of retries, defaults to 1 (will always work for address NACK, but for data errors, there is little recovery if bus freeing requires reset).  
@@ -553,7 +553,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		| 00,10,06?	|	CMD_FAIL if I2C failed, BAD_PARAM if length too long for big field. Can result in reset and no response, if bus jams and bus freeing requires reset.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |I2C Send + Read|				|			|			|	Sends, then reads an I2C message over the specified bus, or the previous bus used if unspecified (Retries are harder, as auto increment, and bus locking become issues, hence the default to 1)  
-|				|	Command		|	R		|	53		|  
+|				|	Command		|	Z		|	53		|  
 |				|	Param		|	A		|	*		|	I2C address  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	L		|	?		|	Length to read
@@ -564,7 +564,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		| 00,06,10?	|	CMD_FAIL if I2C failed for send or read. Can result in reset and no response, if bus jams and bus freeing requires reset.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |I2C Read And Compare|			|			|			|	Reads an I2C message over the specified bus, or the previous bus used if unspecified (Retries are harder, as auto increment, and bus locking become issues, hence the default to 1)  
-|				|	Command		|	R		|	54		|  
+|				|	Command		|	Z		|	54		|  
 |				|	Param		|	A		|	*		|	I2C address  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	C		|	?		|	If present, will continue on difference, useful for getting multiple results.  
@@ -577,7 +577,7 @@ Key for Values column (xx means a particular number):
 |				|				|			|			|		Can result in reset and no response, if bus jams and bus freeing requires reset.  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |UART Setup		|				|			|			|	Does setup of UART system, and reports capabilities of UART system back - UART always assumes 8 bit bytes  
-|				|	Command		|	R		|	70		|  
+|				|	Command		|	Z		|	70		|  
 |				|	Param		|	U		|	*		|   the UART to configure
 |				|	Param		|	B		|	**?		|	sets the baud rate for the UART (so B2580 will set to 9600 baud, B3e800 gives 256000 baud) default 9600
 |				|	Param		|	C		|	**		|	Binary capability select field: [?, ?, ?, use parity, ?, ?, single/double stop bit, auto baud rate detect, ?]
@@ -591,13 +591,13 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00,06	|	gives BAD_PARAM if frequency above maximum or below minimum  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |UART Send		|				|			|			|	Sends a UART message over the specified bus, or the previous bus used if unspecified  
-|				|	Command		|	R		|	71		|  
+|				|	Command		|	Z		|	71		|  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	big		|	**		|	Data to send to target address and bus  
 |				|	Resp		|	S		| 	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |UART Read		|				|			|			|	Reads up to the length requested from the read buffer  
-|				|	Command		|	R		|	72		|  
+|				|	Command		|	Z		|	72		|  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	F		|	?		|	Fail if not enough data read  
 |				|	Param		|	T		|	?		|	Send results in text format (using big string field)  
@@ -607,13 +607,13 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00,10	|	CMD_FAIL if not enough data or F flag present  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |UART Available	|				|			|			|	Returns the amount of data in read buffer  
-|				|	Command		|	R		|	73		|  
+|				|	Command		|	Z		|	73		|  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Resp		|	L		|	*		|	Length of data available  
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |UART Skip		|				|			|			|	Skips up to the length requested from the read buffer  
-|				|	Command		|	R		|	74		|  
+|				|	Command		|	Z		|	74		|  
 |				|	Param		|	B		|	*?		|	Target bus  
 |				|	Param		|	L		|	*		|	Length of data to skip  
 |				|	Resp		|	L		|	*		|	Length of data skipped  
@@ -621,7 +621,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|	00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |USB-C PD Status|				|			|			|	Gives general info on power delivery status  
-|				|	Command		|	R		|	1110	|  
+|				|	Command		|	Z		|	1110	|  
 |				|	Resp		|	I		|	**		|	Agreed current, 10mA units  
 |				|	Resp		|	V		|	*		|	Agreed voltage, integer (acts as minimum)  
 |				|	Resp		|	A		|	**		|	Minimum voltage, 50mV units  
@@ -630,7 +630,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|   00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |USB-C PD Set	|				|			|			|	Requests a new power set-up  
-|				|	Command		|	R		|	1111	|  
+|				|	Command		|	Z		|	1111	|  
 |				|	Param		|	I		|	**		|	Target current, 10mA units  
 |				|	Param		|	V		|	*		|	Target voltage, integer (acts as minimum if maximum specified)  
 |				|	Param		|	A		|	**		|	Target Minimum voltage, 50mV units (takes priority)  
@@ -638,7 +638,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|   00		|  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |USB-C PD Source|				|			|			|	Gives static Source info  
-|				|	Command		|	R		|	1112	|  
+|				|	Command		|	Z		|	1112	|  
 |				|	Param		|	N		|	*?		|	Which PDO to give info on (0 indexed)  
 |				|	Resp		|	I		|	**		|	If N given, the max current of that PDO, 10mA units  
 |				|	Resp		|	V		|	*		|	If N given, the integer minimum voltage  
@@ -647,7 +647,7 @@ Key for Values column (xx means a particular number):
 |				|				|			|			|	All following are given if N not present:  
 |				|	Resp		|	I		|	**		|	8 bytes: 4 bytes of XID, 2 bytes VID, 2 bytes PID  
 |				|	Resp		|	V		|	**		|	2 bytes: 1st byte firmware version, 2nd byte hardware version  
-|				|	Resp		|	R		|	*		|	The voltage regulation field, as from extended source cap  
+|				|	Resp		|	Z		|	*		|	The voltage regulation field, as from extended source cap  
 |				|	Resp		|	C		|	**		|	6 bytes: each 2 bytes are the three peak currents, 3 then 2 then 1  
 |				|	Resp		|	F		|	b?		|	If not present, no external supply. If present - 1: unconstrained, 0: constrained  
 |				|	Resp		|	G		|	*		|	The touch current field, as from extended source cap  
@@ -661,7 +661,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	S		|   00,06	|   gives BAD_PARAM if given N >= #of PDOs
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |USB-C PD Source Status|				|			|			|	Gives changing Source info  
-|				|	Command		|	R		|	1113	|  
+|				|	Command		|	Z		|	1113	|  
 |				|	Resp		|	H		|	*?		|	The temperature status: Normal = 1, Warning = 2, OverTemperature = 3 (if not present, then not supported)  
 |				|	Resp		|	F		|	*?		|	The Flags, as given by Event flags in the USB-C status message (if not present, then not supported)  
 |				|	Resp		|	T		|	*?		|	The temperature in degrees C - (0 implies temp<=1) (if not present, then not supported)  
@@ -700,7 +700,7 @@ Key for Values column (xx means a particular number):
 
 ##### Suggested new ordering:  
   
-| Name				| R number 	|  
+| Name				| Z number 	|  
 |-------------------|-----------|  
 | ***SYSTEM***		|			|  
 | *Core*			|			|  
@@ -723,10 +723,10 @@ Key for Values column (xx means a particular number):
 | Fetch Persisted	| 11		|  
 | Set MAC			| 12		|  
 | Set GUID			| 13		|  
-| *Execution space*	|			|  
-| Execution State	| 20		|  
-| Execution 		| 21		|  
-| Execution Store	| 22		|  
+| *Script space*	|			|  
+| Script State	    | 20		|  
+| Script Execution	| 21		|  
+| Script Store	    | 22		|  
 | Interrupt Setup	| 28		|  
 | Interrupt Set		| 29		|  
 | *Pin*				|			|  
@@ -798,7 +798,7 @@ It is reasonable to expect the device to know the circuit surrounding it, and ha
 |Command		|	Type		|	Field	|	Values	|	Meaning  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |	SPI Setup	|				|			|			|	Does setup of SPI system, and reports capabilities of SPI system back  
-|				|	Command		|	R		|	60		|  
+|				|	Command		|	Z		|	60		|  
 |				|	Param		|	F		|  	*		|	Set SPI frequency (f*100kHz (f=0 -> 10kHz))  
 |				|	Param		|	C		|	?		|	Set up a command channel on the SPI port, will select any slave configured ports available.  
 |				|	Param		|	B		|	*		|	Which slave SPI port to use for command channel  
@@ -813,7 +813,7 @@ It is reasonable to expect the device to know the circuit surrounding it, and ha
 |Command		|	Type		|	Field	|	Values	|	Meaning  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
 |	SPI Send	|				|			|			|	Sends SPI message to specified slave  
-|				|	Command		|	R		|	60		|  
+|				|	Command		|	Z		|	60		|  
 |				|	Param		|	D		|	*?		|	Sets data size in bits(will fail with BAD_PARAM if data size not supported, pads to be full bytes on send/read), defaults to 8 bit  
 |				|	Param		|	S		|	*?		|	Target Slave (defaults to previous)  
 |				|	Param		|	W		|	?		|	If present, uses three wire mode, default 4  
