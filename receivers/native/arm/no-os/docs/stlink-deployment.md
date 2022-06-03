@@ -62,5 +62,4 @@ GDB:
 	break/clear functionName() - brkpts
 	p <expr> - print
 
-+ Cucumber Eclipse Plugin
 
