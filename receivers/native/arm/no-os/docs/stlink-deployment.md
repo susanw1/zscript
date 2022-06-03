@@ -23,7 +23,7 @@ $ ./configure --enable-stlink
 $ make
 
 
-$ P=~/Code/ZcodeProject/openocd-code
+$ P=~/ZcodeProject/openocd-code
 $ cd ../zcode/receivers/native/arm/no-os
 $ make install OCD=$P/src/openocd OCDSCRIPTS=$P/tcl
 
