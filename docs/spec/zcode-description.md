@@ -91,13 +91,13 @@ There is no defined ordering to fields, including the long field, so `Z20A+10` a
 	Following `|` separated commands are an error handler for the error handler. A `|` based error handler is only executed if a `S10` error is hit. 
 	Any other error is considered to catastrophic to continue at all.
 	To clarify, given 5 commands, which only respond with `S`, unless they fail:  
-	`Rx1&Rx2|Rx3&Rx4|Rx5\n`  
+	`Zx1&Zx2|Zx3&Zx4|Zx5\n`  
 	if all succeed: `S&S&S\n`  
-	if Rx2 fails with S10: `S&S10|S&S\n`  
-	if Rx1 fails with S10: `S10|S&S\n`  
-	if Rx1 fails with Sx: `Sx\n` (Sx means anything other than `S0` or `S10`)  
-	if Rx1, Rx3 fail with S10: `S10|S10|S\n`  
-	if Rx2, Rx4 fail with S10: `S&S10|S&S10|S\n`  
+	if Zx2 fails with S10: `S&S10|S&S\n`  
+	if Zx1 fails with S10: `S10|S&S\n`  
+	if Zx1 fails with Sx: `Sx\n` (Sx means anything other than `S0` or `S10`)  
+	if Zx1, Zx3 fail with S10: `S10|S10|S\n`  
+	if Zx2, Zx4 fail with S10: `S&S10|S&S10|S\n`  
 	... etc.  
 	These commands are primarily to give extra information on a failure when one occurs, e.g. in an Script space command.
 	The point at which the first command after the `|` is executed must be separated by a `|` as seen in the above example.
@@ -161,8 +161,6 @@ The following status responses are defined:
 
 ### Script Space
 
-
-
 The receiver can create a block of memory which it can use to store commands. This is called the Script space, and should be run, if active, 
 	whenever no other commands are available, although other commands should get priority.
 	When an Script space command sequence has been begun, it must be completed before other commands can be executed, unless the commands are able to be run in parallel.
@@ -173,22 +171,22 @@ The receiver can create a block of memory which it can use to store commands. Th
 Commands run in the Script space must do so 'quietly' meaning their responses are not reported, unless a command fails. 
 If a command fails with an `S10` status, then execution continues, other failures must result in the execution being stopped, as the space may be corrupted.
 The response is sent as a notification, and with A `Z2` notification type. 
-For the command `Rx1&Rx2&Rx3|Rx4&Rx5|Rx6`  
-	if Rx1 failed:	`!Z2S10|S&S`  
-	if Rx2 failed:	`!Z2S&S10|S&S`  
-	if Rx1 and Rx3 failed:	`!Z2S10|S10|S`  
+For the command `Zx1&Zx2&Zx3|Zx4&Zx5|Zx6`  
+	if Zx1 failed:	`!Z2S10|S&S`  
+	if Zx2 failed:	`!Z2S&S10|S&S`  
+	if Zx1 and Zx3 failed:	`!Z2S10|S10|S`  
 	etc...  
-	if Rx2 gave too large a response to fit in the buffer (e.g.+1111111111111111111111111111...), and Rx3 failed:  
+	if Zx2 gave too large a response to fit in the buffer (e.g.+1111111111111111111111111111...), and Zx3 failed:  
 		`!Z2S&S1&S10`  
-	This response is given because Rx2 could not be fitted, so instead the sequence is stopped, and the S1 is given. 
+	This response is given because Zx2 could not be fitted, so instead the sequence is stopped, and the S1 is given. 
 	Then the failure status is then given. Any other responses before the one which could not fit are also given.
-	if on this occasion Rx5 gave a fatal error, e.g. S5:  
+	if on this occasion Zx5 gave a fatal error, e.g. S5:  
 		`!Z2S&S1&S5`  
 	would be the response, as the last error is given. No other error could be given as S5 would skip the error handlers.  
-	As a special case, if it was Rx1 which could not fit:
+	As a special case, if it was Zx1 which could not fit:
 		`!Z2&S1&S10`  
 	The first command has no S status as there was no command.
-	This would also be the response even if Rx1 were the one to fail.
+	This would also be the response even if Zx1 were the one to fail.
 
 	
 ### Parallel Execution
