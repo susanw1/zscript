@@ -55,7 +55,7 @@ $ nc -u -p 43243 192.168.23.147 4889
 
 $ sudo apt install gdb-multiarch
 $ gdb-multiarch target/bin/no-os.elf
-(gdb) target extended:remote localhost:3333
+(gdb) target extended-remote localhost:3333
 - connects to earlier opened openocd GDB connection, using ELF file for symbols
 ```
 
