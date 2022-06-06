@@ -43,9 +43,11 @@ REFLASHING
 Plug in USB (and network + 5V supply if required)
 run make command again
 
+```
 **pre-verifying**
 Error: checksum mismatch - attempting binary compare	(checking existing flash to avoid dupe)
 ** Programming Started **
+```
 
 Unplug USB, replug, wait 5s (dhcp etc)
 
