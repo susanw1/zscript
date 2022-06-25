@@ -7,6 +7,7 @@ So... git clone https://github.com/susanw1/zcode.git
 
 (Earlier experiment - don't need this: git clone https://github.com/ARMmbed/mbed-os.git)
 
+```
 $ git clone https://git.code.sf.net/p/openocd/code openocd-code
 $ cd openocd-code
   ./bootstrap # (when building from the git repository)
@@ -26,10 +27,14 @@ $ make
 $ P=~/ZcodeProject/openocd-code
 $ cd ../zcode/receivers/native/arm/no-os
 $ make install OCD=$P/src/openocd OCDSCRIPTS=$P/tcl
+```
 
 Debug command (connect without reflash/restart) (in output from make):
+
+```
+$ # Opens a connection, but told it nothing to do, so leaves connection open (opens GDB connection on 3333)
 $ $P/src/openocd --search $P/tcl -f $P/tcl/interface/stlink.cfg  -f $P/tcl/target/stm32g4x.cfg
-	- opens a connection, but told it nothing to do, so leaves connection open (opens GDB connection on 3333)
+```
 
 
 REFLASHING
@@ -38,28 +43,30 @@ REFLASHING
 Plug in USB (and network + 5V supply if required)
 run make command again
 
+```
 **pre-verifying**
 Error: checksum mismatch - attempting binary compare	(checking existing flash to avoid dupe)
 ** Programming Started **
+```
 
 Unplug USB, replug, wait 5s (dhcp etc)
 
+```
 $ nc -u -p 43243 192.168.23.147 4889
 
 
 $ sudo apt install gdb-multiarch
-$ gdb-multiarch build/mbed-os.elf
-(gdb) target remote localhost:3333
+$ gdb-multiarch target/bin/no-os.elf
+(gdb) target extended-remote localhost:3333
 - connects to earlier opened openocd GDB connection, using ELF file for symbols
+```
 
-GDB:
-	bt - backtrace
-	frame 10 - details of stack-frame 10
-	info locals
-	info args
-	continue, ^C 
-	step/fin
-	break/clear functionName() - brkpts
-	p <expr> - print
-
-
+Quick GDB guide:
+*	bt - backtrace
+*	frame 10 - details of stack-frame 10
+*	info locals
+*	info args
+*	continue, ^C 
+*	step/fin
+*	break/clear functionName() - brkpts
+*	p <expr> - print
