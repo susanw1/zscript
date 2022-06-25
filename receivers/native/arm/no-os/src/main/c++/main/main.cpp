@@ -90,12 +90,12 @@ void doNothing(I2c *i2c, I2cTerminationStatus status) {
 }
 
 int main(void) {
-    ClockManager::getClock(VCO)->set(300000, HSI);
-    ClockManager::getClock(PLL_R)->set(150000, VCO);
-    ClockManager::getClock(SysClock)->set(150000, PLL_R);
-    ClockManager::getClock(HCLK)->set(150000, SysClock);
-    ClockManager::getClock(PCLK_1)->set(64000, HCLK);
-    ClockManager::getClock(PCLK_2)->set(64000, HCLK);
+    ClockManager::getClock(VCO)->set(240000, HSI);
+    ClockManager::getClock(PLL_R)->set(120000, VCO);
+    ClockManager::getClock(SysClock)->set(120000, PLL_R);
+    ClockManager::getClock(HCLK)->set(120000, SysClock);
+    ClockManager::getClock(PCLK_1)->set(60000, HCLK);
+    ClockManager::getClock(PCLK_2)->set(60000, HCLK);
     ZcodePinInterruptSource::init();
     ZcodePinInterruptSource source;
     DmaManager::init();
