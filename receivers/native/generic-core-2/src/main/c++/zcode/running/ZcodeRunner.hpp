@@ -16,18 +16,12 @@ class Zcode;
 
 template<class ZP>
 class ZcodeRunner {
-private:
-    Zcode<ZP> *zcode;
 
 public:
-    ZcodeRunner(Zcode<ZP> *zcode) :
-            zcode(zcode) {
-    }
-
-    void runNext() {
+    static void runNext(Zcode<ZP> *zcode) {
         ZcodeRunningCommandSlot<ZP> *target = NULL;
-        for (uint8_t i = 0; i < zcode->getChannelNumber(); ++i) {
-            ZcodeRunningCommandSlot<ZP> *runner = &zcode->getChannels()[i]->runner;
+        for (uint8_t i = 0; i < zcode->getChannelCount(); ++i) {
+            ZcodeRunningCommandSlot<ZP> *runner = &zcode->getChannel(i)->runner;
             if (runner->needsRunAction() && runner->lock()) {
                 target = runner;
                 break;

@@ -18,8 +18,8 @@ class ZcodeFieldMap {
 private:
     typedef typename ZP::fieldMapSize_t fieldMapSize_t;
 
-    char fields[ZP::fieldNum];
     uint16_t values[ZP::fieldNum];
+    char fields[ZP::fieldNum];
     fieldMapSize_t size = 0;
     uint8_t pos = 0;
 

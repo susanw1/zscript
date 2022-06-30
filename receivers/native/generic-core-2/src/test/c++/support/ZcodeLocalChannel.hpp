@@ -10,7 +10,6 @@
 
 #include "ZcodeParameters.hpp"
 #include "ZcodeIncludes.hpp"
-#include "Zcode.hpp"
 
 #include <iostream>
 
@@ -20,7 +19,7 @@
 
 class ZcodeLocalChannelInStream: public ZcodeChannelInStream<TestParams> {
 private:
-    static const int MAX_BUFLEN = 10000;
+    static const int MAX_BUFLEN = 1000;
 
     char buffer[MAX_BUFLEN];
     uint8_t big[1000];
@@ -31,7 +30,7 @@ private:
 
 public:
     ZcodeLocalChannelInStream(Zcode<TestParams> *zcode, ZcodeCommandChannel<TestParams> *channel) :
-            ZcodeChannelInStream<TestParams>(zcode, channel, big, 1000) {
+            ZcodeChannelInStream<TestParams>(zcode, channel, big, 200) {
     }
 
     virtual ~ZcodeLocalChannelInStream() {
@@ -72,6 +71,8 @@ public:
     }
 
     void open(ZcodeCommandChannel<TestParams> *target, ZcodeOutStreamOpenType t) {
+        (void) target;
+        (void) t;
         openB = true;
     }
 

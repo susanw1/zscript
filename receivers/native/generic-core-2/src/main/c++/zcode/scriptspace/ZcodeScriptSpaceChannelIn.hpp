@@ -14,6 +14,8 @@
 template<class ZP>
 class ZcodeScriptSpace;
 template<class ZP>
+class ZcodeScriptSpaceChannel;
+template<class ZP>
 class Zcode;
 
 template<class ZP>
@@ -21,13 +23,14 @@ class ZcodeScriptSpaceChannelIn: public ZcodeChannelInStream<ZP> {
 private:
     typedef typename ZP::scriptSpaceAddress_t scriptSpaceAddress_t;
     ZcodeScriptSpace<ZP> *space;
+    ZcodeScriptSpaceChannel<ZP> *channel;
     scriptSpaceAddress_t pos = 0;
     uint8_t big[ZP::scriptBigSize];
     uint8_t delay = 0;
 
 public:
-    ZcodeScriptSpaceChannelIn(Zcode<ZP> *zcode, ZcodeCommandChannel<ZP> *channel) :
-            ZcodeChannelInStream<ZP>(zcode, channel, big, ZP::scriptBigSize), space(zcode->getSpace()) {
+    ZcodeScriptSpaceChannelIn(Zcode<ZP> *zcode, ZcodeScriptSpaceChannel<ZP> *channel) :
+            ZcodeChannelInStream<ZP>(zcode, channel, big, ZP::scriptBigSize), space(zcode->getSpace()), channel(channel) {
     }
 
     void initialSetup(ZcodeScriptSpace<ZP> *space) {
@@ -38,21 +41,26 @@ public:
         if (!space->isRunning()) {
             return false;
         }
-        if (delay == 0) {
-            char data = 0;
-            if (pos >= space->getLength()) {
-                data = Zchars::EOL_SYMBOL;
-            } else {
-                data = (char) space->get(pos++);
-            }
-            if (pos >= space->getLength()) {
-                delay = space->getDelay();
-                pos = 0;
-            }
-            return this->slot.acceptByte(data);
-        } else {
-            delay--;
+        if (channel->getOutStream()->isDataBufferFull()) {
+            channel->getOutStream()->flush();
             return false;
+        } else {
+            if (delay == 0) {
+                char data = 0;
+                if (pos >= space->getLength()) {
+                    data = Zchars::EOL_SYMBOL;
+                } else {
+                    data = (char) space->get(pos++);
+                }
+                if (pos >= space->getLength()) {
+                    delay = space->getDelay();
+                    pos = 0;
+                }
+                return this->slot.acceptByte(data);
+            } else {
+                delay--;
+                return false;
+            }
         }
 
     }

@@ -13,7 +13,9 @@
 #include "ZcodeBusInterruptSource.hpp"
 #include "ZcodeBusInterrupt.hpp"
 
+#if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
 #include "scriptspace/ZcodeInterruptVectorManager.hpp"
+#endif
 
 template<class ZP>
 class ZcodeBusInterruptSource;
@@ -34,7 +36,10 @@ private:
     ZcodeBusInterrupt<ZP> waitingNotifications[ZP::interruptStoreNum];
     uint8_t waitingNotificationNumber = 0;
     uint8_t sourceNum = 0;
-    ZcodeInterruptVectorManager<ZP> *vectorChannel;
+
+#if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
+    ZcodeInterruptVectorManager<ZP> vectorChannel;
+#endif
     ZcodeCommandChannel<ZP> *notificationChannel;
 
     bool canSendNotification();
@@ -42,11 +47,26 @@ private:
     void sendNotification(ZcodeBusInterrupt<ZP> interrupt);
 
 public:
-    ZcodeNotificationManager(Zcode<ZP> *zcode, ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum);
+    ZcodeNotificationManager(
 
+#if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
+            Zcode<ZP> *zcode,
+#endif
+
+            ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum) :
+            sources(sources), sourceNum(sourceNum),
+
+#if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
+            vectorChannel(this, zcode),
+    #endif
+                    notificationChannel(NULL) {
+    }
+
+#if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
     void setVectorChannel(ZcodeInterruptVectorManager<ZP> *vectorChannel) {
         this->vectorChannel = vectorChannel;
     }
+#endif
 
     void setNotificationChannel(ZcodeCommandChannel<ZP> *notificationChannel);
 
@@ -54,54 +74,57 @@ public:
         return notificationChannel;
     }
 
+#if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
     ZcodeInterruptVectorManager<ZP>* getVectorChannel() {
-        return vectorChannel;
+        return &vectorChannel;
     }
+#endif
 
     void manageNotifications();
 };
 
 template<class ZP>
-ZcodeNotificationManager<ZP>::ZcodeNotificationManager(Zcode<ZP> *zcode, ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum) :
-        sources(sources), sourceNum(sourceNum), vectorChannel(NULL), notificationChannel(zcode->getNoopChannel()) {
-}
-
-template<class ZP>
 bool ZcodeNotificationManager<ZP>::canSendNotification() {
-    if (vectorChannel == NULL || !ZP::isUsingInterruptVector) {
-        return !notificationChannel->out->isLocked();
-    } else {
-        return vectorChannel->canAccept();
-    }
+
+#if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
+        return vectorChannel.canAccept();
+#else
+    return !notificationChannel->out->isLocked();
+#endif
 }
 
 template<class ZP>
 void ZcodeNotificationManager<ZP>::sendNotification(ZcodeBusInterrupt<ZP> interrupt) { // Only called if canSendNotification()
-    if (vectorChannel != NULL && (ZP::isUsingInterruptVector && vectorChannel->hasVector(&interrupt))) {
-        vectorChannel->acceptInterrupt(interrupt);
+
+#if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
+    if (vectorChannel.hasVector(&interrupt)) {
+        vectorChannel.acceptInterrupt(interrupt);
     } else {
-        ZcodeOutStream<ZP> *out = notificationChannel->out;
-        out->lock();
-        if (out->isOpen()) {
-            out->close();
-            out->mostRecent = interrupt.getSource();
-        }
-        out->openNotification(notificationChannel);
-        out->markNotification();
-        out->writeField8(Zchars::NOTIFY_TYPE_PARAM, 1);
-        out->writeField8('T', interrupt.getNotificationType());
-        out->writeField8('I', interrupt.getNotificationBus());
-        out->writeStatus(OK);
-        if (interrupt.hasFindableAddress()) {
-            out->writeCommandSeparator();
-            out->writeField8('A', interrupt.getFoundAddress());
-            out->writeStatus(OK);
-        }
-        out->writeCommandSequenceSeparator();
+#endif
+    ZcodeOutStream<ZP> *out = notificationChannel->out;
+    out->lock();
+    if (out->isOpen()) {
         out->close();
-        out->unlock();
-        interrupt.clear();
+        out->mostRecent = interrupt.getSource();
     }
+    out->openNotification(notificationChannel);
+    out->markNotification();
+    out->writeField8(Zchars::NOTIFY_TYPE_PARAM, 1);
+    out->writeField8('T', interrupt.getNotificationType());
+    out->writeField8('I', interrupt.getNotificationBus());
+    out->writeStatus(OK);
+    if (interrupt.hasFindableAddress()) {
+        out->writeCommandSeparator();
+        out->writeField8('A', interrupt.getFoundAddress());
+        out->writeStatus(OK);
+    }
+    out->writeCommandSequenceSeparator();
+    out->close();
+    out->unlock();
+    interrupt.clear();
+#if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
+    }
+#endif
 }
 
 template<class ZP>

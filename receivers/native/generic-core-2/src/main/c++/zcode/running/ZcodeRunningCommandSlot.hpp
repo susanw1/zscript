@@ -25,7 +25,7 @@ struct ZcodeRunningCommandSlotStatus {
     void fullReset() {
         isComplete = false;
         isStarted = false;
-        hasWrittenTerminator = false;
+        hasWrittenTerminator = true;
         hasOutLock = false;
         needsAction = false;
     }
@@ -42,8 +42,14 @@ class ZcodeRunningCommandSlot {
     friend class ZcodeExecutionCommandSlot<ZP> ;
     ZcodeChannelCommandSlot<ZP> *commandSlot;
     ZcodeOutStream<ZP> *out;
-    ZcodeRunningCommandSlotStatus status;
     Zcode<ZP> *zcode;
+
+public:
+    uint8_t *dataPointer;
+    uint32_t storedData;
+
+private:
+    ZcodeRunningCommandSlotStatus status;
 
     void writeTerminator(char term) {
         status.hasWrittenTerminator = true;
@@ -59,11 +65,9 @@ class ZcodeRunningCommandSlot {
 public:
 
     ZcodeRunningCommandSlot(Zcode<ZP> *zcode, ZcodeOutStream<ZP> *out, ZcodeChannelCommandSlot<ZP> *commandSlot) :
-            commandSlot(commandSlot), out(out), status(), zcode(zcode), storedData(0), dataPointer(NULL) {
+            commandSlot(commandSlot), out(out), zcode(zcode), dataPointer(NULL), storedData(0), status() {
         status.fullReset();
     }
-    uint32_t storedData;
-    uint8_t *dataPointer;
 
     Zcode<ZP>* getZcode() {
         return zcode;
@@ -106,6 +110,7 @@ public:
         commandSlot->lockSet.unlock();
         if (status.hasOutLock) {
             out->unlock();
+            status.hasOutLock = false;
         }
     }
 
@@ -146,7 +151,9 @@ public:
         }
         commandSlot->failExternal(failStatus);
         out->writeStatus(failStatus);
-        out->writeBigStringField(message);
+        if (*message != 0) {
+            out->writeBigStringField(message);
+        }
         if (commandSlot->terminator == EOL_SYMBOL) {
             writeTerminator(EOL_SYMBOL);
         } else {
@@ -160,7 +167,7 @@ public:
     }
     void performFail() {
         status.isComplete = true;
-        out->writeStatus(commandSlot->respStatus);
+        out->writeStatus((ZcodeResponseStatus) commandSlot->respStatus);
         out->writeBigStringField(commandSlot->failString);
         writeTerminator(EOL_SYMBOL);
         finish();

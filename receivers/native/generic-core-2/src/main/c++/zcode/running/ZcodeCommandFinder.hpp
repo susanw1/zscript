@@ -67,6 +67,8 @@ template<class ZP>
 class ZcodeCommandFinder {
 
 public:
+    static const uint16_t MAX_SYSTEM_CODE = 15;
+
     static void runCommand(ZcodeRunningCommandSlot<ZP> *outerSlot) {
         if (outerSlot->failedParse()) {
             outerSlot->performFail();
@@ -81,8 +83,8 @@ public:
             outerSlot->fail(UNKNOWN_CMD, "No Z field");
             return;
         }
-        if (command > ZcodeActivateCommand<ZP>::MAX_SYSTEM_CODE && !ZcodeActivateCommand<ZP>::isActivated()) {
-            outerSlot->fail(NOT_ACTIVATED, "System not activated.");
+        if (command > MAX_SYSTEM_CODE && !outerSlot->getZcode()->isActivated()) {
+            outerSlot->fail(NOT_ACTIVATED, "System not activated");
             return;
         }
         outerSlot->setComplete();

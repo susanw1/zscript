@@ -32,6 +32,8 @@
                             <option>-flto</option>
                             <option>-g</option>
                             <option>-Wall</option>
+                            <option>-Werror</option>
+                            <option>-Wextra</option>
                         </options>
                     </cpp>
                     <libraries>
@@ -46,12 +48,17 @@
                             <run>false</run>
                         </test>
                         <test>
-                            <name>unit-tests1</name>
+                            <name>BasicZcodeTests</name>
                             <link>static</link>
                             <run>true</run>
                         </test>
                         <test>
-                            <name>unit-tests2</name>
+                            <name>DebugZcodeTests</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
+                        <test>
+                            <name>EdgeCaseZcodeTests</name>
                             <link>static</link>
                             <run>true</run>
                         </test>
@@ -64,7 +71,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <!-- run with mvn [-pl receivers/native/generic-core] exec:exec@default-cli -->
+                        <!-- run with mvn [-pl receivers/native/generic-core-2] exec:exec@default-cli -->
                         <id>default-cli</id>
                         <configuration>
                             <executable>${project.build.directory}/test-nar/bin/amd64-Linux-gpp/default-cli</executable>

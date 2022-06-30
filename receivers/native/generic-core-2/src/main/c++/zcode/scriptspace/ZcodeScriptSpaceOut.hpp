@@ -20,20 +20,30 @@ class ZcodeCommandChannel;
 template<class ZP>
 class ZcodeScriptSpaceOut: public ZcodeOutStream<ZP> {
 private:
+    struct ZcodeScriptSpaceOutStatus {
+        bool overLength :1;
+        bool inUse :1;
+        bool dataBufferFull :1;
+        bool currentlyOpen :1;
+        void reset() {
+            overLength = false;
+            inUse = false;
+            dataBufferFull = false;
+            currentlyOpen = false;
+        }
+    };
     typedef typename ZP::scriptSpaceAddress_t scriptSpaceAddress_t;
     ZcodeScriptSpace<ZP> *space;
     uint8_t buffer[ZP::scriptOutBufferSize];
     scriptSpaceAddress_t length = 0;
     scriptSpaceAddress_t lastEndPos = 0;
-    bool overLength = false;
-    bool inUse = false;
-    bool dataBufferFull = false;
-    bool currentlyOpen = false;
-    ZcodeResponseStatus status = OK;
+    ZcodeScriptSpaceOutStatus outStatus;
+    uint16_t status = ZcodeResponseStatus::OK;
 
 public:
     ZcodeScriptSpaceOut(ZcodeScriptSpace<ZP> *space) :
             space(space) {
+        outStatus.reset();
     }
 
     void initialSetup(ZcodeScriptSpace<ZP> *space) {
@@ -46,34 +56,35 @@ public:
         }
         if (this->recentBreak != 0) {
             if (this->recentBreak != EOL_SYMBOL) {
-                if (!overLength) {
+                if (!outStatus.overLength) {
                     lastEndPos = length;
                 }
             }
             this->recentBreak = (Zchars) 0;
         }
         if (length == ZP::scriptOutBufferSize) {
-            overLength = true;
+            outStatus.overLength = true;
         }
-        if (currentlyOpen && !overLength) {
+        if (outStatus.currentlyOpen && !outStatus.overLength) {
             buffer[length++] = value;
         }
     }
 
     void open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType type) {
+        (void) (target);
         if (type == ZcodeOutStreamOpenType::RESPONSE) {
-            currentlyOpen = true;
+            outStatus.currentlyOpen = true;
             length = 0;
-            overLength = false;
+            outStatus.overLength = false;
         }
     }
 
     bool isOpen() {
-        return currentlyOpen;
+        return outStatus.currentlyOpen;
     }
 
     void close() {
-        currentlyOpen = false;
+        outStatus.currentlyOpen = false;
         if (status != OK) {
             flush();
         }
@@ -82,17 +93,21 @@ public:
     bool flush();
 
     bool isDataBufferFull() {
-        return dataBufferFull;
+        return outStatus.dataBufferFull;
     }
 };
 
 template<class ZP>
 bool ZcodeScriptSpaceOut<ZP>::flush() {
-    if (status != CMD_FAIL && status != OK) {
+    if (status < CMD_FAIL && status != OK) {
         space->setRunning(false);
         space->setFailed(true);
     }
-    if (!space->getNotificationChannel()->out->isLocked()) {
+    if (space->getNotificationChannel() == NULL) {
+        outStatus.dataBufferFull = false;
+        status = OK;
+        return true;
+    } else if (!space->getNotificationChannel()->out->isLocked()) {
         ZcodeOutStream<ZP> *out = space->getNotificationChannel()->out;
         out->lock();
         if (out->isOpen()) {
@@ -102,7 +117,7 @@ bool ZcodeScriptSpaceOut<ZP>::flush() {
         out->mostRecent = space;
         out->markNotification();
         out->writeField8(Zchars::NOTIFY_TYPE_PARAM, (uint8_t) 2);
-        if (overLength) {
+        if (outStatus.overLength) {
             out->writeBytes(buffer, lastEndPos);
             out->writeCommandSeparator();
             out->writeStatus(RESP_TOO_LONG);
@@ -114,11 +129,11 @@ bool ZcodeScriptSpaceOut<ZP>::flush() {
         }
         out->close();
         out->unlock();
-        dataBufferFull = false;
+        outStatus.dataBufferFull = false;
         status = OK;
         return true;
     } else {
-        dataBufferFull = true;
+        outStatus.dataBufferFull = true;
         return false;
     }
 }

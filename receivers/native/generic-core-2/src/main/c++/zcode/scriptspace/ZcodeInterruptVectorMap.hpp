@@ -81,9 +81,11 @@ public:
     bool setVector(uint8_t type, scriptSpaceAddress_t vector) {
         return setVectorInternal(type, 0, 0, 0x01, vector);
     }
-
-    bool setVector(uint8_t type, uint8_t bus, uint8_t addr, bool hasAddress, scriptSpaceAddress_t vector) {
-        return setVectorInternal(type, bus, addr, hasAddress ? 0x03 : 0x02, vector);
+    bool setVector(uint8_t type, uint8_t bus, scriptSpaceAddress_t vector) {
+        return setVectorInternal(type, bus, 0, 0x02, vector);
+    }
+    bool setVector(uint8_t type, uint8_t bus, uint8_t addr, scriptSpaceAddress_t vector) {
+        return setVectorInternal(type, bus, addr, 0x03, vector);
     }
 
     bool hasVector(uint8_t type, uint8_t bus, uint8_t addr, bool hasAddress) {

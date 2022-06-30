@@ -29,8 +29,8 @@ private:
     }
 protected:
 
-    ZcodeResponseStatus recentStatus;
-    Zchars recentBreak;
+    uint16_t recentStatus;
+    uint8_t recentBreak;
     bool lockVal = false;
 
 public:
@@ -75,7 +75,7 @@ public:
 
     ZcodeOutStream<ZP>* writeBytes(uint8_t const *value, uint16_t l) {
         for (int i = 0; i < l; i++) {
-            writeByte(value[l]);
+            writeByte(value[i]);
         }
         return this;
     }
@@ -93,11 +93,17 @@ public:
         return this;
     }
 
-    ZcodeOutStream<ZP>* writeStatus(ZcodeResponseStatus st) {
-        recentStatus = st;
+    ZcodeOutStream<ZP>* writeStatus(uint16_t st) {
+        recentStatus = (uint16_t) st;
         writeByte(Zchars::STATUS_RESP_PARAM);
         if (st != OK) {
             if (st >= 0x10) {
+                if (st >= 0x100) {
+                    if (st >= 0x1000) {
+                        writeByte(toHexDigit((uint8_t) (st >> 12) & 0x0F));
+                    }
+                    writeByte(toHexDigit((uint8_t) (st >> 8) & 0x0F));
+                }
                 writeByte(toHexDigit((uint8_t) (st >> 4) & 0x0F));
             }
             writeByte(toHexDigit(st & 0x0F));
@@ -140,18 +146,18 @@ public:
 
     ZcodeOutStream<ZP>* writeCommandSeparator() {
         writeByte(Zchars::ANDTHEN_SYMBOL);
-        recentBreak = Zchars::ANDTHEN_SYMBOL;
+        recentBreak = (uint8_t) Zchars::ANDTHEN_SYMBOL;
         return this;
     }
     ZcodeOutStream<ZP>* writeCommandSequenceErrorHandler() {
         writeByte(Zchars::ORELSE_SYMBOL);
-        recentBreak = Zchars::ORELSE_SYMBOL;
+        recentBreak = (uint8_t) Zchars::ORELSE_SYMBOL;
         return this;
     }
 
     ZcodeOutStream<ZP>* writeCommandSequenceSeparator() {
         writeByte(Zchars::EOL_SYMBOL);
-        recentBreak = Zchars::EOL_SYMBOL;
+        recentBreak = (uint8_t) Zchars::EOL_SYMBOL;
         return this;
     }
 

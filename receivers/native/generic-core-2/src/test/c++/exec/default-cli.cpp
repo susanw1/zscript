@@ -5,31 +5,29 @@
  *      Author: robert
  */
 
-#include "modules/core/ZcodeCoreModule.hpp"
-#include "parsing/ZcodeChannelCommandSlot.hpp"
-
-#include "../support/ZcodeLocalChannel.hpp"
-
 #include <iostream>
 
-#include "scriptspace/ZcodeScriptSpaceChannel.hpp"
-#include "modules/ZcodeModule.hpp"
+#include "../support/ZcodeParameters.hpp"
+
+//#include "modules/script/ZcodeScriptModule.hpp"
+#include "modules/core/ZcodeCoreModule.hpp"
+
+#include "addressing/ZcodeModuleAddressRouter.hpp"
+#include "../support/ZcodeLocalChannel.hpp"
 
 #include "Zcode.hpp"
+
 int main(void) {
     std::cout << "size of Zcode: " << sizeof(Zcode<TestParams> ) << "\n";
-//    std::cout << "size of ZcodeCommandSlot: " << sizeof(ZcodeCommandSlot<TestParams> ) << "\n";
 
-    Zcode<TestParams> zcode(NULL, 0);
-
+    ZcodeModuleAddressRouter<TestParams> addrRouter;
+    Zcode<TestParams> zcode(&addrRouter);
     ZcodeLocalChannel localChannel(&zcode);
-    ZcodeScriptSpaceChannel<TestParams> execSpaceChannel(&zcode);
-    ZcodeCommandChannel<TestParams> *channels[2] = { &localChannel, &execSpaceChannel };
-    ZcodeScriptSpaceChannel<TestParams> **execChannelPtr = (ZcodeScriptSpaceChannel<TestParams>**) channels + 1;
-    zcode.setChannels(channels, 2);
-    zcode.getSpace()->setChannels(execChannelPtr, 1);
+    ZcodeCommandChannel<TestParams> *channels[1] = { &localChannel };
+    zcode.setChannels(channels, 1);
     ZcodeCoreModule<TestParams> core;
-    ZcodeModule<TestParams> *modules[1] = { &core };
+//    ZcodeScriptModule<TestParams> script;
+    ZcodeModule<TestParams> *modules[1] = { &core /*, &script*/};
     zcode.setModules(modules, 1);
 
     while (true) {

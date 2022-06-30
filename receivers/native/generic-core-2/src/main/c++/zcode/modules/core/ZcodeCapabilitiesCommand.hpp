@@ -28,12 +28,6 @@ public:
         ZcodeOutStream<ZP> *out = slot.getOut();
         out->writeStatus(OK);
         uint8_t capabilities = 0x01;
-        if (ZP::findInterruptSourceAddress) {
-            capabilities |= 0x04;
-        }
-        if (ZP::isUsingInterruptVector) {
-            capabilities |= 0x08;
-        }
         out->writeField8('C', capabilities);
         out->writeField32('N', (uint32_t) ZP::fieldNum);
         uint16_t moduleName[slot.getZcode()->getModuleNumber()];

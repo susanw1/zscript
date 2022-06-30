@@ -9,6 +9,7 @@
 #define SRC_TEST_CPP_ZCODE_PARSING_ZCODECOMMANDCHANNEL_HPP_
 
 #include "../ZcodeIncludes.hpp"
+#include "../running/ZcodeRunningCommandSlot.hpp"
 
 template<class ZP>
 class ZcodeLockSet;
@@ -29,16 +30,17 @@ enum ZcodeCommandChannelStateChange {
 template<class ZP>
 class ZcodeCommandChannel {
 public:
-    ZcodeRunningCommandSlot<ZP> runner;
     ZcodeChannelInStream<ZP> *in;
     ZcodeOutStream<ZP> *out;
+    ZcodeRunningCommandSlot<ZP> runner;
     bool packetBased;
 
     ZcodeCommandChannel(Zcode<ZP> *zcode, ZcodeChannelInStream<ZP> *in, ZcodeOutStream<ZP> *out, bool packetBased) :
-            runner(zcode, out, in->getSlot()), in(in), out(out), packetBased(packetBased) {
+            in(in), out(out), runner(zcode, out, in->getSlot()), packetBased(packetBased) {
     }
 
     virtual void stateChange(ZcodeCommandChannelStateChange change) {
+        (void) (change);
     }
 
 };

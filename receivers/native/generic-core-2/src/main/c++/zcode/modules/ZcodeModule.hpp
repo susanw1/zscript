@@ -10,6 +10,7 @@
 
 #include "../ZcodeIncludes.hpp"
 #include "../running/ZcodeExecutionCommandSlot.hpp"
+#include "../addressing/ZcodeAddressRouter.hpp"
 
 #define COMMAND_SWITCH_UTIL(num, func) 0, case num: func(slot, command); break;
 
@@ -21,9 +22,20 @@ class ZcodeModule {
 public:
     const uint16_t moduleId;
 
-    ZcodeModule(uint16_t moduleId) :
-            moduleId(moduleId) {
+#ifdef ZCODE_SUPPORT_ADDRESSING
+    ZcodeAddressRouter<ZP> *addressRouter;
+    ZcodeModule(uint16_t moduleId, ZcodeAddressRouter<ZP> *addressRouter) :
+            moduleId(moduleId), addressRouter(addressRouter) {
+    }
+#endif
 
+    ZcodeModule(uint16_t moduleId) :
+            moduleId(moduleId)
+
+#ifdef ZCODE_SUPPORT_ADDRESSING
+    , addressRouter(NULL)
+#endif
+    {
     }
 };
 // want function of form: void execute(ZcodeExecutionCommandSlot<ZP> slot, uint16_t command)

@@ -7,15 +7,25 @@
 
 #ifndef SRC_TEST_CPP_ZCODE_COMMANDS_ZCODECOREMODULE_HPP_
 #define SRC_TEST_CPP_ZCODE_COMMANDS_ZCODECOREMODULE_HPP_
+#ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#error Must be included before Zcode.hpp
+#endif
 
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeModule.hpp"
 #include "ZcodeActivateCommand.hpp"
 #include "ZcodeCapabilitiesCommand.hpp"
 #include "ZcodeEchoCommand.hpp"
-#include "ZcodeSendDebugCommand.hpp"
 #include "ZcodeSetDebugChannelCommand.hpp"
+#ifdef ZCODE_GENERATE_NOTIFICATIONS
 #include "ZcodeNotificationHostCommand.hpp"
+#endif
+#ifdef ZCODE_SUPPORT_ADDRESSING
+#ifdef ZCODE_SUPPORT_DEBUG
+#include "ZcodeDebugAddressRouter.hpp"
+#endif
+#include "ZcodeAddressCommand.hpp"
+#endif
 
 #define ZCODE_CORE_MODULE_ADDRESS 0x00
 
@@ -23,10 +33,19 @@
 
 template<class ZP>
 class ZcodeCoreModule: public ZcodeModule<ZP> {
+#if defined(ZCODE_SUPPORT_ADDRESSING) && defined(ZCODE_SUPPORT_DEBUG)
+    ZcodeDebugAddressRouter<ZP> addrRouter;
+#endif
 
 public:
     ZcodeCoreModule() :
-            ZcodeModule<ZP>(ZCODE_CORE_MODULE_ADDRESS) {
+            ZcodeModule<ZP>(ZCODE_CORE_MODULE_ADDRESS
+
+#if defined(ZCODE_SUPPORT_ADDRESSING) && defined(ZCODE_SUPPORT_DEBUG)
+                    , &addrRouter
+#endif
+
+                    ) {
     }
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint16_t command) {
@@ -42,21 +61,21 @@ public:
         case 0x3:
             ZcodeActivateCommand<ZP>::execute(slot);
             break;
+#ifdef ZCODE_GENERATE_NOTIFICATIONS
         case 0x8:
             ZcodeNotificationHostCommand<ZP>::execute(slot);
             break;
+#endif
+#ifdef ZCODE_SUPPORT_DEBUG
         case 0x9:
             ZcodeSetDebugChannelCommand<ZP>::execute(slot);
             break;
-        case 0xa:
-            ZcodeSendDebugCommand<ZP>::execute(slot);
-            break;
-        case 0xb:
-            ZcodeSendDebugCommand<ZP>::execute(slot);
-            break;
+#endif
+#ifdef ZCODE_SUPPORT_ADDRESSING
         case 0xf:
-            ZcodeSendDebugCommand<ZP>::execute(slot);
+            ZcodeAddressCommand<ZP>::execute(slot);
             break;
+#endif
         default:
             slot.fail(UNKNOWN_CMD, "Unknown command");
             break;

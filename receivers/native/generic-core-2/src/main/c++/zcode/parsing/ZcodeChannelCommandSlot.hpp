@@ -117,10 +117,10 @@ class ZcodeChannelCommandSlot {
     ZcodeFieldMap<ZP> fieldMap;
     ZcodeBigField<ZP> bigField;
     ZcodeLockSet<ZP> lockSet;
-    ZcodeChannelCommandSlotParsingState state;
-    ZcodeChannelCommandSlotStatus runStatus;
-    ZcodeResponseStatus respStatus;
     const char *failString;
+    ZcodeChannelCommandSlotParsingState state;
+    uint16_t respStatus;
+    ZcodeChannelCommandSlotStatus runStatus;
     char terminator;
     char starter;
 
@@ -158,10 +158,7 @@ class ZcodeChannelCommandSlot {
         respStatus = status;
         failString = message;
 
-        if (c == EOL_SYMBOL || c == ORELSE_SYMBOL || c == ANDTHEN_SYMBOL) {
-            state.waitingOnRun = true;
-            terminator = c;
-        }
+        terminator = c;
     }
     void failExternal(ZcodeResponseStatus status) {
         state.resetToFail();
@@ -177,6 +174,10 @@ class ZcodeChannelCommandSlot {
                 parseFail(c, PARSE_ERROR, "Misplaced string field end with escaping");
                 return;
             }
+            return;
+        }
+        if (c == ANDTHEN_SYMBOL || c == ORELSE_SYMBOL || c == EOL_SYMBOL) {
+            parseFail(c, PARSE_ERROR, "String field not ended");
             return;
         }
         if (bigField.isAtEnd()) {
@@ -270,6 +271,7 @@ class ZcodeChannelCommandSlot {
             state.isComment = true;
         } else if (c == ADDRESS_PREFIX) {
             state.isAddressing = true;
+            fieldMap.add16('Z', 0x0f);
         } else if (c == PARALLEL_PREFIX) {
             if (runStatus.isParallel) {
                 parseFail(c, PARSE_ERROR, "Locks set twice");
@@ -290,6 +292,8 @@ class ZcodeChannelCommandSlot {
         } else if (state.sequenceDone || state.isComment || (state.hasFailed && (c != ORELSE_SYMBOL || respStatus < CMD_FAIL))) {
             if (c == EOL_SYMBOL) {
                 resetToSequence();
+                terminator = EOL_SYMBOL;
+                starter = terminator;
             }
         } else if (state.hasFailed && c == ORELSE_SYMBOL && respStatus >= CMD_FAIL) {
             resetToCommand();
@@ -303,7 +307,12 @@ class ZcodeChannelCommandSlot {
                 sequenceBeginingParse(c);
             }
         } else if (state.isAddressing) {
-            //TODO: need to work out addressing...
+            if (c == EOL_SYMBOL) {
+                state.waitingOnRun = true;
+                terminator = c;
+            } else {
+                bigField.addByte(c);
+            }
         } else {
             parseFail(c, UNKNOWN_ERROR, "Internal error");
         }
@@ -311,7 +320,7 @@ class ZcodeChannelCommandSlot {
 
 public:
     ZcodeChannelCommandSlot(Zcode<ZP> *zcode, ZcodeBigField<ZP> bigField, ZcodeCommandChannel<ZP> *channel) :
-            channel(channel), fieldMap(), bigField(bigField), lockSet(zcode->getLocks()), state(), runStatus(), respStatus(OK), terminator('\n') {
+            channel(channel), fieldMap(), bigField(bigField), lockSet(zcode->getLocks()), state(), respStatus(OK), runStatus(), terminator('\n'), starter('\n') {
         resetToSequence();
     }
 

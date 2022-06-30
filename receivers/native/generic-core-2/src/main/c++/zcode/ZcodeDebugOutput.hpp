@@ -129,13 +129,12 @@ void ZcodeDebugOutput<ZP>::flushBuffer(ZcodeOutStream<ZP> *stream) {
     state.isDecimal = false;
     state.isHex = false;
     debugOutputBufferLength_t curPos = 0;
-    debugOutputBufferLength_t prevPos = 0;
     while (curPos < position) {
-        prevPos = curPos;
+        stream->markDebug();
         while (curPos < ZP::debugBufferLength && debugBuffer[curPos] != Zchars::EOL_SYMBOL) {
-            curPos++;
+            stream->writeByte(debugBuffer[curPos++]);
         }
-        stream->markDebug()->writeBytes(debugBuffer + prevPos, (bigFieldAddress_t) (curPos - prevPos))->writeCommandSequenceSeparator();
+        stream->writeCommandSequenceSeparator();
         curPos++;
     }
     if (position == ZP::debugBufferLength + 1) {
@@ -186,7 +185,7 @@ void ZcodeDebugOutput<ZP>::println(const char *s) {
 
 template<class ZP>
 void ZcodeDebugOutput<ZP>::println(const char *s, debugOutputBufferLength_t length) {
-    if (channel != NULL && !channel->out->lock()) {
+    if (channel != NULL && channel->out->lock()) {
         ZcodeOutStream<ZP> *stream = channel->out;
         if (stream->mostRecent == this) {
             if (!stream->isOpen()) {
@@ -225,8 +224,7 @@ void ZcodeDebugOutput<ZP>::println(const char *s, debugOutputBufferLength_t leng
 
 template<class ZP>
 void ZcodeDebugOutput<ZP>::attemptFlush() {
-    if (position != 0 && channel != NULL && !channel->out->isLocked()) {
-        channel->out->lock();
+    if (position != 0 && channel != NULL && channel->out->lock()) {
         ZcodeOutStream<ZP> *stream = channel->out;
         if (stream->mostRecent == this) {
             if (!stream->isOpen()) {
@@ -344,7 +342,7 @@ ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(uint8_t i) {
     } else if (state.isHex) {
         char c;
         if (i > 15) {
-            c = toHex(i >> 4);
+            c = toHex((uint8_t) (i >> 4));
             writeToBuffer((const uint8_t*) &c, 1);
         }
         c = toHex(i & 0x0F);
@@ -399,10 +397,10 @@ ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(uint16_t v) {
         }
     } else {
         bool hasStartedPrint = false;
-        for (uint8_t i = 4; i >= 0; i--) {
+        for (int8_t i = 4; i >= 0; i--) {
             uint16_t div = 1;
             for (uint8_t j = 0; j < i; ++j) {
-                div *= 10;
+                div = (uint16_t) (div * 10);
             }
             if (hasStartedPrint || v >= div) {
                 hasStartedPrint = true;
@@ -449,14 +447,14 @@ ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(uint32_t v) {
         }
     } else {
         bool hasStartedPrint = false;
-        for (uint8_t i = 9; i >= 0; i--) {
-            uint16_t div = 1;
+        for (int8_t i = 9; i >= 0; i--) {
+            uint32_t div = 1;
             for (uint8_t j = 0; j < i; ++j) {
-                div *= 10;
+                div = (uint32_t) (div * 10);
             }
             if (hasStartedPrint || v >= div) {
                 hasStartedPrint = true;
-                char c = '0' + (v / div) % 10;
+                char c = (char) ('0' + (v / div) % 10);
                 writeToBuffer((const uint8_t*) &c, 1);
             }
         }
@@ -497,10 +495,10 @@ ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(uint64_t v) {
         }
     } else {
         bool hasStartedPrint = false;
-        for (uint8_t i = 19; i >= 0; i--) {
-            uint16_t div = 1;
+        for (int8_t i = 19; i >= 0; i--) {
+            uint64_t div = 1;
             for (uint8_t j = 0; j < i; ++j) {
-                div *= 10;
+                div = (uint64_t) (div * 10);
             }
             if (hasStartedPrint || v >= div) {
                 hasStartedPrint = true;

@@ -8,6 +8,7 @@
 #ifndef SRC_MAIN_CPP_ZCODE_EXECUTIONSPACE_ZCODEINTERRUPTVECTORMANAGER_HPP_
 #define SRC_MAIN_CPP_ZCODE_EXECUTIONSPACE_ZCODEINTERRUPTVECTORMANAGER_HPP_
 
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
 #include "../scriptspace/ZcodeInterruptVectorMap.hpp"
 #include "../scriptspace/ZcodeInterruptVectorOut.hpp"
 #include "../scriptspace/ZcodeScriptSpace.hpp"
@@ -21,15 +22,14 @@ private:
 
     ZcodeNotificationManager<ZP> *notificationManager;
     ZcodeScriptSpace<ZP> *space;
-    ZcodeInterruptVectorOut<ZP> out;
     ZcodeInterruptVectorChannel<ZP> channel;
     ZcodeInterruptVectorMap<ZP> vectorMap;
     ZcodeBusInterrupt<ZP> waitingInterrupts[ZP::interruptVectorWorkingNum];
     uint8_t waitingNum = 0;
 
 public:
-    ZcodeInterruptVectorManager(ZcodeNotificationManager<ZP> *notificationManager, ZcodeScriptSpace<ZP> *space) :
-            notificationManager(notificationManager), space(space), channel(space, this, notificationManager) {
+    ZcodeInterruptVectorManager(ZcodeNotificationManager<ZP> *notificationManager, Zcode<ZP> *zcode) :
+            notificationManager(notificationManager), space(zcode->getSpace()), channel(zcode, this, notificationManager) {
     }
 
     ZcodeInterruptVectorMap<ZP>* getVectorMap() {
@@ -46,6 +46,9 @@ public:
 
     bool hasInterruptSource() {
         return waitingNum > 0;
+    }
+    ZcodeInterruptVectorChannel<ZP>* getChannel() {
+        return &channel;
     }
 
     void activateInterrupt() {
@@ -78,7 +81,7 @@ public:
     }
 
     ZcodeInterruptVectorOut<ZP>* getOut() {
-        return &out;
+        return channel.out;
     }
 
     ZcodeNotificationManager<ZP>* getNotificationManager() {
@@ -86,4 +89,5 @@ public:
     }
 };
 
+#endif
 #endif /* SRC_MAIN_CPP_ZCODE_EXECUTIONSPACE_ZCODEINTERRUPTVECTORMANAGER_HPP_ */

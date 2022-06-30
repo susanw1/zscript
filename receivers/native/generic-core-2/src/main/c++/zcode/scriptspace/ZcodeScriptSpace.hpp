@@ -8,11 +8,27 @@
 #ifndef SRC_TEST_CPP_ZCODE_EXECUTIONSPACE_ZCODEEXECUTIONSPACE_HPP_
 #define SRC_TEST_CPP_ZCODE_EXECUTIONSPACE_ZCODEEXECUTIONSPACE_HPP_
 
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
+#include <string.h>
+
 #include "../ZcodeIncludes.hpp"
 #include "ZcodeScriptSpaceChannel.hpp"
 
 template<class ZP>
 class ZcodeNotificationManager;
+
+//Solving C++'s problems with initialising an array of object values...
+template<class ZP>
+union ZcodeEvilArrayInitialiserSolution {
+    ZcodeScriptSpaceChannel<ZP> channel;
+    uint8_t b;
+    ZcodeEvilArrayInitialiserSolution() :
+            b(0) {
+    }
+    ZcodeEvilArrayInitialiserSolution(Zcode<ZP> *zcode) :
+            channel(zcode) {
+    }
+};
 
 template<class ZP>
 class ZcodeScriptSpace {
@@ -23,8 +39,8 @@ private:
     typedef typename ZP::scriptSpaceAddress_t scriptSpaceAddress_t;
 
     ZcodeNotificationManager<ZP> *notifications;
-    ZcodeScriptSpaceChannel<ZP> **channels = NULL;
-    uint8_t channelNum = 0;
+    ZcodeEvilArrayInitialiserSolution<ZP> channelActual;
+    ZcodeEvilArrayInitialiserSolution<ZP> channels[ZP::scriptChannelCount - 1];
     uint8_t space[ZP::scriptLength];
     scriptSpaceAddress_t length = 0;
     uint8_t delay = 0;
@@ -32,23 +48,26 @@ private:
     bool failed = false;
 
 public:
-    ZcodeScriptSpace(ZcodeNotificationManager<ZP> *notifications) :
-            notifications(notifications) {
+    ZcodeScriptSpace(Zcode<ZP> *zcode) :
+            notifications(zcode->getNotificationManager()), channelActual(zcode) {
         for (scriptSpaceAddress_t i = 0; i < ZP::scriptLength; ++i) {
             space[i] = 0;
         }
-    }
-    void setChannels(ZcodeScriptSpaceChannel<ZP> **channels, uint8_t channelNum) {
-        this->channels = channels;
-        this->channelNum = channelNum;
-    }
-
-    uint8_t getChannelNum() {
-        return channelNum;
+        for (uint8_t i = 0; i < ZP::scriptChannelCount - 1; ++i) {
+            memcpy((void*) (channels + i), (void*) (&channelActual), sizeof(ZcodeEvilArrayInitialiserSolution<ZP> ));
+        }
     }
 
-    ZcodeScriptSpaceChannel<ZP>** getChannels() {
-        return channels;
+    uint8_t getChannelCount() {
+        return ZP::scriptChannelCount;
+    }
+
+    ZcodeScriptSpaceChannel<ZP>* getChannel(uint8_t i) {
+        if (i == 0) {
+            return &channelActual.channel;
+        } else {
+            return &(channels[i - 1].channel);
+        }
     }
 
     uint8_t get(scriptSpaceAddress_t pos) {
@@ -57,14 +76,6 @@ public:
 
     scriptSpaceAddress_t getLength() {
         return length;
-    }
-
-    void flush() {
-        for (scriptSpaceAddress_t i = 0; i < channelNum; i++) {
-            if (channels[i]->getOutStream()->isDataBufferFull()) {
-                channels[i]->getOutStream()->flush();
-            }
-        }
     }
 
     ZcodeCommandChannel<ZP>* getNotificationChannel() {
@@ -104,5 +115,5 @@ public:
         }
     }
 };
-
+#endif
 #endif /* SRC_TEST_CPP_ZCODE_EXECUTIONSPACE_ZCODEEXECUTIONSPACE_HPP_ */

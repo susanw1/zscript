@@ -16,18 +16,13 @@ class Zcode;
 
 template<class ZP>
 class ZcodeParser {
-private:
-    Zcode<ZP> *zcode;
 
 public:
-    ZcodeParser(Zcode<ZP> *zcode) :
-            zcode(zcode) {
-    }
 
-    void parseNext() {
+    static void parseNext(Zcode<ZP> *zcode) {
         uint16_t count = 0;
-        for (uint16_t i = 0; i < zcode->getChannelNumber(); i++) {
-            ZcodeChannelInStream<ZP> *in = zcode->getChannels()[i]->in;
+        for (uint8_t i = 0; i < zcode->getChannelCount(); i++) {
+            ZcodeChannelInStream<ZP> *in = zcode->getChannel(i)->in;
             in->getSlot()->clearHasData();
             while (in->pushData() && count++ < ZP::parseIterationMax)
                 ;

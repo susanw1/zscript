@@ -15,22 +15,24 @@ template<class ZP>
 class ZcodeOutStream;
 
 template<class ZP>
-class ZcodeDebugOutput;
+class ZcodeAddressRouter;
 
 template<class ZP>
 class Zcode;
 
 template<class ZP>
-class ZcodeSendDebugCommand: public ZcodeCommand<ZP> {
+class ZcodeAddressCommand: public ZcodeCommand<ZP> {
 private:
     static const uint8_t CODE = 0x0f;
 
 public:
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
-        ZcodeOutStream<ZP> *out = slot.getOut();
-        slot.getZcode()->getDebug().println((const char*) slot.getBigField()->getData(), slot.getBigField()->getLength());
-        out->writeStatus(OK);
+        if (slot.getZcode()->getAddressRouter() != NULL) {
+            slot.getZcode()->getAddressRouter()->route(slot, 0);
+        } else {
+            slot.fail(BAD_ADDRESSING, "Addressing not set up");
+        }
     }
 };
 
