@@ -8,9 +8,6 @@
 #ifndef SRC_TEST_CPP_ZCODE_ZCODEOUTSTREAM_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODEOUTSTREAM_HPP_
 
-#include <climits>
-#include <cassert>
-
 #include "ZcodeIncludes.hpp"
 
 template<class ZP>
@@ -74,7 +71,7 @@ public:
     }
 
     ZcodeOutStream<ZP>* writeBytes(uint8_t const *value, uint16_t l) {
-        for (int i = 0; i < l; i++) {
+        for (uint16_t i = 0; i < l; i++) {
             writeByte(value[i]);
         }
         return this;
@@ -135,7 +132,6 @@ public:
     }
 
     ZcodeOutStream<ZP>* writeBigStringField(const char *nullTerminated) {
-        assert(sizeof(uint8_t) == sizeof(char));
         bigFieldAddress_t i;
         for (i = 0; nullTerminated[i] != '\0'; ++i) {
         }
@@ -202,7 +198,7 @@ public:
             continueField8((uint8_t) (value & 0xFF));
         }
     }
-    void continueField32(uint16_t value) {
+    void continueField32(uint32_t value) {
         continueField8((uint8_t) (value >> 24));
         continueField8((uint8_t) ((value >> 16) & 0xFF));
         continueField8((uint8_t) ((value >> 8) & 0xFF));

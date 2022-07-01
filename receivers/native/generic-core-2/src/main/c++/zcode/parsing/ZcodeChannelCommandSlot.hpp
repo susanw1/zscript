@@ -171,23 +171,23 @@ class ZcodeChannelCommandSlot {
         if (c == BIGFIELD_QUOTE_MARKER) {
             state.isInString = false;
             if (state.isEscaped || bigField.isInNibble()) {
-                parseFail(c, PARSE_ERROR, "Misplaced string field end with escaping");
+                parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("Misplaced string field end"));
                 return;
             }
             return;
         }
         if (c == ANDTHEN_SYMBOL || c == ORELSE_SYMBOL || c == EOL_SYMBOL) {
-            parseFail(c, PARSE_ERROR, "String field not ended");
+            parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("String field not ended"));
             return;
         }
         if (bigField.isAtEnd()) {
-            parseFail(c, TOO_BIG, "String field too long");
+            parseFail(c, TOO_BIG, ZCODE_STRING_SURROUND("String field too long"));
             return;
         }
         if (state.isEscaped) {
             int8_t val = getHex(c);
             if (val == -1) {
-                parseFail(c, PARSE_ERROR, "String escaping error");
+                parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("String escaping error"));
                 return;
             }
             if (bigField.isInNibble()) {
@@ -206,14 +206,14 @@ class ZcodeChannelCommandSlot {
         if (val == -1) {
             state.isInBig = false;
             if (bigField.isInNibble()) {
-                parseFail(c, PARSE_ERROR, "Big field odd length");
+                parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("Big field odd length"));
                 return;
             }
             outerCommandParse(c);
             return;
         }
         if (!bigField.addNibble(val)) {
-            parseFail(c, TOO_BIG, "Big field too long");
+            parseFail(c, TOO_BIG, ZCODE_STRING_SURROUND("Big field too long"));
             return;
         }
     }
@@ -226,7 +226,7 @@ class ZcodeChannelCommandSlot {
             return;
         }
         if (!fieldMap.add4(val)) {
-            parseFail(c, TOO_BIG, "Field too long");
+            parseFail(c, TOO_BIG, ZCODE_STRING_SURROUND("Field too long"));
             return;
         }
     }
@@ -235,7 +235,7 @@ class ZcodeChannelCommandSlot {
         if (c >= 'A' && c <= 'Z') {
             state.isInField = true;
             if (!fieldMap.addBlank(c)) {
-                parseFail(c, PARSE_ERROR, "Field repeated");
+                parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("Field repeated"));
             }
         } else if (c == BIGFIELD_PREFIX_MARKER) {
             state.isInBig = true;
@@ -245,7 +245,7 @@ class ZcodeChannelCommandSlot {
             state.waitingOnRun = true;
             terminator = c;
         } else {
-            parseFail(c, PARSE_ERROR, "Unknown character");
+            parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("Unknown character"));
         }
     }
 
@@ -257,14 +257,14 @@ class ZcodeChannelCommandSlot {
             return;
         }
         if (!lockSet.setLocks4(val)) {
-            parseFail(c, TOO_BIG, "Too many locks provided");
+            parseFail(c, TOO_BIG, ZCODE_STRING_SURROUND("Too many locks"));
         }
     }
 
     void sequenceBeginingParse(char c) {
         if (c == BROADCAST_PREFIX) {
             if (runStatus.isBroadcast) {
-                parseFail(c, PARSE_ERROR, "Broadcast set twice");
+                parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("Broadcast set twice"));
             }
             runStatus.isBroadcast = true;
         } else if (c == DEBUG_PREFIX) {
@@ -274,7 +274,7 @@ class ZcodeChannelCommandSlot {
             fieldMap.add16('Z', 0x0f);
         } else if (c == PARALLEL_PREFIX) {
             if (runStatus.isParallel) {
-                parseFail(c, PARSE_ERROR, "Locks set twice");
+                parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("Locks set twice"));
             } else {
                 lockSet.clearAll();
                 state.isParsingParallel = true;
@@ -314,7 +314,7 @@ class ZcodeChannelCommandSlot {
                 bigField.addByte(c);
             }
         } else {
-            parseFail(c, UNKNOWN_ERROR, "Internal error");
+            parseFail(c, UNKNOWN_ERROR, ZCODE_STRING_SURROUND("Internal error"));
         }
     }
 
@@ -325,6 +325,7 @@ public:
     }
 
     bool acceptByte(char c) { // returns false <=> the data couldn't be used and needs to be resent later.
+        bool wasWaiting = state.waitingOnRun;
         runStatus.hasData = true;
         if (state.hasFailed || state.isComment || state.isAddressing || state.isParsingParallel || state.waitingOnRun || state.isAtSeqBegining
                 || state.sequenceDone) {
@@ -342,7 +343,7 @@ public:
                 outerCommandParse(c);
             }
         }
-        return !state.waitingOnRun; // waiting on run is the only circumstance where we don't want data.
+        return !wasWaiting; // waiting on run is the only circumstance where we don't want data.
     }
 
     void finish() {

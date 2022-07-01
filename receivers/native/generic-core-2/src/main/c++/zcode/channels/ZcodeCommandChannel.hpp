@@ -26,7 +26,6 @@ class ZcodeCommandSequence;
 enum ZcodeCommandChannelStateChange {
     SET_AS_NOTIFICATION, RELEASED_FROM_NOTIFICATION, SET_AS_DEBUG, RELEASED_FROM_DEBUG
 };
-
 template<class ZP>
 class ZcodeCommandChannel {
 public:

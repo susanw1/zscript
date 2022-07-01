@@ -48,10 +48,7 @@ private:
 
 public:
     ZcodeNotificationManager(
-
-#if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
             Zcode<ZP> *zcode,
-#endif
 
             ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum) :
             sources(sources), sourceNum(sourceNum),
@@ -60,6 +57,9 @@ public:
             vectorChannel(this, zcode),
     #endif
                     notificationChannel(NULL) {
+#if !defined(ZCODE_SUPPORT_SCRIPT_SPACE) || !defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
+        (void) zcode;
+#endif
     }
 
 #if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)

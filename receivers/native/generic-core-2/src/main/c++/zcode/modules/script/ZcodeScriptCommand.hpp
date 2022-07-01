@@ -36,14 +36,14 @@ public:
         if (slot.getFields()->get('T', &target)) {
             if (target >= space->getChannelCount()) {
                 worked = false;
-                slot.fail(BAD_PARAM, "Not a valid Execution Space Channel");
+                slot.fail(BAD_PARAM, ZCODE_STRING_SURROUND("Invalid Script Channel"));
             }
         }
 
         if (worked && slot.getFields()->get('A', &address)) {
             if (address >= space->getLength()) {
                 worked = false;
-                slot.fail(BAD_PARAM, "Target Address beyond end of Execution Space");
+                slot.fail(BAD_PARAM, ZCODE_STRING_SURROUND("Address too large"));
             } else {
                 space->getChannel((uint8_t) target)->move(address);
             }
@@ -51,7 +51,7 @@ public:
         if (worked && slot.getFields()->get('D', &delay)) {
             if (delay > 0xFF) {
                 worked = false;
-                slot.fail(BAD_PARAM, "Delay larger than 1 byte");
+                slot.fail(BAD_PARAM, ZCODE_STRING_SURROUND("Delay too large"));
             } else {
                 space->setDelay((uint8_t) delay);
             }

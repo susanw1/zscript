@@ -10,6 +10,8 @@
 
 #include "ZcodeIncludes.hpp"
 
+#define ZCODE_STRING_SURROUND(str) str
+
 #define ZCODE_SUPPORT_SCRIPT_SPACE
 #define ZCODE_SUPPORT_INTERRUPT_VECTOR
 #define ZCODE_SUPPORT_ADDRESSING

@@ -42,7 +42,9 @@ public:
         if (pos >= length) {
             if (timer == 0) {
                 if (data[length - 1] != EOL_SYMBOL) {
-                    this->slot.acceptByte(EOL_SYMBOL);
+                    if (!this->slot.acceptByte(EOL_SYMBOL)) {
+                        return false;
+                    }
                 }
             }
             if (timer < 100) {
@@ -50,7 +52,11 @@ public:
             }
             return false;
         } else {
-            return this->slot.acceptByte(data[pos++]);
+            if (!this->slot.acceptByte(data[pos++])) {
+                pos--;
+                return false;
+            }
+            return true;
         }
     }
     bool isDone() {

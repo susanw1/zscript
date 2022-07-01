@@ -77,7 +77,7 @@ public:
             break;
 #endif
         default:
-            slot.fail(UNKNOWN_CMD, "Unknown command");
+            slot.fail(UNKNOWN_CMD, ZCODE_STRING_SURROUND("Unknown command"));
             break;
         }
     }

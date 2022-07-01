@@ -57,7 +57,11 @@ public:
         } else {
             result = buffer[pos++];
         }
-        return this->slot.acceptByte(result);
+        if (!this->slot.acceptByte(result)) {
+            pos--;
+            return false;
+        }
+        return true;
     }
 
 };

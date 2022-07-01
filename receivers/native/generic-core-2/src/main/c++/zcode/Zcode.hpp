@@ -29,6 +29,7 @@
 #include "ZcodeIncludes.hpp"
 #include "parsing/ZcodeParser.hpp"
 #include "parsing/ZcodeChannelCommandSlot.hpp"
+#include "channels/ZcodeCommandChannel.hpp"
 #ifdef ZCODE_SUPPORT_SCRIPT_SPACE
 #include "scriptspace/ZcodeScriptSpace.hpp"
 #endif
@@ -147,6 +148,9 @@ public:
 #ifdef ZCODE_SUPPORT_ADDRESSING
     ZcodeAddressRouter<ZP>* getAddressRouter() {
         return addrRouter;
+    }
+    void setAddressRouter(ZcodeAddressRouter<ZP>* router) {
+        addrRouter = router;
     }
 #endif
 

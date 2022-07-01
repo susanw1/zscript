@@ -38,29 +38,29 @@ public:
         bool hasAddress = false;
         uint16_t vector = 0;
         if (!slot.getFields()->get('T', &type) || type > 0xFF) {
-            slot.fail(BAD_PARAM, "Need valid interrupt type to set interrupt");
+            slot.fail(BAD_PARAM, ZCODE_STRING_SURROUND("Invalid interrupt type"));
             return;
         }
         if (!slot.getFields()->get('V', &vector) || vector >= ZP::scriptLength) {
-            slot.fail(BAD_PARAM, "Need valid interrupt vector to set interrupt");
+            slot.fail(BAD_PARAM, ZCODE_STRING_SURROUND("Invalid interrupt vector"));
             return;
         }
         if (slot.getFields()->get('B', &bus)) {
             hasBus = true;
         }
         if (bus > 0xFF) {
-            slot.fail(BAD_PARAM, "Bus value needs to be 1 byte");
+            slot.fail(BAD_PARAM, "Bus value too large");
             return;
         }
         if (slot.getFields()->get('B', &address)) {
             hasAddress = true;
         }
         if (address > 0xFF) {
-            slot.fail(BAD_PARAM, "Address value needs to be 1 byte");
+            slot.fail(BAD_PARAM, ZCODE_STRING_SURROUND("Address value too large"));
             return;
         }
         if (hasAddress && !hasBus) {
-            slot.fail(BAD_PARAM, "Address value needs to be 1 byte");
+            slot.fail(BAD_PARAM, ZCODE_STRING_SURROUND("Address value too large"));
             return;
         }
         if (hasAddress) {

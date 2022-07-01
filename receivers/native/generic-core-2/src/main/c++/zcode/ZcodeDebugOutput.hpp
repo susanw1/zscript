@@ -288,9 +288,9 @@ ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(const char *s) {
 template<class ZP>
 ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(bool b) {
     if (b) {
-        writeToBuffer((const uint8_t*) "true", 4);
+        writeToBuffer((const uint8_t*) ZCODE_STRING_SURROUND("true"), 4);
     } else {
-        writeToBuffer((const uint8_t*) "false", 5);
+        writeToBuffer((const uint8_t*) ZCODE_STRING_SURROUND("false"), 5);
     }
     return *this;
 }

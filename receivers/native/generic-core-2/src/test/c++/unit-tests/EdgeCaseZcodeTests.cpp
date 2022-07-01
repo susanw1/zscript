@@ -37,11 +37,11 @@ int main(void) {
         std::cerr << "Test failed for invalid string escaping (wrong char)\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z1\"=\"", "S3\"Misplaced string field end with escaping\"\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z1\"=\"", "S3\"Misplaced string field end\"\n")) {
         std::cerr << "Test failed for invalid string escaping (end after =)\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z1\"=2\"", "S3\"Misplaced string field end with escaping\"\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z1\"=2\"", "S3\"Misplaced string field end\"\n")) {
         std::cerr << "Test failed for invalid string escaping (end after =2)\n";
         return 1;
     }
@@ -53,7 +53,7 @@ int main(void) {
         std::cerr << "Test failed for invalid character\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("%100000000000000000000000000000000000000000000000000000000000Z1", "S8\"Too many locks provided\"\n")) {
+    if (!ZcodeTestingSystem::tryTest("%100000000000000000000000000000000000000000000000000000000000Z1", "S8\"Too many locks\"\n")) {
         std::cerr << "Test failed for too many locks\n";
         return 1;
     }
