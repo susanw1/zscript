@@ -1,6 +1,6 @@
 #include "../support/ZcodeParameters.hpp"
 
-//#include "modules/script/ZcodeScriptModule.hpp"
+#include "modules/script/ZcodeScriptModule.hpp"
 #include "modules/core/ZcodeCoreModule.hpp"
 
 #include "addressing/ZcodeModuleAddressRouter.hpp"
@@ -12,14 +12,16 @@ class ZcodeTestingSystem {
 public:
     static bool performTest(const char *input, uint8_t *output, uint16_t outLength) {
 
-        Zcode<TestParams> zcode;
+        ZcodeModuleAddressRouter<TestParams> addrRouter;
+        Zcode<TestParams> zcode(&addrRouter);
 
         ZcodeTestChannel localChannel(&zcode, input, output, outLength);
         ZcodeCommandChannel<TestParams> *channels[1] = { &localChannel };
         zcode.setChannels(channels, 1);
         ZcodeCoreModule<TestParams> core;
-        ZcodeModule<TestParams> *modules[1] = { &core };
-        zcode.setModules(modules, 1);
+        ZcodeScriptModule<TestParams> script;
+        ZcodeModule<TestParams> *modules[2] = { &core, &script };
+        zcode.setModules(modules, 2);
 
         while (!localChannel.isDone()) {
             zcode.progressZcode();
