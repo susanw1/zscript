@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>org.zcode</groupId>
-            <artifactId>generic-cpp-receiver</artifactId>
+            <artifactId>generic-receiver-core-2</artifactId>
             <version>${project.version}</version>
             <type>nar</type>
         </dependency>

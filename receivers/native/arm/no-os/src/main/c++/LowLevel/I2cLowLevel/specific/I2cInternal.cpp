@@ -25,8 +25,8 @@ void I2cInternal::activateClock(I2cIdentifier id) {
     const uint32_t i2c4ClockMask = 0x00000003;
     const uint32_t i2c4ClockHSI16 = 0x00000002;
 
-    GpioManager::getPin(scl)->init();
-    GpioManager::getPin(sda)->init();
+    GpioManager<GeneralHalSetup>::getPin(scl)->init();
+    GpioManager<GeneralHalSetup>::getPin(sda)->init();
     if (id == 0) {
         RCC->APB1ENR1 |= enableI2c1Registers;
         RCC->CCIPR &= ~i2c1ClockMask;
@@ -47,22 +47,22 @@ void I2cInternal::activateClock(I2cIdentifier id) {
 }
 
 void I2cInternal::activatePins() {
-    GpioManager::getPin(scl)->setPullMode(NoPull);
-    GpioManager::getPin(scl)->setOutputMode(OpenDrain);
-    GpioManager::getPin(scl)->setAlternateFunction(sclFunction);
-    GpioManager::getPin(scl)->setOutputSpeed(VeryHighSpeed);
-    GpioManager::getPin(scl)->setMode(AlternateFunction);
-    GpioManager::getPin(sda)->setPullMode(NoPull);
-    GpioManager::getPin(sda)->setOutputMode(OpenDrain);
-    GpioManager::getPin(sda)->setAlternateFunction(sdaFunction);
-    GpioManager::getPin(sda)->setOutputSpeed(VeryHighSpeed);
-    GpioManager::getPin(sda)->setMode(AlternateFunction);
+    GpioManager<GeneralHalSetup>::getPin(scl)->setPullMode(NoPull);
+    GpioManager<GeneralHalSetup>::getPin(scl)->setOutputMode(OpenDrain);
+    GpioManager<GeneralHalSetup>::getPin(scl)->setAlternateFunction(sclFunction);
+    GpioManager<GeneralHalSetup>::getPin(scl)->setOutputSpeed(VeryHighSpeed);
+    GpioManager<GeneralHalSetup>::getPin(scl)->setMode(AlternateFunction);
+    GpioManager<GeneralHalSetup>::getPin(sda)->setPullMode(NoPull);
+    GpioManager<GeneralHalSetup>::getPin(sda)->setOutputMode(OpenDrain);
+    GpioManager<GeneralHalSetup>::getPin(sda)->setAlternateFunction(sdaFunction);
+    GpioManager<GeneralHalSetup>::getPin(sda)->setOutputSpeed(VeryHighSpeed);
+    GpioManager<GeneralHalSetup>::getPin(sda)->setMode(AlternateFunction);
 }
 
 bool I2cInternal::recoverSdaJam() {
     int attempts = 18;
-    GpioPin *sdaPin = GpioManager::getPin(sda);
-    GpioPin *sclPin = GpioManager::getPin(scl);
+    GpioPin<GeneralHalSetup> *sdaPin = GpioManager<GeneralHalSetup>::getPin(sda);
+    GpioPin<GeneralHalSetup> *sclPin = GpioManager<GeneralHalSetup>::getPin(scl);
     sdaPin->setPullMode(NoPull);
     sdaPin->setOutputMode(OpenDrain);
     sdaPin->setOutputSpeed(VeryHighSpeed);

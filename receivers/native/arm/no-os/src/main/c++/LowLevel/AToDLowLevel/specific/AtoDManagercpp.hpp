@@ -1,14 +1,21 @@
 /*
- * AtoDManager.cpp
+ * AtoDManagercpp.hpp
  *
- *  Created on: 5 Jan 2021
+ *  Created on: 6 Jul 2022
  *      Author: robert
  */
+
+#ifndef SRC_MAIN_C___LOWLEVEL_ATODLOWLEVEL_SPECIFIC_ATODMANAGERCPP_HPP_
+#define SRC_MAIN_C___LOWLEVEL_ATODLOWLEVEL_SPECIFIC_ATODMANAGERCPP_HPP_
+
+#include "GpioLowLevel/Gpio.hpp"
 #include "../AtoDManager.hpp"
 
-AtoD AtoDManager::atoDs[] = { AtoD(ADC1), AtoD(ADC2), AtoD(ADC3), AtoD(ADC4), AtoD(ADC5) };
+template<class LL>
+AtoD<LL> AtoDManager<LL>::atoDs[] = { AtoD<LL>(ADC1), AtoD<LL>(ADC2), AtoD<LL>(ADC3), AtoD<LL>(ADC4), AtoD<LL>(ADC5) };
 
-void AtoDManager::init() {
+template<class LL>
+void AtoDManager<LL>::init() {
     const uint32_t enableADC345Registers = 0x4000;
     const uint32_t enableADC12Registers = 0x2000;
 
@@ -17,7 +24,7 @@ void AtoDManager::init() {
 
     RCC->AHB2ENR |= enableADC12Registers | enableADC345Registers; //enable clock to ADCs
     RCC->CCIPR |= aToD345SetSysClk | aToD12SetSysClk; //set peripheral clock inputs
-    uint32_t divider = ClockManager::getClock(SysClock)->getDivider(20000 * 2);
+    uint32_t divider = ClockManager<LL>::getClock(SysClock)->getDivider(20000 * 2);
     if (divider > 6) {
         // work out how many halvings are required to reduce the number below zero
         uint32_t newDiv = 7;
@@ -33,7 +40,7 @@ void AtoDManager::init() {
     }
     ADC12_COMMON->CCR |= divider << 18;
     ADC345_COMMON->CCR |= divider << 18; //setup prescalers for something reasonable
-    for (int i = 0; i < GeneralHalSetup::atoDCount; ++i) {
+    for (int i = 0; i < LL::atoDCount; ++i) {
         atoDs[i].init();
     }
 }
@@ -125,31 +132,6 @@ void AtoDManager::init() {
 #define PF_0_AtoDReading() atoDs[0].performReading(10)
 #define PF_1_AtoDReading() atoDs[1].performReading(10)
 
-#define PortA 0
-#define PortB 1
-#define PortC 2
-#define PortD 3
-#define PortE 4
-#define PortF 5
-#define PortG 6
-
-#define Pin0 0
-#define Pin1 1
-#define Pin2 2
-#define Pin3 3
-#define Pin4 4
-#define Pin5 5
-#define Pin6 6
-#define Pin7 7
-#define Pin8 8
-#define Pin9 9
-#define Pin10 10
-#define Pin11 11
-#define Pin12 12
-#define Pin13 13
-#define Pin14 14
-#define Pin15 15
-
 #define portAtoD(X) switch (pin.pin) {  \
                 case Pin0:                              \
                     return P##X##_0_AtoDReading();          \
@@ -187,7 +169,8 @@ void AtoDManager::init() {
                     return 0;                            \
                 }
 
-bool AtoDManager::canPerformAtoD(GpioPinName pin) {
+template<class LL>
+bool AtoDManager<LL>::canPerformAtoD(GpioPinName pin) {
     if (pin.pin > 16) {
         return false;
     }
@@ -219,7 +202,8 @@ bool AtoDManager::canPerformAtoD(GpioPinName pin) {
     return false;
 }
 
-uint16_t AtoDManager::performAtoD(GpioPinName pin) {
+template<class LL>
+uint16_t AtoDManager<LL>::performAtoD(GpioPinName pin) {
     if (pin.port == PortA) {
         portAtoD(A);
     } else if (pin.port == PortB) {
@@ -239,3 +223,5 @@ uint16_t AtoDManager::performAtoD(GpioPinName pin) {
     }
     return 0;
 }
+
+#endif /* SRC_MAIN_C___LOWLEVEL_ATODLOWLEVEL_SPECIFIC_ATODMANAGERCPP_HPP_ */

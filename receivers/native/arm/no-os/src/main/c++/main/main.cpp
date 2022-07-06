@@ -25,20 +25,10 @@
 #include <stm32g484xx.h>
 #include "ZcodeParameters.hpp"
 
-#include <../LowLevel/ArduinoSpiLayer/src/Ethernet.h>
+#include <modules/core/ZcodeCoreModule.hpp>
+#include <addressing/ZcodeModuleAddressRouter.hpp>
 
-#include <Zcode.hpp>
-#include <commands/ZcodeActivateCommand.hpp>
-#include <commands/ZcodeSetDebugChannelCommand.hpp>
-#include <commands/ZcodeEchoCommand.hpp>
-#include <commands/ZcodeExecutionStateCommand.hpp>
-#include <commands/ZcodeExecutionCommand.hpp>
-#include <commands/ZcodeExecutionStoreCommand.hpp>
-#include <commands/ZcodeNotificationHostCommand.hpp>
-#include <commands/ZcodeCapabilitiesCommand.hpp>
-#include <executionspace/ZcodeExecutionSpaceChannel.hpp>
-
-#include "../channels/Ethernet/EthernetUdpCommandChannel.hpp"
+#include "../channels/Ethernet/EthernetUdpChannel.hpp"
 
 #include "../commands/ZcodeIdentifyCommand.hpp"
 #include "../commands/persistence/ZcodeFetchGuidCommand.hpp"
@@ -81,29 +71,32 @@
 
 #include "../LowLevel/UartLowLevel/UartManager.hpp"
 #include "../LowLevel/UartLowLevel/Uart.hpp"
+#include "../LowLevel/ArduinoSpiLayer/src/Ethernet.h"
 
 #include "stm32g4xx.h"
 #include "stm32g484xx.h"
+
+#include <Zcode.hpp>
 
 void doNothing(I2c *i2c, I2cTerminationStatus status) {
     i2c->unlock();
 }
 
 int main(void) {
-    ClockManager::getClock(VCO)->set(240000, HSI);
-    ClockManager::getClock(PLL_R)->set(120000, VCO);
-    ClockManager::getClock(SysClock)->set(120000, PLL_R);
-    ClockManager::getClock(HCLK)->set(120000, SysClock);
-    ClockManager::getClock(PCLK_1)->set(60000, HCLK);
-    ClockManager::getClock(PCLK_2)->set(60000, HCLK);
+    ClockManager<GeneralHalSetup>::getClock(VCO)->set(240000, HSI);
+    ClockManager<GeneralHalSetup>::getClock(PLL_R)->set(120000, VCO);
+    ClockManager<GeneralHalSetup>::getClock(SysClock)->set(120000, PLL_R);
+    ClockManager<GeneralHalSetup>::getClock(HCLK)->set(120000, SysClock);
+    ClockManager<GeneralHalSetup>::getClock(PCLK_1)->set(60000, HCLK);
+    ClockManager<GeneralHalSetup>::getClock(PCLK_2)->set(60000, HCLK);
     ZcodePinInterruptSource::init();
     ZcodePinInterruptSource source;
-    DmaManager::init();
-    GpioManager::init();
+    DmaManager<GeneralHalSetup>::init();
+    GpioManager<GeneralHalSetup>::init();
     I2cManager::init();
     UartManager::init();
-    SystemMilliClock::init();
-    SystemMilliClock::blockDelayMillis(1000);
+    SystemMilliClock<GeneralHalSetup>::init();
+    SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
     ZcodeFlashPersistence persist;
     ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &source };
     Zcode<ZcodeParameters> z(sources, 1);
@@ -119,77 +112,18 @@ int main(void) {
     while (!Ethernet.begin(mac, 5000, 5000)) {
 
     }
-    AtoDManager::init();
-    EthernetUdpCommandChannel channel(4889, &z);
-    ZcodeExecutionSpaceChannel<ZcodeParameters> execCh(&z, z.getSpace());
-    ZcodeCommandChannel<ZcodeParameters> *chptr[2] = { &channel, &execCh };
-    ZcodeExecutionSpaceChannel<ZcodeParameters> **execPtr = (ZcodeExecutionSpaceChannel<ZcodeParameters>**) chptr + 1;
-    z.setChannels(chptr, 2);
-    z.getSpace()->setChannels(execPtr, 1);
-    ZcodeEchoCommand<ZcodeParameters> cmd0;
-    ZcodeActivateCommand<ZcodeParameters> cmd1;
-    ZcodeSetDebugChannelCommand<ZcodeParameters> cmd2(&z);
-    ZcodeCapabilitiesCommand<ZcodeParameters> cmd3(&z);
-    ZcodeExecutionStateCommand<ZcodeParameters> cmd4(z.getSpace());
-    ZcodeExecutionCommand<ZcodeParameters> cmd5(z.getSpace());
-    ZcodeExecutionStoreCommand<ZcodeParameters> cmd6(z.getSpace());
-    ZcodeNotificationHostCommand<ZcodeParameters> cmd7(&z);
-    ZcodeIdentifyCommand cmd8 = ZcodeIdentifyCommand();
-
-    ZcodeFetchGuidCommand cmd9(&persist);
-    ZcodePersistentFetchCommand cmd10(&persist);
-    ZcodePersistentStoreCommand cmd11(&persist);
-    ZcodeStoreGuidCommand cmd12(&persist);
-    ZcodeStoreMacAddressCommand cmd13(&persist);
-
-    ZcodeI2cSubsystem::init();
-    ZcodeI2cSetupCommand cmd14;
-    ZcodeI2cSendCommand cmd15;
-    ZcodeI2cReceiveCommand cmd16;
-
-    ZcodeUartSetupCommand cmd24;
-    ZcodeUartSendCommand cmd25;
-    ZcodeUartReadCommand cmd26;
-    ZcodeUartAvailableCommand cmd27;
-    ZcodeUartSkipCommand cmd28;
-
-    ZcodePinSetupCommand cmd17;
-    ZcodePinSetCommand cmd18;
-    ZcodePinGetCommand cmd19;
-
-    z.getCommandFinder()->registerCommand(&cmd8);
-    z.getCommandFinder()->registerCommand(&cmd0);
-    z.getCommandFinder()->registerCommand(&cmd3);
-    z.getCommandFinder()->registerCommand(&cmd1);
-    z.getCommandFinder()->registerCommand(&cmd7);
-    z.getCommandFinder()->registerCommand(&cmd2);
-    z.getCommandFinder()->registerCommand(&cmd4);
-    z.getCommandFinder()->registerCommand(&cmd5);
-    z.getCommandFinder()->registerCommand(&cmd6);
-
-    z.getCommandFinder()->registerCommand(&cmd9);
-    z.getCommandFinder()->registerCommand(&cmd10);
-    z.getCommandFinder()->registerCommand(&cmd11);
-    z.getCommandFinder()->registerCommand(&cmd12);
-    z.getCommandFinder()->registerCommand(&cmd13);
-
-    z.getCommandFinder()->registerCommand(&cmd14);
-    z.getCommandFinder()->registerCommand(&cmd15);
-    z.getCommandFinder()->registerCommand(&cmd16);
-
-    z.getCommandFinder()->registerCommand(&cmd24);
-    z.getCommandFinder()->registerCommand(&cmd25);
-    z.getCommandFinder()->registerCommand(&cmd26);
-    z.getCommandFinder()->registerCommand(&cmd27);
-    z.getCommandFinder()->registerCommand(&cmd28);
-
-    z.getCommandFinder()->registerCommand(&cmd17);
-    z.getCommandFinder()->registerCommand(&cmd18);
-    z.getCommandFinder()->registerCommand(&cmd19);
+    AtoDManager<GeneralHalSetup>::init();
+    EthernetUdpChannel channel(4889, &z);
+    ZcodeCommandChannel<ZcodeParameters> *chptr[1] = { &channel };
+    zcode.setChannels(chptr, 1);
+    ZcodeCoreModule < TestParams > core;
+//    ZcodeScriptModule<TestParams> script;
+    ZcodeModule < TestParams > *modules[1] = { &core /*, &script*/};
+    zcode.setModules(modules, 1);
 
     I2c *i2c1 = I2cManager::getI2cById(0);
     i2c1->init();
-    GpioPin *c4 = GpioManager::getPin(PC_4);
+    GpioPin<GeneralHalSetup> *c4 = GpioManager<GeneralHalSetup>::getPin(PC_4);
     c4->init();
     c4->setOutputMode(PushPull);
     c4->setPullMode(NoPull);

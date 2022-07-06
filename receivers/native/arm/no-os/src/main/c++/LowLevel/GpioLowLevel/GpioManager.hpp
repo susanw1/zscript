@@ -8,23 +8,27 @@
 #ifndef SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGER_HPP_
 #define SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGER_HPP_
 
-#include "../GeneralLLSetup.hpp"
-#include "specific/GpioNames.hpp"
+#include <llIncludes.hpp>
 #include "Gpio.hpp"
+#include "specific/GpioNames.hpp"
 
+template<class LL>
 class GpioManager {
-    private:
-        static GpioPin pins[GeneralHalSetup::pinCount];
+private:
+    static GpioPin<LL> pins[LL::pinCount];
 
-    public:
-        static void init();
+public:
+    static void init();
 
-        static void activateClock(GpioPinName name);
+    static void activateClock(GpioPinName name);
 
-        static GpioPin* getPin(GpioPinName name);
+    static GpioPin<LL>* getPin(GpioPinName name);
+
+    static GpioPort* getPort(GpioPinName pin);
 };
 
-#include "stm32g4xx.h"
-#include "stm32g484xx.h"
+#ifndef GPIOMANAGER_DO_NOT_INCLUDE_CPP_HPP
+#include "specific/GpioManagercpp.hpp"
+#endif
 
 #endif /* SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGER_HPP_ */

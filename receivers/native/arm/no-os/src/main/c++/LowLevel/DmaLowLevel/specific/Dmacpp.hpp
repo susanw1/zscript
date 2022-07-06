@@ -1,13 +1,17 @@
 /*
- * Dma.cpp
+ * Dmacpp.hpp
  *
- *  Created on: 18 Dec 2020
+ *  Created on: 6 Jul 2022
  *      Author: robert
  */
 
+#ifndef SRC_MAIN_C___LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMACPP_HPP_
+#define SRC_MAIN_C___LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMACPP_HPP_
+
 #include "../Dma.hpp"
 
-void Dma::interrupt() {
+template<class LL>
+void Dma<LL>::interrupt() {
     if (channel.hasTransferError()) {
         callback(this, DmaError);
         channel.clearTransferError();
@@ -23,16 +27,19 @@ void Dma::interrupt() {
     }
 }
 
-uint16_t Dma::fetchRemainingTransferLength() {
+template<class LL>
+uint16_t Dma<LL>::fetchRemainingTransferLength() {
     return channel.getChannelRegisters()->CNDTR;
 }
 
-void Dma::halt() {
+template<class LL>
+void Dma<LL>::halt() {
     channel.getChannelRegisters()->CCR &= ~1;
     channel.setMux(DMAMUX_NO_MUX);
 }
 
-void Dma::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize, DmaMuxRequest request,
+template<class LL>
+void Dma<LL>::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize, DmaMuxRequest request,
         const uint8_t *target, bool targetIncrement, uint8_t targetSize, bool memToMem, uint16_t transferLength, uint8_t dir, bool circular,
         DmaPriority priority, void (*callback)(Dma*, DmaTerminationStatus), bool interruptOnHalf) {
 
@@ -83,3 +90,5 @@ void Dma::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourc
     channel.setMux(request);
     channel.getChannelRegisters()->CCR |= enableDma;
 }
+
+#endif /* SRC_MAIN_C___LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMACPP_HPP_ */

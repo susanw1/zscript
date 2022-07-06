@@ -8,39 +8,40 @@
 #ifndef SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_GPIO_HPP_
 #define SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_GPIO_HPP_
 
-#include "../GeneralLLSetup.hpp"
+#include <llIncludes.hpp>
 #include "specific/GpioPort.hpp"
 
+template<class LL>
 class GpioPin {
-    private:
-        GpioPort *port;
-        GpioPinName pin;
-        bool lockBool;
+private:
+    GpioPinName pin;
 
-    public:
-        GpioPin(GpioPort *port, GpioPinName pin) :
-                port(port), pin(pin), lockBool(false) {
-        }
-        void init();
+public:
+    GpioPin(GpioPinName pin) :
+            pin(pin) {
+    }
+    void init();
 
-        void write(bool value);
+    void write(bool value);
 
-        void set();
+    void set();
 
-        void reset();
+    void reset();
 
-        bool read();
+    bool read();
 
-        void setMode(PinMode mode);
+    void setMode(PinMode mode);
 
-        void setOutputMode(OutputMode mode);
+    void setOutputMode(OutputMode mode);
 
-        void setOutputSpeed(PinSpeed speed);
+    void setOutputSpeed(PinSpeed speed);
 
-        void setPullMode(PullMode mode);
+    void setPullMode(PullMode mode);
 
-        void setAlternateFunction(uint8_t function);
+    void setAlternateFunction(uint8_t function);
 };
+
+#include "specific/Gpiocpp.hpp"
 
 #include "GpioManager.hpp"
 

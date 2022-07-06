@@ -1,14 +1,19 @@
 /*
- * AtoD.cpp
+ * AtoDcpp.hpp
  *
- *  Created on: 5 Jan 2021
+ *  Created on: 6 Jul 2022
  *      Author: robert
  */
 
-#include "../AtoD.hpp"
-#include "../../ClocksLowLevel/SystemMilliClock.hpp"
+#ifndef SRC_MAIN_C___LOWLEVEL_ATODLOWLEVEL_SPECIFIC_ATODCPP_HPP_
+#define SRC_MAIN_C___LOWLEVEL_ATODLOWLEVEL_SPECIFIC_ATODCPP_HPP_
 
-void AtoD::init() {
+#include "../AtoD.hpp"
+
+#include <ClocksLowLevel/SystemMilliClock.hpp>
+
+template<class LL>
+void AtoD<LL>::init() {
     const uint32_t resetAtoD = 0;
     const uint32_t aToDRegulatorEnable = 0x10000000;
     const uint32_t aToDEnable = 0x00000001;
@@ -18,7 +23,7 @@ void AtoD::init() {
         isInit = true;
         adcRegs->CR = resetAtoD;
         adcRegs->CR |= aToDRegulatorEnable;
-        SystemMilliClock::blockDelayMillis(2);
+        SystemMilliClock<LL>::blockDelayMillis(2);
         adcRegs->CR |= aToDEnable;
         while (!(adcRegs->ISR & aToDReady))
             ;
@@ -26,7 +31,8 @@ void AtoD::init() {
     }
 }
 
-uint16_t AtoD::performReading(uint8_t channelSource) {
+template<class LL>
+uint16_t AtoD<LL>::performReading(uint8_t channelSource) {
     const uint32_t disableInjectedQueue = 0x80000000;
 
     const uint32_t SMPR1MaxSampleTime = 0x3FFFFFFF;
@@ -50,3 +56,5 @@ uint16_t AtoD::performReading(uint8_t channelSource) {
     adcRegs->ISR |= aToDClearSequenceComplete;
     return result;
 }
+
+#endif /* SRC_MAIN_C___LOWLEVEL_ATODLOWLEVEL_SPECIFIC_ATODCPP_HPP_ */

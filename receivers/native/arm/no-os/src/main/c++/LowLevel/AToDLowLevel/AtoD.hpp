@@ -8,21 +8,24 @@
 #ifndef SRC_TEST_C___LOWLEVEL_ATODLOWLEVEL_ATOD_HPP_
 #define SRC_TEST_C___LOWLEVEL_ATODLOWLEVEL_ATOD_HPP_
 
-#include "../GeneralLLSetup.hpp"
+#include <llIncludes.hpp>
 
+template<class LL>
 class AtoD {
-    private:
-        ADC_TypeDef *adcRegs;
-        bool isInit = false;
+private:
+    ADC_TypeDef *adcRegs;
+    bool isInit = false;
 
-    public:
-        AtoD(ADC_TypeDef *adcRegs) :
-                adcRegs(adcRegs) {
-        }
+public:
+    AtoD(ADC_TypeDef *adcRegs) :
+            adcRegs(adcRegs) {
+    }
 
-        void init();
+    void init();
 
-        uint16_t performReading(uint8_t channelSource);
+    uint16_t performReading(uint8_t channelSource);
 };
+
+#include "specific/AtoDcpp.hpp"
 
 #endif /* SRC_TEST_C___LOWLEVEL_ATODLOWLEVEL_ATOD_HPP_ */

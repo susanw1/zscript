@@ -78,25 +78,25 @@ void I2c::setFrequency(I2cFrequency freq) {
     i2c.getRegisters()->CR1 &= ~enableI2c; // turn off peripheral
     // Always uses PCLK_1
     if (freq == kHz10) {
-        uint8_t scale = ClockManager::getClock(HSI)->getDivider(4000) - 1;
+        uint8_t scale = ClockManager<GeneralHalSetup>::getClock(HSI)->getDivider(4000) - 1;
         if (scale > 15) {
             scale = 15;
         }
         i2c.getRegisters()->TIMINGR = sclDelay5 | sdaDelay2 | sclHigh184 | sclLow200 | (scale << 28);
     } else if (freq == kHz100) {
-        uint8_t scale = ClockManager::getClock(HSI)->getDivider(4000) - 1;
+        uint8_t scale = ClockManager<GeneralHalSetup>::getClock(HSI)->getDivider(4000) - 1;
         if (scale > 15) {
             scale = 15;
         }
         i2c.getRegisters()->TIMINGR = sclDelay5 | sdaDelay2 | sclHigh16 | sclLow20 | (scale << 28);
     } else if (freq == kHz400) {
-        uint8_t scale = ClockManager::getClock(HSI)->getDivider(8000) - 1;
+        uint8_t scale = ClockManager<GeneralHalSetup>::getClock(HSI)->getDivider(8000) - 1;
         if (scale > 15) {
             scale = 15;
         }
         i2c.getRegisters()->TIMINGR = sclDelay4 | sdaDelay3 | sclHigh4 | sclLow10 | (scale << 28);
     } else if (freq == kHz1000) {
-        uint8_t scale = ClockManager::getClock(HSI)->getDivider(16000) - 1;
+        uint8_t scale = ClockManager<GeneralHalSetup>::getClock(HSI)->getDivider(16000) - 1;
         if (scale > 15) {
             scale = 15;
         }
@@ -245,7 +245,7 @@ void I2c::interrupt() {
     }
 }
 
-void I2cDmaCallback(Dma *dma, DmaTerminationStatus status) {
+void I2cDmaCallback(Dma<GeneralHalSetup> *dma, DmaTerminationStatus status) {
     for (int i = 0; i < GeneralHalSetup::i2cCount; ++i) {
         if (I2cManager::getI2cById(i)->dma == dma) {
             I2cManager::getI2cById(i)->dmaInterrupt(status);

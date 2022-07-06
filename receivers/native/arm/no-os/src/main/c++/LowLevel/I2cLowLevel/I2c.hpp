@@ -30,70 +30,70 @@ class I2cInterruptManager;
 
 // All methods guarantee that the callback is called. All methods use DMAs if the device supports them.
 class I2c {
-    private:
-        I2cInternal i2c;
-        I2cIdentifier id;
-        Dma *dma = DmaManager::getDmaById(0);
-        DmaMuxRequest requestTx = DMAMUX_NO_MUX;
-        DmaMuxRequest requestRx = DMAMUX_NO_MUX;
-        volatile bool lockBool = false;
-        bool tenBit = false;
-        uint16_t address = 0;
-        uint16_t txLen = 0;
-        const uint8_t *txData = NULL;
-        uint16_t rxLen = 0;
-        uint8_t *rxData = NULL;
-        volatile I2cState state;
-        void (*volatile callback)(I2c*, I2cTerminationStatus);
+private:
+    I2cInternal i2c;
+    I2cIdentifier id;
+    Dma<GeneralHalSetup> *dma = DmaManager<GeneralHalSetup>::getDmaById(0);
+    DmaMuxRequest requestTx = DMAMUX_NO_MUX;
+    DmaMuxRequest requestRx = DMAMUX_NO_MUX;
+    volatile bool lockBool = false;
+    bool tenBit = false;
+    uint16_t address = 0;
+    uint16_t txLen = 0;
+    const uint8_t *txData = NULL;
+    uint16_t rxLen = 0;
+    uint8_t *rxData = NULL;
+    volatile I2cState state;
+    void (*volatile callback)(I2c*, I2cTerminationStatus);
 
-        friend void I2cDmaCallback(Dma*, DmaTerminationStatus);
-        friend I2cManager;
-        friend I2cInterruptManager;
+    friend void I2cDmaCallback(Dma<GeneralHalSetup>*, DmaTerminationStatus);
+    friend I2cManager;
+    friend I2cInterruptManager;
 
-        void interrupt();
+    void interrupt();
 
-        void dmaInterrupt(DmaTerminationStatus status);
+    void dmaInterrupt(DmaTerminationStatus status);
 
-        void restartReceive();
+    void restartReceive();
 
-        void setI2c(I2cInternal i2c, I2cIdentifier id, DmaMuxRequest requestTx, DmaMuxRequest requestRx) {
-            this->i2c = i2c;
-            this->id = id;
-            this->requestTx = requestTx;
-            this->requestRx = requestRx;
-            this->dma = DmaManager::getDmaById(id);
+    void setI2c(I2cInternal i2c, I2cIdentifier id, DmaMuxRequest requestTx, DmaMuxRequest requestRx) {
+        this->i2c = i2c;
+        this->id = id;
+        this->requestTx = requestTx;
+        this->requestRx = requestRx;
+        this->dma = DmaManager<GeneralHalSetup>::getDmaById(id);
+    }
+public:
+    I2c(I2c &&i2c);
+
+    I2c();
+
+    bool init();
+
+    void setFrequency(I2cFrequency freq);
+
+    void asyncTransmit(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, void (*callback)(I2c*, I2cTerminationStatus));
+
+    void asyncReceive(uint16_t address, bool tenBit, uint8_t *rxData, uint16_t rxLen, void (*callback)(I2c*, I2cTerminationStatus));
+
+    void asyncTransmitReceive(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, uint8_t *rxData, uint16_t rxLen,
+            void (*callback)(I2c*, I2cTerminationStatus));
+
+    bool lock() {
+        if (!lockBool) {
+            lockBool = true;
+            return true;
         }
-    public:
-        I2c(I2c &&i2c);
+        return false;
+    }
 
-        I2c();
+    bool isLocked() {
+        return lockBool;
+    }
 
-        bool init();
-
-        void setFrequency(I2cFrequency freq);
-
-        void asyncTransmit(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, void (*callback)(I2c*, I2cTerminationStatus));
-
-        void asyncReceive(uint16_t address, bool tenBit, uint8_t *rxData, uint16_t rxLen, void (*callback)(I2c*, I2cTerminationStatus));
-
-        void asyncTransmitReceive(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, uint8_t *rxData, uint16_t rxLen,
-                void (*callback)(I2c*, I2cTerminationStatus));
-
-        bool lock() {
-            if (!lockBool) {
-                lockBool = true;
-                return true;
-            }
-            return false;
-        }
-
-        bool isLocked() {
-            return lockBool;
-        }
-
-        void unlock() {
-            lockBool = false;
-        }
+    void unlock() {
+        lockBool = false;
+    }
 };
 
 #include "../I2cLowLevel/I2cManager.hpp"
