@@ -25,6 +25,7 @@
 #include <stm32g484xx.h>
 #include "ZcodeParameters.hpp"
 
+#include <GeneralLLSetup.hpp>
 #include <modules/core/ZcodeCoreModule.hpp>
 #include <addressing/ZcodeModuleAddressRouter.hpp>
 
@@ -54,10 +55,6 @@
 
 #include <Zcode.hpp>
 
-void doNothing(I2c *i2c, I2cTerminationStatus status) {
-    i2c->unlock();
-}
-
 int main(void) {
     ClockManager<GeneralHalSetup>::getClock(VCO)->set(240000, HSI);
     ClockManager<GeneralHalSetup>::getClock(PLL_R)->set(120000, VCO);
@@ -67,7 +64,7 @@ int main(void) {
     ClockManager<GeneralHalSetup>::getClock(PCLK_2)->set(60000, HCLK);
     DmaManager<GeneralHalSetup>::init();
     GpioManager<GeneralHalSetup>::init();
-    I2cManager::init();
+    I2cManager<GeneralHalSetup>::init();
     UartManager<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
@@ -95,8 +92,7 @@ int main(void) {
     ZcodeModule<ZcodeParameters> *modules[1] = { &core /*, &script*/};
     z.setModules(modules, 1);
 
-    I2c *i2c1 = I2cManager::getI2cById(0);
-    i2c1->init();
+    I2c<GeneralHalSetup> *i2c1 = I2cManager<GeneralHalSetup>::getI2cById(0);
     GpioPin<GeneralHalSetup> *c4 = GpioManager<GeneralHalSetup>::getPin(PC_4);
     c4->init();
     c4->setOutputMode(PushPull);
@@ -104,24 +100,16 @@ int main(void) {
     c4->setOutputSpeed(MediumSpeed);
     c4->setMode(Output);
     c4->set();
-    if (!i2c1->isLocked()) {
-        i2c1->lock();
-        uint8_t data[2] = { 0x0A, 0x80 };
-        i2c1->asyncTransmit(0x20, false, data, 2, &doNothing);
-    }
-    while (i2c1->isLocked())
-        ;
-    if (!i2c1->isLocked()) {
-        i2c1->lock();
-        uint8_t data[2] = { 0, 0 };
-        i2c1->asyncTransmit(0x20, false, data, 2, &doNothing);
-    }
-    while (i2c1->isLocked())
-        ;
-    if (!i2c1->isLocked()) {
-        i2c1->lock();
-        uint8_t data[2] = { 0x16, 0xFF };
-        i2c1->asyncTransmit(0x20, false, data, 2, &doNothing);
+    if (i2c1->lock()) {
+        uint8_t data1[2] = { 0x0A, 0x80 };
+        i2c1->transmit(0x20, data1, 2);
+
+        uint8_t data2[2] = { 0, 0 };
+        i2c1->transmit(0x20, data2, 2);
+
+        uint8_t data3[2] = { 0x16, 0xFF };
+        i2c1->transmit(0x20, data3, 2);
+        i2c1->unlock();
     }
     while (true) {
 //        AtoDManager::performAtoD(PA_9);

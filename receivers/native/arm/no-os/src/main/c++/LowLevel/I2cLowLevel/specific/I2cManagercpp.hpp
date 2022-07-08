@@ -1,9 +1,12 @@
 /*
- * I2cManager.cpp
+ * I2cManagercpp.hpp
  *
- *  Created on: 19 Dec 2020
+ *  Created on: 8 Jul 2022
  *      Author: robert
  */
+
+#ifndef SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CMANAGERCPP_HPP_
+#define SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CMANAGERCPP_HPP_
 
 #include "../I2cManager.hpp"
 
@@ -113,49 +116,51 @@
 #endif
 #endif
 
-I2c I2cManager::i2cs[] = {
+template<class LL>
+I2c<LL> I2cManager<LL>::i2cs[] = {
 #ifdef USE_I2C_1
-    I2c()
+    I2c<LL>()
 #endif
 #ifdef USE_I2C_2
-    , I2c()
+    , I2c<LL>()
 #endif
 #ifdef USE_I2C_3
-    , I2c()
+    , I2c<LL>()
 #endif
 #ifdef USE_I2C_4
-    , I2c()
+    , I2c<LL>()
 #endif
-};
+        };
 
-I2cInternal getI2cInternal_internal(I2cIdentifier id) {
+template<class LL>
+I2cInternal<LL> getI2cInternal_internal(I2cIdentifier id) {
     if (id == 0) {
 #ifdef USE_I2C_1
-        return I2cInternal(I2C_SDA(I2C_1, I2C_1_SDA), I2C_SCL(I2C_1, I2C_1_SCL), (I2cRegisters*) 0x40005400);
+        return I2cInternal<LL>(I2C_SDA(I2C_1, I2C_1_SDA), I2C_SCL(I2C_1, I2C_1_SCL), (I2cRegisters*) 0x40005400);
 #else
-        return I2cInternal();
+        return I2cInternal<LL>();
 #endif
     } else if (id == 1) {
 #ifdef USE_I2C_2
-        return I2cInternal(I2C_SDA(I2C_2, I2C_2_SDA), I2C_SCL(I2C_2, I2C_2_SCL), (I2cRegisters*) 0x40005800);
+        return I2cInternal<LL>(I2C_SDA(I2C_2, I2C_2_SDA), I2C_SCL(I2C_2, I2C_2_SCL), (I2cRegisters*) 0x40005800);
 #else
-        return I2cInternal();
+        return I2cInternal<LL>();
 #endif
     } else if (id == 2) {
 #ifdef USE_I2C_3
-        return I2cInternal(I2C_SDA(I2C_3, I2C_3_SDA), I2C_SCL(I2C_3, I2C_3_SCL), (I2cRegisters*) 0x40007800);
+        return I2cInternal<LL>(I2C_SDA(I2C_3, I2C_3_SDA), I2C_SCL(I2C_3, I2C_3_SCL), (I2cRegisters*) 0x40007800);
 #else
-        return I2cInternal();
+        return I2cInternal<LL>();
 #endif
     } else {
 #ifdef USE_I2C_4
-        return I2cInternal(I2C_SDA(I2C_4, I2C_4_SDA), I2C_SCL(I2C_4, I2C_4_SCL), (I2cRegisters*) 0x40008400);
+        return I2cInternal<LL>(I2C_SDA(I2C_4, I2C_4_SDA), I2C_SCL(I2C_4, I2C_4_SCL), (I2cRegisters*) 0x40008400);
 #else
-        return I2cInternal();
+        return I2cInternal<LL>();
 #endif
     }
 }
-
+template<class LL>
 DmaMuxRequest getI2cMuxTxRequest_internal(I2cIdentifier id) {
     if (id == 0) {
         return DMAMUX_I2C1_TX;
@@ -167,7 +172,7 @@ DmaMuxRequest getI2cMuxTxRequest_internal(I2cIdentifier id) {
         return DMAMUX_I2C4_TX;
     }
 }
-
+template<class LL>
 DmaMuxRequest getI2cMuxRxRequest_internal(I2cIdentifier id) {
     if (id == 0) {
         return DMAMUX_I2C1_RX;
@@ -179,18 +184,32 @@ DmaMuxRequest getI2cMuxRxRequest_internal(I2cIdentifier id) {
         return DMAMUX_I2C4_RX;
     }
 }
-
-void I2cManager::interrupt(uint8_t id) {
+template<class LL>
+void I2cManager<LL>::interrupt(uint8_t id) {
     i2cs[id].interrupt();
 }
-void I2cManager::init() {
+
+template<class LL>
+void I2cManager<LL>::dmaInterrupt(Dma<LL> *dma, DmaTerminationStatus status) {
+    for (int i = 0; i < LL::i2cCount; ++i) {
+        if (I2cManager::getI2cById(i)->dma == dma) {
+            I2cManager::getI2cById(i)->dmaInterrupt(status);
+            break;
+        }
+    }
+}
+template<class LL>
+void I2cManager<LL>::init() {
 
     InterruptManager::setInterrupt(&I2cManager::interrupt, InterruptType::I2cEv);
     InterruptManager::setInterrupt(&I2cManager::interrupt, InterruptType::I2cEr);
 
-    for (int i = 0; i < GeneralHalSetup::i2cCount; ++i) {
-        i2cs[i].setI2c(getI2cInternal_internal(i), i, getI2cMuxTxRequest_internal(i), getI2cMuxRxRequest_internal(i));
+    for (int i = 0; i < LL::i2cCount; ++i) {
+        i2cs[i].setI2c(getI2cInternal_internal<LL>(i), i, getI2cMuxTxRequest_internal<LL>(i), getI2cMuxRxRequest_internal<LL>(i));
+        i2cs[i].init();
         InterruptManager::enableInterrupt(InterruptType::I2cEv, i, 10);
         InterruptManager::enableInterrupt(InterruptType::I2cEr, i, 10);
     }
 }
+
+#endif /* SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CMANAGERCPP_HPP_ */

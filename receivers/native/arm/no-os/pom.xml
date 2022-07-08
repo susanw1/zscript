@@ -28,6 +28,10 @@
         <!-- 		<cpp-warnings>-Wall -Wno-long-long -Wpointer-arith -Wconversion</cpp-warnings> -->
         <cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
         <cpp-optimizations>-O3</cpp-optimizations>
+        <!-- OPENOCD_LOC=...git/openocd-code-->
+		<!-- mvn deploy -Dopenocd-location=$OPENOCD_LOC/tcl -Dopenocd-command=$OPENOCD_LOC/src/openocd -->
+        <openocd-location>/usr/share/openocd/scripts</openocd-location>
+        <openocd-command>openocd</openocd-command>
     </properties>
 
     <build>
@@ -140,14 +144,51 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <!-- run with mvn [-pl receivers/native/generic-core-2] exec:exec@default-cli -->
-                        <id>default-cli</id>
+                        <!-- run with mvn exec:exec@objcopy -->
+                        <id>objcopy</id>
                         <configuration>
-                            <executable>${project.build.directory}/test-nar/bin/amd64-Linux-gpp/default-cli</executable>
-                            <workingDirectory>${project.build.directory}</workingDirectory>
+                            <executable>arm-none-eabi-objcopy</executable>
+                            <workingDirectory>${project.build.directory}/test-nar/bin/arm32g4-no_os-gpp/</workingDirectory>
+                            <arguments>
+                            	<argument>-O</argument>
+                            	<argument>binary</argument>
+                            	<argument>main</argument>
+                            	<argument>main.bin</argument>
+                        	</arguments>
                         </configuration>
+						<phase>deploy</phase>
+						<goals>
+						  <goal>exec</goal>
+						</goals>
+                    </execution>
+                    <execution>
+                        <!-- run with mvn exec:exec@openocd -->
+                        <id>openocd</id>
+                        <configuration>
+                            <executable>${openocd-command}</executable>
+                            <workingDirectory>${project.build.directory}/test-nar/bin/arm32g4-no_os-gpp/</workingDirectory>
+                            <arguments>
+                            	<argument>--search</argument>
+                            	<argument>${openocd-location}</argument>
+                            	<argument>-f</argument>
+                            	<argument>${openocd-location}/interface/stlink.cfg</argument>
+                            	<argument>-f</argument>
+                            	<argument>${openocd-location}/target/stm32g4x.cfg</argument>
+                            	<argument>-f</argument>
+                            	<argument>${project.basedir}/src/test/openocd/openocd.cfg</argument>
+                        	</arguments>
+                        </configuration>
+						<phase>deploy</phase>
+						<goals>
+						  <goal>exec</goal>
+						</goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+		        <artifactId>maven-deploy-plugin</artifactId>
+		        <version>2.8.2</version>
+		        <configuration><skip>true</skip></configuration>
             </plugin>
         </plugins>
     </build>
