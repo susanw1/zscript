@@ -16,10 +16,11 @@ Dma<LL> DmaManager<LL>::dmas[] = { Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), D
         Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>() };
 
 template<class LL>
-static void DmaManager<LL>::interrupt(uint8_t i) {
+void DmaManager<LL>::interrupt(uint8_t i) {
     DmaManager::dmas[i].interrupt();
 }
 
+template<class LL>
 DmaChannelRegisters* getDmaChannelRegistersFromRegisters(DmaRegisters *r, uint8_t channel) {
     if (channel == 0) {
         return &r->CHR1;
@@ -40,14 +41,15 @@ DmaChannelRegisters* getDmaChannelRegistersFromRegisters(DmaRegisters *r, uint8_
     }
 }
 
+template<class LL>
 DmaChannelInternal createChannelInternalFromId(DmaIdentifier id) {
     if (id < 8) {
         DmaRegisters *registers = (DmaRegisters*) 0x40020000;
-        return DmaChannelInternal((DmaRegisters*) registers, getDmaChannelRegistersFromRegisters(registers, id),
+        return DmaChannelInternal((DmaRegisters*) registers, getDmaChannelRegistersFromRegisters<LL>(registers, id),
                 (uint32_t*) (0x40020800 + 0x04 * id), id);
     } else {
         DmaRegisters *registers = (DmaRegisters*) 0x40020400;
-        return DmaChannelInternal((DmaRegisters*) registers, getDmaChannelRegistersFromRegisters(registers, id - 8),
+        return DmaChannelInternal((DmaRegisters*) registers, getDmaChannelRegistersFromRegisters<LL>(registers, id - 8),
                 (uint32_t*) (0x40020800 + 0x04 * id), id - 8);
     }
 }
@@ -60,10 +62,10 @@ void DmaManager<LL>::init() {
 
     RCC->AHB1ENR |= enableDma1Registers | enableDma2Registers | enableDmaMuxRegisters;
 
-    InterruptManager::setInterrupt(&DmaManager::interrupt, InterruptType::DMA);
+    InterruptManager::setInterrupt(&DmaManager::interrupt, InterruptType::DmaInt);
     for (int i = 0; i < LL::dmaCount; ++i) {
-        dmas[i].setDma(createChannelInternalFromId(i));
-        InterruptManager::enableInterrupt(InterruptType::DMA, i, 10);
+        dmas[i].setDma(createChannelInternalFromId<LL>(i));
+        InterruptManager::enableInterrupt(InterruptType::DmaInt, i, 10);
     }
 }
 

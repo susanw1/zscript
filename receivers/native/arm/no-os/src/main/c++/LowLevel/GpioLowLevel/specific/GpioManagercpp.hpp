@@ -20,21 +20,21 @@
 
 template<class LL>
 GpioPin<LL> GpioManager<LL>::pins[] = { GpioPin<LL>( PA_0), GpioPin<LL>( PA_1), GpioPin<LL>( PA_2), GpioPin<LL>( PA_3),
-        GpioPin<LL>(PortAAddr, PA_4), GpioPin<LL>(PortAAddr, PA_5), GpioPin<LL>(PortAAddr, PA_6), GpioPin<LL>( PA_7),
-        GpioPin<LL>(PortAAddr, PA_8), GpioPin<LL>(PortAAddr, PA_9), GpioPin<LL>(PortAAddr, PA_10), GpioPin<LL>( PA_11),
-        GpioPin<LL>(PortAAddr, PA_12), GpioPin<LL>(PortAAddr, PA_13), GpioPin<LL>(PortAAddr, PA_14), GpioPin<LL>( PA_15),
+        GpioPin<LL>(PA_4), GpioPin<LL>(PA_5), GpioPin<LL>(PA_6), GpioPin<LL>( PA_7),
+        GpioPin<LL>(PA_8), GpioPin<LL>(PA_9), GpioPin<LL>(PA_10), GpioPin<LL>( PA_11),
+        GpioPin<LL>(PA_12), GpioPin<LL>(PA_13), GpioPin<LL>(PA_14), GpioPin<LL>( PA_15),
 
-        GpioPin<LL>(PortBAddr, PB_0), GpioPin<LL>(PortBAddr, PB_1), GpioPin<LL>(PortBAddr, PB_2), GpioPin<LL>(PortBAddr, PB_3),
-        GpioPin<LL>(PortBAddr, PB_4), GpioPin<LL>(PortBAddr, PB_5), GpioPin<LL>(PortBAddr, PB_6), GpioPin<LL>(PortBAddr, PB_7),
-        GpioPin<LL>(PortBAddr, PB_8), GpioPin<LL>(PortBAddr, PB_9), GpioPin<LL>(PortBAddr, PB_10), GpioPin<LL>(PortBAddr, PB_11),
-        GpioPin<LL>(PortBAddr, PB_12), GpioPin<LL>(PortBAddr, PB_13), GpioPin<LL>(PortBAddr, PB_14), GpioPin<LL>(PortBAddr, PB_15),
+        GpioPin<LL>(PB_0), GpioPin<LL>(PB_1), GpioPin<LL>(PB_2), GpioPin<LL>(PB_3),
+        GpioPin<LL>(PB_4), GpioPin<LL>(PB_5), GpioPin<LL>(PB_6), GpioPin<LL>(PB_7),
+        GpioPin<LL>(PB_8), GpioPin<LL>(PB_9), GpioPin<LL>(PB_10), GpioPin<LL>(PB_11),
+        GpioPin<LL>(PB_12), GpioPin<LL>(PB_13), GpioPin<LL>(PB_14), GpioPin<LL>(PB_15),
 
-        GpioPin<LL>(PortCAddr, PC_0), GpioPin<LL>(PortCAddr, PC_1), GpioPin<LL>(PortCAddr, PC_2), GpioPin<LL>(PortCAddr, PC_3),
-        GpioPin<LL>(PortCAddr, PC_4), GpioPin<LL>(PortCAddr, PC_5), GpioPin<LL>(PortCAddr, PC_6), GpioPin<LL>(PortCAddr, PC_7),
-        GpioPin<LL>(PortCAddr, PC_8), GpioPin<LL>(PortCAddr, PC_9), GpioPin<LL>(PortCAddr, PC_10), GpioPin<LL>(PortCAddr, PC_11),
-        GpioPin<LL>(PortCAddr, PC_12), GpioPin<LL>(PortCAddr, PC_13), GpioPin<LL>(PortCAddr, PC_14), GpioPin<LL>(PortCAddr, PC_15),
+        GpioPin<LL>(PC_0), GpioPin<LL>(PC_1), GpioPin<LL>(PC_2), GpioPin<LL>(PC_3),
+        GpioPin<LL>(PC_4), GpioPin<LL>(PC_5), GpioPin<LL>(PC_6), GpioPin<LL>(PC_7),
+        GpioPin<LL>(PC_8), GpioPin<LL>(PC_9), GpioPin<LL>(PC_10), GpioPin<LL>(PC_11),
+        GpioPin<LL>(PC_12), GpioPin<LL>(PC_13), GpioPin<LL>(PC_14), GpioPin<LL>(PC_15),
 
-        GpioPin<LL>(PortDAddr, PD_2), GpioPin<LL>(PortFAddr, PF_0), GpioPin<LL>(PortFAddr, PF_1), GpioPin<LL>(PortGAddr, PG_10) };
+        GpioPin<LL>(PD_2), GpioPin<LL>(PF_0), GpioPin<LL>(PF_1), GpioPin<LL>(PG_10) };
 
 template<class LL>
 void GpioManager<LL>::init() {

@@ -28,7 +28,7 @@ public:
     }
 
     static Dma<LL>* getFreeDma() {
-        for (int i = 0; i < GeneralHalSetup::dmaCount; ++i) {
+        for (int i = 0; i < LL::dmaCount; ++i) {
             if (!dmas[i].isLocked()) {
                 return dmas + i;
             }

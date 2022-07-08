@@ -9,14 +9,11 @@
 #define SRC_MAIN_C___CHANNELS_ETHERNET_ETHERNETUDPCHANNEL_HPP_
 
 #include "../../LowLevel/ArduinoSpiLayer/src/Ethernet.h"
-#include <ZcodeParameters.hpp>
 #include <ZcodeIncludes.hpp>
 
 #include <channels/ZcodeChannelInStream.hpp>
 #include <channels/ZcodeCommandChannel.hpp>
 #include <ZcodeOutStream.hpp>
-
-class EthernetUdpChannel;
 
 class EthernetUdpChannelInStream: public ZcodeChannelInStream<ZcodeParameters> {
 private:
@@ -24,11 +21,22 @@ private:
     uint8_t big[128];
     uint8_t buffer = 0;
     bool usingBuffer = false;
-    EthernetUdpChannel *channel;
+    bool hasEndedPacket = false;
+
+    EthernetUDP *udp;
+    IPAddress mostRecentIP;
+    uint16_t mostRecentPort;
 
 public:
-    EthernetUdpChannelInStream(Zcode<ZcodeParameters> *zcode, EthernetUdpChannel *channel) :
-            ZcodeChannelInStream<ZcodeParameters>(zcode, channel, big, 128), channel(channel) {
+    EthernetUdpChannelInStream(Zcode<ZcodeParameters> *zcode, ZcodeCommandChannel<ZcodeParameters> *channel, EthernetUDP *udp) :
+            ZcodeChannelInStream<ZcodeParameters>(zcode, channel, big, 128), udp(udp), mostRecentIP(), mostRecentPort(0) {
+    }
+    IPAddress getIp() {
+        return mostRecentIP;
+    }
+
+    uint16_t getPort() {
+        return mostRecentPort;
     }
     bool pushData() {
         if (usingBuffer) {
@@ -38,19 +46,30 @@ public:
             }
             return false;
         }
-        if (channel->getUdp()->available() > 0) {
-            int16_t tmp = channel->getUdp()->read();
-            if (tmp == -1) {
-                return false;
-            }
-            buffer = (uint8_t) tmp;
+        if (udp->available()) {
+            buffer = (uint8_t) udp->read();
             if (!this->slot.acceptByte(buffer)) {
                 usingBuffer = true;
                 return false;
             }
             return true;
         } else {
-            return false;
+            if (!hasEndedPacket) {
+                hasEndedPacket = true;
+                buffer = EOL_SYMBOL;
+                if (!this->slot.acceptByte(buffer)) {
+                    usingBuffer = true;
+                    return false;
+                }
+                return true;
+            } else if (udp->parsePacket()) {
+                hasEndedPacket = false;
+                mostRecentIP = udp->remoteIP();
+                mostRecentPort = udp->remotePort();
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 };
@@ -58,18 +77,19 @@ public:
 class EthernetUdpOutStream: public ZcodeOutStream<ZcodeParameters> {
 private:
     bool openB = false;
-    EthernetUdpChannel *channel;
+    EthernetUDP *udp;
 
 public:
-    EthernetUdpOutStream(EthernetUdpChannel *channel) :
-            channel(channel) {
+    EthernetUdpOutStream(EthernetUDP *udp) :
+            udp(udp) {
     }
 
-    void open(ZcodeCommandChannel<TestParams> *target, ZcodeOutStreamOpenType t) {
+    void open(ZcodeCommandChannel<ZcodeParameters> *target, ZcodeOutStreamOpenType t) {
         (void) target;
         (void) t;
         openB = true;
-        channel->getUdp()->beginPacket(channel->getIp(), channel->getPort());
+        EthernetUdpChannelInStream *in = (EthernetUdpChannelInStream*) target->in;
+        udp->beginPacket(in->getIp(), in->getPort());
     }
 
     bool isOpen() {
@@ -77,41 +97,28 @@ public:
     }
 
     void close() {
-        channel->getUdp()->endPacket();
-        channel->getUdp()->flush();
+        udp->endPacket();
+        udp->flush();
         openB = false;
     }
 
     void writeByte(uint8_t value) {
-        channel->getUdp()->write(value);
+        udp->write(value);
     }
 
 };
 
 class EthernetUdpChannel: public ZcodeCommandChannel<ZcodeParameters> {
+    EthernetUDP udp;
     EthernetUdpChannelInStream seqin;
     EthernetUdpOutStream out;
-    EthernetUDP udp;
-    IPAddress mostRecentIP;
-    uint16_t mostRecentPort;
 
 public:
 
     EthernetUdpChannel(uint16_t port, Zcode<ZcodeParameters> *zcode) :
-            ZcodeCommandChannel<ZcodeParameters>(zcode, &seqin, &out, false), out(this), seqin(zcode, this), udp(), mostRecentIP(), mostRecentPort(0) {
+            ZcodeCommandChannel<ZcodeParameters>(zcode, &seqin, &out, false), udp(), seqin(zcode, this, &udp), out(&udp) {
         udp.begin(port);
     }
 
-    EthernetUDP* getUdp() {
-        return udp;
-    }
-
-    IPAddress getIp() {
-        return mostRecentIP;
-    }
-
-    uint16_t getPort() {
-        return mostRecentPort;
-    }
 };
 #endif /* SRC_MAIN_C___CHANNELS_ETHERNET_ETHERNETUDPCHANNEL_HPP_ */

@@ -38,7 +38,7 @@ public:
         bitScaling = 0;
         uint32_t scaler = 0x00FFFFFF; //something which is too large for the prescaler
         while (scaler > 0x10000) {
-            scaler = ClockManager::getClock(PCLK_1)->getDivider(1 << bitScaling++);
+            scaler = ClockManager<LL>::getClock(PCLK_1)->getDivider(1 << bitScaling++);
         }
         InterruptManager::setInterrupt(&SystemMilliClock::resetTimer, TIM6_);
         InterruptManager::enableInterrupt(TIM6_, 0, 5);

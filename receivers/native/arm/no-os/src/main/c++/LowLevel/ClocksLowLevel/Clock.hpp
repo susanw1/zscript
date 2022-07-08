@@ -39,7 +39,9 @@ public:
         return source;
     }
 };
+#ifndef CLOCKLOWLEVEL_NO_CPP
 #include "specific/Clockcpp.hpp"
+#endif
 
 #include "ClockManager.hpp"
 

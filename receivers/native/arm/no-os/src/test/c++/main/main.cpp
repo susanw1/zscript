@@ -28,50 +28,26 @@
 #include <modules/core/ZcodeCoreModule.hpp>
 #include <addressing/ZcodeModuleAddressRouter.hpp>
 
-#include "../channels/Ethernet/EthernetUdpChannel.hpp"
+#include <channels/Ethernet/EthernetUdpChannel.hpp>
 
-#include "../commands/ZcodeIdentifyCommand.hpp"
-#include "../commands/persistence/ZcodeFetchGuidCommand.hpp"
-#include "../commands/persistence/ZcodePersistentFetchCommand.hpp"
-#include "../commands/persistence/ZcodePersistentStoreCommand.hpp"
-#include "../commands/persistence/ZcodeStoreGuidCommand.hpp"
-#include "../commands/persistence/ZcodeStoreMacAddressCommand.hpp"
-#include "../commands/persistence/ZcodeFlashPersistence.hpp"
+#include <LowLevel/PersistenceLowLevel/FlashPage.hpp>
 
-#include "../commands/I2C/ZcodeI2cSubsystem.hpp"
-#include "../commands/I2C/ZcodeI2cSetupCommand.hpp"
-#include "../commands/I2C/ZcodeI2cSendCommand.hpp"
-#include "../commands/I2C/ZcodeI2cReceiveCommand.hpp"
+#include <LowLevel/AToDLowLevel/AtoD.hpp>
+#include <LowLevel/AToDLowLevel/AtoDManager.hpp>
 
-#include "../commands/Pins/ZcodePinSystem.hpp"
-#include "../commands/Pins/ZcodePinSetupCommand.hpp"
-#include "../commands/Pins/ZcodePinSetCommand.hpp"
-#include "../commands/Pins/ZcodePinGetCommand.hpp"
-#include "../commands/Pins/ZcodePinInterruptSource.hpp"
+#include <LowLevel/GpioLowLevel/GpioManager.hpp>
+#include <LowLevel/GpioLowLevel/Gpio.hpp>
 
-#include "../commands/Uart/ZcodeUartSubsystem.hpp"
-#include "../commands/Uart/ZcodeUartSetupCommand.hpp"
-#include "../commands/Uart/ZcodeUartSendCommand.hpp"
-#include "../commands/Uart/ZcodeUartReadCommand.hpp"
-#include "../commands/Uart/ZcodeUartAvailableCommand.hpp"
-#include "../commands/Uart/ZcodeUartSkipCommand.hpp"
+#include <LowLevel/ClocksLowLevel/SystemMilliClock.hpp>
+#include <LowLevel/ClocksLowLevel/ClockManager.hpp>
+#include <LowLevel/ClocksLowLevel/Clock.hpp>
 
-#include "../LowLevel/AToDLowLevel/AtoD.hpp"
-#include "../LowLevel/AToDLowLevel/AtoDManager.hpp"
+#include <LowLevel/I2cLowLevel/I2cManager.hpp>
+#include <LowLevel/I2cLowLevel/I2c.hpp>
 
-#include "../LowLevel/GpioLowLevel/GpioManager.hpp"
-#include "../LowLevel/GpioLowLevel/Gpio.hpp"
-
-#include "../LowLevel/ClocksLowLevel/SystemMilliClock.hpp"
-#include "../LowLevel/ClocksLowLevel/ClockManager.hpp"
-#include "../LowLevel/ClocksLowLevel/Clock.hpp"
-
-#include "../LowLevel/I2cLowLevel/I2cManager.hpp"
-#include "../LowLevel/I2cLowLevel/I2c.hpp"
-
-#include "../LowLevel/UartLowLevel/UartManager.hpp"
-#include "../LowLevel/UartLowLevel/Uart.hpp"
-#include "../LowLevel/ArduinoSpiLayer/src/Ethernet.h"
+#include <LowLevel/UartLowLevel/UartManager.hpp>
+#include <LowLevel/UartLowLevel/Uart.hpp>
+#include <LowLevel/ArduinoSpiLayer/src/Ethernet.h>
 
 #include "stm32g4xx.h"
 #include "stm32g484xx.h"
@@ -89,37 +65,35 @@ int main(void) {
     ClockManager<GeneralHalSetup>::getClock(HCLK)->set(120000, SysClock);
     ClockManager<GeneralHalSetup>::getClock(PCLK_1)->set(60000, HCLK);
     ClockManager<GeneralHalSetup>::getClock(PCLK_2)->set(60000, HCLK);
-    ZcodePinInterruptSource::init();
-    ZcodePinInterruptSource source;
     DmaManager<GeneralHalSetup>::init();
     GpioManager<GeneralHalSetup>::init();
     I2cManager::init();
-    UartManager::init();
+    UartManager<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
-    ZcodeFlashPersistence persist;
-    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &source };
-    Zcode<ZcodeParameters> z(sources, 1);
+//    ZcodeFlashPersistence persist;
+//    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &source };
+    Zcode<ZcodeParameters> z;
     uint8_t *mac;
     uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xaa };
-    if (persist.hasMac()) {
-        z.getDebug() << "Has Mac" << endl;
-        mac = persist.getMac();
-    } else {
-        z.getDebug() << "Has No Mac" << endl;
-        mac = macHardCoded;
-    }
+//    if (persist.hasMac()) {
+//        z.getDebug() << "Has Mac" << endl;
+//        mac = persist.getMac();
+//    } else {
+    z.getDebug() << "Has No Mac" << endl;
+    mac = macHardCoded;
+//    }
     while (!Ethernet.begin(mac, 5000, 5000)) {
 
     }
     AtoDManager<GeneralHalSetup>::init();
     EthernetUdpChannel channel(4889, &z);
     ZcodeCommandChannel<ZcodeParameters> *chptr[1] = { &channel };
-    zcode.setChannels(chptr, 1);
-    ZcodeCoreModule < TestParams > core;
+    z.setChannels(chptr, 1);
+    ZcodeCoreModule<ZcodeParameters> core;
 //    ZcodeScriptModule<TestParams> script;
-    ZcodeModule < TestParams > *modules[1] = { &core /*, &script*/};
-    zcode.setModules(modules, 1);
+    ZcodeModule<ZcodeParameters> *modules[1] = { &core /*, &script*/};
+    z.setModules(modules, 1);
 
     I2c *i2c1 = I2cManager::getI2cById(0);
     i2c1->init();

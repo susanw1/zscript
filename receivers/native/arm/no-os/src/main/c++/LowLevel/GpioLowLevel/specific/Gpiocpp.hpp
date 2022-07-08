@@ -9,9 +9,7 @@
 #define SRC_MAIN_C___LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOCPP_HPP_
 #include "../Gpio.hpp"
 
-#define GPIOMANAGER_DO_NOT_INCLUDE_CPP_HPP
 #include "../GpioManager.hpp"
-#undef GPIOMANAGER_DO_NOT_INCLUDE_CPP_HPP
 
 template<class LL>
 void GpioPin<LL>::init() {
@@ -66,7 +64,5 @@ template<class LL>
 void GpioPin<LL>::setAlternateFunction(uint8_t function) {
     GpioManager<LL>::getPort(pin)->setAlternateFunction(pin, function);
 }
-
-#include "GpioManagercpp.hpp"
 
 #endif /* SRC_MAIN_C___LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOCPP_HPP_ */

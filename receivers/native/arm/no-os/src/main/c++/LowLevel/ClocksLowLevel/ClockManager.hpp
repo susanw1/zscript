@@ -8,6 +8,7 @@
 #ifndef SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_CLOCKMANAGER_HPP_
 #define SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_CLOCKMANAGER_HPP_
 
+#define CLOCKLOWLEVEL_NO_CPP
 #include <llIncludes.hpp>
 #include "Clock.hpp"
 
@@ -22,5 +23,9 @@ public:
     }
 };
 #include "specific/ClockManagercpp.hpp"
+
+#undef CLOCKLOWLEVEL_NO_CPP
+
+#include "specific/Clockcpp.hpp"
 
 #endif /* SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_CLOCKMANAGER_HPP_ */

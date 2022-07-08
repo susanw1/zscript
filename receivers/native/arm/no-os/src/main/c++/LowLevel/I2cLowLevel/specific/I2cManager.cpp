@@ -184,10 +184,9 @@ void I2cManager::interrupt(uint8_t id) {
     i2cs[id].interrupt();
 }
 void I2cManager::init() {
-    void (*interrupt)(uint8_t) = &I2cManager::interrupt;
 
-    InterruptManager::setInterrupt(interrupt, InterruptType::I2cEv);
-    InterruptManager::setInterrupt(interrupt, InterruptType::I2cEr);
+    InterruptManager::setInterrupt(&I2cManager::interrupt, InterruptType::I2cEv);
+    InterruptManager::setInterrupt(&I2cManager::interrupt, InterruptType::I2cEr);
 
     for (int i = 0; i < GeneralHalSetup::i2cCount; ++i) {
         i2cs[i].setI2c(getI2cInternal_internal(i), i, getI2cMuxTxRequest_internal(i), getI2cMuxRxRequest_internal(i));

@@ -41,8 +41,10 @@ public:
     void setAlternateFunction(uint8_t function);
 };
 
-#include "specific/Gpiocpp.hpp"
-
 #include "GpioManager.hpp"
+
+#ifndef GPIOLOWLEVEL_NO_CPP
+#include "specific/Gpiocpp.hpp"
+#endif
 
 #endif /* SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_GPIO_HPP_ */

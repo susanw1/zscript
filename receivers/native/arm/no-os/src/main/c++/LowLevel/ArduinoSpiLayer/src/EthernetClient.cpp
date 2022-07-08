@@ -59,7 +59,7 @@ int EthernetClient::connect(IPAddress ip, uint16_t port)
     if (sockindex >= MAX_SOCK_NUM)
         return 0;
     Ethernet.socketConnect(sockindex, rawIPAddress(ip), port);
-    uint32_t start = SystemMilliClock::getTimeMillis();
+    uint32_t start = SystemMilliClock<GeneralHalSetup>::getTimeMillis();
     while (1) {
         uint8_t stat = Ethernet.socketStatus(sockindex);
         if (stat == SnSR::ESTABLISHED)
@@ -68,9 +68,9 @@ int EthernetClient::connect(IPAddress ip, uint16_t port)
             return 1;
         if (stat == SnSR::CLOSED)
             return 0;
-        if (SystemMilliClock::getTimeMillis() - start > _timeout)
+        if (SystemMilliClock<GeneralHalSetup>::getTimeMillis() - start > _timeout)
             break;
-        SystemMilliClock::blockDelayMillis(1);
+        SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1);
     }
     Ethernet.socketClose(sockindex);
     sockindex = MAX_SOCK_NUM;
@@ -153,7 +153,7 @@ void EthernetClient::stop()
 
     // attempt to close the connection gracefully (send a FIN to other side)
     Ethernet.socketDisconnect(sockindex);
-    unsigned long start = SystemMilliClock::getTimeMillis();
+    unsigned long start = SystemMilliClock<GeneralHalSetup>::getTimeMillis();
 
     // wait up to a second for the connection to close
     do {
@@ -161,8 +161,8 @@ void EthernetClient::stop()
             sockindex = MAX_SOCK_NUM;
             return; // exit the loop
         }
-        SystemMilliClock::blockDelayMillis(1);
-    } while (SystemMilliClock::getTimeMillis() - start < _timeout);
+        SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1);
+    } while (SystemMilliClock<GeneralHalSetup>::getTimeMillis() - start < _timeout);
 
     // if it hasn't closed, close it forcefully
     Ethernet.socketClose(sockindex);

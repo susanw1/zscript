@@ -1,12 +1,16 @@
 /*
- * UartManager.cpp
+ * UartManagercpp.hpp
  *
- *  Created on: 8 Jul 2021
+ *  Created on: 8 Jul 2022
  *      Author: robert
  */
 
+#ifndef SRC_MAIN_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTMANAGERCPP_HPP_
+#define SRC_MAIN_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTMANAGERCPP_HPP_
+
 #include "../UartManager.hpp"
 #include "UartInternal.hpp"
+#include <InterruptLowLevel/InterruptManager.hpp>
 
 #define UART_TX_Inner(UART,PIN) UART##_TX_##PIN
 #define UART_TX(UART,PIN) UART_TX_Inner(UART, PIN)
@@ -155,94 +159,75 @@
 #endif
 
 #ifdef USE_USB_SERIAL
-Usb UartManager::usb(GeneralHalSetup::UsbSerialId);
-        #endif
+template<class LL>
+Usb UartManager<LL>::usb(LL::UsbSerialId);
+#endif
 
-        Uart UartManager::uarts[] = {
-        #ifdef USE_UART_1
-        Uart()
-        #endif
+template<class LL>
+Uart<LL> UartManager<LL>::uarts[] = {
+
+#ifdef USE_UART_1
+    Uart<LL>()
+#endif
 #ifdef USE_UART_2
-        , Uart()
-        #endif
+    , Uart<LL>()
+#endif
 #ifdef USE_UART_3
-        , Uart()
-        #endif
+    , Uart<LL>()
+#endif
 #ifdef USE_UART_4
-        , Uart()
-        #endif
+    , Uart<LL>()
+#endif
 #ifdef USE_UART_5
-        , Uart()
+    , Uart<LL>()
 #endif
 #ifdef USE_UART_6
-, Uart()
+    , Uart<LL>()
 #endif
 };
 
-class UartInterruptManager {
-        friend void USART1_IRQHandler();
-        friend void USART2_IRQHandler();
-        friend void USART3_IRQHandler();
-        friend void UART4_IRQHandler();
-        friend void UART5_IRQHandler();
-        friend void LPUART1_IRQHandler();
+template<class LL>
+void UartManager<LL>::interrupt(uint8_t id) {
+    UartManager<LL>::uarts[id].interrupt();
+}
 
-        static void IRQUART1() {
-            UartManager::uarts[0].interrupt();
-        }
-        static void IRQUART2() {
-            UartManager::uarts[1].interrupt();
-        }
-        static void IRQUART3() {
-            UartManager::uarts[2].interrupt();
-        }
-        static void IRQUART4() {
-            UartManager::uarts[3].interrupt();
-        }
-        static void IRQUART5() {
-            UartManager::uarts[4].interrupt();
-        }
-        static void IRQUART6() {
-            UartManager::uarts[5].interrupt();
-        }
-};
-
-UartInternal getUartInternal(SerialIdentifier id) {
+template<class LL>
+UartInternal<LL> getUartInternal(SerialIdentifier id) {
     if (id == 0) {
 #ifdef USE_UART_1
-        return UartInternal(UART_RX(UART_1, UART_1_RX), UART_TX(UART_1, UART_1_TX), (UartRegisters*) 0x40013800, id);
+        return UartInternal<LL>(UART_RX(UART_1, UART_1_RX), UART_TX(UART_1, UART_1_TX), (UartRegisters*) 0x40013800, id);
 #else
-        return UartInternal();
+        return UartInternal<LL>();
 #endif
     } else if (id == 1) {
 #ifdef USE_UART_2
-        return UartInternal(UART_RX(UART_2, UART_2_RX), UART_TX(UART_2, UART_2_TX), (UartRegisters*) 0x40004400, id);
+        return UartInternal<LL>(UART_RX(UART_2, UART_2_RX), UART_TX(UART_2, UART_2_TX), (UartRegisters*) 0x40004400, id);
 #else
-        return UartInternal();
+        return UartInternal<LL>();
 #endif
     } else if (id == 2) {
 #ifdef USE_UART_3
-        return UartInternal(UART_RX(UART_3, UART_3_RX), UART_TX(UART_3, UART_3_TX), (UartRegisters*) 0x40004800, id);
+        return UartInternal<LL>(UART_RX(UART_3, UART_3_RX), UART_TX(UART_3, UART_3_TX), (UartRegisters*) 0x40004800, id);
 #else
-        return UartInternal();
+        return UartInternal<LL>();
 #endif
     } else if (id == 3) {
 #ifdef USE_UART_4
-        return UartInternal(UART_RX(UART_4, UART_4_RX), UART_TX(UART_4, UART_4_TX), (UartRegisters*) 0x40004C00, id);
+        return UartInternal<LL>(UART_RX(UART_4, UART_4_RX), UART_TX(UART_4, UART_4_TX), (UartRegisters*) 0x40004C00, id);
 #else
-        return UartInternal();
+        return UartInternal<LL>();
 #endif
     } else if (id == 4) {
 #ifdef USE_UART_5
-        return UartInternal(UART_RX(UART_5, UART_5_RX), UART_TX(UART_5, UART_5_TX), (UartRegisters*) 0x40005000, id);
+        return UartInternal<LL>(UART_RX(UART_5, UART_5_RX), UART_TX(UART_5, UART_5_TX), (UartRegisters*) 0x40005000, id);
 #else
-        return UartInternal();
+        return UartInternal<LL>();
 #endif
     } else {
 #ifdef USE_UART_6
-        return UartInternal(UART_RX(UART_6, UART_6_RX), UART_TX(UART_6, UART_6_TX), (UartRegisters*) 0x40008000, id);
+        return UartInternal<LL>(UART_RX(UART_6, UART_6_RX), UART_TX(UART_6, UART_6_TX), (UartRegisters*) 0x40008000, id);
 #else
-        return UartInternal();
+        return UartInternal<LL>();
 #endif
     }
 }
@@ -262,47 +247,13 @@ DmaMuxRequest getUartMuxTxRequest(SerialIdentifier id) {
     }
 }
 
-void USART1_IRQHandler() {
-    UartInterruptManager::IRQUART1();
-}
-void USART2_IRQHandler() {
-    UartInterruptManager::IRQUART2();
-}
-
-void USART3_IRQHandler() {
-    UartInterruptManager::IRQUART3();
-}
-
-void UART4_IRQHandler() {
-    UartInterruptManager::IRQUART4();
-}
-void UART5_IRQHandler() {
-    UartInterruptManager::IRQUART5();
-}
-void LPUART1_IRQHandler() {
-    UartInterruptManager::IRQUART6();
-}
-
-void UartManager::init() {
+template<class LL>
+void UartManager<LL>::init() {
+    InterruptManager::setInterrupt(&UartManager::interrupt, UartInt);
     for (int i = 0; i < GeneralHalSetup::uartCount; ++i) {
-        uarts[i].setUart(getUartInternal(i), DmaManager::getDmaById(GeneralHalSetup::uart1TxDma + i), getUartMuxTxRequest(i));
+        uarts[i].setUart(getUartInternal<LL>(i), DmaManager<LL>::getDmaById(LL::uart1TxDma + i), getUartMuxTxRequest(i));
+        InterruptManager::enableInterrupt(UartInt, i, 8);
     }
-
-    NVIC_SetPriority(USART1_IRQn, 8);
-    NVIC_EnableIRQ(USART1_IRQn);
-
-    NVIC_SetPriority(USART2_IRQn, 8);
-    NVIC_EnableIRQ(USART2_IRQn);
-
-    NVIC_SetPriority(USART3_IRQn, 8);
-    NVIC_EnableIRQ(USART3_IRQn);
-
-    NVIC_SetPriority(UART4_IRQn, 8);
-    NVIC_EnableIRQ(UART4_IRQn);
-
-    NVIC_SetPriority(UART5_IRQn, 8);
-    NVIC_EnableIRQ(UART5_IRQn);
-
-    NVIC_SetPriority(LPUART1_IRQn, 8);
-    NVIC_EnableIRQ(LPUART1_IRQn);
 }
+
+#endif /* SRC_MAIN_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTMANAGERCPP_HPP_ */

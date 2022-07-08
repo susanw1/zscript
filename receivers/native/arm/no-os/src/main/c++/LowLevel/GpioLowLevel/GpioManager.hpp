@@ -7,7 +7,7 @@
 
 #ifndef SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGER_HPP_
 #define SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGER_HPP_
-
+#define GPIOLOWLEVEL_NO_CPP
 #include <llIncludes.hpp>
 #include "Gpio.hpp"
 #include "specific/GpioNames.hpp"
@@ -24,11 +24,10 @@ public:
 
     static GpioPin<LL>* getPin(GpioPinName name);
 
-    static GpioPort* getPort(GpioPinName pin);
+    static GpioPort* getPort(GpioPinName name);
 };
 
-#ifndef GPIOMANAGER_DO_NOT_INCLUDE_CPP_HPP
 #include "specific/GpioManagercpp.hpp"
-#endif
-
+#undef GPIOLOWLEVEL_NO_CPP
+#include "specific/Gpiocpp.hpp"
 #endif /* SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGER_HPP_ */

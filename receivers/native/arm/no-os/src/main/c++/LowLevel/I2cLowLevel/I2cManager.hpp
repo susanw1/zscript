@@ -19,7 +19,7 @@ private:
 
     static I2c i2cs[GeneralHalSetup::i2cCount];
 
-    void interrupt(uint8_t);
+    static void interrupt(uint8_t);
 
     I2cManager() {
     }

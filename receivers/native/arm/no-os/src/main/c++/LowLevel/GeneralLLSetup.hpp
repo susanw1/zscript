@@ -50,7 +50,7 @@
 #define UART_6_RX PC_0_
 #define USE_UART_6
 
-#define USE_USB_SERIAL
+//#define USE_USB_SERIAL
 
 class GeneralHalSetup {
 public:
