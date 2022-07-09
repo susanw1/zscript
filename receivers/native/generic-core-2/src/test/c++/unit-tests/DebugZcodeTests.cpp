@@ -13,15 +13,19 @@ int main(void) {
         std::cerr << "Failed on Set Debug target\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Zf\"0.0Hello\"", "S\n")) {
+    if (!ZcodeTestingSystem::tryTest("Zf\"0.0Hello\"", "S9\"Addressing only allowed from notification channel\"\n")) {
+        std::cerr << "Failed on debug with no notification\n";
+        return 1;
+    }
+    if (!ZcodeTestingSystem::tryTest("Z8&Zf\"0.0Hello\"", "S&S\n")) {
         std::cerr << "Failed on debug with no target\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z9&Zf\"0.0Hello\"", "S&S\n#@Hello\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z8&Z9&Zf\"0.0Hello\"", "S&S&S\n#@Hello\n")) {
         std::cerr << "Failed on debug with target set\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z9&Zf\"0.0Hello1\"&Zf\"0.0Hello2\"&Zf\"0.0Hello3\"", "S&S&S&S\n#@Hello1\n#@Hello2\n#@Hello3\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z8&Z9&Zf\"0.0Hello1\"&Zf\"0.0Hello2\"&Zf\"0.0Hello3\"", "S&S&S&S&S\n#@Hello1\n#@Hello2\n#@Hello3\n")) {
         std::cerr << "Failed on debug with target set\n";
         return 1;
     }

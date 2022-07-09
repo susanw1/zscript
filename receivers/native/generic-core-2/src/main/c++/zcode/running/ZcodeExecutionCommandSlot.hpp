@@ -22,6 +22,7 @@ class Zcode;
 
 template<class ZP>
 class ZcodeExecutionCommandSlot {
+    typedef typename ZP::Strings::string_t string_t;
     ZcodeRunningCommandSlot<ZP> *slot;
 
 public:
@@ -51,7 +52,7 @@ public:
         return slot->getBig();
     }
 
-    void fail(ZcodeResponseStatus failStatus, const char *message) {
+    void fail(ZcodeResponseStatus failStatus, string_t message) {
         slot->fail(failStatus, message);
     }
     void mildFail(ZcodeResponseStatus failStatus) {

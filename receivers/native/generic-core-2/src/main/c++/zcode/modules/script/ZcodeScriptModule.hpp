@@ -57,7 +57,7 @@ public:
             break;
 #endif
         default:
-            slot.fail(UNKNOWN_CMD, ZCODE_STRING_SURROUND("Unknown command"));
+            slot.fail(UNKNOWN_CMD, ZP::Strings::failParseUnknownCommand);
             break;
         }
     }

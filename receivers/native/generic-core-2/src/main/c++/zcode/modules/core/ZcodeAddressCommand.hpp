@@ -31,7 +31,7 @@ public:
         if (slot.getZcode()->getAddressRouter() != NULL) {
             slot.getZcode()->getAddressRouter()->route(slot, 0);
         } else {
-            slot.fail(BAD_ADDRESSING, ZCODE_STRING_SURROUND("Addressing not set up"));
+            slot.fail(BAD_ADDRESSING, ZP::Strings::failAddressingNotSetup);
         }
     }
 };

@@ -19,6 +19,7 @@ enum ZcodeOutStreamOpenType {
 template<class ZP>
 class ZcodeOutStream {
 private:
+    typedef typename ZP::Strings::string_t string_t;
     typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
 
     uint8_t toHexDigit(uint8_t i) {
@@ -131,11 +132,26 @@ public:
         return this;
     }
 
+    ZcodeOutStream<ZP>* writeBigStringField(string_t nullTerminated) {
+        writeByte(BIGFIELD_QUOTE_MARKER);
+        char c;
+        for (bigFieldAddress_t i = 0; (c = ZP::Strings::getChar(nullTerminated, i)) != 0; ++i) {
+            if (c == Zchars::EOL_SYMBOL || c == Zchars::STRING_ESCAPE_SYMBOL || c == BIGFIELD_QUOTE_MARKER) {
+                writeByte(Zchars::STRING_ESCAPE_SYMBOL);
+                continueField8(c);
+            } else {
+                writeByte(c);
+            }
+        }
+        writeByte(BIGFIELD_QUOTE_MARKER);
+        return this;
+    }
+
     ZcodeOutStream<ZP>* writeBigStringField(const char *nullTerminated) {
         bigFieldAddress_t i;
         for (i = 0; nullTerminated[i] != '\0'; ++i) {
         }
-        writeBigStringField((uint8_t const*) nullTerminated, i);
+        writeBigStringField((const uint8_t*) nullTerminated, i);
 
         return this;
     }

@@ -9,6 +9,7 @@
 #define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
 #include "ZcodeIncludes.hpp"
+#include <ZcodeStrings.hpp>
 
 #define ZCODE_STRING_SURROUND(str) str
 
@@ -29,6 +30,8 @@ public:
     typedef uint8_t commandNum_t;
     typedef uint16_t debugOutputBufferLength_t;
     typedef uint8_t lockNumber_t;
+
+    typedef ZcodeStrings String;
 
     static const int fieldNum = 20;
 

@@ -80,11 +80,11 @@ public:
         }
         uint16_t command;
         if (!outerSlot->getFields()->get('Z', &command)) {
-            outerSlot->fail(UNKNOWN_CMD, ZCODE_STRING_SURROUND("No Z field"));
+            outerSlot->fail(UNKNOWN_CMD, ZP::Strings::failParseNoZ);
             return;
         }
         if (command > MAX_SYSTEM_CODE && !outerSlot->getZcode()->isActivated()) {
-            outerSlot->fail(NOT_ACTIVATED, ZCODE_STRING_SURROUND("System not activated"));
+            outerSlot->fail(NOT_ACTIVATED, ZP::Strings::failParseNotActivated);
             return;
         }
         outerSlot->setComplete();
@@ -93,7 +93,7 @@ public:
         COMMAND_SWITCH0()
 
     default:
-        slot.fail(UNKNOWN_CMD, ZCODE_STRING_SURROUND("Unknown command"));
+        slot.fail(UNKNOWN_CMD, ZP::Strings::failParseUnknownCommand);
         break;
         }
     }

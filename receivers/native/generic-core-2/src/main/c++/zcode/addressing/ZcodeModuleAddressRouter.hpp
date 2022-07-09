@@ -35,10 +35,10 @@ public:
             if (target != NULL && target->addressRouter != NULL) {
                 target->addressRouter->route(slot, startPos);
             } else {
-                slot.fail(BAD_ADDRESSING, ZCODE_STRING_SURROUND("Invalid module address"));
+                slot.fail(BAD_ADDRESSING, ZP::Strings::failAddressingInvalidModule);
             }
         } else {
-            slot.fail(BAD_ADDRESSING, ZCODE_STRING_SURROUND("Too few addressing levels"));
+            slot.fail(BAD_ADDRESSING, ZP::Strings::failAddressTooShort);
         }
     }
 

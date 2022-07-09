@@ -35,14 +35,14 @@ public:
         if (valid && slot.getFields()->get('A', &address)) {
             if (address >= space->getLength()) {
                 valid = false;
-                slot.fail(BAD_PARAM, ZCODE_STRING_SURROUND("Address too large"));
+                slot.fail(BAD_PARAM, ZP::Strings::failScriptBadAddress);
             }
         }
         if (valid && address + slot.getBigField()->getLength() < ZP::scriptLength) {
             space->write(slot.getBigField()->getData(), slot.getBigField()->getLength(), address, slot.getFields()->has('L'));
             out->writeStatus(OK);
         } else {
-            slot.fail(BAD_PARAM, ZCODE_STRING_SURROUND("Out of space for write"));
+            slot.fail(BAD_PARAM, ZP::Strings::failScriptBadWrite);
         }
     }
 };

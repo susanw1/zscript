@@ -28,7 +28,7 @@ public:
         const uint8_t *data = slot.getBigField()->getData() + startPos;
         uint16_t lengthToTransmit = (uint16_t) (slot.getBigField()->getLength() - startPos);
         if (slot.getChannel() != slot.getZcode()->getNotificationManager()->getNotificationChannel()) {
-            slot.fail(BAD_ADDRESSING, "Addressing only allowed from notification channel");
+            slot.fail(BAD_ADDRESSING, ZP::Strings::failAddressingOnlyFromNotificationChannel);
             return;
         }
         uint16_t addr = 0;

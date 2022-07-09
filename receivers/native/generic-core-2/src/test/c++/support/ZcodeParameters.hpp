@@ -9,8 +9,7 @@
 #define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
 #include "ZcodeIncludes.hpp"
-
-#define ZCODE_STRING_SURROUND(str) str
+#include <ZcodeStrings.hpp>
 
 #define ZCODE_SUPPORT_SCRIPT_SPACE
 #define ZCODE_SUPPORT_INTERRUPT_VECTOR
@@ -20,6 +19,8 @@
 
 class TestParams {
 public:
+    typedef ZcodeStrings<TestParams> Strings;
+
     typedef uint8_t fieldUnit_t;
 
     typedef uint16_t scriptSpaceAddress_t;

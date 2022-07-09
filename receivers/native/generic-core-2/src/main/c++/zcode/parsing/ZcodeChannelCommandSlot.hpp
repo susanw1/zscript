@@ -111,13 +111,15 @@ class ZcodeExecutionCommandSlot;
 
 template<class ZP>
 class ZcodeChannelCommandSlot {
+    typedef typename ZP::Strings::string_t string_t;
+
     friend class ZcodeRunningCommandSlot<ZP> ;
     friend class ZcodeExecutionCommandSlot<ZP> ;
     ZcodeCommandChannel<ZP> *channel;
     ZcodeFieldMap<ZP> fieldMap;
     ZcodeBigField<ZP> bigField;
     ZcodeLockSet<ZP> lockSet;
-    const char *failString;
+    string_t failString;
     ZcodeChannelCommandSlotParsingState state;
     uint16_t respStatus;
     ZcodeChannelCommandSlotStatus runStatus;
@@ -153,7 +155,7 @@ class ZcodeChannelCommandSlot {
         }
     }
 
-    void parseFail(char c, ZcodeResponseStatus status, const char *message) {
+    void parseFail(char c, ZcodeResponseStatus status, string_t message) {
         state.resetToFail();
         respStatus = status;
         failString = message;
@@ -171,23 +173,23 @@ class ZcodeChannelCommandSlot {
         if (c == BIGFIELD_QUOTE_MARKER) {
             state.isInString = false;
             if (state.isEscaped || bigField.isInNibble()) {
-                parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("Misplaced string field end"));
+                parseFail(c, PARSE_ERROR, ZP::Strings::failParseBadStringEnd);
                 return;
             }
             return;
         }
         if (c == ANDTHEN_SYMBOL || c == ORELSE_SYMBOL || c == EOL_SYMBOL) {
-            parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("String field not ended"));
+            parseFail(c, PARSE_ERROR, ZP::Strings::failParseNoStringEnd);
             return;
         }
         if (bigField.isAtEnd()) {
-            parseFail(c, TOO_BIG, ZCODE_STRING_SURROUND("String field too long"));
+            parseFail(c, TOO_BIG, ZP::Strings::failParseStringTooLong);
             return;
         }
         if (state.isEscaped) {
             int8_t val = getHex(c);
             if (val == -1) {
-                parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("String escaping error"));
+                parseFail(c, PARSE_ERROR, ZP::Strings::failParseStringEscaping);
                 return;
             }
             if (bigField.isInNibble()) {
@@ -206,14 +208,14 @@ class ZcodeChannelCommandSlot {
         if (val == -1) {
             state.isInBig = false;
             if (bigField.isInNibble()) {
-                parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("Big field odd length"));
+                parseFail(c, PARSE_ERROR, ZP::Strings::failParseBigOdd);
                 return;
             }
             outerCommandParse(c);
             return;
         }
         if (!bigField.addNibble(val)) {
-            parseFail(c, TOO_BIG, ZCODE_STRING_SURROUND("Big field too long"));
+            parseFail(c, TOO_BIG, ZP::Strings::failParseBigTooLong);
             return;
         }
     }
@@ -226,7 +228,7 @@ class ZcodeChannelCommandSlot {
             return;
         }
         if (!fieldMap.add4(val)) {
-            parseFail(c, TOO_BIG, ZCODE_STRING_SURROUND("Field too long"));
+            parseFail(c, TOO_BIG, ZP::Strings::failParseFieldTooLong);
             return;
         }
     }
@@ -235,7 +237,7 @@ class ZcodeChannelCommandSlot {
         if (c >= 'A' && c <= 'Z') {
             state.isInField = true;
             if (!fieldMap.addBlank(c)) {
-                parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("Field repeated"));
+                parseFail(c, PARSE_ERROR, ZP::Strings::failParseFieldRepeated);
             }
         } else if (c == BIGFIELD_PREFIX_MARKER) {
             state.isInBig = true;
@@ -245,7 +247,7 @@ class ZcodeChannelCommandSlot {
             state.waitingOnRun = true;
             terminator = c;
         } else {
-            parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("Unknown character"));
+            parseFail(c, PARSE_ERROR, ZP::Strings::failParseUnknownChar);
         }
     }
 
@@ -257,14 +259,14 @@ class ZcodeChannelCommandSlot {
             return;
         }
         if (!lockSet.setLocks4(val)) {
-            parseFail(c, TOO_BIG, ZCODE_STRING_SURROUND("Too many locks"));
+            parseFail(c, TOO_BIG, ZP::Strings::failParseTooManyLocks);
         }
     }
 
     void sequenceBeginingParse(char c) {
         if (c == BROADCAST_PREFIX) {
             if (runStatus.isBroadcast) {
-                parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("Broadcast set twice"));
+                parseFail(c, PARSE_ERROR, ZP::Strings::failParseBroadcastMultiple);
             }
             runStatus.isBroadcast = true;
         } else if (c == DEBUG_PREFIX) {
@@ -274,7 +276,7 @@ class ZcodeChannelCommandSlot {
             fieldMap.add16('Z', 0x0f);
         } else if (c == PARALLEL_PREFIX) {
             if (runStatus.isParallel) {
-                parseFail(c, PARSE_ERROR, ZCODE_STRING_SURROUND("Locks set twice"));
+                parseFail(c, PARSE_ERROR, ZP::Strings::failParseLocksMultiple);
             } else {
                 lockSet.clearAll();
                 state.isParsingParallel = true;
@@ -314,13 +316,14 @@ class ZcodeChannelCommandSlot {
                 bigField.addByte(c);
             }
         } else {
-            parseFail(c, UNKNOWN_ERROR, ZCODE_STRING_SURROUND("Internal error"));
+            parseFail(c, UNKNOWN_ERROR, ZP::Strings::failParseOther);
         }
     }
 
 public:
     ZcodeChannelCommandSlot(Zcode<ZP> *zcode, ZcodeBigField<ZP> bigField, ZcodeCommandChannel<ZP> *channel) :
-            channel(channel), fieldMap(), bigField(bigField), lockSet(zcode->getLocks()), state(), respStatus(OK), runStatus(), terminator('\n'), starter('\n') {
+            channel(channel), fieldMap(), bigField(bigField), lockSet(zcode->getLocks()), failString(NULL), state(), respStatus(OK), runStatus(), terminator(
+                    '\n'), starter('\n') {
         resetToSequence();
     }
 

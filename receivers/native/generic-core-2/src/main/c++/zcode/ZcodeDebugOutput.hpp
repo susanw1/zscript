@@ -62,6 +62,7 @@ class ZcodeDebugOutput {
 private:
     typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
     typedef typename ZP::debugOutputBufferLength_t debugOutputBufferLength_t;
+    typedef typename ZP::Strings::string_t string_t;
 
     uint8_t debugBuffer[ZP::debugBufferLength];
     ZcodeCommandChannel<ZP> *channel = NULL;
@@ -84,6 +85,8 @@ public:
     void println(const char *s);
 
     ZcodeDebugOutput<ZP>& operator <<(ZcodeDebugOutputMode m);
+
+    ZcodeDebugOutput<ZP>& operator <<(string_t s);
 
     ZcodeDebugOutput<ZP>& operator <<(const char *s);
 
@@ -138,12 +141,11 @@ void ZcodeDebugOutput<ZP>::flushBuffer(ZcodeOutStream<ZP> *stream) {
         curPos++;
     }
     if (position == ZP::debugBufferLength + 1) {
-        const char *overRunMessage = "#Debug buffer out of space, some data lost\n";
-        bigFieldAddress_t l = 0;
-        while (overRunMessage[l] != 0) {
-            l++;
+        char c;
+        bigFieldAddress_t i = 0;
+        while ((c = ZP::Strings::getChar(ZP::Strings::debugOverrun, i++)) != 0) {
+            stream->writeByte(c);
         }
-        stream->writeBytes((const uint8_t*) overRunMessage, l);
     }
     position = 0;
 }
@@ -284,13 +286,27 @@ ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(const char *s) {
     writeToBuffer((const uint8_t*) s, l);
     return *this;
 }
+template<class ZP>
+ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(string_t s) {
+
+    debugOutputBufferLength_t l = 0;
+    while (ZP::Strings::getChar(s, l) != 0) {
+        l++;
+    }
+    char tmp[l];
+    for (debugOutputBufferLength_t i = 0; i < l; ++i) {
+        tmp[i] = ZP::Strings::getChar(s, i);
+    }
+    writeToBuffer((const uint8_t*) tmp, l);
+    return *this;
+}
 
 template<class ZP>
 ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(bool b) {
     if (b) {
-        writeToBuffer((const uint8_t*) ZCODE_STRING_SURROUND("true"), 4);
+        this << ZP::Strings::boolTrue;
     } else {
-        writeToBuffer((const uint8_t*) ZCODE_STRING_SURROUND("false"), 5);
+        this << ZP::Strings::boolFalse;
     }
     return *this;
 }
