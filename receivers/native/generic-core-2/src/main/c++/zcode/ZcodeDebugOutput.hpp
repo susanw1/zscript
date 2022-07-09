@@ -143,7 +143,7 @@ void ZcodeDebugOutput<ZP>::flushBuffer(ZcodeOutStream<ZP> *stream) {
     if (position == ZP::debugBufferLength + 1) {
         char c;
         bigFieldAddress_t i = 0;
-        while ((c = ZP::Strings::getChar(ZP::Strings::debugOverrun, i++)) != 0) {
+        while ((c = ZP::Strings::getChar((string_t) ZP::Strings::debugOverrun, i++)) != 0) {
             stream->writeByte(c);
         }
     }
@@ -304,9 +304,9 @@ ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(string_t s) {
 template<class ZP>
 ZcodeDebugOutput<ZP>& ZcodeDebugOutput<ZP>::operator <<(bool b) {
     if (b) {
-        this << ZP::Strings::boolTrue;
+        this << (string_t) ZP::Strings::boolTrue;
     } else {
-        this << ZP::Strings::boolFalse;
+        this << (string_t) ZP::Strings::boolFalse;
     }
     return *this;
 }

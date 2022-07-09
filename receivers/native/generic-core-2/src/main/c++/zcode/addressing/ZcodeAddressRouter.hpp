@@ -15,6 +15,7 @@ class ZcodeExecutionCommandSlot;
 
 template<class ZP>
 class ZcodeAddressRouter {
+    typedef typename ZP::Strings::string_t string_t;
 
     int8_t getHex(char c) {
         if (c >= 'a') {
@@ -28,7 +29,7 @@ public:
         const uint8_t *data = slot.getBigField()->getData() + startPos;
         uint16_t lengthToTransmit = (uint16_t) (slot.getBigField()->getLength() - startPos);
         if (slot.getChannel() != slot.getZcode()->getNotificationManager()->getNotificationChannel()) {
-            slot.fail(BAD_ADDRESSING, ZP::Strings::failAddressingOnlyFromNotificationChannel);
+            slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingOnlyFromNotificationChannel);
             return;
         }
         uint16_t addr = 0;

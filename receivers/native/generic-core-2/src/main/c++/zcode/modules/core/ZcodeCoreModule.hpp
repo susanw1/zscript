@@ -33,6 +33,8 @@
 
 template<class ZP>
 class ZcodeCoreModule: public ZcodeModule<ZP> {
+    typedef typename ZP::Strings::string_t string_t;
+
 #if defined(ZCODE_SUPPORT_ADDRESSING) && defined(ZCODE_SUPPORT_DEBUG)
     ZcodeDebugAddressRouter<ZP> addrRouter;
 #endif
@@ -77,7 +79,7 @@ public:
             break;
 #endif
         default:
-            slot.fail(UNKNOWN_CMD, ZP::Strings::failParseUnknownCommand);
+            slot.fail(UNKNOWN_CMD, (string_t) ZP::Strings::failParseUnknownCommand);
             break;
         }
     }

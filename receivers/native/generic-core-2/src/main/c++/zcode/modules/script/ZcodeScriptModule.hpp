@@ -29,6 +29,7 @@
 
 template<class ZP>
 class ZcodeScriptModule: public ZcodeModule<ZP> {
+    typedef typename ZP::Strings::string_t string_t;
 
 public:
     ZcodeScriptModule() :
@@ -57,7 +58,7 @@ public:
             break;
 #endif
         default:
-            slot.fail(UNKNOWN_CMD, ZP::Strings::failParseUnknownCommand);
+            slot.fail(UNKNOWN_CMD, (string_t) ZP::Strings::failParseUnknownCommand);
             break;
         }
     }

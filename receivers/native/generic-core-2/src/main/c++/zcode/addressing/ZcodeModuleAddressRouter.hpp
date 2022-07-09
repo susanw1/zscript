@@ -20,6 +20,8 @@ class ZcodeModule;
 
 template<class ZP>
 class ZcodeModuleAddressRouter: public ZcodeAddressRouter<ZP> {
+    typedef typename ZP::Strings::string_t string_t;
+
 public:
 
     void routeAddress(ZcodeExecutionCommandSlot<ZP> slot, uint16_t startPos, uint16_t address, bool hasHadDot) {
@@ -35,10 +37,10 @@ public:
             if (target != NULL && target->addressRouter != NULL) {
                 target->addressRouter->route(slot, startPos);
             } else {
-                slot.fail(BAD_ADDRESSING, ZP::Strings::failAddressingInvalidModule);
+                slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalidModule);
             }
         } else {
-            slot.fail(BAD_ADDRESSING, ZP::Strings::failAddressTooShort);
+            slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressTooShort);
         }
     }
 

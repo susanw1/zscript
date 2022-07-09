@@ -23,6 +23,7 @@ template<class ZP>
 class ZcodeScriptStoreCommand: public ZcodeCommand<ZP> {
 private:
     static const uint8_t CODE = 0x02;
+    typedef typename ZP::Strings::string_t string_t;
 
 public:
 
@@ -35,14 +36,14 @@ public:
         if (valid && slot.getFields()->get('A', &address)) {
             if (address >= space->getLength()) {
                 valid = false;
-                slot.fail(BAD_PARAM, ZP::Strings::failScriptBadAddress);
+                slot.fail(BAD_PARAM, (string_t) ZP::Strings::failScriptBadAddress);
             }
         }
         if (valid && address + slot.getBigField()->getLength() < ZP::scriptLength) {
             space->write(slot.getBigField()->getData(), slot.getBigField()->getLength(), address, slot.getFields()->has('L'));
             out->writeStatus(OK);
         } else {
-            slot.fail(BAD_PARAM, ZP::Strings::failScriptBadWrite);
+            slot.fail(BAD_PARAM, (string_t) ZP::Strings::failScriptBadWrite);
         }
     }
 };

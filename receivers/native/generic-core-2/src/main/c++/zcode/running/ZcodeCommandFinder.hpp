@@ -65,6 +65,7 @@ class ZcodeRunningCommandSlot;
 
 template<class ZP>
 class ZcodeCommandFinder {
+    typedef typename ZP::Strings::string_t string_t;
 
 public:
     static const uint16_t MAX_SYSTEM_CODE = 15;
@@ -80,11 +81,11 @@ public:
         }
         uint16_t command;
         if (!outerSlot->getFields()->get('Z', &command)) {
-            outerSlot->fail(UNKNOWN_CMD, ZP::Strings::failParseNoZ);
+            outerSlot->fail(UNKNOWN_CMD, (string_t) ZP::Strings::failParseNoZ);
             return;
         }
         if (command > MAX_SYSTEM_CODE && !outerSlot->getZcode()->isActivated()) {
-            outerSlot->fail(NOT_ACTIVATED, ZP::Strings::failParseNotActivated);
+            outerSlot->fail(NOT_ACTIVATED, (string_t) ZP::Strings::failParseNotActivated);
             return;
         }
         outerSlot->setComplete();
@@ -93,7 +94,7 @@ public:
         COMMAND_SWITCH0()
 
     default:
-        slot.fail(UNKNOWN_CMD, ZP::Strings::failParseUnknownCommand);
+        slot.fail(UNKNOWN_CMD, (string_t) ZP::Strings::failParseUnknownCommand);
         break;
         }
     }

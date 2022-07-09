@@ -24,6 +24,7 @@ template<class ZP>
 class ZcodeAddressCommand: public ZcodeCommand<ZP> {
 private:
     static const uint8_t CODE = 0x0f;
+    typedef typename ZP::Strings::string_t string_t;
 
 public:
 
@@ -31,7 +32,7 @@ public:
         if (slot.getZcode()->getAddressRouter() != NULL) {
             slot.getZcode()->getAddressRouter()->route(slot, 0);
         } else {
-            slot.fail(BAD_ADDRESSING, ZP::Strings::failAddressingNotSetup);
+            slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingNotSetup);
         }
     }
 };

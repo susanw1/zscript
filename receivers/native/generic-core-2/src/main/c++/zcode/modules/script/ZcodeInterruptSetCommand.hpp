@@ -25,6 +25,7 @@ template<class ZP>
 class ZcodeInterruptSetCommand: public ZcodeCommand<ZP> {
 private:
     static const uint8_t CODE = 0x09;
+    typedef typename ZP::Strings::string_t string_t;
 
 public:
 
@@ -38,29 +39,29 @@ public:
         bool hasAddress = false;
         uint16_t vector = 0;
         if (!slot.getFields()->get('T', &type) || type > 0xFF) {
-            slot.fail(BAD_PARAM, ZP::Strings::failInterruptBadType);
+            slot.fail(BAD_PARAM, (string_t) ZP::Strings::failInterruptBadType);
             return;
         }
         if (!slot.getFields()->get('V', &vector) || vector >= ZP::scriptLength) {
-            slot.fail(BAD_PARAM, ZP::Strings::failInterruptBadVector);
+            slot.fail(BAD_PARAM, (string_t) ZP::Strings::failInterruptBadVector);
             return;
         }
         if (slot.getFields()->get('B', &bus)) {
             hasBus = true;
         }
         if (bus > 0xFF) {
-            slot.fail(BAD_PARAM, ZP::Strings::failInterruptBadBus);
+            slot.fail(BAD_PARAM, (string_t) ZP::Strings::failInterruptBadBus);
             return;
         }
         if (slot.getFields()->get('B', &address)) {
             hasAddress = true;
         }
         if (address > 0xFF) {
-            slot.fail(BAD_PARAM, ZP::Strings::failInterruptBadAddress);
+            slot.fail(BAD_PARAM, (string_t) ZP::Strings::failInterruptBadAddress);
             return;
         }
         if (hasAddress && !hasBus) {
-            slot.fail(BAD_PARAM, ZP::Strings::failInterruptHaveAddressWithoutBus);
+            slot.fail(BAD_PARAM, (string_t) ZP::Strings::failInterruptHaveAddressWithoutBus);
             return;
         }
         if (hasAddress) {

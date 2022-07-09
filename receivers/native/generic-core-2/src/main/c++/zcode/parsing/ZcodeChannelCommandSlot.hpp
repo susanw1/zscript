@@ -173,23 +173,23 @@ class ZcodeChannelCommandSlot {
         if (c == BIGFIELD_QUOTE_MARKER) {
             state.isInString = false;
             if (state.isEscaped || bigField.isInNibble()) {
-                parseFail(c, PARSE_ERROR, ZP::Strings::failParseBadStringEnd);
+                parseFail(c, PARSE_ERROR, (string_t) ZP::Strings::failParseBadStringEnd);
                 return;
             }
             return;
         }
         if (c == ANDTHEN_SYMBOL || c == ORELSE_SYMBOL || c == EOL_SYMBOL) {
-            parseFail(c, PARSE_ERROR, ZP::Strings::failParseNoStringEnd);
+            parseFail(c, PARSE_ERROR, (string_t) ZP::Strings::failParseNoStringEnd);
             return;
         }
         if (bigField.isAtEnd()) {
-            parseFail(c, TOO_BIG, ZP::Strings::failParseStringTooLong);
+            parseFail(c, TOO_BIG, (string_t) ZP::Strings::failParseStringTooLong);
             return;
         }
         if (state.isEscaped) {
             int8_t val = getHex(c);
             if (val == -1) {
-                parseFail(c, PARSE_ERROR, ZP::Strings::failParseStringEscaping);
+                parseFail(c, PARSE_ERROR, (string_t) ZP::Strings::failParseStringEscaping);
                 return;
             }
             if (bigField.isInNibble()) {
@@ -208,14 +208,14 @@ class ZcodeChannelCommandSlot {
         if (val == -1) {
             state.isInBig = false;
             if (bigField.isInNibble()) {
-                parseFail(c, PARSE_ERROR, ZP::Strings::failParseBigOdd);
+                parseFail(c, PARSE_ERROR, (string_t) ZP::Strings::failParseBigOdd);
                 return;
             }
             outerCommandParse(c);
             return;
         }
         if (!bigField.addNibble(val)) {
-            parseFail(c, TOO_BIG, ZP::Strings::failParseBigTooLong);
+            parseFail(c, TOO_BIG, (string_t) ZP::Strings::failParseBigTooLong);
             return;
         }
     }
@@ -228,7 +228,7 @@ class ZcodeChannelCommandSlot {
             return;
         }
         if (!fieldMap.add4(val)) {
-            parseFail(c, TOO_BIG, ZP::Strings::failParseFieldTooLong);
+            parseFail(c, TOO_BIG, (string_t) ZP::Strings::failParseFieldTooLong);
             return;
         }
     }
@@ -237,7 +237,7 @@ class ZcodeChannelCommandSlot {
         if (c >= 'A' && c <= 'Z') {
             state.isInField = true;
             if (!fieldMap.addBlank(c)) {
-                parseFail(c, PARSE_ERROR, ZP::Strings::failParseFieldRepeated);
+                parseFail(c, PARSE_ERROR, (string_t) ZP::Strings::failParseFieldRepeated);
             }
         } else if (c == BIGFIELD_PREFIX_MARKER) {
             state.isInBig = true;
@@ -247,7 +247,7 @@ class ZcodeChannelCommandSlot {
             state.waitingOnRun = true;
             terminator = c;
         } else {
-            parseFail(c, PARSE_ERROR, ZP::Strings::failParseUnknownChar);
+            parseFail(c, PARSE_ERROR, (string_t) ZP::Strings::failParseUnknownChar);
         }
     }
 
@@ -259,14 +259,14 @@ class ZcodeChannelCommandSlot {
             return;
         }
         if (!lockSet.setLocks4(val)) {
-            parseFail(c, TOO_BIG, ZP::Strings::failParseTooManyLocks);
+            parseFail(c, TOO_BIG, (string_t) ZP::Strings::failParseTooManyLocks);
         }
     }
 
     void sequenceBeginingParse(char c) {
         if (c == BROADCAST_PREFIX) {
             if (runStatus.isBroadcast) {
-                parseFail(c, PARSE_ERROR, ZP::Strings::failParseBroadcastMultiple);
+                parseFail(c, PARSE_ERROR, (string_t) ZP::Strings::failParseBroadcastMultiple);
             }
             runStatus.isBroadcast = true;
         } else if (c == DEBUG_PREFIX) {
@@ -276,7 +276,7 @@ class ZcodeChannelCommandSlot {
             fieldMap.add16('Z', 0x0f);
         } else if (c == PARALLEL_PREFIX) {
             if (runStatus.isParallel) {
-                parseFail(c, PARSE_ERROR, ZP::Strings::failParseLocksMultiple);
+                parseFail(c, PARSE_ERROR, (string_t) ZP::Strings::failParseLocksMultiple);
             } else {
                 lockSet.clearAll();
                 state.isParsingParallel = true;
@@ -316,7 +316,7 @@ class ZcodeChannelCommandSlot {
                 bigField.addByte(c);
             }
         } else {
-            parseFail(c, UNKNOWN_ERROR, ZP::Strings::failParseOther);
+            parseFail(c, UNKNOWN_ERROR, (string_t) ZP::Strings::failParseOther);
         }
     }
 

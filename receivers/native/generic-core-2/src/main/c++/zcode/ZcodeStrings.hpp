@@ -15,9 +15,7 @@ public:
     constexpr ZcodeString(const char *str) :
             str(str) {
     }
-    void operator=(const char *str) {
-        this->str = str;
-    }
+
     bool operator==(const char *str) {
         return this->str == str;
     }
@@ -154,4 +152,5 @@ const ZcodeString ZcodeStrings<ZP>::failInterruptHaveAddressWithoutBus("Address 
 
 template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::debugOverrun("#Debug buffer out of space, some data lost\n");
+
 #endif /* SRC_MAIN_C___ZCODE_ZCODESTRINGS_HPP_ */
