@@ -15,7 +15,8 @@
 #include <channels/ZcodeCommandChannel.hpp>
 #include <ZcodeOutStream.hpp>
 
-class EthernetUdpChannelInStream: public ZcodeChannelInStream<ZcodeParameters> {
+template<class ZP>
+class EthernetUdpChannelInStream: public ZcodeChannelInStream<ZP> {
 private:
 
     uint8_t big[128];
@@ -28,8 +29,8 @@ private:
     uint16_t mostRecentPort;
 
 public:
-    EthernetUdpChannelInStream(Zcode<ZcodeParameters> *zcode, ZcodeCommandChannel<ZcodeParameters> *channel, EthernetUDP *udp) :
-            ZcodeChannelInStream<ZcodeParameters>(zcode, channel, big, 128), udp(udp), mostRecentIP(), mostRecentPort(0) {
+    EthernetUdpChannelInStream(Zcode<ZP> *zcode, ZcodeCommandChannel<ZP> *channel, EthernetUDP *udp) :
+            ZcodeChannelInStream<ZP>(zcode, channel, big, 128), udp(udp), mostRecentIP(), mostRecentPort(0) {
     }
     IPAddress getIp() {
         return mostRecentIP;
@@ -48,6 +49,11 @@ public:
         }
         if (udp->available()) {
             buffer = (uint8_t) udp->read();
+            if (buffer == EOL_SYMBOL) {
+                hasEndedPacket = true;
+            } else {
+                hasEndedPacket = false;
+            }
             if (!this->slot.acceptByte(buffer)) {
                 usingBuffer = true;
                 return false;
@@ -74,7 +80,8 @@ public:
     }
 };
 
-class EthernetUdpOutStream: public ZcodeOutStream<ZcodeParameters> {
+template<class ZP>
+class EthernetUdpOutStream: public ZcodeOutStream<ZP> {
 private:
     bool openB = false;
     EthernetUDP *udp;
@@ -84,41 +91,86 @@ public:
             udp(udp) {
     }
 
-    void open(ZcodeCommandChannel<ZcodeParameters> *target, ZcodeOutStreamOpenType t) {
-        (void) target;
-        (void) t;
-        openB = true;
-        EthernetUdpChannelInStream *in = (EthernetUdpChannelInStream*) target->in;
-        udp->beginPacket(in->getIp(), in->getPort());
-    }
+    void open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType t);
 
     bool isOpen() {
         return openB;
     }
 
     void close() {
-        udp->endPacket();
-        udp->flush();
+        if (openB) {
+            udp->endPacket();
+            udp->flush();
+        }
         openB = false;
     }
 
     void writeByte(uint8_t value) {
-        udp->write(value);
+        if (openB) {
+            udp->write(value);
+        }
     }
 
 };
 
-class EthernetUdpChannel: public ZcodeCommandChannel<ZcodeParameters> {
+template<class ZP>
+class EthernetUdpChannel: public ZcodeCommandChannel<ZP> {
     EthernetUDP udp;
-    EthernetUdpChannelInStream seqin;
-    EthernetUdpOutStream out;
+    EthernetUdpChannelInStream<ZP> seqin;
+    EthernetUdpOutStream<ZP> out;
+    IPAddress notificationIP;
+    IPAddress debugIP;
+    uint16_t notificationPort;
+    uint16_t debugPort;
 
 public:
 
-    EthernetUdpChannel(uint16_t port, Zcode<ZcodeParameters> *zcode) :
-            ZcodeCommandChannel<ZcodeParameters>(zcode, &seqin, &out, false), udp(), seqin(zcode, this, &udp), out(&udp) {
+    EthernetUdpChannel(uint16_t port, Zcode<ZP> *zcode) :
+            ZcodeCommandChannel<ZP>(zcode, &seqin, &out, false), udp(), seqin(zcode, this, &udp), out(&udp), notificationIP(), debugIP(), notificationPort(
+                    0), debugPort(0) {
         udp.begin(port);
     }
 
+    void stateChange(ZcodeCommandChannelStateChange change) {
+        if (change == SET_AS_NOTIFICATION) {
+            notificationIP = seqin.getIp();
+            notificationPort = seqin.getPort();
+        } else if (change == RELEASED_FROM_NOTIFICATION) {
+            notificationPort = 0;
+        } else if (change == SET_AS_DEBUG) {
+            debugIP = seqin.getIp();
+            debugPort = seqin.getPort();
+        } else if (change == RELEASED_FROM_DEBUG) {
+            debugPort = 0;
+        }
+    }
+    IPAddress getNotificationIp() {
+        return notificationIP;
+    }
+    uint16_t getNotificationPort() {
+        return notificationPort;
+    }
+    IPAddress getDebugIp() {
+        return debugIP;
+    }
+    uint16_t getDebugPort() {
+        return debugPort;
+    }
 };
+
+template<class ZP>
+void EthernetUdpOutStream<ZP>::open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType t) {
+    EthernetUdpChannel<ZP> *channel = (EthernetUdpChannel<ZP>*) target;
+    EthernetUdpChannelInStream<ZP> *in = (EthernetUdpChannelInStream<ZP>*) target->in;
+    if (t == RESPONSE) {
+        openB = true;
+        udp->beginPacket(in->getIp(), in->getPort());
+    } else if (t == NOTIFICATION && channel->getNotificationPort() != 0) {
+        openB = true;
+        udp->beginPacket(channel->getNotificationIp(), channel->getNotificationPort());
+    } else if (t == DEBUG && channel->getDebugPort() != 0) {
+        openB = true;
+        udp->beginPacket(channel->getDebugIp(), channel->getDebugPort());
+    }
+}
 #endif /* SRC_MAIN_C___CHANNELS_ETHERNET_ETHERNETUDPCHANNEL_HPP_ */

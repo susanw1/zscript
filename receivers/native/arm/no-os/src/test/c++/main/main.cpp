@@ -84,7 +84,7 @@ int main(void) {
 
     }
     AtoDManager<GeneralHalSetup>::init();
-    EthernetUdpChannel channel(4889, &z);
+    EthernetUdpChannel<ZcodeParameters> channel(4889, &z);
     ZcodeCommandChannel<ZcodeParameters> *chptr[1] = { &channel };
     z.setChannels(chptr, 1);
     ZcodeCoreModule<ZcodeParameters> core;
