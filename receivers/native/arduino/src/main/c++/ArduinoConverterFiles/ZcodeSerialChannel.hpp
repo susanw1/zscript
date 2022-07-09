@@ -5,8 +5,8 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_TEST_ZCODELOCALCHANNEL_HPP_
-#define SRC_TEST_CPP_ZCODE_TEST_ZCODELOCALCHANNEL_HPP_
+#ifndef ARDUINO_SERIAL_CHANNEL_HPP_
+#define ARDUINO_SERIAL_CHANNEL_HPP_
 
 #ifndef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
 #error ZcodeSerialChannel.hpp needs to be included after Zcode.hpp
@@ -88,4 +88,4 @@ public:
 };
 ZcodeSerialChannel ZcodeSerialChannelI(&ZcodeI);
 #endif
-#endif /* SRC_TEST_CPP_ZCODE_TEST_ZCODELOCALCHANNEL_HPP_ */
+#endif /* ARDUINO_SERIAL_CHANNEL_HPP_ */

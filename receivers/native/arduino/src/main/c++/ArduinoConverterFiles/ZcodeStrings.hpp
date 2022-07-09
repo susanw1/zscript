@@ -1,0 +1,142 @@
+/*
+ * ZcodeStrings.hpp
+ *
+ *  Created on: 9 Jul 2022
+ *      Author: robert
+ */
+
+#ifndef ARDUINO_FLASH_ZCODESTRINGS_HPP_
+#define ARDUINO_FLASH_ZCODESTRINGS_HPP_
+#include <ZcodeIncludes.hpp>
+
+template<class ZP>
+class ZcodeStrings {
+public:
+    typedef const __FlashStringHelper*  string_t;
+
+    static char getChar(string_t str, uint16_t index) {
+        return pgm_read_byte_near(((PGM_P)str)+index);
+    }
+
+    static const char boolTrue[] PROGMEM;
+    static const char boolFalse[] PROGMEM;
+
+    static const char failAddressingOnlyFromNotificationChannel[] PROGMEM;
+    static const char failAddressingInvalidModule[] PROGMEM;
+    static const char failAddressTooShort[] PROGMEM;
+    static const char failAddressingNotSetup[] PROGMEM;
+
+    static const char failParseBadStringEnd[] PROGMEM;
+    static const char failParseNoStringEnd[] PROGMEM;
+    static const char failParseStringTooLong[] PROGMEM;
+    static const char failParseStringEscaping[] PROGMEM;
+
+    static const char failParseBigOdd[] PROGMEM;
+    static const char failParseBigTooLong[] PROGMEM;
+
+    static const char failParseFieldTooLong[] PROGMEM;
+    static const char failParseFieldRepeated[] PROGMEM;
+
+    static const char failParseUnknownChar[] PROGMEM;
+
+    static const char failParseTooManyLocks[] PROGMEM;
+    static const char failParseBroadcastMultiple[] PROGMEM;
+    static const char failParseLocksMultiple[] PROGMEM;
+
+    static const char failParseOther[] PROGMEM;
+
+    static const char failParseNoZ[] PROGMEM;
+    static const char failParseNotActivated[] PROGMEM;
+    static const char failParseUnknownCommand[] PROGMEM;
+
+    static const char failScriptUnknownChannel[] PROGMEM;
+    static const char failScriptBadAddress[] PROGMEM;
+    static const char failScriptBadDelay[] PROGMEM;
+    static const char failScriptBadWrite[] PROGMEM;
+
+    static const char failInterruptBadType[] PROGMEM;
+    static const char failInterruptBadVector[] PROGMEM;
+    static const char failInterruptBadBus[] PROGMEM;
+    static const char failInterruptBadAddress[] PROGMEM;
+    static const char failInterruptHaveAddressWithoutBus[] PROGMEM;
+
+    static const char debugOverrun[] PROGMEM;
+};
+
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseOther[] PROGMEM = "Internal error";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::boolTrue[] PROGMEM = "true";
+template<class ZP>
+const char ZcodeStrings<ZP>::boolFalse[] PROGMEM = "false";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::failAddressingOnlyFromNotificationChannel[] PROGMEM = "Addressing only allowed from notification channel";
+template<class ZP>
+const char ZcodeStrings<ZP>::failAddressingInvalidModule[] PROGMEM = "Invalid module address";
+template<class ZP>
+const char ZcodeStrings<ZP>::failAddressTooShort[] PROGMEM = "Too few addressing levels";
+template<class ZP>
+const char ZcodeStrings<ZP>::failAddressingNotSetup[] PROGMEM = "Addressing not set up";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseBadStringEnd[] PROGMEM = "Misplaced string field end";
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseNoStringEnd[] PROGMEM = "String field not ended";
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseStringTooLong[] PROGMEM = "String field too long";
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseStringEscaping[] PROGMEM = "String escaping error";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseBigOdd[] PROGMEM = "Big field odd length";
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseBigTooLong[] PROGMEM = "Big field too long";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseFieldTooLong[] PROGMEM = "Field too long";
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseFieldRepeated[] PROGMEM = "Field repeated";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseUnknownChar[] PROGMEM = "Unknown character";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseTooManyLocks[] PROGMEM = "Too many locks";
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseBroadcastMultiple[] PROGMEM = "Broadcast set twice";
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseLocksMultiple[] PROGMEM = "Locks set twice";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseNoZ[] PROGMEM = "No Z field";
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseNotActivated[] PROGMEM = "System not activated";
+template<class ZP>
+const char ZcodeStrings<ZP>::failParseUnknownCommand[] PROGMEM = "Unknown command";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::failScriptUnknownChannel[] PROGMEM = "Invalid Script Channel";
+template<class ZP>
+const char ZcodeStrings<ZP>::failScriptBadAddress[] PROGMEM = "Address too large";
+template<class ZP>
+const char ZcodeStrings<ZP>::failScriptBadDelay[] PROGMEM = "Delay too large";
+template<class ZP>
+const char ZcodeStrings<ZP>::failScriptBadWrite[] PROGMEM = "Out of space for write";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::failInterruptBadType[] PROGMEM = "Invalid interrupt type";
+template<class ZP>
+const char ZcodeStrings<ZP>::failInterruptBadVector[] PROGMEM = "Invalid interrupt vector";
+template<class ZP>
+const char ZcodeStrings<ZP>::failInterruptBadBus[] PROGMEM = "Bus value too large";
+template<class ZP>
+const char ZcodeStrings<ZP>::failInterruptBadAddress[] PROGMEM = "Address value too large";
+template<class ZP>
+const char ZcodeStrings<ZP>::failInterruptHaveAddressWithoutBus[] PROGMEM = "Address value necessitates bus";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::debugOverrun[] PROGMEM = "#Debug buffer out of space, some data lost\n";
+
+#endif /* SRC_MAIN_C___ZCODE_ZCODESTRINGS_HPP_ */

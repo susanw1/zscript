@@ -9,9 +9,7 @@
 #define ARDUINO_SRC_MAIN_CPP_DEFAULT_TEST_PARAMETERS_HPP_
 
 #include <ZcodeIncludes.hpp>
-static char strArray[32]; // used as a buffer for string error messages, etc.
-
-#define ZCODE_STRING_SURROUND(str) (ZcodeParams::parseFlashString(F(str)))
+#include "ZcodeStrings.hpp"
 
 
 #define ZCODE_SUPPORT_ADDRESSING
@@ -25,11 +23,7 @@ static char strArray[32]; // used as a buffer for string error messages, etc.
 
 class ZcodeParams {
 public:
-
-    static const char *parseFlashString(const __FlashStringHelper *fStr ){
-      strlcpy_P (strArray, (const char PROGMEM *)fStr, 32);
-      return strArray;
-    }
+    typedef ZcodeStrings<ZcodeParams> Strings;
 
     typedef uint8_t fieldUnit_t;
 

@@ -9,12 +9,10 @@
 #define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
 #include <ZcodeIncludes.hpp>
-static char strArray[32];
+#include <ZcodeStrings.hpp>
 
-#define ZCODE_STRING_SURROUND(str) (ZcodeParams::parseFlashString(F(str)))
-
-//#define ZCODE_SUPPORT_SCRIPT_SPACE
-//#define ZCODE_SUPPORT_INTERRUPT_VECTOR
+#define ZCODE_SUPPORT_SCRIPT_SPACE
+#define ZCODE_SUPPORT_INTERRUPT_VECTOR
 #define ZCODE_SUPPORT_ADDRESSING
 #define ZCODE_GENERATE_NOTIFICATIONS
 #define ZCODE_SUPPORT_DEBUG
@@ -27,10 +25,7 @@ static char strArray[32];
 class ZcodeParams {
 public:
 
-    static const char *parseFlashString(const __FlashStringHelper *fStr ){
-      strlcpy_P (strArray, (const char PROGMEM *)fStr, 32);
-      return strArray;
-    }
+    typedef ZcodeStrings<ZcodeParams> Strings;
 
     typedef uint8_t fieldUnit_t;
 
