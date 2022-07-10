@@ -9,6 +9,7 @@
 #define SRC_TEST_CPP_ZCODE_ZCODEADDRESSROUTER_HPP_
 
 #include "../ZcodeIncludes.hpp"
+#include "../ZcodeBusInterrupt.hpp"
 
 template<class ZP>
 class ZcodeExecutionCommandSlot;
@@ -24,6 +25,8 @@ class ZcodeAddressRouter {
             return (int8_t) (c >= '0' && c <= '9' ? c - '0' : -1);
         }
     }
+protected:
+
 public:
     void route(ZcodeExecutionCommandSlot<ZP> slot, uint16_t startPos) {
         const uint8_t *data = slot.getBigField()->getData() + startPos;
@@ -49,8 +52,27 @@ public:
             routeAddress(slot, (uint16_t) (startPos + i), addr, false);
         }
     }
+    bool canTakeInterrupt(Zcode<ZP> *zcode) {
+        return zcode->getNotificationManager()->getNotificationChannel() != NULL && !zcode->getNotificationManager()->getNotificationChannel()->out->isLocked();
+    }
+    void response(Zcode<ZP> *zcode, ZcodeBusInterrupt<ZP> interrupt) {
+        ZcodeOutStream<ZP> *out = zcode->getNotificationManager()->getNotificationChannel()->out;
+        out->lock();
+        if (out->isOpen()) {
+            out->close();
+        }
+        out->openNotification(zcode->getNotificationManager()->getNotificationChannel());
+        out->mostRecent = this;
+        out->markAddressing();
+        routeResponce(zcode, out, interrupt);
+        out->writeCommandSequenceSeparator();
+        out->close();
+        out->unlock();
+    }
 
     virtual void routeAddress(ZcodeExecutionCommandSlot<ZP> slot, uint16_t startPos, uint16_t address, bool hasHadDot) = 0;
+
+    virtual void routeResponse(Zcode<ZP> *zcode, ZcodeOutStream<ZP> *out, ZcodeBusInterrupt<ZP> interrupt) = 0;
 
 };
 #endif /* SRC_TEST_CPP_ZCODE_ZCODEADDRESSROUTER_HPP_ */

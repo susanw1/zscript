@@ -73,7 +73,7 @@ void ZcodeInterruptVectorOut<ZP>::open(ZcodeCommandChannel<ZP> *target, ZcodeOut
         out->writeStatus(OK);
         if (channel->getInterrupt()->hasFindableAddress()) {
             out->writeCommandSeparator();
-            out->writeField8('A', channel->getInterrupt()->getFoundAddress());
+            out->writeField16('A', channel->getInterrupt()->getFoundAddress());
             out->writeStatus(OK);
         }
         out->writeCommandSeparator();

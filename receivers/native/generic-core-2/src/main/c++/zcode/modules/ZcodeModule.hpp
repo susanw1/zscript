@@ -24,6 +24,7 @@ public:
 
 #ifdef ZCODE_SUPPORT_ADDRESSING
     ZcodeAddressRouter<ZP> *addressRouter;
+
     ZcodeModule(uint16_t moduleId, ZcodeAddressRouter<ZP> *addressRouter) :
             moduleId(moduleId), addressRouter(addressRouter) {
     }

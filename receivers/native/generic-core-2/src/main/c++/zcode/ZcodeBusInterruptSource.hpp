@@ -18,9 +18,10 @@ struct ZcodeNotificationInfo {
 };
 
 struct ZcodeNotificationAddressInfo {
-    uint8_t address;
-    bool hasFound;
-    bool valid = false;
+    uint16_t address :12;
+    bool hasFound :1;
+    bool valid :1;
+    bool isAddressed :1; // false if no notifications were available
 };
 
 template<class ZP>

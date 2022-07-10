@@ -16,5 +16,6 @@ enum Zchars {
     DEBUG_PREFIX = '#',
     PARALLEL_PREFIX = '%',
     NOTIFY_PREFIX = '!',
-    ADDRESS_PREFIX = '@'
+    ADDRESS_PREFIX = '@',
+    ADDRESS_SEPARATOR = '.'
 };

@@ -115,7 +115,7 @@ void ZcodeNotificationManager<ZP>::sendNotification(ZcodeBusInterrupt<ZP> interr
     out->writeStatus(OK);
     if (interrupt.hasFindableAddress()) {
         out->writeCommandSeparator();
-        out->writeField8('A', interrupt.getFoundAddress());
+        out->writeField16('A', interrupt.getFoundAddress());
         out->writeStatus(OK);
     }
     out->writeCommandSequenceSeparator();

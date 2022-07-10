@@ -39,7 +39,7 @@ public:
         return info.bus;
     }
 
-    uint8_t getFoundAddress() {
+    uint16_t getFoundAddress() {
         return address.address;
     }
 

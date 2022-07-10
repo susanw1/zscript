@@ -25,22 +25,32 @@ class ZcodeModuleAddressRouter: public ZcodeAddressRouter<ZP> {
 public:
 
     void routeAddress(ZcodeExecutionCommandSlot<ZP> slot, uint16_t startPos, uint16_t address, bool hasHadDot) {
-        if (hasHadDot) {
-            Zcode<ZP> *zcode = slot.getZcode();
-            ZcodeModule<ZP> *target = NULL;
-            for (uint8_t i = 0; i < zcode->getModuleNumber(); ++i) {
-                if (zcode->getModules()[i]->moduleId == address) {
-                    target = zcode->getModules()[i];
-                    break;
-                }
+        (void) hasHadDot;
+        Zcode<ZP> *zcode = slot.getZcode();
+        ZcodeModule<ZP> *target = NULL;
+        for (uint8_t i = 0; i < zcode->getModuleNumber(); ++i) {
+            if (zcode->getModules()[i]->moduleId == address) {
+                target = zcode->getModules()[i];
+                break;
             }
-            if (target != NULL && target->addressRouter != NULL) {
-                target->addressRouter->route(slot, startPos);
-            } else {
-                slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalidModule);
-            }
+        }
+        if (target != NULL && target->addressRouter != NULL) {
+            target->addressRouter->route(slot, startPos);
         } else {
-            slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressTooShort);
+            slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalidModule);
+        }
+    }
+    void routeResponse(Zcode<ZP> *zcode, ZcodeOutStream<ZP> *out, ZcodeBusInterrupt<ZP> interrupt) {
+        ZcodeModule<ZP> *target = NULL;
+        for (uint8_t i = 0; i < zcode->getModuleNumber(); ++i) {
+            if (zcode->getModules()[i]->moduleId == interrupt.getNotificationType()) {
+                target = zcode->getModules()[i];
+                break;
+            }
+        }
+        if (target != NULL && target->addressRouter != NULL) {
+            out->writeField16(interrupt.getNotificationType());
+            target->addressRouter->routeResponse(zcode, out, interrupt);
         }
     }
 

@@ -38,5 +38,10 @@ public:
         out->writeStatus(OK);
     }
 
+    void routeResponse(Zcode<ZP> *zcode, ZcodeOutStream<ZP> *out, ZcodeBusInterrupt<ZP> interrupt) {
+        (void) zcode;
+        (void) out;
+        (void) interrupt;
+    }
 };
 #endif /* SRC_TEST_CPP_ZCODE_ZCODEDEBUGADDRESSROUTER_HPP_ */

@@ -91,6 +91,16 @@ public:
         return this;
     }
 
+    ZcodeOutStream<ZP>* markAddressing() {
+        writeByte(Zchars::ADDRESS_PREFIX);
+        return this;
+    }
+
+    ZcodeOutStream<ZP>* markAddressingContinue() {
+        writeByte(Zchars::ADDRESS_SEPARATOR);
+        return this;
+    }
+
     ZcodeOutStream<ZP>* writeStatus(uint16_t st) {
         recentStatus = (uint16_t) st;
         writeByte(Zchars::STATUS_RESP_PARAM);
@@ -175,6 +185,9 @@ public:
 
     void writeField8(char f, uint8_t v) {
         writeByte(f);
+        writeField8(v);
+    }
+    void writeField8(uint8_t v) {
         if (v != 0) {
             if (v >= 0x10) {
                 writeByte(toHexDigit((uint8_t) (v >> 4)));
@@ -192,6 +205,15 @@ public:
             writeField8(f, (uint8_t) value);
         } else {
             writeField8(f, (uint8_t) (value >> 8));
+            continueField8((uint8_t) (value & 0xFF));
+        }
+    }
+
+    void writeField16(uint16_t value) {
+        if (value <= 0xFF) {
+            writeField8((uint8_t) value);
+        } else {
+            writeField8((uint8_t) (value >> 8));
             continueField8((uint8_t) (value & 0xFF));
         }
     }
@@ -214,11 +236,36 @@ public:
             continueField8((uint8_t) (value & 0xFF));
         }
     }
+
+    void writeField32(uint32_t value) {
+        if (value <= 0xFF) {
+            writeField8((uint8_t) value);
+        } else if (value <= 0xFFFF) {
+            writeField8((uint8_t) (value >> 8));
+            continueField8((uint8_t) (value & 0xFF));
+        } else {
+            writeField8((uint8_t) (value >> 24));
+            continueField8((uint8_t) ((value >> 16) & 0xFF));
+            continueField8((uint8_t) ((value >> 8) & 0xFF));
+            continueField8((uint8_t) (value & 0xFF));
+        }
+    }
     void continueField32(uint32_t value) {
         continueField8((uint8_t) (value >> 24));
         continueField8((uint8_t) ((value >> 16) & 0xFF));
         continueField8((uint8_t) ((value >> 8) & 0xFF));
         continueField8((uint8_t) (value & 0xFF));
+    }
+
+    void writeField64(uint64_t value) {
+        if (value <= 0xFF) {
+            writeField8((uint8_t) value);
+        } else if (value <= 0xFFFFFFFF) {
+            writeField32((uint32_t) value);
+        } else {
+            writeField32((uint32_t) (value >> 32));
+            continueField32((uint32_t) (value & 0xFFFFFFFF));
+        }
     }
 
     void writeField64(char f, uint64_t value) {
