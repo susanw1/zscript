@@ -163,6 +163,24 @@ public:
         }
         finish();
     }
+
+    void fail(ZcodeResponseStatus failStatus, const char *message) {
+        status.isComplete = true;
+        if (!status.hasWrittenTerminator) {
+            writeTerminator(commandSlot->starter);
+        }
+        commandSlot->failExternal(failStatus);
+        out->writeStatus(failStatus);
+        if (message != NULL && message[0] != 0) {
+            out->writeBigStringField(message);
+        }
+        if (commandSlot->terminator == EOL_SYMBOL) {
+            writeTerminator(EOL_SYMBOL);
+        } else {
+            status.hasWrittenTerminator = false;
+        }
+        finish();
+    }
     void mildFail(ZcodeResponseStatus failStatus) {
         status.isComplete = true;
         commandSlot->failExternal(failStatus);

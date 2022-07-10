@@ -55,6 +55,12 @@ public:
     void fail(ZcodeResponseStatus failStatus, string_t message) {
         slot->fail(failStatus, message);
     }
+    void fail(ZcodeResponseStatus failStatus, const char *message) {
+        slot->fail(failStatus, message);
+    }
+    /**
+     * Much like fail, but allows the output stream to continue functioning - useful if you want to fail in an intelligent way. Doesn't write the failure status.
+     */
     void mildFail(ZcodeResponseStatus failStatus) {
         slot->mildFail(failStatus);
     }
@@ -62,14 +68,23 @@ public:
     ZcodeOutStream<ZP>* getOut() {
         return slot->out;
     }
-
+    /**
+     * Marks current command as being complete, so slot will move on to next command. Note: this is normally preset by default, so not normally needed.
+     */
     void setComplete() {
         slot->setComplete();
     }
 
+    /**
+     * Marks current command as NOT being complete yet (eg has fired off an async activity). Will be executed again after setNeedsAction is called.
+     */
     void unsetComplete() {
         slot->unsetComplete();
     }
+
+    /**
+     * Marks current command as having work available to do, so slot will call execute to progress it. This should be called by callback functions.
+     */
     void setNeedsAction() {
         slot->setNeedsAction();
     }
