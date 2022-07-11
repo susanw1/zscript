@@ -16,6 +16,8 @@ void ZcodeRunningCommandSlot<ZP>::performRunAction() {
         if (!status.hasWrittenTerminator) {
             writeTerminator(commandSlot->starter);
         }
+        dataPointer = NULL;
+        storedData = 0;
         status.isStarted = true;
     }
     status.needsAction = false;
