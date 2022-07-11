@@ -156,6 +156,22 @@ public:
     uint16_t getDebugPort() {
         return debugPort;
     }
+    void giveInfo(ZcodeExecutionCommandSlot<ZP> slot) {
+        ZcodeOutStream<ZP> *out = slot.getOut();
+        out->writeField16('B', 128);
+        out->writeField16('F', ZP::fieldNum);
+        out->writeField8('N', 0);
+        out->writeField8('M', 111);
+        out->writeBigStringField("UDP based channel");
+        out->writeStatus(OK);
+        //TODO: make this better
+    }
+
+    void readSetup(ZcodeExecutionCommandSlot<ZP> slot) {
+        ZcodeOutStream<ZP> *out = slot.getOut();
+        out->writeStatus(OK);
+        //TODO: do this properly
+    }
 };
 
 template<class ZP>
