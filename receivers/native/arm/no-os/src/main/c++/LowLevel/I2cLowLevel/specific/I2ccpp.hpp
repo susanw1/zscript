@@ -38,12 +38,14 @@ bool I2c<LL>::init() {
     i2c.enablePeripheral();
     return worked;
 }
+
 template<class LL>
 void I2c<LL>::setFrequency(I2cFrequency freq) {
     i2c.disablePeripheral();
     i2c.setFrequency(ClockManager<LL>::getClock(HSI), freq);
     i2c.enablePeripheral();
 }
+
 template<class LL>
 void I2c<LL>::dmaInterrupt(DmaTerminationStatus status) {
     if (status == SetupError) {
@@ -75,6 +77,7 @@ void I2c<LL>::finish() {
     rxData = NULL;
     position = 0;
 }
+
 template<class LL>
 void I2c<LL>::interrupt() {
     if (i2c.hasReadDataInt() && position != rxLen) {
@@ -165,7 +168,7 @@ void I2c<LL>::asyncTransmit10(PeripheralOperationMode mode, uint16_t address, bo
     if (mode == DMA && dma == NULL) {
         mode = INTERRUPT;
     }
-    if (mode == SYNCRONOUS) {
+    if (mode == SYNCHRONOUS) {
         callback(this, transmit10(address, tenBit, txData, txLen));
     }
     if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone || i2c.isBusy()) {
@@ -200,7 +203,7 @@ void I2c<LL>::asyncReceive10(PeripheralOperationMode mode, uint16_t address, boo
     if (mode == DMA && dma == NULL) {
         mode = INTERRUPT;
     }
-    if (mode == SYNCRONOUS) {
+    if (mode == SYNCHRONOUS) {
         callback(this, receive10(address, tenBit, rxData, rxLen));
     }
     if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone || i2c.isBusy()) {
@@ -235,7 +238,7 @@ void I2c<LL>::asyncTransmitReceive10(PeripheralOperationMode mode, uint16_t addr
     if (mode == DMA && dma == NULL) {
         mode = INTERRUPT;
     }
-    if (mode == SYNCRONOUS) {
+    if (mode == SYNCHRONOUS) {
         callback(this, transmitReceive10(address, tenBit, txData, txLen, rxData, rxLen));
     }
     state.hasTx = true;

@@ -8,8 +8,10 @@
 #ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
-#include "ZcodeIncludes.hpp"
+#include <ZcodeIncludes.hpp>
 #include <ZcodeStrings.hpp>
+#include <GeneralLLSetup.hpp>
+#include <ClocksLowLevel/SystemMilliClock.hpp>
 
 #define ZCODE_STRING_SURROUND(str) str
 
@@ -31,7 +33,13 @@ public:
     typedef uint16_t debugOutputBufferLength_t;
     typedef uint8_t lockNumber_t;
 
-    typedef ZcodeStrings String;
+    typedef ZcodeStrings<ZcodeParameters> Strings;
+
+    static uint16_t numberGenerator() {
+        return (uint16_t) SystemMilliClock<LL>::getTimeMillis();
+    }
+
+    typedef GeneralHalSetup LL;
 
     static const int fieldNum = 20;
 

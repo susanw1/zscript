@@ -21,7 +21,7 @@ typedef uint8_t PinAlternateFunction;
 typedef uint64_t flashProgramming_t;
 
 enum PeripheralOperationMode {
-    DMA, INTERRUPT, SYNCRONOUS
+    DMA, INTERRUPT, SYNCHRONOUS
 };
 
 #endif /* SRC_TEST_CPP_COMMANDS_LOWLEVEL_LLINCLUDES_HPP_ */

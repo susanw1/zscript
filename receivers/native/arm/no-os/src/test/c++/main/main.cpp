@@ -29,6 +29,8 @@
 #include <modules/core/ZcodeCoreModule.hpp>
 #include <addressing/ZcodeModuleAddressRouter.hpp>
 
+#include <modules/i2c/ZcodeI2cModule.hpp>
+
 #include <channels/Ethernet/EthernetUdpChannel.hpp>
 
 #include <LowLevel/PersistenceLowLevel/FlashPage.hpp>

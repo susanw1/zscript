@@ -60,7 +60,7 @@
                         <excludes>
                             <exclude>channels/Serial/**</exclude>
                             <exclude>channels/Uip/**</exclude>
-                            <exclude>commands/**</exclude>
+                            <exclude>old-commands/**</exclude>
                             <exclude>LowLevel/UsbSerialLowLevel/**</exclude>
                             <exclude>ld/**</exclude>
                             <exclude>openocd/**</exclude>
