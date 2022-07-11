@@ -273,7 +273,7 @@ class ZcodeChannelCommandSlot {
             state.isComment = true;
         } else if (c == ADDRESS_PREFIX) {
             state.isAddressing = true;
-            fieldMap.add16('Z', 0x0f);
+            fieldMap.add16('Z', 0x11);
         } else if (c == PARALLEL_PREFIX) {
             if (runStatus.isParallel) {
                 parseFail(c, PARSE_ERROR, (string_t) ZP::Strings::failParseLocksMultiple);

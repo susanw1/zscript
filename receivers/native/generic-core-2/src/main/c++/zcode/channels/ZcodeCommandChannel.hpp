@@ -42,6 +42,10 @@ public:
         (void) (change);
     }
 
+    virtual void giveInfo(ZcodeExecutionCommandSlot<ZP> slot) = 0;
+
+    virtual void readSetup(ZcodeExecutionCommandSlot<ZP> slot) = 0;
+
 };
 
 #endif /* SRC_TEST_CPP_ZCODE_PARSING_ZCODECOMMANDCHANNEL_HPP_ */

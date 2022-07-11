@@ -74,6 +74,12 @@ public:
     static const string_t failInterruptBadAddress;
     static const string_t failInterruptHaveAddressWithoutBus;
 
+    static const string_t failMatchCodeNoCodeGiven;
+    static const string_t failBadChannelTarget;
+
+    static const string_t scriptSpaceChannelDescriptor;
+    static const string_t interruptVectorChannelDescriptor;
+
     static const string_t debugOverrun;
 };
 
@@ -149,6 +155,16 @@ template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::failInterruptBadAddress("Address value too large");
 template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::failInterruptHaveAddressWithoutBus("Address value necessitates bus");
+
+template<class ZP>
+const ZcodeString ZcodeStrings<ZP>::failMatchCodeNoCodeGiven("No code given");
+template<class ZP>
+const ZcodeString ZcodeStrings<ZP>::failBadChannelTarget("Invalid channel");
+
+template<class ZP>
+const ZcodeString ZcodeStrings<ZP>::scriptSpaceChannelDescriptor("Script space channel");
+template<class ZP>
+const ZcodeString ZcodeStrings<ZP>::interruptVectorChannelDescriptor("Interrupt vector channel");
 
 template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::debugOverrun("#Debug buffer out of space, some data lost\n");

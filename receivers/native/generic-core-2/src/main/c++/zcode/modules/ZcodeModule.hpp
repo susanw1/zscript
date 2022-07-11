@@ -12,7 +12,7 @@
 #include "../running/ZcodeExecutionCommandSlot.hpp"
 #include "../addressing/ZcodeAddressRouter.hpp"
 
-#define COMMAND_SWITCH_UTIL(num, func) 0, case num: func(slot, command); break;
+#define COMMAND_SWITCH_UTIL(num, func) 0, case num: func(slot, commandBottomBits); break;
 
 //#define COMMAND_SWITCH000 COMMAND_SWITCH_UTIL(0x0, exec)
 //#define COMMAND_SWITCH03A COMMAND_SWITCH_UTIL(0x3a, exec2)

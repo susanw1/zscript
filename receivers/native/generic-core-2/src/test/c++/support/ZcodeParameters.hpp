@@ -31,6 +31,10 @@ public:
     typedef uint16_t debugOutputBufferLength_t;
     typedef uint8_t lockNumber_t;
 
+    static uint16_t numberGenerator() {
+        return 1234;
+    }
+
     static const int fieldNum = 20;
 
     static const bool findInterruptSourceAddress = true;

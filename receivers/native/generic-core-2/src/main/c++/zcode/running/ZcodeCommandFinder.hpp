@@ -90,6 +90,7 @@ public:
         }
         outerSlot->setComplete();
         ZcodeExecutionCommandSlot<ZP> slot(outerSlot);
+        uint8_t commandBottomBits = (uint8_t) (command & 0xF);
         switch (command >> 4) {
         COMMAND_SWITCH0()
 

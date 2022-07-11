@@ -77,30 +77,24 @@ int main(void) {
         std::cerr << "Failed on Consecutive Echo with errors\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z0", "SC1N14+0002\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z0", "SC1N14+000102\n")) {
         std::cerr << "Failed on Capabilities\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z0000", "SC1N14+0002\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z0000", "SC1N14+000102\n")) {
         std::cerr << "Failed on Capabilities\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z", "SC1N14+0002\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z", "SC1N14+000102\n")) {
         std::cerr << "Failed on Capabilities with no 0s\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z3", "AS\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z2", "AS\n")) {
         std::cerr << "Failed on Activation\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z3&Z3", "AS&A1S\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z2&Z2", "AS&A1S\n")) {
         std::cerr << "Failed on Activation\n";
         return 1;
     }
-#ifdef ZCODE_GENERATE_NOTIFICATIONS
-    if (!ZcodeTestingSystem::tryTest("Z8", "S\n")) {
-        std::cerr << "Failed on Set Notification Host\n";
-        return 1;
-    }
-#endif
 }

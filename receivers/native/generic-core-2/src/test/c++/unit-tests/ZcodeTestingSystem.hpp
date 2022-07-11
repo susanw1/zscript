@@ -2,6 +2,7 @@
 
 #include "modules/script/ZcodeScriptModule.hpp"
 #include "modules/core/ZcodeCoreModule.hpp"
+#include "modules/outer-core/ZcodeOuterCoreModule.hpp"
 
 #include "addressing/ZcodeModuleAddressRouter.hpp"
 #include "../support/ZcodeTestChannel.hpp"
@@ -19,9 +20,10 @@ public:
         ZcodeCommandChannel<TestParams> *channels[1] = { &localChannel };
         zcode.setChannels(channels, 1);
         ZcodeCoreModule<TestParams> core;
+        ZcodeOuterCoreModule<TestParams> outerCore;
         ZcodeScriptModule<TestParams> script;
-        ZcodeModule<TestParams> *modules[2] = { &core, &script };
-        zcode.setModules(modules, 2);
+        ZcodeModule<TestParams> *modules[3] = { &core, &outerCore, &script };
+        zcode.setModules(modules, 3);
 
         while (!localChannel.isDone()) {
             zcode.progressZcode();

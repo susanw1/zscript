@@ -20,7 +20,7 @@
 class ZcodeTestChannelInStream: public ZcodeChannelInStream<TestParams> {
 private:
 
-    uint8_t big[1000];
+    uint8_t big[1024];
     const uint8_t *data;
     uint16_t length;
     uint16_t pos = 0;
@@ -28,7 +28,7 @@ private:
 
 public:
     ZcodeTestChannelInStream(Zcode<TestParams> *zcode, ZcodeCommandChannel<TestParams> *channel) :
-            ZcodeChannelInStream<TestParams>(zcode, channel, big, 200), data(NULL), length(0) {
+            ZcodeChannelInStream<TestParams>(zcode, channel, big, 1024), data(NULL), length(0) {
     }
     void setData(const uint8_t *data, uint16_t length) {
         this->data = data;
@@ -129,6 +129,21 @@ public:
 
     bool isDone() {
         return seqin.isDone();
+    }
+
+    void giveInfo(ZcodeExecutionCommandSlot<TestParams> slot) {
+        ZcodeOutStream<TestParams> *out = slot.getOut();
+        out->writeField16('B', 1024);
+        out->writeField16('F', TestParams::fieldNum);
+        out->writeField8('N', 0);
+        out->writeField8('M', 0);
+        out->writeBigStringField("Local test channel on for comparing string input/output");
+        out->writeStatus(OK);
+    }
+
+    void readSetup(ZcodeExecutionCommandSlot<TestParams> slot) {
+        ZcodeOutStream<TestParams> *out = slot.getOut();
+        out->writeStatus(OK);
     }
 };
 

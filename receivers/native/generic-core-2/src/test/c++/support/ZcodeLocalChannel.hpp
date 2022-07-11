@@ -22,7 +22,7 @@ private:
     static const int MAX_BUFLEN = 1000;
 
     char buffer[MAX_BUFLEN];
-    uint8_t big[1000];
+    uint8_t big[1024];
 
     std::streamsize lengthRead = 0;
     std::streamsize pos = 0;
@@ -30,7 +30,7 @@ private:
 
 public:
     ZcodeLocalChannelInStream(Zcode<TestParams> *zcode, ZcodeCommandChannel<TestParams> *channel) :
-            ZcodeChannelInStream<TestParams>(zcode, channel, big, 200) {
+            ZcodeChannelInStream<TestParams>(zcode, channel, big, 1024) {
     }
 
     virtual ~ZcodeLocalChannelInStream() {
@@ -103,6 +103,20 @@ public:
             ZcodeCommandChannel<TestParams>(zcode, &seqin, &out, false), seqin(zcode, this) {
     }
 
+    void giveInfo(ZcodeExecutionCommandSlot<TestParams> slot) {
+        ZcodeOutStream<TestParams> *out = slot.getOut();
+        out->writeField16('B', 1024);
+        out->writeField16('F', TestParams::fieldNum);
+        out->writeField8('N', 0);
+        out->writeField8('M', 0);
+        out->writeBigStringField("Local test channel for standard in/out");
+        out->writeStatus(OK);
+    }
+
+    void readSetup(ZcodeExecutionCommandSlot<TestParams> slot) {
+        ZcodeOutStream<TestParams> *out = slot.getOut();
+        out->writeStatus(OK);
+    }
 };
 
 #endif /* SRC_TEST_CPP_ZCODE_TEST_ZCODELOCALCHANNEL_HPP_ */

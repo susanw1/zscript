@@ -17,7 +17,6 @@
 #include "ZcodeInterruptSetCommand.hpp"
 #include "ZcodeScriptStoreCommand.hpp"
 #include "ZcodeScriptCapabilitiesCommand.hpp"
-#include "ZcodeScriptCommand.hpp"
 
 #ifndef ZCODE_SUPPORT_SCRIPT_SPACE
 #error cannot use script space module without script space
@@ -36,17 +35,13 @@ public:
             ZcodeModule<ZP>(ZCODE_SCRIPT_MODULE_ADDRESS) {
     }
 
-    static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint16_t command) {
-        uint8_t bottomBits = command & 0xF;
+    static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
 
         switch (bottomBits) {
         case 0x0:
             ZcodeScriptCapabilitiesCommand<ZP>::execute(slot);
             break;
         case 0x1:
-            ZcodeScriptCommand<ZP>::execute(slot);
-            break;
-        case 0x2:
             ZcodeScriptStoreCommand<ZP>::execute(slot);
             break;
 #if defined(ZCODE_GENERATE_NOTIFICATIONS) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)

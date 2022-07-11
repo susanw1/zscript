@@ -17,7 +17,7 @@ int main(void) {
         std::cerr << "Test failed for not activated\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z3&Zaf2a", "AS&S4\"Unknown command\"\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z2&Zaf2a", "AS&S4\"Unknown command\"\n")) {
         std::cerr << "Test failed for Unknown command with activation\n";
         return 1;
     }

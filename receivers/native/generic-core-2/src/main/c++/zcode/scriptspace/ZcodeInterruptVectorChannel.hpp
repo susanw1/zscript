@@ -47,6 +47,20 @@ public:
         return interrupt.getSource() != NULL || outA.isOpen();
     }
 
+    void giveInfo(ZcodeExecutionCommandSlot<ZP> slot) {
+        ZcodeOutStream<TestParams> *out = slot.getOut();
+        out->writeField16('B', ZP::scriptBigSize);
+        out->writeField16('F', TestParams::fieldNum);
+        out->writeField8('M', 2);
+        out->writeBigStringField(ZP::Strings::interruptVectorChannelDescriptor);
+        out->writeStatus(OK);
+    }
+
+    void readSetup(ZcodeExecutionCommandSlot<ZP> slot) {
+        ZcodeOutStream<TestParams> *out = slot.getOut();
+        out->writeStatus(OK);
+        //TODO: proper setup
+    }
 };
 #include "../scriptspace/ZcodeInterruptVectorManager.hpp"
 

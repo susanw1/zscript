@@ -17,7 +17,7 @@ class ZcodeOutStream;
 template<class ZP>
 class ZcodeActivateCommand: public ZcodeCommand<ZP> {
 private:
-    static const uint8_t CODE = 0x03;
+    static const uint8_t CODE = 0x02;
 
 public:
 

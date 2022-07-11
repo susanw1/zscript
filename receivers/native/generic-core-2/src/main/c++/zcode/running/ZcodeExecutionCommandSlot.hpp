@@ -52,6 +52,10 @@ public:
         return slot->getBig();
     }
 
+    bool isParallel() {
+        return slot->commandSlot->runStatus.isParallel;
+    }
+
     void fail(ZcodeResponseStatus failStatus, string_t message) {
         slot->fail(failStatus, message);
     }

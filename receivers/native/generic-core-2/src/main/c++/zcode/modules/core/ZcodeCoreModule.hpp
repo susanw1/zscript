@@ -13,19 +13,13 @@
 
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeModule.hpp"
+#include "ZcodeDebugAddressRouter.hpp"
 #include "ZcodeActivateCommand.hpp"
 #include "ZcodeCapabilitiesCommand.hpp"
 #include "ZcodeEchoCommand.hpp"
-#include "ZcodeSetDebugChannelCommand.hpp"
-#ifdef ZCODE_GENERATE_NOTIFICATIONS
-#include "ZcodeNotificationHostCommand.hpp"
-#endif
-#ifdef ZCODE_SUPPORT_ADDRESSING
-#ifdef ZCODE_SUPPORT_DEBUG
-#include "ZcodeDebugAddressRouter.hpp"
-#endif
-#include "ZcodeAddressCommand.hpp"
-#endif
+#include "ZcodeMakeCodeCommand.hpp"
+#include "ZcodeMatchCodeCommand.hpp"
+#include "ZcodeChannelInfoCommand.hpp"
 
 #define ZCODE_CORE_MODULE_ADDRESS 0x00
 
@@ -50,8 +44,7 @@ public:
                     ) {
     }
 
-    static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint16_t command) {
-        uint8_t bottomBits = command & 0xF;
+    static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
 
         switch (bottomBits) {
         case 0x0:
@@ -60,22 +53,31 @@ public:
         case 0x1:
             ZcodeEchoCommand<ZP>::execute(slot);
             break;
-        case 0x3:
+        case 0x2:
             ZcodeActivateCommand<ZP>::execute(slot);
             break;
-#ifdef ZCODE_GENERATE_NOTIFICATIONS
+#ifdef ZCODE_CORE_RESET_COMMAND
+        case 0x3:
+            ZCODE_CORE_RESET_COMMAND(slot);
+            break;
+#endif
+#ifdef ZCODE_CORE_FETCH_GUID
+        case 0x4:
+            ZCODE_CORE_FETCH_GUID(slot);
+            break;
+#endif
         case 0x8:
-            ZcodeNotificationHostCommand<ZP>::execute(slot);
+            ZcodeChannelInfoCommand<ZP>::execute(slot);
             break;
-#endif
-#ifdef ZCODE_SUPPORT_DEBUG
-        case 0x9:
-            ZcodeSetDebugChannelCommand<ZP>::execute(slot);
+        case 0xc:
+            ZcodeMakeCodeCommand<ZP>::execute(slot);
             break;
-#endif
-#ifdef ZCODE_SUPPORT_ADDRESSING
+        case 0xd:
+            ZcodeMatchCodeCommand<ZP>::execute(slot);
+            break;
+#ifdef ZCODE_CORE_USER_COMMAND
         case 0xf:
-            ZcodeAddressCommand<ZP>::execute(slot);
+            ZCODE_CORE_USER_COMMAND(slot);
             break;
 #endif
         default:

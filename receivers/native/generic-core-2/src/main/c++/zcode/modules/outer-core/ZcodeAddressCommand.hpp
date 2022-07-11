@@ -5,8 +5,8 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_COMMANDS_ZCODESENDDEBUGCOMMAND_HPP_
-#define SRC_TEST_CPP_ZCODE_COMMANDS_ZCODESENDDEBUGCOMMAND_HPP_
+#ifndef SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEADDRESSCOMMAND_HPP_
+#define SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEADDRESSCOMMAND_HPP_
 
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeCommand.hpp"
@@ -23,7 +23,7 @@ class Zcode;
 template<class ZP>
 class ZcodeAddressCommand: public ZcodeCommand<ZP> {
 private:
-    static const uint8_t CODE = 0x0f;
+    static const uint8_t CODE = 0x11;
     typedef typename ZP::Strings::string_t string_t;
 
 public:
@@ -37,4 +37,4 @@ public:
     }
 };
 
-#endif /* SRC_TEST_CPP_ZCODE_COMMANDS_ZCODESENDDEBUGCOMMAND_HPP_ */
+#endif /* SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEADDRESSCOMMAND_HPP_ */
