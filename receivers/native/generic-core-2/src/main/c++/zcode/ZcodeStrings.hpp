@@ -80,6 +80,8 @@ public:
     static const string_t scriptSpaceChannelDescriptor;
     static const string_t interruptVectorChannelDescriptor;
 
+    static const string_t badModuleAreaSpecifier;
+
     static const string_t debugOverrun;
 };
 
@@ -165,6 +167,9 @@ template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::scriptSpaceChannelDescriptor("Script space channel");
 template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::interruptVectorChannelDescriptor("Interrupt vector channel");
+
+template<class ZP>
+const ZcodeString ZcodeStrings<ZP>::badModuleAreaSpecifier("Module area is invalid");
 
 template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::debugOverrun("#Debug buffer out of space, some data lost\n");

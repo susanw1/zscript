@@ -15,6 +15,9 @@
 #include "../ZcodeModule.hpp"
 #include "ZcodeAddressCommand.hpp"
 #include "ZcodeChannelSetupCommand.hpp"
+
+#define MODULE_ADDRESS001 MODULE_ADDRESS_UTIL
+
 #include "ZcodeExtendedCapabilitiesCommand.hpp"
 
 #define ZCODE_OUTER_CORE_MODULE_ADDRESS 0x01

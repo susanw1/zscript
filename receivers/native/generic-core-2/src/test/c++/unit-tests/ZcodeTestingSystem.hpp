@@ -1,8 +1,8 @@
 #include "../support/ZcodeParameters.hpp"
 
 #include "modules/script/ZcodeScriptModule.hpp"
-#include "modules/core/ZcodeCoreModule.hpp"
 #include "modules/outer-core/ZcodeOuterCoreModule.hpp"
+#include "modules/core/ZcodeCoreModule.hpp"
 
 #include "addressing/ZcodeModuleAddressRouter.hpp"
 #include "../support/ZcodeTestChannel.hpp"

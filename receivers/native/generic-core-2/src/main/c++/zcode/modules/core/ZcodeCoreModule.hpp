@@ -19,6 +19,9 @@
 #include "ZcodeMakeCodeCommand.hpp"
 #include "ZcodeMatchCodeCommand.hpp"
 #include "ZcodeChannelInfoCommand.hpp"
+
+#define MODULE_ADDRESS000 MODULE_ADDRESS_UTIL
+
 #include "ZcodeCapabilitiesCommand.hpp"
 
 #define ZCODE_CORE_MODULE_ADDRESS 0x00
