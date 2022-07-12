@@ -8,7 +8,14 @@
 #ifndef SRC_TEST_CPP_ZCODE_PARSING_ZCODECOMMANDFINDER_HPP_
 #define SRC_TEST_CPP_ZCODE_PARSING_ZCODECOMMANDFINDER_HPP_
 #include "../ZcodeIncludes.hpp"
-#include "../modules/core/ZcodeActivateCommand.hpp"
+#include "../modules/ZcodeModule.hpp"
+
+#define COMMAND_SWITCH_TAKE_IF_DEF(thing, x, ...) x
+#define COMMAND_SWITCH_TAKE_IF_DEFI(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEF(thing, x, __VA_ARG__)
+#define COMMAND_SWITCH_TAKE_IF_DEFII(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEF(thing, x, __VA_ARG__)
+#define COMMAND_SWITCH_TAKE_IF_DEFIII(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEFII(thing, x, __VA_ARG__)
+#define COMMAND_SWITCH_TAKE_IF_DEFIV(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEFIII(thing, x, __VA_ARG__)
+#define COMMAND_SWITCH_TAKE_IF_DEFV(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEFIV(thing, x, __VA_ARG__)
 
 #define MACROADDCA3 F
 #define MACROADDCA2 E
@@ -29,13 +36,6 @@
 #define MACROADD0A2 2
 #define MACROADD0A1 1
 #define MACROADD0A0 0
-
-#define COMMAND_SWITCH_TAKE_IF_DEF(thing, x, ...) x
-#define COMMAND_SWITCH_TAKE_IF_DEFI(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEF(thing, x, __VA_ARG__)
-#define COMMAND_SWITCH_TAKE_IF_DEFII(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEF(thing, x, __VA_ARG__)
-#define COMMAND_SWITCH_TAKE_IF_DEFIII(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEFII(thing, x, __VA_ARG__)
-#define COMMAND_SWITCH_TAKE_IF_DEFIV(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEFIII(thing, x, __VA_ARG__)
-#define COMMAND_SWITCH_TAKE_IF_DEFV(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEFIV(thing, x, __VA_ARG__)
 
 #define COMMAND_SWITCH3(x, y, z) COMMAND_SWITCH_TAKE_IF_DEFV(COMMAND_SWITCH##x##y##z, ;)
 #define COMMAND_SWITCH3I(x, y, a) COMMAND_SWITCH3(x, y, a)

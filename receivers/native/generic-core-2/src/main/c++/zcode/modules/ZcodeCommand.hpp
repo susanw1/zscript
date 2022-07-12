@@ -11,6 +11,7 @@
 #include "../ZcodeIncludes.hpp"
 #include "../running/ZcodeExecutionCommandSlot.hpp"
 
+#define MODULE_CAPABILITIES_UTIL 0, 0;
 template<class ZP>
 class ZcodeCommand {
 public:

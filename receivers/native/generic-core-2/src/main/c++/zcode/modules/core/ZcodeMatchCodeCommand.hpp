@@ -12,6 +12,8 @@
 #include "../ZcodeCommand.hpp"
 #include "ZcodeMakeCodeCommand.hpp"
 
+#define COMMAND_VALUE_000D MODULE_CAPABILITIES_UTIL
+
 template<class ZP>
 class ZcodeOutStream;
 

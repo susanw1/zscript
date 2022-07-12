@@ -15,11 +15,11 @@
 #include "../ZcodeModule.hpp"
 #include "ZcodeDebugAddressRouter.hpp"
 #include "ZcodeActivateCommand.hpp"
-#include "ZcodeCapabilitiesCommand.hpp"
 #include "ZcodeEchoCommand.hpp"
 #include "ZcodeMakeCodeCommand.hpp"
 #include "ZcodeMatchCodeCommand.hpp"
 #include "ZcodeChannelInfoCommand.hpp"
+#include "ZcodeCapabilitiesCommand.hpp"
 
 #define ZCODE_CORE_MODULE_ADDRESS 0x00
 

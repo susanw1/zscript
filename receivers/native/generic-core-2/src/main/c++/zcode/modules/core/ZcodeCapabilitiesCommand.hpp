@@ -10,6 +10,9 @@
 
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeCommand.hpp"
+#include "../ZcodeModule.hpp"
+
+#define COMMAND_VALUE_0000 MODULE_CAPABILITIES_UTIL
 
 template<class ZP>
 class ZcodeOutStream;
@@ -27,8 +30,7 @@ public:
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
         out->writeStatus(OK);
-        uint8_t capabilities = 0x01;
-        out->writeField8('C', capabilities);
+        out->writeField16('C', MODULE_CAPABILITIES(000));
         out->writeField32('N', (uint32_t) ZP::fieldNum);
         uint8_t moduleName[slot.getZcode()->getModuleNumber()];
         for (uint8_t i = 0; i < slot.getZcode()->getModuleNumber(); ++i) {

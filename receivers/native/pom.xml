@@ -14,7 +14,7 @@
 	<modules>
 		<module>generic-core-2</module>
 		<module>generic-core</module>
-		<module>arduino</module>
+		
 		<module>arm</module>
 	</modules>
 

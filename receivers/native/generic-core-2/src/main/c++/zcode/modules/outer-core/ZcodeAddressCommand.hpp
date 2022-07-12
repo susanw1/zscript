@@ -11,6 +11,8 @@
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeCommand.hpp"
 
+#define COMMAND_VALUE_0011 MODULE_CAPABILITIES_UTIL
+
 template<class ZP>
 class ZcodeOutStream;
 
