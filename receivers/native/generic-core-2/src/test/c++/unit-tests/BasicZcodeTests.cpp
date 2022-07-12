@@ -77,15 +77,15 @@ int main(void) {
         std::cerr << "Failed on Consecutive Echo with errors\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z0", "SC1N14+000102\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z0", "SC3107N14+000102\n")) {
         std::cerr << "Failed on Capabilities\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z0000", "SC1N14+000102\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z0000", "SC3107N14+000102\n")) {
         std::cerr << "Failed on Capabilities\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z", "SC1N14+000102\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z", "SC3107N14+000102\n")) {
         std::cerr << "Failed on Capabilities with no 0s\n";
         return 1;
     }
