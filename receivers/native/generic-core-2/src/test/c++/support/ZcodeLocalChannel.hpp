@@ -29,8 +29,8 @@ private:
     int timer = 100;
 
 public:
-    ZcodeLocalChannelInStream(Zcode<TestParams> *zcode, ZcodeCommandChannel<TestParams> *channel) :
-            ZcodeChannelInStream<TestParams>(zcode, channel, big, 1024) {
+    ZcodeLocalChannelInStream(ZcodeCommandChannel<TestParams> *channel) :
+            ZcodeChannelInStream<TestParams>(channel, big, 1024) {
     }
 
     virtual ~ZcodeLocalChannelInStream() {
@@ -99,8 +99,8 @@ class ZcodeLocalChannel: public ZcodeCommandChannel<TestParams> {
     ZcodeLocalOutStream out;
 
 public:
-    ZcodeLocalChannel(Zcode<TestParams> *zcode) :
-            ZcodeCommandChannel<TestParams>(zcode, &seqin, &out, false), seqin(zcode, this) {
+    ZcodeLocalChannel() :
+            ZcodeCommandChannel<TestParams>(&seqin, &out, false), seqin(this) {
     }
 
     void giveInfo(ZcodeExecutionCommandSlot<TestParams> slot) {

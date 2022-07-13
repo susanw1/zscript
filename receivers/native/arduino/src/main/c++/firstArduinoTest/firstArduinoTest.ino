@@ -13,5 +13,5 @@ void setup() {
 }
 
 void loop() {
-    ZcodeI.progressZcode();
+    Zcode<ZcodeParams>::zcode.progressZcode();
 }

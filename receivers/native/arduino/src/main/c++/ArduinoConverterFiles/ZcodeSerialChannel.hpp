@@ -24,8 +24,8 @@ private:
     bool usingBuffer = false;
     
 public:
-    ZcodeSerialChannelInStream(Zcode<ZcodeParams> *zcode, ZcodeCommandChannel<ZcodeParams> *channel) :
-            ZcodeChannelInStream<ZcodeParams>(zcode, channel, big, ZcodeParams::serialBigSize) {
+    ZcodeSerialChannelInStream(ZcodeCommandChannel<ZcodeParams> *channel) :
+            ZcodeChannelInStream<ZcodeParams>( channel, big, ZcodeParams::serialBigSize) {
     }
 
     bool pushData() {
@@ -81,11 +81,24 @@ class ZcodeSerialChannel: public ZcodeCommandChannel<ZcodeParams> {
     ZcodeSerialOutStream out;
 
 public:
-    ZcodeSerialChannel(Zcode<ZcodeParams> *zcode) :
-            ZcodeCommandChannel<ZcodeParams>(zcode, &seqin, &out, false), seqin(zcode, this) {
+    ZcodeSerialChannel() :
+            ZcodeCommandChannel<ZcodeParams>(&seqin, &out, false), seqin(this) {
+    }
+    void giveInfo(ZcodeExecutionCommandSlot<ZcodeParams> slot) {
+        ZcodeOutStream<ZcodeParams> *out = slot.getOut();
+        out->writeField16('B', ZcodeParams::serialBigSize);
+        out->writeField16('F', ZcodeParams::fieldNum);
+        out->writeField8('N', 0);
+        out->writeField8('M', 0x7);
+        out->writeStatus(OK);
+    }
+
+    void readSetup(ZcodeExecutionCommandSlot<ZcodeParams> slot) {
+        ZcodeOutStream<ZcodeParams> *out = slot.getOut();
+        out->writeStatus(OK);
     }
 
 };
-ZcodeSerialChannel ZcodeSerialChannelI(&ZcodeI);
+ZcodeSerialChannel ZcodeSerialChannelI;
 #endif
 #endif /* ARDUINO_SERIAL_CHANNEL_HPP_ */

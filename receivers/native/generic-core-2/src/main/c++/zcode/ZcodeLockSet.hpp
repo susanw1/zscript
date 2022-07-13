@@ -28,7 +28,6 @@ private:
     typedef typename ZP::lockNumber_t lockNumber_t;
     friend class ZcodeLocks<ZP> ;
 
-    ZcodeLocks<ZP> *lockAgainst;
     uint8_t locks[(ZP::lockNum + 7) / 8];
     lockNumber_t currentSettingPos;
     ZcodeLockSetStatus status;
@@ -40,8 +39,7 @@ private:
         status.locked = false;
     }
 public:
-    ZcodeLockSet(ZcodeLocks<ZP> *lockAgainst) :
-            lockAgainst(lockAgainst) {
+    ZcodeLockSet() {
         for (lockNumber_t i = 0; i < (ZP::lockNum + 7) / 8; ++i) {
             locks[i] = 0;
         }
@@ -84,17 +82,17 @@ public:
         return status.locked;
     }
     bool canLock() {
-        return lockAgainst->canLock(this);
+        return Zcode<ZP>::zcode.getLocks()->canLock(this);
     }
     bool lock() {
         if (status.locked) {
             return true;
         }
-        return lockAgainst->lock(this);
+        return Zcode<ZP>::zcode.getLocks()->lock(this);
     }
     void unlock() {
         if (status.locked) {
-            lockAgainst->unlock(this);
+            Zcode<ZP>::zcode.getLocks()->unlock(this);
         }
     }
     void reset() {

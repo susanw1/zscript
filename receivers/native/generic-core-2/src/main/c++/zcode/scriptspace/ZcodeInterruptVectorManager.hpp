@@ -20,16 +20,14 @@ class ZcodeInterruptVectorManager {
 private:
     typedef typename ZP::scriptSpaceAddress_t scriptSpaceAddress_t;
 
-    ZcodeNotificationManager<ZP> *notificationManager;
-    ZcodeScriptSpace<ZP> *space;
     ZcodeInterruptVectorChannel<ZP> channel;
     ZcodeInterruptVectorMap<ZP> vectorMap;
     ZcodeBusInterrupt<ZP> waitingInterrupts[ZP::interruptVectorWorkingNum];
     uint8_t waitingNum = 0;
 
 public:
-    ZcodeInterruptVectorManager(ZcodeNotificationManager<ZP> *notificationManager, Zcode<ZP> *zcode) :
-            notificationManager(notificationManager), space(zcode->getSpace()), channel(zcode, this, notificationManager) {
+    ZcodeInterruptVectorManager() :
+             channel() {
     }
 
     ZcodeInterruptVectorMap<ZP>* getVectorMap() {
@@ -62,8 +60,8 @@ public:
         }
     }
 
-    ZcodeScriptSpace<ZP> getSpace() {
-        return space;
+    ZcodeScriptSpace<ZP> *getSpace() {
+        return Zcode<ZP>::zcode.getSpace();
     }
 
     bool hasVector(ZcodeBusInterrupt<ZP> *busInt) {
@@ -82,10 +80,6 @@ public:
 
     ZcodeInterruptVectorOut<ZP>* getOut() {
         return channel.out;
-    }
-
-    ZcodeNotificationManager<ZP>* getNotificationManager() {
-        return notificationManager;
     }
 };
 

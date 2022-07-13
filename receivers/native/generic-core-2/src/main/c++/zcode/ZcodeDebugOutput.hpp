@@ -173,7 +173,9 @@ void ZcodeDebugOutput<ZP>::setDebugChannel(ZcodeCommandChannel<ZP> *channel) {
         this->channel->stateChange(RELEASED_FROM_DEBUG);
     }
     this->channel = channel;
-    this->channel->stateChange(SET_AS_DEBUG);
+    if (channel != NULL) {
+        this->channel->stateChange(SET_AS_DEBUG);
+    }
 }
 
 template<class ZP>

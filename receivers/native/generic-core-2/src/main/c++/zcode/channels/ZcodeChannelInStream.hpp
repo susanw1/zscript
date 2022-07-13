@@ -23,8 +23,8 @@ protected:
     ZcodeChannelCommandSlot<ZP> slot;
 
 public:
-    ZcodeChannelInStream(Zcode<ZP> *zcode, ZcodeCommandChannel<ZP> *channel, uint8_t *big, bigFieldAddress_t length) :
-            slot(zcode, ZcodeBigField<ZP>(big, length), channel) {
+    ZcodeChannelInStream(ZcodeCommandChannel<ZP> *channel, uint8_t *big, bigFieldAddress_t length) :
+            slot(ZcodeBigField<ZP>(big, length), channel) {
     }
 
     virtual bool pushData() = 0;

@@ -12,8 +12,9 @@
 #define ZCODE_GENERATE_NOTIFICATIONS
 #endif
 
-#include "ZcodeCoreModule.hpp"
 #include "ZcodeScriptModule.hpp"
+#include "ZcodeCoreModule.hpp"
+#include "ZcodeOuterCoreModule.hpp"
 
 #include "ZcodeModuleAddressRouter.hpp"
 
@@ -24,7 +25,7 @@ class ArduinoZcodeBasicSetup {
 #ifdef ZCODE_HAVE_SERIAL_CHANNEL
 		ZcodeCommandChannel<ZcodeParams> *channels[1];
 #endif
-		static const uint8_t moduleCount = 1
+		static const uint8_t moduleCount = 2
 #ifdef ZCODE_SUPPORT_SCRIPT_SPACE
 		+1
 #endif
@@ -34,16 +35,20 @@ class ArduinoZcodeBasicSetup {
 public:
 
 	void setup(){
+#ifdef ARDUINO_USE_MODULE_ADDRESS_ROUTER
+		Zcode<ZcodeParams>::zcode.setAddressRouter(&ZcodeModuleAddressRouterI);
+#endif
 #ifdef ZCODE_HAVE_SERIAL_CHANNEL
 		channels[0] = &ZcodeSerialChannelI;
-		ZcodeI.setChannels(channels, 1);
+		Zcode<ZcodeParams>::zcode.setChannels(channels, 1);
 #endif
 		uint8_t i = 0;
 		modules[i++] = &ZcodeCoreModuleI;
+		modules[i++] = &ZcodeOuterCoreModuleI;
 #ifdef ZCODE_SUPPORT_SCRIPT_SPACE
 		modules[i++] = &ZcodeScriptModuleI;
 #endif
-		ZcodeI.setModules(modules, moduleCount);
+		Zcode<ZcodeParams>::zcode.setModules(modules, moduleCount);
 	}
 };
 ArduinoZcodeBasicSetup ZcodeSetup;

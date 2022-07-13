@@ -72,27 +72,27 @@ int main(void) {
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
 //    ZcodeFlashPersistence persist;
 //    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &source };
-    Zcode<ZcodeParameters> z;
+    Zcode<ZcodeParameters> *z = &Zcode<ZcodeParameters>::zcode;
     uint8_t *mac;
     uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xaa };
 //    if (persist.hasMac()) {
 //        z.getDebug() << "Has Mac" << endl;
 //        mac = persist.getMac();
 //    } else {
-    z.getDebug() << "Has No Mac" << endl;
+    z->getDebug() << "Has No Mac" << endl;
     mac = macHardCoded;
 //    }
     while (!Ethernet.begin(mac, 5000, 5000)) {
 
     }
     AtoDManager<GeneralHalSetup>::init();
-    EthernetUdpChannel<ZcodeParameters> channel(4889, &z);
+    EthernetUdpChannel<ZcodeParameters> channel(4889);
     ZcodeCommandChannel<ZcodeParameters> *chptr[1] = { &channel };
-    z.setChannels(chptr, 1);
+    z->setChannels(chptr, 1);
     ZcodeCoreModule<ZcodeParameters> core;
 //    ZcodeScriptModule<TestParams> script;
     ZcodeModule<ZcodeParameters> *modules[1] = { &core /*, &script*/};
-    z.setModules(modules, 1);
+    z->setModules(modules, 1);
 
     I2c<GeneralHalSetup> *i2c1 = I2cManager<GeneralHalSetup>::getI2cById(0);
     GpioPin<GeneralHalSetup> *c4 = GpioManager<GeneralHalSetup>::getPin(PC_4);
@@ -144,7 +144,7 @@ int main(void) {
 //            }
 //            i2c1->asyncTransmit(0x20, data, 2, &doNothing);
 //        }
-        z.progressZcode();
+        z->progressZcode();
         Ethernet.maintain();
 //        uip.tick();
 //        uip.dhcpClient.checkLease();

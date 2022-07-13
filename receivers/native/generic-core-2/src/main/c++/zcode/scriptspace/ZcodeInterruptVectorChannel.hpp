@@ -23,19 +23,18 @@ class ZcodeInterruptVectorManager;
 template<class ZP>
 class ZcodeInterruptVectorChannel: public ZcodeCommandChannel<ZP> {
 private:
-    ZcodeInterruptVectorManager<ZP> *vectorManager;
     ZcodeBusInterrupt<ZP> interrupt;
     ZcodeInterruptVectorChannelIn<ZP> inA;
     ZcodeInterruptVectorOut<ZP> outA;
 
 public:
-    ZcodeInterruptVectorChannel(Zcode<ZP> *zcode, ZcodeInterruptVectorManager<ZP> *vectorManager, ZcodeNotificationManager<ZP> *notificationManager) :
-            ZcodeCommandChannel<ZP>(zcode, &inA, &outA, false), vectorManager(vectorManager), inA(zcode, this), outA(notificationManager) {
+    ZcodeInterruptVectorChannel() :
+            ZcodeCommandChannel<ZP>(&inA, &outA, false), inA(this), outA() {
     }
 
     void setInterrupt(ZcodeBusInterrupt<ZP> interrupt) {
         this->interrupt = interrupt;
-        inA.start(vectorManager->findVector(&interrupt));
+        inA.start(Zcode<ZP>::zcode.getNotificationManager()->getVectorChannel()->findVector(&interrupt));
     }
     void clear() {
         interrupt.clear();

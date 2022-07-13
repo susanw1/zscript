@@ -22,18 +22,18 @@ int main(void) {
     std::cout << "size of Zcode: " << sizeof(Zcode<TestParams> ) << "\n";
 
     ZcodeModuleAddressRouter<TestParams> addrRouter;
-    Zcode<TestParams> zcode(&addrRouter);
-    ZcodeLocalChannel localChannel(&zcode);
+    Zcode<TestParams> *zcode = &Zcode<TestParams>::zcode;
+    ZcodeLocalChannel localChannel;
     ZcodeCommandChannel<TestParams> *channels[1] = { &localChannel };
-    zcode.setChannels(channels, 1);
+    zcode->setChannels(channels, 1);
     ZcodeCoreModule<TestParams> core;
     ZcodeOuterCoreModule<TestParams> outerCore;
 //    ZcodeScriptModule<TestParams> script;
     ZcodeModule<TestParams> *modules[2] = { &core, &outerCore /*, &script*/};
-    zcode.setModules(modules, 2);
+    zcode->setModules(modules, 2);
 
     while (true) {
-        zcode.progressZcode();
+        zcode->progressZcode();
     }
     return 0;
 }

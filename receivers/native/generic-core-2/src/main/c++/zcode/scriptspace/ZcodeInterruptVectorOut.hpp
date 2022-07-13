@@ -21,14 +21,11 @@ template<class ZP>
 class ZcodeInterruptVectorOut: public ZcodeOutStream<ZP> {
 private:
     typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
-    typedef typename ZP::fieldUnit_t fieldUnit_t;
 
-    ZcodeNotificationManager<ZP> *notificationManager;
     ZcodeOutStream<ZP> *out = NULL;
 
 public:
-    ZcodeInterruptVectorOut(ZcodeNotificationManager<ZP> *notificationManager) :
-            notificationManager(notificationManager) {
+    ZcodeInterruptVectorOut() {
     }
 
     void writeByte(uint8_t value) {
@@ -40,7 +37,7 @@ public:
     void open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType type);
 
     bool isOpen() {
-        return notificationManager->getNotificationChannel() == NULL || (out != NULL && out->isOpen() && out->mostRecent == this);
+        return Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel() == NULL || (out != NULL && out->isOpen() && out->mostRecent == this);
     }
 
     void close() {
@@ -57,7 +54,7 @@ public:
 template<class ZP>
 void ZcodeInterruptVectorOut<ZP>::open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType type) {
     if (type == RESPONSE) {
-        if (notificationManager->getNotificationChannel() == NULL) {
+        if (Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel() == NULL) {
             return;
         }
         ZcodeInterruptVectorChannel<ZP> *channel = (ZcodeInterruptVectorChannel<ZP>*) target;
@@ -65,7 +62,7 @@ void ZcodeInterruptVectorOut<ZP>::open(ZcodeCommandChannel<ZP> *target, ZcodeOut
             out->close();
         }
         out->mostRecent = this;
-        out->openNotification(notificationManager->getNotificationChannel());
+        out->openNotification(Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel());
         out->markNotification();
         out->writeField8(Zchars::NOTIFY_TYPE_PARAM, 1);
         out->writeField8('T', channel->getInterrupt()->getNotificationType());
@@ -84,10 +81,10 @@ void ZcodeInterruptVectorOut<ZP>::open(ZcodeCommandChannel<ZP> *target, ZcodeOut
 template<class ZP>
 bool ZcodeInterruptVectorOut<ZP>::lock() {
     if (out == NULL) {
-        if (notificationManager->getNotificationChannel() == NULL) {
+        if (Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel() == NULL) {
             return true;
         }
-        out = notificationManager->getNotificationChannel()->out;
+        out = Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel()->out;
     }
     return out->lock();
 }
@@ -95,10 +92,10 @@ bool ZcodeInterruptVectorOut<ZP>::lock() {
 template<class ZP>
 bool ZcodeInterruptVectorOut<ZP>::isLocked() {
     if (out == NULL) {
-        if (notificationManager->getNotificationChannel() == NULL) {
+        if (Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel() == NULL) {
             return true;
         }
-        out = notificationManager->getNotificationChannel()->out;
+        out = Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel()->out;
     }
     return out->isLocked();
 }

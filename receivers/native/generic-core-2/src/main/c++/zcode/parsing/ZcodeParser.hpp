@@ -19,10 +19,10 @@ class ZcodeParser {
 
 public:
 
-    static void parseNext(Zcode<ZP> *zcode) {
+    static void parseNext() {
         uint16_t count = 0;
-        for (uint8_t i = 0; i < zcode->getChannelCount(); i++) {
-            ZcodeChannelInStream<ZP> *in = zcode->getChannel(i)->in;
+        for (uint8_t i = 0; i < Zcode<ZP>::zcode.getChannelCount(); i++) {
+            ZcodeChannelInStream<ZP> *in = Zcode<ZP>::zcode.getChannel(i)->in;
             in->getSlot()->clearHasData();
             while (in->pushData() && count++ < ZP::parseIterationMax)
                 ;

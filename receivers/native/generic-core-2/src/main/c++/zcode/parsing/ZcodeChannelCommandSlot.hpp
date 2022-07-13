@@ -321,8 +321,8 @@ class ZcodeChannelCommandSlot {
     }
 
 public:
-    ZcodeChannelCommandSlot(Zcode<ZP> *zcode, ZcodeBigField<ZP> bigField, ZcodeCommandChannel<ZP> *channel) :
-            channel(channel), fieldMap(), bigField(bigField), lockSet(zcode->getLocks()), failString(NULL), state(), respStatus(OK), runStatus(), terminator(
+    ZcodeChannelCommandSlot(ZcodeBigField<ZP> bigField, ZcodeCommandChannel<ZP> *channel) :
+            channel(channel), fieldMap(), bigField(bigField), lockSet(), failString(NULL), state(), respStatus(OK), runStatus(), terminator(
                     '\n'), starter('\n') {
         resetToSequence();
     }

@@ -29,8 +29,8 @@ private:
     uint8_t delay = 0;
 
 public:
-    ZcodeScriptSpaceChannelIn(Zcode<ZP> *zcode, ZcodeScriptSpaceChannel<ZP> *channel) :
-            ZcodeChannelInStream<ZP>(zcode, channel, big, ZP::scriptBigSize), space(zcode->getSpace()), channel(channel) {
+    ZcodeScriptSpaceChannelIn(ZcodeScriptSpaceChannel<ZP> *channel) :
+            ZcodeChannelInStream<ZP>(channel, big, ZP::scriptBigSize), space(Zcode<ZP>::zcode.getSpace()), channel(channel) {
     }
 
     void initialSetup(ZcodeScriptSpace<ZP> *space) {

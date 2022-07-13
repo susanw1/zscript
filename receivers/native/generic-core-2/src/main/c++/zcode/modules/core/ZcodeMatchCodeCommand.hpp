@@ -32,7 +32,7 @@ public:
             if (value == ZcodeMakeCodeCommand<ZP>::number) {
                 out->writeStatus(OK);
             } else {
-                slot.fail(CMD_FAIL, NULL);
+                slot.fail(CMD_FAIL, (string_t) NULL);
             }
         } else {
             slot.fail(BAD_PARAM, (string_t) ZP::Strings::failMatchCodeNoCodeGiven);

@@ -54,6 +54,9 @@ class ZcodeAddressingCommandConsumer;
 
 template<class ZP>
 class Zcode {
+public:
+    static Zcode<ZP> zcode;
+
 private:
     ZcodeLocks<ZP> locks; // the stupid ordering here is to make the #if's happy without increasing the size...
     uint8_t channelCount = 0;
@@ -80,60 +83,14 @@ private:
 
 public:
 
-#ifdef ZCODE_GENERATE_NOTIFICATIONS
-#ifdef ZCODE_SUPPORT_ADDRESSING
-    Zcode(ZcodeBusInterruptSource<ZP> **interruptSources, uint8_t interruptSourceNum, ZcodeAddressRouter<ZP> *addrRouter) :
-             notificationManager(this, interruptSources, interruptSourceNum),
-
-#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
-            space(this),
-#endif
-#ifdef ZCODE_SUPPORT_DEBUG
-                    debug(),
-#endif
-                    addrRouter(addrRouter) {
-    }
-#endif
-
-    Zcode(ZcodeBusInterruptSource<ZP> **interruptSources, uint8_t interruptSourceNum) :
-             notificationManager(this, interruptSources, interruptSourceNum)
-
-#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
-            ,space(this)
-#endif
-#ifdef ZCODE_SUPPORT_DEBUG
-                    ,debug()
-#endif
-
-
-#ifdef ZCODE_SUPPORT_ADDRESSING
-    , addrRouter(NULL)
-#endif
-    {
-    }
-#ifdef ZCODE_SUPPORT_ADDRESSING
-    Zcode(ZcodeAddressRouter<ZP> *addrRouter) :
-             notificationManager(this, NULL, 0),
-
-#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
-            space(this),
-#endif
-#ifdef ZCODE_SUPPORT_DEBUG
-                    debug(),
-#endif
-                    addrRouter(addrRouter) {
-    }
-#endif
-#endif
-
     Zcode() :
             locks()
 
 #ifdef ZCODE_GENERATE_NOTIFICATIONS
-    , notificationManager(this, NULL, 0)
+    , notificationManager()
 #endif
 #ifdef ZCODE_SUPPORT_SCRIPT_SPACE
-    , space(this)
+    , space()
 #endif
 #ifdef ZCODE_SUPPORT_DEBUG
     , debug()
@@ -151,6 +108,13 @@ public:
     }
     void setAddressRouter(ZcodeAddressRouter<ZP>* router) {
         addrRouter = router;
+    }
+#endif
+
+#ifdef ZCODE_GENERATE_NOTIFICATIONS
+
+    void setInterruptSources(ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum) {
+        notificationManager.setBusInterruptSources(sources, sourceNum);
     }
 #endif
 
@@ -190,8 +154,8 @@ public:
 #ifdef ZCODE_GENERATE_NOTIFICATIONS
         notificationManager.manageNotifications();
 #endif
-        ZcodeParser<ZP>::parseNext(this);
-        ZcodeRunner<ZP>::runNext(this);
+        ZcodeParser<ZP>::parseNext();
+        ZcodeRunner<ZP>::runNext();
     }
 
 #ifdef ZCODE_SUPPORT_SCRIPT_SPACE
@@ -281,3 +245,5 @@ public:
     }
 };
 
+template<class ZP>
+Zcode<ZP> Zcode<ZP>::zcode;

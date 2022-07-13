@@ -21,8 +21,6 @@ class TestParams {
 public:
     typedef ZcodeStrings<TestParams> Strings;
 
-    typedef uint8_t fieldUnit_t;
-
     typedef uint16_t scriptSpaceAddress_t;
     typedef uint16_t scriptSpaceOutLength_t;
     typedef uint16_t bigFieldAddress_t;

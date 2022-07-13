@@ -60,6 +60,14 @@ public:
     static const char failInterruptBadAddress[] PROGMEM;
     static const char failInterruptHaveAddressWithoutBus[] PROGMEM;
 
+    static const char failMatchCodeNoCodeGiven[] PROGMEM;
+    static const char failBadChannelTarget[] PROGMEM;
+
+    static const char scriptSpaceChannelDescriptor[] PROGMEM;
+    static const char interruptVectorChannelDescriptor[] PROGMEM;
+
+    static const char badModuleAreaSpecifier[] PROGMEM;
+
     static const char debugOverrun[] PROGMEM;
 };
 
@@ -135,6 +143,20 @@ template<class ZP>
 const char ZcodeStrings<ZP>::failInterruptBadAddress[] PROGMEM = "Address value too large";
 template<class ZP>
 const char ZcodeStrings<ZP>::failInterruptHaveAddressWithoutBus[] PROGMEM = "Address value necessitates bus";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::failMatchCodeNoCodeGiven[] PROGMEM = "No code given";
+template<class ZP>
+const char ZcodeStrings<ZP>::failBadChannelTarget[] PROGMEM = "Invalid channel";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::scriptSpaceChannelDescriptor[] PROGMEM = "Script space channel";
+template<class ZP>
+const char ZcodeStrings<ZP>::interruptVectorChannelDescriptor[] PROGMEM = "Interrupt vector channel";
+
+template<class ZP>
+const char ZcodeStrings<ZP>::badModuleAreaSpecifier[] PROGMEM = "Module area is invalid";
+
 
 template<class ZP>
 const char ZcodeStrings<ZP>::debugOverrun[] PROGMEM = "#Debug buffer out of space, some data lost\n";

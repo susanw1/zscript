@@ -29,8 +29,8 @@ private:
     uint16_t mostRecentPort;
 
 public:
-    EthernetUdpChannelInStream(Zcode<ZP> *zcode, ZcodeCommandChannel<ZP> *channel, EthernetUDP *udp) :
-            ZcodeChannelInStream<ZP>(zcode, channel, big, 128), udp(udp), mostRecentIP(), mostRecentPort(0) {
+    EthernetUdpChannelInStream(ZcodeCommandChannel<ZP> *channel, EthernetUDP *udp) :
+            ZcodeChannelInStream<ZP>(channel, big, 128), udp(udp), mostRecentIP(), mostRecentPort(0) {
     }
     IPAddress getIp() {
         return mostRecentIP;
@@ -125,8 +125,8 @@ class EthernetUdpChannel: public ZcodeCommandChannel<ZP> {
 
 public:
 
-    EthernetUdpChannel(uint16_t port, Zcode<ZP> *zcode) :
-            ZcodeCommandChannel<ZP>(zcode, &seqin, &out, false), udp(), seqin(zcode, this, &udp), out(&udp), notificationIP(), debugIP(), notificationPort(
+    EthernetUdpChannel(uint16_t port) :
+            ZcodeCommandChannel<ZP>(&seqin, &out, false), udp(), seqin(this, &udp), out(&udp), notificationIP(), debugIP(), notificationPort(
                     0), debugPort(0) {
         udp.begin(port);
     }

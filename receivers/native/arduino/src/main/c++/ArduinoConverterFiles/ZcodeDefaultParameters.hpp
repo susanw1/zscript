@@ -25,7 +25,11 @@ class ZcodeParams {
 public:
     typedef ZcodeStrings<ZcodeParams> Strings;
 
-    typedef uint8_t fieldUnit_t;
+    
+    static uint16_t numberGenerator() {
+        return (uint16_t) millis();
+    }
+    
 
     typedef uint16_t scriptSpaceAddress_t;
     typedef uint16_t scriptSpaceOutLength_t;

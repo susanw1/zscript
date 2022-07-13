@@ -38,8 +38,7 @@ public:
         out->writeStatus(OK);
     }
 
-    void routeResponse(Zcode<ZP> *zcode, ZcodeOutStream<ZP> *out, ZcodeBusInterrupt<ZP> interrupt) {
-        (void) zcode;
+    void routeResponse(ZcodeOutStream<ZP> *out, ZcodeBusInterrupt<ZP> interrupt) {
         (void) out;
         (void) interrupt;
     }

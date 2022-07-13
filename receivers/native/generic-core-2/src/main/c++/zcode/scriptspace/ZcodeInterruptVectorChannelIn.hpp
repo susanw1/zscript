@@ -26,8 +26,8 @@ private:
     bool running = false;
 
 public:
-    ZcodeInterruptVectorChannelIn(Zcode<ZP> *zcode, ZcodeCommandChannel<ZP> *channel) :
-            ZcodeChannelInStream<ZP>(zcode, channel, big, ZP::scriptBigSize), space(zcode->getSpace()) {
+    ZcodeInterruptVectorChannelIn(ZcodeCommandChannel<ZP> *channel) :
+            ZcodeChannelInStream<ZP>(channel, big, ZP::scriptBigSize), space(Zcode<ZP>::zcode.getSpace()) {
     }
 
     void initialSetup(ZcodeScriptSpace<ZP> *space) {

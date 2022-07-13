@@ -18,29 +18,26 @@ template<class ZP>
 class ZcodeNotificationManager;
 
 //Solving C++'s problems with initialising an array of object values...
-template<class ZP>
-union ZcodeEvilArrayInitialiserSolution {
-    ZcodeScriptSpaceChannel<ZP> channel;
-    uint8_t b;
-    ZcodeEvilArrayInitialiserSolution() :
-            b(0) {
-    }
-    ZcodeEvilArrayInitialiserSolution(Zcode<ZP> *zcode) :
-            channel(zcode) {
-    }
-};
+//template<class ZP>
+//union ZcodeEvilArrayInitialiserSolution {
+//    ZcodeScriptSpaceChannel<ZP> channel;
+//    uint8_t b;
+//    ZcodeEvilArrayInitialiserSolution() :
+//            b(0) {
+//    }
+//    ZcodeEvilArrayInitialiserSolution() :
+//            channel() {
+//    }
+//};
 
 template<class ZP>
 class ZcodeScriptSpace {
-public:
-    ZcodeScriptSpace();
-
 private:
     typedef typename ZP::scriptSpaceAddress_t scriptSpaceAddress_t;
 
     ZcodeNotificationManager<ZP> *notifications;
-    ZcodeEvilArrayInitialiserSolution<ZP> channelActual;
-    ZcodeEvilArrayInitialiserSolution<ZP> channels[ZP::scriptChannelCount - 1];
+    //ZcodeEvilArrayInitialiserSolution<ZP> channelActual;
+    ZcodeScriptSpaceChannel<ZP> channels[ZP::scriptChannelCount];
     uint8_t space[ZP::scriptLength];
     scriptSpaceAddress_t length = 0;
     uint8_t delay = 0;
@@ -48,26 +45,24 @@ private:
     bool failed = false;
 
 public:
-    ZcodeScriptSpace(Zcode<ZP> *zcode) :
-            notifications(zcode->getNotificationManager()), channelActual(zcode) {
+    ZcodeScriptSpace() :
+            notifications(Zcode<ZP>::zcode.getNotificationManager()) {
         for (scriptSpaceAddress_t i = 0; i < ZP::scriptLength; ++i) {
             space[i] = 0;
         }
-        for (uint8_t i = 0; i < ZP::scriptChannelCount - 1; ++i) {
-            memcpy((void*) (channels + i), (void*) (&channelActual), sizeof(ZcodeEvilArrayInitialiserSolution<ZP> ));
-        }
+//        for (uint8_t i = 0; i < ZP::scriptChannelCount - 1; ++i) {
+//            memcpy((void*) (channels + i), (void*) (&channelActual), sizeof(ZcodeEvilArrayInitialiserSolution<ZP> ));
+//        }
     }
+
 
     uint8_t getChannelCount() {
         return ZP::scriptChannelCount;
     }
 
     ZcodeScriptSpaceChannel<ZP>* getChannel(uint8_t i) {
-        if (i == 0) {
-            return &channelActual.channel;
-        } else {
-            return &(channels[i - 1].channel);
-        }
+            return &channels[i];
+
     }
 
     uint8_t get(scriptSpaceAddress_t pos) {

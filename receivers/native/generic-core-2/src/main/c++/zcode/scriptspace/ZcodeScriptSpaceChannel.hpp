@@ -30,8 +30,8 @@ private:
 
 public:
 
-    ZcodeScriptSpaceChannel(Zcode<ZP> *zcode) :
-            ZcodeCommandChannel<ZP>(zcode, &inA, &outA, false), space(zcode->getSpace()), outA(space), inA(zcode, this) {
+    ZcodeScriptSpaceChannel() :
+            ZcodeCommandChannel<ZP>(&inA, &outA, false), space(Zcode<ZP>::zcode.getSpace()), outA(space), inA(this) {
     }
 
     ZcodeScriptSpaceOut<ZP>* getOutStream() {

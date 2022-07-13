@@ -44,7 +44,6 @@ class ZcodeRunningCommandSlot {
     friend class ZcodeExecutionCommandSlot<ZP> ;
     ZcodeChannelCommandSlot<ZP> *commandSlot;
     ZcodeOutStream<ZP> *out;
-    Zcode<ZP> *zcode;
 
 public:
     uint8_t *dataPointer;
@@ -66,13 +65,13 @@ private:
 
 public:
 
-    ZcodeRunningCommandSlot(Zcode<ZP> *zcode, ZcodeOutStream<ZP> *out, ZcodeChannelCommandSlot<ZP> *commandSlot) :
-            commandSlot(commandSlot), out(out), zcode(zcode), dataPointer(NULL), storedData(0), status() {
+    ZcodeRunningCommandSlot(ZcodeOutStream<ZP> *out, ZcodeChannelCommandSlot<ZP> *commandSlot) :
+            commandSlot(commandSlot), out(out), dataPointer(NULL), storedData(0), status() {
         status.fullReset();
     }
 
     Zcode<ZP>* getZcode() {
-        return zcode;
+        return &Zcode<ZP>::zcode;
     }
 
     bool failedParse() {

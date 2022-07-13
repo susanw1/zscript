@@ -27,8 +27,8 @@ private:
     uint16_t timer = 0;
 
 public:
-    ZcodeTestChannelInStream(Zcode<TestParams> *zcode, ZcodeCommandChannel<TestParams> *channel) :
-            ZcodeChannelInStream<TestParams>(zcode, channel, big, 1024), data(NULL), length(0) {
+    ZcodeTestChannelInStream(ZcodeCommandChannel<TestParams> *channel) :
+            ZcodeChannelInStream<TestParams>(channel, big, 1024), data(NULL), length(0) {
     }
     void setData(const uint8_t *data, uint16_t length) {
         this->data = data;
@@ -113,8 +113,8 @@ class ZcodeTestChannel: public ZcodeCommandChannel<TestParams> {
     ZcodeTestOutStream out;
 
 public:
-    ZcodeTestChannel(Zcode<TestParams> *zcode, const char *data, uint8_t *received, uint16_t outLength) :
-            ZcodeCommandChannel<TestParams>(zcode, &seqin, &out, false), seqin(zcode, this), out(received, outLength) {
+    ZcodeTestChannel(const char *data, uint8_t *received, uint16_t outLength) :
+            ZcodeCommandChannel<TestParams>(&seqin, &out, false), seqin(this), out(received, outLength) {
         uint16_t inLen = 0;
         while (data[inLen++] != 0)
             ;

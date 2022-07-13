@@ -26,7 +26,7 @@ public:
 
     void routeAddress(ZcodeExecutionCommandSlot<ZP> slot, uint16_t startPos, uint16_t address, bool hasHadDot) {
         (void) hasHadDot;
-        Zcode<ZP> *zcode = slot.getZcode();
+        Zcode<ZP> *zcode = &Zcode<ZP>::zcode;
         ZcodeModule<ZP> *target = NULL;
         for (uint8_t i = 0; i < zcode->getModuleNumber(); ++i) {
             if (zcode->getModules()[i]->moduleId == address) {
@@ -40,17 +40,17 @@ public:
             slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalidModule);
         }
     }
-    void routeResponse(Zcode<ZP> *zcode, ZcodeOutStream<ZP> *out, ZcodeBusInterrupt<ZP> interrupt) {
+    void routeResponse(ZcodeOutStream<ZP> *out, ZcodeBusInterrupt<ZP> interrupt) {
         ZcodeModule<ZP> *target = NULL;
-        for (uint8_t i = 0; i < zcode->getModuleNumber(); ++i) {
-            if (zcode->getModules()[i]->moduleId == interrupt.getNotificationType()) {
-                target = zcode->getModules()[i];
+        for (uint8_t i = 0; i < Zcode<ZP>::zcode.getModuleNumber(); ++i) {
+            if (Zcode<ZP>::zcode.getModules()[i]->moduleId == interrupt.getNotificationType()) {
+                target = Zcode<ZP>::zcode.getModules()[i];
                 break;
             }
         }
         if (target != NULL && target->addressRouter != NULL) {
             out->writeField16(interrupt.getNotificationType());
-            target->addressRouter->routeResponse(zcode, out, interrupt);
+            target->addressRouter->routeResponse(out, interrupt);
         }
     }
 

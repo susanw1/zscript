@@ -47,19 +47,18 @@ private:
     void sendNotification(ZcodeBusInterrupt<ZP> interrupt);
 
 public:
-    ZcodeNotificationManager(
-            Zcode<ZP> *zcode,
-
-            ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum) :
-            sources(sources), sourceNum(sourceNum),
+    ZcodeNotificationManager() :
+            sources(NULL), sourceNum(0),
 
 #if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
-            vectorChannel(this, zcode),
+            vectorChannel(),
     #endif
                     notificationChannel(NULL) {
-#if !defined(ZCODE_SUPPORT_SCRIPT_SPACE) || !defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
-        (void) zcode;
-#endif
+    }
+
+    void setBusInterruptSources(ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum) {
+        this->sources = sources;
+        this->sourceNum = sourceNum;
     }
 
 #if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
@@ -133,7 +132,9 @@ void ZcodeNotificationManager<ZP>::setNotificationChannel(ZcodeCommandChannel<ZP
         this->notificationChannel->stateChange(RELEASED_FROM_NOTIFICATION);
     }
     this->notificationChannel = notificationChannel;
-    this->notificationChannel->stateChange(SET_AS_NOTIFICATION);
+    if (notificationChannel != NULL) {
+        this->notificationChannel->stateChange(SET_AS_NOTIFICATION);
+    }
 }
 
 template<class ZP>

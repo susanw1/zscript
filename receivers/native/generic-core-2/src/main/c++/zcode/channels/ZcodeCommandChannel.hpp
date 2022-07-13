@@ -34,8 +34,8 @@ public:
     ZcodeRunningCommandSlot<ZP> runner;
     bool packetBased;
 
-    ZcodeCommandChannel(Zcode<ZP> *zcode, ZcodeChannelInStream<ZP> *in, ZcodeOutStream<ZP> *out, bool packetBased) :
-            in(in), out(out), runner(zcode, out, in->getSlot()), packetBased(packetBased) {
+    ZcodeCommandChannel(ZcodeChannelInStream<ZP> *in, ZcodeOutStream<ZP> *out, bool packetBased) :
+            in(in), out(out), runner(out, in->getSlot()), packetBased(packetBased) {
     }
 
     virtual void stateChange(ZcodeCommandChannelStateChange change) {
