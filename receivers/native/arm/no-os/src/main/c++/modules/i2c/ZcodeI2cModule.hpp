@@ -9,6 +9,7 @@
 
 #include "ZcodeI2cCapabilitiesCommand.hpp"
 #include "ZcodeI2cSetupCommand.hpp"
+#include "ZcodeI2cSendCommand.hpp"
 
 #define ZCODE_I2C_MODULE_ADDRESS 0x05
 

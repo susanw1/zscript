@@ -24,8 +24,9 @@ public:
     // chooses comms frequency, from 10, 100, 400 and 1000 kHz
     static constexpr char CMD_PARAM_FREQ_F = 'F';
 
+    typedef typename ZP::LL LL;
+
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
-        typedef typename ZP::LL LL;
 
         uint16_t freq;
         if (slot.getFields()->get(CMD_PARAM_FREQ_F, &freq)) {
