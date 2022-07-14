@@ -122,6 +122,7 @@ public:
     }
     void checkBuffers() {
         if (txBuffer.available() > 0) {
+            sentTxData();
             ackTx();
         }
         if (rxBuffer.canWrite(maxPacketLength)) {
