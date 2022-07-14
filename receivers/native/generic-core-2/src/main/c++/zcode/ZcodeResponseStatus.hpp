@@ -23,7 +23,7 @@ enum ZcodeResponseStatus {
     TOO_BIG = 8,
     BAD_ADDRESSING = 9,
     RETRY_REQEST = 0xa,
-    SETUP_ERROR = 0xf,
+    CMD_ERROR = 0xf,
     CMD_FAIL = 0x10,
 
 };

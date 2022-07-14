@@ -13,11 +13,21 @@ public:
     static constexpr char CMD_PARAM_I2C_ADDR_A = 'A';
     static constexpr char CMD_PARAM_TENBIT_ADDR_N = 'N';
     static constexpr char CMD_PARAM_RETRIES_T = 'T';
+    static constexpr char CMD_PARAM_CONT_ON_FAIL = 'C';
+
+    static constexpr char CMD_RESP_I2C_ADDR_A = 'A';
+    static constexpr char CMD_RESP_I2C_INFO_I = 'I';
+    static constexpr char CMD_RESP_I2C_ATTEMPTS_T = 'T';
+    static constexpr char CMD_RESP_I2C_INFO_VAL_OK = 0;
+    static constexpr char CMD_RESP_I2C_INFO_VAL_ADDRNACK = 2;
+    static constexpr char CMD_RESP_I2C_INFO_VAL_DATANACK = 3;
+    static constexpr char CMD_RESP_I2C_INFO_VAL_OTHER = 4;
 
     typedef struct {
         uint8_t port;
         uint8_t status;
         uint8_t attemptsLeft;
+        uint8_t initialRetries;
     } StoredI2cData;
 
     typedef typename ZP::LL LL;
@@ -49,37 +59,65 @@ public:
             }
 
             uint8_t retries = slot->getFields()->get(CMD_PARAM_RETRIES_T, 5);
+            if (retries > 255) {
+                slot.fail(BAD_PARAM, "Retries Too Large");
+                return;
+            }
             if (retries == 0) {
                 retries = 1;
             }
 
+            if (!I2cManager<LL>::getI2cById(port)->lock()) {
+                // TODO: actually, what's best here? Should sort-of fail, and be re-executed soon.
+                slot.fail(CMD_FAIL, "Port locked");
+                return;
+            }
+
             storedI2cData->port = port;
             storedI2cData->attemptsLeft = retries;
+            storedI2cData->initialRetries = retries;
+
+            slot.getOut()->writeField16(CMD_RESP_I2C_ADDR_A, address);
         } else {
-            // we've returned after callback. What happened, then?
-            switch ((I2cTerminationStatus) storedI2cData->status) {
-            case I2cTerminationStatus::Complete:
-                // TODO
-                break;
+            // subsequent pass, we've transmitted
+            bool failStatus = slot->getFields()->has(CMD_PARAM_CONT_ON_FAIL) ? OK : CMD_FAIL;
+
+            I2cTerminationStatus status = (I2cTerminationStatus) storedI2cData->status;
+
+            if (status == Complete) {
+                slot.getOut()->writeField8(CMD_RESP_I2C_INFO_I, CMD_RESP_I2C_INFO_VAL_OK);
+                slot.getOut()->writeStatus(OK);
+            } else if (status == DataNack) {
+                // abrupt failure during data send - don't retry, because its status is now unknown
+                slot.getOut()->writeField8(CMD_RESP_I2C_INFO_I, CMD_RESP_I2C_INFO_VAL_DATANACK);
+                slot.fail(failStatus, "DataNack");
+            } else if (storedI2cData->attemptsLeft-- > 0) {
+                // any other error, keep retrying
+                slot.unsetComplete();
+                // FIXME continue tomorrow!
+            } else if (status == AddressNack) {
+                slot.getOut()->writeField8(CMD_RESP_I2C_INFO_I, CMD_RESP_I2C_INFO_VAL_ADDRNACK);
+                slot.fail(failStatus, "AddressNack");
+            } else if (status == BusError || status == BusBusy) {
+                slot.getOut()->writeField8(CMD_RESP_I2C_INFO_I, CMD_RESP_I2C_INFO_VAL_OTHER);
+                slot.fail(CMD_FAIL, "I2C failure");
+            } else {
+                slot.getOut()->writeField8(CMD_RESP_I2C_INFO_I, CMD_RESP_I2C_INFO_VAL_OTHER);
+                slot.fail(CMD_ERROR, "Fatal I2C error");
             }
+
+            // FIXME: only if exiting!!
+            ((I2c<LL>*) *i2cStoredPointer)->unlock();
+            return;
         }
 
         I2c<LL> *i2cPort = I2cManager<LL>::getI2cById(storedI2cData->port);
-
-        if (storedI2cData->attemptsLeft > 1) {
-            // FIXME!!
-        }
-
         *i2cStoredPointer = i2cPort;
 
         ZcodeBigField<ZP> *bigField = slot.getBigField();
-        if (slot.isParallel()) {
-            i2cPort->asyncTransmit10(PeripheralOperationMode::DMA, address, tenBit, bigField->getData(), bigField->getLength(), asyncCallback);
-        } else {
-            i2cPort->transmit10(address, tenBit, bigField->getData(), bigField->getLength());
-        }
 
-        slot.getOut()->writeStatus(OK);
+        PeripheralOperationMode mode = slot.isParallel() ? PeripheralOperationMode::DMA : PeripheralOperationMode::SYNCHRONOUS;
+        i2cPort->asyncTransmit10(PeripheralOperationMode::DMA, address, tenBit, bigField->getData(), bigField->getLength(), asyncCallback);
     }
 
     static void asyncCallback(I2c<LL> *i2c, I2cTerminationStatus status) {

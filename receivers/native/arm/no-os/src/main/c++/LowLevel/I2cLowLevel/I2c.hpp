@@ -21,7 +21,15 @@ enum I2cFrequency {
 #include "specific/I2cInternal.hpp"
 
 enum I2cTerminationStatus {
-    Complete, AddressNack, DataNack, Address2Nack, BusError, BusJammed, BusBusy, MemoryError, OtherError
+    Complete,       // Successful completion - stopped when expected
+    AddressNack,    // No response to address - device missing or busy
+    DataNack,       // No response to a data byte - device stopped ack'ing. Probably bad.
+    Address2Nack,   // No response to second address in send+receive pair. Eg bus noise, or device reset?
+    BusError,       // Bus had a (bad) failure, eg jammed, or a STOP at wrong time, but recovered to usable state
+    BusJammed,      // Bus jammed and recovery failed. Probably very bad.
+    BusBusy,        // MultiMaster, so bus unavailable (MM not supported well at this time)
+    MemoryError,    // DMA error - probably indicates a bug! Might imply buffer error?
+    OtherError      // eg setup error, or unknown error - probably a bug.
 };
 
 template<class LL>
