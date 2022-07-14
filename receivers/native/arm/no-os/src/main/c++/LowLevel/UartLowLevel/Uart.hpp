@@ -57,82 +57,82 @@ public:
         this->requestTx = requestTx;
 
     }
-    virtual void init(void (*volatile bufferOverflowCallback)(SerialIdentifier), uint32_t baud_rate, bool singleNdoubleStop);
+    void init(void (*volatile bufferOverflowCallback)(SerialIdentifier), uint32_t baud_rate, bool singleNdoubleStop);
     //the buffer overflow handler can read/skip in the callback to clear space - if it doesn't clear enough space we abort the write
 
-    virtual void setTargetValue(void (*volatile targetValueCallback)(SerialIdentifier), uint8_t targetValue) {
+    void setTargetValue(void (*volatile targetValueCallback)(SerialIdentifier), uint8_t targetValue) {
         this->targetValueCallback = targetValueCallback;
         this->targetValue = targetValue;
     }
 
-    virtual void clearTargetValue() {
+    void clearTargetValue() {
         this->targetValueCallback = NULL;
     }
 
-    virtual SerialIdentifier getId() {
+    SerialIdentifier getId() {
         return uart.getId();
     }
 
-    virtual bool write(uint8_t datum) {
+    bool write(uint8_t datum) {
         return txBuffer.write(datum);
     }
 
-    virtual bool write(const uint8_t *buffer, uint16_t length) {
+    bool write(const uint8_t *buffer, uint16_t length) {
         return txBuffer.write(buffer, length);
     }
 
-    virtual bool canWrite(uint16_t length) {
+    bool canWrite(uint16_t length) {
         return txBuffer.canWrite(length);
     }
 
-    virtual bool attemptWrite(const uint8_t *buffer, uint16_t length) { //starts writing without allowing read yet - used to discover if a message will fit
+    bool attemptWrite(const uint8_t *buffer, uint16_t length) { //starts writing without allowing read yet - used to discover if a message will fit
         return txBuffer.attemptWrite(buffer, length);
     }
 
-    virtual bool attemptWrite(uint8_t datum) {
+    bool attemptWrite(uint8_t datum) {
         return txBuffer.attemptWrite(datum);
     }
 
-    virtual bool canAttemptWrite(uint16_t length) {
+    bool canAttemptWrite(uint16_t length) {
         return txBuffer.canAttemptWrite(length);
     }
 
-    virtual void cancelWrite() { //undoes an attempted write
+    void cancelWrite() { //undoes an attempted write
         txBuffer.cancelWrite();
     }
 
-    virtual void completeWrite() { //allows reading of any attempted write
+    void completeWrite() { //allows reading of any attempted write
         txBuffer.completeWrite();
     }
 
-    virtual void transmitWriteBuffer();
+    void transmitWriteBuffer();
 
-    virtual void clearRxFifo();
+    void clearRxFifo();
 
-    virtual SerialError getError(uint16_t length);
+    SerialError getError(uint16_t length);
 
-    virtual uint16_t skip(uint16_t length);
+    uint16_t skip(uint16_t length);
 
-    virtual uint16_t available() {
+    uint16_t available() {
         clearRxFifo();
         return availableData;
     }
 
-    virtual uint16_t read(uint8_t *buffer, uint16_t length);
+    uint16_t read(uint8_t *buffer, uint16_t length);
 
-    virtual int16_t read(); //-1 if no data
+    int16_t read(); //-1 if no data
 
-    virtual uint16_t availablePeek();
+    uint16_t availablePeek();
 
-    virtual uint16_t peek(uint8_t *buffer, uint16_t length);
+    uint16_t peek(uint8_t *buffer, uint16_t length);
 
-    virtual int16_t peek(); //-1 if no data
+    int16_t peek(); //-1 if no data
 
-    virtual void resetPeek();
+    void resetPeek();
 
-    virtual void skipToPeek();
+    void skipToPeek();
 
-    virtual int32_t getDistance(uint8_t value);  //returns the number of bytes until the specified value appears, including the value
+    int32_t getDistance(uint8_t value);  //returns the number of bytes until the specified value appears, including the value
 };
 #include "specific/Uartcpp.hpp"
 #endif /* SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_UART_HPP_ */

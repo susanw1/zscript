@@ -20,6 +20,39 @@ enum SerialError {
 
 //always does 8 bit bytes, no parity - just for simplicity
 class Serial {
+//    virtual void init(void (*volatile bufferOverflowCallback)(SerialIdentifier), uint32_t baud_rate, bool singleNdoubleStop) = 0;
+//    //the buffer overflow handler can read/skip in the callback to clear space - if it doesn't clear enough space we abort the write
+//
+//    virtual void setTargetValue(void (*volatile targetValueCallback)(SerialIdentifier), uint8_t targetValue) = 0;
+//    virtual void clearTargetValue() = 0;
+//    virtual SerialIdentifier getId() = 0;
+//    virtual bool write(uint8_t datum) = 0;
+
+//    virtual uint16_t getWriteLength() = 0;
+//
+//    virtual bool attemptWrite(uint8_t datum) = 0;
+//
+//    virtual bool canAttemptWrite(uint16_t length) = 0;
+//
+//    virtual void endWrite(bool complete) = 0;
+
+//    virtual void transmitWriteBuffer() = 0;
+//
+//    virtual SerialError getError(uint16_t length) = 0;
+//
+//    virtual uint16_t skip(uint16_t length) = 0;
+//    virtual uint16_t available() = 0;
+//    virtual int16_t read() = 0; //-1 if no data
+//
+//    virtual uint16_t availablePeek() = 0;
+//    virtual int16_t peek() = 0; //-1 if no data
+//
+//    virtual void endPeek(bool skipTo) = 0;
+//    virtual void resetPeek() = 0;
+//    virtual void skipToPeek() = 0;
+//
+//    virtual int32_t getDistance(uint8_t value) = 0;  //returns the number of bytes until the specified value appears, including the value
+
 public:
     virtual void init(void (*volatile bufferOverflowCallback)(SerialIdentifier), uint32_t baud_rate, bool singleNdoubleStop) = 0;
     //the buffer overflow handler can read/skip in the callback to clear space - if it doesn't clear enough space we abort the write

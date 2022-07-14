@@ -10,7 +10,7 @@
 
 #include <llIncludes.hpp>
 #include "Uart.hpp"
-//#include "../UsbSerialLowLevel/Usb.hpp"
+#include <UsbSerialLowLevel/Usb.hpp>
 
 class Serial;
 
@@ -18,10 +18,6 @@ template<class LL>
 class UartManager {
 private:
     static Uart<LL> uarts[LL::uartCount];
-
-#ifdef USE_USB_SERIAL
-    static Usb usb;
-    #endif
 
     static void interrupt(uint8_t id);
 
@@ -35,7 +31,7 @@ public:
 
 #ifdef USE_USB_SERIAL
         if (id == GeneralHalSetup::UsbSerialId) {
-            return &usb;
+            return &Usb<LL>::usb;
         }
 #endif
         return uarts + id;
