@@ -41,21 +41,23 @@ public:
 
     typedef GeneralHalSetup LL;
 
-    static const int fieldNum = 20;
+    static const uint16_t ethernetUdpChannelBigFieldSize = 128;
+    static const uint16_t serialChannelBigFieldSize = 128;
+    static const uint8_t fieldNum = 20;
 
     static const bool findInterruptSourceAddress = true;
-    static const int interruptStoreNum = 5;
-    static const int interruptVectorWorkingNum = 5;
-    static const int interruptVectorNum = 5;
+    static const uint8_t interruptStoreNum = 5;
+    static const uint8_t interruptVectorWorkingNum = 5;
+    static const uint8_t interruptVectorNum = 5;
     static const uint16_t scriptLength = 1024;
     static const uint16_t scriptBigSize = 16;
     static const uint8_t scriptChannelCount = 1;
 
     static const uint16_t parseIterationMax = 128;
 
-    static const int scriptOutBufferSize = 32;
-    static const int lockNum = 8;
-    static const int debugBufferLength = 256;
+    static const uint8_t scriptOutBufferSize = 32;
+    static const uint8_t lockNum = 8;
+    static const uint16_t debugBufferLength = 256;
 };
 
 //#define USE_I2C_STATIC_READ_BUFFERS

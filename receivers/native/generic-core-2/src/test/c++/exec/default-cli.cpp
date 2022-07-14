@@ -23,6 +23,7 @@ int main(void) {
 
     ZcodeModuleAddressRouter<TestParams> addrRouter;
     Zcode<TestParams> *zcode = &Zcode<TestParams>::zcode;
+    zcode->setAddressRouter(&addrRouter);
     ZcodeLocalChannel localChannel;
     ZcodeCommandChannel<TestParams> *channels[1] = { &localChannel };
     zcode->setChannels(channels, 1);

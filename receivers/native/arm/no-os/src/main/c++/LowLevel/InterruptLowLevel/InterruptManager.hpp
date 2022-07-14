@@ -245,10 +245,10 @@ public:
         case UsbInt:
             if (number == 0) {
                 NVIC_SetPriority(USB_LP_IRQn, priority);
-                NVIC_DisableIRQ(USB_LP_IRQn);
+                NVIC_EnableIRQ(USB_LP_IRQn);
             } else if (number == 1) {
                 NVIC_SetPriority(USB_HP_IRQn, priority);
-                NVIC_DisableIRQ(USB_HP_IRQn);
+                NVIC_EnableIRQ(USB_HP_IRQn);
             }
             break;
         case TIM6_:

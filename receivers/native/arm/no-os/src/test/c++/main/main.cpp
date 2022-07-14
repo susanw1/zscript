@@ -26,12 +26,14 @@
 #include "ZcodeParameters.hpp"
 
 #include <GeneralLLSetup.hpp>
+#include <modules/outer-core/ZcodeOuterCoreModule.hpp>
 #include <modules/core/ZcodeCoreModule.hpp>
 #include <addressing/ZcodeModuleAddressRouter.hpp>
 
 #include <modules/i2c/ZcodeI2cModule.hpp>
 
 #include <channels/Ethernet/EthernetUdpChannel.hpp>
+#include <channels/Serial/SerialChannel.hpp>
 
 #include <LowLevel/PersistenceLowLevel/FlashPage.hpp>
 
@@ -67,8 +69,8 @@ int main(void) {
     DmaManager<GeneralHalSetup>::init();
     GpioManager<GeneralHalSetup>::init();
     I2cManager<GeneralHalSetup>::init();
-    UartManager<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::init();
+    UartManager<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
 //    ZcodeFlashPersistence persist;
 //    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &source };
@@ -86,14 +88,19 @@ int main(void) {
 
     }
     AtoDManager<GeneralHalSetup>::init();
-    EthernetUdpChannel<ZcodeParameters> channel(4889);
-    ZcodeCommandChannel<ZcodeParameters> *chptr[1] = { &channel };
-    z->setChannels(chptr, 1);
-    ZcodeCoreModule<ZcodeParameters> core;
-//    ZcodeScriptModule<TestParams> script;
-    ZcodeModule<ZcodeParameters> *modules[1] = { &core /*, &script*/};
-    z->setModules(modules, 1);
+    SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
+    Usb<GeneralHalSetup>::usb.init(NULL, 0, false);
 
+    EthernetUdpChannel<ZcodeParameters> channel(4889);
+    SerialChannel<ZcodeParameters> serial(&Usb<GeneralHalSetup>::usb);
+    ZcodeCommandChannel<ZcodeParameters> *chptr[] = { &channel, &serial };
+    z->setChannels(chptr, 2);
+    ZcodeCoreModule<ZcodeParameters> core;
+    ZcodeOuterCoreModule<ZcodeParameters> outerCore;
+//    ZcodeScriptModule<TestParams> script;
+    ZcodeModule<ZcodeParameters> *modules[] = { &core, &outerCore /*, &script*/};
+    z->setModules(modules, 1);
+//
     I2c<GeneralHalSetup> *i2c1 = I2cManager<GeneralHalSetup>::getI2cById(0);
     GpioPin<GeneralHalSetup> *c4 = GpioManager<GeneralHalSetup>::getPin(PC_4);
     c4->init();

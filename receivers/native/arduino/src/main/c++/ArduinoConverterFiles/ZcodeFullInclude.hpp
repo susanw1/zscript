@@ -13,8 +13,8 @@
 #endif
 
 #include "ZcodeScriptModule.hpp"
-#include "ZcodeCoreModule.hpp"
 #include "ZcodeOuterCoreModule.hpp"
+#include "ZcodeCoreModule.hpp"
 
 #include "ZcodeModuleAddressRouter.hpp"
 

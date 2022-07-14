@@ -262,9 +262,9 @@ void Uart<LL>::skipToPeek() {
 template<class LL>
 void Uart<LL>::txOverflowInterrupt() {
     transmitWriteBuffer(); // in case somebody forgot, as that would do it...
-    uint16_t completedLength = txDma->fetchRemainingTransferLength();
-    txBuffer.skip(dmaStartDist - completedLength); // move along as much as the DMA has allowed in the time since we last did that
-    dmaStartDist -= completedLength;
+    uint16_t remainingLength = txDma->fetchRemainingTransferLength();
+    txBuffer.skip(dmaStartDist - remainingLength); // move along as much as the DMA has allowed in the time since we last did that
+    dmaStartDist -= remainingLength;
 }
 
 template<class LL>
