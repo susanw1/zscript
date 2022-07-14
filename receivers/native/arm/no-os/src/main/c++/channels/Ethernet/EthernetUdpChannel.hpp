@@ -19,7 +19,7 @@ template<class ZP>
 class EthernetUdpChannelInStream: public ZcodeChannelInStream<ZP> {
 private:
 
-    uint8_t big[128];
+    uint8_t big[ZP::ethernetUdpChannelBigFieldSize];
     uint8_t buffer = 0;
     bool usingBuffer = false;
     bool hasEndedPacket = false;
@@ -30,7 +30,7 @@ private:
 
 public:
     EthernetUdpChannelInStream(ZcodeCommandChannel<ZP> *channel, EthernetUDP *udp) :
-            ZcodeChannelInStream<ZP>(channel, big, 128), udp(udp), mostRecentIP(), mostRecentPort(0) {
+            ZcodeChannelInStream<ZP>(channel, big, ZP::ethernetUdpChannelBigFieldSize), udp(udp), mostRecentIP(), mostRecentPort(0) {
     }
     IPAddress getIp() {
         return mostRecentIP;
@@ -158,10 +158,10 @@ public:
     }
     void giveInfo(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
-        out->writeField16('B', 128);
+        out->writeField16('B', ZP::ethernetUdpChannelBigFieldSize);
         out->writeField16('F', ZP::fieldNum);
         out->writeField8('N', 0);
-        out->writeField8('M', 111);
+        out->writeField16('M', 0x111);
         out->writeBigStringField("UDP based channel");
         out->writeStatus(OK);
         //TODO: make this better
