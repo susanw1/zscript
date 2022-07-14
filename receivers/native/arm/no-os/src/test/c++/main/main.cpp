@@ -26,18 +26,19 @@
 #include "ZcodeParameters.hpp"
 
 #include <GeneralLLSetup.hpp>
-//#include <modules/core/ZcodeCoreModule.hpp>
-//#include <addressing/ZcodeModuleAddressRouter.hpp>
+#include <modules/outer-core/ZcodeOuterCoreModule.hpp>
+#include <modules/core/ZcodeCoreModule.hpp>
+#include <addressing/ZcodeModuleAddressRouter.hpp>
 
-//#include <modules/i2c/ZcodeI2cModule.hpp>
+#include <modules/i2c/ZcodeI2cModule.hpp>
 
-//#include <channels/Ethernet/EthernetUdpChannel.hpp>
-//#include <channels/Serial/SerialChannel.hpp>
+#include <channels/Ethernet/EthernetUdpChannel.hpp>
+#include <channels/Serial/SerialChannel.hpp>
 
-//#include <LowLevel/PersistenceLowLevel/FlashPage.hpp>
+#include <LowLevel/PersistenceLowLevel/FlashPage.hpp>
 
-//#include <LowLevel/AToDLowLevel/AtoD.hpp>
-//#include <LowLevel/AToDLowLevel/AtoDManager.hpp>
+#include <LowLevel/AToDLowLevel/AtoD.hpp>
+#include <LowLevel/AToDLowLevel/AtoDManager.hpp>
 
 #include <LowLevel/GpioLowLevel/GpioManager.hpp>
 #include <LowLevel/GpioLowLevel/Gpio.hpp>
@@ -46,17 +47,17 @@
 #include <LowLevel/ClocksLowLevel/ClockManager.hpp>
 #include <LowLevel/ClocksLowLevel/Clock.hpp>
 
-//#include <LowLevel/I2cLowLevel/I2cManager.hpp>
-//#include <LowLevel/I2cLowLevel/I2c.hpp>
+#include <LowLevel/I2cLowLevel/I2cManager.hpp>
+#include <LowLevel/I2cLowLevel/I2c.hpp>
 
 #include <LowLevel/UartLowLevel/UartManager.hpp>
 #include <LowLevel/UartLowLevel/Uart.hpp>
-//#include <LowLevel/ArduinoSpiLayer/src/Ethernet.h>
+#include <LowLevel/ArduinoSpiLayer/src/Ethernet.h>
 
 #include "stm32g4xx.h"
 #include "stm32g484xx.h"
 
-//#include <Zcode.hpp>
+#include <Zcode.hpp>
 
 int main(void) {
     ClockManager<GeneralHalSetup>::getClock(VCO)->set(240000, HSI);
@@ -65,65 +66,61 @@ int main(void) {
     ClockManager<GeneralHalSetup>::getClock(HCLK)->set(120000, SysClock);
     ClockManager<GeneralHalSetup>::getClock(PCLK_1)->set(60000, HCLK);
     ClockManager<GeneralHalSetup>::getClock(PCLK_2)->set(60000, HCLK);
-//    DmaManager<GeneralHalSetup>::init();
+    DmaManager<GeneralHalSetup>::init();
     GpioManager<GeneralHalSetup>::init();
-//    I2cManager < GeneralHalSetup > ::init();
+    I2cManager<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::init();
     UartManager<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
 //    ZcodeFlashPersistence persist;
 //    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &source };
-//    Zcode<ZcodeParameters> *z = &Zcode<ZcodeParameters>::zcode;
-//    uint8_t *mac;
-//    uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xaa };
+    Zcode<ZcodeParameters> *z = &Zcode<ZcodeParameters>::zcode;
+    uint8_t *mac;
+    uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xaa };
 //    if (persist.hasMac()) {
 //        z.getDebug() << "Has Mac" << endl;
 //        mac = persist.getMac();
 //    } else {
-//    z->getDebug() << "Has No Mac" << endl;
-//    mac = macHardCoded;
+    z->getDebug() << "Has No Mac" << endl;
+    mac = macHardCoded;
 //    }
-//    while (!Ethernet.begin(mac, 5000, 5000)) {
-//
-//    }
-//    AtoDManager<GeneralHalSetup>::init();
+    while (!Ethernet.begin(mac, 5000, 5000)) {
+
+    }
+    AtoDManager<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
     Usb<GeneralHalSetup>::usb.init(NULL, 0, false);
-    while (true) {
-        uint8_t tmp[100];
-        Usb<GeneralHalSetup>::usb.write(tmp, Usb<GeneralHalSetup>::usb.read(tmp, 100));
-        Usb<GeneralHalSetup>::usb.transmitWriteBuffer();
+
+    EthernetUdpChannel<ZcodeParameters> channel(4889);
+    SerialChannel<ZcodeParameters> serial(&Usb<GeneralHalSetup>::usb);
+    ZcodeCommandChannel<ZcodeParameters> *chptr[] = { &channel, &serial };
+    z->setChannels(chptr, 2);
+    ZcodeCoreModule<ZcodeParameters> core;
+    ZcodeOuterCoreModule<ZcodeParameters> outerCore;
+//    ZcodeScriptModule<TestParams> script;
+    ZcodeModule<ZcodeParameters> *modules[] = { &core, &outerCore /*, &script*/};
+    z->setModules(modules, 1);
+//
+    I2c<GeneralHalSetup> *i2c1 = I2cManager<GeneralHalSetup>::getI2cById(0);
+    GpioPin<GeneralHalSetup> *c4 = GpioManager<GeneralHalSetup>::getPin(PC_4);
+    c4->init();
+    c4->setOutputMode(PushPull);
+    c4->setPullMode(NoPull);
+    c4->setOutputSpeed(MediumSpeed);
+    c4->setMode(Output);
+    c4->set();
+    if (i2c1->lock()) {
+        uint8_t data1[2] = { 0x0A, 0x80 };
+        i2c1->transmit(0x20, data1, 2);
+
+        uint8_t data2[2] = { 0, 0 };
+        i2c1->transmit(0x20, data2, 2);
+
+        uint8_t data3[2] = { 0x16, 0xFF };
+        i2c1->transmit(0x20, data3, 2);
+        i2c1->unlock();
     }
-//    EthernetUdpChannel<ZcodeParameters> channel(4889);
-//    SerialChannel<ZcodeParameters> serial(&Usb<GeneralHalSetup>::usb);
-//    ZcodeCommandChannel<ZcodeParameters> *chptr[] = { &serial };
-//    z->setChannels(chptr, 1);
-//    ZcodeCoreModule<ZcodeParameters> core;
-////    ZcodeScriptModule<TestParams> script;
-//    ZcodeModule<ZcodeParameters> *modules[] = { &core /*, &script*/};
-//    z->setModules(modules, 1);
-//
-//    I2c<GeneralHalSetup> *i2c1 = I2cManager<GeneralHalSetup>::getI2cById(0);
-//    GpioPin<GeneralHalSetup> *c4 = GpioManager<GeneralHalSetup>::getPin(PC_4);
-//    c4->init();
-//    c4->setOutputMode(PushPull);
-//    c4->setPullMode(NoPull);
-//    c4->setOutputSpeed(MediumSpeed);
-//    c4->setMode(Output);
-//    c4->set();
-//    if (i2c1->lock()) {
-//        uint8_t data1[2] = { 0x0A, 0x80 };
-//        i2c1->transmit(0x20, data1, 2);
-//
-//        uint8_t data2[2] = { 0, 0 };
-//        i2c1->transmit(0x20, data2, 2);
-//
-//        uint8_t data3[2] = { 0x16, 0xFF };
-//        i2c1->transmit(0x20, data3, 2);
-//        i2c1->unlock();
-//    }
-//
-//    while (true) {
+    while (true) {
 //        AtoDManager::performAtoD(PA_9);
 //        AtoDManager::getAtoD(4)->performReading(2);
 //        uint16_t result = AtoDManager::getAtoD(4)->performReading(2);
@@ -154,13 +151,11 @@ int main(void) {
 //            }
 //            i2c1->asyncTransmit(0x20, data, 2, &doNothing);
 //        }
-
-//        z->progressZcode();
-//        Ethernet.maintain();
-
+        z->progressZcode();
+        Ethernet.maintain();
 //        uip.tick();
 //        uip.dhcpClient.checkLease();
-//}
+    }
 }
 //    wait_us(5000000);
 //    uint8_t mac[] = { 0x1E, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
