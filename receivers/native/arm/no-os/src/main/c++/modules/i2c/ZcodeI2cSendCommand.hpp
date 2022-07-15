@@ -47,6 +47,7 @@ public:
             return;
         }
 
+        ZcodeOutStream<ZP> *out = slot.getOut();
         if (*i2cStoredPointer == NULL) {
             // initial pass
             uint16_t port;
@@ -77,38 +78,43 @@ public:
             storedI2cData->attemptsLeft = retries;
             storedI2cData->initialRetries = retries;
 
-            slot.getOut()->writeField16(CMD_RESP_I2C_ADDR_A, address);
+            out->writeField16(CMD_RESP_I2C_ADDR_A, address);
         } else {
             // subsequent pass, we've transmitted
             bool failStatus = slot->getFields()->has(CMD_PARAM_CONT_ON_FAIL) ? OK : CMD_FAIL;
 
             I2cTerminationStatus status = (I2cTerminationStatus) storedI2cData->status;
+            bool terminating = true;
+            uint8_t infoValue;
 
             if (status == Complete) {
-                slot.getOut()->writeField8(CMD_RESP_I2C_INFO_I, CMD_RESP_I2C_INFO_VAL_OK);
-                slot.getOut()->writeStatus(OK);
+                infoValue = CMD_RESP_I2C_INFO_VAL_OK;
+                out->writeStatus(OK);
             } else if (status == DataNack) {
                 // abrupt failure during data send - don't retry, because its status is now unknown
-                slot.getOut()->writeField8(CMD_RESP_I2C_INFO_I, CMD_RESP_I2C_INFO_VAL_DATANACK);
+                infoValue = CMD_RESP_I2C_INFO_VAL_DATANACK;
                 slot.fail(failStatus, "DataNack");
-            } else if (storedI2cData->attemptsLeft-- > 0) {
-                // any other error, keep retrying
-                slot.unsetComplete();
-                // FIXME continue tomorrow!
-            } else if (status == AddressNack) {
-                slot.getOut()->writeField8(CMD_RESP_I2C_INFO_I, CMD_RESP_I2C_INFO_VAL_ADDRNACK);
-                slot.fail(failStatus, "AddressNack");
-            } else if (status == BusError || status == BusBusy) {
-                slot.getOut()->writeField8(CMD_RESP_I2C_INFO_I, CMD_RESP_I2C_INFO_VAL_OTHER);
-                slot.fail(CMD_FAIL, "I2C failure");
-            } else {
-                slot.getOut()->writeField8(CMD_RESP_I2C_INFO_I, CMD_RESP_I2C_INFO_VAL_OTHER);
+            } else if (status == BusJammed || status == MemoryError || status == OtherError) {
+                // these are probably fatal, and should not be retried.
+                infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
                 slot.fail(CMD_ERROR, "Fatal I2C error");
+            } else if (storedI2cData->attemptsLeft-- > 0) {
+                // any other error, keep retrying. Beyond this, we must be at the end of all retries.
+                slot.unsetComplete();
+                terminating = false;
+            } else if (status == AddressNack) {
+                infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
+                slot.fail(failStatus, "AddressNack");
+            } else {
+                infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
+                slot.fail(CMD_FAIL, "I2C failure");
             }
 
-            // FIXME: only if exiting!!
-            ((I2c<LL>*) *i2cStoredPointer)->unlock();
-            return;
+            if (terminating) {
+                out->writeField8(CMD_RESP_I2C_INFO_I, infoValue);
+                ((I2c<LL>*) *i2cStoredPointer)->unlock();
+                return;
+            }
         }
 
         I2c<LL> *i2cPort = I2cManager<LL>::getI2cById(storedI2cData->port);
