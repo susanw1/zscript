@@ -53,11 +53,14 @@
 #include <LowLevel/UartLowLevel/UartManager.hpp>
 #include <LowLevel/UartLowLevel/Uart.hpp>
 #include <LowLevel/ArduinoSpiLayer/src/Ethernet.h>
+#include <UsbCPowerDelivery/Ucpd.hpp>
 
 #include "stm32g4xx.h"
 #include "stm32g484xx.h"
 
 #include <Zcode.hpp>
+
+const char *GeneralHalSetup::ucpdManufacturerInfo = "Zcode/Alpha Board";
 
 int main(void) {
     ClockManager<GeneralHalSetup>::getClock(VCO)->set(240000, HSI);
@@ -72,6 +75,8 @@ int main(void) {
     SystemMilliClock<GeneralHalSetup>::init();
     UartManager<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
+    uint32_t notSoPermanentStore = 0;
+    Ucpd<GeneralHalSetup>::init(&notSoPermanentStore, 150, 5 * 20, 5 * 20);
 //    ZcodeFlashPersistence persist;
 //    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &source };
     Zcode<ZcodeParameters> *z = &Zcode<ZcodeParameters>::zcode;

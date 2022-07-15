@@ -11,7 +11,7 @@
 #include <llIncludes.hpp>
 
 enum InterruptType {
-    DmaInt, I2cEv, I2cEr, UartInt, UsbInt, TIM6_, NUMBER_OF_INTERRUPT_TYPES
+    DmaInt, I2cEv, I2cEr, UartInt, UsbInt, TIM6_, UcpdInt, NUMBER_OF_INTERRUPT_TYPES
 };
 
 extern "C" {
@@ -56,6 +56,8 @@ void USB_LP_IRQHandler();
 void USB_HP_IRQHandler();
 
 void TIM6_DAC_IRQHandler();
+
+void UCPD1_IRQHandler();
 }
 
 class InterruptManager {
@@ -101,6 +103,8 @@ private:
     friend void USB_HP_IRQHandler();
 
     friend void TIM6_DAC_IRQHandler();
+
+    friend void UCPD1_IRQHandler();
 
     static void (*interrupt[NUMBER_OF_INTERRUPT_TYPES])(uint8_t);
 
@@ -254,6 +258,10 @@ public:
         case TIM6_:
             NVIC_SetPriority(TIM6_DAC_IRQn, priority);
             NVIC_EnableIRQ(TIM6_DAC_IRQn);
+            break;
+        case UcpdInt:
+            NVIC_SetPriority(UCPD1_IRQn, priority);
+            NVIC_EnableIRQ(UCPD1_IRQn);
             break;
         default:
             break;

@@ -54,6 +54,26 @@
 
 class GeneralHalSetup {
 public:
+    static const int ucpdRxBufferSize = 1024;
+    static const int ucpdTxBufferSize = 256;
+    static const uint32_t ucpdTxSOP = 0b10001110001100011000; // 3*Sync-1, Sync-2 = SOP
+
+    static const DmaIdentifier ucpdRxDma = 4;
+    static const DmaIdentifier ucpdTxDma = 5;
+
+    static const uint16_t ucpdVID = 0;
+    static const uint16_t ucpdPID = 0;
+    static const uint32_t ucpdXID = 0;
+
+    static const uint8_t ucpdFirmwareRevisionNum = 0;
+    static const uint8_t ucpdHardwareRevisionNum = 0;
+
+    static const uint8_t ucpdMinPower = 0;
+    static const uint8_t ucpdOperationalPower = 0;
+    static const uint8_t ucpdMaxPower = 0;
+
+    static const char *ucpdManufacturerInfo;
+
     static const uint8_t pinCount = 52;
 
     static const uint8_t systemClockCount = 13;
