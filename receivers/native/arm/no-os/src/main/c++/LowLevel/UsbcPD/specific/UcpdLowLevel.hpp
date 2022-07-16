@@ -116,7 +116,7 @@ public:
         UCPD1->CFG1 = 0x60900000 | (0x00 << 17) | (0x09 << 11) | (0x0E << 6) | (0x1A); //Set recommended clock settings, do not enable yet
         UCPD1->CFG1 |= 0x80000000; // enable
         UCPD1->IMR = 0x1C2E; // enable RX complete, rx hard reset, tx complete/aborted/discarded
-        UCPD1->CR = 0x0C00; // use 0x0E00 to do pd, and 0x0C00 if external resistors present
+        UCPD1->CR = 0x0E00; // use 0x0E00 to do pd
         SystemMilliClock<LL>::blockDelayMillis(10);
         PWR->CR2 |= 0x4000; // disable dead-battery pull downs - hope the peripheral is running, or we lose power now!
         cableOrientationDetect();
