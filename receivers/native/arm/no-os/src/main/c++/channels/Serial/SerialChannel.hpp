@@ -64,7 +64,10 @@ public:
     }
 
     void close() {
-        serial->transmitWriteBuffer();
+        if (openB) {
+            serial->transmitWriteBuffer();
+        }
+        openB = false;
     }
 
     void writeByte(uint8_t value) {

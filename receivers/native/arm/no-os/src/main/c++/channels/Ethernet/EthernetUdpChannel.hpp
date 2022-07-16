@@ -177,17 +177,19 @@ public:
 
 template<class ZP>
 void EthernetUdpOutStream<ZP>::open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType t) {
-    EthernetUdpChannel<ZP> *channel = (EthernetUdpChannel<ZP>*) target;
-    EthernetUdpChannelInStream<ZP> *in = (EthernetUdpChannelInStream<ZP>*) target->in;
-    if (t == RESPONSE) {
-        openB = true;
-        udp->beginPacket(in->getIp(), in->getPort());
-    } else if (t == NOTIFICATION && channel->getNotificationPort() != 0) {
-        openB = true;
-        udp->beginPacket(channel->getNotificationIp(), channel->getNotificationPort());
-    } else if (t == DEBUG && channel->getDebugPort() != 0) {
-        openB = true;
-        udp->beginPacket(channel->getDebugIp(), channel->getDebugPort());
+    if (!openB) {
+        EthernetUdpChannel<ZP> *channel = (EthernetUdpChannel<ZP>*) target;
+        EthernetUdpChannelInStream<ZP> *in = (EthernetUdpChannelInStream<ZP>*) target->in;
+        if (t == RESPONSE) {
+            openB = true;
+            udp->beginPacket(in->getIp(), in->getPort());
+        } else if (t == NOTIFICATION && channel->getNotificationPort() != 0) {
+            openB = true;
+            udp->beginPacket(channel->getNotificationIp(), channel->getNotificationPort());
+        } else if (t == DEBUG && channel->getDebugPort() != 0) {
+            openB = true;
+            udp->beginPacket(channel->getDebugIp(), channel->getDebugPort());
+        }
     }
 }
 #endif /* SRC_MAIN_C___CHANNELS_ETHERNET_ETHERNETUDPCHANNEL_HPP_ */

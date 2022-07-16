@@ -119,14 +119,7 @@ public:
         return commandSlot->runStatus.isFirstCommand;
     }
     void startSequence() {
-        if (out->isOpen() && out->mostRecent != this) {
-            out->close();
-        }
-
-        out->mostRecent = this;
-        if (!out->isOpen()) {
-            out->openResponse(commandSlot->channel);
-        }
+        out->openResponse(commandSlot->channel);
         if (commandSlot->runStatus.isBroadcast) {
             out->markBroadcast();
         }
@@ -138,7 +131,7 @@ public:
                 writeTerminator(EOL_SYMBOL);
             }
             unlock();
-            if (out->isOpen() && out->mostRecent == this && (!commandSlot->channel->packetBased || !commandSlot->runStatus.hasData)) {
+            if (!commandSlot->channel->packetBased || !commandSlot->runStatus.hasData) {
                 //tries to put multiple responses into the same packet
                 out->close();
             }

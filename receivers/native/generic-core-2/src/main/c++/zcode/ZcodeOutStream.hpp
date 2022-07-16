@@ -35,6 +35,7 @@ protected:
     bool lockVal = false;
 
 public:
+    // only used by ZcodeInterruptVectorOut
     void *mostRecent = NULL;
 
     ZcodeOutStream(uint8_t *readBuffer, uint16_t bufferLength) :
@@ -47,6 +48,7 @@ public:
 
     virtual bool isOpen() = 0;
 
+    // Is defined to do nothing if not open
     virtual void close() = 0;
 
     uint16_t getReadBufferLength() {
@@ -55,17 +57,37 @@ public:
     uint8_t* getReadBuffer() {
         return readBuffer;
     }
-
+    // We do close then open in order to force the channel to finish whatever packet it is preparing and send it, so as to separate different kinds of data, and to force re-addressingF
     void openResponse(ZcodeCommandChannel<ZP> *target) {
-        open(target, RESPONSE);
+        if (isOpen()) {
+            if (target == NULL || target != mostRecent || !target->packetBased) {
+                close();
+                open(target, RESPONSE);
+            }
+        } else {
+            open(target, RESPONSE);
+        }
+        mostRecent = target;
     }
 
     void openNotification(ZcodeCommandChannel<ZP> *target) {
+        if (isOpen()) {
+            close();
+        }
         open(target, NOTIFICATION);
+        mostRecent = NULL;
     }
 
-    void openDebug(ZcodeCommandChannel<ZP> *target) {
-        open(target, DEBUG);
+    void openDebug(ZcodeDebugOutput<ZP> *output, ZcodeCommandChannel<ZP> *target) {
+        if (isOpen()) {
+            if (mostRecent != output || !target->packetBased) {
+                close();
+                open(target, DEBUG);
+            }
+        } else {
+            open(target, DEBUG);
+        }
+        mostRecent = output;
     }
 
     virtual bool lock() {

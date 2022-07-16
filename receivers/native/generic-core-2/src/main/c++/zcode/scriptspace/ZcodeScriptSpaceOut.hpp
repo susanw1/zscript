@@ -74,7 +74,7 @@ public:
 
     void open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType type) {
         (void) (target);
-        if (type == ZcodeOutStreamOpenType::RESPONSE) {
+        if (outStatus.currentlyOpen && type == ZcodeOutStreamOpenType::RESPONSE) {
             outStatus.currentlyOpen = true;
             length = 0;
             outStatus.overLength = false;
@@ -86,9 +86,11 @@ public:
     }
 
     void close() {
-        outStatus.currentlyOpen = false;
-        if (status != OK) {
-            flush();
+        if (outStatus.currentlyOpen) {
+            outStatus.currentlyOpen = false;
+            if (status != OK) {
+                flush();
+            }
         }
     }
 
@@ -112,11 +114,7 @@ bool ZcodeScriptSpaceOut<ZP>::flush() {
     } else if (!space->getNotificationChannel()->out->isLocked()) {
         ZcodeOutStream<ZP> *out = space->getNotificationChannel()->out;
         out->lock();
-        if (out->isOpen()) {
-            out->close();
-        }
         out->openNotification(space->getNotificationChannel());
-        out->mostRecent = space;
         out->markNotification();
         out->writeField8(Zchars::NOTIFY_TYPE_PARAM, (uint8_t) 2);
         if (outStatus.overLength) {

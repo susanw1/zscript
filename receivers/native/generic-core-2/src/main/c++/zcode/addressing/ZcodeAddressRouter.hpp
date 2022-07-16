@@ -58,11 +58,7 @@ public:
     void response(ZcodeBusInterrupt<ZP> interrupt) {
         ZcodeOutStream<ZP> *out = Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel()->out;
         out->lock();
-        if (out->isOpen()) {
-            out->close();
-        }
         out->openNotification(Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel());
-        out->mostRecent = this;
         out->markAddressing();
         routeResponce(out, interrupt);
         out->writeCommandSequenceSeparator();

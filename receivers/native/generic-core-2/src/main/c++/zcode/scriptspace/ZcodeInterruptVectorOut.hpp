@@ -24,6 +24,7 @@ private:
 
     uint8_t readBuffer[ZP::interruptVectorOutReadBufferSize];
     ZcodeOutStream<ZP> *out = NULL;
+    bool openB = false;
 
 public:
     ZcodeInterruptVectorOut() :
@@ -38,12 +39,15 @@ public:
 
     void open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType type);
 
+    //FIXME: remove reliance on access to mostRecent
     bool isOpen() {
         return Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel() == NULL || (out != NULL && out->isOpen() && out->mostRecent == this);
     }
 
     void close() {
-        out->close();
+        if (out != NULL && out->mostRecent == this) {
+            out->close();
+        }
     }
 
     bool lock();
@@ -55,15 +59,11 @@ public:
 
 template<class ZP>
 void ZcodeInterruptVectorOut<ZP>::open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType type) {
-    if (type == RESPONSE) {
+    if (!out->isOpen() && type == RESPONSE) {
         if (Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel() == NULL) {
             return;
         }
         ZcodeInterruptVectorChannel<ZP> *channel = (ZcodeInterruptVectorChannel<ZP>*) target;
-        if (out->isOpen()) {
-            out->close();
-        }
-        out->mostRecent = this;
         out->openNotification(Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel());
         out->markNotification();
         out->writeField8(Zchars::NOTIFY_TYPE_PARAM, 1);

@@ -191,17 +191,7 @@ template<class ZP>
 void ZcodeDebugOutput<ZP>::println(const char *s, debugOutputBufferLength_t length) {
     if (channel != NULL && channel->out->lock()) {
         ZcodeOutStream<ZP> *stream = channel->out;
-        if (stream->mostRecent == this) {
-            if (!stream->isOpen()) {
-                stream->openDebug(channel);
-            }
-        } else {
-            stream->mostRecent = this;
-            if (stream->isOpen()) {
-                stream->close();
-            }
-            stream->openDebug(channel);
-        }
+        stream->openDebug(this, channel);
         if (position != 0) {
             flushBuffer(stream);
         }
@@ -230,17 +220,7 @@ template<class ZP>
 void ZcodeDebugOutput<ZP>::attemptFlush() {
     if (position != 0 && channel != NULL && channel->out->lock()) {
         ZcodeOutStream<ZP> *stream = channel->out;
-        if (stream->mostRecent == this) {
-            if (!stream->isOpen()) {
-                stream->openDebug(channel);
-            }
-        } else {
-            stream->mostRecent = this;
-            if (stream->isOpen()) {
-                stream->close();
-            }
-            stream->openDebug(channel);
-        }
+        stream->openDebug(this, channel);
         flushBuffer(stream);
         stream->close();
         stream->unlock();

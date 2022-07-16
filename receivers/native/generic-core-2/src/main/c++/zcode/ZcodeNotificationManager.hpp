@@ -102,10 +102,6 @@ void ZcodeNotificationManager<ZP>::sendNotification(ZcodeBusInterrupt<ZP> interr
 #endif
     ZcodeOutStream<ZP> *out = notificationChannel->out;
     out->lock();
-    if (out->isOpen()) {
-        out->close();
-        out->mostRecent = interrupt.getSource();
-    }
     out->openNotification(notificationChannel);
     out->markNotification();
     out->writeField8(Zchars::NOTIFY_TYPE_PARAM, 1);
