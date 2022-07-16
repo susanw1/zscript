@@ -68,6 +68,7 @@ public:
 class ZcodeTestOutStream: public ZcodeOutStream<TestParams> {
 private:
     bool openB = false;
+    uint8_t readBuffer[128];
 
 public:
     uint8_t *received;
@@ -76,7 +77,8 @@ public:
     bool lengthExceeded = false;
 
     ZcodeTestOutStream(uint8_t *received, uint16_t outLength) :
-            received(received), outLength(outLength) {
+            ZcodeOutStream<TestParams>(readBuffer, 128),
+                    received(received), outLength(outLength) {
     }
     virtual ~ZcodeTestOutStream() {
     }

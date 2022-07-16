@@ -46,6 +46,8 @@ public:
     static const uint16_t parseIterationMax = 128;
 
     static const int scriptOutBufferSize = 32;
+    static const uint16_t scriptOutReadBufferSize = 16;
+    static const uint16_t interruptVectorOutReadBufferSize = 32;
     static const int lockNum = 8;
     static const int debugBufferLength = 256;
 };

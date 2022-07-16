@@ -43,6 +43,9 @@ public:
 
     static const uint16_t ethernetUdpChannelBigFieldSize = 128;
     static const uint16_t serialChannelBigFieldSize = 128;
+    static const uint16_t ethernetUdpChannelReadBufferSize = 64;
+    static const uint16_t serialChannelReadBufferSize = 64;
+
     static const uint8_t fieldNum = 20;
 
     static const bool findInterruptSourceAddress = true;
@@ -56,18 +59,10 @@ public:
     static const uint16_t parseIterationMax = 128;
 
     static const uint8_t scriptOutBufferSize = 32;
+    static const uint16_t scriptOutReadBufferSize = 16;
+    static const uint16_t interruptVectorOutReadBufferSize = 32;
     static const uint8_t lockNum = 8;
     static const uint16_t debugBufferLength = 256;
-};
-
-//#define USE_I2C_STATIC_READ_BUFFERS
-
-class ZcodePeripheralParameters {
-public:
-    static const int i2cReadMaximum = 1024; //if USE_I2C_STATIC_READ_BUFFERS defined, 4 arrays of this length are created - very memory expensive
-    static const int i2cBusesPerPhyBus = 2;
-
-    static const int pinNumber = 3;
 };
 
 #endif /* SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_ */

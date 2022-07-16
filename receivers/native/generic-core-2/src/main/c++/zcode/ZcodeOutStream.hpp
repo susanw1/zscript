@@ -27,12 +27,19 @@ private:
     }
 protected:
 
-    uint16_t recentStatus;
-    uint8_t recentBreak;
+    uint8_t *readBuffer;
+    uint16_t bufferLength;
+
+    uint16_t recentStatus = OK;
+    uint8_t recentBreak = 0;
     bool lockVal = false;
 
 public:
-    void *mostRecent;
+    void *mostRecent = NULL;
+
+    ZcodeOutStream(uint8_t *readBuffer, uint16_t bufferLength) :
+            readBuffer(readBuffer), bufferLength(bufferLength) {
+    }
 
     virtual void writeByte(uint8_t value) = 0;
 
@@ -41,6 +48,13 @@ public:
     virtual bool isOpen() = 0;
 
     virtual void close() = 0;
+
+    uint16_t getReadBufferLength() {
+        return bufferLength;
+    }
+    uint8_t* getReadBuffer() {
+        return readBuffer;
+    }
 
     void openResponse(ZcodeCommandChannel<ZP> *target) {
         open(target, RESPONSE);

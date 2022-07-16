@@ -48,10 +48,11 @@ class SerialOutStream: public ZcodeOutStream<ZP> {
 private:
     bool openB = false;
     Serial *serial;
+    uint8_t readBuffer[ZP::serialChannelReadBufferSize];
 
 public:
     SerialOutStream(Serial *serial) :
-            serial(serial) {
+            ZcodeOutStream<ZP>(readBuffer, ZP::serialChannelReadBufferSize), serial(serial) {
     }
 
     void open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType t) {

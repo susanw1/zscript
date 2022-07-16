@@ -85,10 +85,11 @@ class EthernetUdpOutStream: public ZcodeOutStream<ZP> {
 private:
     bool openB = false;
     EthernetUDP *udp;
+    uint8_t readBuffer[ZP::ethernetUdpChannelReadBufferSize];
 
 public:
     EthernetUdpOutStream(EthernetUDP *udp) :
-            udp(udp) {
+            ZcodeOutStream<ZP>(readBuffer, ZP::ethernetUdpChannelReadBufferSize), udp(udp) {
     }
 
     void open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType t);

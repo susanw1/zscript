@@ -35,6 +35,8 @@ private:
     typedef typename ZP::scriptSpaceAddress_t scriptSpaceAddress_t;
     ZcodeScriptSpace<ZP> *space;
     uint8_t buffer[ZP::scriptOutBufferSize];
+    uint8_t readBuffer[ZP::scriptOutReadBufferSize];
+
     scriptSpaceAddress_t length = 0;
     scriptSpaceAddress_t lastEndPos = 0;
     ZcodeScriptSpaceOutStatus outStatus;
@@ -42,7 +44,7 @@ private:
 
 public:
     ZcodeScriptSpaceOut(ZcodeScriptSpace<ZP> *space) :
-            space(space) {
+            ZcodeOutStream<ZP>(readBuffer, ZP::scriptOutReadBufferSize), space(space) {
         outStatus.reset();
     }
 

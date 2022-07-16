@@ -69,8 +69,12 @@ public:
 class ZcodeLocalOutStream: public ZcodeOutStream<TestParams> {
 private:
     bool openB = false;
+    uint8_t readBuffer[128];
 
 public:
+    ZcodeLocalOutStream() :
+            ZcodeOutStream<TestParams>(readBuffer, 128) {
+    }
     virtual ~ZcodeLocalOutStream() {
     }
 

@@ -22,10 +22,12 @@ class ZcodeInterruptVectorOut: public ZcodeOutStream<ZP> {
 private:
     typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
 
+    uint8_t readBuffer[ZP::interruptVectorOutReadBufferSize];
     ZcodeOutStream<ZP> *out = NULL;
 
 public:
-    ZcodeInterruptVectorOut() {
+    ZcodeInterruptVectorOut() :
+            ZcodeOutStream<ZP>(readBuffer, ZP::interruptVectorOutReadBufferSize) {
     }
 
     void writeByte(uint8_t value) {

@@ -58,10 +58,9 @@
                             <include>**/*.c</include>
                         </includes>
                         <excludes>
-                            <exclude>channels/Serial/**</exclude>
                             <exclude>channels/Uip/**</exclude>
+                            <exclude>channels/Serial/**</exclude>
                             <exclude>old-commands/**</exclude>
-                            <exclude>LowLevel/UsbSerialLowLevel/**</exclude>
                             <exclude>ld/**</exclude>
                             <exclude>openocd/**</exclude>
                         </excludes>
