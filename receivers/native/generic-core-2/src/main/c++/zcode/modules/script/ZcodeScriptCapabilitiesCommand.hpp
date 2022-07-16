@@ -11,6 +11,8 @@
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeCommand.hpp"
 
+#define COMMAND_VALUE_0020 MODULE_CAPABILITIES_UTIL
+
 template<class ZP>
 class ZcodeOutStream;
 template<class ZP>
@@ -37,6 +39,7 @@ public:
         out->writeField8('G', (uint8_t) space->isRunning());
         out->writeField16('L', space->getLength());
         out->writeField32('M', ZP::scriptLength);
+        out->writeField16('C', MODULE_CAPABILITIES(001));
         out->writeStatus(OK);
 
     }

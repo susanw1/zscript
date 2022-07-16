@@ -11,6 +11,7 @@
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeCommand.hpp"
 
+#define COMMAND_VALUE_0028 MODULE_CAPABILITIES_UTIL
 template<class ZP>
 class ZcodeOutStream;
 template<class ZP>
@@ -22,7 +23,7 @@ class Zcode;
 template<class ZP>
 class ZcodeInterruptSetupCommand: public ZcodeCommand<ZP> {
 private:
-    static const uint8_t CODE = 0x00;
+    static const uint8_t CODE = 0x08;
 
 public:
 
