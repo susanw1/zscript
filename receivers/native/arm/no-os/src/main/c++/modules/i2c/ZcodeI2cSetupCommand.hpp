@@ -1,12 +1,5 @@
-/*
- * ZcodeCapabilitiesCommand.hpp
- *
- *  Created on: 9 Sep 2020
- *      Author: robert
- */
-
-#ifndef SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEI2CSETUPCOMMAND_HPP_
-#define SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEI2CSETUPCOMMAND_HPP_
+#ifndef SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CSETUPCOMMAND_HPP_
+#define SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CSETUPCOMMAND_HPP_
 
 #include <modules/ZcodeCommand.hpp>
 #include "../../LowLevel/I2cLowLevel/I2cManager.hpp"
@@ -67,4 +60,4 @@ public:
     }
 };
 
-#endif /* SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEI2CSETUPCOMMAND_HPP_ */
+#endif /* SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CSETUPCOMMAND_HPP_ */
