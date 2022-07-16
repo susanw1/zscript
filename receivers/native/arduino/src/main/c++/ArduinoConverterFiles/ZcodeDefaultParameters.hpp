@@ -52,10 +52,13 @@ public:
     static const uint16_t parseIterationMax = 128;
 
     static const int scriptOutBufferSize = 32;
+    static const uint16_t scriptOutReadBufferSize = 16;
+    static const uint16_t interruptVectorOutReadBufferSize = 32;
     static const int lockNum = 8;
     static const int debugBufferLength = 32;
 
     static const uint16_t serialBigSize = 32;
+    static const uint16_t serialChannelReadBufferSize = 8;
 };
 
 #endif /* ARDUINO_SRC_MAIN_CPP_DEFAULT_TEST_PARAMETERS_HPP_ */

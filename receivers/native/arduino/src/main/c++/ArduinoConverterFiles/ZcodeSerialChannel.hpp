@@ -53,8 +53,11 @@ public:
 class ZcodeSerialOutStream: public ZcodeOutStream<ZcodeParams> {
 private:
     bool openB = false;
-
+    uint8_t readBuffer[ZcodeParams::serialChannelReadBufferSize];
 public:
+    ZcodeSerialOutStream() :
+            ZcodeOutStream<ZcodeParams>(readBuffer, ZcodeParams::serialChannelReadBufferSize) {
+    }
 
     void open(ZcodeCommandChannel<ZcodeParams> *target, ZcodeOutStreamOpenType t) {
       (void) target;
