@@ -29,12 +29,23 @@ struct UcpdCapCompliance {
     bool LPSCompliant :1;
     bool PS1Compliant :1;
     bool PS2Compliant :1;
+    uint8_t getField() {
+        return (LPSCompliant ? 0x1 : 0)
+                | (PS1Compliant ? 0x2 : 0)
+                | (PS2Compliant ? 0x4 : 0);
+    }
 };
 
 struct UcpdCapTouchCurrent {
     bool lowTouchCurrentEPS :1;
     bool groundPinSupported :1;
     bool groundPinIntendedForEarth :1;
+
+    uint8_t getField() {
+        return (lowTouchCurrentEPS ? 0x1 : 0)
+                | (groundPinSupported ? 0x2 : 0)
+                | (groundPinIntendedForEarth ? 0x4 : 0);
+    }
 };
 
 struct UcpdCapPeekCurrent {
@@ -42,6 +53,15 @@ struct UcpdCapPeekCurrent {
     uint8_t overloadPeriod :6; // 20ms units
     uint8_t dutyCycle :4; // 5% increments
     bool vBusVoltageDroop :1;
+
+    uint16_t getField() {
+        uint16_t peak = 0;
+        peak |= overloadCurrent;
+        peak |= overloadPeriod << 5;
+        peak |= dutyCycle << 11;
+        peak |= vBusVoltageDroop ? 0x8000 : 0;
+        return peak;
+    }
 };
 
 struct UcpdCapSourceInputs {

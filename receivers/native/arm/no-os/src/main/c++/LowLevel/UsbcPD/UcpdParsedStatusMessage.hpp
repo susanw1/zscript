@@ -15,6 +15,10 @@ struct UcpdStatusPresentInput {
     bool externalAc :1;
     bool internalBatteryPower :1;
     bool internalOtherPower :1;
+
+    uint8_t getField() const {
+        return (externalAc ? 0x1 : 0) | (externalPower ? 0x2 : 0) | (internalBatteryPower ? 0x4 : 0) | (internalOtherPower ? 0x8 : 0);
+    }
 };
 struct UcpdStatusCurrentBatterySource {
     bool fixedBattery1 :1;
@@ -25,6 +29,13 @@ struct UcpdStatusCurrentBatterySource {
     bool hotswappableBattery2 :1;
     bool hotswappableBattery3 :1;
     bool hotswappableBattery4 :1;
+
+    uint8_t getField() const {
+        return (fixedBattery1 ? 0x1 : 0) | (fixedBattery2 ? 0x2 : 0) |
+                (fixedBattery3 ? 0x4 : 0) | (fixedBattery4 ? 0x8 : 0) |
+                (hotswappableBattery1 ? 0x10 : 0) | (hotswappableBattery2 ? 0x20 : 0) |
+                (hotswappableBattery3 ? 0x40 : 0) | (hotswappableBattery4 ? 0x80 : 0);
+    }
 };
 
 struct UcpdStatusEventFlags {
@@ -32,6 +43,11 @@ struct UcpdStatusEventFlags {
     bool OTP :1;
     bool OVP :1;
     bool CF :1; // CF/notCV
+
+    uint8_t getField() const {
+        return (OCP ? 0x1 : 0) | (OVP ? 0x2 : 0) |
+                (OTP ? 0x4 : 0) | (CF ? 0x8 : 0);
+    }
 };
 enum UcpdStatusTemperatureStatus {
     UcpdStatusTempNotSupported = 0,
@@ -45,6 +61,11 @@ struct UcpdStatusPowerStatus {
     bool limitedByExternalPower :1;
     bool limitedByEvents :1;
     bool limitedByTemperatue :1;
+
+    uint8_t getField() const {
+        return (limitedByCable ? 0x1 : 0) | (limitedByOtherPorts ? 0x2 : 0) | (limitedByExternalPower ? 0x4 : 0) |
+                (limitedByEvents ? 0x8 : 0) | (limitedByTemperatue ? 0x10 : 0);
+    }
 };
 enum UcpdPowerState {
     UcpdPowerStateNotSupported = 0,

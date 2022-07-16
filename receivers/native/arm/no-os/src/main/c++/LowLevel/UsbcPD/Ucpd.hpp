@@ -10,8 +10,8 @@
 #include <llIncludes.hpp>
 #include "specific/UcpdInternal.hpp"
 #include "UcpdParsedExtendedSourceCapabilitiesMessage.hpp"
-#include "UcpdParsedPPSStatusMessage.hpp"
 #include "UcpdParsedManufacturerInfoMessage.hpp"
+#include "UcpdParsedPPSStatusMessage.hpp"
 #include "UcpdParsedStatusMessage.hpp"
 
 template<class LL>

@@ -26,6 +26,8 @@
 #include "ZcodeParameters.hpp"
 
 #include <GeneralLLSetup.hpp>
+#include <modules/UsbcPD/ZcodeUsbcPDModule.hpp>
+#include <modules/script/ZcodeScriptModule.hpp>
 #include <modules/outer-core/ZcodeOuterCoreModule.hpp>
 #include <modules/core/ZcodeCoreModule.hpp>
 #include <addressing/ZcodeModuleAddressRouter.hpp>
@@ -50,11 +52,11 @@
 #include <LowLevel/I2cLowLevel/I2cManager.hpp>
 #include <LowLevel/I2cLowLevel/I2c.hpp>
 
+#include <UsbcPD/Ucpd.hpp>
+
 #include <LowLevel/UartLowLevel/UartManager.hpp>
 #include <LowLevel/UartLowLevel/Uart.hpp>
 #include <LowLevel/ArduinoSpiLayer/src/Ethernet.h>
-#include <UsbCPowerDelivery/Ucpd.hpp>
-
 #include "stm32g4xx.h"
 #include "stm32g484xx.h"
 
@@ -100,11 +102,13 @@ int main(void) {
     SerialChannel<ZcodeParameters> serial(&Usb<GeneralHalSetup>::usb);
     ZcodeCommandChannel<ZcodeParameters> *chptr[] = { &channel, &serial };
     z->setChannels(chptr, 2);
-    ZcodeCoreModule<ZcodeParameters> core;
+    ZcodeUsbcPDModule<ZcodeParameters> usbcPD;
+    ZcodeScriptModule<ZcodeParameters> script;
     ZcodeOuterCoreModule<ZcodeParameters> outerCore;
+    ZcodeCoreModule<ZcodeParameters> core;
 //    ZcodeScriptModule<TestParams> script;
-    ZcodeModule<ZcodeParameters> *modules[] = { &core, &outerCore /*, &script*/};
-    z->setModules(modules, 1);
+    ZcodeModule<ZcodeParameters> *modules[] = { &core, &outerCore, &script, &usbcPD };
+    z->setModules(modules, 4);
 //
     I2c<GeneralHalSetup> *i2c1 = I2cManager<GeneralHalSetup>::getI2cById(0);
     GpioPin<GeneralHalSetup> *c4 = GpioManager<GeneralHalSetup>::getPin(PC_4);

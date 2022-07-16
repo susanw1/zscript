@@ -8,11 +8,11 @@
 #ifndef SRC_TEST_CPP_USB_PD_UCPDPARSER_HPP_
 #define SRC_TEST_CPP_USB_PD_UCPDPARSER_HPP_
 #include <llIncludes.hpp>
-#include "UcpdMessages.hpp"
 #include <ClocksLowLevel/SystemMilliClock.hpp>
 #include <ClocksLowLevel/ClockManager.hpp>
 #include <ClocksLowLevel/Clock.hpp>
 #include "UcpdLowLevel.hpp"
+#include "UcpdMessages.hpp"
 
 enum UcpdMessageSentStatus {
     GoodCrcReceived, RetriesFailed, WrongCrc, SoftResetFailed
