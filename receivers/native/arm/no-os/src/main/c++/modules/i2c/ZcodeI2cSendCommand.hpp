@@ -5,6 +5,7 @@
 #include <LowLevel/I2cLowLevel/I2cManager.hpp>
 #include "GeneralI2cAction.hpp"
 
+#define COMMAND_VALUE_0052 MODULE_CAPABILITIES_UTIL
 template<class ZP>
 class ZcodeI2cSendCommand: public ZcodeCommand<ZP> {
 public:

@@ -3,6 +3,8 @@
 
 #include <modules/ZcodeCommand.hpp>
 
+#define COMMAND_VALUE_0050 MODULE_CAPABILITIES_UTIL
+
 template<class ZP>
 class ZcodeI2cCapabilitiesCommand: public ZcodeCommand<ZP> {
 public:
@@ -16,8 +18,7 @@ public:
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
         out->writeStatus(OK);
-        uint8_t commandBitset = 0x1f; // FIXME - generate from list of enabled commands
-        out->writeField8(CMD_RESP_COMMANDS_C, commandBitset);
+        out->writeField8(CMD_RESP_COMMANDS_C, MODULE_CAPABILITIES(005));
 
         out->writeField8(CMD_RESP_NOTIFICATION_SUPPORTED_N, 0);
 

@@ -7,13 +7,15 @@
 
 #include <modules/ZcodeModule.hpp>
 
-#include "ZcodeI2cCapabilitiesCommand.hpp"
 #include "ZcodeI2cSetupCommand.hpp"
 #include "ZcodeI2cSendCommand.hpp"
 #include "ZcodeI2cReceiveCommand.hpp"
 #include "ZcodeI2cSendReceiveCommand.hpp"
+#include "ZcodeI2cCapabilitiesCommand.hpp"
 
 #define ZCODE_I2C_MODULE_ADDRESS 0x05
+
+#define MODULE_ADDRESS005 MODULE_ADDRESS_UTIL
 
 #define COMMAND_SWITCH005 COMMAND_SWITCH_UTIL(ZCODE_I2C_MODULE_ADDRESS, ZcodeI2cModule<ZP>::execute)
 
