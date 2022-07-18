@@ -4,6 +4,9 @@
 #include <modules/ZcodeCommand.hpp>
 #include "../../LowLevel/I2cLowLevel/I2cManager.hpp"
 
+/**
+ * Handles the Send, Receive, and Send+Receive cases directly - they're pretty similar
+ */
 template<class ZP>
 class GeneralI2cAction {
 public:
@@ -31,6 +34,7 @@ public:
 
     typedef typename ZP::LL LL;
 
+    /** Note, SEND | RECEIVE == SEND_RECEIVE */
     enum ActionType {
         SEND = 1, RECEIVE = 2, SEND_RECEIVE = 3
     };
@@ -54,7 +58,7 @@ public:
 
         uint16_t requestedLength = slot.getFields()->get(CMD_PARAM_READ_LENGTH, (uint16_t) 0);
         if (requestedLength > out->getReadBufferLength()) {
-            slot.fail(BAD_PARAM, "I2C requested length too large");
+            slot.fail(TOO_BIG, "I2C requested length too large");
             return;
         }
 
@@ -89,7 +93,7 @@ public:
             storedI2cData->initialRetries = retries;
             slot.unsetComplete();
         } else {
-            // subsequent pass, we've transmitted
+            // subsequent pass, we've (re)transmitted
             ZcodeResponseStatus failStatus = slot.getFields()->has(CMD_PARAM_CONT_ON_FAIL) ? OK : CMD_FAIL;
 
             I2cTerminationStatus status = (I2cTerminationStatus) storedI2cData->status;
@@ -110,19 +114,23 @@ public:
                 // these are probably fatal, and should not be retried.
                 infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
                 slot.fail(CMD_ERROR, "Fatal I2C error");
-            } else if (storedI2cData->attemptsLeft-- > 0) {
-                // any other error, keep retrying. Beyond this, we must be at the end of all retries.
+            } else if (storedI2cData->attemptsLeft > 0) {
+                // any other error, keep retrying. Beyond here, we must be at the end of all retries.
                 slot.unsetComplete();
                 terminating = false;
             } else if (status == AddressNack) {
                 infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
                 slot.fail(failStatus, "AddressNack");
+            } else if (status == Address2Nack && action == ActionType::SEND_RECEIVE) {
+                infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
+                slot.fail(failStatus, "Address2Nack");
             } else {
                 infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
                 slot.fail(CMD_FAIL, "I2C failure");
             }
 
             if (terminating) {
+                out->writeField8(CMD_RESP_I2C_ATTEMPTS_T, storedI2cData->initialRetries - storedI2cData->attemptsLeft);
                 out->writeField8(CMD_RESP_I2C_INFO_I, infoValue);
                 out->writeField16(CMD_RESP_I2C_ADDR_A, address);
 
@@ -134,9 +142,11 @@ public:
         I2c<LL> *i2cPort = I2cManager<LL>::getI2cById(storedI2cData->port);
         *i2cStoredPointer = (uint8_t*) i2cPort;
 
-        const ZcodeBigField<ZP> *bigField = slot.getBigField();
+        storedI2cData->attemptsLeft--;
 
+        const ZcodeBigField<ZP> *bigField = slot.getBigField();
         PeripheralOperationMode mode = slot.isParallel() ? PeripheralOperationMode::DMA : PeripheralOperationMode::SYNCHRONOUS;
+
         switch ((ActionType) action) {
         case SEND:
             i2cPort->asyncTransmit10(mode, address, tenBit, bigField->getData(), bigField->getLength(), asyncCallback);

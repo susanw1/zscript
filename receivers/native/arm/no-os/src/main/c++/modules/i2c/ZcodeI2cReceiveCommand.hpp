@@ -10,7 +10,7 @@
 template<class ZP>
 class ZcodeI2cReceiveCommand: public ZcodeCommand<ZP> {
 public:
-    static constexpr uint8_t CODE = 0x04;
+    static constexpr uint8_t CODE = 0x03;
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
         GeneralI2cAction<ZP>::executeSendReceive(slot, GeneralI2cAction<ZP>::ActionType::RECEIVE);
