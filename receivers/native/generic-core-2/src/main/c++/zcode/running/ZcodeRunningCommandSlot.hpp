@@ -46,8 +46,8 @@ class ZcodeRunningCommandSlot {
     ZcodeOutStream<ZP> *out;
 
 public:
-    uint8_t *dataPointer;
-    uint32_t storedData;
+    volatile uint8_t *dataPointer;
+    volatile uint32_t storedData;
 
 private:
     ZcodeRunningCommandSlotStatus status;
@@ -116,7 +116,7 @@ public:
     }
 
     bool isAtSequenceStart() {
-        return commandSlot->runStatus.isFirstCommand;
+        return commandSlot->runStatus.isFirstCommand && !status.isStarted;
     }
     void startSequence() {
         out->openResponse(commandSlot->channel);
@@ -126,7 +126,7 @@ public:
     }
 
     void checkSeqEnd() {
-        if (!status.isStarted && commandSlot->runStatus.isFirstCommand) {
+        if (status.hasOutLock && !status.isStarted && commandSlot->runStatus.isFirstCommand) {
             if (!status.hasWrittenTerminator) {
                 writeTerminator(EOL_SYMBOL);
             }

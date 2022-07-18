@@ -29,8 +29,7 @@ public:
         if (!slot.getFields()->get(Zchars::STATUS_RESP_PARAM, &statusResult)) {
             out->writeStatus(OK);
         } else {
-            slot.mildFail((ZcodeResponseStatus) statusResult);
-            out->writeStatus((ZcodeResponseStatus) statusResult);
+            slot.fail((ZcodeResponseStatus) statusResult, NULL);
         }
         slot.getFields()->copyTo(out);
         slot.getBigField()->copyTo(out);

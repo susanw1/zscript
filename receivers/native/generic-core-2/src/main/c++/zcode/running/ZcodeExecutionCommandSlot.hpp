@@ -32,11 +32,11 @@ public:
     ZcodeCommandChannel<ZP>* getChannel() {
         return slot->commandSlot->channel;
     }
-    uint32_t* getStoredData() {
+    volatile uint32_t* getStoredData() {
         return &slot->storedData;
     }
 
-    uint8_t** getStoredPointerData() {
+    volatile uint8_t** getStoredPointerData() {
         return &slot->dataPointer;
     }
 
@@ -56,17 +56,22 @@ public:
         return slot->commandSlot->runStatus.isParallel;
     }
 
+    /**
+     * Doesn't call through to slot->fail because that is designed for more external use - with the structure surrounding a command execution, slot->mildFail is plenty.
+     */
     void fail(ZcodeResponseStatus failStatus, string_t message) {
-        slot->fail(failStatus, message);
+        slot->mildFail(failStatus);
+        slot->out->writeStatus(failStatus);
+        if (message != NULL && ZP::Strings::getChar(message, 0)) {
+            slot->out->writeBigStringField(message);
+        }
     }
     void fail(ZcodeResponseStatus failStatus, const char *message) {
-        slot->fail(failStatus, message);
-    }
-    /**
-     * Much like fail, but allows the output stream to continue functioning - useful if you want to fail in an intelligent way. Doesn't write the failure status.
-     */
-    void mildFail(ZcodeResponseStatus failStatus) {
         slot->mildFail(failStatus);
+        slot->out->writeStatus(failStatus);
+        if (message != NULL && message[0] != 0) {
+            slot->out->writeBigStringField(message);
+        }
     }
 
     ZcodeOutStream<ZP>* getOut() {
