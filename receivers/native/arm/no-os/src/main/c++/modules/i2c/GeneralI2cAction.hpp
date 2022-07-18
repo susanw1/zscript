@@ -36,8 +36,8 @@ public:
     };
 
     static void executeSendReceive(ZcodeExecutionCommandSlot<ZP> slot, uint8_t action) {
-        uint8_t **i2cStoredPointer = slot.getStoredPointerData();
-        StoredI2cData *storedI2cData = (StoredI2cData*) slot.getStoredData();
+        volatile uint8_t **i2cStoredPointer = slot.getStoredPointerData();
+        volatile StoredI2cData *storedI2cData = (StoredI2cData*) slot.getStoredData();
 
         uint16_t address;
         if (!slot.getFields()->get(CMD_PARAM_I2C_ADDR_A, &address)) {
@@ -87,6 +87,7 @@ public:
             storedI2cData->port = port;
             storedI2cData->attemptsLeft = retries;
             storedI2cData->initialRetries = retries;
+            slot.unsetComplete();
         } else {
             // subsequent pass, we've transmitted
             ZcodeResponseStatus failStatus = slot.getFields()->has(CMD_PARAM_CONT_ON_FAIL) ? OK : CMD_FAIL;
@@ -109,7 +110,7 @@ public:
                 // these are probably fatal, and should not be retried.
                 infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
                 slot.fail(CMD_ERROR, "Fatal I2C error");
-            } else if (storedI2cData->attemptsLeft > 0) {
+            } else if (storedI2cData->attemptsLeft-- > 0) {
                 // any other error, keep retrying. Beyond this, we must be at the end of all retries.
                 slot.unsetComplete();
                 terminating = false;
@@ -147,10 +148,6 @@ public:
             i2cPort->asyncTransmitReceive10(mode, address, tenBit, bigField->getData(), bigField->getLength(), out->getReadBuffer(), requestedLength, asyncCallback);
             break;
         }
-        if (action == 1) {
-
-        }
-        i2cPort->asyncTransmitReceive10(mode, address, tenBit, bigField->getData(), bigField->getLength(), out->getReadBuffer(), requestedLength, asyncCallback);
     }
 
     static void asyncCallback(I2c<LL> *i2c, I2cTerminationStatus status) {
@@ -158,7 +155,7 @@ public:
             if (Zcode<ZP>::zcode.getChannel(i)->runner.dataPointer == (uint8_t*) i2c) {
 
                 ZcodeRunningCommandSlot<ZP> *slot = &Zcode<ZP>::zcode.getChannel(i)->runner;
-                ((StoredI2cData*) &slot->storedData)->status = (uint8_t) status;
+                ((volatile StoredI2cData*) &slot->storedData)->status = (uint8_t) status;
                 slot->setNeedsAction();
                 return;
 

@@ -170,6 +170,7 @@ void I2c<LL>::asyncTransmit10(PeripheralOperationMode mode, uint16_t address, bo
     }
     if (mode == SYNCHRONOUS) {
         callback(this, transmit10(address, tenBit, txData, txLen));
+        return;
     }
     if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone || i2c.isBusy()) {
         callback(this, BusBusy);
@@ -205,6 +206,7 @@ void I2c<LL>::asyncReceive10(PeripheralOperationMode mode, uint16_t address, boo
     }
     if (mode == SYNCHRONOUS) {
         callback(this, receive10(address, tenBit, rxData, rxLen));
+        return;
     }
     if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone || i2c.isBusy()) {
         callback(this, BusBusy);
@@ -240,6 +242,7 @@ void I2c<LL>::asyncTransmitReceive10(PeripheralOperationMode mode, uint16_t addr
     }
     if (mode == SYNCHRONOUS) {
         callback(this, transmitReceive10(address, tenBit, txData, txLen, rxData, rxLen));
+        return;
     }
     state.hasTx = true;
     state.hasTxRx = true;

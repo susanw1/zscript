@@ -215,6 +215,10 @@ public:
         const uint32_t i2cStart = 0x2000;
         const uint32_t i2cRxNTx = 0x0400;
 
+        if (hasStopInt()) {
+            // STOP
+            clearStopInt();
+        }
         uint32_t cr2r = enableI2c10BitAddress; //we always want 10 bit addressing to be done properly, and we want to write
         cr2r |= enableI2cAutoEnd; // set autoend
         if (tenBit) {
@@ -242,6 +246,10 @@ public:
         const uint32_t i2cStart = 0x2000;
         const uint32_t i2cRxNTx = 0x0400;
 
+        if (hasStopInt()) {
+            // STOP
+            clearStopInt();
+        }
         uint32_t cr2r = enableI2c10BitAddress | i2cRxNTx; //and want 10 bit addressing to be done properly, and we want to read
         cr2r |= enableI2cAutoEnd; // set autoend
         if (tenBit) {

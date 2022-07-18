@@ -27,6 +27,7 @@
 
 #include <GeneralLLSetup.hpp>
 #include <modules/UsbcPD/ZcodeUsbcPDModule.hpp>
+#include <modules/i2c/ZcodeI2cModule.hpp>
 #include <modules/script/ZcodeScriptModule.hpp>
 #include <modules/outer-core/ZcodeOuterCoreModule.hpp>
 #include <modules/core/ZcodeCoreModule.hpp>
