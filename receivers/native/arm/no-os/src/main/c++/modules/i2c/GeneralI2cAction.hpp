@@ -14,7 +14,6 @@ public:
     static constexpr char CMD_PARAM_I2C_ADDR_A = 'A';
     static constexpr char CMD_PARAM_TENBIT_ADDR_N = 'N';
     static constexpr char CMD_PARAM_RETRIES_T = 'T';
-    static constexpr char CMD_PARAM_CONT_ON_FAIL = 'C';
     static constexpr char CMD_PARAM_READ_LENGTH = 'L';
 
     static constexpr char CMD_RESP_I2C_ADDR_A = 'A';
@@ -100,7 +99,6 @@ public:
             slot.unsetComplete();
         } else {
             // subsequent pass, we've (re)transmitted
-            ZcodeResponseStatus failStatus = slot.getFields()->has(CMD_PARAM_CONT_ON_FAIL) ? OK : CMD_FAIL;
 
             I2cTerminationStatus status = (I2cTerminationStatus) storedI2cData->status;
             bool terminating = true;
@@ -115,7 +113,7 @@ public:
             } else if (status == DataNack) {
                 // abrupt failure during data send - don't retry, because its status is now unknown
                 infoValue = CMD_RESP_I2C_INFO_VAL_DATANACK;
-                slot.fail(failStatus, "DataNack");
+                slot.fail(CMD_FAIL, "DataNack");
             } else if (status == BusJammed || status == MemoryError || status == OtherError) {
                 // these are probably fatal, and should not be retried.
                 infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
@@ -126,10 +124,10 @@ public:
                 terminating = false;
             } else if (status == AddressNack) {
                 infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
-                slot.fail(failStatus, "AddressNack");
+                slot.fail(CMD_FAIL, "AddressNack");
             } else if (status == Address2Nack && action == ActionType::SEND_RECEIVE) {
                 infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
-                slot.fail(failStatus, "Address2Nack");
+                slot.fail(CMD_FAIL, "Address2Nack");
             } else {
                 infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
                 slot.fail(CMD_FAIL, "I2C failure");
