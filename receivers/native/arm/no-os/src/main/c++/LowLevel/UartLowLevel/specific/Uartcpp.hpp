@@ -72,7 +72,9 @@ void Uart<LL>::clearRxFifo() {
             rxBuffer.write(GeneralHalSetup::uartEscapingChar);
             rxBuffer.write(SerialOverflowError);
         }
-        rxOverflowCallback(uart.getId());
+        if (rxOverflowCallback != NULL) {
+            rxOverflowCallback(uart.getId());
+        }
         while (uart.hasRxFifoData()) { //flush remaining data, as we can't fit it in...
             uart.read();
         }

@@ -30,6 +30,7 @@
 #include <modules/core/ZcodeWriteGuidCommand.hpp>
 #include <modules/core/ZcodeResetCommand.hpp>
 
+#include <modules/serial/ZcodeSerialModule.hpp>
 #include <modules/UsbcPD/ZcodeUsbcPDModule.hpp>
 #include <modules/i2c/ZcodeI2cModule.hpp>
 #include <modules/script/ZcodeScriptModule.hpp>
