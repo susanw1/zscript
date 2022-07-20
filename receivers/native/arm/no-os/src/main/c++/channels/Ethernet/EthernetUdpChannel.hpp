@@ -176,17 +176,21 @@ class EthernetUdpChannel: public ZcodeCommandChannel<ZP> {
         out->writeField8('N', 0);
         out->writeField16('M', 0x111);
         out->writeBigStringField("UDP based channel");
+        uint32_t addr = Ethernet.localIP();
+        out->writeBigHexField((uint8_t*) &addr, 4);
+        out->writeField16('P', port);
         out->writeStatus(OK);
         //TODO: make this better
     }
 
     void readSetup(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
+        out->writeBigHexField(ZcodeFlashPersistence<LL>::persist.getMac(), 6);
         if (slot.getBigField()->getLength() != 6 && slot.getBigField()->getLength() != 0) {
             slot.fail(BAD_PARAM, "MAC addresses must be 6 bytes long");
             return;
         } else if (slot.getBigField()->getLength() != 0) {
-            persist->writeMac(slot.getBigField()->getData());
+            ZcodeFlashPersistence<LL>::persist.writeMac(slot.getBigField()->getData());
         }
         out->writeStatus(OK);
     }
