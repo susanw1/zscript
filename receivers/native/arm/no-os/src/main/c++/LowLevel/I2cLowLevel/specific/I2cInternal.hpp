@@ -208,12 +208,10 @@ public:
         return (uint8_t*) &registers->TXDR;
     }
     void setupTransmit(bool setupDmas, bool setupInterrupts, uint16_t addr, bool tenBit, uint16_t txLen) {
-        const uint32_t i2cBusy = 0x8000;
         const uint32_t enableI2c10BitAddress = 0x00001000;
         const uint32_t enableI2cAutoEnd = 0x02000000;
         const uint32_t enableI2c10BitAddressing = 0x0800;
         const uint32_t i2cStart = 0x2000;
-        const uint32_t i2cRxNTx = 0x0400;
 
         if (hasStopInt()) {
             // STOP
@@ -239,7 +237,6 @@ public:
         registers->CR2 |= i2cStart;
     }
     void setupReceive(bool setupDmas, bool setupInterrupts, uint16_t addr, bool tenBit, uint16_t rxLen) {
-        const uint32_t i2cBusy = 0x8000;
         const uint32_t enableI2c10BitAddress = 0x00001000;
         const uint32_t enableI2cAutoEnd = 0x02000000;
         const uint32_t enableI2c10BitAddressing = 0x0800;

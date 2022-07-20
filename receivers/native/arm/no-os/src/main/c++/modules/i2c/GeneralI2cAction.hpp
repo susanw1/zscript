@@ -32,6 +32,11 @@ public:
         uint8_t initialRetries;
     } StoredI2cData;
 
+    union I2cDataInPlace {
+        uint32_t var;
+        StoredI2cData data;
+    };
+
     typedef typename ZP::LL LL;
 
     /** Note, SEND | RECEIVE == SEND_RECEIVE */
@@ -40,8 +45,9 @@ public:
     };
 
     static void executeSendReceive(ZcodeExecutionCommandSlot<ZP> slot, uint8_t action) {
+        static_assert(sizeof(I2cDataInPlace) == sizeof(uint32_t), "StoredI2cData wouldn't fit into uint32_t");
         volatile uint8_t **i2cStoredPointer = slot.getStoredPointerData();
-        volatile StoredI2cData *storedI2cData = (StoredI2cData*) slot.getStoredData();
+        volatile StoredI2cData *storedI2cData = &((I2cDataInPlace*) slot.getStoredData())->data;
 
         uint16_t address;
         if (!slot.getFields()->get(CMD_PARAM_I2C_ADDR_A, &address)) {
@@ -73,7 +79,7 @@ public:
                 return;
             }
 
-            uint8_t retries = slot.getFields()->get(CMD_PARAM_RETRIES_T, 5);
+            uint16_t retries = slot.getFields()->get(CMD_PARAM_RETRIES_T, 5);
             if (retries > 255) {
                 slot.fail(BAD_PARAM, "Retries Too Large");
                 return;
@@ -161,11 +167,12 @@ public:
     }
 
     static void asyncCallback(I2c<LL> *i2c, I2cTerminationStatus status) {
+        static_assert(sizeof(I2cDataInPlace) == sizeof(uint32_t), "StoredI2cData wouldn't fit into uint32_t");
         for (uint8_t i = 0, n = Zcode<ZP>::zcode.getChannelCount(); i < n; i++) {
             if (Zcode<ZP>::zcode.getChannel(i)->runner.dataPointer == (uint8_t*) i2c) {
 
                 ZcodeRunningCommandSlot<ZP> *slot = &Zcode<ZP>::zcode.getChannel(i)->runner;
-                ((volatile StoredI2cData*) &slot->storedData)->status = (uint8_t) status;
+                ((volatile I2cDataInPlace*) &slot->storedData)->data.status = (uint8_t) status;
                 slot->setNeedsAction();
                 return;
 

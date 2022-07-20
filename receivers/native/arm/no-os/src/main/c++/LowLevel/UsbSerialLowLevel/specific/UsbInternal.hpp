@@ -48,6 +48,7 @@ class UsbInternal {
     }
 
     static void UsbDataTxOverflowCallback(SerialIdentifier id) {
+        (void) id;
         UsbInternal<LL>::usbI.checkBuffers();
     }
 

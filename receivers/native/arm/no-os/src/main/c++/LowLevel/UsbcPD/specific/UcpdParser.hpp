@@ -69,6 +69,7 @@ class UcpdParser {
         }
     }
     static void goodCrcSentCallback(UcpdTxTerminationStatus status) {
+        (void) status;
         if (isReceiving && hasBuffered) {
             sendInternal();
         }
@@ -214,6 +215,7 @@ void UcpdParser<LL>::sendGoodCRC() {
 
 template<class LL>
 void UcpdParser<LL>::parseControlMessage(const uint8_t *rxBuf, uint16_t rxLen) {
+    (void) rxLen; //FIXME: We kinda just assume we got the right length...
     uint8_t tmpMessageId = (rxBuf[findByteInvertedAddress<LL>(0)] >> 1) & 0x07;
     if ((rxBuf[findByteInvertedAddress<LL>(1)] & 0x1F) == GoodCRC) {
         if (isSendingSoftReset && txMessageId == tmpMessageId) {
@@ -245,6 +247,7 @@ void UcpdParser<LL>::parseControlMessage(const uint8_t *rxBuf, uint16_t rxLen) {
 
 template<class LL>
 void UcpdParser<LL>::parseDataMessage(const uint8_t *rxBuf, uint16_t rxLen) {
+    (void) rxLen; //FIXME: We kinda just assume we got the right length...
     uint8_t tmpMessageId = (rxBuf[findByteInvertedAddress<LL>(0)] >> 1) & 0x07;
 
     if (tmpMessageId == prevRxMessageId) {
@@ -269,7 +272,7 @@ void UcpdParser<LL>::parseDataMessage(const uint8_t *rxBuf, uint16_t rxLen) {
                     | (rxBuf[findByteInvertedAddress<LL>(4 + 4 * i)] << 8) | rxBuf[findByteInvertedAddress<LL>(5 + 4 * i)];
             uint16_t maxCurrent = pdoRaw & 0x3FF;
             uint16_t minVoltage = (pdoRaw >> 10) & 0x3FF;
-            uint16_t maxVoltage;
+            uint16_t maxVoltage = minVoltage;
             if ((pdoRaw & 0xC0000000) == 0) {
                 maxVoltage = minVoltage;
             } else if ((rxBuf[findByteInvertedAddress<LL>(2 + 4 * i)] & 0xC0) == 0x80) {
@@ -309,6 +312,7 @@ void UcpdParser<LL>::parseDataMessage(const uint8_t *rxBuf, uint16_t rxLen) {
 
 template<class LL>
 void UcpdParser<LL>::parseExtendedMessage(const uint8_t *rxBuf, uint16_t rxLen) {
+    (void) rxLen; //FIXME: We kinda just assume we got the right length...
     uint8_t tmpMessageId = (rxBuf[findByteInvertedAddress<LL>(0)] >> 1) & 0x07;
 
     if (tmpMessageId == prevRxMessageId) {

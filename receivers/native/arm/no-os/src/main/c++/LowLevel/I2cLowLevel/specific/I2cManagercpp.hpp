@@ -117,20 +117,7 @@
 #endif
 
 template<class LL>
-I2c<LL> I2cManager<LL>::i2cs[] = {
-#ifdef USE_I2C_1
-    I2c<LL>()
-#endif
-#ifdef USE_I2C_2
-    , I2c<LL>()
-#endif
-#ifdef USE_I2C_3
-    , I2c<LL>()
-#endif
-#ifdef USE_I2C_4
-    , I2c<LL>()
-#endif
-        };
+I2c<LL> I2cManager<LL>::i2cs[LL::i2cCount];
 
 template<class LL>
 I2cInternal<LL> getI2cInternal_internal(I2cIdentifier id) {

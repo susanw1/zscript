@@ -98,11 +98,13 @@ class UcpdLowLevel {
     }
 
     static void DmaRxCallback(Dma<LL> *d, DmaTerminationStatus status) {
+        (void) d;
         if (status != DataTransferComplete) {
             rxCallback(UcpdRxDmaFail);
         }
     }
     static void DmaTxCallback(Dma<LL> *d, DmaTerminationStatus status) {
+        (void) d;
         if (status != DataTransferComplete) {
             txCallback(UcpdTxDmaFail);
         }

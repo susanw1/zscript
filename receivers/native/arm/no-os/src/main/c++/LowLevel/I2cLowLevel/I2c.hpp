@@ -72,7 +72,6 @@ private:
     I2cTerminationStatus transmit10(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, bool stop);
 
 public:
-    I2c(I2c &&i2c);
 
     I2c();
 

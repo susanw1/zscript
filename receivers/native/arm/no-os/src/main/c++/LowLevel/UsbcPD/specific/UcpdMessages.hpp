@@ -137,6 +137,8 @@ public:
     }
 
     virtual void encode(uint8_t *target, uint8_t messageId) { //placeholder for messages which are never sent, only received
+        (void) target;
+        (void) messageId;
     }
     virtual uint16_t getLength() {
         return 0;
@@ -537,12 +539,12 @@ int findByteInvertedAddress(int i) {
 }
 template<class LL>
 int findDataObjectInvertedAddress(int i) {
-    return 4 - i;
+    return 3 - i;
 }
 
 template<class LL>
 int findBytePairInvertedAddress(int i) {
-    return 2 - i;
+    return 1 - i;
 }
 
 #endif /* SRC_TEST_CPP_USB_PD_UCPDMESSAGES_HPP_ */

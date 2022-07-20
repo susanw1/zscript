@@ -55,7 +55,7 @@ uint8_t SPIClass::transfer(uint8_t data) {
 
     // Forces 8 bit read/write, to allow 1 byte at a time
     *((volatile uint8_t*) &(SPI1->DR)) = data;
-    while (!(((volatile uint16_t) SPI1->SR) & fifoLevelMask))
+    while (!((*((volatile uint16_t*) &SPI1->SR)) & fifoLevelMask))
         ;
     return *((volatile uint8_t*) &(SPI1->DR));
 }

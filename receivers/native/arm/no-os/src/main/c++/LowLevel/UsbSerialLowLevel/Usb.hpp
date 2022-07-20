@@ -95,6 +95,7 @@ public:
     }
 
     virtual SerialError getError(uint16_t length) {
+        (void) length;
         return SerialNoError;
     }
 

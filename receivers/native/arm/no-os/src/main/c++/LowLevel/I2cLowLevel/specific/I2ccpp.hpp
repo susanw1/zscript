@@ -12,12 +12,6 @@
 #include "../I2c.hpp"
 
 template<class LL>
-I2c<LL>::I2c(I2c<LL> &&o) :
-        i2c(o.i2c), id(o.id), dma(o.dma), requestTx(o.requestTx), requestRx(o.requestRx), state(((I2cState&) o.state)), callback(
-                o.callback) {
-}
-
-template<class LL>
 I2c<LL>::I2c() :
         i2c(), id(0), state( { 0, false, false, false, false, false, false, false }), callback(NULL) {
 }

@@ -66,6 +66,7 @@ template<class LL>
 class UcpdInternal {
 
     static void doNotUseMessage(UcpdMessage<LL> *m) {
+        (void) m;
     }
 
     static volatile uint32_t expectResponseTime;

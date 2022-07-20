@@ -27,6 +27,7 @@ void UartTxOverflowCallback(SerialIdentifier id);
 //always does 8 bit bytes, no parity - just for simplicity
 template<class LL>
 class Uart: public Serial {
+    //TODO: Use a dma for Rx as well?
 private:
     void (*volatile targetValueCallback)(SerialIdentifier);
     void (*rxOverflowCallback)(SerialIdentifier);

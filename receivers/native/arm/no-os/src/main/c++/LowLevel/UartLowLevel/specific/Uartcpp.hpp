@@ -269,6 +269,8 @@ void Uart<LL>::txOverflowInterrupt() {
 
 template<class LL>
 void Uart<LL>::dmaInterrupt(DmaTerminationStatus status) {
+    //FIXME: Do something with interesting failure states...
+    (void) status;
     txBuffer.skip(dmaStartDist);
     dmaStartDist = txBuffer.getLinearReadLength();
     txDma->halt();
