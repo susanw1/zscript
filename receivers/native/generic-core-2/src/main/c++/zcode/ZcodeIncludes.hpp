@@ -11,5 +11,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "ZcodeResponseStatus.hpp"
+#include "ZcodeNotificationTypes.hpp"
+#include "Zchars.hpp"
 
 #endif /* SRC_TEST_CPP_ZCODE_ZCODEINCLUDES_HPP_ */

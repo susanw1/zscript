@@ -65,8 +65,7 @@ void ZcodeInterruptVectorOut<ZP>::open(ZcodeCommandChannel<ZP> *target, ZcodeOut
         }
         ZcodeInterruptVectorChannel<ZP> *channel = (ZcodeInterruptVectorChannel<ZP>*) target;
         out->openNotification(Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel());
-        out->markNotification();
-        out->writeField8(Zchars::NOTIFY_TYPE_PARAM, 1);
+        out->markNotification(BusNotification);
         out->writeField8('T', channel->getInterrupt()->getNotificationType());
         out->writeField8('I', channel->getInterrupt()->getNotificationBus());
         out->writeStatus(OK);

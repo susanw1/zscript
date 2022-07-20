@@ -121,8 +121,7 @@ bool ZcodeScriptSpaceOut<ZP>::flush() {
         ZcodeOutStream<ZP> *out = space->getNotificationChannel()->out;
         out->lock();
         out->openNotification(space->getNotificationChannel());
-        out->markNotification();
-        out->writeField8(Zchars::NOTIFY_TYPE_PARAM, (uint8_t) 2);
+        out->markNotification(ScriptSpaceNotification);
         if (outStatus.overLength) {
             out->writeBytes(buffer, lastEndPos);
             out->writeCommandSeparator();

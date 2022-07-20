@@ -117,8 +117,9 @@ public:
         writeByte(Zchars::DEBUG_PREFIX);
         return this;
     }
-    ZcodeOutStream<ZP>* markNotification() {
+    ZcodeOutStream<ZP>* markNotification(ZcodeNotificationType type) {
         writeByte(Zchars::NOTIFY_PREFIX);
+        writeField16((uint16_t) type);
         return this;
     }
 
