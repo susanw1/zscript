@@ -28,9 +28,7 @@ public:
 
         ZcodeOutStream<ZP> *out = slot.getOut();
         uint16_t target = 0;
-        if (slot.getFields()->has('H')) {
-            SCB->AIRCR |= resetBit;
-        } else if (slot.getFields()->get('C', &target)) {
+        if (slot.getFields()->get('C', &target)) {
             if (target >= Zcode<ZP>::zcode.getChannelCount()) {
                 slot.fail(BAD_PARAM, "Channel index too large");
                 return;
@@ -40,7 +38,7 @@ public:
                 return;
             }
         } else {
-            Reset_Handler();
+            NVIC_SystemReset();
         }
         out->writeStatus(OK);
     }
