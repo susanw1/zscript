@@ -34,6 +34,7 @@ public:
             return;
         }
         if (UartManager<LL>::getUartById(port)->write(slot.getBigField()->getData(), slot.getBigField()->getLength())) {
+            UartManager<LL>::getUartById(port)->transmitWriteBuffer();
             out->writeStatus(OK);
         } else {
             slot.fail(CMD_FAIL, "UART busy or message too long");

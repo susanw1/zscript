@@ -55,7 +55,7 @@ public:
             out->writeBigHexField(data, lengthRead);
         }
         if (lengthRead != length && failOnDataOut) {
-            slot.fail(CMD_FAIL, "Not enough data available");
+            slot.fail(CMD_FAIL, NULL);
         } else if (error != SerialNoError) {
             slot.fail(CMD_FAIL, NULL);
         } else {

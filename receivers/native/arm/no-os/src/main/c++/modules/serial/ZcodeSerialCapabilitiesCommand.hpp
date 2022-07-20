@@ -32,7 +32,6 @@ public:
         out->writeField32('F', ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16);
         out->writeField16('B', LL::UartBufferTxSize);
         out->writeField16('R', LL::UartBufferRxSize);
-        out->writeField8('C', MODULE_CAPABILITIES(007));
         out->writeStatus(OK);
     }
 

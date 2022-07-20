@@ -40,11 +40,11 @@ public:
             baud <<= 8;
             baud |= slot.getBigField()->getData()[i];
         }
-        if (slot.getBigField()->getLength() != 0) {
-            if (slot.getBigField()->getLength() > 4 || baud == 0 || baud > ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16) {
-                slot.fail(BAD_PARAM, "Invalid baud rate");
-                return;
-            }
+        if (slot.getBigField()->getLength() == 0) {
+            baud = 9600;
+        } else if (slot.getBigField()->getLength() > 4 || baud == 0 || baud > ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16) {
+            slot.fail(BAD_PARAM, "Invalid baud rate");
+            return;
         }
         if (slot.getFields()->has('C')) { //check parity
             slot.fail(CMD_FAIL, "Parity not supported");
