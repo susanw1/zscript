@@ -8,12 +8,13 @@
 #ifndef SRC_MAIN_C___CHANNELS_ETHERNET_ETHERNETUDPCHANNEL_HPP_
 #define SRC_MAIN_C___CHANNELS_ETHERNET_ETHERNETUDPCHANNEL_HPP_
 
-#include "../../LowLevel/ArduinoSpiLayer/src/Ethernet.h"
+#include <LowLevel/ArduinoSpiLayer/src/Ethernet.h>
 #include <ZcodeIncludes.hpp>
 
 #include <channels/ZcodeChannelInStream.hpp>
 #include <channels/ZcodeCommandChannel.hpp>
 #include <ZcodeOutStream.hpp>
+#include <modules/core/ZcodeFlashPersistence.hpp>
 
 template<class ZP>
 class EthernetUdpChannelInStream: public ZcodeChannelInStream<ZP> {
@@ -116,6 +117,7 @@ public:
 
 template<class ZP>
 class EthernetUdpChannel: public ZcodeCommandChannel<ZP> {
+    typedef typename ZP::LL LL;
     EthernetUDP udp;
     EthernetUdpChannelInStream<ZP> seqin;
     EthernetUdpOutStream<ZP> out;
@@ -124,11 +126,21 @@ class EthernetUdpChannel: public ZcodeCommandChannel<ZP> {
     uint16_t notificationPort;
     uint16_t debugPort;
 
-public:
+    uint16_t port;
+    public:
 
     EthernetUdpChannel(uint16_t port) :
             ZcodeCommandChannel<ZP>(&seqin, &out, false), udp(), seqin(this, &udp), out(&udp), notificationIP(), debugIP(), notificationPort(
-                    0), debugPort(0) {
+                    0), debugPort(0), port(port) {
+        uint8_t *mac;
+        uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xad };
+        if (ZcodeFlashPersistence<LL>::persist.hasMac()) {
+            mac = ZcodeFlashPersistence<LL>::persist.getMac();
+        } else {
+            mac = macHardCoded;
+        }
+        while (!Ethernet.begin(mac, 5000, 5000)) {
+        }
         udp.begin(port);
     }
 
@@ -170,8 +182,29 @@ public:
 
     void readSetup(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
+        if (slot.getBigField()->getLength() != 6 && slot.getBigField()->getLength() != 0) {
+            slot.fail(BAD_PARAM, "MAC addresses must be 6 bytes long");
+            return;
+        } else if (slot.getBigField()->getLength() != 0) {
+            persist->writeMac(slot.getBigField()->getData());
+        }
         out->writeStatus(OK);
-        //TODO: do this properly
+    }
+    bool reset() {
+        udp.flush();
+        udp.stop();
+        Ethernet.init();
+        uint8_t *mac;
+        uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xad };
+        if (ZcodeFlashPersistence<LL>::persist.hasMac()) {
+            mac = ZcodeFlashPersistence<LL>::persist.getMac();
+        } else {
+            mac = macHardCoded;
+        }
+        while (!Ethernet.begin(mac, 5000, 5000)) {
+        }
+        udp.begin(port);
+        return true;
     }
 };
 

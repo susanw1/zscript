@@ -54,6 +54,10 @@
 
 class GeneralHalSetup {
 public:
+    static const uint16_t persistentGuidLocation = 16;
+    static const uint16_t persistentMacAddressLocation = 40;
+    static const uint16_t mainPersistentMemoryLocation = 48;
+
     static const int ucpdRxBufferSize = 1024;
     static const int ucpdTxBufferSize = 256;
     static const uint32_t ucpdTxSOP = 0b10001110001100011000; // 3*Sync-1, Sync-2 = SOP

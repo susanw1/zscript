@@ -86,6 +86,12 @@ public:
         space->setFailed(false);
         out->writeStatus(OK);
     }
+    bool reset() {
+        space->setRunning(false);
+        space->setFailed(false);
+        outA.reset();
+        return true;
+    }
 
 };
 

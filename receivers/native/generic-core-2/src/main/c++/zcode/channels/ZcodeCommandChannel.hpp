@@ -46,6 +46,10 @@ public:
 
     virtual void readSetup(ZcodeExecutionCommandSlot<ZP> slot) = 0;
 
+    virtual bool reset() {
+        return false;
+    }
+
 };
 
 #endif /* SRC_TEST_CPP_ZCODE_PARSING_ZCODECOMMANDCHANNEL_HPP_ */

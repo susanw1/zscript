@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "stm32g4xx.h"
 #include "stm32g484xx.h"
+#include "core_cm4.h"
 
 typedef uint8_t DmaIdentifier;
 typedef uint8_t SerialIdentifier;

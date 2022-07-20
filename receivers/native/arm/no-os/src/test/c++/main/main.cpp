@@ -26,6 +26,10 @@
 #include "ZcodeParameters.hpp"
 
 #include <GeneralLLSetup.hpp>
+#include <modules/core/ZcodeReadGuidCommand.hpp>
+#include <modules/core/ZcodeWriteGuidCommand.hpp>
+#include <modules/core/ZcodeResetCommand.hpp>
+
 #include <modules/UsbcPD/ZcodeUsbcPDModule.hpp>
 #include <modules/i2c/ZcodeI2cModule.hpp>
 #include <modules/script/ZcodeScriptModule.hpp>
@@ -89,7 +93,6 @@ int main(void) {
 //        z.getDebug() << "Has Mac" << endl;
 //        mac = persist.getMac();
 //    } else {
-    z->getDebug() << "Has No Mac" << endl;
     mac = macHardCoded;
 //    }
     while (!Ethernet.begin(mac, 5000, 5000)) {

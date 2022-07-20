@@ -56,6 +56,8 @@ public:
     }
 
     void open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType t) {
+        (void) t;
+        (void) target;
         openB = true;
     }
 
@@ -102,7 +104,7 @@ public:
     void readSetup(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
         out->writeStatus(OK);
-        //TODO: do this properly
+        //TODO: do this properly - arguably not much to do really...
     }
 };
 

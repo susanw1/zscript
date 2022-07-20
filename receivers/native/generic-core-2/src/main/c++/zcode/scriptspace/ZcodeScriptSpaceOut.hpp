@@ -47,6 +47,12 @@ public:
             ZcodeOutStream<ZP>(readBuffer, ZP::scriptOutReadBufferSize), space(space) {
         outStatus.reset();
     }
+    void reset() {
+        outStatus.reset();
+        length = 0;
+        lastEndPos = 0;
+        status = ZcodeResponseStatus::OK;
+    }
 
     void initialSetup(ZcodeScriptSpace<ZP> *space) {
         this->space = space;
