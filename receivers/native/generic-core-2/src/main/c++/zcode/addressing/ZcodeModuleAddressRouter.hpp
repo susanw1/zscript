@@ -28,6 +28,8 @@ public:
         (void) hasHadDot;
         Zcode<ZP> *zcode = &Zcode<ZP>::zcode;
         ZcodeModule<ZP> *target = NULL;
+        // FIXME: Do this with #defines maybe - like the command finder really...?
+
         for (uint8_t i = 0; i < zcode->getModuleNumber(); ++i) {
             if (zcode->getModules()[i]->moduleId == address) {
                 target = zcode->getModules()[i];

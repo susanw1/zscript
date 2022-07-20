@@ -79,6 +79,7 @@ private:
 #endif
     ZcodeCommandChannel<ZP> **channels = NULL;
     //    const char *configFailureState = NULL;
+    // FIXME: We really shouldn't need this pointer - do the module addressing with #defines maybe - bit evil I guess?
     ZcodeModule<ZP> **modules = NULL;
 
 public:
