@@ -24,8 +24,6 @@ public:
     static constexpr uint8_t CODE = 0x03;
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
-        const uint32_t resetBit = 0x04;
-
         ZcodeOutStream<ZP> *out = slot.getOut();
         uint16_t target = 0;
         if (slot.getFields()->get('C', &target)) {
