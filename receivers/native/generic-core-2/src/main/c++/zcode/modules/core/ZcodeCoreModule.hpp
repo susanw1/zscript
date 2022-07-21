@@ -32,20 +32,7 @@ template<class ZP>
 class ZcodeCoreModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
 
-#if defined(ZCODE_SUPPORT_ADDRESSING) && defined(ZCODE_SUPPORT_DEBUG)
-    ZcodeDebugAddressRouter<ZP> addrRouter;
-#endif
-
 public:
-    ZcodeCoreModule() :
-            ZcodeModule<ZP>(ZCODE_CORE_MODULE_ADDRESS
-
-#if defined(ZCODE_SUPPORT_ADDRESSING) && defined(ZCODE_SUPPORT_DEBUG)
-                    , &addrRouter
-#endif
-
-                    ) {
-    }
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
 

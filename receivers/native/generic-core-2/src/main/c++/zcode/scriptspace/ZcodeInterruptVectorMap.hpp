@@ -21,14 +21,14 @@ private:
     uint16_t addresses[ZP::interruptVectorNum];
     uint8_t specificities[ZP::interruptVectorNum];
     uint8_t buses[ZP::interruptVectorNum];
-    uint8_t types[ZP::interruptVectorNum];
+    uint16_t types[ZP::interruptVectorNum];
 
-    bool matches(uint16_t i, uint8_t type, uint8_t bus, uint16_t addr, uint8_t specificity) {
+    bool matches(uint16_t i, uint16_t type, uint8_t bus, uint16_t addr, uint8_t specificity) {
         return specificities[i] == specificity
                 && (specificity == 0 || (types[i] == type && (specificity == 1 || (buses[i] == bus && (specificity == 0x02 || addresses[i] == addr)))));
     }
 
-    bool setVectorInternal(uint8_t type, uint8_t bus, uint16_t addr, uint8_t specificity, scriptSpaceAddress_t vector) {
+    bool setVectorInternal(uint16_t type, uint8_t bus, uint16_t addr, uint8_t specificity, scriptSpaceAddress_t vector) {
         for (uint16_t i = 0; i < vectorNum; i++) {
             if (matches(i, type, bus, addr, specificity)) {
                 vectors[i] = vector;
@@ -47,7 +47,7 @@ private:
         return true;
     }
 
-    bool hasVectorInternal(uint8_t type, uint8_t bus, uint16_t addr, uint8_t specificity) {
+    bool hasVectorInternal(uint16_t type, uint8_t bus, uint16_t addr, uint8_t specificity) {
         if (matches(mostRecent, type, bus, addr, specificity)) {
             return true;
         }
@@ -60,7 +60,7 @@ private:
         return specificity == 0 ? false : hasVectorInternal(type, bus, addr, (uint8_t) (specificity - 1));
     }
 
-    scriptSpaceAddress_t getVectorInternal(uint8_t type, uint8_t bus, uint16_t addr, uint8_t specificity) {
+    scriptSpaceAddress_t getVectorInternal(uint16_t type, uint8_t bus, uint16_t addr, uint8_t specificity) {
         if (matches(mostRecent, type, bus, addr, specificity)) {
             return vectors[mostRecent];
         }
@@ -78,21 +78,21 @@ public:
         return setVectorInternal(0, 0, 0, 0, vector);
     }
 
-    bool setVector(uint8_t type, scriptSpaceAddress_t vector) {
+    bool setVector(uint16_t type, scriptSpaceAddress_t vector) {
         return setVectorInternal(type, 0, 0, 0x01, vector);
     }
-    bool setVector(uint8_t type, uint8_t bus, scriptSpaceAddress_t vector) {
+    bool setVector(uint16_t type, uint8_t bus, scriptSpaceAddress_t vector) {
         return setVectorInternal(type, bus, 0, 0x02, vector);
     }
-    bool setVector(uint8_t type, uint8_t bus, uint16_t addr, scriptSpaceAddress_t vector) {
+    bool setVector(uint16_t type, uint8_t bus, uint16_t addr, scriptSpaceAddress_t vector) {
         return setVectorInternal(type, bus, addr, 0x03, vector);
     }
 
-    bool hasVector(uint8_t type, uint8_t bus, uint16_t addr, bool hasAddress) {
+    bool hasVector(uint16_t type, uint8_t bus, uint16_t addr, bool hasAddress) {
         return hasVectorInternal(type, bus, addr, hasAddress ? 0x03 : 0x02);
     }
 
-    scriptSpaceAddress_t getVector(uint8_t type, uint8_t bus, uint16_t addr, bool hasAddress) {
+    scriptSpaceAddress_t getVector(uint16_t type, uint8_t bus, uint16_t addr, bool hasAddress) {
         return getVectorInternal(type, bus, addr, hasAddress ? 0x03 : 0x02);
     }
 

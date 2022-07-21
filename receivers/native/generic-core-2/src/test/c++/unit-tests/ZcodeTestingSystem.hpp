@@ -4,7 +4,6 @@
 #include "modules/outer-core/ZcodeOuterCoreModule.hpp"
 #include "modules/core/ZcodeCoreModule.hpp"
 
-#include "addressing/ZcodeModuleAddressRouter.hpp"
 #include "../support/ZcodeTestChannel.hpp"
 
 #include "Zcode.hpp"
@@ -15,16 +14,9 @@ public:
         Zcode<TestParams> tmpZ;
         Zcode<TestParams>::zcode = tmpZ;
         Zcode<TestParams> *zcode = &Zcode<TestParams>::zcode;
-        ZcodeModuleAddressRouter<TestParams> addrRouter;
-        zcode->setAddressRouter(&addrRouter);
         ZcodeTestChannel localChannel(input, output, outLength);
         ZcodeCommandChannel<TestParams> *channels[1] = { &localChannel };
         zcode->setChannels(channels, 1);
-        ZcodeCoreModule<TestParams> core;
-        ZcodeOuterCoreModule<TestParams> outerCore;
-        ZcodeScriptModule<TestParams> script;
-        ZcodeModule<TestParams> *modules[3] = { &core, &outerCore, &script };
-        zcode->setModules(modules, 3);
 
         while (!localChannel.isDone()) {
             zcode->progressZcode();

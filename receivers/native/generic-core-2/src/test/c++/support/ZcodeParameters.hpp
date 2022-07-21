@@ -10,6 +10,7 @@
 
 #include "ZcodeIncludes.hpp"
 #include <ZcodeStrings.hpp>
+#include <addressing/ZcodeVoidAddressRouter.hpp>
 
 #define ZCODE_SUPPORT_SCRIPT_SPACE
 #define ZCODE_SUPPORT_INTERRUPT_VECTOR
@@ -20,6 +21,7 @@
 class TestParams {
 public:
     typedef ZcodeStrings<TestParams> Strings;
+    typedef ZcodeVoidAddressRouter<TestParams> AddressRouter; //FIXME: proper addressing system
 
     typedef uint16_t scriptSpaceAddress_t;
     typedef uint16_t scriptSpaceOutLength_t;

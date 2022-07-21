@@ -10,65 +10,139 @@
 
 #include "../ZcodeIncludes.hpp"
 #include "../ZcodeBusInterrupt.hpp"
+#include "../modules/ZcodeModule.hpp"
+#include "ZcodeModuleAddressingSystem.hpp"
 
-template<class ZP>
-class ZcodeExecutionCommandSlot;
+//#define ADDRESSING_LEVEL000 0
+//#define ADDRESSING_LEVEL426 2
+//#define ADDRESSING_LEVEL002 1
+//
+//#define ADDRESSING_SWITCH000 ADDRESSING_SWITCH_UTIL(abc::exec)
+//#define ADDRESSING_SWITCH426 ADDRESSING_SWITCH_UTIL(def::exec)
+//#define ADDRESSING_SWITCH002 ADDRESSING_SWITCH_UTIL(hij::exec)
+//
+//#define ADDRESSING_RESP_SWITCH000 ADDRESSING_RESP_SWITCH_UTIL(abc::exec)
+//#define ADDRESSING_RESP_SWITCH426 ADDRESSING_RESP_SWITCH_UTIL(def::exec)
+//#define ADDRESSING_RESP_SWITCH002 ADDRESSING_RESP_SWITCH_UTIL(hij::exec)
+
+#define ADDRESSING_LEVEL_HELPER___0 0,
+#define ADDRESSING_LEVEL_HELPER___1 0,
+#define ADDRESSING_LEVEL_HELPER___2 0,
+#define ADDRESSING_LEVEL_HELPER_0_0 0,
+#define ADDRESSING_LEVEL_HELPER_1_1 0,
+#define ADDRESSING_LEVEL_HELPER_2_2 0,
+
+#define ADDRESSING_LEVEL_HELPER(x, l) ADDRESSING_LEVEL_HELPER_##x##_ ## l
+#define ADDRESSING_LEVEL_HELPERI(x, l) ADDRESSING_LEVEL_HELPER(x, l)
+#define ADDRESSING_LEVEL_HELPERII(x, l) ADDRESSING_LEVEL_HELPERI(x, l)
+#define ADDRESSING_LEVEL_HELPERIII(x, l) ADDRESSING_LEVEL_HELPERII(x, l)
+#define ADDRESSING_LEVEL_HELPERIV(x, l) ADDRESSING_LEVEL_HELPERIII(x, l)
+#define ADDRESSING_LEVEL_HELPERV(x, l) ADDRESSING_LEVEL_HELPERIV(x, l)
+
+#define ADDRESSING_SWITCH3(x, y, z) COMMAND_SWITCH_TAKE_IF_DEFV(ADDRESSING_LEVEL_HELPERV(_, ADDRESSING_LEVEL##x##y##z) case 0x##x##y##z: ADDRESSING_SWITCH##x##y##z break;, ;)
+
+#define ADDRESSING_SWITCH2_EACH(x, y) ADDRESSING_SWITCH3(x, y, 0) ADDRESSING_SWITCH3(x, y, 1) ADDRESSING_SWITCH3(x, y, 2) ADDRESSING_SWITCH3(x, y, 3) \
+                                ADDRESSING_SWITCH3(x, y, 4) ADDRESSING_SWITCH3(x, y, 5) ADDRESSING_SWITCH3(x, y, 6) ADDRESSING_SWITCH3(x, y, 7) \
+                                ADDRESSING_SWITCH3(x, y, 8) ADDRESSING_SWITCH3(x, y, 9) ADDRESSING_SWITCH3(x, y, A) ADDRESSING_SWITCH3(x, y, B) \
+                                ADDRESSING_SWITCH3(x, y, C) ADDRESSING_SWITCH3(x, y, D) ADDRESSING_SWITCH3(x, y, E) ADDRESSING_SWITCH3(x, y, F)
+
+#define ADDRESSING_SWITCH2(x, y) ADDRESSING_SWITCH2_EACH(x, y)
+
+#define ADDRESSING_SWITCH1_EACH(x) ADDRESSING_SWITCH2(x, 0) ADDRESSING_SWITCH2(x, 1) ADDRESSING_SWITCH2(x, 2) ADDRESSING_SWITCH2(x, 3) \
+                                ADDRESSING_SWITCH2(x, 4) ADDRESSING_SWITCH2(x, 5) ADDRESSING_SWITCH2(x, 6) ADDRESSING_SWITCH2(x, 7) \
+                                ADDRESSING_SWITCH2(x, 8) ADDRESSING_SWITCH2(x, 9) ADDRESSING_SWITCH2(x, A) ADDRESSING_SWITCH2(x, B) \
+                                ADDRESSING_SWITCH2(x, C) ADDRESSING_SWITCH2(x, D) ADDRESSING_SWITCH2(x, E) ADDRESSING_SWITCH2(x, F)
+
+#define ADDRESSING_SWITCH1(x) ADDRESSING_SWITCH1_EACH(x)
+
+#define ADDRESSING_SWITCH0_EACH() ADDRESSING_SWITCH1(0) ADDRESSING_SWITCH1(1) ADDRESSING_SWITCH1(2) ADDRESSING_SWITCH1(3) \
+                                ADDRESSING_SWITCH1(4) ADDRESSING_SWITCH1(5) ADDRESSING_SWITCH1(6) ADDRESSING_SWITCH1(7) \
+                                ADDRESSING_SWITCH1(8) ADDRESSING_SWITCH1(9) ADDRESSING_SWITCH1(A) ADDRESSING_SWITCH1(B) \
+                                ADDRESSING_SWITCH1(C) ADDRESSING_SWITCH1(D) ADDRESSING_SWITCH1(E) ADDRESSING_SWITCH1(F)
+
+#define ADDRESSING_SWITCH0() ADDRESSING_SWITCH0_EACH()
+
+#define ADDRESSING_RESP_SWITCH3(x, y, z) COMMAND_SWITCH_TAKE_IF_DEFV(ADDRESSING_LEVEL_HELPERV(_, ADDRESSING_LEVEL##x##y##z) case 0x##x##y##z: ADDRESSING_RESP_SWITCH##x##y##z break;, ;)
+
+#define ADDRESSING_RESP_SWITCH2_EACH(x, y) ADDRESSING_RESP_SWITCH3(x, y, 0) ADDRESSING_RESP_SWITCH3(x, y, 1) ADDRESSING_RESP_SWITCH3(x, y, 2) ADDRESSING_RESP_SWITCH3(x, y, 3) \
+                                ADDRESSING_RESP_SWITCH3(x, y, 4) ADDRESSING_RESP_SWITCH3(x, y, 5) ADDRESSING_RESP_SWITCH3(x, y, 6) ADDRESSING_RESP_SWITCH3(x, y, 7) \
+                                ADDRESSING_RESP_SWITCH3(x, y, 8) ADDRESSING_RESP_SWITCH3(x, y, 9) ADDRESSING_RESP_SWITCH3(x, y, A) ADDRESSING_RESP_SWITCH3(x, y, B) \
+                                ADDRESSING_RESP_SWITCH3(x, y, C) ADDRESSING_RESP_SWITCH3(x, y, D) ADDRESSING_RESP_SWITCH3(x, y, E) ADDRESSING_RESP_SWITCH3(x, y, F)
+
+#define ADDRESSING_RESP_SWITCH2(x, y) ADDRESSING_RESP_SWITCH2_EACH(x, y)
+
+#define ADDRESSING_RESP_SWITCH1_EACH(x) ADDRESSING_RESP_SWITCH2(x, 0) ADDRESSING_RESP_SWITCH2(x, 1) ADDRESSING_RESP_SWITCH2(x, 2) ADDRESSING_RESP_SWITCH2(x, 3) \
+                                ADDRESSING_RESP_SWITCH2(x, 4) ADDRESSING_RESP_SWITCH2(x, 5) ADDRESSING_RESP_SWITCH2(x, 6) ADDRESSING_RESP_SWITCH2(x, 7) \
+                                ADDRESSING_RESP_SWITCH2(x, 8) ADDRESSING_RESP_SWITCH2(x, 9) ADDRESSING_RESP_SWITCH2(x, A) ADDRESSING_RESP_SWITCH2(x, B) \
+                                ADDRESSING_RESP_SWITCH2(x, C) ADDRESSING_RESP_SWITCH2(x, D) ADDRESSING_RESP_SWITCH2(x, E) ADDRESSING_RESP_SWITCH2(x, F)
+
+#define ADDRESSING_RESP_SWITCH1(x) ADDRESSING_RESP_SWITCH1_EACH(x)
+
+#define ADDRESSING_RESP_SWITCH0_EACH() ADDRESSING_RESP_SWITCH1(0) ADDRESSING_RESP_SWITCH1(1) ADDRESSING_RESP_SWITCH1(2) ADDRESSING_RESP_SWITCH1(3) \
+                                ADDRESSING_RESP_SWITCH1(4) ADDRESSING_RESP_SWITCH1(5) ADDRESSING_RESP_SWITCH1(6) ADDRESSING_RESP_SWITCH1(7) \
+                                ADDRESSING_RESP_SWITCH1(8) ADDRESSING_RESP_SWITCH1(9) ADDRESSING_RESP_SWITCH1(A) ADDRESSING_RESP_SWITCH1(B) \
+                                ADDRESSING_RESP_SWITCH1(C) ADDRESSING_RESP_SWITCH1(D) ADDRESSING_RESP_SWITCH1(E) ADDRESSING_RESP_SWITCH1(F)
+
+#define ADDRESSING_RESP_SWITCH0() ADDRESSING_RESP_SWITCH0_EACH()
+
+#define ADDRESSING_LEVEL3(v, x, y, z) COMMAND_SWITCH_TAKE_IF_DEFV(ADDRESSING_LEVEL_HELPERV(v, ADDRESSING_LEVEL##x##y##z) case 0x##x##y##z:, ;)
+
+#define ADDRESSING_LEVEL2_EACH(v, x, y) ADDRESSING_LEVEL3(v, x, y, 0) ADDRESSING_LEVEL3(v, x, y, 1) ADDRESSING_LEVEL3(v, x, y, 2) ADDRESSING_LEVEL3(v, x, y, 3) \
+                                ADDRESSING_LEVEL3(v, x, y, 4) ADDRESSING_LEVEL3(v, x, y, 5) ADDRESSING_LEVEL3(v, x, y, 6) ADDRESSING_LEVEL3(v, x, y, 7) \
+                                ADDRESSING_LEVEL3(v, x, y, 8) ADDRESSING_LEVEL3(v, x, y, 9) ADDRESSING_LEVEL3(v, x, y, A) ADDRESSING_LEVEL3(v, x, y, B) \
+                                ADDRESSING_LEVEL3(v, x, y, C) ADDRESSING_LEVEL3(v, x, y, D) ADDRESSING_LEVEL3(v, x, y, E) ADDRESSING_LEVEL3(v, x, y, F)
+
+#define ADDRESSING_LEVEL2(v, x, y) ADDRESSING_LEVEL2_EACH(v, x, y)
+
+#define ADDRESSING_LEVEL1_EACH(v, x) ADDRESSING_LEVEL2(v, x, 0) ADDRESSING_LEVEL2(v, x, 1) ADDRESSING_LEVEL2(v, x, 2) ADDRESSING_LEVEL2(v, x, 3) \
+                                ADDRESSING_LEVEL2(v, x, 4) ADDRESSING_LEVEL2(v, x, 5) ADDRESSING_LEVEL2(v, x, 6) ADDRESSING_LEVEL2(v, x, 7) \
+                                ADDRESSING_LEVEL2(v, x, 8) ADDRESSING_LEVEL2(v, x, 9) ADDRESSING_LEVEL2(v, x, A) ADDRESSING_LEVEL2(v, x, B) \
+                                ADDRESSING_LEVEL2(v, x, C) ADDRESSING_LEVEL2(v, x, D) ADDRESSING_LEVEL2(v, x, E) ADDRESSING_LEVEL2(v, x, F)
+
+#define ADDRESSING_LEVEL1(v, x) ADDRESSING_LEVEL1_EACH(v, x)
+
+#define ADDRESSING_LEVEL0_EACH(v) ADDRESSING_LEVEL1(v, 0) ADDRESSING_LEVEL1(v, 1) ADDRESSING_LEVEL1(v, 2) ADDRESSING_LEVEL1(v, 3) \
+                                ADDRESSING_LEVEL1(v, 4) ADDRESSING_LEVEL1(v, 5) ADDRESSING_LEVEL1(v, 6) ADDRESSING_LEVEL1(v, 7) \
+                                ADDRESSING_LEVEL1(v, 8) ADDRESSING_LEVEL1(v, 9) ADDRESSING_LEVEL1(v, A) ADDRESSING_LEVEL1(v, B) \
+                                ADDRESSING_LEVEL1(v, C) ADDRESSING_LEVEL1(v, D) ADDRESSING_LEVEL1(v, E) ADDRESSING_LEVEL1(v, F)
+
+#define ADDRESSING_LEVEL0(v) ADDRESSING_LEVEL0_EACH(v)
 
 template<class ZP>
 class ZcodeAddressRouter {
-    typedef typename ZP::Strings::string_t string_t;
-
-    int8_t getHex(char c) {
-        if (c >= 'a') {
-            return (int8_t) (c <= 'f' ? c - 'a' + 10 : -1);
-        } else {
-            return (int8_t) (c >= '0' && c <= '9' ? c - '0' : -1);
-        }
-    }
-protected:
 
 public:
-    void route(ZcodeExecutionCommandSlot<ZP> slot, uint16_t startPos) {
-        const uint8_t *data = slot.getBigField()->getData() + startPos;
-        uint16_t lengthToTransmit = (uint16_t) (slot.getBigField()->getLength() - startPos);
-        if (slot.getChannel() != slot.getZcode()->getNotificationManager()->getNotificationChannel()) {
-            slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingOnlyFromNotificationChannel);
-            return;
-        }
-        uint16_t addr = 0;
-        uint8_t i;
-        for (i = 0; i < 4 && i < lengthToTransmit; i++) {
-            int8_t v = getHex(data[i]);
-            if (v == -1) {
-                break;
-            } else {
-                addr = (uint16_t) ((addr << 4) | v);
-            }
-        }
-        if (data[i] == '.') {
-            i++;
-            routeAddress(slot, (uint16_t) (startPos + i), addr, true);
-        } else {
-            routeAddress(slot, (uint16_t) (startPos + i), addr, false);
+    //has functions of form:    static void route(ZcodeExecutionCommandSlot<ZP> slot);
+    //                          static void response(ZcodeBusInterrupt<ZP> interrupt, ZcodeOutStream<ZP> *out);
+    //                          static bool isAddressed(ZcodeBusInterrupt<ZP> interrupt);
+
+    void addressingSwitch(uint16_t module, ZcodeExecutionCommandSlot<ZP> slot, ZcodeAddressingInfo<ZP> addressingInfo) {
+        switch (module) {
+        ADDRESSING_SWITCH0()
+
+    default:
+        return;
         }
     }
-    bool canTakeInterrupt() {
-        return Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel() != NULL && !Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel()->out->isLocked();
+    void responseSwitch(ZcodeBusInterrupt<ZP> interrupt, ZcodeOutStream<ZP> *out) {
+        switch (interrupt.getNotificationModule()) {
+        ADDRESSING_RESP_SWITCH0()
+
+    default:
+        return;
+        }
     }
-    void response(ZcodeBusInterrupt<ZP> interrupt) {
-        ZcodeOutStream<ZP> *out = Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel()->out;
-        out->lock();
-        out->openNotification(Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel());
-        out->markAddressing();
-        routeResponce(out, interrupt);
-        out->writeCommandSequenceSeparator();
-        out->close();
-        out->unlock();
+    uint8_t getAddressingLevel(uint16_t module) {
+        switch (module) {
+        ADDRESSING_LEVEL0(0)
+        return 0;
+        ADDRESSING_LEVEL0(1)
+        return 1;
+        ADDRESSING_LEVEL0(2)
+        return 2;
+    default:
+        return 0;
+        }
     }
-
-    virtual void routeAddress(ZcodeExecutionCommandSlot<ZP> slot, uint16_t startPos, uint16_t address, bool hasHadDot) = 0;
-
-    virtual void routeResponse(ZcodeOutStream<ZP> *out, ZcodeBusInterrupt<ZP> interrupt) = 0;
-
 };
 #endif /* SRC_TEST_CPP_ZCODE_ZCODEADDRESSROUTER_HPP_ */

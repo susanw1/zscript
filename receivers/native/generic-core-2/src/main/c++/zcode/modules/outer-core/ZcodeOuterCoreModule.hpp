@@ -29,15 +29,6 @@ class ZcodeOuterCoreModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
 
 public:
-    ZcodeOuterCoreModule() :
-            ZcodeModule<ZP>(ZCODE_OUTER_CORE_MODULE_ADDRESS
-
-#if defined(ZCODE_SUPPORT_ADDRESSING) && defined(ZCODE_SUPPORT_DEBUG)
-                    , NULL
-#endif
-
-                    ) {
-    }
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
 

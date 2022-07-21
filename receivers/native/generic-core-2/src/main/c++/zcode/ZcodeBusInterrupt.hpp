@@ -31,12 +31,12 @@ public:
         return source;
     }
 
-    uint8_t getNotificationType() {
-        return info.type;
+    uint16_t getNotificationModule() {
+        return info.module;
     }
 
-    uint8_t getNotificationBus() {
-        return info.bus;
+    uint8_t getNotificationPort() {
+        return info.port;
     }
 
     uint16_t getFoundAddress() {

@@ -33,9 +33,6 @@ class ZcodeScriptModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
 
 public:
-    ZcodeScriptModule() :
-            ZcodeModule<ZP>(ZCODE_SCRIPT_MODULE_ADDRESS) {
-    }
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
 

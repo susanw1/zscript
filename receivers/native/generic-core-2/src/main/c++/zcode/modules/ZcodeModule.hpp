@@ -10,7 +10,6 @@
 
 #include "../ZcodeIncludes.hpp"
 #include "../running/ZcodeExecutionCommandSlot.hpp"
-#include "../addressing/ZcodeAddressRouter.hpp"
 
 #define COMMAND_SWITCH_TAKE_IF_SECOND_DEF(thing, otherThing, x, ...) x
 #define COMMAND_SWITCH_TAKE_IF_SECOND_DEFI(thing, otherThing, x, ...) COMMAND_SWITCH_TAKE_IF_SECOND_DEF(thing, otherThing, x, ...)
@@ -93,24 +92,7 @@ template<class ZP>
 class ZcodeModule {
 
 public:
-    const uint16_t moduleId;
 
-#ifdef ZCODE_SUPPORT_ADDRESSING
-    ZcodeAddressRouter<ZP> *addressRouter;
-
-    ZcodeModule(uint16_t moduleId, ZcodeAddressRouter<ZP> *addressRouter) :
-            moduleId(moduleId), addressRouter(addressRouter) {
-    }
-#endif
-
-    ZcodeModule(uint16_t moduleId) :
-            moduleId(moduleId)
-
-#ifdef ZCODE_SUPPORT_ADDRESSING
-    , addressRouter(NULL)
-#endif
-    {
-    }
 };
 // want function of form: void execute(ZcodeExecutionCommandSlot<ZP> slot, uint16_t command)
 

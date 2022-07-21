@@ -55,6 +55,18 @@ public:
     #endif
                     notificationChannel(NULL) {
     }
+    void sendInitialInterruptInfo(ZcodeOutStream<ZP> *out, ZcodeBusInterrupt<ZP> interrupt) {
+        out->openNotification(notificationChannel);
+        out->markNotification(BusNotification);
+        out->writeField16('M', interrupt.getNotificationModule());
+        out->writeField8('P', interrupt.getNotificationPort());
+        out->writeStatus(OK);
+        if (interrupt.hasFindableAddress()) {
+            out->writeCommandSeparator();
+            out->writeField16('A', interrupt.getFoundAddress());
+            out->writeStatus(OK);
+        }
+    }
 
     void setBusInterruptSources(ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum) {
         this->sources = sources;
@@ -94,7 +106,6 @@ bool ZcodeNotificationManager<ZP>::canSendNotification() {
 
 template<class ZP>
 void ZcodeNotificationManager<ZP>::sendNotification(ZcodeBusInterrupt<ZP> interrupt) { // Only called if canSendNotification()
-
 #if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
     if (vectorChannel.hasVector(&interrupt)) {
         vectorChannel.acceptInterrupt(interrupt);
@@ -103,15 +114,7 @@ void ZcodeNotificationManager<ZP>::sendNotification(ZcodeBusInterrupt<ZP> interr
     ZcodeOutStream<ZP> *out = notificationChannel->out;
     out->lock();
     out->openNotification(notificationChannel);
-    out->markNotification(BusNotification);
-    out->writeField8('T', interrupt.getNotificationType());
-    out->writeField8('I', interrupt.getNotificationBus());
-    out->writeStatus(OK);
-    if (interrupt.hasFindableAddress()) {
-        out->writeCommandSeparator();
-        out->writeField16('A', interrupt.getFoundAddress());
-        out->writeStatus(OK);
-    }
+    sendInitialInterruptInfo(out, interrupt);
     out->writeCommandSequenceSeparator();
     out->close();
     out->unlock();

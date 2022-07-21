@@ -31,11 +31,7 @@ private:
 public:
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
-        if (slot.getZcode()->getAddressRouter() != NULL) {
-            slot.getZcode()->getAddressRouter()->route(slot, 0);
-        } else {
-            slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingNotSetup);
-        }
+        ZP::AddressRouter::route(slot);
     }
 };
 

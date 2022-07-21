@@ -60,7 +60,6 @@ public:
 private:
     ZcodeLocks<ZP> locks; // the stupid ordering here is to make the #if's happy without increasing the size...
     uint8_t channelCount = 0;
-    uint8_t moduleNum = 0;
     bool activated = false;
 
 #ifdef ZCODE_GENERATE_NOTIFICATIONS
@@ -74,13 +73,8 @@ private:
     ZcodeDebugOutput<ZP> debug;
 #endif
 
-#ifdef ZCODE_SUPPORT_ADDRESSING
-    ZcodeAddressRouter<ZP> *addrRouter;
-#endif
     ZcodeCommandChannel<ZP> **channels = NULL;
     //    const char *configFailureState = NULL;
-    // FIXME: We really shouldn't need this pointer - do the module addressing with #defines maybe - bit evil I guess?
-    ZcodeModule<ZP> **modules = NULL;
 
 public:
 
@@ -97,20 +91,8 @@ public:
     , debug()
 #endif
 
-#ifdef ZCODE_SUPPORT_ADDRESSING
-    , addrRouter(NULL)
-#endif
     {
     }
-
-#ifdef ZCODE_SUPPORT_ADDRESSING
-    ZcodeAddressRouter<ZP>* getAddressRouter() {
-        return addrRouter;
-    }
-    void setAddressRouter(ZcodeAddressRouter<ZP>* router) {
-        addrRouter = router;
-    }
-#endif
 
 #ifdef ZCODE_GENERATE_NOTIFICATIONS
 
@@ -132,11 +114,6 @@ public:
     void setChannels(ZcodeCommandChannel<ZP> **channels, uint8_t channelNum) {
         this->channels = channels;
         this->channelCount = channelNum;
-    }
-
-    void setModules(ZcodeModule<ZP> **modules, uint8_t moduleNum) {
-        this->modules = modules;
-        this->moduleNum = moduleNum;
     }
 
 //    void configFail(const char *configFailureState) {
@@ -211,14 +188,6 @@ public:
 #endif
 #endif
         );
-    }
-
-    ZcodeModule<ZP>** getModules() {
-        return modules;
-    }
-
-    uint8_t getModuleNumber() {
-        return moduleNum;
     }
 
 #ifdef ZCODE_SUPPORT_DEBUG

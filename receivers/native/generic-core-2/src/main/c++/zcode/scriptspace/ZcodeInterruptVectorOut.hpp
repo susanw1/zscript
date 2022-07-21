@@ -64,16 +64,9 @@ void ZcodeInterruptVectorOut<ZP>::open(ZcodeCommandChannel<ZP> *target, ZcodeOut
             return;
         }
         ZcodeInterruptVectorChannel<ZP> *channel = (ZcodeInterruptVectorChannel<ZP>*) target;
+
         out->openNotification(Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel());
-        out->markNotification(BusNotification);
-        out->writeField8('T', channel->getInterrupt()->getNotificationType());
-        out->writeField8('I', channel->getInterrupt()->getNotificationBus());
-        out->writeStatus(OK);
-        if (channel->getInterrupt()->hasFindableAddress()) {
-            out->writeCommandSeparator();
-            out->writeField16('A', channel->getInterrupt()->getFoundAddress());
-            out->writeStatus(OK);
-        }
+        Zcode<ZP>::zcode.getNotificationManager()->sendInitialInterruptInfo(out, *channel->getInterrupt());
         out->writeCommandSeparator();
         channel->clear();
     }

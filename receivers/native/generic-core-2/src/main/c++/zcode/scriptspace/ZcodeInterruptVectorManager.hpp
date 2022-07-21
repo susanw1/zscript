@@ -65,15 +65,15 @@ public:
     }
 
     bool hasVector(ZcodeBusInterrupt<ZP> *busInt) {
-        return vectorMap.hasVector(busInt->getNotificationType(),
-                busInt->getNotificationBus(),
+        return vectorMap.hasVector(busInt->getNotificationModule(),
+                busInt->getNotificationPort(),
                 busInt->getFoundAddress(),
                 busInt->hasFindableAddress());
     }
 
     scriptSpaceAddress_t findVector(ZcodeBusInterrupt<ZP> *busInt) {
-        return vectorMap.getVector(busInt->getNotificationType(),
-                busInt->getNotificationBus(),
+        return vectorMap.getVector(busInt->getNotificationModule(),
+                busInt->getNotificationPort(),
                 busInt->getFoundAddress(),
                 busInt->hasFindableAddress());
     }
