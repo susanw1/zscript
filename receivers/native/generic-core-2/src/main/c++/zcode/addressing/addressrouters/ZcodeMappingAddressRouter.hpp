@@ -12,6 +12,10 @@
 #include "../../ZcodeBusInterrupt.hpp"
 #include "../ZcodeAddressRouter.hpp"
 
+#ifndef ZCODE_SUPPORT_ADDRESSING
+#error Cannot use addressing system without addressing
+#endif
+
 template<class ZP>
 class ZcodeMappingAddressRouter: public ZcodeAddressRouter<ZP> {
     typedef typename ZcodeAddressRouter<ZP>::AddressSectionReading AddressSectionReading;

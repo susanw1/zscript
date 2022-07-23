@@ -33,12 +33,15 @@ public:
         case 0x0:
             ZcodeExtendedCapabilitiesCommand<ZP>::execute(slot);
             break;
+#ifdef ZCODE_SUPPORT_ADDRESSING
         case 0x1:
             ZcodeAddressCommand<ZP>::execute(slot);
             break;
         case 0x2:
             ZP::AddressRouter::addressingControlCommand(slot);
             break;
+#endif
+
 #ifdef ZCODE_CORE_WRITE_GUID
         case 0x4:
             ZCODE_CORE_WRITE_GUID(slot);

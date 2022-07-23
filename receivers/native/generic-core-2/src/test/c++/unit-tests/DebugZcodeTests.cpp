@@ -13,6 +13,8 @@ int main(void) {
         std::cerr << "Failed on Set Debug target\n";
         return 1;
     }
+#ifdef ZCODE_SUPPORT_ADDRESSING
+#ifdef ZCODE_SUPPORT_DEBUG
     if (!ZcodeTestingSystem::tryTest("Z2&Z11\"0.0Hello\"", "AS&S9\"Addressing only allowed from notification channel\"\n")) {
         std::cerr << "Failed on debug with no notification\n";
         return 1;
@@ -33,4 +35,6 @@ int main(void) {
         std::cerr << "Failed on addressing\n";
         return 1;
     }
+#endif
+#endif
 }

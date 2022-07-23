@@ -11,6 +11,10 @@
 #include "../ZcodeIncludes.hpp"
 #include "../ZcodeBusInterrupt.hpp"
 
+#ifndef ZCODE_SUPPORT_ADDRESSING
+#error Cannot use addressing system without addressing
+#endif
+
 template<class ZP>
 struct ZcodeAddressingInfo {
     typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;

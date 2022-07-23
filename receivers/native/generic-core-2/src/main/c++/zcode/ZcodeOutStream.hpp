@@ -13,6 +13,9 @@
 template<class ZP>
 class ZcodeCommandChannel;
 
+template<class ZP>
+class ZcodeDebugOutput;
+
 enum ZcodeOutStreamOpenType {
     RESPONSE, NOTIFICATION, DEBUG
 };
@@ -70,6 +73,7 @@ public:
         mostRecent = target;
     }
 
+#ifdef ZCODE_GENERATE_NOTIFICATIONS
     void openNotification(ZcodeCommandChannel<ZP> *target) {
         if (isOpen()) {
             close();
@@ -77,7 +81,8 @@ public:
         open(target, NOTIFICATION);
         mostRecent = NULL;
     }
-
+#endif
+#ifdef ZCODE_SUPPORT_DEBUG
     void openDebug(ZcodeDebugOutput<ZP> *output, ZcodeCommandChannel<ZP> *target) {
         if (isOpen()) {
             if (mostRecent != output || !target->packetBased) {
@@ -89,6 +94,7 @@ public:
         }
         mostRecent = output;
     }
+#endif
 
     virtual bool lock() {
         if (!lockVal) {

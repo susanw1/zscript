@@ -9,9 +9,18 @@
 
 #include "../support/ZcodeParameters.hpp"
 
+#ifdef ZCODE_SUPPORT_ADDRESSING
+#ifdef ZCODE_SUPPORT_DEBUG
 #include "modules/core/ZcodeDebugAddressingSystem.hpp"
+#endif
+
 #include <addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
-//#include "modules/script/ZcodeScriptModule.hpp"
+#endif
+
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
+#include "modules/script/ZcodeScriptModule.hpp"
+#endif
+
 #include "modules/outer-core/ZcodeOuterCoreModule.hpp"
 #include "modules/core/ZcodeCoreModule.hpp"
 

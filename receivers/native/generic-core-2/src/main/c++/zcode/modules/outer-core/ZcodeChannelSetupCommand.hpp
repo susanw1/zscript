@@ -38,12 +38,16 @@ public:
                 target = zcode->getChannel((uint8_t) targetIndex);
             }
         }
+#ifdef ZCODE_GENERATE_NOTIFICATIONS
         if (slot.getFields()->has('N')) {
             zcode->getNotificationManager()->setNotificationChannel(target);
         }
+#endif
+#ifdef ZCODE_SUPPORT_DEBUG
         if (slot.getFields()->has('D')) {
             zcode->getDebug().setDebugChannel(target);
         }
+#endif
         target->readSetup(slot);
     }
 

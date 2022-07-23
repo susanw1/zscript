@@ -12,6 +12,10 @@
 #include "../ZcodeCommand.hpp"
 #include "../../addressing/ZcodeModuleAddressingSystem.hpp"
 
+#ifndef ZCODE_SUPPORT_DEBUG
+#error Cannot use debug addressing system without debug
+#endif
+
 #define ADDRESSING_SWITCH000 ADDRESSING_SWITCH_UTIL(ZcodeDebugAddressingSystem<ZP>::routeAddress)
 #define ADDRESSING_RESP_SWITCH000 ADDRESSING_RESP_SWITCH_UTIL(ZcodeDebugAddressingSystem<ZP>::routeResponse)
 #define ADDRESSING_LEVEL000 0

@@ -77,15 +77,20 @@ int main(void) {
         std::cerr << "Failed on Consecutive Echo with errors\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z0", "SC3107M7N14\n")) {
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
+    const char *capResp = "SC3107M7N14\n";
+#else
+    const char *capResp = "SC3107M3N14\n";
+#endif
+    if (!ZcodeTestingSystem::tryTest("Z0", capResp)) {
         std::cerr << "Failed on Capabilities\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z0000", "SC3107M7N14\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z0000", capResp)) {
         std::cerr << "Failed on Capabilities\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z", "SC3107M7N14\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z", capResp)) {
         std::cerr << "Failed on Capabilities with no 0s\n";
         return 1;
     }
