@@ -10,14 +10,15 @@
 
 #include "ZcodeIncludes.hpp"
 #include <ZcodeStrings.hpp>
-#include <addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
-#include <addressing/addressrouters/ZcodeMappingAddressRouter.hpp>
 
 #define ZCODE_SUPPORT_SCRIPT_SPACE
 #define ZCODE_SUPPORT_INTERRUPT_VECTOR
 #define ZCODE_SUPPORT_ADDRESSING
 #define ZCODE_GENERATE_NOTIFICATIONS
 #define ZCODE_SUPPORT_DEBUG
+
+template<class ZP>
+class ZcodeModuleAddressRouter;
 
 class TestParams {
 public:

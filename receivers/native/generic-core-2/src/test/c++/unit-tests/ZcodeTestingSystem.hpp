@@ -1,7 +1,8 @@
-#include "modules/core/ZcodeDebugAddressingSystem.hpp"
-
 #include "../support/ZcodeParameters.hpp"
 
+#include "modules/core/ZcodeDebugAddressingSystem.hpp"
+
+#include <addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
 #include "modules/script/ZcodeScriptModule.hpp"
 #include "modules/outer-core/ZcodeOuterCoreModule.hpp"
 #include "modules/core/ZcodeCoreModule.hpp"

@@ -10,8 +10,8 @@
 #include "../ZcodeIncludes.hpp"
 #include "../modules/ZcodeModule.hpp"
 
-#define MODULE_SWITCH_CHECK(v) MODULE_EXISTS_##v
-#define MODULE_SWITCH_SWITCH(v) MODULE_SWITCH_##v break;
+#define MODULE_SWITCH_CHECK(x, y) MODULE_EXISTS_##x##y
+#define MODULE_SWITCH_SWITCH(x, y) MODULE_SWITCH_##x##y break;
 
 #define MODULE_SWITCH() MODULE_SWITCHING_GENERIC(MODULE_SWITCH_CHECK, MODULE_SWITCH_SWITCH)
 

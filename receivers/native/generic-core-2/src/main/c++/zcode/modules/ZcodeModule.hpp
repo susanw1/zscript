@@ -88,16 +88,16 @@
 //
 //
 //
-#define MODULE_SWITCHING_GENERIC3(check, sw, v) COMMAND_SWITCH_TAKE_IF_DEFV(check(v) case 0x##v: sw(v), ;)
+#define MODULE_SWITCHING_GENERIC3(check, sw, x, y) COMMAND_SWITCH_TAKE_IF_DEFV(check(x, y) case 0x##x##y: sw(x, y), ;)
 
-#define MODULE_SWITCHING_GENERIC2_EACH(check, sw, x) MODULE_SWITCHING_GENERIC3(check, sw, x##0) MODULE_SWITCHING_GENERIC3(check, sw, x##1) \
-        MODULE_SWITCHING_GENERIC3(check, sw, x##2) MODULE_SWITCHING_GENERIC3(check, sw, x##3) \
-        MODULE_SWITCHING_GENERIC3(check, sw, x##4) MODULE_SWITCHING_GENERIC3(check, sw, x##5) \
-        MODULE_SWITCHING_GENERIC3(check, sw, x##6) MODULE_SWITCHING_GENERIC3(check, sw, x##7) \
-        MODULE_SWITCHING_GENERIC3(check, sw, x##8) MODULE_SWITCHING_GENERIC3(check, sw, x##9) \
-        MODULE_SWITCHING_GENERIC3(check, sw, x##A) MODULE_SWITCHING_GENERIC3(check, sw, x##B) \
-        MODULE_SWITCHING_GENERIC3(check, sw, x##C) MODULE_SWITCHING_GENERIC3(check, sw, x##D) \
-        MODULE_SWITCHING_GENERIC3(check, sw, x##E) MODULE_SWITCHING_GENERIC3(check, sw, x##F)
+#define MODULE_SWITCHING_GENERIC2_EACH(check, sw, x) MODULE_SWITCHING_GENERIC3(check, sw, x, 0) MODULE_SWITCHING_GENERIC3(check, sw, x, 1) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x, 2) MODULE_SWITCHING_GENERIC3(check, sw, x, 3) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x, 4) MODULE_SWITCHING_GENERIC3(check, sw, x, 5) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x, 6) MODULE_SWITCHING_GENERIC3(check, sw, x, 7) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x, 8) MODULE_SWITCHING_GENERIC3(check, sw, x, 9) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x, A) MODULE_SWITCHING_GENERIC3(check, sw, x, B) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x, C) MODULE_SWITCHING_GENERIC3(check, sw, x, D) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x, E) MODULE_SWITCHING_GENERIC3(check, sw, x, F)
 
 #define MODULE_SWITCHING_GENERIC2(check, sw, x) MODULE_SWITCHING_GENERIC2_EACH(check, sw, x)
 
