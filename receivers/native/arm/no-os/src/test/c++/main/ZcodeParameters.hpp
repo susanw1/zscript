@@ -21,6 +21,9 @@
 #define ZCODE_GENERATE_NOTIFICATIONS
 #define ZCODE_SUPPORT_DEBUG
 
+template<class ZP>
+class ZcodeModuleAddressRouter;
+
 class ZcodeParameters {
 public:
     typedef uint8_t fieldUnit_t;
@@ -34,6 +37,7 @@ public:
     typedef uint8_t lockNumber_t;
 
     typedef ZcodeStrings<ZcodeParameters> Strings;
+    typedef ZcodeModuleAddressRouter<ZcodeParameters> AddressRouter;
 
     static uint16_t numberGenerator() {
         return (uint16_t) SystemMilliClock<LL>::getTimeMillis();

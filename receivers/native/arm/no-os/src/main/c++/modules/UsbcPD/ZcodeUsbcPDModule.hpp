@@ -17,18 +17,14 @@
 #include "ZcodeUsbcPDSourceExtendedCommand.hpp"
 #include "ZcodeUsbcPDCapabilitiesCommand.hpp"
 
-#define MODULE_ADDRESS011 MODULE_ADDRESS_UTIL
-
-#define COMMAND_SWITCH011 COMMAND_SWITCH_UTIL(0x11, ZcodeUsbcPDModule<ZP>::execute)
+#define MODULE_EXISTS_011 EXISTENCE_MARKER_UTIL
+#define MODULE_SWITCH_011 MODULE_SWITCH_UTIL(ZcodeUsbcPDModule<ZP>::execute)
 
 template<class ZP>
 class ZcodeUsbcPDModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
 
 public:
-    ZcodeUsbcPDModule() :
-            ZcodeModule<ZP>(0x11) {
-    }
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
 

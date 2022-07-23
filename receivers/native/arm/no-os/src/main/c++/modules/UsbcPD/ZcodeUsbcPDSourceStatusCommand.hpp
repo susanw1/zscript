@@ -11,7 +11,7 @@
 #include <modules/ZcodeCommand.hpp>
 #include <LowLevel/UsbcPD/Ucpd.hpp>
 
-#define COMMAND_VALUE_0114 MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_0114 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeUsbcPDSourceStatusCommand: public ZcodeCommand<ZP> {

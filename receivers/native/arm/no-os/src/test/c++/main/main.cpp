@@ -23,9 +23,13 @@
 
 #include <stm32g4xx.h>
 #include <stm32g484xx.h>
-#include "ZcodeParameters.hpp"
 
+#include "ZcodeParameters.hpp"
 #include <GeneralLLSetup.hpp>
+
+#include <modules/core/ZcodeDebugAddressingSystem.hpp>
+#include <addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
+
 #include <modules/core/ZcodeReadGuidCommand.hpp>
 #include <modules/core/ZcodeWriteGuidCommand.hpp>
 #include <modules/core/ZcodeResetCommand.hpp>
@@ -36,7 +40,6 @@
 #include <modules/script/ZcodeScriptModule.hpp>
 #include <modules/outer-core/ZcodeOuterCoreModule.hpp>
 #include <modules/core/ZcodeCoreModule.hpp>
-#include <addressing/ZcodeModuleAddressRouter.hpp>
 
 #include <modules/i2c/ZcodeI2cModule.hpp>
 
@@ -45,26 +48,20 @@
 
 #include <LowLevel/PersistenceLowLevel/FlashPage.hpp>
 
-#include <LowLevel/AToDLowLevel/AtoD.hpp>
 #include <LowLevel/AToDLowLevel/AtoDManager.hpp>
 
 #include <LowLevel/GpioLowLevel/GpioManager.hpp>
-#include <LowLevel/GpioLowLevel/Gpio.hpp>
 
 #include <LowLevel/ClocksLowLevel/SystemMilliClock.hpp>
 #include <LowLevel/ClocksLowLevel/ClockManager.hpp>
-#include <LowLevel/ClocksLowLevel/Clock.hpp>
 
 #include <LowLevel/I2cLowLevel/I2cManager.hpp>
-#include <LowLevel/I2cLowLevel/I2c.hpp>
 
 #include <UsbcPD/Ucpd.hpp>
 
 #include <LowLevel/UartLowLevel/UartManager.hpp>
-#include <LowLevel/UartLowLevel/Uart.hpp>
+
 #include <LowLevel/ArduinoSpiLayer/src/Ethernet.h>
-#include "stm32g4xx.h"
-#include "stm32g484xx.h"
 
 #include <Zcode.hpp>
 
@@ -107,14 +104,7 @@ int main(void) {
     SerialChannel<ZcodeParameters> serial(&Usb<GeneralHalSetup>::usb);
     ZcodeCommandChannel<ZcodeParameters> *chptr[] = { &channel, &serial };
     z->setChannels(chptr, 2);
-    ZcodeUsbcPDModule<ZcodeParameters> usbcPD;
-    ZcodeScriptModule<ZcodeParameters> script;
-    ZcodeOuterCoreModule<ZcodeParameters> outerCore;
-    ZcodeCoreModule<ZcodeParameters> core;
-//    ZcodeScriptModule<TestParams> script;
-    ZcodeModule<ZcodeParameters> *modules[] = { &core, &outerCore, &script, &usbcPD };
-    z->setModules(modules, 4);
-//
+
     I2c<GeneralHalSetup> *i2c1 = I2cManager<GeneralHalSetup>::getI2cById(0);
     GpioPin<GeneralHalSetup> *c4 = GpioManager<GeneralHalSetup>::getPin(PC_4);
     c4->init();
@@ -222,4 +212,5 @@ int main(void) {
 
 //    z.getCommandFinder()->registerCommand(&cmd14);
 //    z.getCommandFinder()->registerCommand(&cmd15);
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

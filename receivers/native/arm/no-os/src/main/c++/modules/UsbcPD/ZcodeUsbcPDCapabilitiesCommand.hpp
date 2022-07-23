@@ -10,7 +10,7 @@
 
 #include <modules/ZcodeCommand.hpp>
 
-#define COMMAND_VALUE_0110 MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_0110 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeUsbcPDCapabilitiesCommand: public ZcodeCommand<ZP> {

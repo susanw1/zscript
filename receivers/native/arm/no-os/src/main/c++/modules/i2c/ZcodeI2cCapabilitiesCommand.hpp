@@ -3,7 +3,7 @@
 
 #include <modules/ZcodeCommand.hpp>
 
-#define COMMAND_VALUE_0050 MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_0050 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeI2cCapabilitiesCommand: public ZcodeCommand<ZP> {

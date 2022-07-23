@@ -10,7 +10,7 @@
 
 #include <modules/ZcodeCommand.hpp>
 
-#define COMMAND_VALUE_0070 MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_0070 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeSerialCapabilitiesCommand: public ZcodeCommand<ZP> {

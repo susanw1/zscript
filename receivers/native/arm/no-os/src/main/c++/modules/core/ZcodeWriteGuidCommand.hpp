@@ -12,7 +12,7 @@
 #include <LowLevel/PersistenceLowLevel/FlashPage.hpp>
 #include "ZcodeFlashPersistence.hpp"
 
-#define COMMAND_VALUE_0014 MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_0014 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeWriteGuidCommand: public ZcodeCommand<ZP> {

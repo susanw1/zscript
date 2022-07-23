@@ -12,7 +12,7 @@
 #include <LowLevel/UartLowLevel/UartManager.hpp>
 #include <LowLevel/UartLowLevel/Serial.hpp>
 
-#define COMMAND_VALUE_0071 MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_0071 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeSerialSetupCommand: public ZcodeCommand<ZP> {

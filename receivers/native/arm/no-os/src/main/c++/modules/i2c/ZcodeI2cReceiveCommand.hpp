@@ -5,7 +5,7 @@
 #include "../../LowLevel/I2cLowLevel/I2cManager.hpp"
 #include "GeneralI2cAction.hpp"
 
-#define COMMAND_VALUE_0054 MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_0054 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeI2cReceiveCommand: public ZcodeCommand<ZP> {

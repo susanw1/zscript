@@ -13,20 +13,14 @@
 #include "ZcodeI2cSendReceiveCommand.hpp"
 #include "ZcodeI2cCapabilitiesCommand.hpp"
 
-#define ZCODE_I2C_MODULE_ADDRESS 0x05
-
-#define MODULE_ADDRESS005 MODULE_ADDRESS_UTIL
-
-#define COMMAND_SWITCH005 COMMAND_SWITCH_UTIL(ZCODE_I2C_MODULE_ADDRESS, ZcodeI2cModule<ZP>::execute)
+#define MODULE_EXISTS_005 EXISTENCE_MARKER_UTIL
+#define MODULE_SWITCH_005 MODULE_SWITCH_UTIL(ZcodeI2cModule<ZP>::execute)
 
 template<class ZP>
 class ZcodeI2cModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
 
 public:
-    ZcodeI2cModule() :
-            ZcodeModule<ZP>(ZCODE_I2C_MODULE_ADDRESS) {
-    }
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
         switch (bottomBits) {

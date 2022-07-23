@@ -10,7 +10,7 @@
 
 #include <modules/ZcodeCommand.hpp>
 
-#define COMMAND_VALUE_0003 MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_0003 EXISTENCE_MARKER_UTIL
 
 extern "C" {
 void Reset_Handler();

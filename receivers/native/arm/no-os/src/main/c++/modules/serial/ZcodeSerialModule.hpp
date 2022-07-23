@@ -21,20 +21,14 @@
 
 #include "ZcodeSerialCapabilitiesCommand.hpp"
 
-#define ZCODE_SERIAL_MODULE_ADDRESS 0x07
-
-#define MODULE_ADDRESS007 MODULE_ADDRESS_UTIL
-
-#define COMMAND_SWITCH007 COMMAND_SWITCH_UTIL(ZCODE_SERIAL_MODULE_ADDRESS, ZcodeSerialModule<ZP>::execute)
+#define MODULE_EXISTS_007 EXISTENCE_MARKER_UTIL
+#define MODULE_SWITCH_007 MODULE_SWITCH_UTIL(ZcodeSerialModule<ZP>::execute)
 
 template<class ZP>
 class ZcodeSerialModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
 
 public:
-    ZcodeSerialModule() :
-            ZcodeModule<ZP>(ZCODE_SERIAL_MODULE_ADDRESS) {
-    }
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
         switch (bottomBits) {
