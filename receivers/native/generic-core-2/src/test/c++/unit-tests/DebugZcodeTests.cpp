@@ -31,8 +31,22 @@ int main(void) {
         std::cerr << "Failed on debug with target set\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z2&Z18DN\n@Hello\n@Goodbye\n", "AS&S\n#@Hello\n#@Goodbye\n")) {
-        std::cerr << "Failed on addressing\n";
+
+    // same as above, but using @
+    if (!ZcodeTestingSystem::tryTest("Z2\n@0.0Hello", "AS\nS9\"Addressing only allowed from notification channel\"\n")) {
+        std::cerr << "Failed on debug addressing with no notification\n";
+        return 1;
+    }
+    if (!ZcodeTestingSystem::tryTest("Z2&Z18N\n@Hello", "AS&S\n")) {
+        std::cerr << "Failed on debug addressing with no target\n";
+        return 1;
+    }
+    if (!ZcodeTestingSystem::tryTest("Z2&Z18DN\n@Hello", "AS&S\n#@Hello\n")) {
+        std::cerr << "Failed on debug addressing with target set\n";
+        return 1;
+    }
+    if (!ZcodeTestingSystem::tryTest("Z2&Z18DN\n@Hello1\n@Hello2\n@Hello3", "AS&S\n#@Hello1\n#@Hello2\n#@Hello3\n")) {
+        std::cerr << "Failed on debug addressing with target set\n";
         return 1;
     }
 #endif
