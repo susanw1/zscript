@@ -272,6 +272,7 @@ class ZcodeChannelCommandSlot {
         } else if (c == DEBUG_PREFIX) {
             state.isComment = true;
         } else if (c == ADDRESS_PREFIX) {
+            state.isAtSeqBegining = false;
             state.isAddressing = true;
             fieldMap.add16('Z', 0x11);
         } else if (c == PARALLEL_PREFIX) {
