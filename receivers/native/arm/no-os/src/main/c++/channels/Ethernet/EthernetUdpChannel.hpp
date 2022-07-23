@@ -82,34 +82,53 @@ public:
 };
 
 template<class ZP>
+class EthernetUdpChannel;
+
+template<class ZP>
 class EthernetUdpOutStream: public ZcodeOutStream<ZP> {
 private:
-    bool openB = false;
-    EthernetUDP *udp;
+    struct UdpOutStatus {
+        bool openB :1;
+        bool openFrozen :1;
+        ZcodeOutStreamOpenType openType :4;
+    };
+    EthernetUdpChannel<ZP> *channel;
     uint8_t readBuffer[ZP::ethernetUdpChannelReadBufferSize];
+    UdpOutStatus status;
 
 public:
-    EthernetUdpOutStream(EthernetUDP *udp) :
-            ZcodeOutStream<ZP>(readBuffer, ZP::ethernetUdpChannelReadBufferSize), udp(udp) {
+    EthernetUdpOutStream(EthernetUdpChannel<ZP> *channel) :
+            ZcodeOutStream<ZP>(readBuffer, ZP::ethernetUdpChannelReadBufferSize), channel(channel), status( { false, false, RESPONSE }) {
+    }
+    void actualOpen();
+
+    void open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType t) {
+        if (!status.openB && target == channel) {
+            status.openType = t;
+            status.openB = true;
+            status.openFrozen = true;
+        }
     }
 
-    void open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType t);
-
     bool isOpen() {
-        return openB;
+        return status.openB;
     }
 
     void close() {
-        if (openB) {
-            udp->endPacket();
-            udp->flush();
+        if (status.openB && !status.openFrozen) {
+            channel->getEthernetUdp()->endPacket();
+            channel->getEthernetUdp()->flush();
         }
-        openB = false;
+        status.openB = false;
+        status.openFrozen = false;
     }
 
     void writeByte(uint8_t value) {
-        if (openB) {
-            udp->write(value);
+        if (status.openB) {
+            if (status.openFrozen) {
+                actualOpen();
+            }
+            channel->getEthernetUdp()->write(value);
         }
     }
 
@@ -127,10 +146,11 @@ class EthernetUdpChannel: public ZcodeCommandChannel<ZP> {
     uint16_t debugPort;
 
     uint16_t port;
-    public:
+
+public:
 
     EthernetUdpChannel(uint16_t port) :
-            ZcodeCommandChannel<ZP>(&seqin, &out, false), udp(), seqin(this, &udp), out(&udp), notificationIP(), debugIP(), notificationPort(
+            ZcodeCommandChannel<ZP>(&seqin, &out, false), udp(), seqin(this, &udp), out(this), notificationIP(), debugIP(), notificationPort(
                     0), debugPort(0), port(port) {
         uint8_t *mac;
         uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xad };
@@ -210,23 +230,24 @@ class EthernetUdpChannel: public ZcodeCommandChannel<ZP> {
         udp.begin(port);
         return true;
     }
+    EthernetUDP* getEthernetUdp() {
+        return &udp;
+    }
 };
 
 template<class ZP>
-void EthernetUdpOutStream<ZP>::open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType t) {
-    if (!openB) {
-        EthernetUdpChannel<ZP> *channel = (EthernetUdpChannel<ZP>*) target;
-        EthernetUdpChannelInStream<ZP> *in = (EthernetUdpChannelInStream<ZP>*) target->in;
-        if (t == RESPONSE) {
-            openB = true;
-            udp->beginPacket(in->getIp(), in->getPort());
-        } else if (t == NOTIFICATION && channel->getNotificationPort() != 0) {
-            openB = true;
-            udp->beginPacket(channel->getNotificationIp(), channel->getNotificationPort());
-        } else if (t == DEBUG && channel->getDebugPort() != 0) {
-            openB = true;
-            udp->beginPacket(channel->getDebugIp(), channel->getDebugPort());
-        }
+void EthernetUdpOutStream<ZP>::actualOpen() {
+    status.openFrozen = false;
+    EthernetUdpChannelInStream<ZP> *in = (EthernetUdpChannelInStream<ZP>*) channel->in;
+    if (status.openType == RESPONSE) {
+        status.openB = true;
+        channel->getEthernetUdp()->beginPacket(in->getIp(), in->getPort());
+    } else if (status.openType == NOTIFICATION && channel->getNotificationPort() != 0) {
+        status.openB = true;
+        channel->getEthernetUdp()->beginPacket(channel->getNotificationIp(), channel->getNotificationPort());
+    } else if (status.openType == DEBUG && channel->getDebugPort() != 0) {
+        status.openB = true;
+        channel->getEthernetUdp()->beginPacket(channel->getDebugIp(), channel->getDebugPort());
     }
 }
 #endif /* SRC_MAIN_C___CHANNELS_ETHERNET_ETHERNETUDPCHANNEL_HPP_ */
