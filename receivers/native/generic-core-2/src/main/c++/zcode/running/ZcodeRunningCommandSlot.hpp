@@ -16,11 +16,13 @@ struct ZcodeRunningCommandSlotStatus {
     bool hasWrittenTerminator :1;
     bool hasOutLock :1;
     bool needsAction :1;
+    bool quietEnd :1;
 
     void resetCommand() {
         isComplete = false;
         isStarted = false;
         needsAction = false;
+        quietEnd = false;
     }
     void fullReset() {
         isComplete = false;
@@ -28,6 +30,7 @@ struct ZcodeRunningCommandSlotStatus {
         hasWrittenTerminator = true;
         hasOutLock = false;
         needsAction = false;
+        quietEnd = false;
     }
 };
 
@@ -137,8 +140,17 @@ public:
             }
         }
     }
+    void quietEnd() {
+        if (commandSlot->runStatus.isFirstCommand && commandSlot->terminator == EOL_SYMBOL) {
+            status.quietEnd = !status.hasWrittenTerminator;
+            status.hasWrittenTerminator = true;
+        }
+    }
 
     void fail(ZcodeResponseStatus failStatus, string_t message) {
+        if (status.quietEnd) {
+            status.hasWrittenTerminator = false;
+        }
         status.isComplete = true;
         if (!status.hasWrittenTerminator) {
             writeTerminator(commandSlot->starter);
@@ -157,6 +169,9 @@ public:
     }
 
     void fail(ZcodeResponseStatus failStatus, const char *message) {
+        if (status.quietEnd) {
+            status.hasWrittenTerminator = false;
+        }
         status.isComplete = true;
         if (!status.hasWrittenTerminator) {
             writeTerminator(commandSlot->starter);
@@ -174,10 +189,16 @@ public:
         finish();
     }
     void mildFail(ZcodeResponseStatus failStatus) {
+        if (status.quietEnd) {
+            status.hasWrittenTerminator = false;
+        }
         status.isComplete = true;
         commandSlot->failExternal(failStatus);
     }
     void performFail() {
+        if (status.quietEnd) {
+            status.hasWrittenTerminator = false;
+        }
         status.isComplete = true;
         out->writeStatus((ZcodeResponseStatus) commandSlot->respStatus);
         out->writeBigStringField(commandSlot->failString);

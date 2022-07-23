@@ -36,8 +36,7 @@ public:
     static const string_t boolFalse;
 
     static const string_t failAddressingOnlyFromNotificationChannel;
-    static const string_t failAddressingInvalidModule;
-    static const string_t failAddressTooShort;
+    static const string_t failAddressingInvalid;
     static const string_t failAddressingNotSetup;
 
     static const string_t failParseBadStringEnd;
@@ -96,9 +95,7 @@ const ZcodeString ZcodeStrings<ZP>::boolFalse("false");
 template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::failAddressingOnlyFromNotificationChannel("Addressing only allowed from notification channel");
 template<class ZP>
-const ZcodeString ZcodeStrings<ZP>::failAddressingInvalidModule("Invalid module address");
-template<class ZP>
-const ZcodeString ZcodeStrings<ZP>::failAddressTooShort("Too few addressing levels");
+const ZcodeString ZcodeStrings<ZP>::failAddressingInvalid("Invalid address");
 template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::failAddressingNotSetup("Addressing not set up");
 

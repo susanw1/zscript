@@ -32,7 +32,7 @@
                             <option>-flto</option>
                             <option>-g</option>
                             <option>-Wall</option>
-                            <option>-Werror</option>
+
                             <option>-Wextra</option>
                         </options>
                     </cpp>

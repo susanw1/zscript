@@ -74,6 +74,10 @@ public:
         }
     }
 
+    void quietEnd() {
+        slot->quietEnd();
+    }
+
     ZcodeOutStream<ZP>* getOut() {
         return slot->out;
     }

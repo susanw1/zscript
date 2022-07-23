@@ -7,6 +7,8 @@
 
 #include <iostream>
 
+#include "modules/core/ZcodeDebugAddressingSystem.hpp"
+
 #include "../support/ZcodeParameters.hpp"
 
 //#include "modules/script/ZcodeScriptModule.hpp"

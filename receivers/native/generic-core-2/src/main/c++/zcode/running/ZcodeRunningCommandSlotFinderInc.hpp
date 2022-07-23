@@ -21,12 +21,15 @@ void ZcodeRunningCommandSlot<ZP>::performRunAction() {
         status.isStarted = true;
     }
     status.needsAction = false;
+    status.hasWrittenTerminator = false;
     ZcodeCommandFinder<ZP>::runCommand(this);
     if (status.isComplete) {
-        if (commandSlot->terminator == EOL_SYMBOL) {
-            writeTerminator(EOL_SYMBOL);
-        } else {
-            status.hasWrittenTerminator = false;
+        if (!status.hasWrittenTerminator) {
+            if (commandSlot->terminator == EOL_SYMBOL) {
+                writeTerminator(EOL_SYMBOL);
+            } else {
+                status.hasWrittenTerminator = false;
+            }
         }
         finish();
     }

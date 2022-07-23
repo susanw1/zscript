@@ -10,7 +10,8 @@
 
 #include "ZcodeIncludes.hpp"
 #include <ZcodeStrings.hpp>
-#include <addressing/ZcodeVoidAddressRouter.hpp>
+#include <addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
+#include <addressing/addressrouters/ZcodeMappingAddressRouter.hpp>
 
 #define ZCODE_SUPPORT_SCRIPT_SPACE
 #define ZCODE_SUPPORT_INTERRUPT_VECTOR
@@ -21,7 +22,7 @@
 class TestParams {
 public:
     typedef ZcodeStrings<TestParams> Strings;
-    typedef ZcodeVoidAddressRouter<TestParams> AddressRouter; //FIXME: proper addressing system
+    typedef ZcodeModuleAddressRouter<TestParams> AddressRouter;
 
     typedef uint16_t scriptSpaceAddress_t;
     typedef uint16_t scriptSpaceOutLength_t;
@@ -52,6 +53,8 @@ public:
     static const uint16_t interruptVectorOutReadBufferSize = 32;
     static const int lockNum = 8;
     static const int debugBufferLength = 256;
+
+    static const uint16_t mappingAddressCount = 32;
 };
 
 #endif /* SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_ */

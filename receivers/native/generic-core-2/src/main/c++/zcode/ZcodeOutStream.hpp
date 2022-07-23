@@ -137,6 +137,10 @@ public:
         writeByte(Zchars::ADDRESS_SEPARATOR);
         return this;
     }
+    ZcodeOutStream<ZP>* silentSucceed() {
+        recentStatus = OK;
+        return this;
+    }
 
     ZcodeOutStream<ZP>* writeStatus(uint16_t st) {
         recentStatus = (uint16_t) st;

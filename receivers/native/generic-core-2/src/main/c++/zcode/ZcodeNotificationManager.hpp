@@ -98,7 +98,7 @@ template<class ZP>
 bool ZcodeNotificationManager<ZP>::canSendNotification() {
 
 #if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
-        return vectorChannel.canAccept();
+        return vectorChannel.canAccept() && !notificationChannel->out->isLocked();
 #else
     return !notificationChannel->out->isLocked();
 #endif
@@ -107,7 +107,9 @@ bool ZcodeNotificationManager<ZP>::canSendNotification() {
 template<class ZP>
 void ZcodeNotificationManager<ZP>::sendNotification(ZcodeBusInterrupt<ZP> interrupt) { // Only called if canSendNotification()
 #if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
-    if (vectorChannel.hasVector(&interrupt)) {
+    if(ZP::AddressRouter::isAddressed(interrupt)){
+        ZP::AddressRouter::response(interrupt, notificationChannel->out);
+    } else if (vectorChannel.hasVector(&interrupt)) {
         vectorChannel.acceptInterrupt(interrupt);
     } else {
 #endif
