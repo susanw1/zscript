@@ -12,7 +12,7 @@
 #include "../ZcodeCommand.hpp"
 #include "../ZcodeModule.hpp"
 
-#define COMMAND_VALUE_0000 MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_0000 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeOutStream;
@@ -31,7 +31,7 @@ public:
         ZcodeOutStream<ZP> *out = slot.getOut();
         out->writeStatus(OK);
         out->writeField16('C', MODULE_CAPABILITIES(000));
-        out->writeField16('M', COMMAND_SWITCH_EXISTS_BOTTOM_BYTE);
+        out->writeField16('M', COMMAND_SWITCH_EXISTS_BOTTOM_BYTE(00));
         out->writeField32('N', (uint32_t) ZP::fieldNum);
     }
 

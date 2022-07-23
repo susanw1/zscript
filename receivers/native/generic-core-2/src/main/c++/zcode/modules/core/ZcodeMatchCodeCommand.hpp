@@ -12,7 +12,7 @@
 #include "../ZcodeCommand.hpp"
 #include "ZcodeMakeCodeCommand.hpp"
 
-#define COMMAND_VALUE_000D MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_000D EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeOutStream;

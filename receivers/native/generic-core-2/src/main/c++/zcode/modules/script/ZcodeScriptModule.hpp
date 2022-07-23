@@ -22,11 +22,8 @@
 #error cannot use script space module without script space
 #endif
 
-#define ZCODE_SCRIPT_MODULE_ADDRESS 0x02
-
-#define MODULE_ADDRESS002 MODULE_ADDRESS_UTIL
-
-#define COMMAND_SWITCH002 COMMAND_SWITCH_UTIL(ZCODE_SCRIPT_MODULE_ADDRESS, ZcodeScriptModule<ZP>::execute)
+#define MODULE_EXISTS_002 EXISTENCE_MARKER_UTIL
+#define MODULE_SWITCH_002 MODULE_SWITCH_UTIL( ZcodeScriptModule<ZP>::execute)
 
 template<class ZP>
 class ZcodeScriptModule: public ZcodeModule<ZP> {

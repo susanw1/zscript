@@ -11,7 +11,7 @@
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeCommand.hpp"
 
-#define COMMAND_VALUE_0008 MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_0008 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeOutStream;
@@ -21,9 +21,6 @@ class Zcode;
 
 template<class ZP>
 class ZcodeChannelInfoCommand: public ZcodeCommand<ZP> {
-private:
-    static const uint8_t CODE = 0x08;
-
 public:
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {

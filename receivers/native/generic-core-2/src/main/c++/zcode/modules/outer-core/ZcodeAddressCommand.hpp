@@ -11,7 +11,7 @@
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeCommand.hpp"
 
-#define COMMAND_VALUE_0011 MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_0011 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeOutStream;
@@ -31,6 +31,11 @@ private:
 public:
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
+        if (slot.getChannel() != slot.getZcode()->getNotificationManager()->getNotificationChannel()) {
+            slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingOnlyFromNotificationChannel);
+            return;
+        }
+        slot.quietEnd();
         ZP::AddressRouter::route(slot);
     }
 };

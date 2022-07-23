@@ -13,20 +13,16 @@
 
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeModule.hpp"
-#include "ZcodeDebugAddressRouter.hpp"
 #include "ZcodeActivateCommand.hpp"
 #include "ZcodeEchoCommand.hpp"
 #include "ZcodeMakeCodeCommand.hpp"
 #include "ZcodeMatchCodeCommand.hpp"
 #include "ZcodeChannelInfoCommand.hpp"
 
-#define MODULE_ADDRESS000 MODULE_ADDRESS_UTIL
+#define MODULE_EXISTS_000 EXISTENCE_MARKER_UTIL
+#define MODULE_SWITCH_000 MODULE_SWITCH_UTIL(ZcodeCoreModule<ZP>::execute)
 
 #include "ZcodeCapabilitiesCommand.hpp"
-
-#define ZCODE_CORE_MODULE_ADDRESS 0x00
-
-#define COMMAND_SWITCH000 COMMAND_SWITCH_UTIL(ZCODE_CORE_MODULE_ADDRESS, ZcodeCoreModule<ZP>::execute)
 
 template<class ZP>
 class ZcodeCoreModule: public ZcodeModule<ZP> {

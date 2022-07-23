@@ -11,13 +11,6 @@
 #include "../ZcodeIncludes.hpp"
 #include "../running/ZcodeExecutionCommandSlot.hpp"
 
-#define COMMAND_SWITCH_TAKE_IF_SECOND_DEF(thing, otherThing, x, ...) x
-#define COMMAND_SWITCH_TAKE_IF_SECOND_DEFI(thing, otherThing, x, ...) COMMAND_SWITCH_TAKE_IF_SECOND_DEF(thing, otherThing, x, ...)
-#define COMMAND_SWITCH_TAKE_IF_SECOND_DEFII(thing, otherThing, x, ...) COMMAND_SWITCH_TAKE_IF_SECOND_DEFI(thing, otherThing, x, ...)
-#define COMMAND_SWITCH_TAKE_IF_SECOND_DEFIII(thing, otherThing, x, ...) COMMAND_SWITCH_TAKE_IF_SECOND_DEFII(thing, otherThing, x, ...)
-#define COMMAND_SWITCH_TAKE_IF_SECOND_DEFIV(thing, otherThing, x, ...) COMMAND_SWITCH_TAKE_IF_SECOND_DEFIII(thing, otherThing, x, ...)
-#define COMMAND_SWITCH_TAKE_IF_SECOND_DEFV(thing, otherThing, x, ...) COMMAND_SWITCH_TAKE_IF_SECOND_DEFIV(thing, otherThing, x, ...)
-
 #define COMMAND_SWITCH_TAKE_IF_DEF(thing, x, ...) x
 #define COMMAND_SWITCH_TAKE_IF_DEFI(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEF(thing, x, __VA_ARG__)
 #define COMMAND_SWITCH_TAKE_IF_DEFII(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEF(thing, x, __VA_ARG__)
@@ -25,68 +18,110 @@
 #define COMMAND_SWITCH_TAKE_IF_DEFIV(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEFIII(thing, x, __VA_ARG__)
 #define COMMAND_SWITCH_TAKE_IF_DEFV(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEFIV(thing, x, __VA_ARG__)
 
-#define MODULE_CAPABILITIESInternal(value, number) COMMAND_SWITCH_TAKE_IF_SECOND_DEFV(COMMAND_VALUE_##value, (1 << number), 0)
-#define MODULE_CAPABILITIES(value) (MODULE_CAPABILITIESInternal(value##0, 0) | MODULE_CAPABILITIESInternal(value##1, 1) | MODULE_CAPABILITIESInternal(value##2, 2) | MODULE_CAPABILITIESInternal(value##3, 3) | \
-        MODULE_CAPABILITIESInternal(value##4, 4) | MODULE_CAPABILITIESInternal(value##5, 5) | MODULE_CAPABILITIESInternal(value##6, 6) | MODULE_CAPABILITIESInternal(value##7, 7) | \
-        MODULE_CAPABILITIESInternal(value##8, 8) | MODULE_CAPABILITIESInternal(value##9, 9) | MODULE_CAPABILITIESInternal(value##A, 10) | MODULE_CAPABILITIESInternal(value##B, 11) | \
-        MODULE_CAPABILITIESInternal(value##C, 12) | MODULE_CAPABILITIESInternal(value##D, 13) | MODULE_CAPABILITIESInternal(value##E, 14) | MODULE_CAPABILITIESInternal(value##F, 15))
+#define MODULE_SWITCH_UTIL(func) func(slot, commandBottomBits);
 
-#define COMMAND_SWITCH_UTIL(num, func) 0, case num: func(slot, commandBottomBits); break;
+#define EXISTENCE_MARKER_UTIL 0,
 
-#define MODULE_ADDRESS_UTIL 0, true
+#define NIBBLE_BIT_SHIFT_GENERIC(func, prefix) (func(prefix##0, 0) | func(prefix##1, 1) | \
+        func(prefix##2, 2) | func(prefix##3, 3) | \
+        func(prefix##4, 4) | func(prefix##5, 5) | \
+        func(prefix##6, 6) | func(prefix##7, 7) | \
+        func(prefix##8, 8) | func(prefix##9, 9) | \
+        func(prefix##A, 10) | func(prefix##B, 11) | \
+        func(prefix##C, 12) | func(prefix##D, 13) | \
+        func(prefix##E, 14) | func(prefix##F, 15))
 
-//#define COMMAND_SWITCH000 COMMAND_SWITCH_UTIL(0x0, exec)
-//#define COMMAND_SWITCH03A COMMAND_SWITCH_UTIL(0x3a, exec2)
-#define COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(module, number) ((COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS00##module, false)?1:0) << number)
+#define NIBBLE_CHECK_GENERIC(func, prefix) (func(prefix##0) || func(prefix##1) ||\
+        func(prefix##2) || func(prefix##3) || \
+        func(prefix##4) || func(prefix##5) || \
+        func(prefix##6) || func(prefix##7) || \
+        func(prefix##8) || func(prefix##9) || \
+        func(prefix##A) || func(prefix##B) || \
+        func(prefix##C) || func(prefix##D) || \
+        func(prefix##E) || func(prefix##F))
 
-#define COMMAND_SWITCH_EXISTS_BOTTOM_BYTE (COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(0, 0) | COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(1, 1) | \
-        COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(2, 2) | COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(3, 3) | \
-        COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(4, 4) | COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(5, 5) | \
-        COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(6, 6) | COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(7, 7) | \
-        COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(8, 8) | COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(9, 9) | \
-        COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(A, 10) | COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(B, 11) | \
-        COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(C, 12) | COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(D, 13) | \
-        COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(E, 14) | COMMAND_SWITCH_EXISTS_BOTTOM_BYTE_PER_MODULE(F, 15))
+#define NIBBLE_CHECK_GENERICI(func, prefix) (func(prefix##0) || func(prefix##1) ||\
+        func(prefix##2) || func(prefix##3) || \
+        func(prefix##4) || func(prefix##5) || \
+        func(prefix##6) || func(prefix##7) || \
+        func(prefix##8) || func(prefix##9) || \
+        func(prefix##A) || func(prefix##B) || \
+        func(prefix##C) || func(prefix##D) || \
+        func(prefix##E) || func(prefix##F))
+//
+//
+//
 
-#define COMMAND_SWITCH_EXISTS_2_FIGS(prefix) (COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##0, false) || COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##1, false) || \
-        COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##2, false) || COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##3, false) || \
-        COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##4, false) || COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##5, false) || \
-        COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##6, false) || COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##7, false) || \
-        COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##8, false) || COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##9, false) || \
-        COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##A, false) || COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##B, false) || \
-        COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##C, false) || COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##D, false) || \
-        COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##E, false) || COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_ADDRESS##prefix##F, false))
+#define MODULE_CAPABILITIESInternal(value, number) COMMAND_SWITCH_TAKE_IF_DEFV(COMMAND_EXISTS_##value (1 << number), 0)
+//
+
+#define MODULE_CAPABILITIES(value) NIBBLE_BIT_SHIFT_GENERIC(MODULE_CAPABILITIESInternal, value)
+//
+//
+
+#define COMMAND_SWITCH_EXISTS_PER_MODULE(module) COMMAND_SWITCH_TAKE_IF_DEFV(MODULE_EXISTS_##module true, false)
+//
+
+#define COMMAND_SWITCH_BITS_PER_MODULE(module, number) ((COMMAND_SWITCH_EXISTS_PER_MODULE(module) ? 1 : 0) << number)
+//
+
+#define COMMAND_SWITCH_EXISTS_BOTTOM_BYTE(prefix) NIBBLE_BIT_SHIFT_GENERIC(COMMAND_SWITCH_BITS_PER_MODULE, prefix)
+//
+
+#define COMMAND_SWITCH_EXISTS_2_FIGS(prefix) NIBBLE_CHECK_GENERICI(COMMAND_SWITCH_EXISTS_PER_MODULE, prefix)
+//
 
 #define COMMAND_SWITCH_EXISTS_2_FIGS_Internal(prefix, number) ((COMMAND_SWITCH_EXISTS_2_FIGS(prefix) ? 1 : 0) << number)
+//
 
-#define COMMAND_SWITCH_BYTE(value) (COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##0, 0) | COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##1, 1) | \
-        COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##2, 2) | COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##3, 3) | \
-        COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##4, 4) | COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##5, 5) | \
-        COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##6, 6) | COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##7, 7) | \
-        COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##8, 8) | COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##9, 9) | \
-        COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##A, 10) | COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##B, 11) | \
-        COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##C, 12) | COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##D, 13) | \
-        COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##E, 14) | COMMAND_SWITCH_EXISTS_2_FIGS_Internal(value##F, 15))
+#define COMMAND_SWITCH_BYTE(value) NIBBLE_BIT_SHIFT_GENERIC(COMMAND_SWITCH_EXISTS_2_FIGS_Internal, value)
+//
 
-#define COMMAND_SWITCH_BYTE_EXISTS(value) (COMMAND_SWITCH_EXISTS_2_FIGS(value##0) || COMMAND_SWITCH_EXISTS_2_FIGS(value##1) || \
-        COMMAND_SWITCH_EXISTS_2_FIGS(value##2) || COMMAND_SWITCH_EXISTS_2_FIGS(value##3) || \
-        COMMAND_SWITCH_EXISTS_2_FIGS(value##4) || COMMAND_SWITCH_EXISTS_2_FIGS(value##5) || \
-        COMMAND_SWITCH_EXISTS_2_FIGS(value##6) || COMMAND_SWITCH_EXISTS_2_FIGS(value##7) || \
-        COMMAND_SWITCH_EXISTS_2_FIGS(value##8) || COMMAND_SWITCH_EXISTS_2_FIGS(value##9) || \
-        COMMAND_SWITCH_EXISTS_2_FIGS(value##A) || COMMAND_SWITCH_EXISTS_2_FIGS(value##B) || \
-        COMMAND_SWITCH_EXISTS_2_FIGS(value##C) || COMMAND_SWITCH_EXISTS_2_FIGS(value##D) || \
-        COMMAND_SWITCH_EXISTS_2_FIGS(value##E) || COMMAND_SWITCH_EXISTS_2_FIGS(value##F))
+#define COMMAND_SWITCH_BYTE_EXISTS(value) (NIBBLE_CHECK_GENERIC(COMMAND_SWITCH_EXISTS_2_FIGS, value))
+//
 
 #define BROAD_MODULE_EXISTENCE_Internal(value, number) ((COMMAND_SWITCH_BYTE_EXISTS(value) ? 1 : 0) << number)
+//
 
-#define BROAD_MODULE_EXISTENCE (BROAD_MODULE_EXISTENCE_Internal(0, 0) | BROAD_MODULE_EXISTENCE_Internal(1, 1) | \
-        BROAD_MODULE_EXISTENCE_Internal(2, 2) | BROAD_MODULE_EXISTENCE_Internal(3, 3) | \
-        BROAD_MODULE_EXISTENCE_Internal(4, 4) | BROAD_MODULE_EXISTENCE_Internal(5, 5) | \
-        BROAD_MODULE_EXISTENCE_Internal(6, 6) | BROAD_MODULE_EXISTENCE_Internal(7, 7) | \
-        BROAD_MODULE_EXISTENCE_Internal(8, 8) | BROAD_MODULE_EXISTENCE_Internal(9, 9) | \
-        BROAD_MODULE_EXISTENCE_Internal(A, 10) | BROAD_MODULE_EXISTENCE_Internal(B, 11) | \
-        BROAD_MODULE_EXISTENCE_Internal(C, 12) | BROAD_MODULE_EXISTENCE_Internal(D, 13) | \
-        BROAD_MODULE_EXISTENCE_Internal(E, 14) | BROAD_MODULE_EXISTENCE_Internal(F, 15))
+#define BROAD_MODULE_EXISTENCE NIBBLE_BIT_SHIFT_GENERIC(BROAD_MODULE_EXISTENCE_Internal, )
+//
+//
+//
+//
+#define MODULE_SWITCHING_GENERIC3(check, sw, v) COMMAND_SWITCH_TAKE_IF_DEFV(check(v) case 0x##v: sw(v), ;)
+
+#define MODULE_SWITCHING_GENERIC2_EACH(check, sw, x) MODULE_SWITCHING_GENERIC3(check, sw, x##0) MODULE_SWITCHING_GENERIC3(check, sw, x##1) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x##2) MODULE_SWITCHING_GENERIC3(check, sw, x##3) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x##4) MODULE_SWITCHING_GENERIC3(check, sw, x##5) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x##6) MODULE_SWITCHING_GENERIC3(check, sw, x##7) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x##8) MODULE_SWITCHING_GENERIC3(check, sw, x##9) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x##A) MODULE_SWITCHING_GENERIC3(check, sw, x##B) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x##C) MODULE_SWITCHING_GENERIC3(check, sw, x##D) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x##E) MODULE_SWITCHING_GENERIC3(check, sw, x##F)
+
+#define MODULE_SWITCHING_GENERIC2(check, sw, x) MODULE_SWITCHING_GENERIC2_EACH(check, sw, x)
+
+#define MODULE_SWITCHING_GENERIC1_EACH(check, sw, x) MODULE_SWITCHING_GENERIC2(check, sw, x##0) MODULE_SWITCHING_GENERIC2(check, sw, x##1) \
+        MODULE_SWITCHING_GENERIC2(check, sw, x##2) MODULE_SWITCHING_GENERIC2(check, sw, x##3) \
+        MODULE_SWITCHING_GENERIC2(check, sw, x##4) MODULE_SWITCHING_GENERIC2(check, sw, x##5) \
+        MODULE_SWITCHING_GENERIC2(check, sw, x##6) MODULE_SWITCHING_GENERIC2(check, sw, x##7) \
+        MODULE_SWITCHING_GENERIC2(check, sw, x##8) MODULE_SWITCHING_GENERIC2(check, sw, x##9) \
+        MODULE_SWITCHING_GENERIC2(check, sw, x##A) MODULE_SWITCHING_GENERIC2(check, sw, x##B) \
+        MODULE_SWITCHING_GENERIC2(check, sw, x##C) MODULE_SWITCHING_GENERIC2(check, sw, x##D) \
+        MODULE_SWITCHING_GENERIC2(check, sw, x##E) MODULE_SWITCHING_GENERIC2(check, sw, x##F)
+
+#define MODULE_SWITCHING_GENERIC1(check, sw, x) MODULE_SWITCHING_GENERIC1_EACH(check, sw, x)
+
+#define MODULE_SWITCHING_GENERIC_EACH(check, sw) MODULE_SWITCHING_GENERIC1(check, sw, 0) MODULE_SWITCHING_GENERIC1(check, sw, 1) \
+        MODULE_SWITCHING_GENERIC1(check, sw, 2) MODULE_SWITCHING_GENERIC1(check, sw, 3) \
+        MODULE_SWITCHING_GENERIC1(check, sw, 4) MODULE_SWITCHING_GENERIC1(check, sw, 5) \
+        MODULE_SWITCHING_GENERIC1(check, sw, 6) MODULE_SWITCHING_GENERIC1(check, sw, 7) \
+        MODULE_SWITCHING_GENERIC1(check, sw, 8) MODULE_SWITCHING_GENERIC1(check, sw, 9) \
+        MODULE_SWITCHING_GENERIC1(check, sw, A) MODULE_SWITCHING_GENERIC1(check, sw, B) \
+        MODULE_SWITCHING_GENERIC1(check, sw, C) MODULE_SWITCHING_GENERIC1(check, sw, D) \
+        MODULE_SWITCHING_GENERIC1(check, sw, E) MODULE_SWITCHING_GENERIC1(check, sw, F)
+
+#define MODULE_SWITCHING_GENERIC(check, sw) MODULE_SWITCHING_GENERIC_EACH(check, sw)
 
 template<class ZP>
 class ZcodeModule {

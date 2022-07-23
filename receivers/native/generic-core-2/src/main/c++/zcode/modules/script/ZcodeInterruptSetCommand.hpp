@@ -11,7 +11,7 @@
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeCommand.hpp"
 
-#define COMMAND_VALUE_0029 MODULE_CAPABILITIES_UTIL
+#define COMMAND_EXISTS_0029 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeOutStream;

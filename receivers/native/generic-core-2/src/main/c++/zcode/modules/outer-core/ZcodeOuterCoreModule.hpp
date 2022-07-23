@@ -16,13 +16,10 @@
 #include "ZcodeAddressCommand.hpp"
 #include "ZcodeChannelSetupCommand.hpp"
 
-#define MODULE_ADDRESS001 MODULE_ADDRESS_UTIL
-
 #include "ZcodeExtendedCapabilitiesCommand.hpp"
 
-#define ZCODE_OUTER_CORE_MODULE_ADDRESS 0x01
-
-#define COMMAND_SWITCH001 COMMAND_SWITCH_UTIL(ZCODE_OUTER_CORE_MODULE_ADDRESS, ZcodeOuterCoreModule<ZP>::execute)
+#define MODULE_EXISTS_001 EXISTENCE_MARKER_UTIL
+#define MODULE_SWITCH_001 MODULE_SWITCH_UTIL(ZcodeOuterCoreModule<ZP>::execute)
 
 template<class ZP>
 class ZcodeOuterCoreModule: public ZcodeModule<ZP> {
@@ -38,6 +35,9 @@ public:
             break;
         case 0x1:
             ZcodeAddressCommand<ZP>::execute(slot);
+            break;
+        case 0x2:
+            ZP::AddressRouter::addressingControlCommand(slot);
             break;
 #ifdef ZCODE_CORE_WRITE_GUID
         case 0x4:
