@@ -9,7 +9,6 @@
 #define SRC_TEST_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_
 
 #include "ZcodeIncludes.hpp"
-#include "Zchars.hpp"
 
 enum ZcodeResponseStatus {
     OK = 0,
@@ -23,10 +22,9 @@ enum ZcodeResponseStatus {
     TOO_BIG = 8,
     BAD_ADDRESSING = 9,
     RETRY_REQEST = 0xa,
-    SETUP_ERROR = 0xf,
+    CMD_ERROR = 0xf,
     CMD_FAIL = 0x10,
 
-    NOT_EXECUTED = 0x11
 };
 
 #endif /* SRC_TEST_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_ */

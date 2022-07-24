@@ -5,18 +5,46 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#error Cannot include Zcode.hpp twice
+#endif
 #define SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+
+#ifndef ZCODE_GENERATE_NOTIFICATIONS
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
+#error Cannot use script space without notifications
+#endif
+#endif
+#ifndef ZCODE_SUPPORT_SCRIPT_SPACE
+#ifdef ZCODE_SUPPORT_INTERRUPT_VECTOR
+#error Cannot use interrupt vectors without script space
+#endif
+#endif
+#ifndef ZCODE_GENERATE_NOTIFICATIONS
+#ifdef ZCODE_SUPPORT_ADDRESSING
+#error Cannot use addressing without notifications
+#endif
+#endif
 
 #include "ZcodeIncludes.hpp"
 #include "parsing/ZcodeParser.hpp"
-#include "parsing/ZcodeCommandFinder.hpp"
-#include "executionspace/ZcodeExecutionSpace.hpp"
+#include "parsing/ZcodeChannelCommandSlot.hpp"
+#include "channels/ZcodeCommandChannel.hpp"
+#include "modules/ZcodeCommand.hpp"
+#include "modules/ZcodeModule.hpp"
+#include "ZcodeOutStream.hpp"
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
+#include "scriptspace/ZcodeScriptSpace.hpp"
+#endif
+#ifdef ZCODE_GENERATE_NOTIFICATIONS
 #include "ZcodeNotificationManager.hpp"
-#include "ZcodeRunner.hpp"
+#endif
+#include "running/ZcodeRunner.hpp"
+#ifdef ZCODE_SUPPORT_DEBUG
 #include "ZcodeDebugOutput.hpp"
-#include "ZcodeNoopChannel.hpp"
+#endif
 #include "ZcodeLocks.hpp"
+#include "modules/ZcodeModule.hpp"
 
 template<class ZP>
 class ZcodeCommandChannel;
@@ -29,92 +57,166 @@ class ZcodeAddressingCommandConsumer;
 
 template<class ZP>
 class Zcode {
-    private:
-        ZcodeParser<ZP> parser;
-        ZcodeRunner<ZP> runner;
-        ZcodeNotificationManager<ZP> notificationManager;
-        ZcodeExecutionSpace<ZP> space;
-        ZcodeCommandFinder<ZP> finder;
-        ZcodeDebugOutput<ZP> debug;
-        ZcodeNoopChannel<ZP> noopChannel;
-        ZcodeLocks<ZP> locks;
-        ZcodeAddressingCommandConsumer<ZP> *addressingCommandConsumer = NULL;
-        ZcodeCommandChannel<ZP> **channels = NULL;
-        const char *configFailureState = NULL;
-        uint8_t channelNum = 0;
+public:
+    static Zcode<ZP> zcode;
 
-    public:
-        Zcode(ZcodeBusInterruptSource<ZP> **interruptSources, uint8_t interruptSourceNum) :
-                parser(this), runner(this), notificationManager(this, interruptSources, interruptSourceNum), space(&notificationManager), finder(this), debug() {
-        }
+private:
+    ZcodeLocks<ZP> locks; // the stupid ordering here is to make the #if's happy without increasing the size...
+    uint8_t channelCount = 0;
+    bool activated = false;
 
-        void setChannels(ZcodeCommandChannel<ZP> **channels, uint8_t channelNum) {
-            this->channels = channels;
-            this->channelNum = channelNum;
-        }
+#ifdef ZCODE_GENERATE_NOTIFICATIONS
+    ZcodeNotificationManager<ZP> notificationManager;
+#endif
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
+    ZcodeScriptSpace<ZP> space;
+#endif
 
-        void configFail(const char *configFailureState) {
-            this->configFailureState = configFailureState;
-        }
+#ifdef ZCODE_SUPPORT_DEBUG
+    ZcodeDebugOutput<ZP> debug;
+#endif
 
-        const char* getConfigFailureState() {
-            return configFailureState;
-        }
+    ZcodeCommandChannel<ZP> **channels = NULL;
+    //    const char *configFailureState = NULL;
 
-        void progressZcode() {
-            debug.attemptFlush();
-            notificationManager.manageNotifications();
-            parser.parseNext();
-            runner.runNext();
-        }
+public:
 
-        ZcodeCommandChannel<ZP>* getNoopChannel() {
-            return &noopChannel;
-        }
+    Zcode() :
+            locks()
 
-        ZcodeExecutionSpace<ZP>* getSpace() {
-            return &space;
-        }
+#ifdef ZCODE_GENERATE_NOTIFICATIONS
+    , notificationManager()
+#endif
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
+    , space()
+#endif
+#ifdef ZCODE_SUPPORT_DEBUG
+    , debug()
+#endif
 
-        ZcodeCommandChannel<ZP>** getChannels() {
-            return channels;
-        }
+    {
+    }
 
-        uint8_t getChannelNumber() {
-            return channelNum;
-        }
+#ifdef ZCODE_GENERATE_NOTIFICATIONS
 
-        ZcodeCommandFinder<ZP>* getCommandFinder() {
-            return &finder;
-        }
+    void setInterruptSources(ZcodeBusInterruptSource<ZP> **sources, uint8_t sourceNum) {
+        notificationManager.setBusInterruptSources(sources, sourceNum);
+    }
+#endif
 
-        ZcodeDebugOutput<ZP>& getDebug() {
-            return debug;
-        }
+    bool isActivated() {
+        return activated;
+    }
+    void setActivated() {
+        activated = true;
+    }
+    void deactivate() {
+        activated = false;
+    }
 
-        ZcodeNotificationManager<ZP>* getNotificationManager() {
-            return &notificationManager;
-        }
+    void setChannels(ZcodeCommandChannel<ZP> **channels, uint8_t channelNum) {
+        this->channels = channels;
+        this->channelCount = channelNum;
+    }
 
-        void setAddressingCommandConsumer(ZcodeAddressingCommandConsumer<ZP> *addressingCommandConsumer) {
-            this->addressingCommandConsumer = addressingCommandConsumer;
-        }
+//    void configFail(const char *configFailureState) {
+//        this->configFailureState = configFailureState;
+//    }
+//
+//    const char* getConfigFailureState() {
+//        return configFailureState;
+//    }
 
-        ZcodeAddressingCommandConsumer<ZP>* getAddressingCommandConsumer() {
-            return addressingCommandConsumer;
-        }
+    void progressZcode() {
 
-        bool canLock(ZcodeLockSet<ZP> *lockset) {
-            return locks.canLock(lockset);
-        }
+#ifdef ZCODE_SUPPORT_DEBUG
+        debug.attemptFlush();
+#endif
+#ifdef ZCODE_GENERATE_NOTIFICATIONS
+        notificationManager.manageNotifications();
+#endif
+        ZcodeParser<ZP>::parseNext();
+        ZcodeRunner<ZP>::runNext();
+    }
 
-        void lock(ZcodeLockSet<ZP> *lockset) {
-            locks.lock(lockset);
-        }
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
+    ZcodeScriptSpace<ZP>* getSpace() {
+        return &space;
+    }
+#endif
 
-        void unlock(ZcodeLockSet<ZP> *lockset) {
-            locks.unlock(lockset);
+    ZcodeCommandChannel<ZP>* getChannel(uint8_t index) {
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
+#ifdef ZCODE_SUPPORT_INTERRUPT_VECTOR
+        if (index == 0) {
+            return notificationManager.getVectorChannel()->getChannel();
+
+        } else
+#endif // ZCODE_SUPPORT_INTERRUPT_VECTOR
+            if (index < channelCount
+#ifdef ZCODE_SUPPORT_INTERRUPT_VECTOR
+                    + 1
+#endif
+                    ) {
+#endif
+        return channels[index
+
+#if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
+                        - 1
+#endif
+        ];
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
         }
+        else {
+            return space.getChannel((uint8_t) (index - channelCount
+#ifdef ZCODE_SUPPORT_INTERRUPT_VECTOR
+                    - 1 // this compensates for the notification channel on the front.
+#endif
+            ));
+        }
+#endif
+    }
+
+    ZcodeLocks<ZP>* getLocks() {
+        return &locks;
+    }
+
+    uint8_t getChannelCount() {
+        return (uint8_t) (channelCount
+
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
+            + space.getChannelCount()
+#ifdef ZCODE_SUPPORT_INTERRUPT_VECTOR
+            + 1
+#endif
+#endif
+        );
+    }
+
+#ifdef ZCODE_SUPPORT_DEBUG
+    ZcodeDebugOutput<ZP>& getDebug() {
+        return debug;
+    }
+#endif
+
+#ifdef ZCODE_GENERATE_NOTIFICATIONS
+    ZcodeNotificationManager<ZP>* getNotificationManager() {
+        return &notificationManager;
+    }
+#endif
+
+    bool canLock(ZcodeLockSet<ZP> *lockset) {
+        return locks.canLock(lockset);
+    }
+
+    void lock(ZcodeLockSet<ZP> *lockset) {
+        locks.lock(lockset);
+    }
+
+    void unlock(ZcodeLockSet<ZP> *lockset) {
+        locks.unlock(lockset);
+    }
 };
 
-#endif /* SRC_TEST_CPP_ZCODE_ZCODE_HPP_ */
+template<class ZP>
+Zcode<ZP> Zcode<ZP>::zcode;

@@ -7,7 +7,7 @@ enum Zchars {
     ANDTHEN_SYMBOL = '&',
     ORELSE_SYMBOL = '|',
     EOL_SYMBOL = '\n',
-    STRING_ESCAPE_SYMBOL = '\\',
+    STRING_ESCAPE_SYMBOL = '=',
 
     BIGFIELD_PREFIX_MARKER = '+',
     BIGFIELD_QUOTE_MARKER = '"',
@@ -16,5 +16,6 @@ enum Zchars {
     DEBUG_PREFIX = '#',
     PARALLEL_PREFIX = '%',
     NOTIFY_PREFIX = '!',
-    ADDRESS_PREFIX = '@'
+    ADDRESS_PREFIX = '@',
+    ADDRESS_SEPARATOR = '.'
 };
