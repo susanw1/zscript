@@ -53,7 +53,7 @@ private:
 
 public:
     void setUart(UartInternal<LL> uart, Dma<LL> *txDma, DmaMuxRequest requestTx) {
-        this->setId(uart.getId());
+        this->id = uart.getId();
         this->uart = uart;
         this->txDma = txDma;
         this->requestTx = requestTx;

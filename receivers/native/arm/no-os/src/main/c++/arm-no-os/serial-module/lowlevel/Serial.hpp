@@ -53,12 +53,8 @@ class Serial {
 //
 //    virtual int32_t getDistance(uint8_t value) = 0;  //returns the number of bytes until the specified value appears, including the value
 
-    SerialIdentifier id;
-
 protected:
-    void setId(SerialIdentifier id) {
-        this->id = id;
-    }
+    SerialIdentifier id;
 
 public:
     SerialIdentifier getId() {

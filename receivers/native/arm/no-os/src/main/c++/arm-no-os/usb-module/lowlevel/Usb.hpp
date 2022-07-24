@@ -29,7 +29,7 @@ public:
     static Usb<LL> usb;
 
     void setId(SerialIdentifier id) {
-        this->setId(id);
+        this->id = id;
     }
 
     void init(void (*volatile bufferOverflowCallback)(SerialIdentifier), uint32_t baud_rate, bool singleNdoubleStop) {
