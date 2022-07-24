@@ -123,7 +123,7 @@
         <setting id="org.eclipse.cdt.core.formatter.insert_space_before_colon_in_labeled_statement" value="do not insert"/>
         <setting id="org.eclipse.cdt.core.formatter.indent_statements_compare_to_block" value="true"/>
         <setting id="org.eclipse.cdt.core.formatter.insert_space_before_opening_brace_in_namespace_declaration" value="insert"/>
-        <setting id="org.eclipse.cdt.core.formatter.indent_access_specifier_compare_to_type_header" value="true"/>
+        <setting id="org.eclipse.cdt.core.formatter.indent_access_specifier_compare_to_type_header" value="false"/>
         <setting id="org.eclipse.cdt.core.formatter.insert_space_after_comma_in_template_parameters" value="insert"/>
         <setting id="org.eclipse.cdt.core.formatter.insert_space_before_closing_paren_in_if" value="do not insert"/>
         <setting id="org.eclipse.cdt.core.formatter.insert_space_before_pointer_in_declarator_list" value="insert"/>

@@ -8,17 +8,7 @@
 #ifndef SRC_TEST_CPP_COMMANDS_LOWLEVEL_GENERALHALSETUP_HPP_
 #define SRC_TEST_CPP_COMMANDS_LOWLEVEL_GENERALHALSETUP_HPP_
 
-#include <stdint.h>
-#include <stdlib.h>
-#include "stm32g4xx.h"
-#include "stm32g484xx.h"
-
-typedef uint8_t DmaIdentifier;
-typedef uint8_t SerialIdentifier;
-typedef uint8_t I2cIdentifier;
-typedef uint8_t PinAlternateFunction;
-
-typedef uint64_t flashProgramming_t;
+#include "llIncludes.hpp"
 
 #define I2C_1_SDA PB_9_
 #define I2C_1_SCL PA_15_
@@ -63,41 +53,65 @@ typedef uint64_t flashProgramming_t;
 #define USE_USB_SERIAL
 
 class GeneralHalSetup {
-    public:
-        static const uint8_t pinCount = 52;
+public:
+    static const uint16_t persistentGuidLocation = 16;
+    static const uint16_t persistentMacAddressLocation = 40;
+    static const uint16_t mainPersistentMemoryLocation = 48;
 
-        static const uint8_t systemClockCount = 13;
+    static const int ucpdRxBufferSize = 1024;
+    static const int ucpdTxBufferSize = 256;
+    static const uint32_t ucpdTxSOP = 0b10001110001100011000; // 3*Sync-1, Sync-2 = SOP
 
-        static const uint8_t atoDCount = 5;
+    static const DmaIdentifier ucpdRxDma = 4;
+    static const DmaIdentifier ucpdTxDma = 5;
 
-        static const uint16_t UsbBufferRxSize = 1024;
-        static const uint16_t UsbBufferTxSize = 1024;
+    static const uint16_t ucpdVID = 0;
+    static const uint16_t ucpdPID = 0;
+    static const uint32_t ucpdXID = 0;
 
-        static const SerialIdentifier UsbSerialId = 6;
+    static const uint8_t ucpdFirmwareRevisionNum = 0;
+    static const uint8_t ucpdHardwareRevisionNum = 0;
 
-        static const uint16_t UartBufferRxSize = 1024;
-        static const uint16_t UartBufferTxSize = 256;  // want rx buffer much larger, as it has to store any data which hasn't yet been read.
+    static const uint8_t ucpdMinPower = 0;
+    static const uint8_t ucpdOperationalPower = 0;
+    static const uint8_t ucpdMaxPower = 0;
 
-        static const I2cIdentifier i2cCount = 4;
-        static const SerialIdentifier uartCount = 6;
-        static const SerialIdentifier serialCount = 7;
-        static const DmaIdentifier dmaCount = 16;
+    static const char *ucpdManufacturerInfo;
 
-        static const DmaIdentifier i2c1Dma = 0;
-        static const DmaIdentifier i2c2Dma = 1;
-        static const DmaIdentifier i2c3Dma = 2;
-        static const DmaIdentifier i2c4Dma = 3;
+    static const uint8_t pinCount = 52;
 
-        static const DmaIdentifier uart1TxDma = 6;
-        static const DmaIdentifier uart2TxDma = 7;
-        static const DmaIdentifier uart3TxDma = 8;
-        static const DmaIdentifier uart4TxDma = 9;
-        static const DmaIdentifier uart5TxDma = 10;
-        static const DmaIdentifier uart6TxDma = 11;
-        static const uint8_t uartEscapingChar = 0xFE;
+    static const uint8_t systemClockCount = 13;
 
-        static const bool inDualBankFlash = true;
-        static const uint32_t pageSize = 0x800;
+    static const uint8_t atoDCount = 5;
+
+    static const uint16_t UsbBufferRxSize = 1024;
+    static const uint16_t UsbBufferTxSize = 1024;
+
+    static const SerialIdentifier UsbSerialId = 6;
+
+    static const uint16_t UartBufferRxSize = 1024;
+    static const uint16_t UartBufferTxSize = 256;  // want rx buffer much larger, as it has to store any data which hasn't yet been read.
+
+    static const I2cIdentifier i2cCount = 4;
+    static const SerialIdentifier uartCount = 6;
+    static const SerialIdentifier serialCount = 7;
+    static const DmaIdentifier dmaCount = 16;
+
+    static const DmaIdentifier i2c1Dma = 0;
+    static const DmaIdentifier i2c2Dma = 1;
+    static const DmaIdentifier i2c3Dma = 2;
+    static const DmaIdentifier i2c4Dma = 3;
+
+    static const DmaIdentifier uart1TxDma = 6;
+    static const DmaIdentifier uart2TxDma = 7;
+    static const DmaIdentifier uart3TxDma = 8;
+    static const DmaIdentifier uart4TxDma = 9;
+    static const DmaIdentifier uart5TxDma = 10;
+    static const DmaIdentifier uart6TxDma = 11;
+    static const uint8_t uartEscapingChar = 0xFE;
+
+    static const bool inDualBankFlash = true;
+    static const uint32_t pageSize = 0x800;
 };
 
 #endif /* SRC_TEST_CPP_COMMANDS_LOWLEVEL_GENERALHALSETUP_HPP_ */

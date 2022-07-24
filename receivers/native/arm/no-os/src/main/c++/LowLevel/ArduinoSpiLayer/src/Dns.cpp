@@ -99,7 +99,7 @@ int DNSClient::getHostByName(const char *aHostname, IPAddress &aResult, uint16_t
     }
 
     // Find a socket to use
-    if (iUdp.begin(1024 + (SystemMilliClock::getTimeMillis() & 0xF)) == 1) {
+    if (iUdp.begin(1024 + (SystemMilliClock<GeneralHalSetup>::getTimeMillis() & 0xF)) == 1) {
         // Try up to three times
         int retries = 0;
         // while ((retries < 3) && (ret <= 0)) {
@@ -152,7 +152,7 @@ uint16_t DNSClient::BuildRequest(const char *aName)
     //    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
     // As we only support one request at a time at present, we can simplify
     // some of this header
-    iRequestId = SystemMilliClock::getTimeMillis(); // generate a random ID
+    iRequestId = SystemMilliClock<GeneralHalSetup>::getTimeMillis(); // generate a random ID
     uint16_t twoByteBuffer;
 
     // FIXME We should also check that there's enough space available to write to, rather
@@ -210,14 +210,14 @@ uint16_t DNSClient::BuildRequest(const char *aName)
 
 uint16_t DNSClient::ProcessResponse(uint16_t aTimeout, IPAddress &aAddress)
         {
-    uint32_t startTime = SystemMilliClock::getTimeMillis();
+    uint32_t startTime = SystemMilliClock<GeneralHalSetup>::getTimeMillis();
 
     // Wait for a response packet
     while (iUdp.parsePacket() <= 0) {
-        if ((SystemMilliClock::getTimeMillis() - startTime) > aTimeout) {
+        if ((SystemMilliClock<GeneralHalSetup>::getTimeMillis() - startTime) > aTimeout) {
             return TIMED_OUT;
         }
-        SystemMilliClock::blockDelayMillis(50);
+        SystemMilliClock<GeneralHalSetup>::blockDelayMillis(50);
     }
 
     // We've had a reply!

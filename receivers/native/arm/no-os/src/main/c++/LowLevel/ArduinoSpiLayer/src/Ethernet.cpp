@@ -50,7 +50,7 @@ int EthernetClass::begin(uint8_t *mac, unsigned long timeout, unsigned long resp
         W5100.setSubnetMask(_dhcp->getSubnetMask().raw_address());
         SPI.endTransaction();
         _dnsServerAddress = _dhcp->getDnsServerIp();
-        socketPortRand(SystemMilliClock::getTimeMillis());
+        socketPortRand(SystemMilliClock<GeneralHalSetup>::getTimeMillis());
     }
     return ret;
 }

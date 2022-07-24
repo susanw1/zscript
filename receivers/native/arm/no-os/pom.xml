@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>org.zcode</groupId>
-            <artifactId>generic-cpp-receiver</artifactId>
+            <artifactId>generic-receiver-core</artifactId>
             <version>${project.version}</version>
             <type>nar</type>
         </dependency>
@@ -27,7 +27,11 @@
         <device>STM32G484RE</device>
         <!-- 		<cpp-warnings>-Wall -Wno-long-long -Wpointer-arith -Wconversion</cpp-warnings> -->
         <cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
-        <cpp-optimizations>-O3 -flto</cpp-optimizations>
+        <cpp-optimizations>-O3</cpp-optimizations>
+        <!-- OPENOCD_LOC=...git/openocd-code-->
+		<!-- mvn deploy -Dopenocd-location=$OPENOCD_LOC/tcl -Dopenocd-command=$OPENOCD_LOC/src/openocd -->
+        <openocd-location>/usr/share/openocd/scripts</openocd-location>
+        <openocd-command>openocd</openocd-command>
     </properties>
 
     <build>
@@ -35,6 +39,7 @@
             <plugin>
                 <groupId>com.github.maven-nar</groupId>
                 <artifactId>nar-maven-plugin</artifactId>
+            	<version>3.10.2-SNAPSHOT</version>
                 <extensions>true</extensions>
                 <configuration>
                     <architecture>arm32g4</architecture>
@@ -45,15 +50,19 @@
                         <exceptions>false</exceptions>
                         <debug>true</debug>
                         <sourceDirectory>src/main/c++</sourceDirectory>
-
                         <includes>
                             <include>**/*.cpp</include>
                             <include>**/*.cxx</include>
                             <include>**/*.cc</include>
+                            <include>**/*.s</include>
+                            <include>**/*.c</include>
                         </includes>
                         <excludes>
-                            <exclude>channels/Serial/**</exclude>
                             <exclude>channels/Uip/**</exclude>
+                            <exclude>channels/Serial/**</exclude>
+                            <exclude>old-commands/**</exclude>
+                            <exclude>ld/**</exclude>
+                            <exclude>openocd/**</exclude>
                         </excludes>
 
                         <includePaths>
@@ -70,11 +79,9 @@
                                 </includes>
                             </includePath>
                             <includePath>
-                                <path>${project.basedir}/src/main/c++/main</path>
-                                <includes>
-                                    <include>*.hpp</include>
-                                </includes>
+                                <path>${project.basedir}/src/main/c++</path>
                             </includePath>
+
                         </includePaths>
 
                         <optionSet>${cpp-warnings} ${cpp-optimizations}</optionSet>
@@ -82,7 +89,7 @@
                             <option>-mthumb</option>
                             <option>-fno-common</option>
                             <option>-mcpu=${cpu}</option>
-                            <option>--specs=nosys.specs</option>
+                            <option>-specs=nosys.specs</option>
                         </options>
                         <defines>
                             <define>${device-family}</define>
@@ -93,9 +100,19 @@
                             <type>static</type>
                         </library>
                     </libraries>
+
                     <linker>
-                        <name>ld</name>
+                        <name>g++</name>
                         <prefix>arm-none-eabi-</prefix>
+
+                        <testOptions>
+                        	<testOption>${cpp-optimizations}</testOption>
+                            <testOption>-T${project.basedir}/src/test/ld/STM32G484QETX_FLASH.ld</testOption>
+                            <testOption>-mthumb</testOption>
+                            <testOption>-fno-common</testOption>
+                            <testOption>-mcpu=${cpu}</testOption>
+                            <testOption>-specs=nosys.specs</testOption>
+                        </testOptions>
                         <!-- 						<sysLibs>
 							<sysLib>
 								<name>stdc++</name>
@@ -103,14 +120,72 @@
 						</sysLibs>
 -->
                     </linker>
-
+                    <tests>
+                        <test>
+                            <name>main</name>
+                            <link>static</link>
+                            <run>false</run>
+                        </test>
+                    </tests>
+					<sysLibs>
+						<sysLib>
+							<name>arm-none-eabi</name>
+						</sysLib>
+					</sysLibs>
                 </configuration>
             </plugin>
 
-            <!-- <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>exec-maven-plugin</artifactId> 
-                <executions> <execution> <id>default-cli</id> <configuration> <executable>${project.build.directory}/test-nar/bin/amd64-Linux-gpp/default-cli</executable> 
-                <workingDirectory>${project.build.directory}</workingDirectory> </configuration> 
-                </execution> </executions> </plugin> -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <!-- run with mvn exec:exec@objcopy -->
+                        <id>objcopy</id>
+                        <configuration>
+                            <executable>arm-none-eabi-objcopy</executable>
+                            <workingDirectory>${project.build.directory}/test-nar/bin/arm32g4-no_os-gpp/</workingDirectory>
+                            <arguments>
+                            	<argument>-O</argument>
+                            	<argument>binary</argument>
+                            	<argument>main</argument>
+                            	<argument>main.bin</argument>
+                        	</arguments>
+                        </configuration>
+						<phase>deploy</phase>
+						<goals>
+						  <goal>exec</goal>
+						</goals>
+                    </execution>
+                    <execution>
+                        <!-- run with mvn exec:exec@openocd -->
+                        <id>openocd</id>
+                        <configuration>
+                            <executable>${openocd-command}</executable>
+                            <workingDirectory>${project.build.directory}/test-nar/bin/arm32g4-no_os-gpp/</workingDirectory>
+                            <arguments>
+                            	<argument>--search</argument>
+                            	<argument>${openocd-location}</argument>
+                            	<argument>-f</argument>
+                            	<argument>${openocd-location}/interface/stlink.cfg</argument>
+                            	<argument>-f</argument>
+                            	<argument>${openocd-location}/target/stm32g4x.cfg</argument>
+                            	<argument>-f</argument>
+                            	<argument>${project.basedir}/src/test/openocd/openocd.cfg</argument>
+                        	</arguments>
+                        </configuration>
+						<phase>deploy</phase>
+						<goals>
+						  <goal>exec</goal>
+						</goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+		        <artifactId>maven-deploy-plugin</artifactId>
+		        <version>2.8.2</version>
+		        <configuration><skip>true</skip></configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

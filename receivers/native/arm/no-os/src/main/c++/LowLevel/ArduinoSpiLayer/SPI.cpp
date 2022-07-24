@@ -20,7 +20,7 @@ void SPIClass::begin() {
     SPI1->CR2 = setFifo1_4Full | dataSize8bit;
     SPI1->CR1 = setAsMaster | setSoftwareSlaveManagement | setInternalSlaveSelect;
 
-    GpioPin *sck = GpioManager::getPin(PA_5);
+    GpioPin<GeneralHalSetup> *sck = GpioManager<GeneralHalSetup>::getPin(PA_5);
     sck->init();
     sck->setAlternateFunction(5);
     sck->setOutputSpeed(VeryHighSpeed);
@@ -28,7 +28,7 @@ void SPIClass::begin() {
     sck->setOutputMode(PushPull);
     sck->setPullMode(NoPull);
 
-    GpioPin *miso = GpioManager::getPin(PA_6);
+    GpioPin<GeneralHalSetup> *miso = GpioManager<GeneralHalSetup>::getPin(PA_6);
     miso->init();
     miso->setAlternateFunction(5);
     miso->setOutputSpeed(VeryHighSpeed);
@@ -36,7 +36,7 @@ void SPIClass::begin() {
     miso->setOutputMode(PushPull);
     miso->setPullMode(NoPull);
 
-    GpioPin *mosi = GpioManager::getPin(PA_7);
+    GpioPin<GeneralHalSetup> *mosi = GpioManager<GeneralHalSetup>::getPin(PA_7);
     mosi->init();
     mosi->setAlternateFunction(5);
     mosi->setOutputSpeed(VeryHighSpeed);
@@ -55,7 +55,7 @@ uint8_t SPIClass::transfer(uint8_t data) {
 
     // Forces 8 bit read/write, to allow 1 byte at a time
     *((volatile uint8_t*) &(SPI1->DR)) = data;
-    while (!(((volatile uint16_t) SPI1->SR) & fifoLevelMask))
+    while (!((*((volatile uint16_t*) &SPI1->SR)) & fifoLevelMask))
         ;
     return *((volatile uint8_t*) &(SPI1->DR));
 }

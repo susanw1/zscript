@@ -446,7 +446,7 @@ private:
 	}
 #else
     inline static void initSS() {
-        GpioPin *nss = GpioManager::getPin(PA_4);
+        GpioPin<GeneralHalSetup> *nss = GpioManager<GeneralHalSetup>::getPin(PA_4);
         nss->init();
         nss->set();
         nss->setOutputSpeed(VeryHighSpeed);
@@ -455,10 +455,10 @@ private:
         nss->setMode(Output);
     }
     inline static void setSS() {
-        GpioManager::getPin(PA_4)->reset();
+        GpioManager<GeneralHalSetup>::getPin(PA_4)->reset();
     }
     inline static void resetSS() {
-        GpioManager::getPin(PA_4)->set();
+        GpioManager<GeneralHalSetup>::getPin(PA_4)->set();
     }
 #endif
 };

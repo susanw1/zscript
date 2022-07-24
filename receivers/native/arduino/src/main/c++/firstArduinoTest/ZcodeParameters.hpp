@@ -9,30 +9,42 @@
 #define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
 #include <ZcodeIncludes.hpp>
-static char strArray[32];
+#include <ZcodeStrings.hpp>
 
-#define ZCODE_STRING_SURROUND(str) (ZcodeParams::parseFlashString(F(str)))
+// Please note that ZcodeFullInclude will set any #defines necessary to other set #defines - so ZCODE_USE_DEBUG_ADDRESSING_SYSTEM enables ZCODE_SUPPORT_DEBUG
 
 //#define ZCODE_SUPPORT_SCRIPT_SPACE
 //#define ZCODE_SUPPORT_INTERRUPT_VECTOR
-#define ZCODE_SUPPORT_ADDRESSING
+
+
 #define ZCODE_GENERATE_NOTIFICATIONS
 #define ZCODE_SUPPORT_DEBUG
 
 #define ZCODE_HAVE_SERIAL_CHANNEL
+#define ZCODE_USE_DEBUG_ADDRESSING_SYSTEM
+
+//This is only needed if an addressing system other than ZcodeModuleAddressRouter or ZcodeMappingAddressRouter is used. Otherwise use the below #define
+//#define ZCODE_SUPPORT_ADDRESSING
+
+//Please note this needs to line up with the typedef of ZcodeParams::AddressRouter below
 #define ZCODE_USE_MODULE_ADDRESSING
+//#define ZCODE_USE_MAPPING_ADDRESSING
 
 
+template<class ZP>
+class ZcodeModuleAddressRouter;
+template<class ZP>
+class ZcodeMappingAddressRouter;
 
 class ZcodeParams {
 public:
+    typedef ZcodeStrings<ZcodeParams> Strings;
+    typedef ZcodeModuleAddressRouter<ZcodeParams> AddressRouter;
+//    typedef ZcodeModuleAddressRouter<ZcodeParams> AddressRouter;
 
-    static const char *parseFlashString(const __FlashStringHelper *fStr ){
-      strlcpy_P (strArray, (const char PROGMEM *)fStr, 32);
-      return strArray;
+    static uint16_t numberGenerator() {
+        return (uint16_t) millis();
     }
-
-    typedef uint8_t fieldUnit_t;
 
     typedef uint16_t scriptSpaceAddress_t;
     typedef uint16_t scriptSpaceOutLength_t;
@@ -55,10 +67,15 @@ public:
     static const uint16_t parseIterationMax = 128;
 
     static const int scriptOutBufferSize = 32;
+    static const uint16_t scriptOutReadBufferSize = 16;
+    static const uint16_t interruptVectorOutReadBufferSize = 32;
     static const int lockNum = 8;
     static const int debugBufferLength = 32;
 
     static const uint16_t serialBigSize = 32;
+    static const uint16_t serialChannelReadBufferSize = 8;
+    
+    static const uint16_t mappingAddressCount = 32;
 };
 
 #endif /* SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_ */

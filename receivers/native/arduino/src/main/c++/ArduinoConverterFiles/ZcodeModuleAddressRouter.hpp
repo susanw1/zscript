@@ -1,7 +1,5 @@
 #if defined(ZCODE_SUPPORT_ADDRESSING) && defined(ZCODE_GENERATE_NOTIFICATIONS)
-#include "zcode/addressing/ZcodeModuleAddressRouter.hpp"
-
-ZcodeModuleAddressRouter<ZcodeParams> ZcodeModuleAddressRouterI; 
+#include "zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp"
 
 #ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
 #error ZcodeModuleAddressRouter.hpp needs to be included before Zcode.hpp

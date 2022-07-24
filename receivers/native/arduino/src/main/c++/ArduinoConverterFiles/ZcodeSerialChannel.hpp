@@ -5,8 +5,8 @@
  *      Author: robert
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_TEST_ZCODELOCALCHANNEL_HPP_
-#define SRC_TEST_CPP_ZCODE_TEST_ZCODELOCALCHANNEL_HPP_
+#ifndef ARDUINO_SERIAL_CHANNEL_HPP_
+#define ARDUINO_SERIAL_CHANNEL_HPP_
 
 #ifndef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
 #error ZcodeSerialChannel.hpp needs to be included after Zcode.hpp
@@ -24,8 +24,8 @@ private:
     bool usingBuffer = false;
     
 public:
-    ZcodeSerialChannelInStream(Zcode<ZcodeParams> *zcode, ZcodeCommandChannel<ZcodeParams> *channel) :
-            ZcodeChannelInStream<ZcodeParams>(zcode, channel, big, ZcodeParams::serialBigSize) {
+    ZcodeSerialChannelInStream(ZcodeCommandChannel<ZcodeParams> *channel) :
+            ZcodeChannelInStream<ZcodeParams>( channel, big, ZcodeParams::serialBigSize) {
     }
 
     bool pushData() {
@@ -53,8 +53,11 @@ public:
 class ZcodeSerialOutStream: public ZcodeOutStream<ZcodeParams> {
 private:
     bool openB = false;
-
+    uint8_t readBuffer[ZcodeParams::serialChannelReadBufferSize];
 public:
+    ZcodeSerialOutStream() :
+            ZcodeOutStream<ZcodeParams>(readBuffer, ZcodeParams::serialChannelReadBufferSize) {
+    }
 
     void open(ZcodeCommandChannel<ZcodeParams> *target, ZcodeOutStreamOpenType t) {
       (void) target;
@@ -81,11 +84,24 @@ class ZcodeSerialChannel: public ZcodeCommandChannel<ZcodeParams> {
     ZcodeSerialOutStream out;
 
 public:
-    ZcodeSerialChannel(Zcode<ZcodeParams> *zcode) :
-            ZcodeCommandChannel<ZcodeParams>(zcode, &seqin, &out, false), seqin(zcode, this) {
+    ZcodeSerialChannel() :
+            ZcodeCommandChannel<ZcodeParams>(&seqin, &out, false), seqin(this) {
+    }
+    void giveInfo(ZcodeExecutionCommandSlot<ZcodeParams> slot) {
+        ZcodeOutStream<ZcodeParams> *out = slot.getOut();
+        out->writeField16('B', ZcodeParams::serialBigSize);
+        out->writeField16('F', ZcodeParams::fieldNum);
+        out->writeField8('N', 0);
+        out->writeField8('M', 0x7);
+        out->writeStatus(OK);
+    }
+
+    void readSetup(ZcodeExecutionCommandSlot<ZcodeParams> slot) {
+        ZcodeOutStream<ZcodeParams> *out = slot.getOut();
+        out->writeStatus(OK);
     }
 
 };
-ZcodeSerialChannel ZcodeSerialChannelI(&ZcodeI);
+ZcodeSerialChannel ZcodeSerialChannelI;
 #endif
-#endif /* SRC_TEST_CPP_ZCODE_TEST_ZCODELOCALCHANNEL_HPP_ */
+#endif /* ARDUINO_SERIAL_CHANNEL_HPP_ */

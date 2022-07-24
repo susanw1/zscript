@@ -13,62 +13,50 @@
 
 template<class ZP>
 class ZcodeBusInterrupt {
-    private:
-        ZcodeBusInterruptSource<ZP> *source;
-        uint8_t id;
+private:
+    ZcodeBusInterruptSource<ZP> *source;
+    ZcodeNotificationInfo info;
+    ZcodeNotificationAddressInfo address;
 
-    public:
-        ZcodeBusInterrupt() :
-                source(NULL), id(0) {
-        }
+public:
+    ZcodeBusInterrupt() :
+            source(NULL), info(), address() {
+    }
 
-        ZcodeBusInterrupt(ZcodeBusInterruptSource<ZP> *source, uint8_t id) :
-                source(source), id(id) {
-        }
+    ZcodeBusInterrupt(ZcodeBusInterruptSource<ZP> *source, ZcodeNotificationInfo info, ZcodeNotificationAddressInfo addr) :
+            source(source), info(info), address(addr) {
+    }
 
-        ZcodeBusInterruptSource<ZP>* getSource() {
-            return source;
-        }
+    ZcodeBusInterruptSource<ZP>* getSource() {
+        return source;
+    }
 
-        uint8_t getId() {
-            return id;
-        }
+    uint16_t getNotificationModule() {
+        return info.module;
+    }
 
-        uint8_t getNotificationType() {
-            return source->getNotificationType(id);
-        }
+    uint8_t getNotificationPort() {
+        return info.port;
+    }
 
-        uint8_t getNotificationBus() {
-            return source->getNotificationBus(id);
-        }
+    uint16_t getFoundAddress() {
+        return address.address;
+    }
 
-        uint8_t getFoundAddress() {
-            return source->getFoundAddress(id);
-        }
+    bool hasFindableAddress() {
+        return address.valid;
+    }
 
-        bool hasFindableAddress() {
-            return source->hasFindableAddress(id);
-        }
+    bool hasFoundAddress() {
+        return address.hasFound;
+    }
 
-        void findAddress() {
-            source->findAddress(id);
-        }
-
-        bool hasStartedAddressFind() {
-            return source->hasStartedAddressFind(id);
-        }
-
-        bool hasFoundAddress() {
-            return source->hasFoundAddress(id);
-        }
-
-        bool checkFindAddressLocks() {
-            return source->checkFindAddressLocks(id);
-        }
-
-        void clear() {
-            source->clearNotification(id);
-        }
+    void clear() {
+        source->clearNotification(info.id);
+        info.valid = false;
+        address.valid = false;
+        source = NULL;
+    }
 };
 
 #endif /* SRC_TEST_CPP_ZCODE_ZCODEBUSINTERRUPT_HPP_ */

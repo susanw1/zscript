@@ -8,6 +8,7 @@ target/
 RemoteSystemTempFiles/
 .recommenders/
 .cproject
+.autotools
 .externalToolBuilders
 *.iml
 

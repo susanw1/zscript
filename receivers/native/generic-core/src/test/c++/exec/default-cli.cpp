@@ -5,59 +5,38 @@
  *      Author: robert
  */
 
-#include "Zcode.hpp"
+#include <iostream>
 
-#include "commands/ZcodeEchoCommand.hpp"
-#include "commands/ZcodeCapabilitiesCommand.hpp"
-#include "commands/ZcodeActivateCommand.hpp"
-#include "commands/ZcodeSetDebugChannelCommand.hpp"
-#include "commands/ZcodeSendDebugCommand.hpp"
-#include "commands/ZcodeExecutionStateCommand.hpp"
-#include "commands/ZcodeExecutionCommand.hpp"
-#include "commands/ZcodeExecutionStoreCommand.hpp"
-#include "commands/ZcodeNotificationHostCommand.hpp"
-#include "executionspace/ZcodeExecutionSpaceChannel.hpp"
+#include "../support/ZcodeParameters.hpp"
+
+#ifdef ZCODE_SUPPORT_ADDRESSING
+#ifdef ZCODE_SUPPORT_DEBUG
+#include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>
+#endif
+
+#include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
+#endif
+
+#ifdef ZCODE_SUPPORT_SCRIPT_SPACE
+#include <zcode/modules/script/ZcodeScriptModule.hpp>
+#endif
+
+#include <zcode/modules/outer-core/ZcodeOuterCoreModule.hpp>
+#include <zcode/modules/core/ZcodeCoreModule.hpp>
 
 #include "../support/ZcodeLocalChannel.hpp"
 
-#include <iostream>
+#include <zcode/Zcode.hpp>
 
 int main(void) {
     std::cout << "size of Zcode: " << sizeof(Zcode<TestParams> ) << "\n";
-    std::cout << "size of ZcodeCommandSlot: " << sizeof(ZcodeCommandSlot<TestParams> ) << "\n";
 
-    Zcode<TestParams> zcode(NULL, 0);
-
-    ZcodeLocalChannel localChannel(&zcode);
-    ZcodeExecutionSpaceChannel<TestParams> execSpaceChannel(&zcode, zcode.getSpace());
-    ZcodeCommandChannel<TestParams> *channels[2] = { &localChannel, &execSpaceChannel };
-    ZcodeExecutionSpaceChannel<TestParams> **execChannelPtr = (ZcodeExecutionSpaceChannel<TestParams>**) channels + 1;
-    zcode.setChannels(channels, 2);
-    zcode.getSpace()->setChannels(execChannelPtr, 1);
-
-    ZcodeEchoCommand<TestParams> cmd0;
-    ZcodeActivateCommand<TestParams> cmd1;
-    ZcodeSetDebugChannelCommand<TestParams> cmd2(&zcode);
-    ZcodeSendDebugCommand<TestParams> cmd3(&zcode);
-    ZcodeExecutionStateCommand<TestParams> cmd4(zcode.getSpace());
-    ZcodeExecutionCommand<TestParams> cmd5(zcode.getSpace());
-    ZcodeExecutionStoreCommand<TestParams> cmd6(zcode.getSpace());
-    ZcodeNotificationHostCommand<TestParams> cmd7(&zcode);
-    ZcodeCapabilitiesCommand<TestParams> cmd8(&zcode);
-
-    zcode.getCommandFinder()
-            ->registerCommand(&cmd0)
-            ->registerCommand(&cmd1)
-            ->registerCommand(&cmd2)
-            ->registerCommand(&cmd3)
-            ->registerCommand(&cmd4)
-            ->registerCommand(&cmd5)
-            ->registerCommand(&cmd6)
-            ->registerCommand(&cmd7)
-            ->registerCommand(&cmd8);
-
+    Zcode<TestParams> *zcode = &Zcode<TestParams>::zcode;
+    ZcodeLocalChannel localChannel;
+    ZcodeCommandChannel<TestParams> *channels[1] = { &localChannel };
+    zcode->setChannels(channels, 1);
     while (true) {
-        zcode.progressZcode();
+        zcode->progressZcode();
     }
     return 0;
 }

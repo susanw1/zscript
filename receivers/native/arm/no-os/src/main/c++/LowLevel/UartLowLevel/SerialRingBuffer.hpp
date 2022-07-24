@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTRINGBUFFER_HPP_
 #define SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTRINGBUFFER_HPP_
 
-#include "../GeneralLLSetup.hpp"
+#include <LowLevel/llIncludes.hpp>
 #include "Serial.hpp"
 
 template<uint16_t size>

@@ -8,9 +8,9 @@
 #ifndef SRC_TEST_CPP_LOWLEVEL_ARDUINOSPILAYER_SPI_H_
 #define SRC_TEST_CPP_LOWLEVEL_ARDUINOSPILAYER_SPI_H_
 
-#include "../GeneralLLSetup.hpp"
-#include "../GpioLowLevel/GpioManager.hpp"
-#include "../GpioLowLevel/Gpio.hpp"
+#include <LowLevel/GeneralLLSetup.hpp>
+#include <LowLevel/GpioLowLevel/GpioManager.hpp>
+#include <LowLevel/GpioLowLevel/Gpio.hpp>
 
 class SPIClass {
     public:

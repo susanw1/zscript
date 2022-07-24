@@ -8,37 +8,35 @@
 #ifndef SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_UARTMANAGER_HPP_
 #define SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_UARTMANAGER_HPP_
 
-#include "../GeneralLLSetup.hpp"
+#include <LowLevel/llIncludes.hpp>
 #include "Uart.hpp"
-#include "../UsbSerialLowLevel/Usb.hpp"
+#include <LowLevel/UsbSerialLowLevel/Usb.hpp>
 
 class Serial;
 
+template<class LL>
 class UartManager {
-    private:
-        static Uart uarts[GeneralHalSetup::uartCount];
+private:
+    static Uart<LL> uarts[LL::uartCount];
+
+    static void interrupt(uint8_t id);
+
+    UartManager() {
+    }
+
+public:
+    static void init();
+
+    static Serial* getUartById(SerialIdentifier id) {
 
 #ifdef USE_USB_SERIAL
-        static Usb usb;
-        #endif
-
-        UartManager() {
+        if (id == GeneralHalSetup::UsbSerialId) {
+            return &Usb<LL>::usb;
         }
-
-        friend UartInterruptManager;
-
-    public:
-        static void init();
-
-        static Serial* getUartById(SerialIdentifier id) {
-
-#ifdef USE_USB_SERIAL
-            if (id == GeneralHalSetup::UsbSerialId) {
-                return &usb;
-            }
 #endif
-            return uarts + id;
-        }
+        return uarts + id;
+    }
 };
+#include "specific/UartManagercpp.hpp"
 
 #endif /* SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_UARTMANAGER_HPP_ */
