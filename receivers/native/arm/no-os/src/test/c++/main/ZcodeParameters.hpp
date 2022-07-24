@@ -67,6 +67,8 @@ public:
     static const uint16_t interruptVectorOutReadBufferSize = 32;
     static const uint8_t lockNum = 8;
     static const uint16_t debugBufferLength = 256;
+
+    static const uint8_t i2cAddressingResponseChunkSize = 8;
 };
 
 #endif /* SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_ */

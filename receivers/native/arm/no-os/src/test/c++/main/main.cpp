@@ -28,6 +28,7 @@
 #include "ZcodeParameters.hpp"
 #include <arm-no-os/GeneralLLSetup.hpp>
 
+#include <arm-no-os/i2c-module/addressing/ZcodeI2cAddressingSystem.hpp>
 #include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>
 #include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
 
@@ -60,6 +61,8 @@
 
 #include <arm-no-os/udp-module/lowlevel/src/Ethernet.h>
 
+#include <arm-no-os/i2c-module/addressing/ZcodeI2cBusInterruptSource.hpp>
+
 #include <zcode/Zcode.hpp>
 
 const char *GeneralHalSetup::ucpdManufacturerInfo = "Zcode/Alpha Board";
@@ -80,7 +83,8 @@ int main(void) {
     uint32_t notSoPermanentStore = 0;
     Ucpd<GeneralHalSetup>::init(&notSoPermanentStore, 150, 5 * 20, 5 * 20);
 
-//    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &source };
+    ZcodeI2cBusInterruptSource<ZcodeParameters> source;
+
     Zcode<ZcodeParameters> *z = &Zcode<ZcodeParameters>::zcode;
 
     AtoDManager<GeneralHalSetup>::init();
@@ -91,6 +95,9 @@ int main(void) {
     SerialChannel<ZcodeParameters> serial(&Usb<GeneralHalSetup>::usb);
     ZcodeCommandChannel<ZcodeParameters> *chptr[] = { &channel, &serial };
     z->setChannels(chptr, 2);
+
+    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &source };
+    z->setInterruptSources(sources, 1);
 
     I2c<GeneralHalSetup> *i2c1 = I2cManager<GeneralHalSetup>::getI2cById(0);
     GpioPin<GeneralHalSetup> *c4 = GpioManager<GeneralHalSetup>::getPin(PC_4);
