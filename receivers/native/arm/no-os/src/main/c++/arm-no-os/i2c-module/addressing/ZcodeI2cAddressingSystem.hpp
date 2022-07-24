@@ -84,14 +84,10 @@ public:
     }
 
     static void routeResponse(ZcodeBusInterrupt<ZP> interrupt, ZcodeOutStream<ZP> *out) {
-        if (!out->lock()) {
-            return;
-        }
         bool tenBit = (interrupt.getFoundAddress() & 0x800) != 0;
         uint8_t port = interrupt.getNotificationPort();
         uint16_t address = (interrupt.getFoundAddress() & 0x7ff);
         if (port >= LL::i2cCount) {
-            interrupt.clear();
             return;
         }
         I2c<LL> *i2c = I2cManager<LL>::getI2cById(port);
@@ -119,10 +115,10 @@ public:
                 i++;
             }
             for (; i < chunkSize; ++i) {
-                out->writeByte(buffer[i]);
                 if (buffer[i] == EOL_SYMBOL) {
                     break;
                 }
+                out->writeByte(buffer[i]);
             }
         }
         if (status != Complete) {
@@ -151,9 +147,7 @@ public:
             }
             out->writeField8('I', infoValue);
         }
-        interrupt.clear();
         i2c->unlock();
-        out->unlock();
     }
 };
 

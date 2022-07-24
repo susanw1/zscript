@@ -29,6 +29,7 @@
 #include <arm-no-os/GeneralLLSetup.hpp>
 
 #include <arm-no-os/i2c-module/addressing/ZcodeI2cAddressingSystem.hpp>
+#include <arm-no-os/serial-module/addressing/ZcodeSerialAddressingSystem.hpp>
 #include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>
 #include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
 
@@ -62,6 +63,7 @@
 #include <arm-no-os/udp-module/lowlevel/src/Ethernet.h>
 
 #include <arm-no-os/i2c-module/addressing/ZcodeI2cBusInterruptSource.hpp>
+#include <arm-no-os/serial-module/addressing/ZcodeSerialBusInterruptSource.hpp>
 
 #include <zcode/Zcode.hpp>
 
@@ -83,7 +85,8 @@ int main(void) {
     uint32_t notSoPermanentStore = 0;
     Ucpd<GeneralHalSetup>::init(&notSoPermanentStore, 150, 5 * 20, 5 * 20);
 
-    ZcodeI2cBusInterruptSource<ZcodeParameters> source;
+    ZcodeI2cBusInterruptSource<ZcodeParameters> i2cSource;
+    ZcodeSerialBusInterruptSource<ZcodeParameters> serialSource;
 
     Zcode<ZcodeParameters> *z = &Zcode<ZcodeParameters>::zcode;
 
@@ -96,8 +99,8 @@ int main(void) {
     ZcodeCommandChannel<ZcodeParameters> *chptr[] = { &channel, &serial };
     z->setChannels(chptr, 2);
 
-    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &source };
-    z->setInterruptSources(sources, 1);
+    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &i2cSource, &serialSource };
+    z->setInterruptSources(sources, 2);
 
     I2c<GeneralHalSetup> *i2c1 = I2cManager<GeneralHalSetup>::getI2cById(0);
     GpioPin<GeneralHalSetup> *c4 = GpioManager<GeneralHalSetup>::getPin(PC_4);

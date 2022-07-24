@@ -87,7 +87,7 @@ public:
                 ZcodeNotificationInfo info;
                 info.id = i;
                 info.port = i;
-                info.module = 0x50;
+                info.module = 0x5;
                 info.valid = true;
                 return info;
             }
