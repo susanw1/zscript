@@ -44,6 +44,9 @@ public:
             return false;
         }
     }
+    Serial* getSerial() {
+        return serial;
+    }
 };
 
 template<class ZP>
@@ -78,7 +81,6 @@ public:
     void writeByte(uint8_t value) {
         serial->write(value);
     }
-
 };
 
 template<class ZP>
@@ -93,24 +95,60 @@ public:
     SerialChannel(Serial *serial) :
             ZcodeCommandChannel<ZP>(&seqin, &out, false), seqin(this, serial), out(serial) {
         UartManager<LL>::maskSerial(serial->getId());
-        //TODO: Handle things like buffer overrun, etc.
+        seqin.getSerial()->init(NULL, 9600, false);
+    }
+    SerialChannel(Serial *serial, uint32_t baud) :
+            ZcodeCommandChannel<ZP>(&seqin, &out, false), seqin(this, serial), out(serial) {
+        UartManager<LL>::maskSerial(serial->getId());
+        seqin.getSerial()->init(NULL, baud, false);
     }
 
     void giveInfo(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
+        out->writeField32('H', ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16);
+        out->writeField16('P', seqin.getSerial()->getId());
         out->writeField16('B', ZP::serialChannelBigFieldSize);
         out->writeField16('F', ZP::fieldNum);
         out->writeField8('N', 0);
+        out->writeField8('A', 0);
         out->writeField8('M', 0x7);
         out->writeBigStringField("Serial based channel");
         out->writeStatus(OK);
-        //TODO: make this better
     }
 
     void readSetup(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
+        uint32_t baud = 0;
+        bool singleNdoubleStop = false;
+
+        for (uint8_t i = 0; i < slot.getBigField()->getLength(); ++i) {
+            baud <<= 8;
+            baud |= slot.getBigField()->getData()[i];
+        }
+        if (slot.getBigField()->getLength() == 0) {
+            baud = 9600;
+        } else if (slot.getBigField()->getLength() > 4 || baud == 0 || baud > ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16) {
+            slot.fail(BAD_PARAM, "Invalid baud rate");
+            return;
+        }
+        if (slot.getFields()->has('C')) { //check parity
+            slot.fail(CMD_FAIL, "Parity not supported");
+            return;
+        }
+        if (slot.getFields()->has('N')) {
+            slot.fail(CMD_FAIL, "Noise detection not supported");
+            return;
+        }
+        if (slot.getFields()->has('S')) {
+            singleNdoubleStop = true;
+        }
+        if (slot.getFields()->has('A')) {
+            slot.fail(CMD_FAIL, "Auto baud rate detection not supported");
+            return;
+        }
+
+        seqin.getSerial()->init(NULL, baud, singleNdoubleStop);
         out->writeStatus(OK);
-        //TODO: do this properly - arguably not much to do really...
     }
 };
 
