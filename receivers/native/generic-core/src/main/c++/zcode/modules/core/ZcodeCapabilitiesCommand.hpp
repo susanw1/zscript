@@ -32,7 +32,8 @@ public:
         out->writeStatus(OK);
         out->writeField16('C', MODULE_CAPABILITIES(000));
         out->writeField16('M', COMMAND_SWITCH_EXISTS_BOTTOM_BYTE(00));
-        out->writeField32('N', (uint32_t) ZP::fieldNum);
+
+        // TODO to be completed!
     }
 
 };

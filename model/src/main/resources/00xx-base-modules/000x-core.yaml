@@ -15,18 +15,13 @@ module:
             name: commandsSet
             description: which commands are enabled in this module
             type: bitset
-            bitsetFields: null
-            required: yes
-        -   label: M
-            name: modulesSet
-            description: which modules are available on this device
-            type: bitset
             bitsetFields: custom
             required: yes
-        -   label: N
-            name: maxRequestParams
-            description: maximum number of params that can be supplied in any command
-            type: number
+        -   label: M
+            name: modulesBankSet
+            description: which modules present in this bank (ie 00xx)
+            type: bitset
+            bitsetFields: custom
             required: yes
         status: null
 
@@ -37,7 +32,7 @@ module:
         requestParams:
         -   label: S
             name: status
-            description: determines the returned Status param
+            description: determines the returned Status param - can be any status
             type: number
             required: no
         -   label: +
@@ -56,7 +51,13 @@ module:
             description: any supplied value will be returned
             type: value
             required: no
+        -   label: S
+            name: status
+            description: the supplied Status param - can be any status; defaults to OK
+            type: number
+            required: yes
 
+        
     -   name: activate
         command: 2
         description: Activates zcode system, allowing commands 0x10 onwards to be executed
@@ -70,16 +71,17 @@ module:
         responseParams:
         -   label: A
             name: previousActivationState
-            description: true if already activated; false otherwise
-            type: boolean
-            required: yes
+            description: true if already activated; absent otherwise
+            type: flag
+            required: no
         status:
         -   code: CMD_FAIL
             meaning: key match failure
 
+
     -   name: reset
         command: 3
-        description: Resets the device or channels
+        description: Resets the device(!) or channels. Device reset and *this channel* reset produces no response at all.
         operation: put
         requestParams:
         -   label: C
@@ -91,6 +93,7 @@ module:
         status:
         -   code: CMD_FAIL
             meaning: channel reset failed
+
 
     -   name: readGuid
         command: 4
@@ -105,15 +108,43 @@ module:
             required: yes
         status:
         -   code: CMD_FAIL
-            meaning: no GUID set
+            meaning: no valid GUID set
+
 
     -   name: channelInfo
         command: 8
         description: Retrieves channel info
         operation: get
-        requestParams: null
-        responseParams: null
+        requestParams: 
+        -   label: C
+            name: channel
+            description: which channel to configure (default to this channel) 
+            type: number
+            required: no
+        responseParams:
+        -   label: B
+            name: maxBigField
+            description: maximum number of bytes that can be supplied in request's big-field 
+            type: number
+            required: yes
+        -   label: F
+            name: maxRequestParams
+            description: maximum number of params that can be supplied in any request
+            type: number
+            required: yes
+        -   label: M
+            name: associatedModule
+            description: the module associated with this channel
+            type: number
+            required: yes
+        -   label: +
+            name: name
+            description: channel descriptor
+            type: text
+            required: yes
+        extension: channel
         status: null
+
 
     -   name: makeCode
         command: 12
@@ -126,6 +157,7 @@ module:
             description: newly generated random match-code
             type: value
             required: yes
+
 
     -   name: matchCode
         command: 13
