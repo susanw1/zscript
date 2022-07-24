@@ -1,0 +1,50 @@
+#######################################
+# Syntax Coloring Map Servo
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Zcode	KEYWORD1
+ZcodeParams	KEYWORD1
+ZcodeOutStream	KEYWORD1
+ZcodeChannelInStream	KEYWORD1
+ZcodeCommandChannel	KEYWORD1
+ZcodeModule	KEYWORD1
+ZcodeCoreModule	KEYWORD1
+ZcodeOUTERCoreModule	KEYWORD1
+ZcodeScriptModule	KEYWORD1
+ZcodeModuleAddressRouter	KEYWORD1
+ZcodeMappingAddressRouter	KEYWORD1
+ZcodeAddressRouter	KEYWORD1
+ZcodeExecutionCommandSlot	KEYWORD1
+ZcodeCommand	KEYWORD1
+ZcodeSerialChannel	KEYWORD1
+ZcodeSetup	KEYWORD1
+ZcodeStrings	KEYWORD1
+
+ZcodeSerialChannelI	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+progressZcode	KEYWORD2
+setChannels	KEYWORD2
+zcode	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+ZCODE_SUPPORT_SCRIPT_SPACE	LITERAL1
+ZCODE_SUPPORT_INTERRUPT_VECTOR	LITERAL1
+ZCODE_SUPPORT_ADDRESSING	LITERAL1
+ZCODE_GENERATE_NOTIFICATIONS	LITERAL1
+ZCODE_SUPPORT_DEBUG	LITERAL1
+
+ZCODE_HAVE_SERIAL_CHANNEL	LITERAL1
+ZCODE_USE_MODULE_ADDRESSING	LITERAL1
+ZCODE_USE_DEBUG_ADDRESSING_SYSTEM	LITERAL1
+ZCODE_USE_MODULE_ADDRESSING	LITERAL1
+ZCODE_USE_MAPPING_ADDRESSING	LITERAL1

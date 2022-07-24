@@ -22,8 +22,7 @@ public:
     static const char boolFalse[] PROGMEM;
 
     static const char failAddressingOnlyFromNotificationChannel[] PROGMEM;
-    static const char failAddressingInvalidModule[] PROGMEM;
-    static const char failAddressTooShort[] PROGMEM;
+    static const char failAddressingInvalid[] PROGMEM;
     static const char failAddressingNotSetup[] PROGMEM;
 
     static const char failParseBadStringEnd[] PROGMEM;
@@ -82,9 +81,7 @@ const char ZcodeStrings<ZP>::boolFalse[] PROGMEM = "false";
 template<class ZP>
 const char ZcodeStrings<ZP>::failAddressingOnlyFromNotificationChannel[] PROGMEM = "Addressing only allowed from notification channel";
 template<class ZP>
-const char ZcodeStrings<ZP>::failAddressingInvalidModule[] PROGMEM = "Invalid module address";
-template<class ZP>
-const char ZcodeStrings<ZP>::failAddressTooShort[] PROGMEM = "Too few addressing levels";
+const char ZcodeStrings<ZP>::failAddressingInvalid[] PROGMEM = "Invalid address";
 template<class ZP>
 const char ZcodeStrings<ZP>::failAddressingNotSetup[] PROGMEM = "Addressing not set up";
 

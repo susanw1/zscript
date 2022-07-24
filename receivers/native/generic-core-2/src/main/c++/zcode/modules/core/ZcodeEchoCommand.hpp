@@ -19,6 +19,7 @@ class ZcodeOutStream;
 template<class ZP>
 class ZcodeEchoCommand: public ZcodeCommand<ZP> {
 private:
+    typedef typename ZP::Strings::string_t string_t;
     static const uint8_t CODE = 0x01;
 
 public:
@@ -29,7 +30,7 @@ public:
         if (!slot.getFields()->get(Zchars::STATUS_RESP_PARAM, &statusResult)) {
             out->writeStatus(OK);
         } else {
-            slot.fail((ZcodeResponseStatus) statusResult, NULL);
+            slot.fail((ZcodeResponseStatus) statusResult, (string_t) NULL);
         }
         slot.getFields()->copyTo(out);
         slot.getBigField()->copyTo(out);

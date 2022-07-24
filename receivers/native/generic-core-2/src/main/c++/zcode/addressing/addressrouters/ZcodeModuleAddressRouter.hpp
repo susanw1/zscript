@@ -15,6 +15,7 @@
 template<class ZP>
 class ZcodeModuleAddressRouter: public ZcodeAddressRouter<ZP> {
     typedef typename ZcodeAddressRouter<ZP>::AddressSectionReading AddressSectionReading;
+    typedef typename ZP::Strings::string_t string_t;
 
 public:
     static void route(ZcodeExecutionCommandSlot<ZP> slot) {
@@ -40,7 +41,7 @@ public:
                 addrInfo.addr = addrReading.addr;
             }
         } else {
-            slot.fail(BAD_ADDRESSING, "Invalid Address");
+            slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
             return;
         }
         ZcodeAddressRouter<ZP>::addressingSwitch(module, slot, addrInfo);

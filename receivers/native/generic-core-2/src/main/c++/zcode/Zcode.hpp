@@ -30,6 +30,9 @@
 #include "parsing/ZcodeParser.hpp"
 #include "parsing/ZcodeChannelCommandSlot.hpp"
 #include "channels/ZcodeCommandChannel.hpp"
+#include "modules/ZcodeCommand.hpp"
+#include "modules/ZcodeModule.hpp"
+#include "ZcodeOutStream.hpp"
 #ifdef ZCODE_SUPPORT_SCRIPT_SPACE
 #include "scriptspace/ZcodeScriptSpace.hpp"
 #endif

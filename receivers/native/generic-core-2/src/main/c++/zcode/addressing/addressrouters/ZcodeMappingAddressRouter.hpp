@@ -19,6 +19,7 @@
 template<class ZP>
 class ZcodeMappingAddressRouter: public ZcodeAddressRouter<ZP> {
     typedef typename ZcodeAddressRouter<ZP>::AddressSectionReading AddressSectionReading;
+    typedef typename ZP::Strings::string_t string_t;
 
     struct ZcodeAddressMapping {
         uint16_t module :12;
@@ -44,7 +45,7 @@ public:
         AddressSectionReading reading = ZcodeAddressRouter<ZP>::readAddressSection12(slot.getBigField()->getData(), 0, slot.getBigField()->getLength());
 
         if (reading.addr >= ZP::mappingAddressCount) {
-            slot.fail(BAD_ADDRESSING, "Invalid Address");
+            slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
             return;
         }
         ZcodeAddressMapping mapping = map[reading.addr];
@@ -62,7 +63,7 @@ public:
             addrInfo.addr = mapping.address;
             addrInfo.port = mapping.port;
         } else {
-            slot.fail(BAD_ADDRESSING, "Invalid Address");
+            slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
             return;
         }
         ZcodeAddressRouter<ZP>::addressingSwitch(mapping.module, slot, addrInfo);
@@ -131,27 +132,27 @@ public:
         uint16_t address = 0;
         if (slot.getFields()->get('R', &mappedAddress)) {
             if (mappedAddress >= ZP::mappingAddressCount) {
-                slot.fail(BAD_PARAM, "Invalid Address");
+                slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
                 return;
             }
             if (!slot.getFields()->get('M', &module)) {
-                slot.fail(BAD_PARAM, "Invalid Module");
+                slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
                 return;
             }
             int8_t sections = ZcodeAddressRouter<ZP>::getAddressingLevel(module);
             if (sections == -1) {
-                slot.fail(BAD_PARAM, "Invalid Module for addressing");
+                slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
                 return;
             }
             if (sections > 0) {
                 if (!slot.getFields()->get('P', &port)) {
-                    slot.fail(BAD_PARAM, "Invalid Port");
+                    slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
                     return;
                 }
             }
             if (sections == 2) {
                 if (!slot.getFields()->get('A', &address)) {
-                    slot.fail(BAD_PARAM, "Invalid Address");
+                    slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
                     return;
                 }
             }
