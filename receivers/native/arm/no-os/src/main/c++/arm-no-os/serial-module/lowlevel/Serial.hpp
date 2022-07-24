@@ -53,13 +53,23 @@ class Serial {
 //
 //    virtual int32_t getDistance(uint8_t value) = 0;  //returns the number of bytes until the specified value appears, including the value
 
+    SerialIdentifier id;
+
+protected:
+    void setId(SerialIdentifier id) {
+        this->id = id;
+    }
+
 public:
+    SerialIdentifier getId() {
+        return id;
+    }
+
     virtual void init(void (*volatile bufferOverflowCallback)(SerialIdentifier), uint32_t baud_rate, bool singleNdoubleStop) = 0;
     //the buffer overflow handler can read/skip in the callback to clear space - if it doesn't clear enough space we abort the write
 
     virtual void setTargetValue(void (*volatile targetValueCallback)(SerialIdentifier), uint8_t targetValue) = 0;
     virtual void clearTargetValue() = 0;
-    virtual SerialIdentifier getId() = 0;
     virtual bool write(uint8_t datum) = 0;
 
     virtual bool write(const uint8_t *buffer, uint16_t length) = 0;
