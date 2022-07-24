@@ -55,6 +55,7 @@ public:
             return;
         }
         out->lock();
+        out->openNotification(Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel());
         out->markAddressing();
         out->writeField16(interrupt.getNotificationModule());
         if (sections > 0) {
@@ -67,6 +68,7 @@ public:
         }
         ZcodeAddressRouter<ZP>::responseSwitch(interrupt, out);
         out->writeCommandSequenceSeparator();
+        out->close();
         out->unlock();
         interrupt.clear();
     }

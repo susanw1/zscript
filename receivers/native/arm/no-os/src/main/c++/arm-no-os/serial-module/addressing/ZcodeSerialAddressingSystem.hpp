@@ -41,7 +41,6 @@ public:
         }
         Serial *serial = UartManager<LL>::getUartById(port);
         serial->write(slot.getBigField()->getData() + addressingInfo->start, slot.getBigField()->getLength() - addressingInfo->start);
-        serial->write(EOL_SYMBOL);
         serial->transmitWriteBuffer();
     }
 
@@ -51,6 +50,7 @@ public:
             interrupt.clear();
             return;
         }
+        bool isAtStart = true;
         Serial *serial = UartManager<LL>::getUartById(port);
         while (true) {
             int16_t v = serial->read();
@@ -61,7 +61,12 @@ public:
             if (v == EOL_SYMBOL) {
                 return;
             }
-            out->writeByte((uint8_t) v);
+            if (isAtStart && v == ADDRESS_PREFIX) {
+                out->markAddressingContinue();
+            } else {
+                out->writeByte((uint8_t) v);
+            }
+            isAtStart = false;
         }
     }
 };

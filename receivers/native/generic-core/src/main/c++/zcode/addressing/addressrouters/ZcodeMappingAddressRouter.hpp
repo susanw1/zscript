@@ -98,10 +98,12 @@ public:
         }
 
         out->lock();
+        out->openNotification(Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel());
         out->markAddressing();
         out->writeField16((uint16_t) mappingAddress);
         ZcodeAddressRouter<ZP>::responseSwitch(interrupt, out);
         out->writeCommandSequenceSeparator();
+        out->close();
         out->unlock();
         interrupt.clear();
     }
