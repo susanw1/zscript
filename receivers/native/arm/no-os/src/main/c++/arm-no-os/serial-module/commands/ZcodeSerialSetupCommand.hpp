@@ -35,6 +35,10 @@ public:
             slot.fail(BAD_PARAM, "Port number invalid");
             return;
         }
+        if (UartManager<LL>::isMasked(port)) {
+            slot.fail(BAD_PARAM, "Port not available");
+            return;
+        }
 
         for (uint8_t i = 0; i < slot.getBigField()->getLength(); ++i) {
             baud <<= 8;

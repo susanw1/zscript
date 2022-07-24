@@ -33,10 +33,13 @@ class ZcodeSerialAddressingSystem: public ZcodeModuleAddressingSystem<ZP> {
 public:
 
     static void routeAddress(ZcodeExecutionCommandSlot<ZP> slot, ZcodeAddressingInfo<ZP> *addressingInfo) {
-
         uint8_t port = addressingInfo->port;
+        if (UartManager<LL>::isMasked(port)) {
+            slot.fail(BAD_ADDRESSING, "Not available for addressing");
+            return;
+        }
         if (port >= LL::serialCount) {
-            slot.fail(BAD_PARAM, "Invalid Serial port");
+            slot.fail(BAD_ADDRESSING, "Invalid Serial port");
             return;
         }
         Serial *serial = UartManager<LL>::getUartById(port);

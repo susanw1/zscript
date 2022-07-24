@@ -17,6 +17,9 @@
 #include <zcode/ZcodeOutStream.hpp>
 
 template<class ZP>
+class ZcodeSerialBusInterruptSource;
+
+template<class ZP>
 class SerialChannelInStream: public ZcodeChannelInStream<ZP> {
 private:
 
@@ -80,6 +83,8 @@ public:
 
 template<class ZP>
 class SerialChannel: public ZcodeCommandChannel<ZP> {
+    typedef typename ZP::LL LL;
+
     SerialChannelInStream<ZP> seqin;
     SerialOutStream<ZP> out;
 
@@ -87,6 +92,7 @@ public:
 
     SerialChannel(Serial *serial) :
             ZcodeCommandChannel<ZP>(&seqin, &out, false), seqin(this, serial), out(serial) {
+        UartManager<LL>::maskSerial(serial->getId());
         //TODO: Handle things like buffer overrun, etc.
     }
 

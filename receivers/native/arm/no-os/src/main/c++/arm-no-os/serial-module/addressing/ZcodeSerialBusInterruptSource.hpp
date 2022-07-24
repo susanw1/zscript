@@ -20,7 +20,9 @@ class ZcodeSerialBusInterruptSource: public ZcodeBusInterruptSource<ZP> {
     static uint16_t serialIntReceivedBits;
 
     static void callback(SerialIdentifier id) {
-        serialIntReceivedBits |= 1 << id;
+        if (!UartManager<LL>::isMasked(id)) {
+            serialIntReceivedBits |= 1 << id;
+        }
     }
 public:
 

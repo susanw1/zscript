@@ -34,6 +34,10 @@ public:
             slot.fail(BAD_PARAM, "Port number invalid");
             return;
         }
+        if (UartManager<LL>::isMasked(port)) {
+            slot.fail(BAD_PARAM, "Port not available");
+            return;
+        }
 
         if (!slot.getFields()->get('L', &length)) {
             slot.fail(BAD_PARAM, "Port number missing");

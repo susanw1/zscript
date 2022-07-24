@@ -30,6 +30,11 @@ public:
             slot.fail(BAD_PARAM, "Port number missing");
             return;
         }
+        if (UartManager<LL>::isMasked(port)) {
+            slot.fail(BAD_PARAM, "Port not available");
+            return;
+        }
+
         if (port >= LL::serialCount) {
             slot.fail(BAD_PARAM, "Port number invalid");
             return;

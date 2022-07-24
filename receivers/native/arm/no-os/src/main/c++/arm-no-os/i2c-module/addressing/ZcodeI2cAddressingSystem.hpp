@@ -45,7 +45,7 @@ public:
         uint8_t port = addressingInfo->port;
         uint16_t address = (addressingInfo->addr & 0x7ff);
         if (port >= LL::i2cCount) {
-            slot.fail(BAD_PARAM, "Invalid I2C port");
+            slot.fail(BAD_ADDRESSING, "Invalid I2C port");
             return;
         }
         I2c<LL> *i2c = I2cManager<LL>::getI2cById(port);
