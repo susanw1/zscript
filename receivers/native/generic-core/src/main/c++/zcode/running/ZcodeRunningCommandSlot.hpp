@@ -221,5 +221,9 @@ public:
     void setNeedsAction() {
         status.needsAction = true;
     }
+
+    ZcodeChannelCommandSlot<ZP>* getInternalSlot() {
+        return commandSlot;
+    }
 };
 #endif /* SRC_TEST_CPP_ZCODE_PARSING_ZCODERUNNINGCOMMANDSLOT_HPP_ */

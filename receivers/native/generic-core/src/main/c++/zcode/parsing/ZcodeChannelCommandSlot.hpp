@@ -310,11 +310,10 @@ class ZcodeChannelCommandSlot {
                 sequenceBeginingParse(c);
             }
         } else if (state.isAddressing) {
+            bigField.addByte(c);
             if (c == EOL_SYMBOL) {
                 state.waitingOnRun = true;
                 terminator = c;
-            } else {
-                bigField.addByte(c);
             }
         } else {
             parseFail(c, UNKNOWN_ERROR, (string_t) ZP::Strings::failParseOther);
@@ -378,6 +377,13 @@ public:
     }
     ZcodeCommandChannel<ZP>* getCommandChannel() {
         return channel;
+    }
+
+    ZcodeBigField<ZP>* getBigField() {
+        return &bigField;
+    }
+    ZcodeFieldMap<ZP>* getFields() {
+        return &fieldMap;
     }
 };
 #endif /* SRC_TEST_CPP_ZCODE_PARSING_ZCODECHANNELCOMMANDSLOT_HPP_ */

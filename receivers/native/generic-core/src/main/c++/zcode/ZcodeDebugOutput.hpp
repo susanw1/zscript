@@ -114,6 +114,8 @@ public:
 
     void println(const char *s, debugOutputBufferLength_t length);
 
+    void print(const char *s, debugOutputBufferLength_t length);
+
     void attemptFlush();
 
     ZcodeDebugOutStream<ZP> getAsOutStream() {
@@ -185,6 +187,10 @@ void ZcodeDebugOutput<ZP>::println(const char *s) {
         l++;
     }
     println(s, l);
+}
+template<class ZP>
+void ZcodeDebugOutput<ZP>::print(const char *s, debugOutputBufferLength_t length) {
+    writeToBuffer((const uint8_t*) s, length);
 }
 
 template<class ZP>

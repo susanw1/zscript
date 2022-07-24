@@ -66,6 +66,7 @@ public:
             slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
             return;
         }
+        ZcodeAddressRouter<ZP>::overwriteWithAddressingSymbol(slot, &addrInfo);
         ZcodeAddressRouter<ZP>::addressingSwitch(mapping.module, slot, addrInfo);
     }
 
@@ -96,9 +97,13 @@ public:
             return;
         }
 
+        out->lock();
         out->markAddressing();
         out->writeField16((uint16_t) mappingAddress);
         ZcodeAddressRouter<ZP>::responseSwitch(interrupt, out);
+        out->writeCommandSequenceSeparator();
+        out->unlock();
+        interrupt.clear();
     }
 
     static bool isAddressed(ZcodeBusInterrupt<ZP> interrupt) {

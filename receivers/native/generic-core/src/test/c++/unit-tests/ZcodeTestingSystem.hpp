@@ -39,13 +39,13 @@ public:
         while (expectedOut[outLen++] != 0)
             ;
         outLen--;
-        uint8_t output[outLen];
+        uint8_t output[outLen + 200];
         bool exceeded = performTest(input, output, outLen);
         if (exceeded) {
-            std::cerr << "Response too long\n"
+            std::cerr << "Response too long\n" << outLen << '\n'
                     << "Wanted: " << expectedOut
                     << "\nGot: ";
-            std::cerr.write((char*) output, outLen);
+            std::cerr.write((char*) output, outLen + 200);
             std::cerr << "\n";
             return false;
         }
@@ -54,7 +54,7 @@ public:
                 std::cerr << "Response didn't match\n"
                         << "Wanted: " << expectedOut
                         << "\nGot: ";
-                std::cerr.write((char*) output, outLen + 20);
+                std::cerr.write((char*) output, outLen);
                 std::cerr << "\n";
                 return false;
             }

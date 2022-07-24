@@ -101,5 +101,9 @@ public:
     void setNeedsAction() {
         slot->setNeedsAction();
     }
+
+    ZcodeRunningCommandSlot<ZP>* overrideProtections() {
+        return slot;
+    }
 };
 #endif /* SRC_TEST_CPP_ZCODE_PARSING_ZCODEEXECUTIONCOMMANDSLOT_HPP_ */

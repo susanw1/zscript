@@ -32,6 +32,12 @@ public:
     const uint8_t* getData() const {
         return big;
     }
+    uint8_t* getData() {
+        return big;
+    }
+    bigFieldAddress_t getCapacity() {
+        return capacity;
+    }
     bigFieldAddress_t getLength() const {
         return pos;
     }

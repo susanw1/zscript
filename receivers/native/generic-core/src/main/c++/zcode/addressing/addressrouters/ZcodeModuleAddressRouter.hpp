@@ -44,6 +44,7 @@ public:
             slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
             return;
         }
+        ZcodeAddressRouter<ZP>::overwriteWithAddressingSymbol(slot, &addrInfo);
         ZcodeAddressRouter<ZP>::addressingSwitch(module, slot, addrInfo);
     }
 
@@ -53,6 +54,7 @@ public:
             interrupt.clear();
             return;
         }
+        out->lock();
         out->markAddressing();
         out->writeField16(interrupt.getNotificationModule());
         if (sections > 0) {
@@ -64,6 +66,9 @@ public:
             out->writeField16(interrupt.getFoundAddress());
         }
         ZcodeAddressRouter<ZP>::responseSwitch(interrupt, out);
+        out->writeCommandSequenceSeparator();
+        out->unlock();
+        interrupt.clear();
     }
     static bool isAddressed(ZcodeBusInterrupt<ZP> interrupt) {
         int8_t sections = ZcodeAddressRouter<ZP>::getAddressingLevel(interrupt.getNotificationModule());
@@ -76,6 +81,7 @@ public:
         out->writeStatus(OK);
     }
 
-};
+}
+;
 
 #endif /* SRC_MAIN_C___ZCODE_ADDRESSING_ZCODEMODULEADDRESSROUTER_HPP_ */

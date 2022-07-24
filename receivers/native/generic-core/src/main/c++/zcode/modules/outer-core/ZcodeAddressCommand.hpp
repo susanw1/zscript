@@ -35,6 +35,10 @@ public:
             slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingOnlyFromNotificationChannel);
             return;
         }
+        if (slot.getBigField()->getData()[slot.getBigField()->getLength() - 1] != EOL_SYMBOL) {
+            slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingNoNewLine);
+            return;
+        }
         slot.quietEnd();
         ZP::AddressRouter::route(slot);
     }

@@ -98,10 +98,11 @@ public:
     }
 
     void writeByte(uint8_t value) {
-        if (pos < outLength) {
-            received[pos++] = value;
-        } else {
+        if (pos >= outLength) {
             lengthExceeded = true;
+        }
+        if (pos < outLength + 200) {
+            received[pos++] = value;
         }
     }
     bool isLengthExceeded() {

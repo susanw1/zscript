@@ -36,14 +36,14 @@ class ZcodeDebugAddressingSystem: public ZcodeModuleAddressingSystem<ZP> {
 public:
 
     static void routeAddress(ZcodeExecutionCommandSlot<ZP> slot, ZcodeAddressingInfo<ZP> *addressingInfo) {
-        slot.getZcode()->getDebug() << (char) Zchars::ADDRESS_PREFIX;
-        slot.getZcode()->getDebug().println((const char*) (slot.getBigField()->getData() + addressingInfo->start),
+        slot.getZcode()->getDebug().print((const char*) (slot.getBigField()->getData() + addressingInfo->start),
                 (debugOutputBufferLength_t) (slot.getBigField()->getLength() - addressingInfo->start));
+        slot.getZcode()->getDebug().attemptFlush();
     }
 
     static void routeResponse(ZcodeBusInterrupt<ZP> interrupt, ZcodeOutStream<ZP> *out) {
+        (void) interrupt;
         (void) out;
-        interrupt.clear();
     }
 };
 #endif /* SRC_TEST_CPP_ZCODE_ZCODEDEBUGADDRESSINGSYSTEM_HPP_ */

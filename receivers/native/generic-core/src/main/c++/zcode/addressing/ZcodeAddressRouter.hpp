@@ -105,6 +105,13 @@ protected:
         return -1;
         }
     }
+    //Yes this method is total evil. idk what else to do...
+    static void overwriteWithAddressingSymbol(ZcodeExecutionCommandSlot<ZP> slot, ZcodeAddressingInfo<ZP> *addrInfo) {
+        if (addrInfo->start > 0 && slot.getBigField()->getData()[addrInfo->start - 1] == '.') {
+            slot.overrideProtections()->getInternalSlot()->getBigField()->getData()[addrInfo->start - 1] = '@';
+            addrInfo->start--;
+        }
+    }
     static AddressSectionReading readAddressSection8(const uint8_t *data, uint16_t start, uint16_t length) {
         return readAddressSectionGeneral(data, start, length, 2);
     }

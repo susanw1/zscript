@@ -15,19 +15,19 @@ int main(void) {
     }
 #ifdef ZCODE_SUPPORT_ADDRESSING
 #ifdef ZCODE_SUPPORT_DEBUG
-    if (!ZcodeTestingSystem::tryTest("Z2&Z11\"0.0Hello\"", "AS&S9\"Addressing only allowed from notification channel\"\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z2&Z11\"0.0Hello=0a\"", "AS&S9\"Addressing only allowed from notification channel\"\n")) {
         std::cerr << "Failed on debug with no notification\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z2&Z18N&Z11\"Hello\"", "AS&S&\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z2&Z18N&Z11\"Hello=0a\"", "AS&S&\n")) {
         std::cerr << "Failed on debug with no target\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z2&Z18DN&Z11\"Hello\"", "AS&S&\n#@Hello\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z2&Z18DN&Z11\".Hello=0a\"", "AS&S&\n#@Hello\n")) {
         std::cerr << "Failed on debug with target set\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z2&Z18DN&Z11\"Hello1\"&Z11\"Hello2\"&Z11\"Hello3\"", "AS&S&&&\n#@Hello1\n#@Hello2\n#@Hello3\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z2&Z18DN&Z11\"Hello1=0a\"&Z11\".Hello2=0a\"&Z11\"Hello3=0a\"", "AS&S&&&\n#Hello1\n#@Hello2\n#Hello3\n")) {
         std::cerr << "Failed on debug with target set\n";
         return 1;
     }
@@ -41,11 +41,11 @@ int main(void) {
         std::cerr << "Failed on debug addressing with no target\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z2&Z18DN\n@Hello", "AS&S\n#@Hello\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z2&Z18DN\n@Hello", "AS&S\n#Hello\n")) {
         std::cerr << "Failed on debug addressing with target set\n";
         return 1;
     }
-    if (!ZcodeTestingSystem::tryTest("Z2&Z18DN\n@Hello1\n@Hello2\n@Hello3", "AS&S\n#@Hello1\n#@Hello2\n#@Hello3\n")) {
+    if (!ZcodeTestingSystem::tryTest("Z2&Z18DN\n@.Hello1\n@Hello2\n@.Hello3", "AS&S\n#@Hello1\n#Hello2\n#@Hello3\n")) {
         std::cerr << "Failed on debug addressing with target set\n";
         return 1;
     }

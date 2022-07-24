@@ -38,6 +38,7 @@ public:
     static const string_t failAddressingOnlyFromNotificationChannel;
     static const string_t failAddressingInvalid;
     static const string_t failAddressingNotSetup;
+    static const string_t failAddressingNoNewLine;
 
     static const string_t failParseBadStringEnd;
     static const string_t failParseNoStringEnd;
@@ -98,6 +99,8 @@ template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::failAddressingInvalid("Invalid address");
 template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::failAddressingNotSetup("Addressing not set up");
+template<class ZP>
+const ZcodeString ZcodeStrings<ZP>::failAddressingNoNewLine("Addressing must end in new line");
 
 template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::failParseBadStringEnd("Misplaced string field end");
