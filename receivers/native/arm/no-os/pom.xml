@@ -58,26 +58,12 @@
                             <include>**/*.c</include>
                         </includes>
                         <excludes>
-                            <exclude>channels/Uip/**</exclude>
-                            <exclude>channels/Serial/**</exclude>
-                            <exclude>old-commands/**</exclude>
+                            <exclude>old-stuff/**</exclude>
                             <exclude>ld/**</exclude>
                             <exclude>openocd/**</exclude>
                         </excludes>
 
                         <includePaths>
-                            <includePath>
-                                <path>${project.basedir}/src/main/c++/include/Core</path>
-                                <includes>
-                                    <include>*.h</include>
-                                </includes>
-                            </includePath>
-                            <includePath>
-                                <path>${project.basedir}/src/main/c++/include/STM32G4xx</path>
-                                <includes>
-                                    <include>*.h</include>
-                                </includes>
-                            </includePath>
                             <includePath>
                                 <path>${project.basedir}/src/main/c++</path>
                             </includePath>

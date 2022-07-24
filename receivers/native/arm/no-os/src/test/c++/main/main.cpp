@@ -21,47 +21,44 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#include <stm32g4xx.h>
-#include <stm32g484xx.h>
+#include <arm-no-os/system/core/stm32g4xx.h>
+#include <arm-no-os/system/core/stm32g484xx.h>
+#include <arm-no-os/system/core/core_cm4.h>
 
 #include "ZcodeParameters.hpp"
-#include <LowLevel/GeneralLLSetup.hpp>
+#include <arm-no-os/GeneralLLSetup.hpp>
 
 #include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>
 #include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
 
-#include <modules/core/ZcodeReadGuidCommand.hpp>
-#include <modules/core/ZcodeWriteGuidCommand.hpp>
-#include <modules/core/ZcodeResetCommand.hpp>
+#include <arm-no-os/arm-core-module/commands/ZcodeReadGuidCommand.hpp>
+#include <arm-no-os/arm-core-module/commands/ZcodeWriteGuidCommand.hpp>
+#include <arm-no-os/arm-core-module/commands/ZcodeResetCommand.hpp>
 
-#include <modules/serial/ZcodeSerialModule.hpp>
-#include <modules/UsbcPD/ZcodeUsbcPDModule.hpp>
-#include <modules/i2c/ZcodeI2cModule.hpp>
+#include <arm-no-os/serial-module/ZcodeSerialModule.hpp>
+#include <arm-no-os/usbc-pd-module/ZcodeUsbcPDModule.hpp>
+#include <arm-no-os/i2c-module/ZcodeI2cModule.hpp>
+
 #include <zcode/modules/script/ZcodeScriptModule.hpp>
 #include <zcode/modules/outer-core/ZcodeOuterCoreModule.hpp>
 #include <zcode/modules/core/ZcodeCoreModule.hpp>
 
-#include <modules/i2c/ZcodeI2cModule.hpp>
+#include <arm-no-os/udp-module/channels/EthernetUdpChannel.hpp>
+#include <arm-no-os/serial-module/channels/SerialChannel.hpp>
 
-#include <channels/Ethernet/EthernetUdpChannel.hpp>
-#include <channels/Serial/SerialChannel.hpp>
+#include <arm-no-os/pins-module/lowlevel/GpioManager.hpp>
+#include <arm-no-os/pins-module/AToDLowLevel/AtoDManager.hpp>
 
-#include <LowLevel/PersistenceLowLevel/FlashPage.hpp>
+#include <arm-no-os/system/clock/SystemMilliClock.hpp>
+#include <arm-no-os/system/clock/ClockManager.hpp>
 
-#include <LowLevel/AToDLowLevel/AtoDManager.hpp>
+#include <arm-no-os/i2c-module/lowlevel/I2cManager.hpp>
 
-#include <LowLevel/GpioLowLevel/GpioManager.hpp>
+#include <arm-no-os/usbc-pd-module/lowlevel/Ucpd.hpp>
 
-#include <LowLevel/ClocksLowLevel/SystemMilliClock.hpp>
-#include <LowLevel/ClocksLowLevel/ClockManager.hpp>
+#include <arm-no-os/serial-module/lowlevel/UartManager.hpp>
 
-#include <LowLevel/I2cLowLevel/I2cManager.hpp>
-
-#include <LowLevel/UsbcPD/Ucpd.hpp>
-
-#include <LowLevel/UartLowLevel/UartManager.hpp>
-
-#include <LowLevel/ArduinoSpiLayer/src/Ethernet.h>
+#include <arm-no-os/udp-module/lowlevel/src/Ethernet.h>
 
 #include <zcode/Zcode.hpp>
 
@@ -82,20 +79,10 @@ int main(void) {
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
     uint32_t notSoPermanentStore = 0;
     Ucpd<GeneralHalSetup>::init(&notSoPermanentStore, 150, 5 * 20, 5 * 20);
-//    ZcodeFlashPersistence persist;
+
 //    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &source };
     Zcode<ZcodeParameters> *z = &Zcode<ZcodeParameters>::zcode;
-    uint8_t *mac;
-    uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xaa };
-//    if (persist.hasMac()) {
-//        z.getDebug() << "Has Mac" << endl;
-//        mac = persist.getMac();
-//    } else {
-    mac = macHardCoded;
-//    }
-    while (!Ethernet.begin(mac, 5000, 5000)) {
 
-    }
     AtoDManager<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
     Usb<GeneralHalSetup>::usb.init(NULL, 0, false);

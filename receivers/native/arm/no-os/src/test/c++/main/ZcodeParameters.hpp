@@ -10,8 +10,8 @@
 
 #include <zcode/ZcodeIncludes.hpp>
 #include <zcode/ZcodeStrings.hpp>
-#include <LowLevel/GeneralLLSetup.hpp>
-#include <LowLevel/ClocksLowLevel/SystemMilliClock.hpp>
+#include <arm-no-os/GeneralLLSetup.hpp>
+#include <arm-no-os/system/clock/SystemMilliClock.hpp>
 
 #define ZCODE_STRING_SURROUND(str) str
 
