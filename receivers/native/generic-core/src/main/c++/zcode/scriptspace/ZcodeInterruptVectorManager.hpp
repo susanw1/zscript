@@ -40,17 +40,15 @@ public:
 
     void acceptInterrupt(ZcodeBusInterrupt<ZP> i) {
         waitingInterrupts[waitingNum++] = i;
+        i.invalidate();
     }
 
-    bool hasInterruptSource() {
-        return waitingNum > 0;
-    }
     ZcodeInterruptVectorChannel<ZP>* getChannel() {
         return &channel;
     }
 
     void activateInterrupt() {
-        if (!channel.hasInterrupt() && waitingNum > 0) {
+        if (!channel.isInUse() && waitingNum > 0) {
             ZcodeBusInterrupt<ZP> interrupt = waitingInterrupts[0];
             for (uint8_t i = 0; i < waitingNum - 1; i++) {
                 waitingInterrupts[i] = waitingInterrupts[i + 1];

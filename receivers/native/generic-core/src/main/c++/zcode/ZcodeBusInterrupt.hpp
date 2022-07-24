@@ -25,6 +25,7 @@ public:
 
     ZcodeBusInterrupt(ZcodeBusInterruptSource<ZP> *source, ZcodeNotificationInfo info, ZcodeNotificationAddressInfo addr) :
             source(source), info(info), address(addr) {
+        info.evilBitPackedFlag = false;
     }
 
     ZcodeBusInterruptSource<ZP>* getSource() {
@@ -50,11 +51,25 @@ public:
     bool hasFoundAddress() {
         return address.hasFound;
     }
+    void setFlag(bool b) {
+        info.evilBitPackedFlag = b;
+    }
+    bool getFlag() {
+        return info.evilBitPackedFlag;
+    }
+
+    bool isValid() {
+        return info.valid;
+    }
+    void invalidate() {
+        info.valid = false;
+    }
 
     void clear() {
         source->clearNotification(info.id);
         info.valid = false;
         address.valid = false;
+        info.evilBitPackedFlag = false;
         source = NULL;
     }
 };

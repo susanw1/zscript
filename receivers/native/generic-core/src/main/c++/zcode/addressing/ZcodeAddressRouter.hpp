@@ -89,6 +89,7 @@ protected:
         ADDRESSING_RESP_SWITCH()
 
     default:
+        interrupt.clear();
         return;
         }
     }

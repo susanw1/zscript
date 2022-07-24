@@ -39,6 +39,7 @@ public:
     void clear() {
         interrupt.clear();
     }
+
     ZcodeBusInterrupt<ZP>* getInterrupt() {
         return &interrupt;
     }

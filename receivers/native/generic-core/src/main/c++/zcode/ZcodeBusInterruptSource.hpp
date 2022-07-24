@@ -15,6 +15,7 @@ struct ZcodeNotificationInfo {
     uint8_t port :8;
     uint16_t module :12;
     bool valid :1; // false if no notifications were available
+    bool evilBitPackedFlag :1;
 };
 
 struct ZcodeNotificationAddressInfo {

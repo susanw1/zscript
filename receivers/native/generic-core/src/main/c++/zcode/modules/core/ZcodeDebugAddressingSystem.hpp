@@ -42,8 +42,8 @@ public:
     }
 
     static void routeResponse(ZcodeBusInterrupt<ZP> interrupt, ZcodeOutStream<ZP> *out) {
-        (void) interrupt;
         (void) out;
+        interrupt.clear();
     }
 };
 #endif /* SRC_TEST_CPP_ZCODE_ZCODEDEBUGADDRESSINGSYSTEM_HPP_ */

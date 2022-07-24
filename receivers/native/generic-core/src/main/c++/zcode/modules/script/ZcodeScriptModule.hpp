@@ -13,8 +13,11 @@
 
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeModule.hpp"
+
+#if defined(ZCODE_GENERATE_NOTIFICATIONS) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
 #include "ZcodeInterruptSetupCommand.hpp"
 #include "ZcodeInterruptSetCommand.hpp"
+#endif
 #include "ZcodeScriptStoreCommand.hpp"
 #include "ZcodeScriptCapabilitiesCommand.hpp"
 

@@ -11,7 +11,8 @@
 enum ZcodeNotificationType {
     ResetNotification = 0,
     BusNotification = 1,
-    ScriptSpaceNotification = 2
+    ScriptSpaceNotification = 2,
+    AddressingNotification = 3
 };
 
 #endif /* SRC_MAIN_C___ZCODE_ZCODENOTIFICATIONTYPES_HPP_ */

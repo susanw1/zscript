@@ -70,7 +70,7 @@ private:
                 return vectors[i];
             }
         }
-        return specificity == 0 ? 0 : getVectorInternal(type, bus, addr, specificity - 1);
+        return specificity == 0 ? 0 : getVectorInternal(type, bus, addr, (uint8_t) (specificity - 1));
     }
 
 public:

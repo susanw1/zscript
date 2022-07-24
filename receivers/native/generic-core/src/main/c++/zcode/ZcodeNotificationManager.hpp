@@ -144,11 +144,13 @@ void ZcodeNotificationManager<ZP>::manageNotifications() {
             ZcodeBusInterrupt<ZP> interrupt = waitingNotifications[i];
             if (!interrupt.hasFindableAddress() || interrupt.hasFoundAddress()) {
                 sendNotification(interrupt);
-                for (uint8_t j = i; j < waitingNotificationNumber - 1; j++) {
-                    waitingNotifications[j] = waitingNotifications[j + 1];
+                if (!interrupt.isValid()) {
+                    for (uint8_t j = i; j < waitingNotificationNumber - 1; j++) {
+                        waitingNotifications[j] = waitingNotifications[j + 1];
+                    }
+                    waitingNotificationNumber--;
+                    i--;
                 }
-                waitingNotificationNumber--;
-                i--;
             }
         }
     }
@@ -181,6 +183,9 @@ void ZcodeNotificationManager<ZP>::manageNotifications() {
             }
         }
     }
+#ifdef ZCODE_SUPPORT_INTERRUPT_VECTOR
+    vectorChannel.activateInterrupt();
+#endif
 }
 
 #endif /* SRC_TEST_CPP_ZCODE_ZCODENOTIFICATIONMANAGER_HPP_ */
