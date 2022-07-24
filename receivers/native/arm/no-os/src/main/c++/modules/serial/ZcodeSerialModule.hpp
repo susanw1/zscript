@@ -12,7 +12,7 @@
 #error Must be included before Zcode.hpp
 #endif
 
-#include <modules/ZcodeModule.hpp>
+#include <zcode/modules/ZcodeModule.hpp>
 
 #include "ZcodeSerialSetupCommand.hpp"
 #include "ZcodeSerialSendCommand.hpp"

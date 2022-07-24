@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_C___LOWLEVEL_INTERRUPTLOWLEVEL_INTERRUPTMANAGER_HPP_
 #define SRC_MAIN_C___LOWLEVEL_INTERRUPTLOWLEVEL_INTERRUPTMANAGER_HPP_
 
-#include <llIncludes.hpp>
+#include <LowLevel/llIncludes.hpp>
 
 enum InterruptType {
     DmaInt, I2cEv, I2cEr, UartInt, UsbInt, TIM6_, UcpdInt, NUMBER_OF_INTERRUPT_TYPES

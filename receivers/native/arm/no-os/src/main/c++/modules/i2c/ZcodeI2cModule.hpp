@@ -5,7 +5,7 @@
 #error Must be included before Zcode.hpp
 #endif
 
-#include <modules/ZcodeModule.hpp>
+#include <zcode/modules/ZcodeModule.hpp>
 
 #include "ZcodeI2cSetupCommand.hpp"
 #include "ZcodeI2cSendCommand.hpp"

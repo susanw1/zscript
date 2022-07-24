@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_C___MODULES_CORE_ZCODEREADGUIDCOMMAND_HPP_
 #define SRC_MAIN_C___MODULES_CORE_ZCODEREADGUIDCOMMAND_HPP_
 
-#include <modules/ZcodeCommand.hpp>
+#include <zcode/modules/ZcodeCommand.hpp>
 #include <LowLevel/PersistenceLowLevel/FlashPage.hpp>
 #include "ZcodeFlashPersistence.hpp"
 

@@ -8,12 +8,12 @@
 #ifndef SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2C_HPP_
 #define SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2C_HPP_
 
-#include <llIncludes.hpp>
+#include <LowLevel/llIncludes.hpp>
 
-#include <GpioLowLevel/Gpio.hpp>
-#include <GpioLowLevel/GpioManager.hpp>
-#include <DmaLowLevel/Dma.hpp>
-#include <DmaLowLevel/DmaManager.hpp>
+#include <LowLevel/GpioLowLevel/Gpio.hpp>
+#include <LowLevel/GpioLowLevel/GpioManager.hpp>
+#include <LowLevel/DmaLowLevel/Dma.hpp>
+#include <LowLevel/DmaLowLevel/DmaManager.hpp>
 
 enum I2cFrequency {
     kHz10, kHz100, kHz400, kHz1000

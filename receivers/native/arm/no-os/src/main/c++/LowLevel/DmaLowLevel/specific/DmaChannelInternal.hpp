@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_CPP_COMMANDS_NEWHAL_DMANEWHAL_DMACHANNELINTERNAL_HPP_
 #define SRC_TEST_CPP_COMMANDS_NEWHAL_DMANEWHAL_DMACHANNELINTERNAL_HPP_
 
-#include <llIncludes.hpp>
+#include <LowLevel/llIncludes.hpp>
 #include "DmaMuxRequest.hpp"
 #include "DmaRegisters.hpp"
 

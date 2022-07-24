@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_C___MODULES_USBCPD_ZCODEUSBCPDSTATUSCOMMAND_HPP_
 #define SRC_MAIN_C___MODULES_USBCPD_ZCODEUSBCPDSTATUSCOMMAND_HPP_
 
-#include <modules/ZcodeCommand.hpp>
+#include <zcode/modules/ZcodeCommand.hpp>
 #include <LowLevel/UsbcPD/Ucpd.hpp>
 
 #define COMMAND_EXISTS_0111 EXISTENCE_MARKER_UTIL

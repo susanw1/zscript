@@ -8,9 +8,9 @@
 #ifndef SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_UARTMANAGER_HPP_
 #define SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_UARTMANAGER_HPP_
 
-#include <llIncludes.hpp>
+#include <LowLevel/llIncludes.hpp>
 #include "Uart.hpp"
-#include <UsbSerialLowLevel/Usb.hpp>
+#include <LowLevel/UsbSerialLowLevel/Usb.hpp>
 
 class Serial;
 

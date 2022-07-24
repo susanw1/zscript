@@ -8,8 +8,8 @@
 #ifndef LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBINTERRUPTDATAENDPOINT_HPP_
 #define LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBINTERRUPTDATAENDPOINT_HPP_
 
-#include <llIncludes.hpp>
-#include <UartLowLevel/SerialRingBuffer.hpp>
+#include <LowLevel/llIncludes.hpp>
+#include <LowLevel/UartLowLevel/SerialRingBuffer.hpp>
 #include "UsbRegisters.hpp"
 #include "UsbEndpointRegister.hpp"
 

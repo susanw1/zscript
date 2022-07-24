@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_CPP_COMMANDS_LOWLEVEL_DMALOWLEVEL_DMA_HPP_
 #define SRC_TEST_CPP_COMMANDS_LOWLEVEL_DMALOWLEVEL_DMA_HPP_
 
-#include <llIncludes.hpp>
+#include <LowLevel/llIncludes.hpp>
 #include "specific/DmaChannelInternal.hpp"
 
 enum DmaTerminationStatus {

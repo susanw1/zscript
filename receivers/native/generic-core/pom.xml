@@ -24,7 +24,7 @@
                         <debug>true</debug>
                         <includePaths>
                             <includePath>
-                                <path>${project.basedir}/src/main/c++/zcode</path>
+                                <path>${project.basedir}/src/main/c++</path>
                                 <includes>**/*.hpp</includes>
                             </includePath>
                         </includePaths>

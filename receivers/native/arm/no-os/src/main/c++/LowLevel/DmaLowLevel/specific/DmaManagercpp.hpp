@@ -9,7 +9,7 @@
 #define SRC_MAIN_C___LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMAMANAGERCPP_HPP_
 
 #include "../DmaManager.hpp"
-#include <InterruptLowLevel/InterruptManager.hpp>
+#include <LowLevel/InterruptLowLevel/InterruptManager.hpp>
 
 template<class LL>
 Dma<LL> DmaManager<LL>::dmas[] = { Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(),

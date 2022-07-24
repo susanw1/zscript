@@ -10,7 +10,7 @@
 
 #include "../UartManager.hpp"
 #include "UartInternal.hpp"
-#include <InterruptLowLevel/InterruptManager.hpp>
+#include <LowLevel/InterruptLowLevel/InterruptManager.hpp>
 
 #define UART_TX_Inner(UART,PIN) UART##_TX_##PIN
 #define UART_TX(UART,PIN) UART_TX_Inner(UART, PIN)

@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_CPP_COMMANDS_ZCODEMBEDFLASHPERSISTENCE_HPP_
 #define SRC_TEST_CPP_COMMANDS_ZCODEMBEDFLASHPERSISTENCE_HPP_
 
-#include <ZcodeIncludes.hpp>
+#include <zcode/ZcodeIncludes.hpp>
 #include <LowLevel/PersistenceLowLevel/FlashPage.hpp>
 
 template<class LL>

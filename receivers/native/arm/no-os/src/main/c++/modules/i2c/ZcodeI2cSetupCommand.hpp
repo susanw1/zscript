@@ -1,7 +1,7 @@
 #ifndef SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CSETUPCOMMAND_HPP_
 #define SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CSETUPCOMMAND_HPP_
 
-#include <modules/ZcodeCommand.hpp>
+#include <zcode/modules/ZcodeCommand.hpp>
 #include "../../LowLevel/I2cLowLevel/I2cManager.hpp"
 
 #define COMMAND_EXISTS_0051 EXISTENCE_MARKER_UTIL

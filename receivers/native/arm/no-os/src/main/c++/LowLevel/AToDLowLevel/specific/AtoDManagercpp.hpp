@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_C___LOWLEVEL_ATODLOWLEVEL_SPECIFIC_ATODMANAGERCPP_HPP_
 #define SRC_MAIN_C___LOWLEVEL_ATODLOWLEVEL_SPECIFIC_ATODMANAGERCPP_HPP_
 
-#include "GpioLowLevel/Gpio.hpp"
+#include "LowLevel/GpioLowLevel/Gpio.hpp"
 #include "../AtoDManager.hpp"
 
 template<class LL>

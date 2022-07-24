@@ -7,13 +7,13 @@
 
 #ifndef SRC_TEST_CPP_USB_PD_UCPDLOWLEVEL_HPP_
 #define SRC_TEST_CPP_USB_PD_UCPDLOWLEVEL_HPP_
-#include <llIncludes.hpp>
-#include <ClocksLowLevel/SystemMilliClock.hpp>
-#include <ClocksLowLevel/ClockManager.hpp>
-#include <ClocksLowLevel/Clock.hpp>
-#include <DmaLowLevel/Dma.hpp>
-#include <DmaLowLevel/DmaManager.hpp>
-#include <InterruptLowLevel/InterruptManager.hpp>
+#include <LowLevel/llIncludes.hpp>
+#include <LowLevel/ClocksLowLevel/SystemMilliClock.hpp>
+#include <LowLevel/ClocksLowLevel/ClockManager.hpp>
+#include <LowLevel/ClocksLowLevel/Clock.hpp>
+#include <LowLevel/DmaLowLevel/Dma.hpp>
+#include <LowLevel/DmaLowLevel/DmaManager.hpp>
+#include <LowLevel/InterruptLowLevel/InterruptManager.hpp>
 
 enum UcpdTxTerminationStatus {
     UcpdTxAborted, UcpdTxMessageDiscarded, UcpdTxDmaFail, UcpdMessageSent

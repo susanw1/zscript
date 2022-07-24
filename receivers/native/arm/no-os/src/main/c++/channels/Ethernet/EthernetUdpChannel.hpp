@@ -9,11 +9,11 @@
 #define SRC_MAIN_C___CHANNELS_ETHERNET_ETHERNETUDPCHANNEL_HPP_
 
 #include <LowLevel/ArduinoSpiLayer/src/Ethernet.h>
-#include <ZcodeIncludes.hpp>
+#include <zcode/ZcodeIncludes.hpp>
 
-#include <channels/ZcodeChannelInStream.hpp>
-#include <channels/ZcodeCommandChannel.hpp>
-#include <ZcodeOutStream.hpp>
+#include <zcode/channels/ZcodeChannelInStream.hpp>
+#include <zcode/channels/ZcodeCommandChannel.hpp>
+#include <zcode/ZcodeOutStream.hpp>
 #include <modules/core/ZcodeFlashPersistence.hpp>
 
 template<class ZP>

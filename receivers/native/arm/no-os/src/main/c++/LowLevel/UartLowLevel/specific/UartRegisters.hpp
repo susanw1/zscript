@@ -8,6 +8,8 @@
 #ifndef SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTREGISTERS_HPP_
 #define SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTREGISTERS_HPP_
 
+#include <LowLevel/llIncludes.hpp>
+
 struct UartRegisters {
     volatile uint32_t CR1;
     volatile uint32_t CR2;

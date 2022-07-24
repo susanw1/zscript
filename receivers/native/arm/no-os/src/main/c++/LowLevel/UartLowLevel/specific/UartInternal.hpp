@@ -8,11 +8,11 @@
 #ifndef SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTINTERNAL_HPP_
 #define SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTINTERNAL_HPP_
 
-#include <llIncludes.hpp>
-#include "../../ClocksLowLevel/ClockManager.hpp"
+#include <LowLevel/llIncludes.hpp>
+#include <LowLevel/ClocksLowLevel/ClockManager.hpp>
 #include "UartRegisters.hpp"
-#include "../../GpioLowLevel/Gpio.hpp"
-#include "../../GpioLowLevel/GpioManager.hpp"
+#include <LowLevel/GpioLowLevel/Gpio.hpp>
+#include <LowLevel/GpioLowLevel/GpioManager.hpp>
 
 template<class LL>
 class Uart;

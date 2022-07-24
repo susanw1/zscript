@@ -8,10 +8,10 @@
 #ifndef SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2CINTERNAL_HPP_
 #define SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2CINTERNAL_HPP_
 
-#include <llIncludes.hpp>
-#include <GpioLowLevel/Gpio.hpp>
-#include <GpioLowLevel/GpioManager.hpp>
-#include <ClocksLowLevel/ClockManager.hpp>
+#include <LowLevel/llIncludes.hpp>
+#include <LowLevel/GpioLowLevel/Gpio.hpp>
+#include <LowLevel/GpioLowLevel/GpioManager.hpp>
+#include <LowLevel/ClocksLowLevel/ClockManager.hpp>
 #include "I2cRegisters.hpp"
 
 struct I2cState {

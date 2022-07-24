@@ -8,9 +8,9 @@
 #ifndef SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_SYSTEMMILLICLOCK_HPP_
 #define SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_SYSTEMMILLICLOCK_HPP_
 
-#include <llIncludes.hpp>
+#include <LowLevel/llIncludes.hpp>
 #include "ClockManager.hpp"
-#include <InterruptLowLevel/InterruptManager.hpp>
+#include <LowLevel/InterruptLowLevel/InterruptManager.hpp>
 
 template<class LL>
 class SystemMilliClock {

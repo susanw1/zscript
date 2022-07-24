@@ -11,22 +11,22 @@
 
 #ifdef ZCODE_SUPPORT_ADDRESSING
 #ifdef ZCODE_SUPPORT_DEBUG
-#include "modules/core/ZcodeDebugAddressingSystem.hpp"
+#include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>
 #endif
 
-#include <addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
+#include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
 #endif
 
 #ifdef ZCODE_SUPPORT_SCRIPT_SPACE
-#include "modules/script/ZcodeScriptModule.hpp"
+#include <zcode/modules/script/ZcodeScriptModule.hpp>
 #endif
 
-#include "modules/outer-core/ZcodeOuterCoreModule.hpp"
-#include "modules/core/ZcodeCoreModule.hpp"
+#include <zcode/modules/outer-core/ZcodeOuterCoreModule.hpp>
+#include <zcode/modules/core/ZcodeCoreModule.hpp>
 
 #include "../support/ZcodeLocalChannel.hpp"
 
-#include "Zcode.hpp"
+#include <zcode/Zcode.hpp>
 
 int main(void) {
     std::cout << "size of Zcode: " << sizeof(Zcode<TestParams> ) << "\n";

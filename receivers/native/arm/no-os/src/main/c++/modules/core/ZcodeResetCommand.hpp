@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_C___MODULES_CORE_ZCODERESETCOMMAND_HPP_
 #define SRC_MAIN_C___MODULES_CORE_ZCODERESETCOMMAND_HPP_
 
-#include <modules/ZcodeCommand.hpp>
+#include <zcode/modules/ZcodeCommand.hpp>
 
 #define COMMAND_EXISTS_0003 EXISTENCE_MARKER_UTIL
 

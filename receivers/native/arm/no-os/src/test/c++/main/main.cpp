@@ -25,10 +25,10 @@
 #include <stm32g484xx.h>
 
 #include "ZcodeParameters.hpp"
-#include <GeneralLLSetup.hpp>
+#include <LowLevel/GeneralLLSetup.hpp>
 
-#include <modules/core/ZcodeDebugAddressingSystem.hpp>
-#include <addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
+#include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>
+#include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
 
 #include <modules/core/ZcodeReadGuidCommand.hpp>
 #include <modules/core/ZcodeWriteGuidCommand.hpp>
@@ -37,9 +37,9 @@
 #include <modules/serial/ZcodeSerialModule.hpp>
 #include <modules/UsbcPD/ZcodeUsbcPDModule.hpp>
 #include <modules/i2c/ZcodeI2cModule.hpp>
-#include <modules/script/ZcodeScriptModule.hpp>
-#include <modules/outer-core/ZcodeOuterCoreModule.hpp>
-#include <modules/core/ZcodeCoreModule.hpp>
+#include <zcode/modules/script/ZcodeScriptModule.hpp>
+#include <zcode/modules/outer-core/ZcodeOuterCoreModule.hpp>
+#include <zcode/modules/core/ZcodeCoreModule.hpp>
 
 #include <modules/i2c/ZcodeI2cModule.hpp>
 
@@ -57,13 +57,13 @@
 
 #include <LowLevel/I2cLowLevel/I2cManager.hpp>
 
-#include <UsbcPD/Ucpd.hpp>
+#include <LowLevel/UsbcPD/Ucpd.hpp>
 
 #include <LowLevel/UartLowLevel/UartManager.hpp>
 
 #include <LowLevel/ArduinoSpiLayer/src/Ethernet.h>
 
-#include <Zcode.hpp>
+#include <zcode/Zcode.hpp>
 
 const char *GeneralHalSetup::ucpdManufacturerInfo = "Zcode/Alpha Board";
 

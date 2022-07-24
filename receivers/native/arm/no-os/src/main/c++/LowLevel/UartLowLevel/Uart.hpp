@@ -8,10 +8,10 @@
 #ifndef SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_UART_HPP_
 #define SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_UART_HPP_
 
-#include <llIncludes.hpp>
+#include <LowLevel/llIncludes.hpp>
 #include "specific/UartInternal.hpp"
-#include "../DmaLowLevel/Dma.hpp"
-#include "../DmaLowLevel/DmaManager.hpp"
+#include <LowLevel/DmaLowLevel/Dma.hpp>
+#include <LowLevel/DmaLowLevel/DmaManager.hpp>
 #include "Serial.hpp"
 #include "SerialRingBuffer.hpp"
 

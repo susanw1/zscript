@@ -10,7 +10,7 @@
 
 #include "../Uart.hpp"
 #include "../UartManager.hpp"
-#include "../../ClocksLowLevel/ClockManager.hpp"
+#include <LowLevel/ClocksLowLevel/ClockManager.hpp>
 
 template<class LL>
 void UartDmaCallback(Dma<LL> *dma, DmaTerminationStatus status) {

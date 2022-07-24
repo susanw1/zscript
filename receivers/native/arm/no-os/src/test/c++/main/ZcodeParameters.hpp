@@ -8,10 +8,10 @@
 #ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
-#include <ZcodeIncludes.hpp>
-#include <ZcodeStrings.hpp>
-#include <GeneralLLSetup.hpp>
-#include <ClocksLowLevel/SystemMilliClock.hpp>
+#include <zcode/ZcodeIncludes.hpp>
+#include <zcode/ZcodeStrings.hpp>
+#include <LowLevel/GeneralLLSetup.hpp>
+#include <LowLevel/ClocksLowLevel/SystemMilliClock.hpp>
 
 #define ZCODE_STRING_SURROUND(str) str
 

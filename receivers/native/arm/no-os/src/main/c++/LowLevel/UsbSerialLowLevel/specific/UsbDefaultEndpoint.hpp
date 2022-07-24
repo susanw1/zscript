@@ -8,7 +8,7 @@
 #ifndef LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBDEFAULTENDPOINT_HPP_
 #define LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBDEFAULTENDPOINT_HPP_
 
-#include <llIncludes.hpp>
+#include <LowLevel/llIncludes.hpp>
 #include "UsbRegisters.hpp"
 #include "UsbEndpointRegister.hpp"
 

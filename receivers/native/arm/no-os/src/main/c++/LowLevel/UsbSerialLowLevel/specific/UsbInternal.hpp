@@ -8,11 +8,11 @@
 #ifndef LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBINTERNAL_HPP_
 #define LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBINTERNAL_HPP_
 
-#include <llIncludes.hpp>
-#include <ClocksLowLevel/SystemMilliClock.hpp>
-#include <InterruptLowLevel/InterruptManager.hpp>
-#include <GpioLowLevel/Gpio.hpp>
-#include <GpioLowLevel/GpioManager.hpp>
+#include <LowLevel/llIncludes.hpp>
+#include <LowLevel/ClocksLowLevel/SystemMilliClock.hpp>
+#include <LowLevel/InterruptLowLevel/InterruptManager.hpp>
+#include <LowLevel/GpioLowLevel/Gpio.hpp>
+#include <LowLevel/GpioLowLevel/GpioManager.hpp>
 #include "UsbRegisters.hpp"
 
 #include "UsbDefaultEndpoint.hpp"

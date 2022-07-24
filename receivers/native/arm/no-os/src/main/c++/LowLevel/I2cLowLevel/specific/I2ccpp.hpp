@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CCPP_HPP_
 #define SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CCPP_HPP_
 
-#include <ClocksLowLevel/ClockManager.hpp>
+#include <LowLevel/ClocksLowLevel/ClockManager.hpp>
 #include "../I2c.hpp"
 
 template<class LL>

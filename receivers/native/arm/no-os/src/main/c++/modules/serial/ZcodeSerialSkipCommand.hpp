@@ -8,7 +8,7 @@
 #ifndef NO_OS_SRC_MAIN_C___MODULES_SERIAL_ZCODESERIALSKIPCOMMAND_HPP_
 #define NO_OS_SRC_MAIN_C___MODULES_SERIAL_ZCODESERIALSKIPCOMMAND_HPP_
 
-#include <modules/ZcodeCommand.hpp>
+#include <zcode/modules/ZcodeCommand.hpp>
 #include <LowLevel/UartLowLevel/UartManager.hpp>
 #include <LowLevel/UartLowLevel/Serial.hpp>
 

@@ -8,8 +8,8 @@
 #ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
-#include "ZcodeIncludes.hpp"
-#include <ZcodeStrings.hpp>
+#include <zcode/ZcodeIncludes.hpp>
+#include <zcode/ZcodeStrings.hpp>
 
 #define ZCODE_SUPPORT_SCRIPT_SPACE
 #define ZCODE_SUPPORT_INTERRUPT_VECTOR

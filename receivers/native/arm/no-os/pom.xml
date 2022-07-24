@@ -79,9 +79,6 @@
                                 </includes>
                             </includePath>
                             <includePath>
-                                <path>${project.basedir}/src/main/c++/LowLevel</path>
-                            </includePath>
-                            <includePath>
                                 <path>${project.basedir}/src/main/c++</path>
                             </includePath>
 

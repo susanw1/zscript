@@ -8,10 +8,10 @@
 #ifndef SRC_TEST_C___LOWLEVEL_ATODLOWLEVEL_ATODMANAGER_HPP_
 #define SRC_TEST_C___LOWLEVEL_ATODLOWLEVEL_ATODMANAGER_HPP_
 
-#include <llIncludes.hpp>
+#include <LowLevel/llIncludes.hpp>
 #include "AtoD.hpp"
-#include <ClocksLowLevel/ClockManager.hpp>
-#include <GpioLowLevel/GpioManager.hpp>
+#include <LowLevel/ClocksLowLevel/ClockManager.hpp>
+#include <LowLevel/GpioLowLevel/GpioManager.hpp>
 
 template<class LL>
 class AtoDManager {

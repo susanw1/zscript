@@ -8,8 +8,8 @@
 #ifndef SRC_MAIN_C___MODULES_USBCPD_ZCODEUSBCPDMODULE_HPP_
 #define SRC_MAIN_C___MODULES_USBCPD_ZCODEUSBCPDMODULE_HPP_
 
-#include <ZcodeIncludes.hpp>
-#include <modules/ZcodeModule.hpp>
+#include <zcode/ZcodeIncludes.hpp>
+#include <zcode/modules/ZcodeModule.hpp>
 #include "ZcodeUsbcPDStatusCommand.hpp"
 #include "ZcodeUsbcPDSetCommand.hpp"
 #include "ZcodeUsbcPDSourceCommand.hpp"

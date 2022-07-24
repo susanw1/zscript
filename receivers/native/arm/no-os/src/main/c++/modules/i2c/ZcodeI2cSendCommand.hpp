@@ -1,7 +1,7 @@
 #ifndef SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CSENDCOMMAND_HPP_
 #define SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CSENDCOMMAND_HPP_
 
-#include <modules/ZcodeCommand.hpp>
+#include <zcode/modules/ZcodeCommand.hpp>
 #include <LowLevel/I2cLowLevel/I2cManager.hpp>
 #include "GeneralI2cAction.hpp"
 

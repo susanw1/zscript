@@ -8,9 +8,9 @@
 #ifndef LOWLEVEL_USBSERIALLOWLEVEL_USB_HPP_
 #define LOWLEVEL_USBSERIALLOWLEVEL_USB_HPP_
 
-#include <llIncludes.hpp>
-#include <UartLowLevel/Serial.hpp>
-#include <UartLowLevel/SerialRingBuffer.hpp>
+#include <LowLevel/llIncludes.hpp>
+#include <LowLevel/UartLowLevel/Serial.hpp>
+#include <LowLevel/UartLowLevel/SerialRingBuffer.hpp>
 #include "specific/UsbRegisters.hpp"
 #include "specific/UsbInternal.hpp"
 

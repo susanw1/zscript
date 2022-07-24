@@ -9,13 +9,13 @@
 #define SRC_TEST_CPP_ZCODE_TEST_ZCODELOCALCHANNEL_HPP_
 
 #include "ZcodeParameters.hpp"
-#include "ZcodeIncludes.hpp"
+#include <zcode/ZcodeIncludes.hpp>
 
 #include <iostream>
 
-#include "channels/ZcodeChannelInStream.hpp"
-#include "channels/ZcodeCommandChannel.hpp"
-#include "ZcodeOutStream.hpp"
+#include <zcode/channels/ZcodeChannelInStream.hpp>
+#include <zcode/channels/ZcodeCommandChannel.hpp>
+#include <zcode/ZcodeOutStream.hpp>
 
 class ZcodeTestChannelInStream: public ZcodeChannelInStream<TestParams> {
 private:

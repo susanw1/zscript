@@ -8,13 +8,13 @@
 #ifndef SRC_MAIN_C___CHANNELS_SERIAL_SERIALCHANNEL_HPP_
 #define SRC_MAIN_C___CHANNELS_SERIAL_SERIALCHANNEL_HPP_
 
-#include <UartLowLevel/Serial.hpp>
+#include <LowLevel/UartLowLevel/Serial.hpp>
 
-#include <ZcodeIncludes.hpp>
+#include <zcode/ZcodeIncludes.hpp>
 
-#include <channels/ZcodeChannelInStream.hpp>
-#include <channels/ZcodeCommandChannel.hpp>
-#include <ZcodeOutStream.hpp>
+#include <zcode/channels/ZcodeChannelInStream.hpp>
+#include <zcode/channels/ZcodeCommandChannel.hpp>
+#include <zcode/ZcodeOutStream.hpp>
 
 template<class ZP>
 class SerialChannelInStream: public ZcodeChannelInStream<ZP> {
