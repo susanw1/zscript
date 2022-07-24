@@ -3,16 +3,11 @@
 
     <parent>
         <groupId>org.zcode</groupId>
-        <artifactId>zcode-all</artifactId>
+        <artifactId>zcode-clients</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-clients</artifactId>
-    <name>Zcode Clients</name>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>java-client-lib</module>
-    </modules>
+    <artifactId>zcode-java-client</artifactId>
+    <name>Java Client</name>
 
 </project>

@@ -25,13 +25,8 @@ public:
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
-        if (!slot.getZcode()->isActivated()) {
-            out->writeField8('A', (uint8_t) 0);
-            out->writeStatus(OK);
-        } else {
-            out->writeField8('A', (uint8_t) 1);
-            out->writeStatus(OK);
-        }
+        out->writeField8('A', (uint8_t) slot.getZcode()->isActivated());
+        out->writeStatus(OK);
         slot.getZcode()->setActivated();
     }
 

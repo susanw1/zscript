@@ -1,0 +1,148 @@
+module:
+-   name: Core
+    id: 0
+    version: 0.0.1
+    description: Provides core system commands which can be executed without device activation.
+
+    commands:
+    -   name: capabilities
+        command: 0
+        description: Top level identification, for hardware, software, modules, versions
+        operation: get
+        requestParams: null
+        responseParams:
+        -   label: C
+            name: commandsSet
+            description: which commands are enabled in this module
+            type: bitset
+            bitsetFields: null
+            required: yes
+        -   label: M
+            name: modulesSet
+            description: which modules are available on this device
+            type: bitset
+            bitsetFields: custom
+            required: yes
+        -   label: N
+            name: maxRequestParams
+            description: maximum number of params that can be supplied in any command
+            type: number
+            required: yes
+        status: null
+
+    -   name: echo
+        command: 1
+        description: Echoes all request params to the response, for testing purposes
+        operation: get
+        requestParams:
+        -   label: S
+            name: status
+            description: determines the returned Status param
+            type: number
+            required: no
+        -   label: +
+            name: bigField
+            description: any supplied value will be returned
+            type: bytes
+            required: no
+        -   label: any
+            name: any
+            description: any supplied value will be returned
+            type: value
+            required: no
+        responseParams:
+        -   label: any
+            name: any
+            description: any supplied value will be returned
+            type: value
+            required: no
+
+    -   name: activate
+        command: 2
+        description: Activates zcode system, allowing commands 0x10 onwards to be executed
+        operation: put
+        requestParams:
+        -   label: K
+            name: key
+            description: must match the device's own key to allow activation
+            type: number
+            required: no
+        responseParams:
+        -   label: A
+            name: previousActivationState
+            description: true if already activated; false otherwise
+            type: boolean
+            required: yes
+        status:
+        -   code: CMD_FAIL
+            meaning: key match failure
+
+    -   name: reset
+        command: 3
+        description: Resets the device or channels
+        operation: put
+        requestParams:
+        -   label: C
+            name: channel
+            description: specifies channel to be reset
+            type: number
+            required: no
+        responseParams: null
+        status:
+        -   code: CMD_FAIL
+            meaning: channel reset failed
+
+    -   name: readGuid
+        command: 4
+        description: Retrieves the system GUID, if set
+        operation: get
+        requestParams: null
+        responseParams:
+        -   label: +
+            name: guid
+            description: the previously set system GUID
+            type: bytes
+            required: yes
+        status:
+        -   code: CMD_FAIL
+            meaning: no GUID set
+
+    -   name: channelInfo
+        command: 8
+        description: Retrieves channel info
+        operation: get
+        requestParams: null
+        responseParams: null
+        status: null
+
+    -   name: makeCode
+        command: 12
+        description: Generates a random match-code
+        operation: post
+        requestParams: null
+        responseParams:
+        -   label: C
+            name: matchCode
+            description: newly generated random match-code
+            type: value
+            required: yes
+
+    -   name: matchCode
+        command: 13
+        description: Returns OK only if supplied code matches the previously generated match-code
+        operation: get
+        requestParams:
+        -   label: C
+            name: matchCode
+            description: a match-code to confirm against previously generated one
+            type: value
+            required: yes
+        responseParams: null
+        status:
+        -   code: CMD_FAIL
+            meaning: supplied code didn't match
+
+    -   name: null
+        command: 15
+        description: Command kept free for user-defined system command
+        operation: unknown

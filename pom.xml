@@ -26,6 +26,7 @@
     </properties>
 
     <modules>
+        <module>model</module>
         <module>receivers</module>
         <module>clients</module>
         <module>acceptance-tests</module>

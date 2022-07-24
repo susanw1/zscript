@@ -7,12 +7,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-clients</artifactId>
-    <name>Zcode Clients</name>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>java-client-lib</module>
-    </modules>
+    <artifactId>zcode-model</artifactId>
+    <name>Zcode Model</name>
 
 </project>
