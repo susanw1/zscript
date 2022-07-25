@@ -16,7 +16,7 @@
 
 #define I2C_2_SDA PA_8_
 #define I2C_2_SCL PC_4_
-#define USE_I2C_2
+//#define USE_I2C_2
 
 #define I2C_3_SDA PC_9_
 #define I2C_3_SCL PC_8_
@@ -24,7 +24,7 @@
 
 #define I2C_4_SDA PC_7_
 #define I2C_4_SCL PC_6_
-#define USE_I2C_4
+//#define USE_I2C_4
 
 #define UART_1_TX PA_9_
 #define UART_1_RX PA_10_

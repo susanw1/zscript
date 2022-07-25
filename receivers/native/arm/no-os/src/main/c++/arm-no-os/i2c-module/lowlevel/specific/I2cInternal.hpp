@@ -353,7 +353,7 @@ bool I2cInternal<LL>::recoverSdaJam() {
         SystemMilliClock<LL>::blockDelayMillis(10);
         sclPin.reset();
         SystemMilliClock<LL>::blockDelayMillis(10);
-        attempts++;
+        attempts--;
     }
     sdaPin.reset();
     sclPin.set();
