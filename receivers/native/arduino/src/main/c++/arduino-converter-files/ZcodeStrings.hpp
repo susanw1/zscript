@@ -12,10 +12,10 @@
 template<class ZP>
 class ZcodeStrings {
 public:
-    typedef const __FlashStringHelper*  string_t;
+    typedef const __FlashStringHelper* string_t;
 
     static char getChar(string_t str, uint16_t index) {
-        return pgm_read_byte_near(((PGM_P)str)+index);
+        return pgm_read_byte_near(((PGM_P) str) + index);
     }
 
     static const char boolTrue[] PROGMEM;
@@ -23,6 +23,7 @@ public:
 
     static const char failAddressingOnlyFromNotificationChannel[] PROGMEM;
     static const char failAddressingInvalid[] PROGMEM;
+    static const char failAddressingNoNewLine[] PROGMEM;
     static const char failAddressingNotSetup[] PROGMEM;
 
     static const char failParseBadStringEnd[] PROGMEM;
@@ -82,6 +83,8 @@ template<class ZP>
 const char ZcodeStrings<ZP>::failAddressingOnlyFromNotificationChannel[] PROGMEM = "Addressing only allowed from notification channel";
 template<class ZP>
 const char ZcodeStrings<ZP>::failAddressingInvalid[] PROGMEM = "Invalid address";
+template<class ZP>
+const char ZcodeStrings<ZP>::failAddressingNoNewLine[] PROGMEM = "Addressing must end in new line";
 template<class ZP>
 const char ZcodeStrings<ZP>::failAddressingNotSetup[] PROGMEM = "Addressing not set up";
 
@@ -153,7 +156,6 @@ const char ZcodeStrings<ZP>::interruptVectorChannelDescriptor[] PROGMEM = "Inter
 
 template<class ZP>
 const char ZcodeStrings<ZP>::badModuleAreaSpecifier[] PROGMEM = "Module area is invalid";
-
 
 template<class ZP>
 const char ZcodeStrings<ZP>::debugOverrun[] PROGMEM = "#Debug buffer out of space, some data lost\n";

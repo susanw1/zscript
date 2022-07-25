@@ -20,7 +20,6 @@
 #include "ZcodeMappingAddressRouter.hpp"
 #endif
 
-
 // makes the above #define's the only needed ones...
 #ifdef ARDUINO_USE_MODULE_ADDRESS_ROUTER
 #define ZCODE_SUPPORT_ADDRESSING
@@ -30,14 +29,17 @@
 #define ZCODE_GENERATE_NOTIFICATIONS
 #endif
 
-
 #include "ZcodeScriptModule.hpp"
 #include "ZcodeOuterCoreModule.hpp"
 #include "ZcodeCoreModule.hpp"
 
-
 #include "Zcode.hpp"
-#include "ZcodeSerialChannel.hpp"
+
+#ifdef ZCODE_HAVE_SERIAL_CHANNEL
+#include "arduino/serial-module/channels/ZcodeSerialChannel.hpp"
+
+ZcodeSerialChannel<ZcodeParams> ZcodeSerialChannelI;
+#endif
 
 class ArduinoZcodeBasicSetup {
 #ifdef ZCODE_HAVE_SERIAL_CHANNEL
@@ -46,12 +48,12 @@ class ArduinoZcodeBasicSetup {
 
 public:
 
-	void setup(){
+    void setup() {
 
 #ifdef ZCODE_HAVE_SERIAL_CHANNEL
 		channels[0] = &ZcodeSerialChannelI;
 		Zcode<ZcodeParams>::zcode.setChannels(channels, 1);
 #endif
-	}
+    }
 };
 ArduinoZcodeBasicSetup ZcodeSetup;
