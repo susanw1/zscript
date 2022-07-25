@@ -46,16 +46,16 @@ void GpioManager<LL>::activateClock(GpioPinName name) {
 }
 
 template<class LL>
-GpioPin<LL>* GpioManager<LL>::getPin(GpioPinName name) {
+GpioPin<LL> GpioManager<LL>::getPin(GpioPinName name) {
     //handles that the latter ports are not complete
     if (name.port <= PortC) {
-        return pins + name.port * 16 + name.pin;
+        return pins[name.port * 16 + name.pin];
     } else if (name.port == PortD) {
-        return pins + 48;
+        return pins[48];
     } else if (name.port == PortF) {
-        return pins + 49 + name.pin;
+        return pins[49 + name.pin];
     } else {
-        return pins + 51;
+        return pins[51];
     }
 }
 template<class LL>

@@ -288,8 +288,8 @@ void I2cInternal<LL>::activateClock(I2cIdentifier id) {
     const uint32_t i2c4ClockMask = 0x00000003;
     const uint32_t i2c4ClockHSI16 = 0x00000002;
 
-    GpioManager<LL>::getPin(scl)->init();
-    GpioManager<LL>::getPin(sda)->init();
+    GpioManager<LL>::getPin(scl).init();
+    GpioManager<LL>::getPin(sda).init();
     if (id == 0) {
         RCC->APB1ENR1 |= enableI2c1Registers;
         RCC->CCIPR &= ~i2c1ClockMask;
@@ -311,58 +311,58 @@ void I2cInternal<LL>::activateClock(I2cIdentifier id) {
 
 template<class LL>
 void I2cInternal<LL>::activatePins() {
-    GpioManager<LL>::getPin(scl)->setPullMode(NoPull);
-    GpioManager<LL>::getPin(scl)->setOutputMode(OpenDrain);
-    GpioManager<LL>::getPin(scl)->setAlternateFunction(sclFunction);
-    GpioManager<LL>::getPin(scl)->setOutputSpeed(VeryHighSpeed);
-    GpioManager<LL>::getPin(scl)->setMode(AlternateFunction);
-    GpioManager<LL>::getPin(sda)->setPullMode(NoPull);
-    GpioManager<LL>::getPin(sda)->setOutputMode(OpenDrain);
-    GpioManager<LL>::getPin(sda)->setAlternateFunction(sdaFunction);
-    GpioManager<LL>::getPin(sda)->setOutputSpeed(VeryHighSpeed);
-    GpioManager<LL>::getPin(sda)->setMode(AlternateFunction);
+    GpioManager<LL>::getPin(scl).setPullMode(NoPull);
+    GpioManager<LL>::getPin(scl).setOutputMode(OpenDrain);
+    GpioManager<LL>::getPin(scl).setAlternateFunction(sclFunction);
+    GpioManager<LL>::getPin(scl).setOutputSpeed(VeryHighSpeed);
+    GpioManager<LL>::getPin(scl).setMode(AlternateFunction);
+    GpioManager<LL>::getPin(sda).setPullMode(NoPull);
+    GpioManager<LL>::getPin(sda).setOutputMode(OpenDrain);
+    GpioManager<LL>::getPin(sda).setAlternateFunction(sdaFunction);
+    GpioManager<LL>::getPin(sda).setOutputSpeed(VeryHighSpeed);
+    GpioManager<LL>::getPin(sda).setMode(AlternateFunction);
 }
 
 template<class LL>
 bool I2cInternal<LL>::recoverSdaJam() {
     int attempts = 18;
-    GpioPin<LL> *sdaPin = GpioManager<LL>::getPin(sda);
-    GpioPin<LL> *sclPin = GpioManager<LL>::getPin(scl);
-    sdaPin->setPullMode(NoPull);
-    sdaPin->setOutputMode(OpenDrain);
-    sdaPin->setOutputSpeed(VeryHighSpeed);
-    sclPin->setPullMode(NoPull);
-    sclPin->setOutputMode(OpenDrain);
-    sclPin->setOutputSpeed(VeryHighSpeed);
-    sdaPin->set();
-    sclPin->set();
-    sdaPin->setMode(Output);
-    sclPin->setMode(Output);
-    sdaPin->set();
-    if (sdaPin->read()) {
+    GpioPin<LL> sdaPin = GpioManager<LL>::getPin(sda);
+    GpioPin<LL> sclPin = GpioManager<LL>::getPin(scl);
+    sdaPin.setPullMode(NoPull);
+    sdaPin.setOutputMode(OpenDrain);
+    sdaPin.setOutputSpeed(VeryHighSpeed);
+    sclPin.setPullMode(NoPull);
+    sclPin.setOutputMode(OpenDrain);
+    sclPin.setOutputSpeed(VeryHighSpeed);
+    sdaPin.set();
+    sclPin.set();
+    sdaPin.setMode(Output);
+    sclPin.setMode(Output);
+    sdaPin.set();
+    if (sdaPin.read()) {
         return true;
     }
-    sclPin->set();
+    sclPin.set();
     for (int i = 0; i < 0x1000; ++i)
         ;
-    if (!sclPin->read()) {
+    if (!sclPin.read()) {
         return false;
     }
-    while (!sdaPin->read() && attempts > 0) {
-        sclPin->set();
+    while (!sdaPin.read() && attempts > 0) {
+        sclPin.set();
         for (volatile uint32_t i = 0; i < 0x1000; ++i)
             ;
-        sclPin->reset();
+        sclPin.reset();
         for (volatile uint32_t i = 0; i < 0x1000; ++i)
             ;
         attempts++;
     }
-    sdaPin->reset();
-    sclPin->set();
-    sdaPin->set();
-    sdaPin->setMode(AlternateFunction);
-    sclPin->setMode(AlternateFunction);
-    return sdaPin->read();
+    sdaPin.reset();
+    sclPin.set();
+    sdaPin.set();
+    sdaPin.setMode(AlternateFunction);
+    sclPin.setMode(AlternateFunction);
+    return sdaPin.read();
 }
 
 template<class LL>

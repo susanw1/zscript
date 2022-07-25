@@ -80,19 +80,19 @@ public:
         const uint32_t uartTxDmaEnable = 0x80;
 
         registers->CR1 &= ~uartEnable; //disable the peripheral
-        GpioManager<LL>::getPin(rx)->init();
-        GpioManager<LL>::getPin(tx)->init();
+        GpioManager<LL>::getPin(rx).init();
+        GpioManager<LL>::getPin(tx).init();
 
-        GpioManager<LL>::getPin(rx)->setPullMode(NoPull);
-        GpioManager<LL>::getPin(rx)->setOutputMode(PushPull);
-        GpioManager<LL>::getPin(rx)->setAlternateFunction(rxFunction);
-        GpioManager<LL>::getPin(rx)->setOutputSpeed(VeryHighSpeed);
-        GpioManager<LL>::getPin(rx)->setMode(AlternateFunction);
-        GpioManager<LL>::getPin(tx)->setPullMode(NoPull);
-        GpioManager<LL>::getPin(tx)->setOutputMode(PushPull);
-        GpioManager<LL>::getPin(tx)->setAlternateFunction(txFunction);
-        GpioManager<LL>::getPin(tx)->setOutputSpeed(VeryHighSpeed);
-        GpioManager<LL>::getPin(tx)->setMode(AlternateFunction);
+        GpioManager<LL>::getPin(rx).setPullMode(NoPull);
+        GpioManager<LL>::getPin(rx).setOutputMode(PushPull);
+        GpioManager<LL>::getPin(rx).setAlternateFunction(rxFunction);
+        GpioManager<LL>::getPin(rx).setOutputSpeed(VeryHighSpeed);
+        GpioManager<LL>::getPin(rx).setMode(AlternateFunction);
+        GpioManager<LL>::getPin(tx).setPullMode(NoPull);
+        GpioManager<LL>::getPin(tx).setOutputMode(PushPull);
+        GpioManager<LL>::getPin(tx).setAlternateFunction(txFunction);
+        GpioManager<LL>::getPin(tx).setOutputSpeed(VeryHighSpeed);
+        GpioManager<LL>::getPin(tx).setMode(AlternateFunction);
         //enable the peripheral clock, set source to SYSCLK
         if (id == 0) {
             RCC->APB2ENR |= uart1RegisterClockEnable;

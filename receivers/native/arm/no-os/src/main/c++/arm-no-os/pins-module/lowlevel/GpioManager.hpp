@@ -22,7 +22,14 @@ public:
 
     static void activateClock(GpioPinName name);
 
-    static GpioPin<LL>* getPin(GpioPinName name);
+    static GpioPin<LL> getPin(GpioPinName name);
+
+    static GpioPin<LL> getPin(uint8_t id) {
+        if (id >= LL::pinCount) {
+            return pins[0];
+        }
+        return pins[id];
+    }
 
     static GpioPort* getPort(GpioPinName name);
 };

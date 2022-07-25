@@ -20,29 +20,29 @@ void SPIClass::begin() {
     SPI1->CR2 = setFifo1_4Full | dataSize8bit;
     SPI1->CR1 = setAsMaster | setSoftwareSlaveManagement | setInternalSlaveSelect;
 
-    GpioPin<GeneralHalSetup> *sck = GpioManager<GeneralHalSetup>::getPin(PA_5);
-    sck->init();
-    sck->setAlternateFunction(5);
-    sck->setOutputSpeed(VeryHighSpeed);
-    sck->setMode(AlternateFunction);
-    sck->setOutputMode(PushPull);
-    sck->setPullMode(NoPull);
+    GpioPin<GeneralHalSetup> sck = GpioManager<GeneralHalSetup>::getPin(PA_5);
+    sck.init();
+    sck.setAlternateFunction(5);
+    sck.setOutputSpeed(VeryHighSpeed);
+    sck.setMode(AlternateFunction);
+    sck.setOutputMode(PushPull);
+    sck.setPullMode(NoPull);
 
-    GpioPin<GeneralHalSetup> *miso = GpioManager<GeneralHalSetup>::getPin(PA_6);
-    miso->init();
-    miso->setAlternateFunction(5);
-    miso->setOutputSpeed(VeryHighSpeed);
-    miso->setMode(AlternateFunction);
-    miso->setOutputMode(PushPull);
-    miso->setPullMode(NoPull);
+    GpioPin<GeneralHalSetup> miso = GpioManager<GeneralHalSetup>::getPin(PA_6);
+    miso.init();
+    miso.setAlternateFunction(5);
+    miso.setOutputSpeed(VeryHighSpeed);
+    miso.setMode(AlternateFunction);
+    miso.setOutputMode(PushPull);
+    miso.setPullMode(NoPull);
 
-    GpioPin<GeneralHalSetup> *mosi = GpioManager<GeneralHalSetup>::getPin(PA_7);
-    mosi->init();
-    mosi->setAlternateFunction(5);
-    mosi->setOutputSpeed(VeryHighSpeed);
-    mosi->setMode(AlternateFunction);
-    mosi->setOutputMode(PushPull);
-    mosi->setPullMode(NoPull);
+    GpioPin<GeneralHalSetup> mosi = GpioManager<GeneralHalSetup>::getPin(PA_7);
+    mosi.init();
+    mosi.setAlternateFunction(5);
+    mosi.setOutputSpeed(VeryHighSpeed);
+    mosi.setMode(AlternateFunction);
+    mosi.setOutputMode(PushPull);
+    mosi.setPullMode(NoPull);
     SPI1->CR1 |= enableSpi;
 }
 

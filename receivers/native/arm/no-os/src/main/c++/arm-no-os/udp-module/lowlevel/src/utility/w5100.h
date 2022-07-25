@@ -445,19 +445,19 @@ private:
 	}
 #else
     inline static void initSS() {
-        GpioPin<GeneralHalSetup> *nss = GpioManager<GeneralHalSetup>::getPin(PA_4);
-        nss->init();
-        nss->set();
-        nss->setOutputSpeed(VeryHighSpeed);
-        nss->setOutputMode(PushPull);
-        nss->setPullMode(NoPull);
-        nss->setMode(Output);
+        GpioPin<GeneralHalSetup> nss = GpioManager<GeneralHalSetup>::getPin(PA_4);
+        nss.init();
+        nss.set();
+        nss.setOutputSpeed(VeryHighSpeed);
+        nss.setOutputMode(PushPull);
+        nss.setPullMode(NoPull);
+        nss.setMode(Output);
     }
     inline static void setSS() {
-        GpioManager<GeneralHalSetup>::getPin(PA_4)->reset();
+        GpioManager<GeneralHalSetup>::getPin(PA_4).reset();
     }
     inline static void resetSS() {
-        GpioManager<GeneralHalSetup>::getPin(PA_4)->set();
+        GpioManager<GeneralHalSetup>::getPin(PA_4).set();
     }
 #endif
 };

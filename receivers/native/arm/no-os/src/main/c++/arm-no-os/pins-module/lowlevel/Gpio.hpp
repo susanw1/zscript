@@ -39,6 +39,10 @@ public:
     void setPullMode(PullMode mode);
 
     void setAlternateFunction(uint8_t function);
+
+    GpioPinName getPinName() {
+        return pin;
+    }
 };
 
 #include "GpioManager.hpp"

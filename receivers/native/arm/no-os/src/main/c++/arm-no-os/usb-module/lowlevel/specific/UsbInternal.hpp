@@ -81,14 +81,14 @@ public:
 
         GpioManager<LL>::activateClock(PA_11);
         GpioManager<LL>::activateClock(PA_12);
-        GpioManager<LL>::getPin(PA_11)->init();
-        GpioManager<LL>::getPin(PA_11)->setMode(Output);
-        GpioManager<LL>::getPin(PA_11)->setOutputSpeed(VeryHighSpeed);
-        GpioManager<LL>::getPin(PA_11)->setOutputMode(PushPull);
-        GpioManager<LL>::getPin(PA_12)->init();
-        GpioManager<LL>::getPin(PA_12)->setMode(Output);
-        GpioManager<LL>::getPin(PA_12)->setOutputSpeed(VeryHighSpeed);
-        GpioManager<LL>::getPin(PA_12)->setOutputMode(PushPull);
+        GpioManager<LL>::getPin(PA_11).init();
+        GpioManager<LL>::getPin(PA_11).setMode(Output);
+        GpioManager<LL>::getPin(PA_11).setOutputSpeed(VeryHighSpeed);
+        GpioManager<LL>::getPin(PA_11).setOutputMode(PushPull);
+        GpioManager<LL>::getPin(PA_12).init();
+        GpioManager<LL>::getPin(PA_12).setMode(Output);
+        GpioManager<LL>::getPin(PA_12).setOutputSpeed(VeryHighSpeed);
+        GpioManager<LL>::getPin(PA_12).setOutputMode(PushPull);
 
         ClockManager<LL>::getClock(HSI48)->set(48000, NONE);
         RCC->APB1ENR1 |= usbRegisterClockEnable | clockRecoveryRegisterClockEnable;
