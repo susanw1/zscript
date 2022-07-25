@@ -77,10 +77,13 @@ int main(void) {
     ClockManager<GeneralHalSetup>::getClock(HCLK)->set(120000, SysClock);
     ClockManager<GeneralHalSetup>::getClock(PCLK_1)->set(60000, HCLK);
     ClockManager<GeneralHalSetup>::getClock(PCLK_2)->set(60000, HCLK);
+    SystemMilliClock<GeneralHalSetup>::init();
+    for (volatile uint32_t i = 0; i < 0x1000; ++i)
+        ;
+    SystemMilliClock<GeneralHalSetup>::blockDelayMillis(50);
     DmaManager<GeneralHalSetup>::init();
     GpioManager<GeneralHalSetup>::init();
     I2cManager<GeneralHalSetup>::init();
-    SystemMilliClock<GeneralHalSetup>::init();
     UartManager<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
     uint32_t notSoPermanentStore = 0;

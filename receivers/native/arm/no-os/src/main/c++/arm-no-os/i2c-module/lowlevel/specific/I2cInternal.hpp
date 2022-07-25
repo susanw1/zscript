@@ -12,6 +12,7 @@
 #include <arm-no-os/pins-module/lowlevel/Gpio.hpp>
 #include <arm-no-os/pins-module/lowlevel/GpioManager.hpp>
 #include <arm-no-os/system/clock/ClockManager.hpp>
+#include <arm-no-os/system/clock/SystemMilliClock.hpp>
 #include "I2cRegisters.hpp"
 
 struct I2cState {
@@ -343,18 +344,15 @@ bool I2cInternal<LL>::recoverSdaJam() {
         return true;
     }
     sclPin.set();
-    for (int i = 0; i < 0x1000; ++i)
-        ;
+    SystemMilliClock<LL>::blockDelayMillis(10);
     if (!sclPin.read()) {
         return false;
     }
     while (!sdaPin.read() && attempts > 0) {
         sclPin.set();
-        for (volatile uint32_t i = 0; i < 0x1000; ++i)
-            ;
+        SystemMilliClock<LL>::blockDelayMillis(10);
         sclPin.reset();
-        for (volatile uint32_t i = 0; i < 0x1000; ++i)
-            ;
+        SystemMilliClock<LL>::blockDelayMillis(10);
         attempts++;
     }
     sdaPin.reset();
