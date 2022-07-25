@@ -13,7 +13,7 @@ public:
     static constexpr char CMD_RESP_COMMANDS_C = 'C';
     static constexpr char CMD_RESP_NOTIFICATION_SUPPORTED_N = 'N';
     static constexpr char CMD_RESP_PORT_COUNT_P = 'P';
-    static constexpr char CMD_RESP_MAX_FREQUENCIES_SUPPORTED_F = 'F';
+    static constexpr char CMD_RESP_FREQUENCIES_COUNT_F = 'F';
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
@@ -22,8 +22,8 @@ public:
 
         out->writeField8(CMD_RESP_NOTIFICATION_SUPPORTED_N, 0);
 
-        out->writeField8(CMD_RESP_PORT_COUNT_P, ZP::LL::HW::i2cCount);
-        out->writeField8(CMD_RESP_MAX_FREQUENCIES_SUPPORTED_F, 3);
+        out->writeField8(CMD_RESP_PORT_COUNT_P, ZP::LL::i2cCount);
+        out->writeField8(CMD_RESP_FREQUENCIES_COUNT_F, 4);
     }
 
 };

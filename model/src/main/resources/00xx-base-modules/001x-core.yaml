@@ -52,7 +52,7 @@ module:
             meaning: command may only be invoked from notification channel
 
 
-    -   name: addressControl
+    -   name: addressSetup
         command: 2
         description: Configures the addressing system
         operation: put
@@ -87,7 +87,7 @@ module:
         requestParams:
         -   label: C
             name: channel
-            description: which channel to configure (default to this channel) 
+            description: "which channel to configure (default: this channel)" 
             type: number
             required: no
         -   label: D

@@ -53,7 +53,7 @@ module:
             required: no
         -   label: S
             name: status
-            description: the supplied Status param - can be any status; defaults to OK
+            description: "the supplied Status param - can be any status; default: OK"
             type: number
             required: yes
 
@@ -118,7 +118,7 @@ module:
         requestParams: 
         -   label: C
             name: channel
-            description: which channel to configure (default to this channel) 
+            description: "which channel to configure (default: this channel)" 
             type: number
             required: no
         responseParams:
