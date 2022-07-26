@@ -12,9 +12,8 @@
 #error ZcodeI2cChannel.hpp needs to be included after Zcode.hpp
 #endif
 
-#error The standard arduino libraries are so gutless we can't actually do this...
-
 #include <ZcodeChannelBuilder.hpp>
+#include <Wire.h>
 
 template<class ZP>
 class ZcodeI2cChannelInStream: public ZcodeChannelInStream<ZP> {
@@ -25,6 +24,10 @@ private:
     bool usingBuffer = false;
 
 public:
+
+    static void doNothing(int v) {
+        (void) v;
+    }
     ZcodeI2cChannelInStream(ZcodeCommandChannel<ZP> *channel) :
             ZcodeChannelInStream<ZP>(channel, big, ZP::i2cBigSize) {
     }
@@ -53,26 +56,42 @@ public:
 
 template<class ZP>
 class ZcodeI2cOutStream: public ZcodeOutStream<ZP> {
-private:
+public:
     uint8_t readBuffer[ZP::i2cChannelReadBufferSize];
     static uint8_t outBuffer[ZP::i2cChannelOutputBufferSize];
     static uint16_t writePos;
     static uint16_t readPos;
-    bool hasHitNewLine = false;
     bool openB = false;
+    static uint8_t valueThingTest;
+    public:
 
     static void requestHandler() {
-        if (hasHitNewLine) {
-            Wire.write
+        bool hasHitNewLine = false;
+        for (uint8_t i = 0; i < 8; ++i) {
+            if (hasHitNewLine || readPos >= writePos) {
+                Wire.write("\x28\x28\x28\x28\x28\x28\x28\x28", 8);
+                Wire.write(valueThingTest++);
+                break;
+                hasHitNewLine = true;
+            } else {
+                Wire.write(outBuffer[readPos++]);
+                if (outBuffer[readPos] == '\n') {
+                    hasHitNewLine = true;
+                }
+            }
         }
-        Wire.write(outBuffer[readPos++]);
+        Wire.write(0x5A);
+        if (readPos >= writePos) {
+            writePos = 0;
+            readPos = 0;
+            for (uint8_t i = 0; i < ZP::i2cChannelOutputBufferSize; ++i) {
+                outBuffer[i] = 0x00;
+            }
+            //pinMode(ZP::i2cAlertPin, INPUT);
+        }
     }
-
-public:
-
     ZcodeI2cOutStream() :
             ZcodeOutStream<ZP>(readBuffer, ZP::i2cChannelReadBufferSize) {
-        Wire.onRequest(&ZcodeI2cOutStream<ZP>::requestHandler);
     }
 
     void open(ZcodeCommandChannel<ZP> *target, ZcodeOutStreamOpenType t) {
@@ -87,24 +106,42 @@ public:
 
     void close() {
         openB = false;
+        if (writePos > 0) {
+            pinMode(ZP::i2cAlertPin, OUTPUT);
+        }
     }
 
     void writeByte(uint8_t value) {
-        if (pos < ZP::i2cChannelOutputBufferSize) {
-            outBuffer[pos++] = value;
+        if (writePos < ZP::i2cChannelOutputBufferSize) {
+            outBuffer[writePos++] = value;
         }
     }
 
 };
+template<class ZP>
+uint8_t ZcodeI2cOutStream<ZP>::outBuffer[ZP::i2cChannelOutputBufferSize];
+template<class ZP>
+uint16_t ZcodeI2cOutStream<ZP>::writePos = 0;
+template<class ZP>
+uint16_t ZcodeI2cOutStream<ZP>::readPos = 0;
+template<class ZP>
+uint8_t ZcodeI2cOutStream<ZP>::valueThingTest = 0;
 
 template<class ZP>
 class ZcodeI2cChannel: public ZcodeCommandChannel<ZP> {
-    ZcodeI2cChannelInStream seqin;
-    ZcodeI2cOutStream out;
+public:
+    ZcodeI2cChannelInStream<ZP> seqin;
+    ZcodeI2cOutStream<ZP> out;
 
 public:
     ZcodeI2cChannel() :
             ZcodeCommandChannel<ZP>(&seqin, &out, false), seqin(this) {
+    }
+    void setup() {
+        pinMode(ZP::i2cAlertPin, INPUT);
+        digitalWrite(ZP::i2cAlertPin, LOW);
+        Wire.onRequest(&ZcodeI2cOutStream<ZP>::requestHandler);
+        Wire.onReceive(&ZcodeI2cChannelInStream<ZP>::doNothing);
     }
     void giveInfo(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream < ZP > *out = slot.getOut();

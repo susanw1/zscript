@@ -11,7 +11,6 @@
 #include <ZcodeIncludes.hpp>
 #include "ZcodeStrings.hpp"
 
-
 // Please note that ZcodeFullInclude will set any #defines necessary to other set #defines - so ZCODE_USE_DEBUG_ADDRESSING_SYSTEM enables ZCODE_SUPPORT_DEBUG
 
 //#define ZCODE_SUPPORT_SCRIPT_SPACE
@@ -19,6 +18,8 @@
 
 #define ZCODE_GENERATE_NOTIFICATIONS
 //#define ZCODE_SUPPORT_DEBUG
+
+//#define ZCODE_HAVE_I2C_MODULE
 
 #define ZCODE_HAVE_SERIAL_CHANNEL
 //#define ZCODE_HAVE_I2C_CHANNEL
@@ -31,7 +32,6 @@
 #define ZCODE_USE_MODULE_ADDRESSING
 //#define ZCODE_USE_MAPPING_ADDRESSING
 
-
 template<class ZP>
 class ZcodeModuleAddressRouter;
 template<class ZP>
@@ -41,13 +41,11 @@ class ZcodeParams {
 public:
     typedef ZcodeStrings<ZcodeParams> Strings;
     typedef ZcodeModuleAddressRouter<ZcodeParams> AddressRouter;
-//    typedef ZcodeModuleAddressRouter<ZcodeParams> AddressRouter;
+    //    typedef ZcodeModuleAddressRouter<ZcodeParams> AddressRouter;
 
-    
     static uint16_t numberGenerator() {
         return (uint16_t) millis();
     }
-    
 
     typedef uint16_t scriptSpaceAddress_t;
     typedef uint16_t scriptSpaceOutLength_t;
@@ -77,7 +75,7 @@ public:
 
     static const uint16_t serialBigSize = 32;
     static const uint16_t serialChannelReadBufferSize = 8;
-    
+
     static const uint16_t mappingAddressCount = 32;
 };
 

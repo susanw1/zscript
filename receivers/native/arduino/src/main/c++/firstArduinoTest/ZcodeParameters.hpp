@@ -20,8 +20,10 @@
 #define ZCODE_GENERATE_NOTIFICATIONS
 #define ZCODE_SUPPORT_DEBUG
 
+#define ZCODE_HAVE_I2C_MODULE
+
 #define ZCODE_HAVE_SERIAL_CHANNEL
-#define ZCODE_HAVE_I2C_CHANNEL
+//#define ZCODE_HAVE_I2C_CHANNEL
 #define ZCODE_USE_DEBUG_ADDRESSING_SYSTEM
 
 //This is only needed if an addressing system other than ZcodeModuleAddressRouter or ZcodeMappingAddressRouter is used. Otherwise use the below #define

@@ -29,6 +29,10 @@
 #define ZCODE_GENERATE_NOTIFICATIONS
 #endif
 
+#ifdef ZCODE_HAVE_I2C_MODULE
+#include "arduino/i2c-module/ZcodeI2cModule.hpp"
+#endif
+
 #include "ZcodeScriptModule.hpp"
 #include "ZcodeOuterCoreModule.hpp"
 #include "ZcodeCoreModule.hpp"
