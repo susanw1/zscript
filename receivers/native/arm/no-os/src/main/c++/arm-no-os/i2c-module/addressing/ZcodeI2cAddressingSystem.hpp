@@ -94,7 +94,7 @@ public:
 
         uint8_t chunkSize = ZP::i2cAddressingResponseChunkSize;
         if (out->getReadBufferLength() < chunkSize) {
-            chunkSize = out->getReadBufferLength();
+            return;
         }
         uint8_t *buffer = out->getReadBuffer();
 
