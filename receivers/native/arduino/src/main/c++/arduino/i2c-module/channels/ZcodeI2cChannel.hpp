@@ -69,9 +69,7 @@ public:
         bool hasHitNewLine = false;
         for (uint8_t i = 0; i < 8; ++i) {
             if (hasHitNewLine || readPos >= writePos) {
-                Wire.write("\x28\x28\x28\x28\x28\x28\x28\x28", 8);
-                Wire.write(valueThingTest++);
-                break;
+                Wire.write('\n');
                 hasHitNewLine = true;
             } else {
                 Wire.write(outBuffer[readPos++]);
@@ -80,14 +78,13 @@ public:
                 }
             }
         }
-        Wire.write(0x5A);
         if (readPos >= writePos) {
             writePos = 0;
             readPos = 0;
             for (uint8_t i = 0; i < ZP::i2cChannelOutputBufferSize; ++i) {
                 outBuffer[i] = 0x00;
             }
-            //pinMode(ZP::i2cAlertPin, INPUT);
+            pinMode(ZP::i2cAlertPin, INPUT);
         }
     }
     ZcodeI2cOutStream() :
@@ -144,7 +141,7 @@ public:
         Wire.onReceive(&ZcodeI2cChannelInStream<ZP>::doNothing);
     }
     void giveInfo(ZcodeExecutionCommandSlot<ZP> slot) {
-        ZcodeOutStream < ZP > *out = slot.getOut();
+        ZcodeOutStream<ZP> *out = slot.getOut();
         out->writeField16('B', ZP::i2cBigSize);
         out->writeField16('F', ZP::fieldNum);
         out->writeField8('N', 0);
@@ -153,7 +150,7 @@ public:
     }
 
     void readSetup(ZcodeExecutionCommandSlot<ZP> slot) {
-        ZcodeOutStream < ZP > *out = slot.getOut();
+        ZcodeOutStream<ZP> *out = slot.getOut();
         out->writeStatus(OK);
     }
 
