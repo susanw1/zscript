@@ -3,23 +3,27 @@ intrinsics:
     -   label: Z
         name: command
         description: which operation to be performed
-        type: number
+        typeDefinition:
+            '@type': number
         required: yes
     -   label: E
         name: echo
         description: value is always echoed in the response
-        type: number
+        typeDefinition:
+            '@type': number
         required: no
     responseParams:
     -   label: E
         name: echo
         description: value echoed from the request
-        type: number
+        typeDefinition:
+            '@type': number
         required: no
     -   label: S
         name: status
         description: indicates success (0), error (1-f) or failure
-        type: number
+        typeDefinition:
+            '@type': number
         required: yes
         
     status:

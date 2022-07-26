@@ -129,6 +129,8 @@ public interface ZcodeDataModel {
     interface Status {
         String getCode();
 
+        int getId();
+
         String getMeaning();
     }
 }
