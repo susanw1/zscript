@@ -1,4 +1,4 @@
-module:
+modules:
 -   name: I2C
     id: 5
     version: 0.0.1
@@ -14,23 +14,27 @@ module:
         -   label: C
             name: commandsSet
             description: which commands are enabled in the I2C module
-            type: bitset
-            bitsetFields: custom
+            typeDefinition:
+                '@type': commands
+                bitFields: []
             required: yes
         -   label: N
             name: notificationsSupported
             description: whether notifications are supported
-            type: flag
+            typeDefinition:
+                '@type': flag
             required: no
         -   label: P
             name: portCount
             description: how many ports are available
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: F
             name: frequenciesSupported
             description: how many frequencies are supported
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         status: null
 
@@ -42,12 +46,14 @@ module:
         -   label: P
             name: port
             description: 'which port to configure (default: all)'
-            type: number
+            typeDefinition:
+                '@type': number
             required: no
         -   label: F
             name: frequency
             description: the frequency to set
-            type: number
+            typeDefinition:
+                '@type': number
             required: no
         responseParams: null
         status:
@@ -62,56 +68,59 @@ module:
         -   label: P
             name: port
             description: which port to send to
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: A
             name: address
             description: which address to send to (0-127, or 0-1023 depending on mode)
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: N
             name: tenBitMode
             description: 'indicates if 10-bit addressing (default: 7 bit)'
-            type: flag
+            typeDefinition:
+                '@type': flag
             required: no
         -   label: T
             name: retries
             description: 'how many times to try the write operation (default: 5)'
-            type: number
+            typeDefinition:
+                '@type': number
             required: no
         -   label: +
             name: data
             description: the data to send
-            type: bytes
+            typeDefinition:
+                '@type': bytes
             required: no
         responseParams:
         -   label: A
             name: address
             description: the address the data was sent to
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: I
             name: resultInfo
             description: detailed status info for I2C activity
-            type: enum
-            enumValues:
-            - Ok
-            - BufferOverrun
-            - AddrNack
-            - DataNack
-            - Other
+            typeDefinition:
+                '@type': enum
+                values: [Ok, BufferOverrun, AddrNack, DataNack, Other ]
             required: yes
         -   label: T
             name: attempts
             description: how many attempts we made to send
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         status:
         -   code: CMD_FAIL
             meaning: write failed in benign way
         -   code: CMD_ERROR
             meaning: write failed in bad way - serious error
-
+            
 
     -   name: i2cReceive
         command: 3
@@ -121,54 +130,58 @@ module:
         -   label: P
             name: port
             description: which port to read from
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: A
             name: address
             description: which address to read from (0-127, or 0-1023 depending on mode)
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: N
             name: tenBitMode
             description: 'indicates if 10-bit addressing (default: 7 bit)'
-            type: flag
+            typeDefinition:
+                '@type': flag
             required: no
         -   label: T
             name: retries
             description: 'how many times to try the read operation (default: 5)'
-            type: number
+            typeDefinition:
+                '@type': number
             required: no
         -   label: L
             name: length
             description: 'number of bytes to attempt to read (default: 0)'
-            type: number
+            typeDefinition:
+                '@type': number
             required: no
         responseParams:
         -   label: A
             name: address
             description: the device's address
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: I
             name: resultInfo
             description: detailed status info for I2C activity
-            type: enum
-            enumValues:
-            - Ok
-            - BufferOverrun
-            - AddrNack
-            - DataNack
-            - Other
+            typeDefinition:
+                '@type': enum
+                values: [Ok, BufferOverrun, AddrNack, DataNack, Other ]
             required: yes
         -   label: T
             name: attempts
             description: how many attempts we made to read
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: +
             name: data
             description: the data that was read
-            type: bytes
+            typeDefinition:
+                '@type': bytes
             required: no
         status:
         -   code: TOO_BIG
@@ -177,8 +190,8 @@ module:
             meaning: write failed in benign way
         -   code: CMD_ERROR
             meaning: write failed in bad way - serious error
-
-
+            
+            
     -   name: i2cSendReceive
         command: 4
         description: Sends a message to a specified I2C device, then directly performs a receive
@@ -187,59 +200,64 @@ module:
         -   label: P
             name: port
             description: which port to send to/receive from
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: A
             name: address
             description: which address to send to/receive from (0-127, or 0-1023 depending on mode)
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: N
             name: tenBitMode
             description: 'indicates if 10-bit addressing (default: 7 bit)'
-            type: flag
+            typeDefinition:
+                '@type': flag
             required: no
         -   label: T
             name: retries
             description: 'how many times to try the send/receive operation (default: 5)'
-            type: number
+            typeDefinition:
+                '@type': number
             required: no
         -   label: +
             name: data
             description: the data to send
-            type: bytes
+            typeDefinition:
+                '@type': bytes
             required: no
         -   label: L
             name: length
             description: 'number of bytes to attempt to read (default: 0)'
-            type: number
+            typeDefinition:
+                '@type': number
             required: no
         responseParams:
         -   label: A
             name: address
             description: the address the data was sent/received
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: I
             name: resultInfo
             description: detailed status info for I2C activity
-            type: enum
-            enumValues:
-            - Ok
-            - BufferOverrun
-            - AddrNack
-            - DataNack
-            - Other
+            typeDefinition:
+                '@type': enum
+                values: [Ok, BufferOverrun, AddrNack, DataNack, Other ]
             required: yes
         -   label: T
             name: attempts
             description: how many attempts we made to send/receive
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: +
             name: data
             description: the data that was read
-            type: bytes
+            typeDefinition:
+                '@type': bytes
             required: no
         status:
         -   code: CMD_FAIL

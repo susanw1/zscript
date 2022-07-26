@@ -1,4 +1,4 @@
-module:
+modules:
 -   name: Core
     id: 0
     version: 0.0.1
@@ -14,14 +14,16 @@ module:
         -   label: C
             name: commandsSet
             description: which commands are enabled in this module
-            type: bitset
-            bitsetFields: custom
+            typeDefinition:
+                '@type': commands
+                bitFields: []
             required: yes
         -   label: M
             name: modulesBankSet
             description: which modules present in this bank (ie 00xx)
-            type: bitset
-            bitsetFields: custom
+            typeDefinition:
+                '@type': commands
+                bitFields: []
             required: yes
         status: null
 
@@ -33,31 +35,34 @@ module:
         -   label: S
             name: status
             description: determines the returned Status param - can be any status
-            type: number
+            typeDefinition:
+                '@type': number
             required: no
         -   label: +
             name: bigField
             description: any supplied value will be returned
-            type: bytes
+            typeDefinition:
+                '@type': bytes
             required: no
-        -   label: any
-            name: any
+        -   name: any
             description: any supplied value will be returned
-            type: value
+            typeDefinition:
+                '@type': number
             required: no
         responseParams:
-        -   label: any
-            name: any
+        -   name: any
             description: any supplied value will be returned
-            type: value
+            typeDefinition:
+                '@type': number
             required: no
         -   label: S
             name: status
-            description: "the supplied Status param - can be any status; default: OK"
-            type: number
+            description: 'the supplied Status param - can be any status; default: OK'
+            typeDefinition:
+                '@type': number
             required: yes
 
-        
+
     -   name: activate
         command: 2
         description: Activates zcode system, allowing commands 0x10 onwards to be executed
@@ -66,13 +71,15 @@ module:
         -   label: K
             name: key
             description: must match the device's own key to allow activation
-            type: number
+            typeDefinition:
+                '@type': number
             required: no
         responseParams:
         -   label: A
             name: previousActivationState
             description: true if already activated; absent otherwise
-            type: flag
+            typeDefinition:
+                '@type': flag
             required: no
         status:
         -   code: CMD_FAIL
@@ -87,7 +94,8 @@ module:
         -   label: C
             name: channel
             description: specifies channel to be reset
-            type: number
+            typeDefinition:
+                '@type': number
             required: no
         responseParams: null
         status:
@@ -104,7 +112,8 @@ module:
         -   label: +
             name: guid
             description: the previously set system GUID
-            type: bytes
+            typeDefinition:
+                '@type': bytes
             required: yes
         status:
         -   code: CMD_FAIL
@@ -115,32 +124,37 @@ module:
         command: 8
         description: Retrieves channel info
         operation: get
-        requestParams: 
+        requestParams:
         -   label: C
             name: channel
-            description: "which channel to configure (default: this channel)" 
-            type: number
+            description: 'which channel to configure (default: this channel)'
+            typeDefinition:
+                '@type': number
             required: no
         responseParams:
         -   label: B
             name: maxBigField
-            description: maximum number of bytes that can be supplied in request's big-field 
-            type: number
+            description: maximum number of bytes that can be supplied in request's big-field
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: F
             name: maxRequestParams
             description: maximum number of params that can be supplied in any request
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: M
             name: associatedModule
             description: the module associated with this channel
-            type: number
+            typeDefinition:
+                '@type': number
             required: yes
         -   label: +
             name: name
             description: channel descriptor
-            type: text
+            typeDefinition:
+                '@type': text
             required: yes
         extension: channel
         status: null
@@ -155,7 +169,8 @@ module:
         -   label: C
             name: matchCode
             description: newly generated random match-code
-            type: value
+            typeDefinition:
+                '@type': number
             required: yes
 
 
@@ -167,7 +182,8 @@ module:
         -   label: C
             name: matchCode
             description: a match-code to confirm against previously generated one
-            type: value
+            typeDefinition:
+                '@type': number
             required: yes
         responseParams: null
         status:
