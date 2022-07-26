@@ -118,6 +118,10 @@ public:
                 // these are probably fatal, and should not be retried.
                 infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
                 slot.fail(CMD_ERROR, "Fatal I2C error");
+            } else if (status == Address2Nack && action == ActionType::SEND_RECEIVE) {
+                //TODO: This could be retried maybe, but it would need specific code, as otherwise it would redo the transmit...
+                infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
+                slot.fail(CMD_FAIL, "Address2Nack");
             } else if (storedI2cData->attemptsLeft > 0) {
                 // any other error, keep retrying. Beyond here, we must be at the end of all retries.
                 slot.unsetComplete();
@@ -125,9 +129,6 @@ public:
             } else if (status == AddressNack) {
                 infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
                 slot.fail(CMD_FAIL, "AddressNack");
-            } else if (status == Address2Nack && action == ActionType::SEND_RECEIVE) {
-                infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
-                slot.fail(CMD_FAIL, "Address2Nack");
             } else {
                 infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
                 slot.fail(CMD_FAIL, "I2C failure");

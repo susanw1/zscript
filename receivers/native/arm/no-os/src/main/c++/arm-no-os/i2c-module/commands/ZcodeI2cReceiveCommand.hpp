@@ -5,7 +5,7 @@
 #include <arm-no-os/i2c-module/lowlevel/I2cManager.hpp>
 #include "GeneralI2cAction.hpp"
 
-#define COMMAND_EXISTS_0054 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_0053 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
 class ZcodeI2cReceiveCommand: public ZcodeCommand<ZP> {
