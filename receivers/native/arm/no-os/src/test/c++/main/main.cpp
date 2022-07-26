@@ -85,7 +85,6 @@ int main(void) {
     GpioManager<GeneralHalSetup>::init();
     I2cManager<GeneralHalSetup>::init();
     UartManager<GeneralHalSetup>::init();
-    SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
     uint32_t notSoPermanentStore = 0;
     Ucpd<GeneralHalSetup>::init(&notSoPermanentStore, 150, 5 * 20, 5 * 20);
 
