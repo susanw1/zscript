@@ -7,6 +7,7 @@
 
 void setup() {
     Serial.begin(9600);
+    Wire.begin(0x61);
     ZcodeSetup.setup();
 }
 

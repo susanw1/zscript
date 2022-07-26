@@ -21,6 +21,7 @@
 #define ZCODE_SUPPORT_DEBUG
 
 #define ZCODE_HAVE_SERIAL_CHANNEL
+#define ZCODE_HAVE_I2C_CHANNEL
 #define ZCODE_USE_DEBUG_ADDRESSING_SYSTEM
 
 //This is only needed if an addressing system other than ZcodeModuleAddressRouter or ZcodeMappingAddressRouter is used. Otherwise use the below #define
@@ -74,6 +75,11 @@ public:
 
     static const uint16_t serialBigSize = 32;
     static const uint16_t serialChannelReadBufferSize = 8;
+    
+    static const uint16_t i2cBigSize = 32;
+    static const uint16_t i2cChannelReadBufferSize = 8;
+    static const uint16_t i2cChannelOutputBufferSize = 32;
+    static const uint16_t i2cAlertPin = 4;
     
     static const uint16_t mappingAddressCount = 32;
 };

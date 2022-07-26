@@ -41,18 +41,40 @@
 ZcodeSerialChannel<ZcodeParams> ZcodeSerialChannelI;
 #endif
 
+#ifdef ZCODE_HAVE_I2C_CHANNEL
+#include "arduino/i2c-module/channels/ZcodeI2cChannel.hpp"
+
+ZcodeI2cChannel<ZcodeParams> ZcodeI2cChannelI;
+#endif
+
 class ArduinoZcodeBasicSetup {
+#if defined(ZCODE_HAVE_SERIAL_CHANNEL) or defined(ZCODE_HAVE_I2C_CHANNEL)
+		ZcodeCommandChannel<ZcodeParams> *channels[0
+
 #ifdef ZCODE_HAVE_SERIAL_CHANNEL
-		ZcodeCommandChannel<ZcodeParams> *channels[1];
+		                                           +1
+#endif
+
+#ifdef ZCODE_HAVE_I2C_CHANNEL
+		                                           +1
+#endif
+
+		                                           ];
 #endif
 
 public:
 
     void setup() {
-
+        uint8_t i = 0;
 #ifdef ZCODE_HAVE_SERIAL_CHANNEL
-		channels[0] = &ZcodeSerialChannelI;
-		Zcode<ZcodeParams>::zcode.setChannels(channels, 1);
+        channels[i++] = &ZcodeSerialChannelI;
+#endif
+#ifdef ZCODE_HAVE_I2C_CHANNEL
+        channels[i++] = &ZcodeI2cChannelI;
+        ZcodeI2cChannelI.setup();
+#endif
+#if defined(ZCODE_HAVE_SERIAL_CHANNEL) or defined(ZCODE_HAVE_I2C_CHANNEL)
+		Zcode<ZcodeParams>::zcode.setChannels(channels, i);
 #endif
     }
 };
