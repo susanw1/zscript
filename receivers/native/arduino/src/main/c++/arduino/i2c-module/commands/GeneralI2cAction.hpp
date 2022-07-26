@@ -9,6 +9,7 @@
 #define SRC_MAIN_C___ARDUINO_I2C_MODULE_COMMANDS_GENERALI2CACTION_HPP_
 
 #include <zcode/modules/ZcodeCommand.hpp>
+#include "../I2cStrings.hpp"
 #include <Wire.h>
 
 /**
@@ -16,6 +17,8 @@
  */
 template<class ZP>
 class GeneralI2cAction {
+    typedef typename ZP::Strings::string_t string_t;
+
 public:
     static constexpr char CMD_PARAM_I2C_PORT_P = 'P';
     static constexpr char CMD_PARAM_I2C_ADDR_A = 'A';
@@ -39,15 +42,15 @@ public:
     static void executeSendReceive(ZcodeExecutionCommandSlot<ZP> slot, uint8_t action) {
         uint16_t address;
         if (!slot.getFields()->get(CMD_PARAM_I2C_ADDR_A, &address)) {
-            slot.fail(BAD_PARAM, "I2C address missing");
+            slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::noAddress);
             return;
         }
         if (slot.getFields()->has(CMD_PARAM_TENBIT_ADDR_N)) {
-            slot.fail(BAD_PARAM, "10 bit I2C not supported");
+            slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::no10BitAddress);
             return;
         }
         if (address >= 128) {
-            slot.fail(BAD_PARAM, "I2C address out of range");
+            slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::badAddress);
             return;
         }
 
@@ -55,23 +58,22 @@ public:
 
         uint16_t requestedLength = slot.getFields()->get(CMD_PARAM_READ_LENGTH, (uint16_t) 0);
         if (requestedLength > 32) {
-            slot.fail(TOO_BIG, "I2C requested length too large");
+            slot.fail(TOO_BIG, (string_t) I2cStrings<ZP>::tooLong);
             return;
         }
 
         // initial pass
         uint16_t port;
         if (!slot.getFields()->get(CMD_PARAM_I2C_PORT_P, &port)) {
-            slot.fail(BAD_PARAM, "Missing I2C port");
-            return;
+            port = 0;
         } else if (port > 0) {
-            slot.fail(BAD_PARAM, "Invalid I2C port");
+            slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::badPort);
             return;
         }
 
         uint16_t retries = slot.getFields()->get(CMD_PARAM_RETRIES_T, 5);
         if (retries > 255) {
-            slot.fail(BAD_PARAM, "Retries Too Large");
+            slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::badPort);
             return;
         }
         if (retries == 0) {
@@ -144,30 +146,30 @@ public:
             } else if (status == 3) {
                 // abrupt failure during data send - don't retry, because its status is now unknown
                 infoValue = CMD_RESP_I2C_INFO_VAL_DATANACK;
-                slot.fail(CMD_FAIL, "DataNack");
+                slot.fail(CMD_FAIL, (string_t) I2cStrings<ZP>::dataNack);
                 break;
             } else if (status == 5 || status == 4) {
                 if (recoverBusJam()) {
                     infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
-                    slot.fail(CMD_ERROR, "Fatal I2C error");
+                    slot.fail(CMD_ERROR, (string_t) I2cStrings<ZP>::fatalError);
                 } else {
                     infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
-                    slot.fail(CMD_FAIL, "I2C failure");
+                    slot.fail(CMD_FAIL, (string_t) I2cStrings<ZP>::fail);
                 }
                 break;
             } else if (status == 6 && action == ActionType::SEND_RECEIVE) {
                 infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
-                slot.fail(CMD_FAIL, "Address2Nack");
+                slot.fail(CMD_FAIL, (string_t) I2cStrings<ZP>::address2Nack);
                 break;
             } else if (attemptsDone < retries) {
                 // any other error, keep retrying. Beyond here, we must be at the end of all retries.
             } else if (status == 2) {
                 infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
-                slot.fail(CMD_FAIL, "AddressNack");
+                slot.fail(CMD_FAIL, (string_t) I2cStrings<ZP>::addressNack);
                 break;
             } else {
                 infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
-                slot.fail(CMD_FAIL, "I2C failure");
+                slot.fail(CMD_FAIL, (string_t) I2cStrings<ZP>::fail);
                 break;
             }
 
