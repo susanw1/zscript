@@ -15,7 +15,7 @@
 template<class LL>
 class ClockManager {
 private:
-    static Clock<LL> clocks[LL::systemClockCount];
+    static Clock<LL> clocks[NONE];
 
 public:
     static Clock<LL>* getClock(SystemClock clock) {

@@ -85,8 +85,6 @@ public:
 
     static const uint8_t pinCount = 52;
 
-    static const uint8_t systemClockCount = 13;
-
     static const uint8_t atoDCount = 5;
 
     static const uint16_t UsbBufferRxSize = 1024;

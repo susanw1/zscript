@@ -11,7 +11,7 @@
 #include "../ClockManager.hpp"
 
 template<class LL>
-Clock<LL> ClockManager<LL>::clocks[LL::systemClockCount] = {
+Clock<LL> ClockManager<LL>::clocks[NONE] = {
         Clock<LL>(16000, SysClock, HSI),
         Clock<LL>(16000, HSI, NONE),
         Clock<LL>(0, HSI48, NONE),
