@@ -20,6 +20,7 @@
 //#define ZCODE_SUPPORT_DEBUG
 
 //#define ZCODE_HAVE_I2C_MODULE
+#define ZCODE_HAVE_PIN_MODULE
 
 #define ZCODE_HAVE_SERIAL_CHANNEL
 //#define ZCODE_HAVE_I2C_CHANNEL
@@ -77,6 +78,8 @@ public:
     static const uint16_t serialChannelReadBufferSize = 8;
 
     static const uint16_t mappingAddressCount = 32;
+
+    static const uint8_t pinCount = 21;
 };
 
 #endif /* ARDUINO_SRC_MAIN_CPP_DEFAULT_TEST_PARAMETERS_HPP_ */

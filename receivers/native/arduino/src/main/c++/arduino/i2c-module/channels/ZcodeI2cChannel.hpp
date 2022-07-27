@@ -61,11 +61,24 @@ public:
     static uint8_t outBuffer[ZP::i2cChannelOutputBufferSize];
     static uint16_t writePos;
     static uint16_t readPos;
-    bool openB = false;
     static uint8_t valueThingTest;
-    public:
+    static uint8_t addr;
+    static bool usingMagicAddr;
+    bool openB = false;
+
+public:
+    void setAddr(uint8_t addr) {
+        ZcodeI2cOutStream<ZP>::addr = addr;
+    }
 
     static void requestHandler() {
+        if (usingMagicAddr) {
+            Wire.write(addr << 1);
+            Wire.write(addr << 1);
+            Wire.begin(addr);
+            usingMagicAddr = false;
+            return;
+        }
         bool hasHitNewLine = false;
         for (uint8_t i = 0; i < 8; ++i) {
             if (hasHitNewLine || readPos >= writePos) {
@@ -73,7 +86,7 @@ public:
                 hasHitNewLine = true;
             } else {
                 Wire.write(outBuffer[readPos++]);
-                if (outBuffer[readPos] == '\n') {
+                if (outBuffer[readPos - 1] == '\n') {
                     hasHitNewLine = true;
                 }
             }
@@ -85,6 +98,10 @@ public:
                 outBuffer[i] = 0x00;
             }
             pinMode(ZP::i2cAlertPin, INPUT);
+        } else if (outBuffer[readPos - 1] == '\n') {
+            usingMagicAddr = true;
+            Wire.end();
+            Wire.begin(0x0C);
         }
     }
     ZcodeI2cOutStream() :
@@ -105,6 +122,9 @@ public:
         openB = false;
         if (writePos > 0) {
             pinMode(ZP::i2cAlertPin, OUTPUT);
+            Wire.end();
+            Wire.begin(0x0C);
+            usingMagicAddr = true;
         }
     }
 
@@ -123,6 +143,10 @@ template<class ZP>
 uint16_t ZcodeI2cOutStream<ZP>::readPos = 0;
 template<class ZP>
 uint8_t ZcodeI2cOutStream<ZP>::valueThingTest = 0;
+template<class ZP>
+uint8_t ZcodeI2cOutStream<ZP>::addr = 0;
+template<class ZP>
+bool ZcodeI2cOutStream<ZP>::usingMagicAddr = false;
 
 template<class ZP>
 class ZcodeI2cChannel: public ZcodeCommandChannel<ZP> {
@@ -134,6 +158,10 @@ public:
     ZcodeI2cChannel() :
             ZcodeCommandChannel<ZP>(&seqin, &out, false), seqin(this) {
     }
+    void setAddr(uint8_t addr) {
+        out.setAddr(addr);
+    }
+
     void setup() {
         pinMode(ZP::i2cAlertPin, INPUT);
         digitalWrite(ZP::i2cAlertPin, LOW);

@@ -29,6 +29,11 @@
 #define ZCODE_GENERATE_NOTIFICATIONS
 #endif
 
+#include "arduino/arduino-core-module/commands/ZcodeResetCommand.hpp"
+
+#ifdef ZCODE_HAVE_PIN_MODULE
+#include "arduino/pins-module/ZcodePinModule.hpp"
+#endif
 #ifdef ZCODE_HAVE_I2C_MODULE
 #include "arduino/i2c-module/ZcodeI2cModule.hpp"
 #endif

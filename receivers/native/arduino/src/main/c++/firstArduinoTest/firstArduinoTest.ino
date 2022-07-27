@@ -9,6 +9,7 @@
 
 void setup() {
     Serial.begin(9600);
+    ZcodeI2cChannelI.setAddr(0x61);
     Wire.begin(0x61);
     ZcodeSetup.setup();
 }
