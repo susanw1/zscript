@@ -104,7 +104,8 @@ public:
         bool isAtStart = true;
 
         I2cTerminationStatus status;
-        while (true) {
+        bool done = false;
+        while (!done) {
             status = i2c->receive10(address, tenBit, buffer, chunkSize);
             if (status != Complete) {
                 break;
@@ -116,6 +117,7 @@ public:
             }
             for (; i < chunkSize; ++i) {
                 if (buffer[i] == EOL_SYMBOL) {
+                    done = true;
                     break;
                 }
                 out->writeByte(buffer[i]);

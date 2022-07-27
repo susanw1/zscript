@@ -26,11 +26,11 @@ class ZcodeI2cBusInterruptHandler {
 public:
     ZcodeI2cBusInterruptHandler(GpioPin<LL> interruptPin, I2cIdentifier id) :
             interruptPin(interruptPin), status( { false, id }) {
+        interruptPin.init();
         interruptPin.setOutputMode(OpenDrain);
         interruptPin.setOutputSpeed(HighSpeed);
         interruptPin.setPullMode(PullUp);
         interruptPin.setMode(Input);
-        interruptPin.set();
     }
     bool hasNotification() {
         if (status.notificationFlag) {

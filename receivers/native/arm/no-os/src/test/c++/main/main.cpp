@@ -106,13 +106,6 @@ int main(void) {
     z->setInterruptSources(sources, 2);
 
     I2c<GeneralHalSetup> *i2c1 = I2cManager<GeneralHalSetup>::getI2cById(0);
-    GpioPin<GeneralHalSetup> c4 = GpioManager<GeneralHalSetup>::getPin(PC_4);
-    c4.init();
-    c4.setOutputMode(PushPull);
-    c4.setPullMode(NoPull);
-    c4.setOutputSpeed(MediumSpeed);
-    c4.setMode(PinMode::Output);
-    c4.set();
     if (i2c1->lock()) {
         uint8_t data1[2] = { 0x0A, 0x80 };
         i2c1->transmit(0x20, data1, 2);

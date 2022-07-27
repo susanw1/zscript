@@ -376,6 +376,7 @@ I2cTerminationStatus I2c<LL>::receive10(uint16_t address, bool tenBit, uint8_t *
         if (i2c.hasReadDataInt()) {
             if (position == rxLen) {
                 i2c.setNackAndStop();
+                i2c.readData();
             } else {
                 rxData[position++] = i2c.readData();
             }
