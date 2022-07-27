@@ -113,8 +113,8 @@ void USB_HP_IRQHandler() {
     InterruptManager::call(UsbInt, 1);
 }
 
-void TIM6_DAC_IRQHandler() {
-    InterruptManager::call(TIM6_, 0);
+void SysTick_IRQHandler() {
+    InterruptManager::call(SysTickInt, 0);
 }
 void UCPD1_IRQHandler() {
     InterruptManager::call(UcpdInt, 0);

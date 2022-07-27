@@ -11,7 +11,7 @@
 #include <arm-no-os/llIncludes.hpp>
 
 enum InterruptType {
-    DmaInt, I2cEv, I2cEr, UartInt, UsbInt, TIM6_, UcpdInt, NUMBER_OF_INTERRUPT_TYPES
+    DmaInt, I2cEv, I2cEr, UartInt, UsbInt, SysTickInt, UcpdInt, NUMBER_OF_INTERRUPT_TYPES
 };
 
 extern "C" {
@@ -55,7 +55,7 @@ void LPUART1_IRQHandler();
 void USB_LP_IRQHandler();
 void USB_HP_IRQHandler();
 
-void TIM6_DAC_IRQHandler();
+void SysTick_IRQHandler();
 
 void UCPD1_IRQHandler();
 }
@@ -102,7 +102,7 @@ private:
     friend void USB_LP_IRQHandler();
     friend void USB_HP_IRQHandler();
 
-    friend void TIM6_DAC_IRQHandler();
+    friend void SysTick_IRQHandler();
 
     friend void UCPD1_IRQHandler();
 
@@ -117,67 +117,67 @@ private:
         switch (number) {
         case 0:
             NVIC_SetPriority(DMA1_Channel1_IRQn, priority);
-            NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+            NVIC_EnableIRQ (DMA1_Channel1_IRQn);
             break;
         case 1:
             NVIC_SetPriority(DMA1_Channel2_IRQn, priority);
-            NVIC_EnableIRQ(DMA1_Channel2_IRQn);
+            NVIC_EnableIRQ (DMA1_Channel2_IRQn);
             break;
         case 2:
             NVIC_SetPriority(DMA1_Channel3_IRQn, priority);
-            NVIC_EnableIRQ(DMA1_Channel3_IRQn);
+            NVIC_EnableIRQ (DMA1_Channel3_IRQn);
             break;
         case 3:
             NVIC_SetPriority(DMA1_Channel4_IRQn, priority);
-            NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+            NVIC_EnableIRQ (DMA1_Channel4_IRQn);
             break;
         case 4:
             NVIC_SetPriority(DMA1_Channel5_IRQn, priority);
-            NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+            NVIC_EnableIRQ (DMA1_Channel5_IRQn);
             break;
         case 5:
             NVIC_SetPriority(DMA1_Channel6_IRQn, priority);
-            NVIC_EnableIRQ(DMA1_Channel6_IRQn);
+            NVIC_EnableIRQ (DMA1_Channel6_IRQn);
             break;
         case 6:
             NVIC_SetPriority(DMA1_Channel7_IRQn, priority);
-            NVIC_EnableIRQ(DMA1_Channel7_IRQn);
+            NVIC_EnableIRQ (DMA1_Channel7_IRQn);
             break;
         case 7:
             NVIC_SetPriority(DMA1_Channel8_IRQn, priority);
-            NVIC_EnableIRQ(DMA1_Channel8_IRQn);
+            NVIC_EnableIRQ (DMA1_Channel8_IRQn);
             break;
         case 8:
             NVIC_SetPriority(DMA2_Channel1_IRQn, priority);
-            NVIC_EnableIRQ(DMA2_Channel1_IRQn);
+            NVIC_EnableIRQ (DMA2_Channel1_IRQn);
             break;
         case 9:
             NVIC_SetPriority(DMA2_Channel2_IRQn, priority);
-            NVIC_EnableIRQ(DMA2_Channel2_IRQn);
+            NVIC_EnableIRQ (DMA2_Channel2_IRQn);
             break;
         case 10:
             NVIC_SetPriority(DMA2_Channel3_IRQn, priority);
-            NVIC_EnableIRQ(DMA2_Channel3_IRQn);
+            NVIC_EnableIRQ (DMA2_Channel3_IRQn);
             break;
         case 11:
             NVIC_SetPriority(DMA2_Channel4_IRQn, priority);
-            NVIC_EnableIRQ(DMA2_Channel4_IRQn);
+            NVIC_EnableIRQ (DMA2_Channel4_IRQn);
             break;
         case 12:
             NVIC_SetPriority(DMA2_Channel5_IRQn, priority);
-            NVIC_EnableIRQ(DMA2_Channel5_IRQn);
+            NVIC_EnableIRQ (DMA2_Channel5_IRQn);
             break;
         case 13:
             NVIC_SetPriority(DMA2_Channel6_IRQn, priority);
-            NVIC_EnableIRQ(DMA2_Channel6_IRQn);
+            NVIC_EnableIRQ (DMA2_Channel6_IRQn);
             break;
         case 14:
             NVIC_SetPriority(DMA2_Channel7_IRQn, priority);
-            NVIC_EnableIRQ(DMA2_Channel7_IRQn);
+            NVIC_EnableIRQ (DMA2_Channel7_IRQn);
             break;
         case 15:
             NVIC_SetPriority(DMA2_Channel8_IRQn, priority);
-            NVIC_EnableIRQ(DMA2_Channel8_IRQn);
+            NVIC_EnableIRQ (DMA2_Channel8_IRQn);
             break;
         default:
             break;
@@ -192,76 +192,76 @@ public:
         case I2cEv:
             if (number == 0) {
                 NVIC_SetPriority(I2C1_EV_IRQn, priority);
-                NVIC_EnableIRQ(I2C1_EV_IRQn);
+                NVIC_EnableIRQ (I2C1_EV_IRQn);
             } else if (number == 1) {
                 NVIC_SetPriority(I2C2_EV_IRQn, priority);
-                NVIC_EnableIRQ(I2C2_EV_IRQn);
+                NVIC_EnableIRQ (I2C2_EV_IRQn);
 
             } else if (number == 2) {
                 NVIC_SetPriority(I2C3_EV_IRQn, priority);
-                NVIC_EnableIRQ(I2C3_EV_IRQn);
+                NVIC_EnableIRQ (I2C3_EV_IRQn);
 
             } else if (number == 3) {
                 NVIC_SetPriority(I2C4_EV_IRQn, priority);
-                NVIC_EnableIRQ(I2C4_EV_IRQn);
+                NVIC_EnableIRQ (I2C4_EV_IRQn);
 
             }
             break;
         case I2cEr:
             if (number == 0) {
                 NVIC_SetPriority(I2C1_ER_IRQn, priority);
-                NVIC_EnableIRQ(I2C1_ER_IRQn);
+                NVIC_EnableIRQ (I2C1_ER_IRQn);
             } else if (number == 1) {
                 NVIC_SetPriority(I2C2_ER_IRQn, priority);
-                NVIC_EnableIRQ(I2C2_ER_IRQn);
+                NVIC_EnableIRQ (I2C2_ER_IRQn);
 
             } else if (number == 2) {
                 NVIC_SetPriority(I2C3_ER_IRQn, priority);
-                NVIC_EnableIRQ(I2C3_ER_IRQn);
+                NVIC_EnableIRQ (I2C3_ER_IRQn);
 
             } else if (number == 3) {
                 NVIC_SetPriority(I2C4_ER_IRQn, priority);
-                NVIC_EnableIRQ(I2C4_ER_IRQn);
+                NVIC_EnableIRQ (I2C4_ER_IRQn);
 
             }
             break;
         case UartInt:
             if (number == 0) {
                 NVIC_SetPriority(USART1_IRQn, priority);
-                NVIC_EnableIRQ(USART1_IRQn);
+                NVIC_EnableIRQ (USART1_IRQn);
             } else if (number == 1) {
                 NVIC_SetPriority(USART2_IRQn, priority);
-                NVIC_EnableIRQ(USART2_IRQn);
+                NVIC_EnableIRQ (USART2_IRQn);
             } else if (number == 2) {
                 NVIC_SetPriority(USART3_IRQn, priority);
-                NVIC_EnableIRQ(USART3_IRQn);
+                NVIC_EnableIRQ (USART3_IRQn);
             } else if (number == 3) {
                 NVIC_SetPriority(UART4_IRQn, priority);
-                NVIC_EnableIRQ(UART4_IRQn);
+                NVIC_EnableIRQ (UART4_IRQn);
             } else if (number == 4) {
                 NVIC_SetPriority(UART5_IRQn, priority);
-                NVIC_EnableIRQ(UART5_IRQn);
+                NVIC_EnableIRQ (UART5_IRQn);
             } else if (number == 5) {
                 NVIC_SetPriority(LPUART1_IRQn, priority);
-                NVIC_EnableIRQ(LPUART1_IRQn);
+                NVIC_EnableIRQ (LPUART1_IRQn);
             }
             break;
         case UsbInt:
             if (number == 0) {
                 NVIC_SetPriority(USB_LP_IRQn, priority);
-                NVIC_EnableIRQ(USB_LP_IRQn);
+                NVIC_EnableIRQ (USB_LP_IRQn);
             } else if (number == 1) {
                 NVIC_SetPriority(USB_HP_IRQn, priority);
-                NVIC_EnableIRQ(USB_HP_IRQn);
+                NVIC_EnableIRQ (USB_HP_IRQn);
             }
             break;
-        case TIM6_:
-            NVIC_SetPriority(TIM6_DAC_IRQn, priority);
-            NVIC_EnableIRQ(TIM6_DAC_IRQn);
+        case SysTickInt:
+            NVIC_SetPriority(SysTick_IRQn, priority);
+            NVIC_EnableIRQ (SysTick_IRQn);
             break;
         case UcpdInt:
             NVIC_SetPriority(UCPD1_IRQn, priority);
-            NVIC_EnableIRQ(UCPD1_IRQn);
+            NVIC_EnableIRQ (UCPD1_IRQn);
             break;
         default:
             break;
