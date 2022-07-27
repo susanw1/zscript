@@ -276,7 +276,11 @@ int Clock<LL>::set(uint32_t targetFreqKhz, SystemClock source) {
         uint32_t bestDiff = 0xFFFFFFFF;
         uint8_t presc = 0;
         for (uint8_t i = 0; i <= 8; ++i) {
-            uint32_t resultFreq = sourceFreq / (1 << i);
+            uint8_t j = i;
+            if (j > 4) {
+                j++;
+            }
+            uint32_t resultFreq = sourceFreq / (1 << j);
             if (resultFreq > targetFreqKhz) {
                 if (resultFreq - targetFreqKhz < bestDiff) {
                     bestDiff = resultFreq - targetFreqKhz;
@@ -289,7 +293,11 @@ int Clock<LL>::set(uint32_t targetFreqKhz, SystemClock source) {
                 }
             }
         }
-        freq = sourceFreq / (1 << presc);
+        uint8_t j = presc;
+        if (j > 4) {
+            j++;
+        }
+        freq = sourceFreq / (1 << j);
         if (presc != 0) {
             presc += 7;
         }
