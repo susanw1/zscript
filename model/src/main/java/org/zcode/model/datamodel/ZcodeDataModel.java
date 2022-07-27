@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 public interface ZcodeDataModel {
-    List<Module> getModules();
+    List<ModuleModel> getModules();
 
-    interface Module {
+    interface ModuleModel {
         String getName();
 
         short getId();
@@ -18,7 +18,7 @@ public interface ZcodeDataModel {
 
         String getDescription();
 
-        List<Command> getCommands();
+        List<CommandModel> getCommands();
     }
 
     /** Characterises commands in quasi-HTTP terms */
@@ -40,7 +40,7 @@ public interface ZcodeDataModel {
         ADDRESSING
     }
 
-    interface Command {
+    interface CommandModel {
         String getName();
 
         byte getCommand();
@@ -51,11 +51,11 @@ public interface ZcodeDataModel {
 
         Extension getExtension();
 
-        List<RequestParam> getRequestParams();
+        List<RequestParamModel> getRequestParams();
 
-        List<ResponseParam> getResponseParams();
+        List<ResponseParamModel> getResponseParams();
 
-        List<Status> getStatus();
+        List<StatusModel> getStatus();
     }
 
     enum ParamType {
@@ -120,13 +120,13 @@ public interface ZcodeDataModel {
         boolean isRequired();
     }
 
-    interface RequestParam extends GenericParam {
+    interface RequestParamModel extends GenericParam {
     }
 
-    interface ResponseParam extends GenericParam {
+    interface ResponseParamModel extends GenericParam {
     }
 
-    interface Status {
+    interface StatusModel {
         String getCode();
 
         int getId();

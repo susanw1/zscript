@@ -1,0 +1,6 @@
+moduleBanks:
+-   name: 00xx-base-modules
+    modules:
+    - 000x-core.yaml
+    - 001x-outercore.yaml
+    - 005x-i2c.yaml

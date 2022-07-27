@@ -1,10 +1,10 @@
 package org.zcode.model.datamodel;
 
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,13 +32,9 @@ public class ModuleTest {
             "001x-outercore.yaml,   OuterCore",
             "005x-i2c.yaml,         I2C"
     })
-//    @CsvSource({
-//            "mytest.yaml,        Test!",
-//    })
     public void shouldLoad_000x(String module, String expectedName) throws IOException {
-        final InputStream resourceStream = getClass().getResourceAsStream("/datamodel/00xx-base-modules/" + module);
-        Objects.requireNonNull(resourceStream, "resourceStream");
-        ZcodeDataModel model = jsonMapper.readValue(resourceStream, ZcodeDataModel.class);
+        InputStream    resourceStream = requireNonNull(getClass().getResourceAsStream("/datamodel/00xx-base-modules/" + module), "resourceStream");
+        ZcodeDataModel model          = jsonMapper.readValue(resourceStream, ZcodeDataModel.class);
 
         assertThat(model.getModules().get(0).getName()).isEqualTo(expectedName);
     }

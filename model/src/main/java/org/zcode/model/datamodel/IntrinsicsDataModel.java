@@ -2,18 +2,18 @@ package org.zcode.model.datamodel;
 
 import java.util.List;
 
-import org.zcode.model.datamodel.ZcodeDataModel.RequestParam;
-import org.zcode.model.datamodel.ZcodeDataModel.ResponseParam;
-import org.zcode.model.datamodel.ZcodeDataModel.Status;
+import org.zcode.model.datamodel.ZcodeDataModel.RequestParamModel;
+import org.zcode.model.datamodel.ZcodeDataModel.ResponseParamModel;
+import org.zcode.model.datamodel.ZcodeDataModel.StatusModel;
 
 public interface IntrinsicsDataModel {
     Intrinsics getIntrinsics();
 
     interface Intrinsics {
-        List<RequestParam> getRequestParams();
+        List<RequestParamModel> getRequestParams();
 
-        List<ResponseParam> getResponseParams();
+        List<ResponseParamModel> getResponseParams();
 
-        List<Status> getStatus();
+        List<StatusModel> getStatus();
     }
 }
