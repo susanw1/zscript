@@ -14,5 +14,6 @@
     <modules>
         <!-- <module>mbed</module> -->
         <module>no-os</module>
+        <module>no-os-F030</module>
     </modules>
 </project>
