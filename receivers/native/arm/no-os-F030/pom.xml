@@ -23,7 +23,7 @@
 
     <properties>
         <cpu>cortex-m4</cpu>
-        <device-family>STM32F030xx</device-family>
+        <device-family>STM32F030x8</device-family>
         <device>STM32F030R8</device>
         <!-- 		<cpp-warnings>-Wall -Wno-long-long -Wpointer-arith -Wconversion</cpp-warnings> -->
         <cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
