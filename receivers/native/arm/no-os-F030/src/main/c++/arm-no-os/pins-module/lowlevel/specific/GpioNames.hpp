@@ -88,10 +88,12 @@
 
 #define PD_2 ((GpioPinName){PortD, Pin2})
 
-#define PF_0 ((GpioPinName){PortF, Pin1})
-#define PF_1 ((GpioPinName){PortF, Pin2})
-
-#define PG_10 ((GpioPinName){PortG, Pin10})
+#define PF_0 ((GpioPinName){PortF, Pin0})
+#define PF_1 ((GpioPinName){PortF, Pin1})
+#define PF_4 ((GpioPinName){PortF, Pin4})
+#define PF_5 ((GpioPinName){PortF, Pin5})
+#define PF_6 ((GpioPinName){PortF, Pin6})
+#define PF_7 ((GpioPinName){PortF, Pin7})
 
 #define GPIO_AF0 0
 #define GPIO_AF1 1

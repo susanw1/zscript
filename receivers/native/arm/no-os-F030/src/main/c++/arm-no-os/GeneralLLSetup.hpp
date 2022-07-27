@@ -83,7 +83,7 @@ public:
 
     static const char *ucpdManufacturerInfo;
 
-    static const uint8_t pinCount = 52;
+    static const uint8_t pinCount = 55;
 
     static const uint8_t systemClockCount = 13;
 

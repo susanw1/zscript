@@ -34,7 +34,8 @@ GpioPin<LL> GpioManager<LL>::pins[] = { GpioPin<LL>( PA_0), GpioPin<LL>( PA_1), 
         GpioPin<LL>(PC_8), GpioPin<LL>(PC_9), GpioPin<LL>(PC_10), GpioPin<LL>(PC_11),
         GpioPin<LL>(PC_12), GpioPin<LL>(PC_13), GpioPin<LL>(PC_14), GpioPin<LL>(PC_15),
 
-        GpioPin<LL>(PD_2), GpioPin<LL>(PF_0), GpioPin<LL>(PF_1), GpioPin<LL>(PG_10) };
+        GpioPin<LL>(PD_2), GpioPin<LL>(PF_0), GpioPin<LL>(PF_1),
+        GpioPin<LL>(PF_4), GpioPin<LL>(PF_5), GpioPin<LL>(PF_6), GpioPin<LL>(PF_7) };
 
 template<class LL>
 void GpioManager<LL>::init() {
@@ -42,7 +43,7 @@ void GpioManager<LL>::init() {
 
 template<class LL>
 void GpioManager<LL>::activateClock(GpioPinName name) {
-    RCC->AHB2ENR |= 1 << name.port;
+    RCC->AHBENR |= 1 << (name.port + 17);
 }
 
 template<class LL>
