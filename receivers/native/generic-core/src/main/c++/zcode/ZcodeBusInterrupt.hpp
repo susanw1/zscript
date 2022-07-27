@@ -64,6 +64,9 @@ public:
     void invalidate() {
         info.valid = false;
     }
+    void refindAddress() {
+        address = source->getAddressInfo(info.id);
+    }
 
     void clear() {
         source->clearNotification(info.id);

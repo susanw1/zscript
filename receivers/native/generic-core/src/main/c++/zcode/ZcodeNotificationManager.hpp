@@ -98,9 +98,9 @@ template<class ZP>
 bool ZcodeNotificationManager<ZP>::canSendNotification() {
 
 #if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
-        return vectorChannel.canAccept() && !notificationChannel->out->isLocked();
+        return vectorChannel.canAccept() && notificationChannel!=NULL && !notificationChannel->out->isLocked();
 #else
-    return !notificationChannel->out->isLocked();
+    return notificationChannel != NULL && !notificationChannel->out->isLocked();
 #endif
 }
 
@@ -142,6 +142,9 @@ void ZcodeNotificationManager<ZP>::manageNotifications() {
     if (waitingNotificationNumber > 0 && canSendNotification()) {
         for (uint8_t i = 0; i < waitingNotificationNumber; i++) {
             ZcodeBusInterrupt<ZP> interrupt = waitingNotifications[i];
+            if (interrupt.hasFindableAddress() && !interrupt.hasFoundAddress()) {
+                interrupt.refindAddress();
+            }
             if (!interrupt.hasFindableAddress() || interrupt.hasFoundAddress()) {
                 sendNotification(interrupt);
                 if (!interrupt.isValid()) {
@@ -166,7 +169,7 @@ void ZcodeNotificationManager<ZP>::manageNotifications() {
                     addr.valid = false;
                 }
                 if (addr.valid) {
-                    if (canSendNotification() && addr.hasFound) {
+                    if (addr.hasFound && canSendNotification()) {
                         sendNotification(ZcodeBusInterrupt<ZP>(source, info, addr));
                     } else {
                         waitingNotifications[waitingNotificationNumber++] = ZcodeBusInterrupt<ZP>(source, info, addr);
