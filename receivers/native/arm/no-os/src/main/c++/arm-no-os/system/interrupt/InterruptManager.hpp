@@ -55,7 +55,7 @@ void LPUART1_IRQHandler();
 void USB_LP_IRQHandler();
 void USB_HP_IRQHandler();
 
-void SysTick_IRQHandler();
+void SysTick_Handler();
 
 void UCPD1_IRQHandler();
 }
@@ -102,7 +102,7 @@ private:
     friend void USB_LP_IRQHandler();
     friend void USB_HP_IRQHandler();
 
-    friend void SysTick_IRQHandler();
+    friend void SysTick_Handler();
 
     friend void UCPD1_IRQHandler();
 
