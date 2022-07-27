@@ -33,6 +33,6 @@ void USART2_IRQHandler() {
     InterruptManager::call(UartInt, 1);
 }
 
-void SysTick_IRQHandler() {
+void SysTick_Handler() {
     InterruptManager::call(SysTickInt, 0);
 }

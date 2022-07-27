@@ -12,8 +12,6 @@
 
 #include <arm-no-os/pins-module/lowlevel/Gpio.hpp>
 #include <arm-no-os/pins-module/lowlevel/GpioManager.hpp>
-#include <arm-no-os/system/dma/Dma.hpp>
-#include <arm-no-os/system/dma/DmaManager.hpp>
 
 enum I2cFrequency {
     kHz10, kHz100, kHz400, kHz1000
@@ -41,9 +39,6 @@ class I2c {
 private:
     I2cInternal<LL> i2c;
     I2cIdentifier id;
-    Dma<LL> *dma = NULL;
-    DmaMuxRequest requestTx = DMAMUX_NO_MUX;
-    DmaMuxRequest requestRx = DMAMUX_NO_MUX;
     uint16_t address = 0;
     uint16_t position = 0;
     uint16_t rxLen = 0;
@@ -57,27 +52,19 @@ private:
 
     void interrupt();
 
-    void dmaInterrupt(DmaTerminationStatus status);
-
     void finish();
 
     void restartReceive();
 
-    void setI2c(I2cInternal<LL> i2c, I2cIdentifier id, DmaMuxRequest requestTx, DmaMuxRequest requestRx) {
+    void setI2c(I2cInternal<LL> i2c, I2cIdentifier id) {
         this->i2c = i2c;
         this->id = id;
-        this->requestTx = requestTx;
-        this->requestRx = requestRx;
     }
     I2cTerminationStatus transmit10(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, bool stop);
 
 public:
 
     I2c();
-
-    void setDma(Dma<LL> *dma) {
-        this->dma = dma;
-    }
 
     bool init();
 

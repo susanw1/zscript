@@ -25,7 +25,7 @@ void I2C2_IRQHandler();
 void USART1_IRQHandler();
 void USART2_IRQHandler();
 
-void SysTick_IRQHandler();
+void SysTick_Handler();
 }
 
 class InterruptManager {
@@ -42,7 +42,7 @@ private:
     friend void USART1_IRQHandler();
     friend void USART2_IRQHandler();
 
-    friend void SysTick_IRQHandler();
+    friend void SysTick_Handler();
 
     static void (*interrupt[NUMBER_OF_INTERRUPT_TYPES])(uint8_t);
 

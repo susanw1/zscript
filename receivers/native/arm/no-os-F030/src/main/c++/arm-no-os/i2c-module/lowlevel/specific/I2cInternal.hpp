@@ -21,7 +21,6 @@ struct I2cState {
     bool hasRx :1;
     bool hasTxRx :1;
     bool txDone :1;
-    bool useDmas :1;
     bool lockBool :1;
     bool tenBit :1;
 };
@@ -34,7 +33,7 @@ private:
     PinAlternateFunction sclFunction;
     I2cRegisters *registers;
 
-    void setupCr1(bool setupDmas, bool setupInterrupts) {
+    void setupCr1(bool setupInterrupts) {
         const uint32_t enableI2cRxDma = 0x8000;
         const uint32_t enableI2cTxDma = 0x4000;
         const uint32_t enableI2cRxInterrupt = 0x04;
@@ -49,12 +48,8 @@ private:
                 enableI2cErrorInterrupt | enableI2cTransmitCompleteInterrupt | enableI2cStopInterrupt | enableI2cNackInterrupt);
         if (setupInterrupts) {
             cr1r |= enableI2cErrorInterrupt | enableI2cTransmitCompleteInterrupt | enableI2cStopInterrupt
-                    | enableI2cNackInterrupt;
-            if (setupDmas) {
-                cr1r |= enableI2cRxDma | enableI2cTxDma;
-            } else {
-                cr1r |= enableI2cRxInterrupt | enableI2cTxInterrupt;
-            }
+                    | enableI2cNackInterrupt | enableI2cRxInterrupt | enableI2cTxInterrupt;
+
         }
         registers->CR1 = cr1r;
     }
@@ -208,7 +203,7 @@ public:
     uint8_t* txRegAddr() {
         return (uint8_t*) &registers->TXDR;
     }
-    void setupTransmit(bool setupDmas, bool setupInterrupts, uint16_t addr, bool tenBit, uint16_t txLen) {
+    void setupTransmit(bool setupInterrupts, uint16_t addr, bool tenBit, uint16_t txLen) {
         const uint32_t enableI2c10BitAddress = 0x00001000;
         const uint32_t enableI2cAutoEnd = 0x02000000;
         const uint32_t enableI2c10BitAddressing = 0x0800;
@@ -233,11 +228,11 @@ public:
             chunking = txLen;
         }
         cr2r |= chunking << 16;
-        setupCr1(setupDmas, setupInterrupts);
+        setupCr1(setupInterrupts);
         registers->CR2 = cr2r;
         registers->CR2 |= i2cStart;
     }
-    void setupReceive(bool setupDmas, bool setupInterrupts, uint16_t addr, bool tenBit, uint16_t rxLen) {
+    void setupReceive(bool setupInterrupts, uint16_t addr, bool tenBit, uint16_t rxLen) {
         const uint32_t enableI2c10BitAddress = 0x00001000;
         const uint32_t enableI2cAutoEnd = 0x02000000;
         const uint32_t enableI2c10BitAddressing = 0x0800;
@@ -263,7 +258,7 @@ public:
             chunking = rxLen;
         }
         cr2r |= chunking << 16;
-        setupCr1(setupDmas, setupInterrupts);
+        setupCr1(setupInterrupts);
         registers->CR2 = cr2r;
         registers->CR2 |= i2cStart;
     }
@@ -274,39 +269,16 @@ template<class LL>
 void I2cInternal<LL>::activateClock(I2cIdentifier id) {
     const uint32_t enableI2c1Registers = 0x00200000;
     const uint32_t enableI2c2Registers = 0x00400000;
-    const uint32_t enableI2c3Registers = 0x40000000;
-    const uint32_t enableI2c4Registers = 0x00000002;
 
-    const uint32_t i2c1ClockMask = 0x00003000;
-    const uint32_t i2c1ClockHSI16 = 0x00002000;
-
-    const uint32_t i2c2ClockMask = 0x0000C000;
-    const uint32_t i2c2ClockHSI16 = 0x00008000;
-
-    const uint32_t i2c3ClockMask = 0x00030000;
-    const uint32_t i2c3ClockHSI16 = 0x00020000;
-
-    const uint32_t i2c4ClockMask = 0x00000003;
-    const uint32_t i2c4ClockHSI16 = 0x00000002;
+    const uint32_t i2c1ClockSel = 0x00003000;
 
     GpioManager<LL>::getPin(scl).init();
     GpioManager<LL>::getPin(sda).init();
     if (id == 0) {
-        RCC->APB1ENR1 |= enableI2c1Registers;
-        RCC->CCIPR &= ~i2c1ClockMask;
-        RCC->CCIPR |= i2c1ClockHSI16;
+        RCC->APB1ENR |= enableI2c1Registers;
+        RCC->CFGR3 &= ~i2c1ClockSel;
     } else if (id == 1) {
-        RCC->APB1ENR1 |= enableI2c2Registers;
-        RCC->CCIPR &= ~i2c2ClockMask;
-        RCC->CCIPR |= i2c2ClockHSI16;
-    } else if (id == 2) {
-        RCC->APB1ENR1 |= enableI2c3Registers;
-        RCC->CCIPR &= ~i2c3ClockMask;
-        RCC->CCIPR |= i2c3ClockHSI16;
-    } else {
-        RCC->APB1ENR2 |= enableI2c4Registers;
-        RCC->CCIPR2 &= ~i2c4ClockMask;
-        RCC->CCIPR2 |= i2c4ClockHSI16;
+        RCC->APB1ENR |= enableI2c2Registers;
     }
 }
 

@@ -29,7 +29,7 @@ public:
         const uint32_t enableSysTickEnable = 0x1;
         const uint32_t enableSysTickEnableInt = 0x2;
         const uint32_t enableSysTickSetAsClock = 0x4;
-        SysTick->LOAD = ClockManager<LL>::getClock(SysClock)->freq;
+        SysTick->LOAD = ClockManager<LL>::getClock(SysClock)->getFreqKhz();
         SysTick->CTRL = enableSysTickEnable | enableSysTickEnableInt | enableSysTickSetAsClock;
 
         InterruptManager::setInterrupt(&SystemMilliClock::resetHappened, SysTickInt);

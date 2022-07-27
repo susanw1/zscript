@@ -18,14 +18,6 @@
 #define I2C_2_SCL PC_4_
 //#define USE_I2C_2
 
-#define I2C_3_SDA PC_9_
-#define I2C_3_SCL PC_8_
-//#define USE_I2C_3
-
-#define I2C_4_SDA PC_7_
-#define I2C_4_SCL PC_6_
-//#define USE_I2C_4
-
 #define UART_1_TX PA_9_
 #define UART_1_RX PA_10_
 #define USE_UART_1
@@ -85,8 +77,6 @@ public:
 
     static const uint8_t pinCount = 55;
 
-    static const uint8_t systemClockCount = 13;
-
     static const uint8_t atoDCount = 5;
 
     static const uint16_t UsbBufferRxSize = 1024;
@@ -97,22 +87,10 @@ public:
     static const uint16_t UartBufferRxSize = 1024;
     static const uint16_t UartBufferTxSize = 256;  // want rx buffer much larger, as it has to store any data which hasn't yet been read.
 
-    static const I2cIdentifier i2cCount = 4;
+    static const I2cIdentifier i2cCount = 2;
     static const SerialIdentifier uartCount = 6;
     static const SerialIdentifier serialCount = 7;
-    static const DmaIdentifier dmaCount = 16;
 
-    static const DmaIdentifier i2c1Dma = 0;
-    static const DmaIdentifier i2c2Dma = 1;
-    static const DmaIdentifier i2c3Dma = 2;
-    static const DmaIdentifier i2c4Dma = 3;
-
-    static const DmaIdentifier uart1TxDma = 6;
-    static const DmaIdentifier uart2TxDma = 7;
-    static const DmaIdentifier uart3TxDma = 8;
-    static const DmaIdentifier uart4TxDma = 9;
-    static const DmaIdentifier uart5TxDma = 10;
-    static const DmaIdentifier uart6TxDma = 11;
     static const uint8_t uartEscapingChar = 0xFE;
 
     static const bool inDualBankFlash = true;

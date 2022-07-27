@@ -37,7 +37,7 @@ public:
         DigitalPinMode mode = (DigitalPinMode) modeV;
         PinMode pinMode;
         OutputMode outputMode = OutputMode::OpenDrain;
-        PinSpeed speed = HighSpeed;
+        PinSpeed speed = VeryHighSpeed;
         PullMode pull = NoPull;
         switch (mode) {
         case DigitalInput:

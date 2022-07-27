@@ -28,92 +28,95 @@
 #include "ZcodeParameters.hpp"
 #include <arm-no-os/GeneralLLSetup.hpp>
 
-#include <arm-no-os/i2c-module/addressing/ZcodeI2cAddressingSystem.hpp>
-#include <arm-no-os/serial-module/addressing/ZcodeSerialAddressingSystem.hpp>
-#include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>
-#include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
+//#include <arm-no-os/i2c-module/addressing/ZcodeI2cAddressingSystem.hpp>
+//#include <arm-no-os/serial-module/addressing/ZcodeSerialAddressingSystem.hpp>
+//#include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>
+//#include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
 
-#include <arm-no-os/arm-core-module/commands/ZcodeReadGuidCommand.hpp>
-#include <arm-no-os/arm-core-module/commands/ZcodeWriteGuidCommand.hpp>
-#include <arm-no-os/arm-core-module/commands/ZcodeResetCommand.hpp>
+//#include <arm-no-os/arm-core-module/commands/ZcodeReadGuidCommand.hpp>
+//#include <arm-no-os/arm-core-module/commands/ZcodeWriteGuidCommand.hpp>
+//#include <arm-no-os/arm-core-module/commands/ZcodeResetCommand.hpp>
 
-#include <arm-no-os/pins-module/ZcodePinModule.hpp>
-#include <arm-no-os/serial-module/ZcodeSerialModule.hpp>
-#include <arm-no-os/i2c-module/ZcodeI2cModule.hpp>
+//#include <arm-no-os/pins-module/ZcodePinModule.hpp>
+//#include <arm-no-os/serial-module/ZcodeSerialModule.hpp>
+//#include <arm-no-os/i2c-module/ZcodeI2cModule.hpp>
 
-#include <zcode/modules/script/ZcodeScriptModule.hpp>
-#include <zcode/modules/outer-core/ZcodeOuterCoreModule.hpp>
-#include <zcode/modules/core/ZcodeCoreModule.hpp>
+//#include <zcode/modules/script/ZcodeScriptModule.hpp>
+//#include <zcode/modules/outer-core/ZcodeOuterCoreModule.hpp>
+//#include <zcode/modules/core/ZcodeCoreModule.hpp>
 
-#include <arm-no-os/udp-module/channels/EthernetUdpChannel.hpp>
-#include <arm-no-os/serial-module/channels/SerialChannel.hpp>
+//#include <arm-no-os/udp-module/channels/EthernetUdpChannel.hpp>
+//#include <arm-no-os/serial-module/channels/SerialChannel.hpp>
 
 #include <arm-no-os/pins-module/lowlevel/GpioManager.hpp>
-#include <arm-no-os/pins-module/AToDLowLevel/AtoDManager.hpp>
+//#include <arm-no-os/pins-module/AToDLowLevel/AtoDManager.hpp>
 
 #include <arm-no-os/system/clock/SystemMilliClock.hpp>
 #include <arm-no-os/system/clock/ClockManager.hpp>
 
-#include <arm-no-os/i2c-module/lowlevel/I2cManager.hpp>
+//#include <arm-no-os/i2c-module/lowlevel/I2cManager.hpp>
 
-#include <arm-no-os/serial-module/lowlevel/UartManager.hpp>
+//#include <arm-no-os/serial-module/lowlevel/UartManager.hpp>
 
-#include <arm-no-os/udp-module/lowlevel/src/Ethernet.h>
+//#include <arm-no-os/udp-module/lowlevel/src/Ethernet.h>
 
-#include <arm-no-os/i2c-module/addressing/ZcodeI2cBusInterruptSource.hpp>
-#include <arm-no-os/serial-module/addressing/ZcodeSerialBusInterruptSource.hpp>
+//#include <arm-no-os/i2c-module/addressing/ZcodeI2cBusInterruptSource.hpp>
+//#include <arm-no-os/serial-module/addressing/ZcodeSerialBusInterruptSource.hpp>
 
-#include <zcode/Zcode.hpp>
+//#include <zcode/Zcode.hpp>
 
 const char *GeneralHalSetup::ucpdManufacturerInfo = "Zcode/Alpha Board";
 
 int main(void) {
-    ClockManager<GeneralHalSetup>::getClock(VCO)->set(240000, HSI);
-    ClockManager<GeneralHalSetup>::getClock(PLL_R)->set(120000, VCO);
-    ClockManager<GeneralHalSetup>::getClock(SysClock)->set(120000, PLL_R);
-    ClockManager<GeneralHalSetup>::getClock(HCLK)->set(120000, SysClock);
-    ClockManager<GeneralHalSetup>::getClock(PCLK_1)->set(60000, HCLK);
-    ClockManager<GeneralHalSetup>::getClock(PCLK_2)->set(60000, HCLK);
+    ClockManager<GeneralHalSetup>::getClock(HSI)->set(8000, NONE);
+    ClockManager<GeneralHalSetup>::getClock(PLL)->set(40000, HSI);
+    ClockManager<GeneralHalSetup>::getClock(SysClock)->set(40000, PLL);
+    ClockManager<GeneralHalSetup>::getClock(HCLK)->set(40000, SysClock);
+    ClockManager<GeneralHalSetup>::getClock(PCLK)->set(20000, HCLK);
+
     SystemMilliClock<GeneralHalSetup>::init();
     for (volatile uint32_t i = 0; i < 0x1000; ++i)
         ;
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(50);
-    DmaManager<GeneralHalSetup>::init();
     GpioManager<GeneralHalSetup>::init();
-    I2cManager<GeneralHalSetup>::init();
-    UartManager<GeneralHalSetup>::init();
-    uint32_t notSoPermanentStore = 0;
+//    I2cManager<GeneralHalSetup>::init();
+    //UartManager<GeneralHalSetup>::init();
 
-    ZcodeI2cBusInterruptSource<ZcodeParameters> i2cSource;
-    ZcodeSerialBusInterruptSource<ZcodeParameters> serialSource;
+//    ZcodeI2cBusInterruptSource<ZcodeParameters> i2cSource;
+    //ZcodeSerialBusInterruptSource<ZcodeParameters> serialSource;
 
-    Zcode<ZcodeParameters> *z = &Zcode<ZcodeParameters>::zcode;
+//    Zcode<ZcodeParameters> *z = &Zcode < ZcodeParameters > ::zcode;
 
-    AtoDManager<GeneralHalSetup>::init();
+//    AtoDManager<GeneralHalSetup>::init();
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
-    Usb<GeneralHalSetup>::usb.init(NULL, 0, false);
 
-    EthernetUdpChannel<ZcodeParameters> channel(4889);
-    SerialChannel<ZcodeParameters> serial(&Usb<GeneralHalSetup>::usb);
-    ZcodeCommandChannel<ZcodeParameters> *chptr[] = { &channel, &serial };
-    z->setChannels(chptr, 2);
+//    EthernetUdpChannel<ZcodeParameters> channel(4889);
+    //SerialChannel<ZcodeParameters> serial(&Usb<GeneralHalSetup>::usb);
+//    ZcodeCommandChannel<ZcodeParameters> *chptr[] = { &channel /*, &serial */};
+//    z->setChannels(chptr, 1);
 
-    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &i2cSource, &serialSource };
-    z->setInterruptSources(sources, 2);
+//    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &i2cSource, /*&serialSource*/};
+//    z->setInterruptSources(sources, 1);
 
-    I2c<GeneralHalSetup> *i2c1 = I2cManager<GeneralHalSetup>::getI2cById(0);
-    if (i2c1->lock()) {
-        uint8_t data1[2] = { 0x0A, 0x80 };
-        i2c1->transmit(0x20, data1, 2);
-
-        uint8_t data2[2] = { 0, 0 };
-        i2c1->transmit(0x20, data2, 2);
-
-        uint8_t data3[2] = { 0x16, 0xFF };
-        i2c1->transmit(0x20, data3, 2);
-        i2c1->unlock();
-    }
+//    I2c<GeneralHalSetup> *i2c1 = I2cManager<GeneralHalSetup>::getI2cById(0);
+//    if (i2c1->lock()) {
+//        uint8_t data1[2] = { 0x0A, 0x80 };
+//        i2c1->transmit(0x20, data1, 2);
+//
+//        uint8_t data2[2] = { 0, 0 };
+//        i2c1->transmit(0x20, data2, 2);
+//
+//        uint8_t data3[2] = { 0x16, 0xFF };
+//        i2c1->transmit(0x20, data3, 2);
+//        i2c1->unlock();
+//    }
+    GpioManager<GeneralHalSetup>::getPin(PC_8).init();
+    GpioManager<GeneralHalSetup>::getPin(PC_8).setMode(Output);
     while (true) {
+        GpioManager<GeneralHalSetup>::getPin(PC_8).set();
+        SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
+        GpioManager<GeneralHalSetup>::getPin(PC_8).reset();
+        SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
 //        AtoDManager::performAtoD(PA_9);
 //        AtoDManager::getAtoD(4)->performReading(2);
 //        uint16_t result = AtoDManager::getAtoD(4)->performReading(2);
@@ -144,8 +147,8 @@ int main(void) {
 //            }
 //            i2c1->asyncTransmit(0x20, data, 2, &doNothing);
 //        }
-        z->progressZcode();
-        Ethernet.maintain();
+//        z->progressZcode();
+//        Ethernet.maintain();
 //        uip.tick();
 //        uip.dhcpClient.checkLease();
     }

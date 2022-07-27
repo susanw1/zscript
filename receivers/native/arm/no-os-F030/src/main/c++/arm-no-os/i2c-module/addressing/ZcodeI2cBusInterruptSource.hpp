@@ -28,7 +28,7 @@ public:
             interruptPin(interruptPin), status( { false, id }) {
         interruptPin.init();
         interruptPin.setOutputMode(OpenDrain);
-        interruptPin.setOutputSpeed(HighSpeed);
+        interruptPin.setOutputSpeed(VeryHighSpeed);
         interruptPin.setPullMode(PullUp);
         interruptPin.setMode(Input);
     }
@@ -76,8 +76,7 @@ class ZcodeI2cBusInterruptSource: public ZcodeBusInterruptSource<ZP> {
 public:
 
     ZcodeI2cBusInterruptSource() :
-            handlers { ZcodeI2cBusInterruptHandler<ZP>(I2C_1_ALERT, 0), ZcodeI2cBusInterruptHandler<ZP>(I2C_2_ALERT, 1),
-                    ZcodeI2cBusInterruptHandler<ZP>(I2C_3_ALERT, 2), ZcodeI2cBusInterruptHandler<ZP>(I2C_4_ALERT, 3) } {
+            handlers { ZcodeI2cBusInterruptHandler<ZP>(I2C_1_ALERT, 0), ZcodeI2cBusInterruptHandler<ZP>(I2C_2_ALERT, 1) } {
     }
 
     ZcodeNotificationInfo takeUncheckedNotification() {

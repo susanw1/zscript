@@ -35,7 +35,7 @@ public:
             return false;
         }
         PinMode pinMode = Analog;
-        PinSpeed speed = HighSpeed;
+        PinSpeed speed = VeryHighSpeed;
         PullMode pull = NoPull;
         pin.setMode(pinMode);
         pin.setOutputSpeed(speed);

@@ -147,55 +147,21 @@ I2cInternal<LL> getI2cInternal_internal(I2cIdentifier id) {
 #endif
     }
 }
-template<class LL>
-DmaMuxRequest getI2cMuxTxRequest_internal(I2cIdentifier id) {
-    if (id == 0) {
-        return DMAMUX_I2C1_TX;
-    } else if (id == 1) {
-        return DMAMUX_I2C2_TX;
-    } else if (id == 2) {
-        return DMAMUX_I2C3_TX;
-    } else {
-        return DMAMUX_I2C4_TX;
-    }
-}
-template<class LL>
-DmaMuxRequest getI2cMuxRxRequest_internal(I2cIdentifier id) {
-    if (id == 0) {
-        return DMAMUX_I2C1_RX;
-    } else if (id == 1) {
-        return DMAMUX_I2C2_RX;
-    } else if (id == 2) {
-        return DMAMUX_I2C3_RX;
-    } else {
-        return DMAMUX_I2C4_RX;
-    }
-}
+
 template<class LL>
 void I2cManager<LL>::interrupt(uint8_t id) {
     i2cs[id].interrupt();
 }
 
 template<class LL>
-void I2cManager<LL>::dmaInterrupt(Dma<LL> *dma, DmaTerminationStatus status) {
-    for (int i = 0; i < LL::i2cCount; ++i) {
-        if (I2cManager::getI2cById(i)->dma == dma) {
-            I2cManager::getI2cById(i)->dmaInterrupt(status);
-            break;
-        }
-    }
-}
-template<class LL>
 void I2cManager<LL>::init() {
 
-    InterruptManager::setInterrupt(&I2cManager::interrupt, InterruptType::I2cEv);
-    InterruptManager::setInterrupt(&I2cManager::interrupt, InterruptType::I2cEr);
+    InterruptManager::setInterrupt(&I2cManager::interrupt, InterruptType::I2cInt);
 
     for (int i = 0; i < LL::i2cCount; ++i) {
-        i2cs[i].setI2c(getI2cInternal_internal<LL>(i), i, getI2cMuxTxRequest_internal<LL>(i), getI2cMuxRxRequest_internal<LL>(i));
+        i2cs[i].setI2c(getI2cInternal_internal<LL>(i), i);
         i2cs[i].init();
-        InterruptManager::enableInterrupt(InterruptType::I2cEv, i, 10);
-        InterruptManager::enableInterrupt(InterruptType::I2cEr, i, 10);
+        InterruptManager::enableInterrupt(InterruptType::I2cInt, i, 10);
     }
 }
 

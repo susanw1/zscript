@@ -22,7 +22,7 @@
     </dependencies>
 
     <properties>
-        <cpu>cortex-m4</cpu>
+        <cpu>cortex-m0</cpu>
         <device-family>STM32F030x8</device-family>
         <device>STM32F030R8</device>
         <!-- 		<cpp-warnings>-Wall -Wno-long-long -Wpointer-arith -Wconversion</cpp-warnings> -->
@@ -93,7 +93,7 @@
 
                         <testOptions>
                         	<testOption>${cpp-optimizations}</testOption>
-                            <testOption>-T${project.basedir}/src/test/ld/STM32F030QETX_FLASH.ld</testOption>
+                            <testOption>-T${project.basedir}/src/test/ld/STM32F030R8Tx_FLASH.ld</testOption>
                             <testOption>-mthumb</testOption>
                             <testOption>-fno-common</testOption>
                             <testOption>-mcpu=${cpu}</testOption>

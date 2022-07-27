@@ -45,7 +45,7 @@ template<class ZP>
 uint8_t PinController<ZP>::controller[LL::pinCount];
 
 #include "DigitalPinController.hpp"
-#include "AnalogPinController.hpp"
+//#include "AnalogPinController.hpp"
 
 template<class ZP>
 bool PinController<ZP>::setupPin(uint8_t pinIndex, PinControllerMode mode, uint16_t internalMode, ZcodeExecutionCommandSlot<ZP> slot) {
@@ -57,10 +57,10 @@ bool PinController<ZP>::setupPin(uint8_t pinIndex, PinControllerMode mode, uint1
         controller[pinIndex] = mode;
         worked = DigitalPinController<ZP>::setupPin(pin, internalMode);
         break;
-    case AnalogPin:
-        controller[pinIndex] = mode;
-        worked = AnalogPinController<ZP>::setupPin(pin, internalMode);
-        break;
+//    case AnalogPin:
+//        controller[pinIndex] = mode;
+//        worked = AnalogPinController<ZP>::setupPin(pin, internalMode);
+//        break;
     default:
         slot.fail(BAD_PARAM, "Unknown pin mode");
         return false;
@@ -78,9 +78,9 @@ bool PinController<ZP>::pinInfo(uint8_t pinIndex, ZcodeExecutionCommandSlot<ZP> 
     case DigitalPin:
         DigitalPinController<ZP>::outputPinCaps(pin, slot.getOut());
         break;
-    case AnalogPin:
-        AnalogPinController<ZP>::outputPinCaps(pin, slot.getOut());
-        break;
+//    case AnalogPin:
+//        AnalogPinController<ZP>::outputPinCaps(pin, slot.getOut());
+//        break;
     default:
         slot.fail(BAD_PARAM, "Unknown pin mode");
         return false;
@@ -100,13 +100,13 @@ bool PinController<ZP>::readPin(uint8_t pinIndex, ZcodeExecutionCommandSlot<ZP> 
         }
         value = DigitalPinController<ZP>::readPin(pin);
         break;
-    case AnalogPin:
-        if (!canRead(AnalogPinController<ZP>::getPinCaps(pin))) {
-            worked = false;
-            break;
-        }
-        value = AnalogPinController<ZP>::readPin(pin);
-        break;
+//    case AnalogPin:
+//        if (!canRead(AnalogPinController<ZP>::getPinCaps(pin))) {
+//            worked = false;
+//            break;
+//        }
+//        value = AnalogPinController<ZP>::readPin(pin);
+//        break;
     default:
         slot.fail(BAD_PARAM, "Unknown pin mode");
         return false;
@@ -130,13 +130,13 @@ bool PinController<ZP>::writePin(uint8_t pinIndex, uint16_t value, ZcodeExecutio
         }
         DigitalPinController<ZP>::writePin(pin, value);
         break;
-    case AnalogPin:
-        if (!canWrite(AnalogPinController<ZP>::getPinCaps(pin))) {
-            worked = false;
-            break;
-        }
-        AnalogPinController<ZP>::writePin(pin, value);
-        break;
+//    case AnalogPin:
+//        if (!canWrite(AnalogPinController<ZP>::getPinCaps(pin))) {
+//            worked = false;
+//            break;
+//        }
+//        AnalogPinController<ZP>::writePin(pin, value);
+//        break;
     default:
         slot.fail(BAD_PARAM, "Unknown pin mode");
         return false;
