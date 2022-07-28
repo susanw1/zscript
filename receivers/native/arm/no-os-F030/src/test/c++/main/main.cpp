@@ -37,9 +37,9 @@
 //#include <arm-no-os/arm-core-module/commands/ZcodeWriteGuidCommand.hpp>
 #include <arm-no-os/arm-core-module/commands/ZcodeResetCommand.hpp>
 
-//#include <arm-no-os/pins-module/ZcodePinModule.hpp>
-//#include <arm-no-os/serial-module/ZcodeSerialModule.hpp>
-//#include <arm-no-os/i2c-module/ZcodeI2cModule.hpp>
+#include <arm-no-os/pins-module/ZcodePinModule.hpp>
+#include <arm-no-os/serial-module/ZcodeSerialModule.hpp>
+#include <arm-no-os/i2c-module/ZcodeI2cModule.hpp>
 
 //#include <zcode/modules/script/ZcodeScriptModule.hpp>
 #include <zcode/modules/outer-core/ZcodeOuterCoreModule.hpp>
@@ -54,9 +54,9 @@
 #include <arm-no-os/system/clock/SystemMilliClock.hpp>
 #include <arm-no-os/system/clock/ClockManager.hpp>
 
-//#include <arm-no-os/i2c-module/lowlevel/I2cManager.hpp>
+#include <arm-no-os/i2c-module/lowlevel/I2cManager.hpp>
 
-//#include <arm-no-os/serial-module/lowlevel/UartManager.hpp>
+#include <arm-no-os/serial-module/lowlevel/UartManager.hpp>
 
 //#include <arm-no-os/udp-module/lowlevel/src/Ethernet.h>
 
@@ -78,9 +78,12 @@ int main(void) {
     for (volatile uint32_t i = 0; i < 0x100; ++i)
         ;
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(20);
+    DmaManager<GeneralHalSetup>::init();
     GpioManager<GeneralHalSetup>::init();
+    UartManager<GeneralHalSetup>::init();
     GpioManager<GeneralHalSetup>::getPin(PC_9).init();
     GpioManager<GeneralHalSetup>::getPin(PC_9).setMode(Output);
+    I2cManager<GeneralHalSetup>::init();
     Zcode<ZcodeParameters> *z = &Zcode<ZcodeParameters>::zcode;
 
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
