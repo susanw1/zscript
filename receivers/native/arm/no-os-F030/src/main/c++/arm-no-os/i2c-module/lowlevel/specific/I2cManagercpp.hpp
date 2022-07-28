@@ -16,69 +16,29 @@
 #define I2C_SCL_Inner(I2C,PIN) I2C##_SCL_##PIN
 #define I2C_SCL(I2C,PIN) I2C_SCL_Inner(I2C, PIN)
 
-#define I2C_1_SCL_PA_13_ PA_13,GPIO_AF4
-#define I2C_1_SDA_PA_14_ PA_14,GPIO_AF4
-#define I2C_1_SCL_PA_15_ PA_15,GPIO_AF4
-#define I2C_1_SDA_PB_7_ PB_7,GPIO_AF4
-#define I2C_1_SCL_PB_8_ PB_8,GPIO_AF4
-#define I2C_1_SDA_PB_9_ PB_9,GPIO_AF4
+#define I2C_1_SCL_PB_6_ PB_6,GPIO_AF1
+#define I2C_1_SDA_PB_7_ PB_7,GPIO_AF1
+#define I2C_1_SCL_PB_8_ PB_8,GPIO_AF1
+#define I2C_1_SDA_PB_9_ PB_9,GPIO_AF1
 
-#define I2C_2_SDA_PA_8_ PA_8,GPIO_AF4
-#define I2C_2_SCL_PA_9_ PA_9,GPIO_AF4
-#define I2C_2_SCL_PC_4_ PC_4,GPIO_AF4
-#define I2C_2_SDA_PF_0_ PF_0,GPIO_AF4
-#define I2C_2_SCL_PF_6_ PF_6,GPIO_AF4
+#define I2C_2_SCL_PB_10_ PB_10,GPIO_AF1
+#define I2C_2_SDA_PB_11_ PB_11,GPIO_AF1
+#define I2C_2_SCL_PB_13_ PB_13,GPIO_AF5
+#define I2C_2_SDA_PB_14_ PB_14,GPIO_AF5
+#define I2C_2_SCL_PF_6_ PF_6,GPIO_AF0
+#define I2C_2_SDA_PF_7_ PF_7,GPIO_AF0
 
-#define I2C_3_SCL_PA_8_ PA_8,GPIO_AF2
-#define I2C_3_SDA_PB_5_ PB_5,GPIO_AF8
-#define I2C_3_SCL_PC_8_ PC_8,GPIO_AF8
-#define I2C_3_SDA_PC_9_ PC_9,GPIO_AF8
-#define I2C_3_SDA_PC_11_ PC_11,GPIO_AF8
-#define I2C_3_SCL_PF_3_ PF_3,GPIO_AF4
-#define I2C_3_SDA_PF_4_ PF_4,GPIO_AF4
-#define I2C_3_SCL_PG_7_ PG_7,GPIO_AF4
-#define I2C_3_SDA_PG_8_ PG_8,GPIO_AF4
-
-#define I2C_4_SCL_PA_13_ PA_13,GPIO_AF3
-#define I2C_4_SDA_PB_7_ PB_7,GPIO_AF3
-#define I2C_4_SCL_PC_6_ PC_6,GPIO_AF8
-#define I2C_4_SDA_PC_7_ PC_7,GPIO_AF8
-#define I2C_4_SCL_PF_14_ PF_14,GPIO_AF4
-#define I2C_4_SDA_PF_15_ PF_15,GPIO_AF4
-#define I2C_4_SCL_PG_3_ PG_3,GPIO_AF4
-#define I2C_4_SDA_PG_4_ PG_4,GPIO_AF4
-
-#define _I2C_1_SCL_PA_13_ 1
-#define _I2C_1_SDA_PA_14_ 1
-#define _I2C_1_SCL_PA_15_ 1
+#define _I2C_1_SCL_PB_6_ 1
 #define _I2C_1_SDA_PB_7_ 1
 #define _I2C_1_SCL_PB_8_ 1
 #define _I2C_1_SDA_PB_9_ 1
 
-#define _I2C_2_SDA_PA_8_ 1
-#define _I2C_2_SCL_PA_9_ 1
-#define _I2C_2_SCL_PC_4_ 1
-#define _I2C_2_SDA_PF_0_ 1
+#define _I2C_2_SCL_PB_10_ 1
+#define _I2C_2_SDA_PB_11_ 1
+#define _I2C_2_SCL_PB_13_ 1
+#define _I2C_2_SDA_PB_14_ 1
 #define _I2C_2_SCL_PF_6_ 1
-
-#define _I2C_3_SCL_PA_8_ 1
-#define _I2C_3_SDA_PB_5_ 1
-#define _I2C_3_SCL_PC_8_ 1
-#define _I2C_3_SDA_PC_9_ 1
-#define _I2C_3_SDA_PC_11_ 1
-#define _I2C_3_SCL_PF_3_ 1
-#define _I2C_3_SDA_PF_4_ 1
-#define _I2C_3_SCL_PG_7_ 1
-#define _I2C_3_SDA_PG_8_ 1
-
-#define _I2C_4_SCL_PA_13_ 1
-#define _I2C_4_SDA_PB_7_ 1
-#define _I2C_4_SCL_PC_6_ 1
-#define _I2C_4_SDA_PC_7_ 1
-#define _I2C_4_SCL_PF_14_ 1
-#define _I2C_4_SDA_PF_15_ 1
-#define _I2C_4_SCL_PG_3_ 1
-#define _I2C_4_SDA_PG_4_ 1
+#define _I2C_2_SDA_PF_7_ 1
 
 #ifdef USE_I2C_1
 #if !I2C_SDA(_I2C_1, I2C_1_SDA)
@@ -98,24 +58,6 @@
 #endif
 #endif
 
-#ifdef USE_I2C_3
-#if !I2C_SDA(_I2C_3, I2C_3_SDA)
-#error  Not defined as a valid I2C 3 SDA pin: I2C_3_SDA
-#endif
-#if !I2C_SCL(_I2C_3, I2C_3_SCL)
-#error  Not defined as a valid I2C 3 SCL pin: I2C_3_SCL
-#endif
-#endif
-
-#ifdef USE_I2C_4
-#if !I2C_SDA(_I2C_4, I2C_4_SDA)
-#error  Not defined as a valid I2C 4 SDA pin: I2C_4_SDA
-#endif
-#if !I2C_SCL(_I2C_4, I2C_4_SCL)
-#error  Not defined as a valid I2C 4 SCL pin: I2C_4_SCL
-#endif
-#endif
-
 template<class LL>
 I2c<LL> I2cManager<LL>::i2cs[LL::i2cCount];
 
@@ -130,18 +72,6 @@ I2cInternal<LL> getI2cInternal_internal(I2cIdentifier id) {
     } else if (id == 1) {
 #ifdef USE_I2C_2
         return I2cInternal<LL>(I2C_SDA(I2C_2, I2C_2_SDA), I2C_SCL(I2C_2, I2C_2_SCL), (I2cRegisters*) 0x40005800);
-#else
-        return I2cInternal<LL>();
-#endif
-    } else if (id == 2) {
-#ifdef USE_I2C_3
-        return I2cInternal<LL>(I2C_SDA(I2C_3, I2C_3_SDA), I2C_SCL(I2C_3, I2C_3_SCL), (I2cRegisters*) 0x40007800);
-#else
-        return I2cInternal<LL>();
-#endif
-    } else {
-#ifdef USE_I2C_4
-        return I2cInternal<LL>(I2C_SDA(I2C_4, I2C_4_SDA), I2C_SCL(I2C_4, I2C_4_SCL), (I2cRegisters*) 0x40008400);
 #else
         return I2cInternal<LL>();
 #endif

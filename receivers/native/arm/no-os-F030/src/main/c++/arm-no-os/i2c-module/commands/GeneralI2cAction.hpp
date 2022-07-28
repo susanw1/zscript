@@ -73,7 +73,7 @@ public:
             if (!slot.getFields()->get(CMD_PARAM_I2C_PORT_P, &port)) {
                 slot.fail(BAD_PARAM, "Missing I2C port");
                 return;
-            } else if (port >= ZP::LL::i2cCount) {
+            } else if (port >= ZP::LL::i2cCount || !I2cManager<LL>::getI2cById(port)->isSetUp()) {
                 slot.fail(BAD_PARAM, "Invalid I2C port");
                 return;
             }
