@@ -26,15 +26,6 @@ public:
     static Dma<LL>* getDmaById(DmaIdentifier id) {
         return dmas + id;
     }
-
-    static Dma<LL>* getFreeDma() {
-        for (int i = 0; i < LL::dmaCount; ++i) {
-            if (!dmas[i].isLocked()) {
-                return dmas + i;
-            }
-        }
-        return NULL;
-    }
 };
 #include "specific/DmaManagercpp.hpp" // these at the bottom are there to clean up include order issues.
 

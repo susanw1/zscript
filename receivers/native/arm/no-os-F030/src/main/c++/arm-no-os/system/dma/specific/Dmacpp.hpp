@@ -35,11 +35,10 @@ uint16_t Dma<LL>::fetchRemainingTransferLength() {
 template<class LL>
 void Dma<LL>::halt() {
     channel.getChannelRegisters()->CCR &= ~1;
-    channel.setMux(DMAMUX_NO_MUX);
 }
 
 template<class LL>
-void Dma<LL>::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize, DmaMuxRequest request,
+void Dma<LL>::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize,
         const uint8_t *target, bool targetIncrement, uint8_t targetSize, bool memToMem, uint16_t transferLength, uint8_t dir, bool circular,
         DmaPriority priority, void (*callback)(Dma*, DmaTerminationStatus), bool interruptOnHalf) {
 
@@ -85,9 +84,7 @@ void Dma<LL>::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrS
     if (interruptOnHalf) {
         config |= interruptOnHalfBit;
     }
-    this->request = request;
     channel.getChannelRegisters()->CCR = config;
-    channel.setMux(request);
     channel.getChannelRegisters()->CCR |= enableDma;
 }
 

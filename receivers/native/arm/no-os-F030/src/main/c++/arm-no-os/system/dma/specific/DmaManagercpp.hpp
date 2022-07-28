@@ -12,12 +12,26 @@
 #include <arm-no-os/system/interrupt/InterruptManager.hpp>
 
 template<class LL>
-Dma<LL> DmaManager<LL>::dmas[] = { Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(),
-        Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>() };
+Dma<LL> DmaManager<LL>::dmas[] = { Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>(), Dma<LL>() };
 
 template<class LL>
 void DmaManager<LL>::interrupt(uint8_t i) {
-    DmaManager::dmas[i].interrupt();
+    DmaRegisters *registers = (DmaRegisters*) 0x40020000;
+    if (i == 0) {
+        DmaManager::dmas[0].interrupt();
+    } else if (i == 0) {
+        if (registers->ISR & 0xF0) {
+            DmaManager::dmas[1].interrupt();
+        } else {
+            DmaManager::dmas[2].interrupt();
+        }
+    } else {
+        if (registers->ISR & 0xF000) {
+            DmaManager::dmas[3].interrupt();
+        } else {
+            DmaManager::dmas[4].interrupt();
+        }
+    }
 }
 
 template<class LL>
@@ -30,42 +44,29 @@ DmaChannelRegisters* getDmaChannelRegistersFromRegisters(DmaRegisters *r, uint8_
         return &r->CHR3;
     } else if (channel == 3) {
         return &r->CHR4;
-    } else if (channel == 4) {
-        return &r->CHR5;
-    } else if (channel == 5) {
-        return &r->CHR6;
-    } else if (channel == 6) {
-        return &r->CHR7;
     } else {
-        return &r->CHR8;
+        return &r->CHR5;
     }
 }
 
 template<class LL>
 DmaChannelInternal createChannelInternalFromId(DmaIdentifier id) {
-    if (id < 8) {
-        DmaRegisters *registers = (DmaRegisters*) 0x40020000;
-        return DmaChannelInternal((DmaRegisters*) registers, getDmaChannelRegistersFromRegisters<LL>(registers, id),
-                (uint32_t*) (0x40020800 + 0x04 * id), id);
-    } else {
-        DmaRegisters *registers = (DmaRegisters*) 0x40020400;
-        return DmaChannelInternal((DmaRegisters*) registers, getDmaChannelRegistersFromRegisters<LL>(registers, id - 8),
-                (uint32_t*) (0x40020800 + 0x04 * id), id - 8);
-    }
+    DmaRegisters *registers = (DmaRegisters*) 0x40020000;
+    return DmaChannelInternal((DmaRegisters*) registers, getDmaChannelRegistersFromRegisters<LL>(registers, id), id);
 }
 
 template<class LL>
 void DmaManager<LL>::init() {
     const uint32_t enableDma1Registers = 0x01;
-    const uint32_t enableDma2Registers = 0x02;
-    const uint32_t enableDmaMuxRegisters = 0x04;
 
-    RCC->AHB1ENR |= enableDma1Registers | enableDma2Registers | enableDmaMuxRegisters;
+    RCC->AHBENR |= enableDma1Registers;
 
     InterruptManager::setInterrupt(&DmaManager::interrupt, InterruptType::DmaInt);
+    InterruptManager::enableInterrupt(InterruptType::DmaInt, 0, 10);
+    InterruptManager::enableInterrupt(InterruptType::DmaInt, 1, 10);
+    InterruptManager::enableInterrupt(InterruptType::DmaInt, 2, 10);
     for (int i = 0; i < LL::dmaCount; ++i) {
         dmas[i].setDma(createChannelInternalFromId<LL>(i));
-        InterruptManager::enableInterrupt(InterruptType::DmaInt, i, 10);
     }
 }
 

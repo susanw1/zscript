@@ -28,7 +28,6 @@ template<class LL>
 class Dma {
 private:
     DmaChannelInternal channel;
-    DmaMuxRequest request = DMAMUX_NO_MUX;
     volatile bool lockBool = false;
 
     void (*volatile callback)(Dma*, DmaTerminationStatus);
@@ -40,32 +39,32 @@ private:
         this->channel = channel;
     }
 public:
-    void peripheralRead(DmaMuxRequest request, const uint8_t *peripheral, bool incrementPeripheral, uint8_t *memory, bool incrementMemory,
+    void peripheralRead(const uint8_t *peripheral, bool incrementPeripheral, uint8_t *memory, bool incrementMemory,
             uint16_t transferLength, bool circular, DmaPriority priority, void (*callback)(Dma*, DmaTerminationStatus), bool interruptOnHalf) {
-        setupGeneric(peripheral, incrementPeripheral, 0, request, memory, incrementMemory, 0, false, transferLength, 0, circular, priority, callback,
+        setupGeneric(peripheral, incrementPeripheral, 0, memory, incrementMemory, 0, false, transferLength, 0, circular, priority, callback,
                 interruptOnHalf);
     }
 
-    void peripheralWrite(DmaMuxRequest request, const uint8_t *memory, bool incrementMemory, uint8_t *peripheral, bool incrementPeripheral,
+    void peripheralWrite(const uint8_t *memory, bool incrementMemory, uint8_t *peripheral, bool incrementPeripheral,
             uint16_t transferLength, bool circular, DmaPriority priority, void (*callback)(Dma*, DmaTerminationStatus), bool interruptOnHalf) {
-        setupGeneric(peripheral, incrementPeripheral, 0, request, memory, incrementMemory, 0, false, transferLength, 1, circular, priority, callback,
+        setupGeneric(peripheral, incrementPeripheral, 0, memory, incrementMemory, 0, false, transferLength, 1, circular, priority, callback,
                 interruptOnHalf);
     }
 
     void memCopy(const uint8_t *source, bool increment, uint8_t *target, uint16_t transferLength, DmaPriority priority,
             void (*callback)(Dma*, DmaTerminationStatus), bool interruptOnHalf) {
-        setupGeneric(source, increment, 0, DMAMUX_NO_MUX, target, true, 0, true, transferLength, 0, false, priority, callback, interruptOnHalf);
+        setupGeneric(source, increment, 0, target, true, 0, true, transferLength, 0, false, priority, callback, interruptOnHalf);
     }
 
     void memCopy(const uint16_t *source, bool increment, uint16_t *target, uint16_t transferLength, DmaPriority priority,
             void (*callback)(Dma*, DmaTerminationStatus), bool interruptOnHalf) {
-        setupGeneric((uint8_t*) source, increment, 1, DMAMUX_NO_MUX, (uint8_t*) target, true, 1, true, transferLength, 0, false, priority, callback,
+        setupGeneric((uint8_t*) source, increment, 1, (uint8_t*) target, true, 1, true, transferLength, 0, false, priority, callback,
                 interruptOnHalf);
     }
 
     void memCopy(const uint32_t *source, bool increment, uint32_t *target, uint16_t transferLength, DmaPriority priority,
             void (*callback)(Dma*, DmaTerminationStatus), bool interruptOnHalf) {
-        setupGeneric((uint8_t*) source, increment, 2, DMAMUX_NO_MUX, (uint8_t*) target, true, 2, true, transferLength, 0, false, priority, callback,
+        setupGeneric((uint8_t*) source, increment, 2, (uint8_t*) target, true, 2, true, transferLength, 0, false, priority, callback,
                 interruptOnHalf);
     }
 
@@ -73,7 +72,7 @@ public:
 
     void halt();
 
-    void setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize, DmaMuxRequest request,
+    void setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize,
             const uint8_t *target, bool targetIncrement, uint8_t targetSize, bool memToMem, uint16_t transferLength, uint8_t dir, bool circular,
             DmaPriority priority, void (*callback)(Dma*, DmaTerminationStatus), bool interruptOnHalf);
 

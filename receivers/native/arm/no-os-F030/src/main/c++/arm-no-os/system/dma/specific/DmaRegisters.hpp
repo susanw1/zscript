@@ -15,7 +15,6 @@ struct DmaChannelRegisters {
     volatile uint32_t CNDTR;
     volatile uint32_t CPAR;
     volatile uint32_t CMAR;
-    volatile uint32_t Reserved;
 };
 
 struct DmaRegisters {
@@ -26,9 +25,6 @@ struct DmaRegisters {
     DmaChannelRegisters CHR3;
     DmaChannelRegisters CHR4;
     DmaChannelRegisters CHR5;
-    DmaChannelRegisters CHR6;
-    DmaChannelRegisters CHR7;
-    DmaChannelRegisters CHR8;
 };
 
 #endif /* SRC_TEST_CPP_COMMANDS_NEWHAL_DMANEWHAL_DMAREGISTERS_HPP_ */
