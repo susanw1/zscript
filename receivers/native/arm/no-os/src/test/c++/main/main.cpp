@@ -55,15 +55,15 @@ int main(void) {
     ClockManager<GeneralHalSetup>::getClock(PCLK_1)->set(60000, HCLK);
     ClockManager<GeneralHalSetup>::getClock(PCLK_2)->set(60000, HCLK);
     SystemMilliClock<GeneralHalSetup>::init();
-    for (volatile uint32_t i = 0; i < 0x1000; ++i)
+    for (volatile uint32_t i = 0; i < 0x100; ++i)
         ;
-    SystemMilliClock<GeneralHalSetup>::blockDelayMillis(50);
+    SystemMilliClock<GeneralHalSetup>::blockDelayMillis(20);
     DmaManager<GeneralHalSetup>::init();
     GpioManager<GeneralHalSetup>::init();
     I2cManager<GeneralHalSetup>::init();
-    UartManager<GeneralHalSetup>::init();
     uint32_t notSoPermanentStore = 0;
     Ucpd<GeneralHalSetup>::init(&notSoPermanentStore, 150, 5 * 20, 5 * 20);
+    UartManager<GeneralHalSetup>::init();
 
     ZcodeI2cBusInterruptSource<ZcodeParameters> i2cSource;
     ZcodeSerialBusInterruptSource<ZcodeParameters> serialSource;

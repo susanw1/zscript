@@ -29,11 +29,12 @@ template<class LL>
 IPAddress EthernetClass<LL>::_dnsServerAddress;
 template<class LL>
 DhcpClass<LL> *EthernetClass<LL>::_dhcp = NULL;
+template<class LL>
+DhcpClass<LL> EthernetClass<LL>::s_dhcp;
 
 template<class LL>
 int EthernetClass<LL>::begin(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)
         {
-    static DhcpClass<LL> s_dhcp;
     _dhcp = &s_dhcp;
 
     // Initialise the basic info

@@ -75,6 +75,7 @@ class EthernetClass {
 private:
     static IPAddress _dnsServerAddress;
     static DhcpClass<LL> *_dhcp;
+    static DhcpClass<LL> s_dhcp;
     public:
     // Initialise the Ethernet shield to use the provided MAC address and
     // gain the rest of the configuration through DHCP.

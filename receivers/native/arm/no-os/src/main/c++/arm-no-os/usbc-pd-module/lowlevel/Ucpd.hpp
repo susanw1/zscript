@@ -8,6 +8,9 @@
 #ifndef SRC_TEST_CPP_USB_PD_COMMANDS_UCPD_HPP_
 #define SRC_TEST_CPP_USB_PD_COMMANDS_UCPD_HPP_
 #include <arm-no-os/llIncludes.hpp>
+
+#pragma GCC push_options
+#pragma GCC optimize ("-O2")
 #include "specific/UcpdInternal.hpp"
 #include "UcpdParsedExtendedSourceCapabilitiesMessage.hpp"
 #include "UcpdParsedManufacturerInfoMessage.hpp"
@@ -146,4 +149,5 @@ UcpdParsedPPSStatusMessage<LL> Ucpd<LL>::PPSStatusMessage;
 template<class LL>
 UcpdParsedManufacturerInfoMessage<LL> Ucpd<LL>::manufacturerInfoMessage;
 
+#pragma GCC pop_options
 #endif /* SRC_TEST_CPP_USB_PD_COMMANDS_UCPD_HPP_ */
