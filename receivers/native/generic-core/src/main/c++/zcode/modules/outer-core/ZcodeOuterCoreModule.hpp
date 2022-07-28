@@ -16,9 +16,10 @@
 #include "ZcodeAddressCommand.hpp"
 #include "ZcodeChannelSetupCommand.hpp"
 
+#define MODULE_EXISTS_001 EXISTENCE_MARKER_UTIL
+
 #include "ZcodeExtendedCapabilitiesCommand.hpp"
 
-#define MODULE_EXISTS_001 EXISTENCE_MARKER_UTIL
 #define MODULE_SWITCH_001 MODULE_SWITCH_UTIL(ZcodeOuterCoreModule<ZP>::execute)
 
 template<class ZP>
