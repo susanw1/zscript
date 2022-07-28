@@ -35,19 +35,70 @@ private:
     // to the internal structure rather than a copy of the address this function should only
     // be used when you know that the usage of the returned uint8_t* will be transient and not
     // stored.
+
+public:
     uint8_t* raw_address() {
         return _address.bytes;
     }
-    ;
-
-public:
     // Constructors
-    IPAddress();
-    IPAddress(uint8_t first_octet, uint8_t second_octet, uint8_t third_octet, uint8_t fourth_octet);
-    IPAddress(uint32_t address);
-    IPAddress(const uint8_t *address);
+    IPAddress() {
+        _address.dword = 0;
+    }
+    IPAddress(uint8_t first_octet, uint8_t second_octet, uint8_t third_octet, uint8_t fourth_octet) {
+        _address.bytes[0] = first_octet;
+        _address.bytes[1] = second_octet;
+        _address.bytes[2] = third_octet;
+        _address.bytes[3] = fourth_octet;
+    }
 
-    bool fromString(const char *address);
+    IPAddress(uint32_t address) {
+        _address.dword = address;
+    }
+    IPAddress(const uint8_t *address) {
+        _address.bytes[0] = address[0];
+        _address.bytes[1] = address[1];
+        _address.bytes[2] = address[2];
+        _address.bytes[3] = address[3];
+    }
+
+    bool fromString(const char *address) {
+        uint16_t acc = 0; // Accumulator
+        uint8_t dots = 0;
+
+        while (*address)
+        {
+            char c = *address++;
+            if (c >= '0' && c <= '9')
+                    {
+                acc = acc * 10 + (c - '0');
+                if (acc > 255) {
+                    // Value out of [0..255] range
+                    return false;
+                }
+            }
+            else if (c == '.')
+                    {
+                if (dots == 3) {
+                    // Too much dots (there must be 3 dots)
+                    return false;
+                }
+                _address.bytes[dots++] = acc;
+                acc = 0;
+            }
+            else
+            {
+                // Invalid char
+                return false;
+            }
+        }
+
+        if (dots != 3) {
+            // Too few dots (there must be 3 dots)
+            return false;
+        }
+        _address.bytes[3] = acc;
+        return true;
+    }
 
     // Overloaded cast operator to allow IPAddress objects to be used where a pointer
     // to a four-byte uint8_t array is expected
@@ -59,7 +110,12 @@ public:
         return _address.dword == addr._address.dword;
     }
     ;
-    bool operator==(const uint8_t *addr) const;
+    bool operator==(const uint8_t *address) const {
+        return _address.bytes[0] == address[0] &&
+                _address.bytes[1] == address[1] &&
+                _address.bytes[2] == address[2] &&
+                _address.bytes[3] == address[3];
+    }
 
     // Overloaded index operator to allow getting and setting individual octets of the address
     uint8_t operator[](int index) const {
@@ -72,15 +128,18 @@ public:
     ;
 
     // Overloaded copy operators to allow initialisation of IPAddress objects from other types
-    IPAddress& operator=(const uint8_t *address);
-    IPAddress& operator=(uint32_t address);
+    IPAddress& operator=(const uint8_t *address) {
+        _address.bytes[0] = address[0];
+        _address.bytes[1] = address[1];
+        _address.bytes[2] = address[2];
+        _address.bytes[3] = address[3];
+        return *this;
+    }
+    IPAddress& operator=(uint32_t address) {
+        _address.dword = address;
+        return *this;
+    }
 
-    friend class EthernetClass;
-    friend class UDP;
-    friend class Client;
-    friend class Server;
-    friend class DhcpClass;
-    friend class DNSClient;
 };
 
 const IPAddress INADDR_NONE(0, 0, 0, 0);

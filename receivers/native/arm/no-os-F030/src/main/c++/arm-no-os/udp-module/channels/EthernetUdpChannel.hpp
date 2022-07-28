@@ -19,18 +19,19 @@
 template<class ZP>
 class EthernetUdpChannelInStream: public ZcodeChannelInStream<ZP> {
 private:
+    typedef typename ZP::LL LL;
 
     uint8_t big[ZP::ethernetUdpChannelBigFieldSize];
     uint8_t buffer = 0;
     bool usingBuffer = false;
     bool hasEndedPacket = false;
 
-    EthernetUDP *udp;
+    EthernetUDP<LL> *udp;
     IPAddress mostRecentIP;
     uint16_t mostRecentPort;
 
 public:
-    EthernetUdpChannelInStream(ZcodeCommandChannel<ZP> *channel, EthernetUDP *udp) :
+    EthernetUdpChannelInStream(ZcodeCommandChannel<ZP> *channel, EthernetUDP<LL> *udp) :
             ZcodeChannelInStream<ZP>(channel, big, ZP::ethernetUdpChannelBigFieldSize), udp(udp), mostRecentIP(), mostRecentPort(0) {
     }
     IPAddress getIp() {
@@ -87,6 +88,7 @@ class EthernetUdpChannel;
 template<class ZP>
 class EthernetUdpOutStream: public ZcodeOutStream<ZP> {
 private:
+    typedef typename ZP::LL LL;
     struct UdpOutStatus {
         bool openB :1;
         bool openFrozen :1;
@@ -137,7 +139,7 @@ public:
 template<class ZP>
 class EthernetUdpChannel: public ZcodeCommandChannel<ZP> {
     typedef typename ZP::LL LL;
-    EthernetUDP udp;
+    EthernetUDP<LL> udp;
     EthernetUdpChannelInStream<ZP> seqin;
     EthernetUdpOutStream<ZP> out;
     IPAddress notificationIP;
@@ -154,12 +156,12 @@ public:
                     0), debugPort(0), port(port) {
         uint8_t *mac;
         uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xad };
-        if (ZcodeFlashPersistence<LL>::persist.hasMac()) {
-            mac = ZcodeFlashPersistence<LL>::persist.getMac();
-        } else {
-            mac = macHardCoded;
-        }
-        while (!Ethernet.begin(mac, 5000, 5000)) {
+//        if (ZcodeFlashPersistence<LL>::persist.hasMac()) {
+//            mac = ZcodeFlashPersistence<LL>::persist.getMac();
+//        } else {
+//            mac = macHardCoded;
+//        }
+        while (!Ethernet<LL> .begin(macHardCoded, 5000, 5000)) {
         }
         udp.begin(port);
     }
@@ -196,7 +198,7 @@ public:
         out->writeField8('N', 0);
         out->writeField16('M', 0x111);
         out->writeBigStringField("UDP based channel");
-        uint32_t addr = Ethernet.localIP();
+        uint32_t addr = Ethernet<LL> .localIP();
         out->writeBigHexField((uint8_t*) &addr, 4);
         out->writeField16('P', port);
         out->writeStatus(OK);
@@ -217,7 +219,7 @@ public:
     bool reset() {
         udp.flush();
         udp.stop();
-        Ethernet.init();
+        Ethernet<LL> .init();
         uint8_t *mac;
         uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xad };
         if (ZcodeFlashPersistence<LL>::persist.hasMac()) {
@@ -225,12 +227,12 @@ public:
         } else {
             mac = macHardCoded;
         }
-        while (!Ethernet.begin(mac, 5000, 5000)) {
+        while (!Ethernet<LL> .begin(mac, 5000, 5000)) {
         }
         udp.begin(port);
         return true;
     }
-    EthernetUDP* getEthernetUdp() {
+    EthernetUDP<LL>* getEthernetUdp() {
         return &udp;
     }
 };

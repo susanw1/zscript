@@ -162,6 +162,7 @@ public:
             mac = macHardCoded;
         }
         while (!Ethernet<LL> .begin(mac, 5000, 5000)) {
+            //TODO: not just loop forever, instead come back later...
         }
         udp.begin(port);
     }
