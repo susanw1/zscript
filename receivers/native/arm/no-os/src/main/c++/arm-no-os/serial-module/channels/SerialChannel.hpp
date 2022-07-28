@@ -9,6 +9,7 @@
 #define SRC_MAIN_C___CHANNELS_SERIAL_SERIALCHANNEL_HPP_
 
 #include <arm-no-os/serial-module/lowlevel/Serial.hpp>
+#include <arm-no-os/serial-module/lowlevel/UartManager.hpp>
 
 #include <zcode/ZcodeIncludes.hpp>
 

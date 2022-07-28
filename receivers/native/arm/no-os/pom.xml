@@ -27,7 +27,7 @@
         <device>STM32G484RE</device>
         <!-- 		<cpp-warnings>-Wall -Wno-long-long -Wpointer-arith -Wconversion</cpp-warnings> -->
         <cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
-        <cpp-optimizations>-O3</cpp-optimizations>
+        <cpp-optimizations>-Os</cpp-optimizations>
         <!-- OPENOCD_LOC=...git/openocd-code-->
 		<!-- mvn deploy -Dopenocd-location=$OPENOCD_LOC/tcl -Dopenocd-command=$OPENOCD_LOC/src/openocd -->
         <openocd-location>/usr/share/openocd/scripts</openocd-location>
@@ -70,7 +70,7 @@
 
                         </includePaths>
 
-                        <optionSet>${cpp-warnings} ${cpp-optimizations}</optionSet>
+                        <optionSet>${cpp-warnings} ${cpp-optimizations} -flto</optionSet>
                         <options>
                             <option>-mthumb</option>
                             <option>-fno-common</option>
@@ -93,6 +93,11 @@
 
                         <testOptions>
                         	<testOption>${cpp-optimizations}</testOption>
+                            <testOption>-flto</testOption>
+<!--                             <testOption>-fsemantic-interposition</testOption> -->
+<!--                             <testOption>-ffast-math</testOption> -->
+<!--                             <testOption>-fallow-store-data-races</testOption> -->
+<!--                             <testOption>-fvect-cost-model=dynamic</testOption> -->
                             <testOption>-T${project.basedir}/src/test/ld/STM32G484QETX_FLASH.ld</testOption>
                             <testOption>-mthumb</testOption>
                             <testOption>-fno-common</testOption>

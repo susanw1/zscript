@@ -13,8 +13,6 @@
 #include <arm-no-os/GeneralLLSetup.hpp>
 #include <arm-no-os/system/clock/SystemMilliClock.hpp>
 
-#define ZCODE_STRING_SURROUND(str) str
-
 #define ZCODE_SUPPORT_SCRIPT_SPACE
 #define ZCODE_SUPPORT_INTERRUPT_VECTOR
 #define ZCODE_SUPPORT_ADDRESSING
