@@ -34,8 +34,8 @@ private:
     SerialRingBuffer<LL::UartBufferRxSize> rxBuffer;
     SerialRingBuffer<LL::UartBufferTxSize> txBuffer;
     UartInternal<LL> uart;
-    DmaMuxRequest requestTx = DMAMUX_NO_MUX;
     Dma<LL> *txDma = NULL;
+    //TODO: Ok yeah, we really want a dma for rx...
     uint16_t dmaStartDist = 0;
     uint16_t availableData = 0;
     uint16_t peekDist = 0;
@@ -52,11 +52,10 @@ private:
     void txOverflowInterrupt();
 
 public:
-    void setUart(UartInternal<LL> uart, Dma<LL> *txDma, DmaMuxRequest requestTx) {
+    void setUart(UartInternal<LL> uart, Dma<LL> *txDma) {
         this->id = uart.getId();
         this->uart = uart;
         this->txDma = txDma;
-        this->requestTx = requestTx;
 
     }
     void init(void (*volatile bufferOverflowCallback)(SerialIdentifier), uint32_t baud_rate, bool singleNdoubleStop);

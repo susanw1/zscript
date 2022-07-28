@@ -10,7 +10,6 @@
 
 #include <arm-no-os/llIncludes.hpp>
 #include "Uart.hpp"
-#include <arm-no-os/usb-module/lowlevel/Usb.hpp>
 
 class Serial;
 
@@ -40,12 +39,6 @@ public:
     static void init();
 
     static Serial* getUartById(SerialIdentifier id) {
-
-#ifdef USE_USB_SERIAL
-        if (id == GeneralHalSetup::UsbSerialId) {
-            return &Usb<LL>::usb;
-        }
-#endif
         return uarts + id;
     }
 };

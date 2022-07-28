@@ -32,7 +32,7 @@ void Uart<LL>::transmitWriteBuffer() {
     if (txDma->lock()) {
         dmaStartDist = txBuffer.getLinearReadLength();
         if (dmaStartDist != 0) {
-            txDma->peripheralWrite(requestTx, txBuffer.getCurrentLinearRead(), true, (uint8_t*) uart.getTransmitRegister(), false,
+            txDma->peripheralWrite(txBuffer.getCurrentLinearRead(), true, (uint8_t*) uart.getTransmitRegister(), false,
                     dmaStartDist, false, Medium, &UartDmaCallback, false);
         }
     }
@@ -279,7 +279,7 @@ void Uart<LL>::dmaInterrupt(DmaTerminationStatus status) {
     if (dmaStartDist == 0) {
         txDma->unlock();
     } else {
-        txDma->peripheralWrite(requestTx, txBuffer.getCurrentLinearRead(), true, (uint8_t*) uart.getTransmitRegister(), false,
+        txDma->peripheralWrite(txBuffer.getCurrentLinearRead(), true, (uint8_t*) uart.getTransmitRegister(), false,
                 dmaStartDist, false, Medium, &UartDmaCallback<LL>, false);
     }
 }
