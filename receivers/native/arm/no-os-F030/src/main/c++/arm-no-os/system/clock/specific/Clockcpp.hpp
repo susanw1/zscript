@@ -116,20 +116,24 @@ int Clock<LL>::set(uint32_t targetFreqKhz, SystemClock source) {
                 if (freq < 48000) {
                     if (freq >= targetFreqKhz && freq - targetFreqKhz < bestDiff) {
                         mult = i;
-                    } else if (freq < targetFreqKhz && targetFreqKhz - freq > bestDiff) {
+                        bestDiff = freq - targetFreqKhz;
+                    } else if (freq < targetFreqKhz && targetFreqKhz - freq < bestDiff) {
                         mult = i;
+                        bestDiff = targetFreqKhz - freq;
                     }
                 }
             } else {
                 for (uint8_t j = 1; j <= 16; j++) {
-                    uint32_t freq = ClockManager<LL>::getClock(HSE)->freq * (i + 1) / j;
+                    uint32_t freq = ClockManager<LL>::getClock(HSE)->freq * i / j;
                     if (freq < 48000) {
                         if (freq >= targetFreqKhz && freq - targetFreqKhz < bestDiff) {
                             mult = i;
                             div = j;
-                        } else if (freq < targetFreqKhz && targetFreqKhz - freq > bestDiff) {
+                            bestDiff = freq - targetFreqKhz;
+                        } else if (freq < targetFreqKhz && targetFreqKhz - freq < bestDiff) {
                             mult = i;
                             div = j;
+                            bestDiff = targetFreqKhz - freq;
                         }
                     }
                 }
@@ -140,7 +144,7 @@ int Clock<LL>::set(uint32_t targetFreqKhz, SystemClock source) {
 
         uint32_t cfg = RCC->CFGR;
         cfg &= ~(pllMultMask | pllHSISource);
-        cfg |= (mult - 1) << 18;
+        cfg |= (mult - 2) << 18;
         if (source == HSE) {
             cfg |= pllHSISource;
         }
