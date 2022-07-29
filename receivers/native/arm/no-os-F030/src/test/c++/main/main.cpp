@@ -28,10 +28,11 @@
 #include "ZcodeParameters.hpp"
 #include <arm-no-os/GeneralLLSetup.hpp>
 
-//#include <arm-no-os/i2c-module/addressing/ZcodeI2cAddressingSystem.hpp>
-//#include <arm-no-os/serial-module/addressing/ZcodeSerialAddressingSystem.hpp>
-//#include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>
-//#include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
+#include <arm-no-os/i2c-module/addressing/ZcodeI2cAddressingSystem.hpp>
+#include <arm-no-os/serial-module/addressing/ZcodeSerialAddressingSystem.hpp>
+#include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>
+
+#include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
 
 //#include <arm-no-os/arm-core-module/commands/ZcodeReadGuidCommand.hpp>
 //#include <arm-no-os/arm-core-module/commands/ZcodeWriteGuidCommand.hpp>
@@ -46,7 +47,7 @@
 #include <zcode/modules/core/ZcodeCoreModule.hpp>
 
 #include <arm-no-os/udp-module/channels/EthernetUdpChannel.hpp>
-//#include <arm-no-os/serial-module/channels/SerialChannel.hpp>
+#include <arm-no-os/serial-module/channels/SerialChannel.hpp>
 
 #include <arm-no-os/pins-module/lowlevel/GpioManager.hpp>
 //#include <arm-no-os/pins-module/AToDLowLevel/AtoDManager.hpp>
@@ -58,10 +59,8 @@
 
 #include <arm-no-os/serial-module/lowlevel/UartManager.hpp>
 
-//#include <arm-no-os/udp-module/lowlevel/src/Ethernet.h>
-
-//#include <arm-no-os/i2c-module/addressing/ZcodeI2cBusInterruptSource.hpp>
-//#include <arm-no-os/serial-module/addressing/ZcodeSerialBusInterruptSource.hpp>
+#include <arm-no-os/i2c-module/addressing/ZcodeI2cBusInterruptSource.hpp>
+#include <arm-no-os/serial-module/addressing/ZcodeSerialBusInterruptSource.hpp>
 
 #include <zcode/Zcode.hpp>
 
@@ -84,13 +83,21 @@ int main(void) {
     GpioManager<GeneralHalSetup>::getPin(PC_9).init();
     GpioManager<GeneralHalSetup>::getPin(PC_9).setMode(Output);
     I2cManager<GeneralHalSetup>::init();
+
+    ZcodeI2cBusInterruptSource<ZcodeParameters> i2cSource;
+    ZcodeSerialBusInterruptSource<ZcodeParameters> serialSource;
     Zcode<ZcodeParameters> *z = &Zcode<ZcodeParameters>::zcode;
 
     SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
 
     EthernetUdpChannel<ZcodeParameters> channel(4889);
-    ZcodeCommandChannel<ZcodeParameters> *chptr[] = { &channel };
-    z->setChannels(chptr, 1);
+    SerialChannel<ZcodeParameters> serial(UartManager<GeneralHalSetup>::getUartById(0));
+    ZcodeCommandChannel<ZcodeParameters> *chptr[] = { &channel, &serial };
+    z->setChannels(chptr, 2);
+
+    ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &i2cSource, &serialSource };
+    z->setInterruptSources(sources, 2);
+
     GpioManager<GeneralHalSetup>::getPin(PC_9).set();
 
     while (true) {

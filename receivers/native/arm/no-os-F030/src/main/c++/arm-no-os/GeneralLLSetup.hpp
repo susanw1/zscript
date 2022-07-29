@@ -28,10 +28,8 @@
 
 #define USE_USB_SERIAL
 
-#define I2C_1_ALERT PC_9
-#define I2C_2_ALERT PC_4
-#define I2C_3_ALERT PC_4
-#define I2C_4_ALERT PC_4
+#define I2C_1_ALERT PA_8
+#define I2C_2_ALERT PB_4
 
 class GeneralHalSetup {
 public:

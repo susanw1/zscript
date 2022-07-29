@@ -155,7 +155,7 @@
                             	<argument>-f</argument>
                             	<argument>${openocd-location}/interface/stlink.cfg</argument>
                             	<argument>-f</argument>
-                            	<argument>${openocd-location}/target/stm32f0x_stlink.cfg</argument>
+                            	<argument>${openocd-location}/target/stm32f0x.cfg</argument>
                             	<argument>-f</argument>
                             	<argument>${project.basedir}/src/test/openocd/openocd.cfg</argument>
                         	</arguments>
