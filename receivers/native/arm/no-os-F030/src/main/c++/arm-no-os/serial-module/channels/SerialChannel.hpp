@@ -105,7 +105,7 @@ public:
 
     void giveInfo(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
-        out->writeField32('H', ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16);
+        out->writeField32('H', ClockManager<LL>::getClock(PCLK)->getFreqKhz() * 1000 / 16);
         out->writeField16('P', seqin.getSerial()->getId());
         out->writeField16('B', ZP::serialChannelBigFieldSize);
         out->writeField16('F', ZP::fieldNum);
@@ -127,7 +127,8 @@ public:
         }
         if (slot.getBigField()->getLength() == 0) {
             baud = 9600;
-        } else if (slot.getBigField()->getLength() > 4 || baud == 0 || baud > ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16) {
+        } else if (slot.getBigField()->getLength() > 4 || baud == 0 || baud > ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16
+                || baud < ClockManager<LL>::getClock(PCLK)->getFreqKhz() / 64) {
             slot.fail(BAD_PARAM, "Invalid baud rate");
             return;
         }
@@ -135,7 +136,7 @@ public:
             slot.fail(CMD_FAIL, "Parity not supported");
             return;
         }
-        if (slot.getFields()->has('N')) {
+        if (slot.getFields()->has('O')) {
             slot.fail(CMD_FAIL, "Noise detection not supported");
             return;
         }

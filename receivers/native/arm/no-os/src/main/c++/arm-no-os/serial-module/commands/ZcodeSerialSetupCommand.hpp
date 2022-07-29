@@ -54,7 +54,7 @@ public:
             slot.fail(CMD_FAIL, "Parity not supported");
             return;
         }
-        if (slot.getFields()->has('N')) {
+        if (slot.getFields()->has('O')) {
             slot.fail(CMD_FAIL, "Noise detection not supported");
             return;
         }
