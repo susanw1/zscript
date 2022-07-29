@@ -106,24 +106,28 @@ bool ZcodeNotificationManager<ZP>::canSendNotification() {
 
 template<class ZP>
 void ZcodeNotificationManager<ZP>::sendNotification(ZcodeBusInterrupt<ZP> interrupt) { // Only called if canSendNotification()
-#if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
+
+#ifdef ZCODE_SUPPORT_ADDRESSING
     if(ZP::AddressRouter::isAddressed(interrupt)){
         ZP::AddressRouter::response(interrupt, notificationChannel->out);
-    } else if (vectorChannel.hasVector(&interrupt)) {
-        vectorChannel.acceptInterrupt(interrupt);
-    } else {
+    } else
 #endif
-    ZcodeOutStream<ZP> *out = notificationChannel->out;
-    out->lock();
-    out->openNotification(notificationChannel);
-    sendInitialInterruptInfo(out, interrupt);
-    out->writeCommandSequenceSeparator();
-    out->close();
-    out->unlock();
-    interrupt.clear();
+
 #if defined(ZCODE_SUPPORT_SCRIPT_SPACE) && defined(ZCODE_SUPPORT_INTERRUPT_VECTOR)
-    }
+        if (vectorChannel.hasVector(&interrupt)) {
+        vectorChannel.acceptInterrupt(interrupt);
+    } else
 #endif
+    {
+        ZcodeOutStream<ZP> *out = notificationChannel->out;
+        out->lock();
+        out->openNotification(notificationChannel);
+        sendInitialInterruptInfo(out, interrupt);
+        out->writeCommandSequenceSeparator();
+        out->close();
+        out->unlock();
+        interrupt.clear();
+    }
 }
 
 template<class ZP>
