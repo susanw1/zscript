@@ -83,10 +83,10 @@ public:
         out->writeField16('A', address);
     }
 
-    static void routeResponse(ZcodeBusInterrupt<ZP> interrupt, ZcodeOutStream<ZP> *out) {
-        bool tenBit = (interrupt.getFoundAddress() & 0x800) != 0;
-        uint8_t port = interrupt.getNotificationPort();
-        uint16_t address = (interrupt.getFoundAddress() & 0x7ff);
+    static void routeResponse(ZcodeBusInterrupt<ZP> *interrupt, ZcodeOutStream<ZP> *out) {
+        bool tenBit = (interrupt->getFoundAddress() & 0x800) != 0;
+        uint8_t port = interrupt->getNotificationPort();
+        uint16_t address = (interrupt->getFoundAddress() & 0x7ff);
         if (port >= LL::i2cCount) {
             return;
         }
@@ -126,8 +126,8 @@ public:
         if (status != Complete) {
             out->writeCommandSequenceSeparator();
             out->markNotification(AddressingNotification);
-            out->writeField16('M', interrupt.getNotificationModule());
-            out->writeField8('P', interrupt.getNotificationPort());
+            out->writeField16('M', interrupt->getNotificationModule());
+            out->writeField8('P', interrupt->getNotificationPort());
             out->writeField16('A', address);
             uint8_t infoValue;
             if (status == DataNack) {

@@ -47,10 +47,10 @@ public:
         serial->transmitWriteBuffer();
     }
 
-    static void routeResponse(ZcodeBusInterrupt<ZP> interrupt, ZcodeOutStream<ZP> *out) {
-        uint8_t port = interrupt.getNotificationPort();
+    static void routeResponse(ZcodeBusInterrupt<ZP> *interrupt, ZcodeOutStream<ZP> *out) {
+        uint8_t port = interrupt->getNotificationPort();
         if (port >= LL::serialCount) {
-            interrupt.clear();
+            interrupt->clear();
             return;
         }
         bool isAtStart = true;
@@ -58,7 +58,6 @@ public:
         while (true) {
             int16_t v = serial->read();
             if (v == -1) {
-                out->writeCommandSequenceSeparator();
                 return;
             }
             if (v == EOL_SYMBOL) {

@@ -52,32 +52,32 @@ public:
         ZcodeAddressRouter<ZP>::addressingSwitch(module, slot, addrInfo);
     }
 
-    static void response(ZcodeBusInterrupt<ZP> interrupt, ZcodeOutStream<ZP> *out) {
-        int8_t sections = ZcodeAddressRouter<ZP>::getAddressingLevel(interrupt.getNotificationModule());
+    static void response(ZcodeBusInterrupt<ZP> *interrupt, ZcodeOutStream<ZP> *out) {
+        int8_t sections = ZcodeAddressRouter<ZP>::getAddressingLevel(interrupt->getNotificationModule());
         if (sections == -1) {
-            interrupt.clear();
+            interrupt->clear();
             return;
         }
         out->lock();
         out->openNotification(Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel());
         out->markAddressing();
-        out->writeField16(interrupt.getNotificationModule());
+        out->writeField16(interrupt->getNotificationModule());
         if (sections > 0) {
             out->markAddressingContinue();
-            out->writeField8(interrupt.getNotificationPort());
+            out->writeField8(interrupt->getNotificationPort());
         }
-        if (sections == 2 && interrupt.hasFindableAddress() && interrupt.hasFoundAddress()) {
+        if (sections == 2 && interrupt->hasFindableAddress() && interrupt->hasFoundAddress()) {
             out->markAddressingContinue();
-            out->writeField16(interrupt.getFoundAddress());
+            out->writeField16(interrupt->getFoundAddress());
         }
         ZcodeAddressRouter<ZP>::responseSwitch(interrupt, out);
         out->writeCommandSequenceSeparator();
         out->close();
         out->unlock();
-        interrupt.clear();
+        interrupt->clear();
     }
-    static bool isAddressed(ZcodeBusInterrupt<ZP> interrupt) {
-        int8_t sections = ZcodeAddressRouter<ZP>::getAddressingLevel(interrupt.getNotificationModule());
+    static bool isAddressed(ZcodeBusInterrupt<ZP> *interrupt) {
+        int8_t sections = ZcodeAddressRouter<ZP>::getAddressingLevel(interrupt->getNotificationModule());
         return sections != -1;
     }
 

@@ -312,6 +312,7 @@ I2cTerminationStatus I2c<LL>::receive10(uint16_t address, bool tenBit, uint8_t *
             if (position == rxLen) {
                 i2c.setNackAndStop();
                 volatile uint8_t v = i2c.readData();
+                (void) v;
                 return Complete;
             } else {
                 rxData[position++] = i2c.readData();

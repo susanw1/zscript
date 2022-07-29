@@ -38,9 +38,9 @@ public:
         return waitingNum < ZP::interruptVectorWorkingNum;
     }
 
-    void acceptInterrupt(ZcodeBusInterrupt<ZP> i) {
-        waitingInterrupts[waitingNum++] = i;
-        i.invalidate();
+    void acceptInterrupt(ZcodeBusInterrupt<ZP> *i) {
+        waitingInterrupts[waitingNum++] = *i;
+        i->invalidate();
     }
 
     ZcodeInterruptVectorChannel<ZP>* getChannel() {
