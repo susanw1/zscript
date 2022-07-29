@@ -69,7 +69,7 @@ I2cInternal<LL> getI2cInternal_internal(I2cIdentifier id) {
 #else
         return I2cInternal<LL>();
 #endif
-    } else if (id == 1) {
+    } else {
 #ifdef USE_I2C_2
         return I2cInternal<LL>(I2C_SDA(I2C_2, I2C_2_SDA), I2C_SCL(I2C_2, I2C_2_SCL), (I2cRegisters*) 0x40005800);
 #else
