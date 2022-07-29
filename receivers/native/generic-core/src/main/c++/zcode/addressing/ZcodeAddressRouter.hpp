@@ -67,6 +67,7 @@ protected:
     struct AddressSectionReading {
         uint16_t addr;
         uint16_t offset;
+        bool ignoreDot;
     };
 
     //has functions of form:    static void route(ZcodeExecutionCommandSlot<ZP> slot);
@@ -134,10 +135,12 @@ private:
                 addr = (uint16_t) ((addr << 4) | v);
             }
         }
+        AddressSectionReading reading;
+        reading.ignoreDot = i == 0;
         if (data[i + start] == '.') {
             i++;
+            reading.ignoreDot = false;
         }
-        AddressSectionReading reading;
         reading.addr = addr;
         reading.offset = (uint16_t) (start + i);
         return reading;

@@ -66,7 +66,9 @@ public:
             slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
             return;
         }
-        ZcodeAddressRouter<ZP>::overwriteWithAddressingSymbol(slot, &addrInfo);
+        if (!reading.ignoreDot) {
+            ZcodeAddressRouter<ZP>::overwriteWithAddressingSymbol(slot, &addrInfo);
+        }
         ZcodeAddressRouter<ZP>::addressingSwitch(mapping.module, slot, addrInfo);
     }
 

@@ -23,7 +23,7 @@ public:
         AddressSectionReading moduleReading = ZcodeAddressRouter<ZP>::readAddressSection12(slot.getBigField()->getData(), 0, slot.getBigField()->getLength());
         uint16_t module = moduleReading.addr;
         int8_t sections = ZcodeAddressRouter<ZP>::getAddressingLevel(module);
-
+        bool ignoreDot = moduleReading.ignoreDot;
         if (sections == 0) {
             addrInfo.start = moduleReading.offset;
             addrInfo.addr = 0;
@@ -31,12 +31,14 @@ public:
         } else if (sections == 1 || sections == 2) {
             AddressSectionReading portReading = ZcodeAddressRouter<ZP>::readAddressSection8(slot.getBigField()->getData(), moduleReading.offset, slot.getBigField()->getLength());
             addrInfo.port = (uint8_t) portReading.addr;
+            ignoreDot = portReading.ignoreDot;
             if (sections == 1) {
                 addrInfo.start = portReading.offset;
                 addrInfo.addr = 0;
             } else {
                 AddressSectionReading addrReading =
                         ZcodeAddressRouter<ZP>::readAddressSection12(slot.getBigField()->getData(), portReading.offset, slot.getBigField()->getLength());
+                ignoreDot = addrReading.ignoreDot;
                 addrInfo.start = addrReading.offset;
                 addrInfo.addr = addrReading.addr;
             }
@@ -44,7 +46,9 @@ public:
             slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
             return;
         }
-        ZcodeAddressRouter<ZP>::overwriteWithAddressingSymbol(slot, &addrInfo);
+        if (!ignoreDot) {
+            ZcodeAddressRouter<ZP>::overwriteWithAddressingSymbol(slot, &addrInfo);
+        }
         ZcodeAddressRouter<ZP>::addressingSwitch(module, slot, addrInfo);
     }
 
