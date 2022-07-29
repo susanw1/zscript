@@ -11,6 +11,7 @@
 #include <ZcodeIncludes.hpp>
 #include <ZcodeStrings.hpp>
 
+
 // Please note that ZcodeFullInclude will set any #defines necessary to other set #defines - so ZCODE_USE_DEBUG_ADDRESSING_SYSTEM enables ZCODE_SUPPORT_DEBUG
 
 //#define ZCODE_SUPPORT_SCRIPT_SPACE
@@ -33,6 +34,9 @@
 //Please note this needs to line up with the typedef of ZcodeParams::AddressRouter below
 #define ZCODE_USE_MODULE_ADDRESSING
 //#define ZCODE_USE_MAPPING_ADDRESSING
+
+#define I2C_ENABLE_GENERAL_CALL() TWAR |= 1
+#define I2C_SET_ADDRESS(addr) TWAR = addr<<1
 
 
 template<class ZP>
