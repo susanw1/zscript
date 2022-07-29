@@ -19,14 +19,14 @@ void DmaManager<LL>::interrupt(uint8_t i) {
     DmaRegisters *registers = (DmaRegisters*) 0x40020000;
     if (i == 0) {
         DmaManager::dmas[0].interrupt();
-    } else if (i == 0) {
-        if (registers->ISR & 0xF0) {
+    } else if (i == 1) {
+        if ((registers->ISR & 0xF0) != 0) {
             DmaManager::dmas[1].interrupt();
         } else {
             DmaManager::dmas[2].interrupt();
         }
     } else {
-        if (registers->ISR & 0xF000) {
+        if ((registers->ISR & 0xF000) != 0) {
             DmaManager::dmas[3].interrupt();
         } else {
             DmaManager::dmas[4].interrupt();

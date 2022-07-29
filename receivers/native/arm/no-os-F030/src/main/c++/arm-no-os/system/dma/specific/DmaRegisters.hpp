@@ -15,6 +15,7 @@ struct DmaChannelRegisters {
     volatile uint32_t CNDTR;
     volatile uint32_t CPAR;
     volatile uint32_t CMAR;
+    volatile uint32_t Reserved;
 };
 
 struct DmaRegisters {
