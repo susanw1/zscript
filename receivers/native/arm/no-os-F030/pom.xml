@@ -27,7 +27,7 @@
         <device>STM32F030R8</device>
         <!-- 		<cpp-warnings>-Wall -Wno-long-long -Wpointer-arith -Wconversion</cpp-warnings> -->
         <cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
-        <cpp-optimizations>-O3</cpp-optimizations>
+        <cpp-optimizations>-Os</cpp-optimizations>
         <!-- OPENOCD_LOC=...git/openocd-code-->
 		<!-- mvn deploy -Dopenocd-location=$OPENOCD_LOC/tcl -Dopenocd-command=$OPENOCD_LOC/src/openocd -->
         <openocd-location>/usr/share/openocd/scripts</openocd-location>
