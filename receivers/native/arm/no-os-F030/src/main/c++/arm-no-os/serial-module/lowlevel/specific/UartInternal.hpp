@@ -80,16 +80,8 @@ public:
         registers->CR1 = uartIdleInterruptEnable | uartTransmitEnable | uartReceiveEnable | uartRxNEInterruptEnable;
         registers->CR2 = singleNdoubleStop ? 0 : uartDoubleStopBit; // sets standard logic levels, and MSB first
         registers->CR3 = uartTxDmaEnable;
-        registers->PRESC = 0;
-        uint32_t freq = ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000;
-        uint32_t freqPresc = freq;
-        if (baud_rate < 100000) { //avoid overflows
-            while (baud_rate * 32768 <= freqPresc) { // if we have a really low baud rate, engage the prescaler to cope
-                freqPresc /= 2;
-                registers->PRESC++;
-            }
-        }
-        registers->BRR = freqPresc / baud_rate;
+        uint32_t freq = ClockManager<LL>::getClock(PCLK)->getFreqKhz() * 1000;
+        registers->BRR = freq / baud_rate;
         registers->CR1 |= uartEnable; //enable the peripheral
     }
 
