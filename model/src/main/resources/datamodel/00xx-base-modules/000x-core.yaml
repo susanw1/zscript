@@ -2,14 +2,14 @@ modules:
 -   name: Core
     id: 0
     version: 0.0.1
-    description: Provides core system commands which can be executed without device activation.
+    description: Provides core system commands which can be executed without device activation
 
     commands:
     -   name: capabilities
         command: 0
         description: Top level identification, for hardware, software, modules, versions
         operation: get
-        requestParams: null
+        requestParams: []
         responseParams:
         -   label: C
             name: commandsSet
@@ -25,7 +25,7 @@ modules:
                 '@type': commands
                 bitFields: []
             required: yes
-        status: null
+        status: []
 
     -   name: echo
         command: 1
@@ -88,7 +88,7 @@ modules:
 
     -   name: reset
         command: 3
-        description: Resets the device(!) or channels. Device reset and *this channel* reset produces no response at all.
+        description: Resets the device(!) or channels. Device reset and *this channel* reset produces no response at all
         operation: put
         requestParams:
         -   label: C
@@ -97,7 +97,7 @@ modules:
             typeDefinition:
                 '@type': number
             required: no
-        responseParams: null
+        responseParams: []
         status:
         -   code: CMD_FAIL
             meaning: channel reset failed
@@ -107,7 +107,7 @@ modules:
         command: 4
         description: Retrieves the system GUID, if set
         operation: get
-        requestParams: null
+        requestParams: []
         responseParams:
         -   label: +
             name: guid
@@ -157,14 +157,14 @@ modules:
                 '@type': text
             required: yes
         extension: channel
-        status: null
+        status: []
 
 
     -   name: makeCode
         command: 12
         description: Generates a random match-code
         operation: post
-        requestParams: null
+        requestParams: []
         responseParams:
         -   label: C
             name: matchCode
@@ -185,12 +185,15 @@ modules:
             typeDefinition:
                 '@type': number
             required: yes
-        responseParams: null
+        responseParams: []
         status:
         -   code: CMD_FAIL
             meaning: supplied code didn't match
 
-    -   name: null
+    -   name: user-defined
         command: 15
         description: Command kept free for user-defined system command
         operation: unknown
+        requestParams: []
+        responseParams: []
+        status: []

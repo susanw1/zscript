@@ -3,11 +3,13 @@ package org.zcode.model.datamodel;
 import java.util.List;
 
 public interface DefinitionResources {
-    List<ModuleBank> getModuleBanks();
+    List<ModuleBankDef> getModuleBanks();
 
-    interface ModuleBank {
+    interface ModuleBankDef {
         String getName();
 
-        List<String> getModules();
+        int getId();
+
+        List<String> getModuleDefinitions();
     }
 }

@@ -2,7 +2,7 @@ modules:
 -   name: OuterCore
     id: 1
     version: 0.0.1
-    description: Extended core commands, enabled only after 'activation'.
+    description: Extended core commands, enabled only after Activation
 
     commands:
     -   name: extendedCapabilities
@@ -36,7 +36,7 @@ modules:
             typeDefinition:
                 '@type': bitset
             required: yes
-        status: null
+        status: []
 
     -   name: addressRoute
         command: 1
@@ -49,7 +49,7 @@ modules:
             typeDefinition:
                 '@type': bytes
             required: yes
-        responseParams: null
+        responseParams: []
         status:
         -   code: BAD_ADDRESSING
             meaning: command may only be invoked from notification channel
@@ -59,8 +59,8 @@ modules:
         command: 2
         description: Configures the addressing system
         operation: put
-        requestParams: null
-        responseParams: null
+        requestParams: []
+        responseParams: []
         extension: addressing
         status:
         -   code: BAD_ADDRESSING
@@ -78,7 +78,7 @@ modules:
             typeDefinition:
                 '@type': bytes
             required: yes
-        responseParams: null
+        responseParams: []
         status:
         -   code: BAD_PARAM
             meaning: GUID must be 16 bytes
@@ -107,14 +107,16 @@ modules:
             typeDefinition:
                 '@type': flag
             required: no
-        responseParams: null
+        responseParams: []
         extension: channel
         status:
         -   code: BAD_PARAM
             meaning: channel out of range
 
-
-    -   name: null
+    -   name: user-defined
         command: 15
         description: Command kept free for user-defined non-core command
         operation: unknown
+        requestParams: []
+        responseParams: []
+        status: []

@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.zcode.model.datamodel.DefinitionResources.ModuleBank;
+import org.zcode.model.datamodel.DefinitionResources.ModuleBankDef;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -32,8 +32,8 @@ public class DefinitionResourcesTest {
         final InputStream   resourceStream = requireNonNull(getClass().getResourceAsStream("/datamodel/module-list.yaml"), "resourceStream");
         DefinitionResources model          = jsonMapper.readValue(resourceStream, DefinitionResources.class);
 
-        final List<ModuleBank> moduleBanks = model.getModuleBanks();
+        final List<ModuleBankDef> moduleBanks = model.getModuleBanks();
         assertThat(moduleBanks).hasSize(1);
-        assertThat(moduleBanks.get(0).getModules()).hasSize(3);
+        assertThat(moduleBanks.get(0).getModuleDefinitions()).hasSize(3);
     }
 }

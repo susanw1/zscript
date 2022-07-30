@@ -2,6 +2,11 @@ package org.zcode.model.datamodel;
 
 import java.util.List;
 
+import org.zcode.model.loader.ModuleBank;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -10,6 +15,10 @@ public interface ZcodeDataModel {
     List<ModuleModel> getModules();
 
     interface ModuleModel {
+        ModuleBank getModuleBank();
+
+        void setModuleBank(ModuleBank moduleBank);
+
         String getName();
 
         short getId();
@@ -18,7 +27,9 @@ public interface ZcodeDataModel {
 
         String getDescription();
 
+        @JsonManagedReference
         List<CommandModel> getCommands();
+
     }
 
     /** Characterises commands in quasi-HTTP terms */
@@ -41,6 +52,9 @@ public interface ZcodeDataModel {
     }
 
     interface CommandModel {
+        @JsonBackReference
+        ModuleModel getModule();
+
         String getName();
 
         byte getCommand();
@@ -51,11 +65,20 @@ public interface ZcodeDataModel {
 
         Extension getExtension();
 
+        @JsonManagedReference
+        @JsonProperty(required = true)
         List<RequestParamModel> getRequestParams();
 
+        @JsonManagedReference
+        @JsonProperty(required = true)
         List<ResponseParamModel> getResponseParams();
 
+        @JsonManagedReference
         List<StatusModel> getStatus();
+
+        default int getFullCommand() {
+            return getModule().getModuleBank().getId() << 16 | getModule().getId() << 4 | getCommand();
+        }
     }
 
     enum ParamType {
@@ -82,7 +105,7 @@ public interface ZcodeDataModel {
     }
 
     interface EnumTypeDefinition extends TypeDefinition {
-        List<String> getValues();
+        List<String> getAllowedValues();
     }
 
     interface BitsetTypeDefinition extends TypeDefinition {
@@ -109,6 +132,9 @@ public interface ZcodeDataModel {
     }
 
     interface GenericParam {
+        @JsonBackReference
+        CommandModel getCommand();
+
         char getLabel();
 
         String getName();
@@ -127,6 +153,9 @@ public interface ZcodeDataModel {
     }
 
     interface StatusModel {
+        @JsonBackReference
+        CommandModel getCommand();
+
         String getCode();
 
         int getId();

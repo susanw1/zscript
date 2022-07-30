@@ -9,7 +9,7 @@ modules:
         command: 0
         description: I2C capabilities
         operation: get
-        requestParams: null
+        requestParams: []
         responseParams:
         -   label: C
             name: commandsSet
@@ -36,7 +36,7 @@ modules:
             typeDefinition:
                 '@type': number
             required: yes
-        status: null
+        status: []
 
     -   name: i2cSetup
         command: 1
@@ -55,7 +55,7 @@ modules:
             typeDefinition:
                 '@type': number
             required: no
-        responseParams: null
+        responseParams: []
         status:
         -   code: BAD_PARAM
             meaning: port or frequency out of range
@@ -107,7 +107,7 @@ modules:
             description: detailed status info for I2C activity
             typeDefinition:
                 '@type': enum
-                values: [Ok, BufferOverrun, AddrNack, DataNack, Other ]
+                allowedValues: [Ok, BufferOverrun, AddrNack, DataNack, Other ]
             required: yes
         -   label: T
             name: attempts
@@ -169,7 +169,7 @@ modules:
             description: detailed status info for I2C activity
             typeDefinition:
                 '@type': enum
-                values: [Ok, BufferOverrun, AddrNack, DataNack, Other ]
+                allowedValues: [Ok, BufferOverrun, AddrNack, DataNack, Other ]
             required: yes
         -   label: T
             name: attempts
@@ -245,7 +245,7 @@ modules:
             description: detailed status info for I2C activity
             typeDefinition:
                 '@type': enum
-                values: [Ok, BufferOverrun, AddrNack, DataNack, Other ]
+                allowedValues: [Ok, BufferOverrun, AddrNack, DataNack, Other ]
             required: yes
         -   label: T
             name: attempts
