@@ -48,7 +48,7 @@ void SPIClass<LL>::begin() {
 
     GpioPin<LL> sck = GpioManager<LL>::getPin(PA_5);
     sck.init();
-    sck.setAlternateFunction(0);
+    sck.setAlternateFunction(LL::HW::spiAlternateFunction);
     sck.setOutputSpeed(VeryHighSpeed);
     sck.setMode(AlternateFunction);
     sck.setOutputMode(PushPull);
@@ -56,7 +56,7 @@ void SPIClass<LL>::begin() {
 
     GpioPin<LL> miso = GpioManager<LL>::getPin(PA_6);
     miso.init();
-    miso.setAlternateFunction(0);
+    miso.setAlternateFunction(LL::HW::spiAlternateFunction);
     miso.setOutputSpeed(VeryHighSpeed);
     miso.setMode(AlternateFunction);
     miso.setOutputMode(PushPull);
@@ -64,7 +64,7 @@ void SPIClass<LL>::begin() {
 
     GpioPin<LL> mosi = GpioManager<LL>::getPin(PA_7);
     mosi.init();
-    mosi.setAlternateFunction(0);
+    mosi.setAlternateFunction(LL::HW::spiAlternateFunction);
     mosi.setOutputSpeed(VeryHighSpeed);
     mosi.setMode(AlternateFunction);
     mosi.setOutputMode(PushPull);

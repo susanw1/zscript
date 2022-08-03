@@ -72,6 +72,8 @@ public:
 
     static const bool inDualBankFlash = true;
     static const uint32_t pageSize = 0x800;
+
+    static const uint8_t spiAlternateFunction = 5;
 };
 
 class LowLevelConfiguration {
