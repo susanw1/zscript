@@ -90,7 +90,7 @@ public:
     void disablePeripheral() {
         const uint32_t enableI2c = 0x1;
         if (registers != NULL) {
-            setupCr1(false);
+            setupCr1(false, false);
             registers->CR1 &= ~enableI2c;
         }
     }

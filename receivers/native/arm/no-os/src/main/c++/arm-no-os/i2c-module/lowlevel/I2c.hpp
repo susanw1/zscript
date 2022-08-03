@@ -128,6 +128,9 @@ public:
     I2cTerminationStatus transmitReceive(uint8_t address, const uint8_t *txData, uint16_t txLen, uint8_t *rxData, uint16_t rxLen) {
         return transmitReceive10(address, false, txData, txLen, rxData, rxLen);
     }
+    bool isSetUp() {
+        return i2c.isSetUp();
+    }
 
     bool lock() {
         if (!state.lockBool) {
