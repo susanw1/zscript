@@ -9,6 +9,7 @@
 #define SRC_MAIN_C___CHANNELS_SERIAL_SERIALCHANNEL_HPP_
 
 #include <arm-no-os/serial-module/lowlevel/Serial.hpp>
+#include <arm-no-os/serial-module/lowlevel/UartManager.hpp>
 
 #include <zcode/ZcodeIncludes.hpp>
 
@@ -105,7 +106,7 @@ public:
 
     void giveInfo(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
-        out->writeField32('H', ClockManager<LL>::getClock(PCLK)->getFreqKhz() * 1000 / 16);
+        out->writeField32('H', seqin.getSerial()->getMaxBaud());
         out->writeField16('P', seqin.getSerial()->getId());
         out->writeField16('B', ZP::serialChannelBigFieldSize);
         out->writeField16('F', ZP::fieldNum);
