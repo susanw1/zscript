@@ -40,6 +40,7 @@ public:
             slot.fail(BAD_PARAM, "Port not available");
             return;
         }
+        Serial *serial = UartManager<LL>::getUartById(port);
 
         for (uint8_t i = 0; i < slot.getBigField()->getLength(); ++i) {
             baud <<= 8;
@@ -47,8 +48,7 @@ public:
         }
         if (slot.getBigField()->getLength() == 0) {
             baud = 9600;
-        } else if (slot.getBigField()->getLength() > 4 || baud == 0 || baud > ClockManager<LL>::getClock(PCLK)->getFreqKhz() * 1000 / 16
-                || baud < ClockManager<LL>::getClock(PCLK)->getFreqKhz() / 64) {
+        } else if (slot.getBigField()->getLength() > 4 || baud <= serial->getMinBaud() || baud >= serial->getMaxBaud()) {
             slot.fail(BAD_PARAM, "Invalid baud rate");
             return;
         }
@@ -56,7 +56,7 @@ public:
             slot.fail(CMD_FAIL, "Parity not supported");
             return;
         }
-        if (slot.getFields()->has('N')) {
+        if (slot.getFields()->has('O')) {
             slot.fail(CMD_FAIL, "Noise detection not supported");
             return;
         }
@@ -68,7 +68,7 @@ public:
             return;
         }
 
-        UartManager<LL>::getUartById(port)->init(NULL, baud, singleNdoubleStop);
+        serial->init(NULL, baud, singleNdoubleStop);
         out->writeStatus(OK);
     }
 

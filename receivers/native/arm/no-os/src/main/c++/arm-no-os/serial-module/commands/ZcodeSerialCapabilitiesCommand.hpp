@@ -28,9 +28,8 @@ public:
         out->writeField8('A', 0);
 
         out->writeField8('U', 0x2); // [....., parity, single/double stop, auto board rate]
-
         out->writeField8('P', HW::serialCount);
-        out->writeField32('F', ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16);
+        out->writeField32('F', UartManager<LL>::getUartById(0)->getMaxBaud());
         out->writeField16('B', LL::UartBufferTxSize);
         out->writeField16('R', LL::UartBufferRxSize);
         out->writeStatus(OK);

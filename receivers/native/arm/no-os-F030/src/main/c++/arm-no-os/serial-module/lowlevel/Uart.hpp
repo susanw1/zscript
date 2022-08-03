@@ -58,6 +58,12 @@ public:
         this->txDma = txDma;
 
     }
+    uint32_t getMaxBaud() {
+        return ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16;
+    }
+    uint32_t getMinBaud() {
+        return ClockManager<LL>::getClock(PCLK)->getFreqKhz() / 64;
+    }
     void init(void (*volatile bufferOverflowCallback)(SerialIdentifier), uint32_t baud_rate, bool singleNdoubleStop);
     //the buffer overflow handler can read/skip in the callback to clear space - if it doesn't clear enough space we abort the write
 

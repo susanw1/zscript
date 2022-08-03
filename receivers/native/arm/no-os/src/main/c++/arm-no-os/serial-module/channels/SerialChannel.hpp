@@ -128,7 +128,7 @@ public:
         }
         if (slot.getBigField()->getLength() == 0) {
             baud = 9600;
-        } else if (slot.getBigField()->getLength() > 4 || baud == 0 || baud > ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16) {
+        } else if (slot.getBigField()->getLength() > 4 || baud <= seqin.getSerial()->getMinBaud() || baud >= seqin.getSerial()->getMaxBaud()) {
             slot.fail(BAD_PARAM, "Invalid baud rate");
             return;
         }

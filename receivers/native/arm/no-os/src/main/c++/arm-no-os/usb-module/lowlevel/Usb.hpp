@@ -31,6 +31,12 @@ public:
     void setId(SerialIdentifier id) {
         this->id = id;
     }
+    uint32_t getMaxBaud() {
+        return 0xFFFFFFFF;
+    }
+    uint32_t getMinBaud() {
+        return 0;
+    }
 
     void init(void (*volatile bufferOverflowCallback)(SerialIdentifier), uint32_t baud_rate, bool singleNdoubleStop) {
         (void) bufferOverflowCallback;

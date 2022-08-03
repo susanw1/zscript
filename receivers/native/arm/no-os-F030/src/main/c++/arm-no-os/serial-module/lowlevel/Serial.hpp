@@ -60,6 +60,8 @@ public:
     SerialIdentifier getId() {
         return id;
     }
+    virtual uint32_t getMaxBaud() = 0;
+    virtual uint32_t getMinBaud() = 0;
 
     virtual void init(void (*volatile bufferOverflowCallback)(SerialIdentifier), uint32_t baud_rate, bool singleNdoubleStop) = 0;
     //the buffer overflow handler can read/skip in the callback to clear space - if it doesn't clear enough space we abort the write
