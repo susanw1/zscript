@@ -16,7 +16,8 @@ class Serial;
 template<class LL>
 class UartManager {
 private:
-    static Uart<LL> uarts[LL::uartCount];
+    typedef typename LL::HW HW;
+    static Uart<LL> uarts[HW::uartCount];
 
     static uint16_t mask;
 

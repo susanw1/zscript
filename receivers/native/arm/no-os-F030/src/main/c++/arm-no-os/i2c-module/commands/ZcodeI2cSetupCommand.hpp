@@ -20,6 +20,7 @@ public:
     static constexpr char CMD_PARAM_FREQ_F = 'F';
 
     typedef typename ZP::LL LL;
+    typedef typename LL::HW HW;
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
 
@@ -47,13 +48,13 @@ public:
 
             uint16_t port;
             if (slot.getFields()->get(CMD_PARAM_I2C_PORT_P, &port)) {
-                if (port >= LL::i2cCount) {
+                if (port >= HW::i2cCount) {
                     slot.fail(BAD_PARAM, "Invalid I2C port");
                     return;
                 }
                 I2cManager<LL>::getI2cById(port)->setFrequency((I2cFrequency) freqValue);
             } else {
-                for (I2cIdentifier i = 0; i < LL::i2cCount; i++) {
+                for (I2cIdentifier i = 0; i < HW::i2cCount; i++) {
                     I2cManager<LL>::getI2cById(i)->setFrequency((I2cFrequency) freqValue);
                 }
             }

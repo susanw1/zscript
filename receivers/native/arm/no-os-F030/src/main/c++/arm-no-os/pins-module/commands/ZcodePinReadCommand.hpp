@@ -17,6 +17,7 @@
 template<class ZP>
 class ZcodePinReadCommand: public ZcodeCommand<ZP> {
     typedef typename ZP::LL LL;
+    typedef typename LL::HW HW;
 
 public:
 
@@ -27,7 +28,7 @@ public:
             slot.fail(BAD_PARAM, "No pin specified");
             return;
         }
-        if (pin >= LL::pinCount) {
+        if (pin >= HW::pinCount) {
             slot.fail(BAD_PARAM, "Invalid pin");
             return;
         }

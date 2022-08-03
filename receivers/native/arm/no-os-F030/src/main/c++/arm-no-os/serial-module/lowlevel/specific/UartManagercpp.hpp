@@ -172,7 +172,7 @@ Dma<LL>* getUartDmaById(uint8_t id) {
 template<class LL>
 void UartManager<LL>::init() {
     InterruptManager::setInterrupt(&UartManager::interrupt, UartInt);
-    for (int i = 0; i < LL::uartCount; ++i) {
+    for (int i = 0; i < HW::uartCount; ++i) {
         uarts[i].setUart(getUartInternal<LL>(i), getUartDmaById<LL>(i));
         InterruptManager::enableInterrupt(UartInt, i, 8);
     }

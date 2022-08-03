@@ -65,7 +65,7 @@ void DmaManager<LL>::init() {
     InterruptManager::enableInterrupt(InterruptType::DmaInt, 0, 10);
     InterruptManager::enableInterrupt(InterruptType::DmaInt, 1, 10);
     InterruptManager::enableInterrupt(InterruptType::DmaInt, 2, 10);
-    for (int i = 0; i < LL::dmaCount; ++i) {
+    for (int i = 0; i < HW::dmaCount; ++i) {
         dmas[i].setDma(createChannelInternalFromId<LL>(i));
         dmas[i].unlock();
     }

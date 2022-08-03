@@ -59,7 +59,7 @@
 #endif
 
 template<class LL>
-I2c<LL> I2cManager<LL>::i2cs[LL::i2cCount];
+I2c<LL> I2cManager<LL>::i2cs[HW::i2cCount];
 
 template<class LL>
 I2cInternal<LL> getI2cInternal_internal(I2cIdentifier id) {
@@ -88,7 +88,7 @@ void I2cManager<LL>::init() {
 
     InterruptManager::setInterrupt(&I2cManager::interrupt, InterruptType::I2cInt);
 
-    for (int i = 0; i < LL::i2cCount; ++i) {
+    for (int i = 0; i < HW::i2cCount; ++i) {
         i2cs[i].setI2c(getI2cInternal_internal<LL>(i), i);
         i2cs[i].init();
         InterruptManager::enableInterrupt(InterruptType::I2cInt, i, 10);

@@ -14,7 +14,8 @@
 template<class LL>
 class DmaManager {
 private:
-    static Dma<LL> dmas[LL::dmaCount];
+    typedef typename LL::HW HW;
+    static Dma<LL> dmas[LL::HW::dmaCount];
 
     DmaManager() {
     }

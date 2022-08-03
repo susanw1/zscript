@@ -17,6 +17,7 @@
 template<class ZP>
 class ZcodeSerialSkipCommand: public ZcodeCommand<ZP> {
     typedef typename ZP::LL LL;
+    typedef typename LL::HW HW;
 
 public:
     static constexpr uint8_t CODE = 0x04;
@@ -35,7 +36,7 @@ public:
             return;
         }
 
-        if (port >= LL::serialCount) {
+        if (port >= HW::serialCount) {
             slot.fail(BAD_PARAM, "Port number invalid");
             return;
         }

@@ -3,7 +3,7 @@
 #include <arm-no-os/system/core/core_cm0.h>
 
 #include "ZcodeParameters.hpp"
-#include <arm-no-os/GeneralLLSetup.hpp>
+#include "GeneralLLSetup.hpp"
 
 #include <arm-no-os/i2c-module/addressing/ZcodeI2cAddressingSystem.hpp>
 #include <arm-no-os/serial-module/addressing/ZcodeSerialAddressingSystem.hpp>
@@ -41,40 +41,40 @@
 
 #include <zcode/Zcode.hpp>
 
-const char *GeneralHalSetup::ucpdManufacturerInfo = "Zcode/Alpha Board";
+const char *LowLevelConfiguration::ucpdManufacturerInfo = "Zcode/Alpha Board";
 
 int main(void) {
-    ClockManager<GeneralHalSetup>::basicSetup();
+    ClockManager<LowLevelConfiguration>::basicSetup();
 
-    SystemMilliClock<GeneralHalSetup>::init();
+    SystemMilliClock<LowLevelConfiguration>::init();
     for (volatile uint32_t i = 0; i < 0x100; ++i)
         ;
-    SystemMilliClock<GeneralHalSetup>::blockDelayMillis(20);
-    DmaManager<GeneralHalSetup>::init();
-    GpioManager<GeneralHalSetup>::init();
-    UartManager<GeneralHalSetup>::init();
-    GpioManager<GeneralHalSetup>::getPin(PC_9).init();
-    GpioManager<GeneralHalSetup>::getPin(PC_9).setMode(Output);
-    I2cManager<GeneralHalSetup>::init();
+    SystemMilliClock<LowLevelConfiguration>::blockDelayMillis(20);
+    DmaManager<LowLevelConfiguration>::init();
+    GpioManager<LowLevelConfiguration>::init();
+    UartManager<LowLevelConfiguration>::init();
+    GpioManager<LowLevelConfiguration>::getPin(PC_9).init();
+    GpioManager<LowLevelConfiguration>::getPin(PC_9).setMode(Output);
+    I2cManager<LowLevelConfiguration>::init();
 
     ZcodeI2cBusInterruptSource<ZcodeParameters> i2cSource;
     ZcodeSerialBusInterruptSource<ZcodeParameters> serialSource;
     Zcode<ZcodeParameters> *z = &Zcode<ZcodeParameters>::zcode;
 
-    SystemMilliClock<GeneralHalSetup>::blockDelayMillis(1000);
+    SystemMilliClock<LowLevelConfiguration>::blockDelayMillis(1000);
 
     EthernetUdpChannel<ZcodeParameters> channel(4889);
-    SerialChannel<ZcodeParameters> serial(UartManager<GeneralHalSetup>::getUartById(0));
+    SerialChannel<ZcodeParameters> serial(UartManager<LowLevelConfiguration>::getUartById(0));
     ZcodeCommandChannel<ZcodeParameters> *chptr[] = { &channel, &serial };
     z->setChannels(chptr, 2);
 
     ZcodeBusInterruptSource<ZcodeParameters> *sources[] = { &i2cSource, &serialSource };
     z->setInterruptSources(sources, 2);
 
-    GpioManager<GeneralHalSetup>::getPin(PC_9).set();
+    GpioManager<LowLevelConfiguration>::getPin(PC_9).set();
 
     while (true) {
         z->progressZcode();
-        Ethernet<GeneralHalSetup> .maintain();
+        Ethernet<LowLevelConfiguration> .maintain();
     }
 }

@@ -10,7 +10,7 @@
 
 #include <zcode/ZcodeIncludes.hpp>
 #include <zcode/ZcodeStrings.hpp>
-#include <arm-no-os/GeneralLLSetup.hpp>
+#include "GeneralLLSetup.hpp"
 #include <arm-no-os/system/clock/SystemMilliClock.hpp>
 
 #define ZCODE_STRING_SURROUND(str) str
@@ -43,7 +43,7 @@ public:
         return (uint16_t) SystemMilliClock<LL>::getTimeMillis();
     }
 
-    typedef GeneralHalSetup LL;
+    typedef LowLevelConfiguration LL;
 
     static const uint16_t ethernetUdpChannelBigFieldSize = 128;
     static const uint16_t serialChannelBigFieldSize = 128;

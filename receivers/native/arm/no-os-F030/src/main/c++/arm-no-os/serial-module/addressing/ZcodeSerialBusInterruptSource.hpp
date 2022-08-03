@@ -16,6 +16,7 @@
 template<class ZP>
 class ZcodeSerialBusInterruptSource: public ZcodeBusInterruptSource<ZP> {
     typedef typename ZP::LL LL;
+    typedef typename LL::HW HW;
     static uint16_t serialIntBits;
     static uint16_t serialIntReceivedBits;
 
@@ -27,14 +28,14 @@ class ZcodeSerialBusInterruptSource: public ZcodeBusInterruptSource<ZP> {
 public:
 
     ZcodeSerialBusInterruptSource() {
-        for (uint16_t i = 0; i < LL::serialCount; ++i) {
+        for (uint16_t i = 0; i < HW::serialCount; ++i) {
             UartManager<LL>::getUartById(i)->setTargetValue(&ZcodeSerialBusInterruptSource::callback, EOL_SYMBOL);
         }
     }
 
     ZcodeNotificationInfo takeUncheckedNotification() {
         if (serialIntReceivedBits != 0) {
-            for (uint8_t i = 0; i < LL::serialCount; ++i) {
+            for (uint8_t i = 0; i < HW::serialCount; ++i) {
                 if ((serialIntReceivedBits & (1 << i)) != 0) {
                     serialIntReceivedBits &= ~(1 << i);
                     serialIntBits |= 1 << i;

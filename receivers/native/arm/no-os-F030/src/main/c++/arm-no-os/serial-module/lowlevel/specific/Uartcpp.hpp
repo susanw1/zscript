@@ -14,7 +14,7 @@
 
 template<class LL>
 void UartDmaCallback(Dma<LL> *dma, DmaTerminationStatus status) {
-    for (int i = 0; i < LL::uartCount; ++i) {
+    for (int i = 0; i < LL::HW::uartCount; ++i) {
         if (((Uart<LL>*) UartManager<LL>::getUartById(i))->txDma == dma) {
             ((Uart<LL>*) UartManager<LL>::getUartById(i))->dmaInterrupt(status);
             break;

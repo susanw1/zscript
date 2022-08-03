@@ -16,6 +16,7 @@
 template<class ZP>
 class ZcodeI2cBusInterruptHandler {
     typedef typename ZP::LL LL;
+    typedef typename LL::HW HW;
     struct HandlerStatus {
         bool notificationFlag :1;
         I2cIdentifier id :7;
@@ -71,7 +72,7 @@ public:
 
 template<class ZP>
 class ZcodeI2cBusInterruptSource: public ZcodeBusInterruptSource<ZP> {
-    ZcodeI2cBusInterruptHandler<ZP> handlers[ZP::LL::i2cCount];
+    ZcodeI2cBusInterruptHandler<ZP> handlers[ZP::LL::HW::i2cCount];
 
 public:
 
@@ -80,7 +81,7 @@ public:
     }
 
     ZcodeNotificationInfo takeUncheckedNotification() {
-        for (I2cIdentifier i = 0; i < ZP::LL::i2cCount; ++i) {
+        for (I2cIdentifier i = 0; i < ZP::LL::HW::i2cCount; ++i) {
             if (handlers[i].hasNotification()) {
                 handlers[i].setNotificationFlag();
                 ZcodeNotificationInfo info;

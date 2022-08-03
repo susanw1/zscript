@@ -29,6 +29,7 @@ class ZcodeSerialAddressingSystem: public ZcodeModuleAddressingSystem<ZP> {
     typedef typename ZP::Strings::string_t string_t;
 
     typedef typename ZP::LL LL;
+    typedef typename LL::HW HW;
 
 public:
 
@@ -38,7 +39,7 @@ public:
             slot.fail(BAD_ADDRESSING, "Not available for addressing");
             return;
         }
-        if (port >= LL::serialCount) {
+        if (port >= HW::serialCount) {
             slot.fail(BAD_ADDRESSING, "Invalid Serial port");
             return;
         }
@@ -49,7 +50,7 @@ public:
 
     static void routeResponse(ZcodeBusInterrupt<ZP> *interrupt, ZcodeOutStream<ZP> *out) {
         uint8_t port = interrupt->getNotificationPort();
-        if (port >= LL::serialCount) {
+        if (port >= HW::serialCount) {
             interrupt->clear();
             return;
         }
