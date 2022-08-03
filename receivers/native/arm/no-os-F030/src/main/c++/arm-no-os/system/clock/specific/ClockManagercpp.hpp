@@ -23,4 +23,12 @@ Clock<LL> ClockManager<LL>::clocks[NONE] = {
         Clock<LL>(8000, PCLK, HCLK),
 };
 
+template<class LL>
+void ClockManager<LL>::basicSetup() {
+    ClockManager<LL>::getClock(HSI)->set(8000, NONE);
+    ClockManager<LL>::getClock(PLL)->set(40000, HSI);
+    ClockManager<LL>::getClock(SysClock)->set(40000, PLL);
+    ClockManager<LL>::getClock(HCLK)->set(40000, SysClock);
+    ClockManager<LL>::getClock(PCLK)->set(20000, HCLK);
+}
 #endif /* SRC_MAIN_C___LOWLEVEL_CLOCKSLOWLEVEL_SPECIFIC_CLOCKMANAGERCPP_HPP_ */

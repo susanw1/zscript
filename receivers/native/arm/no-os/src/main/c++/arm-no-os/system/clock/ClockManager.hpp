@@ -21,14 +21,7 @@ public:
     static Clock<LL>* getClock(SystemClock clock) {
         return clocks + (uint8_t) clock;
     }
-    static void basicSetup() {
-        ClockManager<LL>::getClock(VCO)->set(240000, HSI);
-        ClockManager<LL>::getClock(PLL_R)->set(120000, VCO);
-        ClockManager<LL>::getClock(SysClock)->set(120000, PLL_R);
-        ClockManager<LL>::getClock(HCLK)->set(120000, SysClock);
-        ClockManager<LL>::getClock(PCLK_1)->set(60000, HCLK);
-        ClockManager<LL>::getClock(PCLK_2)->set(60000, HCLK);
-    }
+    static void basicSetup();
 };
 #include "specific/ClockManagercpp.hpp"
 
