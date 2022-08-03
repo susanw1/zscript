@@ -44,7 +44,7 @@ void SPIClass<LL>::begin() {
 
     RCC->APB2ENR |= enableSpiRegisterClock;
     SPI1->CR2 = setFifo1_4Full | dataSize8bit;
-    SPI1->CR1 = setAsMaster | setSoftwareSlaveManagement | setInternalSlaveSelect | 0x20;
+    SPI1->CR1 = setAsMaster | setSoftwareSlaveManagement | setInternalSlaveSelect;
 
     GpioPin<LL> sck = GpioManager<LL>::getPin(PA_5);
     sck.init();
