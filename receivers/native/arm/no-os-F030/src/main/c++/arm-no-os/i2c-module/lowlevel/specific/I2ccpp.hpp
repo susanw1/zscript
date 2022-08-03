@@ -69,22 +69,33 @@ void I2c<LL>::interrupt() {
         }
     } else if (i2c.hasBusErrorInt()) {
         // BERR
-        callback(this, BusError);
+        if (callback != NULL) {
+            callback(this, BusError);
+        }
         finish();
         i2c.clearBusErrorInt();
     } else if (i2c.hasArbitrationLossInt()) {
         // ARLO
         bool worked = init();
-        if (worked) {
-            callback(this, BusError);
-        } else {
-            callback(this, BusJammed);
+        if (callback != NULL) {
+            if (worked) {
+                callback(this, BusError);
+            } else {
+                callback(this, BusJammed);
+            }
         }
         finish();
         i2c.clearArbitrationLossInt();
     } else if (i2c.hasTimeoutInt()) {
-        // TIMEOUT
-        callback(this, BusJammed);
+        bool worked = init();
+        if (callback != NULL) {
+            // TIMEOUT
+            if (worked) {
+                callback(this, BusError);
+            } else {
+                callback(this, BusJammed);
+            }
+        }
         finish();
         i2c.clearTimeoutInt();
     } else if (i2c.hasNackInt()) {
@@ -240,12 +251,14 @@ I2cTerminationStatus I2c<LL>::transmit10(uint16_t address, bool tenBit, const ui
         } else if (i2c.hasBusErrorInt()) {
             finish();
             i2c.clearBusErrorInt();
+            i2c.setupErrorInterrupt();
             return BusError;
         } else if (i2c.hasArbitrationLossInt()) {
             // ARLO
             bool worked = init();
             finish();
             i2c.clearArbitrationLossInt();
+            i2c.setupErrorInterrupt();
             if (worked) {
                 return BusError;
             } else {
@@ -255,11 +268,13 @@ I2cTerminationStatus I2c<LL>::transmit10(uint16_t address, bool tenBit, const ui
             // TIMEOUT
             finish();
             i2c.clearTimeoutInt();
+            i2c.setupErrorInterrupt();
             return BusJammed;
         } else if (i2c.hasNackInt()) {
             // NACK
             finish();
             i2c.clearNackInt();
+            i2c.setupErrorInterrupt();
             if (position == 0) {
                 return AddressNack;
             } else {
@@ -269,12 +284,14 @@ I2cTerminationStatus I2c<LL>::transmit10(uint16_t address, bool tenBit, const ui
             // STOP
             finish();
             i2c.clearStopInt();
+            i2c.setupErrorInterrupt();
             return Complete;
         } else if (i2c.hasTransferCompleteInt()) {
             // TC - bidirectional
             if (stop) {
                 finish();
                 i2c.setNackAndStop();
+                i2c.setupErrorInterrupt();
                 return Complete;
             } else {
                 return Complete;
@@ -313,6 +330,7 @@ I2cTerminationStatus I2c<LL>::receive10(uint16_t address, bool tenBit, uint8_t *
                 i2c.setNackAndStop();
                 volatile uint8_t v = i2c.readData();
                 (void) v;
+                i2c.setupErrorInterrupt();
                 return Complete;
             } else {
                 rxData[position++] = i2c.readData();
@@ -320,12 +338,14 @@ I2cTerminationStatus I2c<LL>::receive10(uint16_t address, bool tenBit, uint8_t *
         } else if (i2c.hasBusErrorInt()) {
             finish();
             i2c.clearBusErrorInt();
+            i2c.setupErrorInterrupt();
             return BusError;
         } else if (i2c.hasArbitrationLossInt()) {
             // ARLO
             bool worked = init();
             finish();
             i2c.clearArbitrationLossInt();
+            i2c.setupErrorInterrupt();
             if (worked) {
                 return BusError;
             } else {
@@ -335,11 +355,13 @@ I2cTerminationStatus I2c<LL>::receive10(uint16_t address, bool tenBit, uint8_t *
             // TIMEOUT
             finish();
             i2c.clearTimeoutInt();
+            i2c.setupErrorInterrupt();
             return BusJammed;
         } else if (i2c.hasNackInt()) {
             // NACK
             finish();
             i2c.clearNackInt();
+            i2c.setupErrorInterrupt();
             if (position == 0) {
                 return AddressNack;
             } else {
@@ -349,11 +371,13 @@ I2cTerminationStatus I2c<LL>::receive10(uint16_t address, bool tenBit, uint8_t *
             // STOP
             finish();
             i2c.clearStopInt();
+            i2c.setupErrorInterrupt();
             return Complete;
         } else if (i2c.hasTransferCompleteInt()) {
             // TC - bidirectional
             finish();
             i2c.setNackAndStop();
+            i2c.setupErrorInterrupt();
             return Complete;
         } else if (i2c.hasReloadInt()) {
             // TCR - reload

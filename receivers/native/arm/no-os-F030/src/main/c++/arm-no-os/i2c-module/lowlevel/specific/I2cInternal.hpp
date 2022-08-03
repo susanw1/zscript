@@ -46,7 +46,6 @@ private:
         if (setupInterrupts) {
             cr1r |= enableI2cErrorInterrupt | enableI2cTransmitCompleteInterrupt | enableI2cStopInterrupt
                     | enableI2cNackInterrupt | enableI2cRxInterrupt | enableI2cTxInterrupt;
-
         }
         registers->CR1 = cr1r;
     }
@@ -74,6 +73,7 @@ public:
     void enablePeripheral() {
         const uint32_t enableI2c = 0x1;
         if (registers != NULL) {
+            setupErrorInterrupt();
             registers->CR1 |= enableI2c;
         }
     }
@@ -81,6 +81,7 @@ public:
     void disablePeripheral() {
         const uint32_t enableI2c = 0x1;
         if (registers != NULL) {
+            setupCr1(false);
             registers->CR1 &= ~enableI2c;
         }
     }
@@ -268,6 +269,10 @@ public:
         registers->CR2 = cr2r;
         registers->CR2 |= i2cStart;
     }
+    void setupErrorInterrupt() {
+        const uint32_t enableI2cErrorInterrupt = 0x80;
+        registers->CR1 |= enableI2cErrorInterrupt;
+    }
 
 };
 
@@ -319,11 +324,13 @@ bool I2cInternal<LL>::recoverSdaJam() {
     sclPin.setMode(Output);
     sdaPin.set();
     if (sdaPin.read()) {
+        activatePins();
         return true;
     }
     sclPin.set();
     SystemMilliClock<LL>::blockDelayMillis(10);
     if (!sclPin.read()) {
+        activatePins();
         return false;
     }
     while (!sdaPin.read() && attempts > 0) {
@@ -338,6 +345,7 @@ bool I2cInternal<LL>::recoverSdaJam() {
     sdaPin.set();
     sdaPin.setMode(AlternateFunction);
     sclPin.setMode(AlternateFunction);
+    activatePins();
     return sdaPin.read();
 }
 

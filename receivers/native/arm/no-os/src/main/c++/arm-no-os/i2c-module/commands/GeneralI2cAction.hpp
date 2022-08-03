@@ -48,7 +48,7 @@ public:
         volatile uint8_t **i2cStoredPointer = slot.getStoredPointerData();
         volatile StoredI2cData *storedI2cData = &((I2cDataInPlace*) slot.getStoredData())->data;
 
-        uint16_t address;
+        uint16_t address = 0;
         if (!slot.getFields()->get(CMD_PARAM_I2C_ADDR_A, &address)) {
             slot.fail(BAD_PARAM, "I2C address missing");
             return;
@@ -73,7 +73,7 @@ public:
             if (!slot.getFields()->get(CMD_PARAM_I2C_PORT_P, &port)) {
                 slot.fail(BAD_PARAM, "Missing I2C port");
                 return;
-            } else if (port >= ZP::LL::i2cCount) {
+            } else if (port >= ZP::LL::i2cCount || !I2cManager<LL>::getI2cById(port)->isSetUp()) {
                 slot.fail(BAD_PARAM, "Invalid I2C port");
                 return;
             }

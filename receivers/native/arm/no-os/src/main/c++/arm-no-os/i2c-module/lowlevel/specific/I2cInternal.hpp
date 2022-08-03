@@ -81,12 +81,18 @@ public:
 
     void enablePeripheral() {
         const uint32_t enableI2c = 0x1;
-        registers->CR1 |= enableI2c;
+        if (registers != NULL) {
+            setupErrorInterrupt();
+            registers->CR1 |= enableI2c;
+        }
     }
 
     void disablePeripheral() {
         const uint32_t enableI2c = 0x1;
-        registers->CR1 &= ~enableI2c;
+        if (registers != NULL) {
+            setupCr1(false);
+            registers->CR1 &= ~enableI2c;
+        }
     }
 
     void setStop() {
@@ -111,11 +117,13 @@ public:
 
         uint32_t ccr2 = enableI2c10BitAddress;
 
-        registers->TIMEOUTR = enableI2cSclLowTimeout | sclLowTimeout3564Clock;  // disable timeout on clock stretch,
-        // Enable SCL low timeout - with 50ms of timeout.
+        if (registers != NULL) {
+            registers->TIMEOUTR = enableI2cSclLowTimeout | sclLowTimeout3564Clock;  // disable timeout on clock stretch,
+            // Enable SCL low timeout - with 50ms of timeout.
 
-        registers->CR2 = ccr2;
-        registers->CR1 = ccr1; // turn on peripheral
+            registers->CR2 = ccr2;
+            registers->CR1 = ccr1; // turn on peripheral
+        }
     }
 
     bool hasReadDataInt() {
@@ -125,6 +133,9 @@ public:
     uint8_t readData() {
         uint8_t data = registers->RXDR;
         return data;
+    }
+    bool isSetUp() {
+        return registers != NULL;
     }
 
     bool hasNoSendDataInt() {
@@ -267,6 +278,10 @@ public:
         registers->CR2 = cr2r;
         registers->CR2 |= i2cStart;
     }
+    void setupErrorInterrupt() {
+        const uint32_t enableI2cErrorInterrupt = 0x80;
+        registers->CR1 |= enableI2cErrorInterrupt;
+    }
 
 };
 
@@ -341,11 +356,13 @@ bool I2cInternal<LL>::recoverSdaJam() {
     sclPin.setMode(Output);
     sdaPin.set();
     if (sdaPin.read()) {
+        activatePins();
         return true;
     }
     sclPin.set();
     SystemMilliClock<LL>::blockDelayMillis(10);
     if (!sclPin.read()) {
+        activatePins();
         return false;
     }
     while (!sdaPin.read() && attempts > 0) {
@@ -360,6 +377,7 @@ bool I2cInternal<LL>::recoverSdaJam() {
     sdaPin.set();
     sdaPin.setMode(AlternateFunction);
     sclPin.setMode(AlternateFunction);
+    activatePins();
     return sdaPin.read();
 }
 
@@ -385,6 +403,9 @@ void I2cInternal<LL>::setFrequency(Clock<LL> *clock, I2cFrequency freq) {
     const uint32_t sclLow20 = 0x13;
     const uint32_t sclLow200 = 0xC7;
 
+    if (registers == NULL) {
+        return;
+    }
     registers->CR1 &= ~enableI2c; // turn off peripheral
     // Always uses PCLK_1
     if (freq == kHz10) {
