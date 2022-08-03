@@ -156,12 +156,13 @@ public:
                     0), debugPort(0), port(port) {
         uint8_t *mac;
         uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xad };
-//        if (ZcodeFlashPersistence<LL>::persist.hasMac()) {
-//            mac = ZcodeFlashPersistence<LL>::persist.getMac();
-//        } else {
-        mac = macHardCoded;
-//        }
-        while (!Ethernet<LL> .begin(macHardCoded, 5000, 5000)) {
+        if (ZcodeFlashPersistence<LL>::persist.hasMac()) {
+            mac = ZcodeFlashPersistence<LL>::persist.getMac();
+        } else {
+            mac = macHardCoded;
+        }
+        while (!Ethernet<LL> .begin(mac, 5000, 5000)) {
+            //TODO: not just loop forever, instead come back later...
         }
         udp.begin(port);
     }
@@ -207,13 +208,13 @@ public:
 
     void readSetup(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
-//        out->writeBigHexField(ZcodeFlashPersistence<LL>::persist.getMac(), 6);
-//        if (slot.getBigField()->getLength() != 6 && slot.getBigField()->getLength() != 0) {
-//            slot.fail(BAD_PARAM, "MAC addresses must be 6 bytes long");
-//            return;
-//        } else if (slot.getBigField()->getLength() != 0) {
-//            ZcodeFlashPersistence<LL>::persist.writeMac(slot.getBigField()->getData());
-//        }
+        out->writeBigHexField(ZcodeFlashPersistence<LL>::persist.getMac(), 6);
+        if (slot.getBigField()->getLength() != 6 && slot.getBigField()->getLength() != 0) {
+            slot.fail(BAD_PARAM, "MAC addresses must be 6 bytes long");
+            return;
+        } else if (slot.getBigField()->getLength() != 0) {
+            ZcodeFlashPersistence<LL>::persist.writeMac(slot.getBigField()->getData());
+        }
         out->writeStatus(OK);
     }
     bool reset() {
@@ -222,11 +223,11 @@ public:
         Ethernet<LL> .init();
         uint8_t *mac;
         uint8_t macHardCoded[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xad };
-//        if (ZcodeFlashPersistence<LL>::persist.hasMac()) {
-//            mac = ZcodeFlashPersistence<LL>::persist.getMac();
-//        } else {
-        mac = macHardCoded;
-//        }
+        if (ZcodeFlashPersistence<LL>::persist.hasMac()) {
+            mac = ZcodeFlashPersistence<LL>::persist.getMac();
+        } else {
+            mac = macHardCoded;
+        }
         while (!Ethernet<LL> .begin(mac, 5000, 5000)) {
         }
         udp.begin(port);

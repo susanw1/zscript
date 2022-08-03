@@ -80,12 +80,15 @@ void SPIClass<LL>::beginTransaction() {
 #pragma GCC optimize ("-O0")
 template<class LL>
 uint8_t SPIClass<LL>::transfer(uint8_t data) {
-    const uint16_t fifoLevelMask = 0x0600;
+    const uint16_t fifoLevelMask = 0x0001;
 
     // Forces 8 bit read/write, to allow 1 byte at a time
     *((volatile uint8_t*) &(SPI1->DR)) = data;
-    while (!((*((volatile uint16_t*) &SPI1->SR)) & fifoLevelMask))
-        ;
+    volatile bool b = true;
+    volatile uint16_t *sr = (volatile uint16_t*) &SPI1->SR;
+    while (b) {
+        b = ((*sr) & fifoLevelMask) == 0;
+    }
     return *((volatile uint8_t*) &(SPI1->DR));
 }
 #pragma GCC pop_options

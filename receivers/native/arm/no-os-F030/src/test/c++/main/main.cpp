@@ -1,26 +1,3 @@
-/* USER CODE BEGIN Header */
-/**
- ******************************************************************************
- * @file    USB_Device/CDC_Standalone/Core/Src/main.c
- * @author  MCD Application Team
- * @brief   USB device CDC demo main file
- ******************************************************************************
- * @attention
- *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
- * All rights reserved.</center></h2>
- *
- * This software component is licensed by ST under Ultimate Liberty license
- * SLA0044, the "License"; You may not use this file except in compliance with
- * the License. You may obtain a copy of the License at:
- *                             www.st.com/SLA0044
- *
- ******************************************************************************
- */
-/* USER CODE END Header */
-
-/* Includes ------------------------------------------------------------------*/
-
 #include <arm-no-os/system/core/stm32f0xx.h>
 #include <arm-no-os/system/core/stm32f030x8.h>
 #include <arm-no-os/system/core/core_cm0.h>
@@ -67,11 +44,7 @@
 const char *GeneralHalSetup::ucpdManufacturerInfo = "Zcode/Alpha Board";
 
 int main(void) {
-    ClockManager<GeneralHalSetup>::getClock(HSI)->set(8000, NONE);
-    ClockManager<GeneralHalSetup>::getClock(PLL)->set(40000, HSI);
-    ClockManager<GeneralHalSetup>::getClock(SysClock)->set(40000, PLL);
-    ClockManager<GeneralHalSetup>::getClock(HCLK)->set(40000, SysClock);
-    ClockManager<GeneralHalSetup>::getClock(PCLK)->set(20000, HCLK);
+    ClockManager<GeneralHalSetup>::basicSetup();
 
     SystemMilliClock<GeneralHalSetup>::init();
     for (volatile uint32_t i = 0; i < 0x100; ++i)

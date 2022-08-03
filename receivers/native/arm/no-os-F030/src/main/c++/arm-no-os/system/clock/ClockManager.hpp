@@ -21,6 +21,13 @@ public:
     static Clock<LL>* getClock(SystemClock clock) {
         return clocks + (uint8_t) clock;
     }
+    static void basicSetup() {
+        ClockManager<GeneralHalSetup>::getClock(HSI)->set(8000, NONE);
+        ClockManager<GeneralHalSetup>::getClock(PLL)->set(40000, HSI);
+        ClockManager<GeneralHalSetup>::getClock(SysClock)->set(40000, PLL);
+        ClockManager<GeneralHalSetup>::getClock(HCLK)->set(40000, SysClock);
+        ClockManager<GeneralHalSetup>::getClock(PCLK)->set(20000, HCLK);
+    }
 };
 #include "specific/ClockManagercpp.hpp"
 

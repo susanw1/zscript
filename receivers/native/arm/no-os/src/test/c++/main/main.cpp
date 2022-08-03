@@ -38,8 +38,6 @@
 
 #include <arm-no-os/serial-module/lowlevel/UartManager.hpp>
 
-#include <arm-no-os/udp-module/lowlevel/src/Ethernet.h>
-
 #include <arm-no-os/i2c-module/addressing/ZcodeI2cBusInterruptSource.hpp>
 #include <arm-no-os/serial-module/addressing/ZcodeSerialBusInterruptSource.hpp>
 
@@ -48,12 +46,8 @@
 const char *GeneralHalSetup::ucpdManufacturerInfo = "Zcode/Alpha Board";
 
 int main(void) {
-    ClockManager<GeneralHalSetup>::getClock(VCO)->set(240000, HSI);
-    ClockManager<GeneralHalSetup>::getClock(PLL_R)->set(120000, VCO);
-    ClockManager<GeneralHalSetup>::getClock(SysClock)->set(120000, PLL_R);
-    ClockManager<GeneralHalSetup>::getClock(HCLK)->set(120000, SysClock);
-    ClockManager<GeneralHalSetup>::getClock(PCLK_1)->set(60000, HCLK);
-    ClockManager<GeneralHalSetup>::getClock(PCLK_2)->set(60000, HCLK);
+    ClockManager<GeneralHalSetup>::basicSetup();
+
     SystemMilliClock<GeneralHalSetup>::init();
     for (volatile uint32_t i = 0; i < 0x100; ++i)
         ;
