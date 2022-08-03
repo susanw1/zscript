@@ -34,6 +34,8 @@ void Uart<LL>::transmitWriteBuffer() {
         if (dmaStartDist != 0) {
             txDma->peripheralWrite(requestTx, txBuffer.getCurrentLinearRead(), true, (uint8_t*) uart.getTransmitRegister(), false,
                     dmaStartDist, false, Medium, &UartDmaCallback, false);
+        } else {
+            txDma->unlock();
         }
     }
 }
