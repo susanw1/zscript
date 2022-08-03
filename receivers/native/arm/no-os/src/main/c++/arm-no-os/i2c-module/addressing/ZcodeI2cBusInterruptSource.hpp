@@ -29,7 +29,7 @@ public:
             interruptPin(interruptPin), status( { false, id }) {
         interruptPin.init();
         interruptPin.setOutputMode(OpenDrain);
-        interruptPin.setOutputSpeed(HighSpeed);
+        interruptPin.setOutputSpeed(VeryHighSpeed);
         interruptPin.setPullMode(PullUp);
         interruptPin.setMode(Input);
     }
