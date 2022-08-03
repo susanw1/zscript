@@ -126,7 +126,7 @@ public:
         registers->CNTR &= ~sendResume;
         InterruptManager::enableInterrupt(UsbInt, 0, 1);
         InterruptManager::enableInterrupt(UsbInt, 1, 1);
-        dataEndpoint.getTxBuffer()->setCallback(&UsbInternal<LL>::UsbDataTxOverflowCallback, LL::UsbSerialId);
+        dataEndpoint.getTxBuffer()->setCallback(&UsbInternal<LL>::UsbDataTxOverflowCallback, LL::HW::uartCount);
     }
 
     void reset() {

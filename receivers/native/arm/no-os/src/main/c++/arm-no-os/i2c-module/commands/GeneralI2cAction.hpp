@@ -37,6 +37,7 @@ public:
     };
 
     typedef typename ZP::LL LL;
+    typedef typename LL::HW HW;
 
     /** Note, SEND | RECEIVE == SEND_RECEIVE */
     enum ActionType {
@@ -73,7 +74,7 @@ public:
             if (!slot.getFields()->get(CMD_PARAM_I2C_PORT_P, &port)) {
                 slot.fail(BAD_PARAM, "Missing I2C port");
                 return;
-            } else if (port >= ZP::LL::i2cCount || !I2cManager<LL>::getI2cById(port)->isSetUp()) {
+            } else if (port >= HW::i2cCount || !I2cManager<LL>::getI2cById(port)->isSetUp()) {
                 slot.fail(BAD_PARAM, "Invalid I2C port");
                 return;
             }

@@ -14,7 +14,8 @@
 template<class LL>
 class DmaManager {
 private:
-    static Dma<LL> dmas[LL::dmaCount];
+    typedef typename LL::HW HW;
+    static Dma<LL> dmas[HW::dmaCount];
 
     DmaManager() {
     }
@@ -28,7 +29,7 @@ public:
     }
 
     static Dma<LL>* getFreeDma() {
-        for (int i = 0; i < LL::dmaCount; ++i) {
+        for (int i = 0; i < HW::dmaCount; ++i) {
             if (!dmas[i].isLocked()) {
                 return dmas + i;
             }

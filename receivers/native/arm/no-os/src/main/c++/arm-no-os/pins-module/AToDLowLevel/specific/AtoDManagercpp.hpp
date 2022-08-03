@@ -40,7 +40,7 @@ void AtoDManager<LL>::init() {
     }
     ADC12_COMMON->CCR |= divider << 18;
     ADC345_COMMON->CCR |= divider << 18; //setup prescalers for something reasonable
-    for (int i = 0; i < LL::atoDCount; ++i) {
+    for (int i = 0; i < HW::atoDCount; ++i) {
         atoDs[i].init();
     }
 }

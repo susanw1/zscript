@@ -15,7 +15,8 @@
 template<class LL>
 class GpioManager {
 private:
-    static GpioPin<LL> pins[LL::pinCount];
+    typedef typename LL::HW HW;
+    static GpioPin<LL> pins[HW::pinCount];
 
 public:
     static void init();
@@ -25,7 +26,7 @@ public:
     static GpioPin<LL> getPin(GpioPinName name);
 
     static GpioPin<LL> getPin(uint8_t id) {
-        if (id >= LL::pinCount) {
+        if (id >= HW::pinCount) {
             return pins[0];
         }
         return pins[id];

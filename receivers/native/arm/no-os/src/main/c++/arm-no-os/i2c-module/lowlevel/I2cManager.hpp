@@ -13,10 +13,11 @@
 
 template<class LL>
 class I2cManager {
-private:
+    typedef typename LL::HW HW;
+    private:
 
     friend class I2c<LL> ;
-    static I2c<LL> i2cs[LL::i2cCount];
+    static I2c<LL> i2cs[HW::i2cCount];
 
     static void interrupt(uint8_t);
 

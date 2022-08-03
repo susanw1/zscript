@@ -245,11 +245,11 @@ DmaMuxRequest getUartMuxTxRequest(SerialIdentifier id) {
 template<class LL>
 void UartManager<LL>::init() {
     InterruptManager::setInterrupt(&UartManager::interrupt, UartInt);
-    for (int i = 0; i < LL::uartCount; ++i) {
+    for (int i = 0; i < HW::uartCount; ++i) {
         uarts[i].setUart(getUartInternal<LL>(i), DmaManager<LL>::getDmaById(LL::uart1TxDma + i), getUartMuxTxRequest(i));
         InterruptManager::enableInterrupt(UartInt, i, 8);
     }
-    Usb<LL>::usb.setId(LL::uartCount);
+    Usb<LL>::usb.setId(HW::uartCount);
 }
 
 #endif /* SRC_MAIN_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTMANAGERCPP_HPP_ */

@@ -15,7 +15,8 @@
 
 template<class LL>
 class AtoDManager {
-    static AtoD<LL> atoDs[LL::atoDCount];
+    typedef typename LL::HW HW;
+    static AtoD<LL> atoDs[HW::atoDCount];
 
     AtoDManager() {
     }

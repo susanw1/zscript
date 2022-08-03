@@ -17,6 +17,7 @@
 template<class ZP>
 class ZcodeSerialSetupCommand: public ZcodeCommand<ZP> {
     typedef typename ZP::LL LL;
+    typedef typename LL::HW HW;
 
 public:
     static constexpr uint8_t CODE = 0x01;
@@ -31,7 +32,7 @@ public:
             slot.fail(BAD_PARAM, "Port number missing");
             return;
         }
-        if (port >= LL::serialCount) {
+        if (port >= HW::serialCount) {
             slot.fail(BAD_PARAM, "Port number invalid");
             return;
         }

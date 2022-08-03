@@ -20,7 +20,7 @@ public:
         ZcodeOutStream<ZP> *out = slot.getOut();
         out->writeStatus(OK);
         out->writeField8('C', MODULE_CAPABILITIES(003));
-        out->writeField8('P', ZP::LL::pinCount);
+        out->writeField8('P', ZP::LL::HW::pinCount);
     }
 
 };

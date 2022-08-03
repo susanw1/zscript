@@ -15,6 +15,7 @@
 template<class ZP>
 class ZcodeSerialCapabilitiesCommand: public ZcodeCommand<ZP> {
     typedef typename ZP::LL LL;
+    typedef typename LL::HW HW;
 
 public:
     static constexpr uint8_t CODE = 0x00;
@@ -28,7 +29,7 @@ public:
 
         out->writeField8('U', 0x2); // [....., parity, single/double stop, auto board rate]
 
-        out->writeField8('P', ZP::LL::serialCount);
+        out->writeField8('P', HW::serialCount);
         out->writeField32('F', ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16);
         out->writeField16('B', LL::UartBufferTxSize);
         out->writeField16('R', LL::UartBufferRxSize);

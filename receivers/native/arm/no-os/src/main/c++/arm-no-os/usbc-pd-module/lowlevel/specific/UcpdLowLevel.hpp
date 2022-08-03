@@ -25,6 +25,7 @@ enum UcpdRxReceiveStatus {
 
 template<class LL>
 class UcpdLowLevel {
+    typedef typename LL::HW HW;
     static UcpdLowLevel ucpdBuffers;
     uint8_t rxBuffer[LL::ucpdRxBufferSize];
     uint8_t txBuffer[LL::ucpdTxBufferSize];
@@ -161,7 +162,7 @@ public:
 
     static void sendBuffer(uint8_t *buf, uint8_t length, void (*txCallback)(UcpdTxTerminationStatus)) {
         UcpdLowLevel::txCallback = txCallback;
-        UCPD1->TX_ORDSET = LL::ucpdTxSOP;
+        UCPD1->TX_ORDSET = HW::ucpdTxSOP;
         UCPD1->TX_PAYSZ = length;
         txDma->peripheralWrite(DMAMUX_UCPD_TX, buf, true, (uint8_t*) &UCPD1->TXDR, false, length, false, High, &UcpdLowLevel::DmaTxCallback, false);
         UCPD1->CR |= 0x4;

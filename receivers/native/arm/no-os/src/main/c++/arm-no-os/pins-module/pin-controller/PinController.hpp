@@ -26,7 +26,8 @@ template<class ZP>
 class PinController {
 private:
     typedef typename ZP::LL LL;
-    static uint8_t controller[LL::pinCount];
+    typedef typename LL::HW HW;
+    static uint8_t controller[HW::pinCount];
 
     static bool canWrite(PinControllerCapability cap) {
         return cap == CanWritePin || cap == CanReadWritePin;
@@ -42,7 +43,7 @@ public:
     static bool writePin(uint8_t pinIndex, uint16_t value, ZcodeExecutionCommandSlot<ZP> slot);
 };
 template<class ZP>
-uint8_t PinController<ZP>::controller[LL::pinCount];
+uint8_t PinController<ZP>::controller[HW::pinCount];
 
 #include "DigitalPinController.hpp"
 #include "AnalogPinController.hpp"

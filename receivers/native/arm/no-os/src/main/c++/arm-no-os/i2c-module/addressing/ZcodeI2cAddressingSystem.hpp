@@ -28,6 +28,7 @@ class ZcodeI2cAddressingSystem: public ZcodeModuleAddressingSystem<ZP> {
     typedef typename ZP::Strings::string_t string_t;
 
     typedef typename ZP::LL LL;
+    typedef typename LL::HW HW;
 
     static constexpr char CMD_RESP_I2C_INFO_VAL_OK = 0;
     static constexpr char CMD_RESP_I2C_INFO_VAL_ADDRNACK = 2;
@@ -44,7 +45,7 @@ public:
         bool tenBit = (addressingInfo->addr & 0x800) != 0;
         uint8_t port = addressingInfo->port;
         uint16_t address = (addressingInfo->addr & 0x7ff);
-        if (port >= LL::i2cCount) {
+        if (port >= HW::i2cCount) {
             slot.fail(BAD_ADDRESSING, "Invalid I2C port");
             return;
         }
@@ -87,7 +88,7 @@ public:
         bool tenBit = (interrupt->getFoundAddress() & 0x800) != 0;
         uint8_t port = interrupt->getNotificationPort();
         uint16_t address = (interrupt->getFoundAddress() & 0x7ff);
-        if (port >= LL::i2cCount) {
+        if (port >= HW::i2cCount) {
             return;
         }
         I2c<LL> *i2c = I2cManager<LL>::getI2cById(port);

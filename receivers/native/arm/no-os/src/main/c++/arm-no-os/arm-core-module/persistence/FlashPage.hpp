@@ -13,6 +13,7 @@
 template<class LL>
 class FlashPage {
 private:
+    typedef typename LL::HW HW;
     uint16_t pageNum;
     volatile flashProgramming_t *start;
 
@@ -50,7 +51,7 @@ public:
     }
 
     uint32_t getLength() {
-        return LL::pageSize;
+        return HW::pageSize;
     }
 
     void eraseNoProgram() {
@@ -87,10 +88,10 @@ public:
     }
 
     void overwriteWith(FlashPage *other, flashProgramming_t firstWord, const uint8_t *newContent, uint32_t newContentStartOffset, uint32_t newContentLength) {
-        flashProgramming_t data[LL::pageSize / sizeof(flashProgramming_t)];
+        flashProgramming_t data[HW::pageSize / sizeof(flashProgramming_t)];
         data[0] = firstWord;
         uint8_t *data8 = (uint8_t*) data;
-        for (uint32_t i = sizeof(flashProgramming_t); i < LL::pageSize; ++i) {
+        for (uint32_t i = sizeof(flashProgramming_t); i < HW::pageSize; ++i) {
             if (i < newContentStartOffset || i >= newContentStartOffset + newContentLength) {
                 data8[i] = ((uint8_t*) other->start)[i];
             } else {
@@ -108,7 +109,7 @@ public:
         }
 
         beginProgram();
-        for (uint32_t i = 0; i < LL::pageSize / sizeof(flashProgramming_t); ++i) {
+        for (uint32_t i = 0; i < HW::pageSize / sizeof(flashProgramming_t); ++i) {
             while (isBusy()) {
             }
 
@@ -125,7 +126,7 @@ public:
 
 template<class LL>
 FlashPage<LL>::FlashPage(uint16_t pageNum) :
-        pageNum(pageNum), start((flashProgramming_t*) (pageNum * LL::pageSize + 0x08000000)) {
+        pageNum(pageNum), start((flashProgramming_t*) (pageNum * HW::pageSize + 0x08000000)) {
 }
 
 template<class LL>

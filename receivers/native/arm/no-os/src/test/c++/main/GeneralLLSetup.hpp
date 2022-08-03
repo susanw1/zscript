@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_CPP_COMMANDS_LOWLEVEL_GENERALHALSETUP_HPP_
 #define SRC_TEST_CPP_COMMANDS_LOWLEVEL_GENERALHALSETUP_HPP_
 
-#include "llIncludes.hpp"
+#include <arm-no-os/llIncludes.hpp>
 
 #define I2C_1_SDA PB_9_
 #define I2C_1_SCL PA_15_
@@ -57,15 +57,32 @@
 #define I2C_3_ALERT PC_4
 #define I2C_4_ALERT PC_4
 
-class GeneralHalSetup {
+class HardwareDefinition {
 public:
+    static const uint32_t ucpdTxSOP = 0b10001110001100011000; // 3*Sync-1, Sync-2 = SOP
+
+    static const uint8_t pinCount = 52;
+
+    static const uint8_t atoDCount = 5;
+
+    static const I2cIdentifier i2cCount = 4;
+    static const SerialIdentifier uartCount = 6;
+    static const SerialIdentifier serialCount = 7;
+    static const DmaIdentifier dmaCount = 16;
+
+    static const bool inDualBankFlash = true;
+    static const uint32_t pageSize = 0x800;
+};
+
+class LowLevelConfiguration {
+public:
+    typedef HardwareDefinition HW;
     static const uint16_t persistentGuidLocation = 16;
     static const uint16_t persistentMacAddressLocation = 40;
     static const uint16_t mainPersistentMemoryLocation = 48;
 
     static const int ucpdRxBufferSize = 1024;
     static const int ucpdTxBufferSize = 256;
-    static const uint32_t ucpdTxSOP = 0b10001110001100011000; // 3*Sync-1, Sync-2 = SOP
 
     static const DmaIdentifier ucpdRxDma = 4;
     static const DmaIdentifier ucpdTxDma = 5;
@@ -83,22 +100,11 @@ public:
 
     static const char *ucpdManufacturerInfo;
 
-    static const uint8_t pinCount = 52;
-
-    static const uint8_t atoDCount = 5;
-
     static const uint16_t UsbBufferRxSize = 1024;
     static const uint16_t UsbBufferTxSize = 1024;
 
-    static const SerialIdentifier UsbSerialId = 6;
-
     static const uint16_t UartBufferRxSize = 1024;
     static const uint16_t UartBufferTxSize = 256;  // want rx buffer much larger, as it has to store any data which hasn't yet been read.
-
-    static const I2cIdentifier i2cCount = 4;
-    static const SerialIdentifier uartCount = 6;
-    static const SerialIdentifier serialCount = 7;
-    static const DmaIdentifier dmaCount = 16;
 
     static const DmaIdentifier i2c1Dma = 0;
     static const DmaIdentifier i2c2Dma = 1;
@@ -112,9 +118,5 @@ public:
     static const DmaIdentifier uart5TxDma = 10;
     static const DmaIdentifier uart6TxDma = 11;
     static const uint8_t uartEscapingChar = 0xFE;
-
-    static const bool inDualBankFlash = true;
-    static const uint32_t pageSize = 0x800;
 };
-
 #endif /* SRC_TEST_CPP_COMMANDS_LOWLEVEL_GENERALHALSETUP_HPP_ */

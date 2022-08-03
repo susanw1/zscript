@@ -16,8 +16,9 @@ class Serial;
 
 template<class LL>
 class UartManager {
-private:
-    static Uart<LL> uarts[LL::uartCount];
+    typedef typename LL::HW HW;
+    private:
+    static Uart<LL> uarts[HW::uartCount];
 
     static uint16_t mask;
 
@@ -42,7 +43,7 @@ public:
     static Serial* getUartById(SerialIdentifier id) {
 
 #ifdef USE_USB_SERIAL
-        if (id == GeneralHalSetup::UsbSerialId) {
+        if (id == HW::uartCount) {
             return &Usb<LL>::usb;
         }
 #endif

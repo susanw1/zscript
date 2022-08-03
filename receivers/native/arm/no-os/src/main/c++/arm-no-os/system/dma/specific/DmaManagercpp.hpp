@@ -63,7 +63,7 @@ void DmaManager<LL>::init() {
     RCC->AHB1ENR |= enableDma1Registers | enableDma2Registers | enableDmaMuxRegisters;
 
     InterruptManager::setInterrupt(&DmaManager::interrupt, InterruptType::DmaInt);
-    for (int i = 0; i < LL::dmaCount; ++i) {
+    for (int i = 0; i < HW::dmaCount; ++i) {
         dmas[i].setDma(createChannelInternalFromId<LL>(i));
         InterruptManager::enableInterrupt(InterruptType::DmaInt, i, 10);
     }

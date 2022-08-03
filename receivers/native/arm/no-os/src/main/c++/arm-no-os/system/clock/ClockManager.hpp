@@ -22,12 +22,12 @@ public:
         return clocks + (uint8_t) clock;
     }
     static void basicSetup() {
-        ClockManager<GeneralHalSetup>::getClock(VCO)->set(240000, HSI);
-        ClockManager<GeneralHalSetup>::getClock(PLL_R)->set(120000, VCO);
-        ClockManager<GeneralHalSetup>::getClock(SysClock)->set(120000, PLL_R);
-        ClockManager<GeneralHalSetup>::getClock(HCLK)->set(120000, SysClock);
-        ClockManager<GeneralHalSetup>::getClock(PCLK_1)->set(60000, HCLK);
-        ClockManager<GeneralHalSetup>::getClock(PCLK_2)->set(60000, HCLK);
+        ClockManager<LL>::getClock(VCO)->set(240000, HSI);
+        ClockManager<LL>::getClock(PLL_R)->set(120000, VCO);
+        ClockManager<LL>::getClock(SysClock)->set(120000, PLL_R);
+        ClockManager<LL>::getClock(HCLK)->set(120000, SysClock);
+        ClockManager<LL>::getClock(PCLK_1)->set(60000, HCLK);
+        ClockManager<LL>::getClock(PCLK_2)->set(60000, HCLK);
     }
 };
 #include "specific/ClockManagercpp.hpp"

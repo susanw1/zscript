@@ -117,7 +117,7 @@
 #endif
 
 template<class LL>
-I2c<LL> I2cManager<LL>::i2cs[LL::i2cCount];
+I2c<LL> I2cManager<LL>::i2cs[HW::i2cCount];
 
 template<class LL>
 I2cInternal<LL> getI2cInternal_internal(I2cIdentifier id) {
@@ -178,7 +178,7 @@ void I2cManager<LL>::interrupt(uint8_t id) {
 
 template<class LL>
 void I2cManager<LL>::dmaInterrupt(Dma<LL> *dma, DmaTerminationStatus status) {
-    for (int i = 0; i < LL::i2cCount; ++i) {
+    for (int i = 0; i < HW::i2cCount; ++i) {
         if (I2cManager::getI2cById(i)->dma == dma) {
             I2cManager::getI2cById(i)->dmaInterrupt(status);
             break;
@@ -191,7 +191,7 @@ void I2cManager<LL>::init() {
     InterruptManager::setInterrupt(&I2cManager::interrupt, InterruptType::I2cEv);
     InterruptManager::setInterrupt(&I2cManager::interrupt, InterruptType::I2cEr);
 
-    for (int i = 0; i < LL::i2cCount; ++i) {
+    for (int i = 0; i < HW::i2cCount; ++i) {
         i2cs[i].setI2c(getI2cInternal_internal<LL>(i), i, getI2cMuxTxRequest_internal<LL>(i), getI2cMuxRxRequest_internal<LL>(i));
         i2cs[i].init();
         InterruptManager::enableInterrupt(InterruptType::I2cEv, i, 10);
