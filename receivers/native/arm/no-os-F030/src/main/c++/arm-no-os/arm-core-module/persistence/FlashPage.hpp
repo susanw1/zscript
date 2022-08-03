@@ -120,6 +120,7 @@ public:
 
         endProgram();
         lockFlashWrite();
+
     }
 };
 
@@ -138,14 +139,13 @@ void FlashPage<LL>::unlockFlashWrite() {
 template<class LL>
 void FlashPage<LL>::lockFlashWrite() {
     // magic keys...
-    const uint32_t lock = 0x80000000;
-    const uint32_t lockOptions = 0x40000000;
-    FLASH->CR = lock | lockOptions;
+    const uint32_t lock = 0x80;
+    FLASH->CR = lock;
 }
 
 template<class LL>
 void FlashPage<LL>::beginProgram() {
-    const uint32_t clearAllStatus = 0x0001C3FB;
+    const uint32_t clearAllStatus = 0x34;
     const uint32_t enableProgram = 0x1;
 
     FLASH->SR |= clearAllStatus;
@@ -159,23 +159,19 @@ void FlashPage<LL>::endProgram() {
 
 template<class LL>
 void FlashPage<LL>::erase() {
-    const uint32_t clearAllStatus = 0x0001C3FB;
-    const uint32_t enablePageErase = 0x2;
-    const uint32_t bank2Erase = 0x800;
-    const uint32_t start = 0x10000;
+    const uint32_t clearAllStatus = 0x34;
+    const uint32_t enablePageErase = 0x02;
+    const uint32_t start = 0x40;
 
     FLASH->SR |= clearAllStatus;
-    if (pageNum > 127) {
-        FLASH->CR = ((pageNum & 0x7F) << 3) | bank2Erase | enablePageErase; // use bank 2
-    } else {
-        FLASH->CR = (pageNum << 3) | enablePageErase;
-    }
+    FLASH->CR = enablePageErase; // use bank 2
+    FLASH->AR = ((uint32_t) this->start);
     FLASH->CR |= start;
 }
 
 template<class LL>
 bool FlashPage<LL>::isBusy() {
-    const uint32_t start = 0x10000;
-    return (FLASH->SR &= start) != 0;
+    const uint32_t busy = 0x1;
+    return (FLASH->SR & busy) != 0;
 }
 #endif /* SRC_TEST_CPP_LOWLEVEL_PERSISTANCELOWLEVEL_FLASHPAGE_HPP_ */

@@ -64,7 +64,7 @@ public:
     static ZcodeFlashPersistence<LL> persist;
 
     ZcodeFlashPersistence() :
-            page1(254), page2(255) {
+            page1(62), page2(63) {
     }
 
     bool hasGuid() {

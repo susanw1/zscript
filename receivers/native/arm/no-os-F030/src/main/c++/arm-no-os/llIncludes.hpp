@@ -20,7 +20,7 @@ typedef uint8_t SerialIdentifier;
 typedef uint8_t I2cIdentifier;
 typedef uint8_t PinAlternateFunction;
 
-typedef uint64_t flashProgramming_t;
+typedef uint16_t flashProgramming_t;
 
 enum PeripheralOperationMode {
     DMA, INTERRUPT, SYNCHRONOUS

@@ -76,7 +76,7 @@ public:
     static const uint8_t uartEscapingChar = 0xFE;
 
     static const bool inDualBankFlash = true;
-    static const uint32_t pageSize = 0x800;
+    static const uint32_t pageSize = 0x400;
 };
 
 #endif /* SRC_TEST_CPP_COMMANDS_LOWLEVEL_GENERALHALSETUP_HPP_ */

@@ -34,8 +34,8 @@
 
 #include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
 
-//#include <arm-no-os/arm-core-module/commands/ZcodeReadGuidCommand.hpp>
-//#include <arm-no-os/arm-core-module/commands/ZcodeWriteGuidCommand.hpp>
+#include <arm-no-os/arm-core-module/commands/ZcodeReadGuidCommand.hpp>
+#include <arm-no-os/arm-core-module/commands/ZcodeWriteGuidCommand.hpp>
 #include <arm-no-os/arm-core-module/commands/ZcodeResetCommand.hpp>
 
 #include <arm-no-os/pins-module/ZcodePinModule.hpp>

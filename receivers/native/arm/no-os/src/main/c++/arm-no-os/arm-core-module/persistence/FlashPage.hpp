@@ -176,6 +176,6 @@ void FlashPage<LL>::erase() {
 template<class LL>
 bool FlashPage<LL>::isBusy() {
     const uint32_t start = 0x10000;
-    return (FLASH->SR &= start) != 0;
+    return (FLASH->SR & start) != 0;
 }
 #endif /* SRC_TEST_CPP_LOWLEVEL_PERSISTANCELOWLEVEL_FLASHPAGE_HPP_ */
