@@ -17,6 +17,11 @@
 #define ZCODE_GENERATE_NOTIFICATIONS
 #define ZCODE_SUPPORT_DEBUG
 
+#ifdef ZCODE_SUPPORT_ADDRESSING
+#ifdef ZCODE_SUPPORT_DEBUG
+#define DEBUG_ADDRESSING
+#endif
+#endif
 template<class ZP>
 class ZcodeModuleAddressRouter;
 

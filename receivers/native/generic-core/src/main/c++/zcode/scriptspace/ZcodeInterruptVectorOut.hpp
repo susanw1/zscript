@@ -66,7 +66,7 @@ void ZcodeInterruptVectorOut<ZP>::open(ZcodeCommandChannel<ZP> *target, ZcodeOut
         ZcodeInterruptVectorChannel<ZP> *channel = (ZcodeInterruptVectorChannel<ZP>*) target;
 
         out->openNotification(Zcode<ZP>::zcode.getNotificationManager()->getNotificationChannel());
-        Zcode<ZP>::zcode.getNotificationManager()->sendInitialInterruptInfo(out, *channel->getInterrupt());
+        Zcode<ZP>::zcode.getNotificationManager()->sendInitialInterruptInfo(out, channel->getInterrupt());
         out->writeCommandSeparator();
         channel->clear();
     }

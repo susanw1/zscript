@@ -33,6 +33,9 @@
 #define ZCODE_USE_MODULE_ADDRESSING
 //#define ZCODE_USE_MAPPING_ADDRESSING
 
+#define I2C_ENABLE_GENERAL_CALL()
+#define I2C_SET_ADDRESS(addr) Wire.end();Wire.begin(addr);
+
 template<class ZP>
 class ZcodeModuleAddressRouter;
 template<class ZP>

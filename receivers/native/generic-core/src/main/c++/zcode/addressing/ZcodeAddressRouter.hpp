@@ -67,11 +67,12 @@ protected:
     struct AddressSectionReading {
         uint16_t addr;
         uint16_t offset;
+        bool ignoreDot;
     };
 
     //has functions of form:    static void route(ZcodeExecutionCommandSlot<ZP> slot);
-    //                          static void response(ZcodeBusInterrupt<ZP> interrupt, ZcodeOutStream<ZP> *out);
-    //                          static bool isAddressed(ZcodeBusInterrupt<ZP> interrupt);
+    //                          static void response(ZcodeBusInterrupt<ZP> *interrupt, ZcodeOutStream<ZP> *out);
+    //                          static bool isAddressed(ZcodeBusInterrupt<ZP> *interrupt);
     //                          static void addressingControlCommand(ZcodeExecutionCommandSlot<ZP> slot);
 
     static void addressingSwitch(uint16_t module, ZcodeExecutionCommandSlot<ZP> slot, ZcodeAddressingInfo<ZP> addressingInfo) {
@@ -83,13 +84,12 @@ protected:
         slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
         }
     }
-    static void responseSwitch(ZcodeBusInterrupt<ZP> interrupt, ZcodeOutStream<ZP> *out) {
+    static void responseSwitch(ZcodeBusInterrupt<ZP> *interrupt, ZcodeOutStream<ZP> *out) {
         (void) out;
-        switch (interrupt.getNotificationModule()) {
+        switch (interrupt->getNotificationModule()) {
         ADDRESSING_RESP_SWITCH()
 
     default:
-        interrupt.clear();
         return;
         }
     }
@@ -134,10 +134,12 @@ private:
                 addr = (uint16_t) ((addr << 4) | v);
             }
         }
+        AddressSectionReading reading;
+        reading.ignoreDot = i == 0;
         if (data[i + start] == '.') {
             i++;
+            reading.ignoreDot = false;
         }
-        AddressSectionReading reading;
         reading.addr = addr;
         reading.offset = (uint16_t) (start + i);
         return reading;

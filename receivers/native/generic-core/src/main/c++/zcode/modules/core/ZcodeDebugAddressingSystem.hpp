@@ -41,7 +41,7 @@ public:
         slot.getZcode()->getDebug().attemptFlush();
     }
 
-    static void routeResponse(ZcodeBusInterrupt<ZP> interrupt, ZcodeOutStream<ZP> *out) {
+    static void routeResponse(ZcodeBusInterrupt<ZP> *interrupt, ZcodeOutStream<ZP> *out) {
         (void) interrupt;
         (void) out;
     }

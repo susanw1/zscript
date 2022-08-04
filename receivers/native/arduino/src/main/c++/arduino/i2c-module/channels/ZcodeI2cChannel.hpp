@@ -68,6 +68,8 @@ public:
 
 public:
     void setAddr(uint8_t addr) {
+        I2C_SET_ADDRESS(addr);
+        I2C_ENABLE_GENERAL_CALL();
         ZcodeI2cOutStream<ZP>::addr = addr;
     }
 
@@ -75,7 +77,8 @@ public:
         if (usingMagicAddr) {
             Wire.write(addr << 1);
             Wire.write(addr << 1);
-            Wire.begin(addr);
+            I2C_SET_ADDRESS(addr);
+            I2C_ENABLE_GENERAL_CALL();
             usingMagicAddr = false;
             return;
         }
@@ -100,8 +103,8 @@ public:
             pinMode(ZP::i2cAlertPin, INPUT);
         } else if (outBuffer[readPos - 1] == '\n') {
             usingMagicAddr = true;
-            Wire.end();
-            Wire.begin(0x0C);
+            I2C_SET_ADDRESS(0x0C);
+            I2C_ENABLE_GENERAL_CALL();
         }
     }
     ZcodeI2cOutStream() :
@@ -121,9 +124,9 @@ public:
     void close() {
         openB = false;
         if (writePos > 0) {
+            I2C_SET_ADDRESS(0x0C);
+            I2C_ENABLE_GENERAL_CALL();
             pinMode(ZP::i2cAlertPin, OUTPUT);
-            Wire.end();
-            Wire.begin(0x0C);
             usingMagicAddr = true;
         }
     }
@@ -158,7 +161,8 @@ public:
     ZcodeI2cChannel() :
             ZcodeCommandChannel<ZP>(&seqin, &out, false), seqin(this) {
     }
-    void setAddr(uint8_t addr) {
+    void setAddress(uint8_t addr) {
+        Wire.begin(0x61);
         out.setAddr(addr);
     }
 

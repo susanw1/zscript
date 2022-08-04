@@ -66,19 +66,21 @@ public:
             slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingInvalid);
             return;
         }
-        ZcodeAddressRouter<ZP>::overwriteWithAddressingSymbol(slot, &addrInfo);
+        if (!reading.ignoreDot) {
+            ZcodeAddressRouter<ZP>::overwriteWithAddressingSymbol(slot, &addrInfo);
+        }
         ZcodeAddressRouter<ZP>::addressingSwitch(mapping.module, slot, addrInfo);
     }
 
-    static void response(ZcodeBusInterrupt<ZP> interrupt, ZcodeOutStream<ZP> *out) {
-        int8_t sections = ZcodeAddressRouter<ZP>::getAddressingLevel(interrupt.getNotificationModule());
+    static void response(ZcodeBusInterrupt<ZP> *interrupt, ZcodeOutStream<ZP> *out) {
+        int8_t sections = ZcodeAddressRouter<ZP>::getAddressingLevel(interrupt->getNotificationModule());
         if (sections == -1) {
-            interrupt.clear();
+            interrupt->clear();
             return;
         }
-        uint16_t module = interrupt.getNotificationModule();
-        uint8_t port = interrupt.getNotificationPort();
-        uint16_t addr = interrupt.getFoundAddress();
+        uint16_t module = interrupt->getNotificationModule();
+        uint8_t port = interrupt->getNotificationPort();
+        uint16_t addr = interrupt->getFoundAddress();
 
         int16_t mappingAddress = -1;
         for (uint16_t i = 0; i < ZP::mappingAddressCount; ++i) {
@@ -93,7 +95,7 @@ public:
             }
         }
         if (mappingAddress == -1) {
-            interrupt.clear();
+            interrupt->clear();
             return;
         }
 
@@ -105,17 +107,17 @@ public:
         out->writeCommandSequenceSeparator();
         out->close();
         out->unlock();
-        interrupt.clear();
+        interrupt->clear();
     }
 
-    static bool isAddressed(ZcodeBusInterrupt<ZP> interrupt) {
-        int8_t sections = ZcodeAddressRouter<ZP>::getAddressingLevel(interrupt.getNotificationModule());
+    static bool isAddressed(ZcodeBusInterrupt<ZP> *interrupt) {
+        int8_t sections = ZcodeAddressRouter<ZP>::getAddressingLevel(interrupt->getNotificationModule());
         if (sections == -1) {
             return false;
         }
-        uint16_t module = interrupt.getNotificationModule();
-        uint8_t port = interrupt.getNotificationPort();
-        uint16_t addr = interrupt.getFoundAddress();
+        uint16_t module = interrupt->getNotificationModule();
+        uint8_t port = interrupt->getNotificationPort();
+        uint16_t addr = interrupt->getFoundAddress();
 
         for (uint16_t i = 0; i < ZP::mappingAddressCount; ++i) {
             ZcodeAddressMapping mapping = map[i];
