@@ -13,6 +13,11 @@
 
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeModule.hpp"
+
+#ifdef DEBUG_ADDRESSING
+#include "ZcodeDebugAddressingSystem.hpp"
+#endif
+
 #include "ZcodeActivateCommand.hpp"
 #include "ZcodeEchoCommand.hpp"
 #include "ZcodeMakeCodeCommand.hpp"

@@ -10,10 +10,6 @@
 #include "../support/ZcodeParameters.hpp"
 
 #ifdef ZCODE_SUPPORT_ADDRESSING
-#ifdef ZCODE_SUPPORT_DEBUG
-#include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>
-#endif
-
 #include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
 #endif
 
