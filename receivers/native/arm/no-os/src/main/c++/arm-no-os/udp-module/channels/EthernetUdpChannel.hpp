@@ -47,6 +47,7 @@ public:
                 usingBuffer = false;
                 return true;
             }
+            Ethernet<LowLevelConfiguration> .maintain();
             return false;
         }
         if (udp->available()) {
@@ -58,6 +59,7 @@ public:
             }
             if (!this->slot.acceptByte(buffer)) {
                 usingBuffer = true;
+                Ethernet<LowLevelConfiguration> .maintain();
                 return false;
             }
             return true;
@@ -67,6 +69,7 @@ public:
                 buffer = EOL_SYMBOL;
                 if (!this->slot.acceptByte(buffer)) {
                     usingBuffer = true;
+                    Ethernet<LowLevelConfiguration> .maintain();
                     return false;
                 }
                 return true;
@@ -76,6 +79,7 @@ public:
                 mostRecentPort = udp->remotePort();
                 return true;
             } else {
+                Ethernet<LowLevelConfiguration> .maintain();
                 return false;
             }
         }

@@ -25,8 +25,14 @@
 template<class ZP>
 class ZcodePinModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
+    typedef typename ZP::LL LL;
 
 public:
+
+    static void init() {
+        GpioManager<LL>::init();
+        AtoDManager<LL>::init();
+    }
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
         switch (bottomBits) {

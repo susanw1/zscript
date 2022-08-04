@@ -23,8 +23,16 @@
 template<class ZP>
 class ZcodeUsbcPDModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
+    typedef typename ZP::LL LL;
 
 public:
+    //targetCurrent in mA, targetVoltage in V
+    static void init(uint32_t *recoveryMemory, uint16_t targetCurrent, uint16_t targetVoltage) {
+        Ucpd<LL>::init(recoveryMemory, targetCurrent / 10, targetVoltage * 20, targetVoltage * 20);
+    }
+    static void tick() {
+        Ucpd<LL>::tick();
+    }
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
 
