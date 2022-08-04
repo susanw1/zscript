@@ -28,12 +28,32 @@ Clock<LL> ClockManager<LL>::clocks[NONE] = {
 };
 
 template<class LL>
-void ClockManager<LL>::basicSetup() {
+void ClockManager<LL>::fastSetup() {
+    ClockManager<LL>::getClock(HSI)->set(16000, NONE);
     ClockManager<LL>::getClock(VCO)->set(240000, HSI);
     ClockManager<LL>::getClock(PLL_R)->set(120000, VCO);
     ClockManager<LL>::getClock(SysClock)->set(120000, PLL_R);
     ClockManager<LL>::getClock(HCLK)->set(120000, SysClock);
     ClockManager<LL>::getClock(PCLK_1)->set(60000, HCLK);
     ClockManager<LL>::getClock(PCLK_2)->set(60000, HCLK);
+}
+template<class LL>
+void ClockManager<LL>::basicSetup() {
+    ClockManager<LL>::getClock(HSI)->set(16000, NONE);
+    ClockManager<LL>::getClock(SysClock)->set(16000, HSI);
+    ClockManager<LL>::getClock(HCLK)->set(16000, SysClock);
+    ClockManager<LL>::getClock(PCLK_1)->set(16000, HCLK);
+    ClockManager<LL>::getClock(PCLK_2)->set(16000, HCLK);
+}
+template<class LL>
+void ClockManager<LL>::slowSetup() {
+    ClockManager<LL>::getClock(LSI)->set(32, NONE);
+    ClockManager<LL>::getClock(SysClock)->set(32, LSI);
+    ClockManager<LL>::getClock(HCLK)->set(32, SysClock);
+    ClockManager<LL>::getClock(PCLK_1)->set(32, HCLK);
+    ClockManager<LL>::getClock(PCLK_2)->set(32, HCLK);
+}
+template<class LL>
+void ClockManager<LL>::basicSetup() {
 }
 #endif /* SRC_MAIN_C___LOWLEVEL_CLOCKSLOWLEVEL_SPECIFIC_CLOCKMANAGERCPP_HPP_ */

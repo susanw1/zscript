@@ -11,13 +11,17 @@
 #include <zcode/ZcodeIncludes.hpp>
 #include <zcode/ZcodeStrings.hpp>
 #include "GeneralLLSetup.hpp"
-#include <arm-no-os/system/clock/SystemMilliClock.hpp>
+#include <arm-no-os/system/ZcodeSystemModule.hpp>
 
 #define ZCODE_SUPPORT_SCRIPT_SPACE
 #define ZCODE_SUPPORT_INTERRUPT_VECTOR
 #define ZCODE_SUPPORT_ADDRESSING
 #define ZCODE_GENERATE_NOTIFICATIONS
 #define ZCODE_SUPPORT_DEBUG
+
+#define I2C_ADDRESSING
+#define SERIAL_ADDRESSING
+#define DEBUG_ADDRESSING
 
 template<class ZP>
 class ZcodeModuleAddressRouter;
@@ -38,7 +42,7 @@ public:
     typedef ZcodeModuleAddressRouter<ZcodeParameters> AddressRouter;
 
     static uint16_t numberGenerator() {
-        return (uint16_t) SystemMilliClock<LL>::getTimeMillis();
+        return (uint16_t) ZcodeSystemModule<ZcodeParameters>::milliClock::getTimeMillis();
     }
 
     typedef LowLevelConfiguration LL;

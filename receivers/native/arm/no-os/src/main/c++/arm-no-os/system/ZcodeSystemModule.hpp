@@ -28,9 +28,17 @@ class ZcodeSystemModule: public ZcodeModule<ZP> {
 
 public:
     typedef SystemMilliClock<LL> milliClock;
+    static void initClocks() {
+        ClockManager<LL>::basicSetup();
+    }
+    static void initClocksFast() {
+        ClockManager<LL>::basicSetup();
+    }
+    static void initClocksSlow() {
+        ClockManager<LL>::basicSetup();
+    }
 
     static void init() {
-        ClockManager<LL>::basicSetup();
 
         SystemMilliClock<LL>::init();
         for (volatile uint32_t i = 0; i < 0x100; ++i)

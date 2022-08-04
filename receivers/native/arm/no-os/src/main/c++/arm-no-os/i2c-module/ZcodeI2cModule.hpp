@@ -6,6 +6,10 @@
 #endif
 
 #include <zcode/modules/ZcodeModule.hpp>
+#ifdef I2C_ADDRESSING
+#include <arm-no-os/i2c-module/addressing/ZcodeI2cAddressingSystem.hpp>
+#include <arm-no-os/i2c-module/addressing/ZcodeI2cBusInterruptSource.hpp>
+#endif
 
 #include "commands/ZcodeI2cSetupCommand.hpp"
 #include "commands/ZcodeI2cSendCommand.hpp"
@@ -22,6 +26,10 @@ class ZcodeI2cModule: public ZcodeModule<ZP> {
     typedef typename ZP::LL LL;
 
 public:
+
+#ifdef I2C_ADDRESSING
+    typedef ZcodeI2cBusInterruptSource<ZP> busInterruptSource;
+#endif
 
     static void init() {
         I2cManager<LL>::init();

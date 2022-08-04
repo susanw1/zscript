@@ -5,8 +5,6 @@
 #include <arm-no-os/serial-module/addressing/ZcodeSerialAddressingSystem.hpp>
 #include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>
 
-#include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
-
 #include <arm-no-os/arm-core-module/commands/ZcodeReadGuidCommand.hpp>
 #include <arm-no-os/arm-core-module/commands/ZcodeWriteGuidCommand.hpp>
 #include <arm-no-os/arm-core-module/commands/ZcodeResetCommand.hpp>
@@ -26,6 +24,7 @@
 #include <arm-no-os/i2c-module/addressing/ZcodeI2cBusInterruptSource.hpp>
 #include <arm-no-os/serial-module/addressing/ZcodeSerialBusInterruptSource.hpp>
 
+#include <zcode/addressing/addressrouters/ZcodeModuleAddressRouter.hpp>
 #include <zcode/Zcode.hpp>
 
 const char *LowLevelConfiguration::ucpdManufacturerInfo = "Zcode/Alpha Board";

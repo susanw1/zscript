@@ -11,7 +11,7 @@
 #include <zcode/ZcodeIncludes.hpp>
 #include <zcode/ZcodeStrings.hpp>
 #include "GeneralLLSetup.hpp"
-#include <arm-no-os/system/clock/SystemMilliClock.hpp>
+#include <arm-no-os/system/ZcodeSystemModule.hpp>
 
 #define ZCODE_STRING_SURROUND(str) str
 
@@ -40,7 +40,7 @@ public:
     typedef ZcodeModuleAddressRouter<ZcodeParameters> AddressRouter;
 
     static uint16_t numberGenerator() {
-        return (uint16_t) SystemMilliClock<LL>::getTimeMillis();
+        return (uint16_t) ZcodeSystemModule<ZcodeParameters>::milliClock::getTimeMillis();
     }
 
     typedef LowLevelConfiguration LL;
