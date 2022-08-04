@@ -18,6 +18,7 @@
 #include "commands/ZcodePinWriteCommand.hpp"
 #include "commands/ZcodePinReadCommand.hpp"
 #include "commands/ZcodePinCapabilitiesCommand.hpp"
+#include "pin-controller/PinController.hpp"
 
 #define MODULE_EXISTS_003 EXISTENCE_MARKER_UTIL
 #define MODULE_SWITCH_003 MODULE_SWITCH_UTIL(ZcodePinModule<ZP>::execute)
@@ -31,7 +32,9 @@ public:
 
     static void init() {
         GpioManager<LL>::init();
+#ifdef HAS_ATOD_SYSTEM
         AtoDManager<LL>::init();
+#endif
     }
 
     static GpioPin<LL> getPin(GpioPinName name) {

@@ -10,7 +10,9 @@
 
 #include <arm-no-os/llIncludes.hpp>
 #include "Uart.hpp"
+#ifdef USE_USB_SERIAL
 #include <arm-no-os/usb-module/lowlevel/Usb.hpp>
+#endif
 
 class Serial;
 
