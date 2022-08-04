@@ -1,3 +1,4 @@
+#define INCLUDE_CPP_IN_FILE_ONLY_USE_ONCE
 #include "ZcodeParameters.hpp"
 #include "GeneralLLSetup.hpp"
 
@@ -22,8 +23,8 @@
 const char *LowLevelConfiguration::ucpdManufacturerInfo = "Zcode/Alpha Board";
 
 int main(void) {
-    ZcodeSystemModule<ZcodeParameters>::initClocksFast();
-    ZcodeSystemModule<ZcodeParameters>::init();
+    ZcodeSystemModule < ZcodeParameters > ::initClocksFast();
+    ZcodeSystemModule < ZcodeParameters > ::init();
 
     ZcodePinModule<ZcodeParameters>::init();
     uint32_t notSoPermanentStore = 0;
@@ -36,7 +37,7 @@ int main(void) {
 
     Zcode<ZcodeParameters> *z = &Zcode<ZcodeParameters>::zcode;
 
-    ZcodeSystemModule<ZcodeParameters>::milliClock::blockDelayMillis(200);
+    ZcodeSystemModule < ZcodeParameters > ::milliClock::blockDelayMillis(200);
 
     ZcodeUdpModule<ZcodeParameters>::channel channel(4889);
     ZcodeSerialModule<ZcodeParameters>::channel serial(ZcodeSerialModule<ZcodeParameters>::getUsb());

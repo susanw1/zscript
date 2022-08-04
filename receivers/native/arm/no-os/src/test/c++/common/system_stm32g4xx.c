@@ -76,7 +76,7 @@
  * @{
  */
 
-#include "arm-no-os/system/core/stm32g4xx.h"
+#include <arm-no-os/stm32g4/system/core/stm32g4xx.h>
 
 #if !defined  (HSE_VALUE)
 #define HSE_VALUE     8000000U /*!< Value of the External oscillator in Hz */

@@ -67,6 +67,15 @@
                             <includePath>
                                 <path>${project.basedir}/src/main/c++</path>
                             </includePath>
+                            <includePath>
+                                <path>${project.basedir}/STM32/src/main/c++</path>
+                            </includePath>
+                            <includePath>
+                                <path>${project.basedir}/STM32/G4/src/main/c++</path>
+                            </includePath>
+                            <includePath>
+                                <path>${project.basedir}/STM32/G4/G484/src/main/c++</path>
+                            </includePath>
 
                         </includePaths>
 

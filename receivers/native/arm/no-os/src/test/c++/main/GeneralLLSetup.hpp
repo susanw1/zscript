@@ -57,6 +57,7 @@
 #define I2C_3_ALERT PC_4
 #define I2C_4_ALERT PC_4
 
+#define I2C_DMA
 class HardwareDefinition {
 public:
     static const uint32_t ucpdTxSOP = 0b10001110001100011000; // 3*Sync-1, Sync-2 = SOP
@@ -72,6 +73,7 @@ public:
 
     static const bool inDualBankFlash = true;
     static const uint32_t pageSize = 0x800;
+    static const uint16_t flashPageCount = 256;
 
     static const uint8_t spiAlternateFunction = 5;
 };

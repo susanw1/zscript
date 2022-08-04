@@ -14,6 +14,13 @@
 
 #include <zcode/modules/ZcodeModule.hpp>
 
+#ifdef SERIAL_ADDRESSING
+#include <arm-no-os/serial-module/addressing/ZcodeSerialAddressingSystem.hpp>
+#include <arm-no-os/serial-module/addressing/ZcodeSerialBusInterruptSource.hpp>
+#endif
+
+#include <arm-no-os/serial-module/channels/SerialChannel.hpp>
+
 #include "commands/ZcodeSerialSetupCommand.hpp"
 #include "commands/ZcodeSerialSendCommand.hpp"
 #include "commands/ZcodeSerialReadCommand.hpp"
@@ -27,8 +34,26 @@
 template<class ZP>
 class ZcodeSerialModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
+    typedef typename ZP::LL LL;
 
 public:
+
+#ifdef SERIAL_ADDRESSING
+    typedef ZcodeSerialBusInterruptSource<ZP> busInterruptSource;
+#endif
+
+    typedef SerialChannel<ZP> channel;
+
+    static void init() {
+        UartManager<LL>::init();
+    }
+
+    static Serial* getUart(SerialIdentifier id) {
+        return UartManager<LL>::getUartById(id);
+    }
+    static Serial* getUsb() {
+        return UartManager<LL>::getUartById(LL::HW::uartCount);
+    }
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
         switch (bottomBits) {
