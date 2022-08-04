@@ -21,6 +21,10 @@
 #define ZCODE_GENERATE_NOTIFICATIONS
 #define ZCODE_SUPPORT_DEBUG
 
+#define I2C_ADDRESSING
+#define SERIAL_ADDRESSING
+#define DEBUG_ADDRESSING
+
 template<class ZP>
 class ZcodeModuleAddressRouter;
 

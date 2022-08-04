@@ -21,7 +21,9 @@ public:
     static Clock<LL>* getClock(SystemClock clock) {
         return clocks + (uint8_t) clock;
     }
+    static void fastSetup();
     static void basicSetup();
+    static void slowSetup();
 };
 #include "specific/ClockManagercpp.hpp"
 

@@ -53,7 +53,4 @@ void ClockManager<LL>::slowSetup() {
     ClockManager<LL>::getClock(PCLK_1)->set(32, HCLK);
     ClockManager<LL>::getClock(PCLK_2)->set(32, HCLK);
 }
-template<class LL>
-void ClockManager<LL>::basicSetup() {
-}
 #endif /* SRC_MAIN_C___LOWLEVEL_CLOCKSLOWLEVEL_SPECIFIC_CLOCKMANAGERCPP_HPP_ */

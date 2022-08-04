@@ -34,6 +34,10 @@ public:
         AtoDManager<LL>::init();
     }
 
+    static GpioPin<LL> getPin(GpioPinName name) {
+        return GpioManager<LL>::getPin(name);
+    }
+
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
         switch (bottomBits) {
         case 0x0:
