@@ -19,8 +19,17 @@
 template<class ZP>
 class ZcodeI2cModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
+    typedef typename ZP::LL LL;
 
 public:
+
+    static void init() {
+        I2cManager<LL>::init();
+    }
+
+    static I2c<LL>* getI2c(I2cIdentifier id) {
+        return I2cManager<LL>::getI2cById(id);
+    }
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
         switch (bottomBits) {

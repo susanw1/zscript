@@ -27,8 +27,17 @@
 template<class ZP>
 class ZcodeSerialModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
+    typedef typename ZP::LL LL;
 
 public:
+
+    static void init() {
+        UartManager<LL>::init();
+    }
+
+    static Serial* getUart(SerialIdentifier id) {
+        return UartManager<LL>::getUartById(id);
+    }
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
         switch (bottomBits) {
