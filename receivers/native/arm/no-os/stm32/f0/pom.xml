@@ -3,16 +3,15 @@
 
     <parent>
         <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-arm</artifactId>
+        <artifactId>arm-no-os-stm32</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>arm-no-os</artifactId>
+    <artifactId>arm-no-os-stm32f0</artifactId>
     <packaging>pom</packaging>
-    <name>Zcode ARM Bare Metal (no OS) Receiver</name>
+    <name>Zcode STM32F0 Bare Metal (no OS) Receiver</name>
 
     <modules>
-        <module>stm32</module>
+<!--        <module>f030</module> -->
     </modules>
-    
 </project>

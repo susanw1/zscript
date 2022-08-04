@@ -1,0 +1,53 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.zcode</groupId>
+        <artifactId>arm-no-os</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>arm-no-os-stm32</artifactId>
+    <packaging>nar</packaging>
+    <name>Zcode STM32 Bare Metal (no OS) Receiver</name>
+
+    <modules>
+        <module>g4</module>
+        <module>f0</module> 
+    </modules>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.maven-nar</groupId>
+                <artifactId>nar-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <cpp>
+                        <name>gcc</name>
+                        <exceptions>false</exceptions>
+                        <debug>true</debug>
+                        <includePaths>
+                            <includePath>
+                                <path>${project.basedir}/src/main/c++</path>
+                                <includes>**/*.hpp</includes>
+                            </includePath>
+                        </includePaths>
+                        <options>
+                            <option>-flto</option>
+                            <option>-g</option>
+                            <option>-Wall</option>
+
+                            <option>-Wextra</option>
+                        </options>
+                    </cpp>
+                    <libraries>
+                        <library>
+                            <type>static</type>
+                        </library>
+                    </libraries>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
