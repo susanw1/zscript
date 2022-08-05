@@ -29,27 +29,6 @@
 #define I2C_1_ALERT PA_8
 #define I2C_2_ALERT PB_4
 
-class HardwareDefinition {
-public:
-    static const uint32_t ucpdTxSOP = 0b10001110001100011000; // 3*Sync-1, Sync-2 = SOP
-
-    static const uint8_t pinCount = 55;
-
-    static const uint8_t atoDCount = 5;
-
-    static const I2cIdentifier i2cCount = 2;
-    static const SerialIdentifier uartCount = 2;
-    static const SerialIdentifier serialCount = 2;
-
-    static const DmaIdentifier dmaCount = 5;
-
-    static const bool inDualBankFlash = true;
-    static const uint32_t pageSize = 0x400;
-    static const uint16_t flashPageCount = 64;
-
-    static const uint8_t spiAlternateFunction = 0;
-};
-
 class LowLevelConfiguration {
 public:
     typedef HardwareDefinition HW;
