@@ -10,7 +10,7 @@
 
 #define SPI_1_SCK_PA_5_ PA_5,GPIO_AF0
 #define SPI_1_MISO_PA_6_ PA_6,GPIO_AF0
-#define SPI_1_MOSI_PA_7_ PB_7,GPIO_AF0
+#define SPI_1_MOSI_PA_7_ PA_7,GPIO_AF0
 
 #define SPI_1_SCK_PB_3_ PB_3,GPIO_AF0
 #define SPI_1_MISO_PB_4_ PB_4,GPIO_AF0
