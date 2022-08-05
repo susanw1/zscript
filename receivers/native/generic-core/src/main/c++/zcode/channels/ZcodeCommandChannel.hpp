@@ -46,6 +46,10 @@ public:
 
     virtual void readSetup(ZcodeExecutionCommandSlot<ZP> slot) = 0;
 
+    virtual bool isFromNotification() {
+        return true;
+    }
+
     virtual bool reset() {
         return false;
     }

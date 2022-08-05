@@ -31,7 +31,7 @@ private:
 public:
 
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
-        if (slot.getChannel() != slot.getZcode()->getNotificationManager()->getNotificationChannel()) {
+        if (slot.getChannel() != slot.getZcode()->getNotificationManager()->getNotificationChannel() || !slot.getChannel()->isFromNotification()) {
             slot.fail(BAD_ADDRESSING, (string_t) ZP::Strings::failAddressingOnlyFromNotificationChannel);
             return;
         }
