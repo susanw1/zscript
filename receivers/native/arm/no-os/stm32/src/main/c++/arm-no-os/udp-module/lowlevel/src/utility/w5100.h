@@ -446,7 +446,7 @@ private:
 	}
 #else
     inline static void initSS() {
-        GpioPin<LL> nss = GpioManager<LL>::getPin(PA_4);
+        GpioPin<LL> nss = GpioManager<LL>::getPin(SPI_1_UDP_SS);
         nss.init();
         nss.set();
         nss.setOutputSpeed(VeryHighSpeed);
@@ -455,10 +455,10 @@ private:
         nss.setMode(Output);
     }
     inline static void setSS() {
-        GpioManager<LL>::getPin(PA_4).reset();
+        GpioManager<LL>::getPin(SPI_1_UDP_SS).reset();
     }
     inline static void resetSS() {
-        GpioManager<LL>::getPin(PA_4).set();
+        GpioManager<LL>::getPin(SPI_1_UDP_SS).set();
     }
 #endif
 };
@@ -581,7 +581,7 @@ uint8_t W5100Class<LL>::init(void)
     // case maximum 560 ms pulse length.  This delay is meant to wait
     // until the reset pulse is ended.  If your hardware has a shorter
     // reset time, this can be edited or removed.
-    SystemMilliClock<LL>::blockDelayMillis(560);
+    SystemMilliClock < LL > ::blockDelayMillis(560);
     //Serial.println("w5100 init");
 
     SPI<LL> .begin();
@@ -697,7 +697,7 @@ uint8_t W5100Class<LL>::softReset(void)
         //Serial.println(mr, HEX);
         if (mr == 0)
             return 1;
-        SystemMilliClock<LL>::blockDelayMillis(1);
+        SystemMilliClock < LL > ::blockDelayMillis(1);
     } while (++count < 20);
     return 0;
 }

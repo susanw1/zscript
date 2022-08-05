@@ -29,6 +29,13 @@
 #define I2C_1_ALERT PA_8
 #define I2C_2_ALERT PB_4
 
+#define SPI_1_SCK PA_5_
+#define SPI_1_MISO PA_6_
+#define SPI_1_MOSI PA_7_
+#define USE_SPI_1
+
+#define SPI_1_UDP_SS PA_4
+
 class LowLevelConfiguration {
 public:
     typedef HardwareDefinition HW;
