@@ -87,6 +87,8 @@
                             <option>-fno-common</option>
                             <option>-mcpu=${cpu}</option>
                             <option>-specs=nosys.specs</option>
+                            <option>-fno-rtti</option>
+                            <option>-fno-exceptions</option>
                         </options>
                         <defines>
                             <define>${device-family}</define>
@@ -114,6 +116,9 @@
                             <testOption>-fno-common</testOption>
                             <testOption>-mcpu=${cpu}</testOption>
                             <testOption>-specs=nosys.specs</testOption>
+                            <testOption>-fno-rtti</testOption>
+                            <testOption>-fno-exceptions</testOption>
+                            <testOption>--verbose</testOption>
                         </testOptions>
                         <!-- 						<sysLibs>
 							<sysLib>
@@ -125,6 +130,11 @@
                     <tests>
                         <test>
                             <name>main</name>
+                            <link>static</link>
+                            <run>false</run>
+                        </test>
+                        <test>
+                            <name>test-minimal</name>
                             <link>static</link>
                             <run>false</run>
                         </test>
