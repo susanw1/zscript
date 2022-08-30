@@ -21,11 +21,11 @@ private:
     uint16_t values[ZP::fieldNum];
     char fields[ZP::fieldNum];
     fieldMapSize_t size = 0;
-    uint8_t pos = 0;
+    uint8_t nibbleCount = 0;
 
 public:
     bool add16(char f, uint16_t v) {
-        pos = 0;
+        nibbleCount = 0;
         if (size == ZP::fieldNum) {
             return false;
         }
@@ -38,37 +38,26 @@ public:
         values[size++] = v;
         return true;
     }
+
     bool addBlank(char f) {
-        pos = 0;
-        if (size == ZP::fieldNum) {
-            return false;
-        }
-        for (uint8_t i = 0; i < size; ++i) {
-            if (fields[i] == f) {
-                return false;
-            }
-        }
-        fields[size] = f;
-        values[size] = 0;
-        size++;
-        return true;
+        return add16(f, 0);
     }
 
     bool add4(uint8_t nibble) {
-        if (pos >= 4) {
+        if (nibbleCount >= 4) {
             return false;
         }
         values[size - 1] = (uint16_t) ((values[size - 1] << 4) | nibble);
-        pos++;
+        nibbleCount++;
         return true;
     }
 
     bool add8(uint8_t byte) {
-        if (pos >= 3) {
+        if (nibbleCount >= 3) {
             return false;
         }
         values[size - 1] = (uint16_t) ((values[size - 1] << 8) | byte);
-        pos += 2;
+        nibbleCount += 2;
         return true;
     }
 
@@ -115,7 +104,7 @@ public:
 
     void reset() {
         size = 0;
-        pos = 0;
+        nibbleCount = 0;
     }
 
     void copyFieldTo(ZcodeOutStream<ZP> *out, char c) const {

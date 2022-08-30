@@ -22,7 +22,7 @@ public:
 
         out->writeField8(CMD_RESP_NOTIFICATION_SUPPORTED_N, 0);
 
-        out->writeField8(CMD_RESP_PORT_COUNT_P, ZP::LL::i2cCount);
+        out->writeField8(CMD_RESP_PORT_COUNT_P, ZP::LL::HW::i2cCount);
         out->writeField8(CMD_RESP_FREQUENCIES_COUNT_F, 4);
     }
 

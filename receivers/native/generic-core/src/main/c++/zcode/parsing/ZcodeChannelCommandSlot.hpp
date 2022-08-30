@@ -111,6 +111,7 @@ class ZcodeExecutionCommandSlot;
 
 template<class ZP>
 class ZcodeChannelCommandSlot {
+    typedef typename ZP::bigFieldAddress_t bigFieldAddress_t;
     typedef typename ZP::Strings::string_t string_t;
 
     friend class ZcodeRunningCommandSlot<ZP> ;
@@ -178,6 +179,7 @@ class ZcodeChannelCommandSlot {
             }
             return;
         }
+        // FIXME: remove ANDTHEN_SYMBOL and ORELSE_SYMBOL
         if (c == ANDTHEN_SYMBOL || c == ORELSE_SYMBOL || c == EOL_SYMBOL) {
             parseFail(c, PARSE_ERROR, (string_t) ZP::Strings::failParseNoStringEnd);
             return;
@@ -321,8 +323,8 @@ class ZcodeChannelCommandSlot {
     }
 
 public:
-    ZcodeChannelCommandSlot(ZcodeBigField<ZP> bigField, ZcodeCommandChannel<ZP> *channel) :
-            channel(channel), fieldMap(), bigField(bigField), lockSet(), failString(NULL), state(), respStatus(OK), runStatus(), terminator(
+    ZcodeChannelCommandSlot(ZcodeCommandChannel<ZP> *channel, uint8_t *big, bigFieldAddress_t length) :
+            channel(channel), fieldMap(), bigField(big, length), lockSet(), failString(NULL), state(), respStatus(OK), runStatus(), terminator(
                     '\n'), starter('\n') {
         resetToSequence();
     }
