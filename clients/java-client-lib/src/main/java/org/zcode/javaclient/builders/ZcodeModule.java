@@ -1,5 +1,4 @@
 package org.zcode.javaclient.builders;
 
-public class ZcodeModule {
-
+public interface ZcodeModule {
 }
