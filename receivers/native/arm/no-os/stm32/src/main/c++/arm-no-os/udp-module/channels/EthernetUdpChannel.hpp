@@ -171,6 +171,10 @@ public:
         udp.begin(port);
     }
 
+    virtual bool isFromNotification() {
+        return notificationIP == seqin.getIp() && notificationPort == seqin.getPort();
+    }
+
     void stateChange(ZcodeCommandChannelStateChange change) {
         if (change == SET_AS_NOTIFICATION) {
             notificationIP = seqin.getIp();

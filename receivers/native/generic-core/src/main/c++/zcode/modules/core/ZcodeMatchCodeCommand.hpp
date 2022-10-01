@@ -28,7 +28,7 @@ public:
     static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
         uint16_t value = 0;
-        if (slot.getFields()->get('C', value)) {
+        if (slot.getFields()->get('C', &value)) {
             if (value == ZcodeMakeCodeCommand<ZP>::number) {
                 out->writeStatus(OK);
             } else {
