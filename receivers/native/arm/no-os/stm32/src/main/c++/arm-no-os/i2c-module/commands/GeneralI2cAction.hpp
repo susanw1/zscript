@@ -51,7 +51,7 @@ public:
 
         uint16_t address = 0;
         if (!slot.getFields()->get(CMD_PARAM_I2C_ADDR_A, &address)) {
-            slot.fail(BAD_PARAM, "I2C address missing");
+            slot.fail(MISSING_PARAM, "I2C address missing");
             return;
         }
         bool tenBit = slot.getFields()->has(CMD_PARAM_TENBIT_ADDR_N);
@@ -72,7 +72,7 @@ public:
             // initial pass
             uint16_t port;
             if (!slot.getFields()->get(CMD_PARAM_I2C_PORT_P, &port)) {
-                slot.fail(BAD_PARAM, "Missing I2C port");
+                slot.fail(MISSING_PARAM, "Missing I2C port");
                 return;
             } else if (port >= HW::i2cCount || !I2cManager<LL>::getI2cById(port)->isSetUp()) {
                 slot.fail(BAD_PARAM, "Invalid I2C port");

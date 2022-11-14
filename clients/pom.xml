@@ -9,4 +9,10 @@
 
     <artifactId>zcode-clients</artifactId>
     <name>Zcode Clients</name>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>java-client-lib</module>
+    </modules>
+
 </project>

@@ -1,11 +1,5 @@
-
-
 #include "ZcodeParameters.hpp"
-
 #include <ZcodeFullInclude.hpp>
-
-#include <Wire.h>
-
 
 void setup() {
     Serial.begin(9600);

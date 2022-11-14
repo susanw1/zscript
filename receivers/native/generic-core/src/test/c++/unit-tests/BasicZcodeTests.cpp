@@ -78,9 +78,9 @@ int main(void) {
         return 1;
     }
 #ifdef ZCODE_SUPPORT_SCRIPT_SPACE
-    const char *capResp = "SC3107M7N14\n";
+    const char *capResp = "SC3107M7\n";
 #else
-    const char *capResp = "SC3107M3N14\n";
+    const char *capResp = "SC3107M3\n";
 #endif
     if (!ZcodeTestingSystem::tryTest("Z0", capResp)) {
         std::cerr << "Failed on Capabilities\n";

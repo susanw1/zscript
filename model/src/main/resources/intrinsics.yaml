@@ -1,0 +1,81 @@
+intrinsics:
+    requestParams:
+    -   label: Z
+        name: command
+        description: which operation to be performed
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   label: E
+        name: echo
+        description: value is always echoed in the response
+        typeDefinition:
+            '@type': number
+        required: no
+    responseParams:
+    -   label: E
+        name: echo
+        description: value echoed from the request
+        typeDefinition:
+            '@type': number
+        required: no
+    -   label: S
+        name: status
+        description: indicates success (0), error (1-f) or failure
+        typeDefinition:
+            '@type': number
+        required: yes
+        
+    status:
+    -   code: OK
+        id: 0
+        meaning: command success
+        
+    -   code: RESP_TOO_LONG
+        id: 1
+        meaning: script response too large for available buffer
+        
+    -   code: UNKNOWN_ERROR
+        id: 2
+        meaning: parsing failed for unknown reason
+        
+    -   code: PARSE_ERROR
+        id: 3
+        meaning: command parser error
+        
+    -   code: UNKNOWN_CMD
+        id: 4
+        meaning: request Z command unknown or not enabled
+        
+    -   code: MISSING_PARAM
+        id: 5
+        meaning: required request parameter missing
+
+    -   code: BAD_PARAM
+        id: 6
+        meaning: request parameter has invalid value
+
+    -   code: NOT_ACTIVATED
+        id: 7
+        meaning: attempt to execute non-core command without activation
+
+    -   code: TOO_BIG
+        id: 8
+        meaning: some capacity limit was hit
+
+    -   code: BAD_ADDRESSING
+        id: 9
+        meaning: address failed to match any addressable device 
+
+    -   code: RETRY_REQUEST
+        id: 10
+        meaning: ?? is this used?
+
+    -   code: CMD_ERROR
+        id: 15
+        meaning: (non-core) command fatal error
+
+    -   code: CMD_FAIL
+        id: 16
+        meaning: command failure status
+        
