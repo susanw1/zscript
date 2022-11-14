@@ -151,7 +151,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <!-- run with mvn exec:exec@objcopy -->
+                        <!-- manually run with mvn exec:exec@objcopy, but is wired into default mvn deploy in this project-->
                         <id>objcopy</id>
                         <configuration>
                             <executable>arm-none-eabi-objcopy</executable>
@@ -169,26 +169,42 @@
 						</goals>
                     </execution>
                     <execution>
-                        <!-- run with mvn exec:exec@openocd -->
+                        <!-- manually run with mvn exec:exec@openocd, but wired into default mvn deploy -->
                         <id>openocd</id>
                         <configuration>
                             <executable>${openocd-command}</executable>
                             <workingDirectory>${project.build.directory}/test-nar/bin/arm32g4-no_os-gpp/</workingDirectory>
                             <arguments>
-                            	<argument>--search</argument>
-                            	<argument>${openocd-location}</argument>
-                            	<argument>-f</argument>
-                            	<argument>${openocd-location}/interface/stlink.cfg</argument>
-                            	<argument>-f</argument>
-                            	<argument>${openocd-location}/target/stm32g4x.cfg</argument>
-                            	<argument>-f</argument>
-                            	<argument>${project.basedir}/src/test/openocd/openocd.cfg</argument>
-                        	</arguments>
+                                <argument>--search</argument>
+                                <argument>${openocd-location}</argument>
+                                <argument>-f</argument>
+                                <argument>${openocd-location}/interface/stlink.cfg</argument>
+                                <argument>-f</argument>
+                                <argument>${openocd-location}/target/stm32g4x.cfg</argument>
+                                <argument>-f</argument>
+                                <argument>${project.basedir}/src/test/openocd/openocd.cfg</argument>
+                            </arguments>
                         </configuration>
-						<phase>deploy</phase>
-						<goals>
-						  <goal>exec</goal>
-						</goals>
+                        <phase>deploy</phase>
+                        <goals>
+                          <goal>exec</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <!-- run with mvn exec:exec@openocd-gdb to be able to use gdb-multiarch. Command waits listening on port 3333. -->
+                        <id>openocd-gdb</id>
+                        <configuration>
+                            <executable>${openocd-command}</executable>
+                            <workingDirectory>${project.build.directory}/test-nar/bin/arm32g4-no_os-gpp/</workingDirectory>
+                            <arguments>
+                                <argument>--search</argument>
+                                <argument>${openocd-location}</argument>
+                                <argument>-f</argument>
+                                <argument>${openocd-location}/interface/stlink.cfg</argument>
+                                <argument>-f</argument>
+                                <argument>${openocd-location}/target/stm32g4x.cfg</argument>
+                            </arguments>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
