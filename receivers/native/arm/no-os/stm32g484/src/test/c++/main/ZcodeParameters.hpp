@@ -8,6 +8,13 @@
 #ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
+#define ZCODE_IDENTIFY_USER_FIRMWARE_STRING  "Zcode Test Platform for STM32G484"
+#define ZCODE_IDENTIFY_USER_FIRMWARE_VERSION 0x0001
+
+#define ZCODE_IDENTIFY_HARDWARE_PLATFORM_STRING "ARM STM32G484;Alpha Prototype"
+#define ZCODE_IDENTIFY_HARDWARE_PLATFORM_VERSION 0x0001
+
+#include <arm-no-os/stm32g484/ArmPlatformFirmwareVersion.hpp>
 #include <zcode/ZcodeIncludes.hpp>
 #include <zcode/ZcodeStrings.hpp>
 #include "GeneralLLSetup.hpp"

@@ -8,15 +8,21 @@
 #ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
+#define ZCODE_IDENTIFY_USER_FIRMWARE_STRING         "Zcode Arduino Testing"
+#define ZCODE_IDENTIFY_USER_FIRMWARE_VERSION        0x0001
+
+#define ZCODE_IDENTIFY_HARDWARE_PLATFORM_STRING     "Arduino Nano"
+#define ZCODE_IDENTIFY_HARDWARE_PLATFORM_VERSION    0x0000
+
+#include <ArduinoPlatformFirmwareVersion.hpp>
+
 #include <ZcodeIncludes.hpp>
 #include <ZcodeStrings.hpp>
-
 
 // Please note that ZcodeFullInclude will set any #defines necessary to other set #defines - so ZCODE_USE_DEBUG_ADDRESSING_SYSTEM enables ZCODE_SUPPORT_DEBUG
 
 //#define ZCODE_SUPPORT_SCRIPT_SPACE
 //#define ZCODE_SUPPORT_INTERRUPT_VECTOR
-
 
 #define ZCODE_GENERATE_NOTIFICATIONS
 #define ZCODE_SUPPORT_DEBUG
@@ -38,7 +44,6 @@
 #define I2C_ENABLE_GENERAL_CALL() TWAR |= 1
 #define I2C_SET_ADDRESS(addr) TWAR = addr<<1
 
-
 template<class ZP>
 class ZcodeModuleAddressRouter;
 template<class ZP>
@@ -48,7 +53,6 @@ class ZcodeParams {
 public:
     typedef ZcodeStrings<ZcodeParams> Strings;
     typedef ZcodeModuleAddressRouter<ZcodeParams> AddressRouter;
-//    typedef ZcodeModuleAddressRouter<ZcodeParams> AddressRouter;
 
     static uint16_t numberGenerator() {
         return (uint16_t) millis();
@@ -82,14 +86,14 @@ public:
 
     static const uint16_t serialBigSize = 32;
     static const uint16_t serialChannelReadBufferSize = 8;
-    
+
     static const uint16_t i2cBigSize = 32;
     static const uint16_t i2cChannelReadBufferSize = 8;
     static const uint16_t i2cChannelOutputBufferSize = 32;
     static const uint16_t i2cAlertPin = 4;
-    
+
     static const uint16_t mappingAddressCount = 32;
-    
+
     static const uint8_t pinCount = 21;
 };
 

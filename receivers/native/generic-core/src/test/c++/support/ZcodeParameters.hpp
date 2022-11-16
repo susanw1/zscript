@@ -8,6 +8,15 @@
 #ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
+#define ZCODE_IDENTIFY_USER_FIRMWARE_STRING "My Test System!"
+#define ZCODE_IDENTIFY_USER_FIRMWARE_VERSION 0x0001
+
+#define ZCODE_IDENTIFY_PLATFORM_FIRMWARE_STRING "Minimal Platform for Core Tests"
+#define ZCODE_IDENTIFY_PLATFORM_FIRMWARE_VERSION 0x0000
+
+#define ZCODE_IDENTIFY_HARDWARE_PLATFORM_STRING "Build Host"
+#define ZCODE_IDENTIFY_HARDWARE_PLATFORM_VERSION 0x0000
+
 #include <zcode/ZcodeIncludes.hpp>
 #include <zcode/ZcodeStrings.hpp>
 
@@ -22,6 +31,7 @@
 #define DEBUG_ADDRESSING
 #endif
 #endif
+
 template<class ZP>
 class ZcodeModuleAddressRouter;
 

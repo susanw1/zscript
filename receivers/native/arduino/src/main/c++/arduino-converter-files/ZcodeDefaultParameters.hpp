@@ -8,10 +8,17 @@
 #ifndef ARDUINO_SRC_MAIN_CPP_DEFAULT_TEST_PARAMETERS_HPP_
 #define ARDUINO_SRC_MAIN_CPP_DEFAULT_TEST_PARAMETERS_HPP_
 
+#define ZCODE_IDENTIFY_USER_FIRMWARE_STRING         "Zcode Default Platform for Arduino"
+#define ZCODE_IDENTIFY_USER_FIRMWARE_VERSION        0x0001
+
+#define ZCODE_IDENTIFY_HARDWARE_PLATFORM_STRING     "Arduino"
+#define ZCODE_IDENTIFY_HARDWARE_PLATFORM_VERSION    0x0000
+
+#include <ArduinoPlatformFirmwareVersion.hpp>
 #include <ZcodeIncludes.hpp>
 #include "ZcodeStrings.hpp"
 
-// Please note that ZcodeFullInclude will set any #defines necessary to other set #defines - so ZCODE_USE_DEBUG_ADDRESSING_SYSTEM enables ZCODE_SUPPORT_DEBUG
+// Please note that ZcodeFullInclude will set any #defines necessary to other set #defines - so eg ZCODE_USE_DEBUG_ADDRESSING_SYSTEM enables ZCODE_SUPPORT_DEBUG
 
 //#define ZCODE_SUPPORT_SCRIPT_SPACE
 //#define ZCODE_SUPPORT_INTERRUPT_VECTOR
@@ -38,6 +45,7 @@
 
 template<class ZP>
 class ZcodeModuleAddressRouter;
+
 template<class ZP>
 class ZcodeMappingAddressRouter;
 
@@ -45,7 +53,6 @@ class ZcodeParams {
 public:
     typedef ZcodeStrings<ZcodeParams> Strings;
     typedef ZcodeModuleAddressRouter<ZcodeParams> AddressRouter;
-    //    typedef ZcodeModuleAddressRouter<ZcodeParams> AddressRouter;
 
     static uint16_t numberGenerator() {
         return (uint16_t) millis();

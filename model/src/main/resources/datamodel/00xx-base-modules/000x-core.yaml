@@ -9,7 +9,14 @@ modules:
         command: 0
         description: Top level identification, for hardware, software, modules, versions
         operation: get
-        requestParams: []
+        requestParams: 
+        -   label: V
+            name: versionType
+            description: selects which ident/version info to return
+            typeDefinition:
+                '@type': enum
+                allowedValues: [UserFirmware, CoreZcodeLanguage, PlatformFirmware, PlatformHardware]
+            required: no
         responseParams:
         -   label: C
             name: commandsSet
@@ -25,7 +32,20 @@ modules:
                 '@type': commands
                 bitFields: []
             required: yes
+        -   label: V
+            name: version
+            description: 2-byte version number relating to requested versionType
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   label: +
+            name: ident
+            description: identification string relating to requested versionType
+            typeDefinition:
+                '@type': string
+            required: yes
         status: []
+
 
     -   name: echo
         command: 1
@@ -189,6 +209,7 @@ modules:
         status:
         -   code: CMD_FAIL
             meaning: supplied code didn't match
+
 
     -   name: user-defined
         command: 15

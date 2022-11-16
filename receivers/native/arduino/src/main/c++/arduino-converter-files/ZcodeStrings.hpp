@@ -21,6 +21,11 @@ public:
     static const char boolTrue[] PROGMEM;
     static const char boolFalse[] PROGMEM;
 
+    static const char identifyUserFirmware[] PROGMEM;
+    static const char identifyCoreZcodeLanguage[] PROGMEM;
+    static const char identifyPlatformFirmware[] PROGMEM;
+    static const char identifyPlatformHardware[] PROGMEM;
+
     static const char failAddressingOnlyFromNotificationChannel[] PROGMEM;
     static const char failAddressingInvalid[] PROGMEM;
     static const char failAddressingNoNewLine[] PROGMEM;
@@ -78,6 +83,23 @@ template<class ZP>
 const char ZcodeStrings<ZP>::boolTrue[] PROGMEM = "true";
 template<class ZP>
 const char ZcodeStrings<ZP>::boolFalse[] PROGMEM = "false";
+
+#ifdef ZCODE_IDENTIFY_USER_FIRMWARE_STRING
+template<class ZP>
+const char ZcodeStrings<ZP>::identifyUserFirmware[] PROGMEM = ZCODE_IDENTIFY_USER_FIRMWARE_STRING;
+#endif
+#ifdef ZCODE_IDENTIFY_CORE_ZCODE_LANG_STRING
+template<class ZP>
+const char ZcodeStrings<ZP>::identifyCoreZcodeLanguage[] PROGMEM = ZCODE_IDENTIFY_CORE_ZCODE_LANG_STRING;
+#endif
+#ifdef ZCODE_IDENTIFY_PLATFORM_FIRMWARE_STRING
+template<class ZP>
+const char ZcodeStrings<ZP>::identifyPlatformFirmware[] PROGMEM = ZCODE_IDENTIFY_PLATFORM_FIRMWARE_STRING;
+#endif
+#ifdef ZCODE_IDENTIFY_HARDWARE_PLATFORM_STRING
+template<class ZP>
+const char ZcodeStrings<ZP>::identifyPlatformHardware[] PROGMEM = ZCODE_IDENTIFY_HARDWARE_PLATFORM_STRING;
+#endif
 
 template<class ZP>
 const char ZcodeStrings<ZP>::failAddressingOnlyFromNotificationChannel[] PROGMEM = "Addressing only allowed from notification channel";
