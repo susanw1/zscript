@@ -8,7 +8,7 @@
 #include "ZcodeTestingSystem.hpp"
 
 int main(void) {
-    std::cout << "Running basic tests\n";
+    std::cout << "=========================\nRunning basic tests\n=========================" << std::endl;
 
     /*
      * Basic line structure and whitespace
@@ -101,11 +101,14 @@ int main(void) {
         std::cerr << "Failed on varied whitespace\n";
         return 1;
     }
-// FIXME: echo param isn't working
-//    if (!ZcodeTestingSystem::tryTest("Z1E3", "SE3\n")) {
-//        std::cerr << "Failed on 'E' echo param in Echo command\n";
-//        return 1;
-//    }
+    if (!ZcodeTestingSystem::tryTest("Z1E3", "E3S\n")) {
+        std::cerr << "Failed on 'E' echo param in Echo command\n";
+        return 1;
+    }
+    if (!ZcodeTestingSystem::tryTest("Z1A2E3B3", "E3SA2B3\n")) {
+        std::cerr << "Failed on 'E' echo param in Echo command\n";
+        return 1;
+    }
 
     /*
      * Conditional & and | tests
@@ -122,7 +125,6 @@ int main(void) {
         std::cerr << "Failed on Consecutive Echo with |\n";
         return 1;
     }
-    /////// huh?
     if (!ZcodeTestingSystem::tryTest("Z1A & Z1B & Z1C | Z1D \n Z1G & Z1H", "SA&SB&SC\nSG&SH\n")) {
         std::cerr << "Failed on Consecutive Echo with | and params\n";
         return 1;
@@ -165,9 +167,37 @@ int main(void) {
         std::cerr << "Failed on Activation twice\n";
         return 1;
     }
-    // FIXME: echo param isn't working
-//    if (!ZcodeTestingSystem::tryTest("Z2 E3", "S E3\n")) {
-//        std::cerr << "Failed on 'E' echo param in Activation command\n";
-//        return 1;
-//    }
+
+    if (!ZcodeTestingSystem::tryTest("Z2 E3", "E3AS\n")) {
+        std::cerr << "Failed on 'E' echo param in Activation command\n";
+        return 1;
+    }
+
+    /*
+     * More 'E' param tests, with ORs and ANDs
+     */
+    if (!ZcodeTestingSystem::tryTest("EZ1", "ES\n")) {
+        std::cerr << "Failed on simple echoed 'E' field\n";
+        return 1;
+    }
+    if (!ZcodeTestingSystem::tryTest("E1Z1 & E2Z1", "E1S&E2S\n")) {
+        std::cerr << "Failed on &-sequenced echoed 'E' params\n";
+        return 1;
+    }
+    if (!ZcodeTestingSystem::tryTest("E1Z1 & E2Z1", "E1S&E2S\n")) {
+        std::cerr << "Failed on &-sequenced echoed 'E' params\n";
+        return 1;
+    }
+    if (!ZcodeTestingSystem::tryTest("E1Z1 & E2Z1S10 | E3Z1 & E4Z1", "E1S&E2S10|E3S&E4S\n")) {
+        std::cerr << "Failed on &- and |-sequenced echoed 'E' params\n";
+        return 1;
+    }
+    if (!ZcodeTestingSystem::tryTest("E1Z1 & E2Z1S10 & E3Z1S4 | E5Z1 & E6Z1", "E1S&E2S10|E5S&E6S\n")) {
+        std::cerr << "Failed on &- and |-sequenced echoed 'E' params, with (non-system-error) skipped command\n";
+        return 1;
+    }
+    if (!ZcodeTestingSystem::tryTest("E1Z1 & E2Z1S4 & E3Z1S4 | E5Z1 & E6Z1", "E1S&E2S4\n")) {
+        std::cerr << "Failed on &- and |-sequenced echoed 'E' params, with (system-error) skipped command\n";
+        return 1;
+    }
 }

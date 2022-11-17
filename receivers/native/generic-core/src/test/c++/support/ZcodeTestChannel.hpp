@@ -79,8 +79,7 @@ private:
 public:
 
     ZcodeTestOutStream(uint8_t *received, uint16_t outLength) :
-            ZcodeOutStream<TestParams>(readBuffer, 128),
-                    received(received), outLength(outLength) {
+            ZcodeOutStream<TestParams>(readBuffer, 128), received(received), outLength(outLength) {
     }
     virtual ~ZcodeTestOutStream() {
     }

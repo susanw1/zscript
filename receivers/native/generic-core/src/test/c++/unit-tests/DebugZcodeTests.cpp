@@ -8,7 +8,8 @@
 #include "ZcodeTestingSystem.hpp"
 
 int main(void) {
-    std::cout << "Running debug tests\n";
+    std::cout << "=========================\nRunning debug tests\n=========================" << std::endl;
+
     if (!ZcodeTestingSystem::tryTest("Z2&Z18DN", "AS&S\n")) {
         std::cerr << "Failed on Set Debug target\n";
         return 1;
