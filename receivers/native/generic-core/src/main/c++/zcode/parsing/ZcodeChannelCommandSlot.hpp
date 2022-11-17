@@ -179,8 +179,7 @@ class ZcodeChannelCommandSlot {
             }
             return;
         }
-        // FIXME: remove ANDTHEN_SYMBOL and ORELSE_SYMBOL
-        if (c == ANDTHEN_SYMBOL || c == ORELSE_SYMBOL || c == EOL_SYMBOL) {
+        if (c == EOL_SYMBOL) {
             parseFail(c, PARSE_ERROR, (string_t) ZP::Strings::failParseNoStringEnd);
             return;
         }

@@ -27,6 +27,9 @@ public:
             slot(channel, big, length) {
     }
 
+    virtual ~ZcodeChannelInStream() {
+    }
+
     virtual bool pushData() = 0;
 
     ZcodeChannelCommandSlot<ZP>* getSlot() {
