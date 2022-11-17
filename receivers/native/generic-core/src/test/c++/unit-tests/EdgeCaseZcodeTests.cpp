@@ -8,7 +8,8 @@
 #include "ZcodeTestingSystem.hpp"
 
 int main(void) {
-    std::cout << "Running edge case tests\n";
+    std::cout << "=========================\nRunning edge case tests\n=========================" << std::endl;
+
     if (!ZcodeTestingSystem::tryTest("Ze", "S4\"Unknown command\"\n")) {
         std::cerr << "Test failed for Unknown command\n";
         return 1;
@@ -25,6 +26,15 @@ int main(void) {
         std::cerr << "Test failed for no Z code\n";
         return 1;
     }
+    if (!ZcodeTestingSystem::tryTest("E", "ES4\"No Z field\"\n")) {
+        std::cerr << "Test failed for no Z code, with E param but no value\n";
+        return 1;
+    }
+    if (!ZcodeTestingSystem::tryTest("E23", "E23S4\"No Z field\"\n")) {
+        std::cerr << "Test failed for no Z code, with E param with value\n";
+        return 1;
+    }
+
     if (!ZcodeTestingSystem::tryTest("Z24567", "S8\"Field too long\"\n")) {
         std::cerr << "Test failed for field too long\n";
         return 1;

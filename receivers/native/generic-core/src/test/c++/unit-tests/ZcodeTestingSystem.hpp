@@ -34,12 +34,15 @@ public:
         }
         return localChannel.isLengthExceeded();
     }
+
     static bool tryTest(const char *input, const char *expectedOut) {
         uint16_t outLen = 0;
         while (expectedOut[outLen++] != 0)
             ;
         outLen--;
         uint8_t output[outLen + 200];
+        memset(output, '\0', outLen + 200);
+
         bool exceeded = performTest(input, output, outLen);
         if (exceeded) {
             std::cerr << "Response too long\n" << outLen << '\n'

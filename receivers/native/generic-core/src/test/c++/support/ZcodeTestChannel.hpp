@@ -30,6 +30,7 @@ public:
     ZcodeTestChannelInStream(ZcodeCommandChannel<TestParams> *channel) :
             ZcodeChannelInStream<TestParams>(channel, big, 1024), data(NULL), length(0) {
     }
+
     void setData(const uint8_t *data, uint16_t length) {
         this->data = data;
         this->length = length;
@@ -70,15 +71,15 @@ private:
     bool openB = false;
     uint8_t readBuffer[128];
 
-public:
     uint8_t *received;
     uint16_t outLength;
     uint16_t pos = 0;
     bool lengthExceeded = false;
 
+public:
+
     ZcodeTestOutStream(uint8_t *received, uint16_t outLength) :
-            ZcodeOutStream<TestParams>(readBuffer, 128),
-                    received(received), outLength(outLength) {
+            ZcodeOutStream<TestParams>(readBuffer, 128), received(received), outLength(outLength) {
     }
     virtual ~ZcodeTestOutStream() {
     }

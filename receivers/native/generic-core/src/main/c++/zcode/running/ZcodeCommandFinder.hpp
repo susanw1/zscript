@@ -7,6 +7,7 @@
 
 #ifndef SRC_TEST_CPP_ZCODE_PARSING_ZCODECOMMANDFINDER_HPP_
 #define SRC_TEST_CPP_ZCODE_PARSING_ZCODECOMMANDFINDER_HPP_
+
 #include "../ZcodeIncludes.hpp"
 #include "../modules/ZcodeModule.hpp"
 
@@ -36,18 +37,29 @@ public:
             slot.getOut()->silentSucceed();
             return;
         }
+
+        uint16_t echoValue;
+        if (slot.getFields()->get(Zchars::ECHO_PARAM, &echoValue)) {
+            slot.getOut()->writeField16(Zchars::ECHO_PARAM, echoValue);
+        }
+
         uint16_t command;
-        if (!slot.getFields()->get('Z', &command)) {
+        if (!slot.getFields()->get(Zchars::CMD_PARAM, &command)) {
             slot.fail(UNKNOWN_CMD, (string_t) ZP::Strings::failParseNoZ);
             return;
         }
+
         if (command > MAX_SYSTEM_CODE && !slot.getZcode()->isActivated()) {
             slot.fail(NOT_ACTIVATED, (string_t) ZP::Strings::failParseNotActivated);
             return;
         }
+
+        // set "complete" as a default assumption, but commands may unset it if they perform async activity.
         slot.setComplete();
+
         uint8_t commandBottomBits = (uint8_t) (command & 0xF);
         (void) commandBottomBits;
+
         switch (command >> 4) {
         MODULE_SWITCH()
 
