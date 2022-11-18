@@ -2,7 +2,7 @@
 
 ZcodeCoreModule<ZcodeParams> ZcodeCoreModuleI; 
 
-#ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#ifdef ZCODE_HPP_INCLUDED
 #error ZcodeCoreModule.hpp needs to be included before Zcode.hpp
 #endif
 

@@ -8,7 +8,7 @@
 #ifndef ARDUINO_SERIAL_CHANNEL_HPP_
 #define ARDUINO_SERIAL_CHANNEL_HPP_
 
-#ifndef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#ifndef ZCODE_HPP_INCLUDED
 #error ZcodeSerialChannel.hpp needs to be included after Zcode.hpp
 #endif
 

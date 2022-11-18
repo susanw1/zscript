@@ -12,7 +12,7 @@
 #include "clock/ClockManager.hpp"
 #include "dma/DmaManager.hpp"
 
-#ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#ifdef ZCODE_HPP_INCLUDED
 #error Must be included before Zcode.hpp
 #endif
 

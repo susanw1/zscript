@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_C___ARM_NO_OS_UDP_MODULE_ZCODEUDPMODULE_HPP_
 #define SRC_MAIN_C___ARM_NO_OS_UDP_MODULE_ZCODEUDPMODULE_HPP_
 
-#ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#ifdef ZCODE_HPP_INCLUDED
 #error Must be included before Zcode.hpp
 #endif
 

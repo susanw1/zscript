@@ -12,7 +12,7 @@
 #include <arm-no-os/system/clock/ClockManager.hpp>
 #include <arm-no-os/system/dma/DmaManager.hpp>
 
-#ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#ifdef ZCODE_HPP_INCLUDED
 #error Must be included before Zcode.hpp
 #endif
 

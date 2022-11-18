@@ -5,10 +5,10 @@
  *      Author: robert
  */
 
-#ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#ifdef ZCODE_HPP_INCLUDED
 #error Cannot include Zcode.hpp twice
 #endif
-#define SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#define ZCODE_HPP_INCLUDED
 
 #ifndef ZCODE_GENERATE_NOTIFICATIONS
 #ifdef ZCODE_SUPPORT_SCRIPT_SPACE
