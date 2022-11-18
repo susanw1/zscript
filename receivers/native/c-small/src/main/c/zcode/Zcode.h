@@ -7,7 +7,7 @@
 
 #ifndef SRC_MAIN_C_ZCODE_ZCODE_H_
 #define SRC_MAIN_C_ZCODE_ZCODE_H_
-#include "ZcodeIncludes.hpp"
+#include "ZcodeIncludes.h"
 #include "parsing/ZcodeCommandSlot.h"
 
 struct Zcode {
@@ -17,6 +17,8 @@ struct Zcode {
 
 typedef struct Zcode Zcode;
 
-void ZcodeRunNext(ZcodeCommandSlot *commandSlot);
+void ZcodeRunNext(Zcode *zcode);
+void ZcodeInitialise(Zcode *zcode);
+bool ZcodeAcceptByte(Zcode *zcode, char c);
 
 #endif /* SRC_MAIN_C_ZCODE_ZCODE_H_ */

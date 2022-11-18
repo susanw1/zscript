@@ -30,7 +30,6 @@ typedef struct ZcodeCommandSlotParsingState ZcodeCommandSlotParsingState;
 struct ZcodeCommandSlotStatus {
     bool isFirstCommand :1;
     bool isBroadcast :1;
-    bool isParallel :1;
     bool hasData :1;
 
     bool hasWrittenTerminator :1;
@@ -51,7 +50,9 @@ struct ZcodeCommandSlot {
 };
 typedef struct ZcodeCommandSlot ZcodeCommandSlot;
 
-bool ZcodeAcceptByte(ZcodeCommandSlot *slot, char c); // returns false <=> the data couldn't be used and needs to be resent later.
+void ZcodeInitialiseSlot(ZcodeCommandSlot *slot);
+
+bool ZcodeSlotAcceptByte(ZcodeCommandSlot *slot, char c); // returns false <=> the data couldn't be used and needs to be resent later.
 
 void ZcodeCommandSlot_finish(ZcodeCommandSlot *slot);
 

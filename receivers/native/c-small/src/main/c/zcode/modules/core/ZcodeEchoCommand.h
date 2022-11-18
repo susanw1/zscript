@@ -15,14 +15,14 @@
 
 void ZcodeEchoCommandExecute(ZcodeCommandSlot *slot) {
     uint16_t statusResult;
-    if (!ZcodeFieldMapGet(slot->fieldMap, STATUS_RESP_PARAM, &statusResult)) {
+    if (!ZcodeFieldMapGetDest(&slot->fieldMap, STATUS_RESP_PARAM, &statusResult)) {
         ZcodeOutStream_WriteStatus(OK);
     } else {
         ZcodeCommandFail(slot, (ZcodeResponseStatus) statusResult);
     }
 
-    ZcodeFieldMapCopyToOutput(slot->fieldMap);
-    ZcodeBigFieldCopyToOutput(slot->bigField);
+    ZcodeFieldMapCopyToOutput(&slot->fieldMap);
+    ZcodeBigFieldCopyToOutput(&slot->bigField);
 }
 
 #endif /* SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEECHOCOMMAND_HPP_ */

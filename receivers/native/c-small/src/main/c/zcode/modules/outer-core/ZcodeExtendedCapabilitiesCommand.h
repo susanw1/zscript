@@ -16,7 +16,7 @@
 
 static void ZcodeExtendedCapabilitiesCommandExecute(ZcodeCommandSlot *slot) {
     uint16_t target;
-    if (ZcodeFieldMapGet(slot->fieldMap, 'M', &target)) {
+    if (ZcodeFieldMapGetDest(&slot->fieldMap, 'M', &target)) {
         if (target >= 16) {
             ZcodeCommandFail(slot, BAD_PARAM);
             return;

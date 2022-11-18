@@ -7,21 +7,20 @@
 
 #ifndef SRC_MAIN_C_ZCODE_MODULES_OUTER_CORE_ZCODEOUTERCOREMODULE_H_
 #define SRC_MAIN_C_ZCODE_MODULES_OUTER_CORE_ZCODEOUTERCOREMODULE_H_
-#ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#ifdef SRC_MAIN_C_ZCODE_ZCODECCODE_H_
 #error Must be included before Zcode.hpp
 #endif
 
 #include "../../ZcodeIncludes.h"
+#include "../../Zcode.h"
 #include "../ZcodeModule.h"
 #include "ZcodeChannelSetupCommand.h"
 
 #define MODULE_EXISTS_001 EXISTENCE_MARKER_UTIL
 
-#include "ZcodeExtendedCapabilitiesCommand.hpp"
+#include "ZcodeExtendedCapabilitiesCommand.h"
 
-#define MODULE_SWITCH_001 ZcodeOuterCoreModuleExecute(z, slot, bottomBits)
-
-#include "ZcodeCapabilitiesCommand.h"
+#define MODULE_SWITCH_001 ZcodeOuterCoreModuleExecute(z, slot, commandBottomBits);
 
 void ZcodeOuterCoreModuleExecute(Zcode *z, ZcodeCommandSlot *slot, uint8_t bottomBits) {
 

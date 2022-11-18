@@ -16,7 +16,7 @@
 
 void ZcodeMatchCodeCommandExecute(ZcodeCommandSlot *slot) {
     uint16_t value = 0;
-    if (ZcodeFieldMapGet(slot->fieldMap, 'C', &value)) {
+    if (ZcodeFieldMapGetDest(&slot->fieldMap, 'C', &value)) {
         if (value == codeNumberForZcodeMatching) {
             ZcodeOutStream_WriteStatus(OK);
         } else {

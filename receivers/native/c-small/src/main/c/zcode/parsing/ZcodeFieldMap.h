@@ -8,14 +8,13 @@
 #ifndef SRC_MAIN_C_ZCODE_PARSING_ZCODEFIELDMAP_H_
 #define SRC_MAIN_C_ZCODE_PARSING_ZCODEFIELDMAP_H_
 
-#include "../ZcodeIncludes.hpp"
+#include "../ZcodeIncludes.h"
 
 struct ZcodeFieldMap {
     uint16_t values[ZCODE_FIELD_COUNT];
     char fields[ZCODE_FIELD_COUNT];
-    uint8_t fieldCount = 0;
-    uint8_t nibbleCount = 0;
-
+    uint8_t fieldCount;
+    uint8_t nibbleCount;
 };
 
 typedef struct ZcodeFieldMap ZcodeFieldMap;
@@ -30,9 +29,9 @@ bool ZcodeFieldMapAdd8(ZcodeFieldMap *map, uint8_t byte);
 
 bool ZcodeFieldMapHas(ZcodeFieldMap *map, char f);
 
-uint16_t ZcodeFieldMapGet(ZcodeFieldMap *map, char f, uint16_t def);
+uint16_t ZcodeFieldMapGetDef(ZcodeFieldMap *map, char f, uint16_t def);
 
-bool ZcodeFieldMapGet(ZcodeFieldMap *map, char f, uint16_t *dest);
+bool ZcodeFieldMapGetDest(ZcodeFieldMap *map, char f, uint16_t *dest);
 
 int32_t ZcodeFieldMapGet(ZcodeFieldMap *map, char f);
 

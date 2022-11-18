@@ -13,13 +13,12 @@
 
 #define COMMAND_EXISTS_000C EXISTENCE_MARKER_UTIL
 
-static uint16_t codeNumberForZcodeMatching;
+static uint16_t codeNumberForZcodeMatching = 0;
 
 void ZcodeMakeCodeCommandExecute(ZcodeCommandSlot *slot) {
     codeNumberForZcodeMatching++;
     ZcodeOutStream_WriteField16('C', codeNumberForZcodeMatching);
     ZcodeOutStream_WriteStatus(OK);
 }
-uint16_t codeNumberForZcodeMatching = 0;
 
 #endif /* SRC_MAIN_C_ZCODE_MODULES_CORE_ZCODEMAKECODECOMMAND_H_ */

@@ -8,15 +8,18 @@
 #ifndef SRC_MAIN_C_ZCODE_ZCODERUNNERCCODE_H_
 #define SRC_MAIN_C_ZCODE_ZCODERUNNERCCODE_H_
 #include "Zcode.h"
+#include "ZcodeOutStream.h"
 #include "parsing/ZcodeCommandSlotCCode.h"
+
+void ZcodeRunnerPerformFail(ZcodeCommandSlot *commandSlot);
 #include "ZcodeCommandFinderCCode.h"
 
 void ZCodeRunnerWriteTerminator(ZcodeCommandSlot *commandSlot, char term) {
     commandSlot->runStatus.hasWrittenTerminator = true;
     if (term == EOL_SYMBOL) {
-        ZcodeOutStream_WriteSequenceSeperator();
+        ZcodeOutStream_WriteCommandSequenceSeparator();
     } else if (term == ANDTHEN_SYMBOL) {
-        ZcodeOutStream_WriteCommandSeperator();
+        ZcodeOutStream_WriteCommandSeparator();
     } else if (term == ORELSE_SYMBOL) {
         ZcodeOutStream_WriteSequenceErrorHandler();
     }
@@ -26,7 +29,7 @@ void ZcodeRunNext(Zcode *zcode) {
     ZcodeCommandSlot *commandSlot = &zcode->slot;
     if (commandSlot->state.waitingOnRun && (commandSlot->runStatus.hasOutLock || ZcodeOutStream_Lock())) {
         if (commandSlot->runStatus.isFirstCommand) {
-            ZcodeOutStream_OpenResponse();
+            ZcodeOutStream_Open();
             if (commandSlot->runStatus.isBroadcast) {
                 ZcodeOutStream_MarkBroadcast();
             }
@@ -43,7 +46,7 @@ void ZcodeRunNext(Zcode *zcode) {
                 commandSlot->runStatus.hasWrittenTerminator = false;
             }
         }
-        ZcodeCommandSlot__finish(commandSlot);
+        ZcodeCommandSlot_finish(commandSlot);
     } else {
         if (commandSlot->runStatus.hasOutLock && commandSlot->runStatus.isFirstCommand) {
             if (!commandSlot->runStatus.hasWrittenTerminator) {
@@ -62,16 +65,16 @@ void ZcodeCommandFail(ZcodeCommandSlot *commandSlot, ZcodeResponseStatus failSta
         commandSlot->runStatus.hasWrittenTerminator = false;
     }
     if (!commandSlot->runStatus.hasWrittenTerminator) {
-        ZCodeRunnerWriteTerminator(commandSlot->starter);
+        ZCodeRunnerWriteTerminator(commandSlot, commandSlot->starter);
     }
-    ZcodeCommandSlot__failExternal(commandSlot, failStatus);
+    ZcodeCommandSlot_failExternal(commandSlot, failStatus);
     ZcodeOutStream_WriteStatus(failStatus);
     if (commandSlot->terminator == EOL_SYMBOL) {
-        ZCodeRunnerWriteTerminator(EOL_SYMBOL);
+        ZCodeRunnerWriteTerminator(commandSlot, EOL_SYMBOL);
     } else {
         commandSlot->runStatus.hasWrittenTerminator = false;
     }
-    ZcodeCommandSlot__finish(commandSlot);
+    ZcodeCommandSlot_finish(commandSlot);
     commandSlot->runStatus.quietEnd = false;
 }
 
@@ -86,7 +89,7 @@ void ZcodeCommandMildFail(ZcodeCommandSlot *commandSlot, ZcodeResponseStatus fai
     if (commandSlot->runStatus.quietEnd) {
         commandSlot->runStatus.hasWrittenTerminator = false;
     }
-    ZcodeCommandSlot__failExternal(commandSlot, failStatus);
+    ZcodeCommandSlot_failExternal(commandSlot, failStatus);
 }
 
 void ZcodeRunnerPerformFail(ZcodeCommandSlot *commandSlot) {
@@ -94,8 +97,8 @@ void ZcodeRunnerPerformFail(ZcodeCommandSlot *commandSlot) {
         commandSlot->runStatus.hasWrittenTerminator = false;
     }
     ZcodeOutStream_WriteStatus((ZcodeResponseStatus) commandSlot->respStatus);
-    ZCodeRunnerWriteTerminator(EOL_SYMBOL);
-    ZcodeCommandSlot__finish(commandSlot);
+    ZCodeRunnerWriteTerminator(commandSlot, EOL_SYMBOL);
+    ZcodeCommandSlot_finish(commandSlot);
     commandSlot->runStatus.quietEnd = false;
 }
 #endif /* SRC_MAIN_C_ZCODE_ZCODERUNNERCCODE_H_ */

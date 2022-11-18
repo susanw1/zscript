@@ -15,7 +15,7 @@
 
 void ZcodeChannelInfoCommandExecute(ZcodeCommandSlot *slot) {
     uint16_t targetIndex = 0;
-    if (ZcodeFieldMapGet(slot->fieldMap, 'C', &targetIndex)) {
+    if (ZcodeFieldMapGetDest(&slot->fieldMap, 'C', &targetIndex)) {
         if (targetIndex >= 1) {
             ZcodeCommandFail(slot, BAD_PARAM);
             return;

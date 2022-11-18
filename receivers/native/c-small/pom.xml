@@ -25,14 +25,17 @@
                         <includePaths>
                             <includePath>
                                 <path>${project.basedir}/src/main/c</path>
-                                <includes>**/*.hpp</includes>
+                                <includes>**/*.h</includes>
                             </includePath>
                         </includePaths>
+                        <testOptions>
+                            <testOption>-O0</testOption>
+                        </testOptions>
                         <options>
                             <option>-flto</option>
                             <option>-g</option>
                             <option>-Wall</option>
-
+                            
                             <option>-Wextra</option>
                         </options>
                     </cpp>
@@ -56,7 +59,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <!-- run with mvn [-pl receivers/native/generic-core] exec:exec@default-cli -->
+                        <!-- run with mvn [-pl receivers/native/c-small] exec:exec@default-cli -->
                         <id>default-cli</id>
                         <configuration>
                             <executable>${project.build.directory}/test-nar/bin/amd64-Linux-gpp/default-cli</executable>

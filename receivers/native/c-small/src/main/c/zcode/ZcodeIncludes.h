@@ -15,6 +15,7 @@
 
 #include "Zchars.h"
 #include "ZcodeResponseStatus.h"
+#include "ZcodeNotificationTypes.h"
 
 #define ZCODE_BIG_FIELD_SIZE 10
 #define ZCODE_FIELD_COUNT 10

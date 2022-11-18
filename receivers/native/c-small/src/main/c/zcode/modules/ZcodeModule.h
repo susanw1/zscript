@@ -11,6 +11,9 @@
 #include "../ZcodeIncludes.h"
 #include "../parsing/ZcodeCommandSlot.h"
 
+void ZcodeChannelReadSetup(ZcodeCommandSlot *slot);
+void ZcodeChannelWriteInfo(ZcodeCommandSlot *slot);
+
 #define COMMAND_SWITCH_TAKE_IF_DEF(thing, x, ...) x
 #define COMMAND_SWITCH_TAKE_IF_DEFI(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEF(thing, x, __VA_ARG__)
 #define COMMAND_SWITCH_TAKE_IF_DEFII(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEF(thing, x, __VA_ARG__)

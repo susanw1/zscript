@@ -55,7 +55,7 @@ bool ZcodeFieldMapHas(ZcodeFieldMap *map, char f) {
     return false;
 }
 
-uint16_t ZcodeFieldMapGet(ZcodeFieldMap *map, char f, uint16_t def) {
+uint16_t ZcodeFieldMapGetDef(ZcodeFieldMap *map, char f, uint16_t def) {
     for (uint8_t i = 0; i < map->fieldCount; i++) {
         if (map->fields[i] == f) {
             return map->values[i];
@@ -64,7 +64,7 @@ uint16_t ZcodeFieldMapGet(ZcodeFieldMap *map, char f, uint16_t def) {
     return def;
 }
 
-bool ZcodeFieldMapGet(ZcodeFieldMap *map, char f, uint16_t *dest) {
+bool ZcodeFieldMapGetDest(ZcodeFieldMap *map, char f, uint16_t *dest) {
     for (uint8_t i = 0; i < map->fieldCount; i++) {
         if (map->fields[i] == f) {
             *dest = map->values[i];

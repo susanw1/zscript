@@ -10,6 +10,7 @@
 
 #include "../ZcodeIncludes.h"
 #include "../parsing/ZcodeCommandSlot.h"
+#include "../ZcodeOutStream.h"
 
 #define MODULE_CAPABILITIES_UTIL 0,
 

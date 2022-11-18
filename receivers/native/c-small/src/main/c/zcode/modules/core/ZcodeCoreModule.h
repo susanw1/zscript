@@ -7,7 +7,7 @@
 
 #ifndef SRC_MAIN_C_ZCODE_COMMANDS_ZCODECOREMODULE_H_
 #define SRC_MAIN_C_ZCODE_COMMANDS_ZCODECOREMODULE_H_
-#ifdef SRC_MAIN_C_ZCODE_ZCODE_H_
+#ifdef SRC_MAIN_C_ZCODE_ZCODECCODE_H_
 #error Must be included before Zcode.h
 #endif
 
@@ -21,7 +21,7 @@
 #include "ZcodeChannelInfoCommand.h"
 
 #define MODULE_EXISTS_000 EXISTENCE_MARKER_UTIL
-#define MODULE_SWITCH_000 ZcodeCoreModuleExecute(z, slot, bottomBits)
+#define MODULE_SWITCH_000 ZcodeCoreModuleExecute(z, slot, commandBottomBits);
 
 #include "ZcodeCapabilitiesCommand.h"
 

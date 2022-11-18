@@ -22,7 +22,7 @@ bool ZcodeBigFieldAddNibble(ZcodeBigField *big, uint8_t nibble) {
     if (big->inNibble) {
         big->currentHex = (uint8_t) (big->currentHex << 4);
         big->currentHex |= nibble;
-        big[big->pos++] = big->currentHex;
+        big->big[big->pos++] = big->currentHex;
         big->currentHex = 0;
     } else {
         big->currentHex = nibble;
@@ -35,13 +35,13 @@ bool ZcodeBigFieldAddByte(ZcodeBigField *big, uint8_t b) {
     if (big->pos == ZCODE_BIG_FIELD_SIZE || big->inNibble) {
         return false;
     }
-    big[big->pos++] = b;
+    big->big[big->pos++] = b;
     return true;
 }
 
 void ZcodeBigFieldCopyToOutput(ZcodeBigField *big) {
     if (big->pos > 0) {
-        ZcodeOutStream_WriteBigHexField(big, big->pos);
+        ZcodeOutStream_WriteBigHexField(big->big, big->pos);
     }
 }
 
