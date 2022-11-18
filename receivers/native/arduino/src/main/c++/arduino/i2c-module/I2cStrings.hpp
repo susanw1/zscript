@@ -43,7 +43,7 @@ const char I2cStrings<ZP>::tooLong[] PROGMEM = "I2C requested length too large";
 template<class ZP>
 const char I2cStrings<ZP>::badPort[] PROGMEM = "Invalid I2C port";
 template<class ZP>
-const char I2cStrings<ZP>::tooManyRetries[] PROGMEM = "Retries Too Large";
+const char I2cStrings<ZP>::tooManyRetries[] PROGMEM = "Retries too large";
 
 template<class ZP>
 const char I2cStrings<ZP>::dataNack[] PROGMEM = "DataNack";

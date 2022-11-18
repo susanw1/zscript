@@ -143,9 +143,9 @@ int main(void) {
      */
 
 #ifdef ZCODE_SUPPORT_SCRIPT_SPACE
-    const char *capResp = "SC3107M7\n";
+    const char *capResp = "C3107M7\"My Test System!\"V1S\n";
 #else
-    const char *capResp = "SC3107M3\n";
+    const char *capResp = "C3107M3\"My Test System!\"V1S\n";
 #endif
     if (!ZcodeTestingSystem::tryTest("Z0", capResp)) {
         std::cerr << "Failed on Capabilities\n";

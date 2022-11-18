@@ -4,7 +4,6 @@
  *  Created on: 8 Sep 2020
  *      Author: robert
  */
-
 #ifndef SRC_TEST_CPP_ZCODE_COMMANDS_ZCODECOMMAND_HPP_
 #define SRC_TEST_CPP_ZCODE_COMMANDS_ZCODECOMMAND_HPP_
 
@@ -12,8 +11,14 @@
 #include "../running/ZcodeExecutionCommandSlot.hpp"
 
 #define MODULE_CAPABILITIES_UTIL 0,
+
 template<class ZP>
 class ZcodeCommand {
+protected:
+    ZcodeCommand() {
+        // prevent instantiation, only subclassing
+    }
+
 public:
 
 };

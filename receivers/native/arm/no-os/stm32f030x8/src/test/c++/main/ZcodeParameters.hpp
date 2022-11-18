@@ -8,6 +8,13 @@
 #ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
+#define ZCODE_IDENTIFY_USER_FIRMWARE_STRING  "Zcode Test Platform for STM32F030"
+#define ZCODE_IDENTIFY_USER_FIRMWARE_VERSION 0x0001
+#define ZCODE_IDENTIFY_USER_HARDWARE_STRING "ARM STM32F030;Beta Prototype"
+#define ZCODE_IDENTIFY_USER_HARDWARE_VERSION 0x0001
+
+#include <arm-no-os/stm32f030x8/ArmPlatformFirmwareVersion.hpp>
+
 #include <zcode/ZcodeIncludes.hpp>
 #include <zcode/ZcodeStrings.hpp>
 #include "GeneralLLSetup.hpp"

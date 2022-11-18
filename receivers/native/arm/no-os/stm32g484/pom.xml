@@ -51,7 +51,6 @@
             <plugin>
                 <groupId>com.github.maven-nar</groupId>
                 <artifactId>nar-maven-plugin</artifactId>
-            	<version>3.10.2-SNAPSHOT</version>
                 <extensions>true</extensions>
                 <configuration>
                     <architecture>arm32g4</architecture>

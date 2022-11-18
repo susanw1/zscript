@@ -10,6 +10,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+
+#include "ZcodeLanguageVersion.hpp"
+
 #include "ZcodeResponseStatus.hpp"
 #include "ZcodeNotificationTypes.hpp"
 #include "Zchars.hpp"

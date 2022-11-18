@@ -8,6 +8,19 @@
 #ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 #define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
 
+// This module doesn't really have a "user" or "platform" - it's just test env
+#define ZCODE_IDENTIFY_USER_FIRMWARE_STRING "My Test System!"
+#define ZCODE_IDENTIFY_USER_FIRMWARE_VERSION 0x0001
+
+#define ZCODE_IDENTIFY_USER_HARDWARE_STRING "Build Host"
+#define ZCODE_IDENTIFY_USER_HARDWARE_VERSION 0x0000
+
+#define ZCODE_IDENTIFY_PLATFORM_FIRMWARE_STRING "Minimal Platform for Core Tests"
+#define ZCODE_IDENTIFY_PLATFORM_FIRMWARE_VERSION 0x0000
+
+#define ZCODE_IDENTIFY_PLATFORM_HARDWARE_STRING "PC"
+#define ZCODE_IDENTIFY_PLATFORM_HARDWARE_VERSION 0x0000
+
 #include <zcode/ZcodeIncludes.hpp>
 #include <zcode/ZcodeStrings.hpp>
 
@@ -22,6 +35,7 @@
 #define DEBUG_ADDRESSING
 #endif
 #endif
+
 template<class ZP>
 class ZcodeModuleAddressRouter;
 
