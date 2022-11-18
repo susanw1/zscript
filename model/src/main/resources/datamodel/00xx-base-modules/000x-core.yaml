@@ -15,7 +15,7 @@ modules:
             description: selects which ident/version info to return
             typeDefinition:
                 '@type': enum
-                allowedValues: [UserFirmware, CoreZcodeLanguage, PlatformFirmware, PlatformHardware]
+                allowedValues: [UserFirmware, UserHardware, PlatformFirmware, PlatformHardware, CoreZcodeLanguage]
             required: no
         responseParams:
         -   label: C

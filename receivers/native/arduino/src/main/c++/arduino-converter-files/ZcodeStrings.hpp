@@ -22,9 +22,10 @@ public:
     static const char boolFalse[] PROGMEM;
 
     static const char identifyUserFirmware[] PROGMEM;
-    static const char identifyCoreZcodeLanguage[] PROGMEM;
+    static const char identifyUserHardware[] PROGMEM;
     static const char identifyPlatformFirmware[] PROGMEM;
     static const char identifyPlatformHardware[] PROGMEM;
+    static const char identifyCoreZcodeLanguage[] PROGMEM;
 
     static const char failAddressingOnlyFromNotificationChannel[] PROGMEM;
     static const char failAddressingInvalid[] PROGMEM;
@@ -84,22 +85,39 @@ const char ZcodeStrings<ZP>::boolTrue[] PROGMEM = "true";
 template<class ZP>
 const char ZcodeStrings<ZP>::boolFalse[] PROGMEM = "false";
 
-#ifdef ZCODE_IDENTIFY_USER_FIRMWARE_STRING
+#if !defined(ZCODE_IDENTIFY_USER_FIRMWARE_STRING) || !defined(ZCODE_IDENTIFY_USER_FIRMWARE_VERSION)
+#define ZCODE_IDENTIFY_USER_FIRMWARE_STRING "User Firmware"
+#define ZCODE_IDENTIFY_USER_FIRMWARE_VERSION 0x0
+#warn Using default user firmware identification and version
+#endif
 template<class ZP>
 const char ZcodeStrings<ZP>::identifyUserFirmware[] PROGMEM = ZCODE_IDENTIFY_USER_FIRMWARE_STRING;
+
+#if !defined(ZCODE_IDENTIFY_USER_HARDWARE_STRING) || !defined(ZCODE_IDENTIFY_USER_HARDWARE_VERSION)
+#define ZCODE_IDENTIFY_USER_HARDWARE_STRING "User Hardware"
+#define ZCODE_IDENTIFY_USER_HARDWARE_VERSION 0x0
+#warn Using default user firmware identification and version. This should be set to indicate what this hardware device is for - the actual board itself.
 #endif
-#ifdef ZCODE_IDENTIFY_CORE_ZCODE_LANG_STRING
 template<class ZP>
-const char ZcodeStrings<ZP>::identifyCoreZcodeLanguage[] PROGMEM = ZCODE_IDENTIFY_CORE_ZCODE_LANG_STRING;
+const char ZcodeStrings<ZP>::identifyUserHardware[] PROGMEM = ZCODE_IDENTIFY_USER_HARDWARE_STRING;
+
+#if !defined(ZCODE_IDENTIFY_PLATFORM_FIRMWARE_STRING) || !defined(ZCODE_IDENTIFY_PLATFORM_FIRMWARE_VERSION)
+#error ZCODE_IDENTIFY_PLATFORM_FIRMWARE_STRING/ZCODE_IDENTIFY_PLATFORM_FIRMWARE_VERSION not specified! - should be part of the platform firmware definition.
 #endif
-#ifdef ZCODE_IDENTIFY_PLATFORM_FIRMWARE_STRING
 template<class ZP>
 const char ZcodeStrings<ZP>::identifyPlatformFirmware[] PROGMEM = ZCODE_IDENTIFY_PLATFORM_FIRMWARE_STRING;
+
+#if !defined(ZCODE_IDENTIFY_PLATFORM_HARDWARE_STRING) || !defined(ZCODE_IDENTIFY_PLATFORM_HARDWARE_VERSION)
+#error ZCODE_IDENTIFY_PLATFORM_HARDWARE_STRING/ZCODE_IDENTIFY_PLATFORM_HARDWARE_VERSION not specified! - should be part of the platform firmware definition.
 #endif
-#ifdef ZCODE_IDENTIFY_HARDWARE_PLATFORM_STRING
 template<class ZP>
-const char ZcodeStrings<ZP>::identifyPlatformHardware[] PROGMEM = ZCODE_IDENTIFY_HARDWARE_PLATFORM_STRING;
+const char ZcodeStrings<ZP>::identifyPlatformHardware[] PROGMEM = ZCODE_IDENTIFY_PLATFORM_HARDWARE_STRING;
+
+#if !defined(ZCODE_IDENTIFY_CORE_ZCODE_LANG_STRING) || !defined(ZCODE_IDENTIFY_CORE_ZCODE_LANG_VERSION)
+#error What? ZCODE_IDENTIFY_CORE_ZCODE_LANG_STRING/ZCODE_IDENTIFY_CORE_ZCODE_LANG_VERSION is meant to be included in the Core Language definition.
 #endif
+template<class ZP>
+const char ZcodeStrings<ZP>::identifyCoreZcodeLanguage[] PROGMEM = ZCODE_IDENTIFY_CORE_ZCODE_LANG_STRING;
 
 template<class ZP>
 const char ZcodeStrings<ZP>::failAddressingOnlyFromNotificationChannel[] PROGMEM = "Addressing only allowed from notification channel";

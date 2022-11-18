@@ -11,8 +11,8 @@
 #define ZCODE_IDENTIFY_USER_FIRMWARE_STRING         "Zcode Default Platform for Arduino"
 #define ZCODE_IDENTIFY_USER_FIRMWARE_VERSION        0x0001
 
-#define ZCODE_IDENTIFY_HARDWARE_PLATFORM_STRING     "Arduino"
-#define ZCODE_IDENTIFY_HARDWARE_PLATFORM_VERSION    0x0000
+#define ZCODE_IDENTIFY_USER_HARDWARE_STRING     "Arduino"
+#define ZCODE_IDENTIFY_USER_HARDWARE_VERSION    0x0000
 
 #include <ArduinoPlatformFirmwareVersion.hpp>
 #include <ZcodeIncludes.hpp>

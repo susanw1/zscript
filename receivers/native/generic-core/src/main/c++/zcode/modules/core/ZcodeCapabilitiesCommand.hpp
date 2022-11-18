@@ -26,7 +26,7 @@ protected:
     typedef typename ZP::Strings::string_t string_t;
 
     enum VersionType {
-        UserFirmware, CoreZcodeLanguage, PlatformFirmware, PlatformHardware
+        UserFirmware, UserHardware, PlatformFirmware, PlatformHardware, CoreZcodeLanguage
     };
 
     static constexpr char CMD_PARAM_VERSIONTYPE_V = 'V';
@@ -51,9 +51,9 @@ public:
             ident = (string_t) ZP::Strings::identifyUserFirmware;
             version = ZCODE_IDENTIFY_USER_FIRMWARE_VERSION;
             break;
-        case CoreZcodeLanguage:
-            ident = (string_t) ZP::Strings::identifyCoreZcodeLanguage;
-            version = ZCODE_IDENTIFY_CORE_ZCODE_LANG_VERSION;
+        case UserHardware:
+            ident = (string_t) ZP::Strings::identifyUserHardware;
+            version = ZCODE_IDENTIFY_USER_HARDWARE_VERSION;
             break;
         case PlatformFirmware:
             ident = (string_t) ZP::Strings::identifyPlatformFirmware;
@@ -61,7 +61,11 @@ public:
             break;
         case PlatformHardware:
             ident = (string_t) ZP::Strings::identifyPlatformHardware;
-            version = ZCODE_IDENTIFY_HARDWARE_PLATFORM_VERSION;
+            version = ZCODE_IDENTIFY_PLATFORM_HARDWARE_VERSION;
+            break;
+        case CoreZcodeLanguage:
+            ident = (string_t) ZP::Strings::identifyCoreZcodeLanguage;
+            version = ZCODE_IDENTIFY_CORE_ZCODE_LANG_VERSION;
             break;
         }
 
