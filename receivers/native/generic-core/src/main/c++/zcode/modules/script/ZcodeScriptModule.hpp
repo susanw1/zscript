@@ -1,13 +1,14 @@
 /*
- * ZcodeCoreModule.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 8 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_COMMANDS_ZCODESCRIPTMODULE_HPP_
-#define SRC_TEST_CPP_ZCODE_COMMANDS_ZCODESCRIPTMODULE_HPP_
-#ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#ifndef SRC_MAIN_CPP_ZCODE_MODULES_SCRIPT_ZCODESCRIPTMODULE_HPP_
+#define SRC_MAIN_CPP_ZCODE_MODULES_SCRIPT_ZCODESCRIPTMODULE_HPP_
+
+#ifdef ZCODE_HPP_INCLUDED
 #error Must be included before Zcode.hpp
 #endif
 
@@ -60,4 +61,4 @@ public:
 };
 // want function of form: void execute(ZcodeRunningCommandSlot<ZP> *slot, uint16_t command)
 
-#endif /* SRC_TEST_CPP_ZCODE_COMMANDS_ZCODESCRIPTMODULE_HPP_ */
+#endif /* SRC_MAIN_CPP_ZCODE_MODULES_SCRIPT_ZCODESCRIPTMODULE_HPP_ */

@@ -1,7 +1,14 @@
-#ifndef SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CMODULE_HPP_
-#define SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CMODULE_HPP_
+/*
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ *
+ * SPDX-License-Identifier: MIT
+ */
 
-#ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_ZCODEI2CMODULE_HPP_
+#define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_ZCODEI2CMODULE_HPP_
+
+#ifdef ZCODE_HPP_INCLUDED
 #error Must be included before Zcode.hpp
 #endif
 
@@ -46,4 +53,4 @@ public:
     }
 };
 
-#endif /* SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CMODULE_HPP_ */
+#endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_ZCODEI2CMODULE_HPP_ */

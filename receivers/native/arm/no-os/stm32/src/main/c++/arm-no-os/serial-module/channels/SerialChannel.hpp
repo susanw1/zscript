@@ -1,12 +1,12 @@
 /*
- * SerialChannel.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 14 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___CHANNELS_SERIAL_SERIALCHANNEL_HPP_
-#define SRC_MAIN_C___CHANNELS_SERIAL_SERIALCHANNEL_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_CHANNELS_SERIALCHANNEL_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_CHANNELS_SERIALCHANNEL_HPP_
 
 #include <arm-no-os/serial-module/lowlevel/Serial.hpp>
 #include <arm-no-os/serial-module/lowlevel/UartManager.hpp>
@@ -153,4 +153,4 @@ public:
     }
 };
 
-#endif /* SRC_MAIN_C___CHANNELS_SERIAL_SERIALCHANNEL_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_CHANNELS_SERIALCHANNEL_HPP_ */

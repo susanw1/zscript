@@ -1,12 +1,13 @@
 /*
- * ZcodeI2cCapabilitiesCommand.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 26 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ARDUINO_I2C_MODULE_COMMANDS_ZCODEI2CCAPABILITIESCOMMAND_HPP_
-#define SRC_MAIN_C___ARDUINO_I2C_MODULE_COMMANDS_ZCODEI2CCAPABILITIESCOMMAND_HPP_
+#ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZCODEI2CCAPABILITIESCOMMAND_HPP_
+#define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZCODEI2CCAPABILITIESCOMMAND_HPP_
+
 #include <zcode/modules/ZcodeCommand.hpp>
 #include <Wire.h>
 
@@ -36,4 +37,4 @@ public:
 
 };
 
-#endif /* SRC_MAIN_C___ARDUINO_I2C_MODULE_COMMANDS_ZCODEI2CCAPABILITIESCOMMAND_HPP_ */
+#endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZCODEI2CCAPABILITIESCOMMAND_HPP_ */

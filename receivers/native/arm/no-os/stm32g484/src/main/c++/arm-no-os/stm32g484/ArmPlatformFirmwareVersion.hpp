@@ -1,3 +1,10 @@
+/*
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
 #ifndef ZCODE_IDENTIFY_PLATFORM_FIRMWARE_STRING
 #define ZCODE_IDENTIFY_PLATFORM_FIRMWARE_STRING  "zcode.org for ARM"
 #endif
@@ -13,4 +20,3 @@
 #ifndef ZCODE_IDENTIFY_PLATFORM_HARDWARE_VERSION
 #define ZCODE_IDENTIFY_PLATFORM_HARDWARE_VERSION 0x0001
 #endif
-

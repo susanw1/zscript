@@ -1,12 +1,12 @@
 /*
- * I2cRegisters.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 19 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_COMMANDS_LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CREGISTERS_HPP_
-#define SRC_TEST_CPP_COMMANDS_LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CREGISTERS_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CREGISTERS_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CREGISTERS_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 
@@ -24,4 +24,4 @@ struct I2cRegisters {
     volatile uint32_t TXDR;
 };
 
-#endif /* SRC_TEST_CPP_COMMANDS_LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CREGISTERS_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CREGISTERS_HPP_ */

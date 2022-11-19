@@ -1,12 +1,12 @@
 /*
- * ZcodeParameters.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 7 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
-#define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
+#ifndef SRC_TEST_CPP_MAIN_ZCODEPARAMETERS_HPP_
+#define SRC_TEST_CPP_MAIN_ZCODEPARAMETERS_HPP_
 
 #define ZCODE_IDENTIFY_USER_FIRMWARE_STRING  "Zcode Test Platform for STM32F030"
 #define ZCODE_IDENTIFY_USER_FIRMWARE_VERSION 0x0001
@@ -82,4 +82,4 @@ public:
     static const uint8_t i2cAddressingResponseChunkSize = 8; //Really has to be 8...
 };
 
-#endif /* SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_ */
+#endif /* SRC_TEST_CPP_MAIN_ZCODEPARAMETERS_HPP_ */

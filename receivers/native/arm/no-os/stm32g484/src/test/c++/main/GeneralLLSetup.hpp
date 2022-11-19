@@ -1,12 +1,12 @@
 /*
- * GeneralHalSetup.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 18 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_COMMANDS_LOWLEVEL_GENERALHALSETUP_HPP_
-#define SRC_TEST_CPP_COMMANDS_LOWLEVEL_GENERALHALSETUP_HPP_
+#ifndef SRC_TEST_CPP_MAIN_GENERALLLSETUP_HPP_
+#define SRC_TEST_CPP_MAIN_GENERALLLSETUP_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 
@@ -111,4 +111,5 @@ public:
     static const DmaIdentifier uart6TxDma = 11;
     static const uint8_t uartEscapingChar = 0xFE;
 };
-#endif /* SRC_TEST_CPP_COMMANDS_LOWLEVEL_GENERALHALSETUP_HPP_ */
+
+#endif /* SRC_TEST_CPP_MAIN_GENERALLLSETUP_HPP_ */

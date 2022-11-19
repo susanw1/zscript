@@ -1,12 +1,12 @@
 /*
- * Uart.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 8 Jul 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_UART_HPP_
-#define SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_UART_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_UART_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_UART_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 #include "specific/UartInternal.hpp"
@@ -143,4 +143,5 @@ public:
     int32_t getDistance(uint8_t value);  //returns the number of bytes until the specified value appears, including the value
 };
 #include "specific/Uartcpp.hpp"
-#endif /* SRC_TEST_C___LOWLEVEL_UARTLOWLEVEL_UART_HPP_ */
+
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_UART_HPP_ */

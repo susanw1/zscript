@@ -1,12 +1,12 @@
 /*
- * I2cManagercpp.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 8 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CMANAGERCPP_HPP_
-#define SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CMANAGERCPP_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G4_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CMANAGERCPP_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CMANAGERCPP_HPP_
 
 #define I2C_SDA_Inner(I2C,PIN) I2C##_SDA_##PIN
 #define I2C_SDA(I2C,PIN) I2C_SDA_Inner(I2C, PIN)
@@ -153,4 +153,4 @@ void I2cManager<LL>::init() {
     }
 }
 
-#endif /* SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CMANAGERCPP_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G4_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CMANAGERCPP_HPP_ */

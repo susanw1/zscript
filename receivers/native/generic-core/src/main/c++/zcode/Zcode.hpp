@@ -1,14 +1,14 @@
 /*
- * Zcode.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 8 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#ifdef ZCODE_HPP_INCLUDED
 #error Cannot include Zcode.hpp twice
 #endif
-#define SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#define ZCODE_HPP_INCLUDED
 
 #ifndef ZCODE_GENERATE_NOTIFICATIONS
 #ifdef ZCODE_SUPPORT_SCRIPT_SPACE

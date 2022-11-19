@@ -1,12 +1,13 @@
 /*
- * SPI.h
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 30 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_LOWLEVEL_ARDUINOSPILAYER_SPI_H_
-#define SRC_TEST_CPP_LOWLEVEL_ARDUINOSPILAYER_SPI_H_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_UDP_MODULE_LOWLEVEL_SPI_H_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_UDP_MODULE_LOWLEVEL_SPI_H_
+
 #include <arm-no-os/llIncludes.hpp>
 
 #include <arm-no-os/pins-module/lowlevel/GpioManager.hpp>
@@ -172,4 +173,4 @@ template<class LL>
 void SPIClass<LL>::end() {
 }
 
-#endif /* SRC_TEST_CPP_LOWLEVEL_ARDUINOSPILAYER_SPI_H_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F0_UDP_MODULE_LOWLEVEL_SPI_H_ */

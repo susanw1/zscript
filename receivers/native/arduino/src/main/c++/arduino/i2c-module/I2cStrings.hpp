@@ -1,12 +1,12 @@
 /*
- * I2cStrings.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 26 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ARDUINO_I2C_MODULE_I2CSTRINGS_HPP_
-#define SRC_MAIN_C___ARDUINO_I2C_MODULE_I2CSTRINGS_HPP_
+#ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_I2CSTRINGS_HPP_
+#define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_I2CSTRINGS_HPP_
 
 template<class ZP>
 class I2cStrings {
@@ -56,4 +56,4 @@ const char I2cStrings<ZP>::address2Nack[] PROGMEM = "Address2Nack";
 template<class ZP>
 const char I2cStrings<ZP>::addressNack[] PROGMEM = "AddressNack";
 
-#endif /* SRC_MAIN_C___ARDUINO_I2C_MODULE_I2CSTRINGS_HPP_ */
+#endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_I2CSTRINGS_HPP_ */

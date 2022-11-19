@@ -1,12 +1,12 @@
 /*
- * FlashPage.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 3 Jan 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_LOWLEVEL_PERSISTANCELOWLEVEL_FLASHPAGE_HPP_
-#define SRC_TEST_CPP_LOWLEVEL_PERSISTANCELOWLEVEL_FLASHPAGE_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_ARM_CORE_MODULE_PERSISTENCE_FLASHPAGE_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_ARM_CORE_MODULE_PERSISTENCE_FLASHPAGE_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 
@@ -175,4 +175,5 @@ bool FlashPage<LL>::isBusy() {
     const uint32_t busy = 0x1;
     return (FLASH->SR & busy) != 0;
 }
-#endif /* SRC_TEST_CPP_LOWLEVEL_PERSISTANCELOWLEVEL_FLASHPAGE_HPP_ */
+
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F0_ARM_CORE_MODULE_PERSISTENCE_FLASHPAGE_HPP_ */

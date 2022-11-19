@@ -1,12 +1,12 @@
 /*
- * ZcodeMatchCodeCommand.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 11 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ZCODE_MODULES_CORE_ZCODEMATCHCODECOMMAND_HPP_
-#define SRC_MAIN_C___ZCODE_MODULES_CORE_ZCODEMATCHCODECOMMAND_HPP_
+#ifndef SRC_MAIN_CPP_ZCODE_MODULES_CORE_ZCODEMATCHCODECOMMAND_HPP_
+#define SRC_MAIN_CPP_ZCODE_MODULES_CORE_ZCODEMATCHCODECOMMAND_HPP_
 
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeCommand.hpp"
@@ -40,4 +40,4 @@ public:
     }
 };
 
-#endif /* SRC_MAIN_C___ZCODE_MODULES_CORE_ZCODEMATCHCODECOMMAND_HPP_ */
+#endif /* SRC_MAIN_CPP_ZCODE_MODULES_CORE_ZCODEMATCHCODECOMMAND_HPP_ */

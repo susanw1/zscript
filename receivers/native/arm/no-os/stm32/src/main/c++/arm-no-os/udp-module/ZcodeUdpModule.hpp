@@ -1,14 +1,14 @@
 /*
- * ZcodeUdpModule.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 4 Aug 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ARM_NO_OS_UDP_MODULE_ZCODEUDPMODULE_HPP_
-#define SRC_MAIN_C___ARM_NO_OS_UDP_MODULE_ZCODEUDPMODULE_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_UDP_MODULE_ZCODEUDPMODULE_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_UDP_MODULE_ZCODEUDPMODULE_HPP_
 
-#ifdef SRC_TEST_CPP_ZCODE_ZCODE_HPP_
+#ifdef ZCODE_HPP_INCLUDED
 #error Must be included before Zcode.hpp
 #endif
 
@@ -27,4 +27,4 @@ public:
 
 };
 
-#endif /* SRC_MAIN_C___ARM_NO_OS_UDP_MODULE_ZCODEUDPMODULE_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_UDP_MODULE_ZCODEUDPMODULE_HPP_ */

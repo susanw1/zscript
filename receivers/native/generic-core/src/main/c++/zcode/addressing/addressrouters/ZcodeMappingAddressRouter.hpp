@@ -1,12 +1,12 @@
 /*
- * ZcodeMappingAddressRouter.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 21 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ZCODE_ADDRESSING_ZCODEMAPPINGADDRESSROUTER_HPP_
-#define SRC_MAIN_C___ZCODE_ADDRESSING_ZCODEMAPPINGADDRESSROUTER_HPP_
+#ifndef SRC_MAIN_CPP_ZCODE_ADDRESSING_ADDRESSROUTERS_ZCODEMAPPINGADDRESSROUTER_HPP_
+#define SRC_MAIN_CPP_ZCODE_ADDRESSING_ADDRESSROUTERS_ZCODEMAPPINGADDRESSROUTER_HPP_
 
 #include "../../ZcodeIncludes.hpp"
 #include "../../ZcodeBusInterrupt.hpp"
@@ -177,4 +177,4 @@ public:
 template<class ZP>
 typename ZcodeMappingAddressRouter<ZP>::ZcodeAddressMapping ZcodeMappingAddressRouter<ZP>::map[ZP::mappingAddressCount];
 
-#endif /* SRC_MAIN_C___ZCODE_ADDRESSING_ZCODEMAPPINGADDRESSROUTER_HPP_ */
+#endif /* SRC_MAIN_CPP_ZCODE_ADDRESSING_ADDRESSROUTERS_ZCODEMAPPINGADDRESSROUTER_HPP_ */

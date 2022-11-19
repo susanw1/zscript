@@ -1,12 +1,12 @@
 /*
- * SpiPins.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 5 Aug 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ARM_NO_OS_STM32F030X8_UDP_MODULE_LOWLEVEL_SPIPINS_HPP_
-#define SRC_MAIN_C___ARM_NO_OS_STM32F030X8_UDP_MODULE_LOWLEVEL_SPIPINS_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F030X8_UDP_MODULE_LOWLEVEL_SPIPINS_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32F030X8_UDP_MODULE_LOWLEVEL_SPIPINS_HPP_
 
 #define SPI_1_SCK_PA_5_ PA_5,GPIO_AF0
 #define SPI_1_MISO_PA_6_ PA_6,GPIO_AF0
@@ -32,4 +32,4 @@
 #define _SPI_2_MISO_PB_14_ 1
 #define _SPI_2_MOSI_PB_15_ 1
 
-#endif /* SRC_MAIN_C___ARM_NO_OS_STM32F030X8_UDP_MODULE_LOWLEVEL_SPIPINS_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F030X8_UDP_MODULE_LOWLEVEL_SPIPINS_HPP_ */

@@ -1,12 +1,12 @@
 /*
- * ZcodeNotificationTypes.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 20 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ZCODE_ZCODENOTIFICATIONTYPES_HPP_
-#define SRC_MAIN_C___ZCODE_ZCODENOTIFICATIONTYPES_HPP_
+#ifndef SRC_MAIN_CPP_ZCODE_ZCODENOTIFICATIONTYPES_HPP_
+#define SRC_MAIN_CPP_ZCODE_ZCODENOTIFICATIONTYPES_HPP_
 
 enum ZcodeNotificationType {
     ResetNotification = 0,
@@ -15,4 +15,4 @@ enum ZcodeNotificationType {
     AddressingNotification = 3
 };
 
-#endif /* SRC_MAIN_C___ZCODE_ZCODENOTIFICATIONTYPES_HPP_ */
+#endif /* SRC_MAIN_CPP_ZCODE_ZCODENOTIFICATIONTYPES_HPP_ */

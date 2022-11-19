@@ -1,12 +1,12 @@
 /*
- * ZcodeCapabilitiesCommand.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 9 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_COMMANDS_ZCODESCRIPTCAPABILITIESCOMMAND_HPP_
-#define SRC_TEST_CPP_ZCODE_COMMANDS_ZCODESCRIPTCAPABILITIESCOMMAND_HPP_
+#ifndef SRC_MAIN_CPP_ZCODE_MODULES_SCRIPT_ZCODESCRIPTCAPABILITIESCOMMAND_HPP_
+#define SRC_MAIN_CPP_ZCODE_MODULES_SCRIPT_ZCODESCRIPTCAPABILITIESCOMMAND_HPP_
 
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeCommand.hpp"
@@ -46,4 +46,4 @@ public:
 
 };
 
-#endif /* SRC_TEST_CPP_ZCODE_COMMANDS_ZCODESCRIPTCAPABILITIESCOMMAND_HPP_ */
+#endif /* SRC_MAIN_CPP_ZCODE_MODULES_SCRIPT_ZCODESCRIPTCAPABILITIESCOMMAND_HPP_ */

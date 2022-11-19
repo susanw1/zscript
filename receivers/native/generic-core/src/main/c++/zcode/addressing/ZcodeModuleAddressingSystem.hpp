@@ -1,12 +1,12 @@
 /*
- * ZcodeModuleAddressingSystem.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 20 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ZCODE_ADDRESSING_ZCODEMODULEADDRESSINGSYSTEM_HPP_
-#define SRC_MAIN_C___ZCODE_ADDRESSING_ZCODEMODULEADDRESSINGSYSTEM_HPP_
+#ifndef SRC_MAIN_CPP_ZCODE_ADDRESSING_ZCODEMODULEADDRESSINGSYSTEM_HPP_
+#define SRC_MAIN_CPP_ZCODE_ADDRESSING_ZCODEMODULEADDRESSINGSYSTEM_HPP_
 
 #include "../ZcodeIncludes.hpp"
 #include "../ZcodeBusInterrupt.hpp"
@@ -37,4 +37,4 @@ public:
 //              ADDRESSING_RESP_SWITCHxxx - will parse the response
 //              ADDRESSING_LEVELxxx - 0 if no port/addr, 1 if no addr, 2 if all
 
-#endif /* SRC_MAIN_C___ZCODE_ADDRESSING_ZCODEMODULEADDRESSINGSYSTEM_HPP_ */
+#endif /* SRC_MAIN_CPP_ZCODE_ADDRESSING_ZCODEMODULEADDRESSINGSYSTEM_HPP_ */

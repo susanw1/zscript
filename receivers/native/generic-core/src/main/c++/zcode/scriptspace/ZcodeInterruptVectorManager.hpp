@@ -1,12 +1,12 @@
 /*
- * ZcodeInterruptVectorManager.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 9 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ZCODE_EXECUTIONSPACE_ZCODEINTERRUPTVECTORMANAGER_HPP_
-#define SRC_MAIN_CPP_ZCODE_EXECUTIONSPACE_ZCODEINTERRUPTVECTORMANAGER_HPP_
+#ifndef SRC_MAIN_CPP_ZCODE_SCRIPTSPACE_ZCODEINTERRUPTVECTORMANAGER_HPP_
+#define SRC_MAIN_CPP_ZCODE_SCRIPTSPACE_ZCODEINTERRUPTVECTORMANAGER_HPP_
 
 #ifdef ZCODE_SUPPORT_SCRIPT_SPACE
 #include "../scriptspace/ZcodeInterruptVectorMap.hpp"
@@ -82,4 +82,5 @@ public:
 };
 
 #endif
-#endif /* SRC_MAIN_CPP_ZCODE_EXECUTIONSPACE_ZCODEINTERRUPTVECTORMANAGER_HPP_ */
+
+#endif /* SRC_MAIN_CPP_ZCODE_SCRIPTSPACE_ZCODEINTERRUPTVECTORMANAGER_HPP_ */

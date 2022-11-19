@@ -1,12 +1,12 @@
 /*
- * ZcodeTestChannel.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 9 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_TEST_ZCODELOCALCHANNEL_HPP_
-#define SRC_TEST_CPP_ZCODE_TEST_ZCODELOCALCHANNEL_HPP_
+#ifndef SRC_TEST_CPP_SUPPORT_ZCODETESTCHANNEL_HPP_
+#define SRC_TEST_CPP_SUPPORT_ZCODETESTCHANNEL_HPP_
 
 #include "ZcodeParameters.hpp"
 #include <zcode/ZcodeIncludes.hpp>
@@ -151,4 +151,4 @@ public:
     }
 };
 
-#endif /* SRC_TEST_CPP_ZCODE_TEST_ZCODELOCALCHANNEL_HPP_ */
+#endif /* SRC_TEST_CPP_SUPPORT_ZCODETESTCHANNEL_HPP_ */

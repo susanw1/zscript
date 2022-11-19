@@ -1,12 +1,12 @@
 /*
- * UsbInternal.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 24 Jul 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBINTERNAL_HPP_
-#define LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBINTERNAL_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USB_MODULE_LOWLEVEL_SPECIFIC_USBINTERNAL_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USB_MODULE_LOWLEVEL_SPECIFIC_USBINTERNAL_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 #include <arm-no-os/system/clock/SystemMilliClock.hpp>
@@ -167,7 +167,8 @@ public:
         return dataEndpoint.getTxBuffer();
     }
 };
+
 template<class LL>
 UsbInternal<LL> UsbInternal<LL>::usbI;
 
-#endif /* LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBINTERNAL_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USB_MODULE_LOWLEVEL_SPECIFIC_USBINTERNAL_HPP_ */

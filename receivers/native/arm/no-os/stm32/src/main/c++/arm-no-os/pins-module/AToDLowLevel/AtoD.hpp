@@ -1,12 +1,12 @@
 /*
- * AtoD.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 5 Jan 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_C___LOWLEVEL_ATODLOWLEVEL_ATOD_HPP_
-#define SRC_TEST_C___LOWLEVEL_ATODLOWLEVEL_ATOD_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_ATODLOWLEVEL_ATOD_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_ATODLOWLEVEL_ATOD_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 
@@ -28,4 +28,4 @@ public:
 
 #include "specific/AtoDcpp.hpp"
 
-#endif /* SRC_TEST_C___LOWLEVEL_ATODLOWLEVEL_ATOD_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_ATODLOWLEVEL_ATOD_HPP_ */

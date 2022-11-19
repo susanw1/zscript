@@ -1,12 +1,12 @@
 /*
- * ZcodeMakeCodeCommand.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 11 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ZCODE_MODULES_CORE_ZCODEMAKECODECOMMAND_HPP_
-#define SRC_MAIN_C___ZCODE_MODULES_CORE_ZCODEMAKECODECOMMAND_HPP_
+#ifndef SRC_MAIN_CPP_ZCODE_MODULES_CORE_ZCODEMAKECODECOMMAND_HPP_
+#define SRC_MAIN_CPP_ZCODE_MODULES_CORE_ZCODEMAKECODECOMMAND_HPP_
 
 #include "../../ZcodeIncludes.hpp"
 #include "../ZcodeCommand.hpp"
@@ -34,4 +34,4 @@ public:
 template<class ZP>
 uint16_t ZcodeMakeCodeCommand<ZP>::number = 0;
 
-#endif /* SRC_MAIN_C___ZCODE_MODULES_CORE_ZCODEMAKECODECOMMAND_HPP_ */
+#endif /* SRC_MAIN_CPP_ZCODE_MODULES_CORE_ZCODEMAKECODECOMMAND_HPP_ */

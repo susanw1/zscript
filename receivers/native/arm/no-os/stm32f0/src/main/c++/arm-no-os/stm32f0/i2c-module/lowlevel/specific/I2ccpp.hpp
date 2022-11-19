@@ -1,12 +1,12 @@
 /*
- * I2ccpp.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 8 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CCPP_HPP_
-#define SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CCPP_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CCPP_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CCPP_HPP_
 
 #include <arm-no-os/system/clock/ClockManager.hpp>
 
@@ -392,4 +392,4 @@ I2cTerminationStatus I2c<LL>::receive10(uint16_t address, bool tenBit, uint8_t *
     }
 }
 
-#endif /* SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CCPP_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F0_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CCPP_HPP_ */

@@ -1,8 +1,8 @@
 /*
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *
- *  Created on: 9 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
 #include "ZcodeTestingSystem.hpp"

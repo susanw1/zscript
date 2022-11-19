@@ -1,12 +1,12 @@
 /*
- * Dmacpp.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 6 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMACPP_HPP_
-#define SRC_MAIN_C___LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMACPP_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_DMA_SPECIFIC_DMACPP_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_DMA_SPECIFIC_DMACPP_HPP_
 
 #include "../Dma.hpp"
 
@@ -88,4 +88,4 @@ void Dma<LL>::setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrS
     channel.getChannelRegisters()->CCR |= enableDma;
 }
 
-#endif /* SRC_MAIN_C___LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMACPP_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_DMA_SPECIFIC_DMACPP_HPP_ */

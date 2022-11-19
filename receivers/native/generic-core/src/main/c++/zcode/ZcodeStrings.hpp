@@ -1,11 +1,12 @@
 /*
- * ZcodeStrings.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 9 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
-#ifndef SRC_MAIN_C___ZCODE_ZCODESTRINGS_HPP_
-#define SRC_MAIN_C___ZCODE_ZCODESTRINGS_HPP_
+
+#ifndef SRC_MAIN_CPP_ZCODE_ZCODESTRINGS_HPP_
+#define SRC_MAIN_CPP_ZCODE_ZCODESTRINGS_HPP_
 
 #include "ZcodeIncludes.hpp"
 
@@ -216,4 +217,4 @@ const ZcodeString ZcodeStrings<ZP>::badModuleAreaSpecifier("Module area is inval
 template<class ZP>
 const ZcodeString ZcodeStrings<ZP>::debugOverrun("#Debug buffer out of space, some data lost\n");
 
-#endif /* SRC_MAIN_C___ZCODE_ZCODESTRINGS_HPP_ */
+#endif /* SRC_MAIN_CPP_ZCODE_ZCODESTRINGS_HPP_ */

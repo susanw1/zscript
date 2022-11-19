@@ -1,12 +1,12 @@
 /*
- * I2cInternal.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 18 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2CINTERNAL_HPP_
-#define SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2CINTERNAL_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CINTERNAL_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CINTERNAL_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 #include <arm-no-os/pins-module/lowlevel/Gpio.hpp>
@@ -402,4 +402,5 @@ void I2cInternal<LL>::setFrequency(Clock<LL> *clock, I2cFrequency freq) {
     }
     registers->CR1 |= enableI2c; // turn on peripheral
 }
-#endif /* SRC_TEST_CPP_COMMANDS_I2CNEWHAL_I2CINTERNAL_HPP_ */
+
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F0_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CINTERNAL_HPP_ */

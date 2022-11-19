@@ -1,12 +1,12 @@
 /*
- * DmaManagercpp.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 6 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMAMANAGERCPP_HPP_
-#define SRC_MAIN_C___LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMAMANAGERCPP_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_DMA_SPECIFIC_DMAMANAGERCPP_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_DMA_SPECIFIC_DMAMANAGERCPP_HPP_
 
 #include "../DmaManager.hpp"
 #include <arm-no-os/system/interrupt/InterruptManager.hpp>
@@ -69,4 +69,4 @@ void DmaManager<LL>::init() {
     }
 }
 
-#endif /* SRC_MAIN_C___LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMAMANAGERCPP_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_DMA_SPECIFIC_DMAMANAGERCPP_HPP_ */

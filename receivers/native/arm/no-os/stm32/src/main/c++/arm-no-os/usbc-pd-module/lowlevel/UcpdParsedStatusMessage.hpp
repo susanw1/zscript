@@ -1,12 +1,13 @@
 /*
- * UcpdParsedStatusMessage.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 7 Apr 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_USB_PD_COMMANDS_UCPDPARSEDSTATUSMESSAGE_HPP_
-#define SRC_TEST_CPP_USB_PD_COMMANDS_UCPDPARSEDSTATUSMESSAGE_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_USBC_PD_MODULE_LOWLEVEL_UCPDPARSEDSTATUSMESSAGE_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_USBC_PD_MODULE_LOWLEVEL_UCPDPARSEDSTATUSMESSAGE_HPP_
+
 #include <arm-no-os/llIncludes.hpp>
 #include "specific/UcpdInternal.hpp"
 
@@ -162,4 +163,4 @@ public:
     }
 };
 
-#endif /* SRC_TEST_CPP_USB_PD_COMMANDS_UCPDPARSEDSTATUSMESSAGE_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_USBC_PD_MODULE_LOWLEVEL_UCPDPARSEDSTATUSMESSAGE_HPP_ */

@@ -1,12 +1,12 @@
 /*
- * DmaMuxRequest.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 27 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMAMUXREQUEST_HPP_
-#define SRC_TEST_CPP_LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMAMUXREQUEST_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_DMA_SPECIFIC_DMAMUXREQUEST_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_DMA_SPECIFIC_DMAMUXREQUEST_HPP_
 
 enum DmaMuxRequest {
     DMAMUX_NO_MUX = 0,
@@ -136,4 +136,4 @@ enum DmaMuxRequest {
     DMAMUX_UCPD_TX = 115,
 };
 
-#endif /* SRC_TEST_CPP_LOWLEVEL_DMALOWLEVEL_SPECIFIC_DMAMUXREQUEST_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_DMA_SPECIFIC_DMAMUXREQUEST_HPP_ */

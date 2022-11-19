@@ -1,12 +1,12 @@
 /*
- * ZcodeModule.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 8 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEMODULE_HPP_
-#define SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEMODULE_HPP_
+#ifndef SRC_MAIN_CPP_ZCODE_MODULES_ZCODEMODULE_HPP_
+#define SRC_MAIN_CPP_ZCODE_MODULES_ZCODEMODULE_HPP_
 
 #include "../ZcodeIncludes.hpp"
 #include "../running/ZcodeExecutionCommandSlot.hpp"
@@ -131,4 +131,4 @@ public:
 };
 // want function of form: void execute(ZcodeExecutionCommandSlot<ZP> slot, uint16_t command)
 
-#endif /* SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEMODULE_HPP_ */
+#endif /* SRC_MAIN_CPP_ZCODE_MODULES_ZCODEMODULE_HPP_ */

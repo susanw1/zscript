@@ -1,12 +1,12 @@
 /*
- * EthernetUdpChannel.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 6 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___CHANNELS_ETHERNET_ETHERNETUDPCHANNEL_HPP_
-#define SRC_MAIN_C___CHANNELS_ETHERNET_ETHERNETUDPCHANNEL_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_UDP_MODULE_CHANNELS_ETHERNETUDPCHANNEL_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_UDP_MODULE_CHANNELS_ETHERNETUDPCHANNEL_HPP_
 
 #include <arm-no-os/udp-module/lowlevel/src/Ethernet.h>
 #include <zcode/ZcodeIncludes.hpp>
@@ -261,4 +261,5 @@ void EthernetUdpOutStream<ZP>::actualOpen() {
         channel->getEthernetUdp()->beginPacket(channel->getDebugIp(), channel->getDebugPort());
     }
 }
-#endif /* SRC_MAIN_C___CHANNELS_ETHERNET_ETHERNETUDPCHANNEL_HPP_ */
+
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_UDP_MODULE_CHANNELS_ETHERNETUDPCHANNEL_HPP_ */

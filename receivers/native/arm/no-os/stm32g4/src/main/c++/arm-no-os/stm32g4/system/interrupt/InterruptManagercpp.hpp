@@ -1,12 +1,11 @@
 /*
- * InterruptManagercpp.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 7 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
 #include "InterruptManager.hpp"
-
 void (*InterruptManager::interrupt[NUMBER_OF_INTERRUPT_TYPES])(uint8_t) = {NULL, NULL, NULL, NULL, NULL, NULL};
 
 void DMA1_Channel1_IRQHandler() {

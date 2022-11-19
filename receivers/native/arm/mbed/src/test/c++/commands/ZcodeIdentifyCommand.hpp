@@ -1,12 +1,14 @@
 /*
- * ZcodeIdentifyCommand.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 9 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEIDENTIFYCOMMAND_HPP_
-#define SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEIDENTIFYCOMMAND_HPP_
+#ifndef SRC_TEST_CPP_COMMANDS_ZCODEIDENTIFYCOMMAND_HPP_
+#define SRC_TEST_CPP_COMMANDS_ZCODEIDENTIFYCOMMAND_HPP_
+
+
 #include "ZcodeIncludes.hpp"
 #include "ZcodeParameters.hpp"
 #include "commands/ZcodeCommand.hpp"
@@ -41,4 +43,4 @@ public:
 #include "ZcodeOutStream.hpp"
 #include "parsing/ZcodeCommandSlot.hpp"
 
-#endif /* SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEIDENTIFYCOMMAND_HPP_ */
+#endif /* SRC_TEST_CPP_COMMANDS_ZCODEIDENTIFYCOMMAND_HPP_ */

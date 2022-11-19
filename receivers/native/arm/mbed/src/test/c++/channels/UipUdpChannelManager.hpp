@@ -1,12 +1,13 @@
 /*
- * UipUdpChannelManager.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 10 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_MAIN_UIPUDPCHANNELMANAGER_HPP_
-#define SRC_TEST_CPP_MAIN_UIPUDPCHANNELMANAGER_HPP_
+#ifndef SRC_TEST_CPP_CHANNELS_UIPUDPCHANNELMANAGER_HPP_
+#define SRC_TEST_CPP_CHANNELS_UIPUDPCHANNELMANAGER_HPP_
+
 
 #include "../Zcode/ZcodeParameters.hpp"
 #include "../Zcode/ZcodeOutStream.hpp"
@@ -50,4 +51,4 @@ public:
 //    void checkSequences();
 };
 
-#endif /* SRC_TEST_CPP_MAIN_UIPUDPCHANNELMANAGER_HPP_ */
+#endif /* SRC_TEST_CPP_CHANNELS_UIPUDPCHANNELMANAGER_HPP_ */
