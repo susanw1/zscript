@@ -1,12 +1,12 @@
 /*
- * ZcodeResponseStatus.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 8 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_
-#define SRC_TEST_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_
+#ifndef SRC_MAIN_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_
+#define SRC_MAIN_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_
 
 #include "ZcodeIncludes.hpp"
 
@@ -27,4 +27,4 @@ enum ZcodeResponseStatus {
 
 };
 
-#endif /* SRC_TEST_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_ */
+#endif /* SRC_MAIN_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_ */

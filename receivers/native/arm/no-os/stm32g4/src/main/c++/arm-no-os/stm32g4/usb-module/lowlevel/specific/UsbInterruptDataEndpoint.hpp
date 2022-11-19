@@ -1,12 +1,12 @@
 /*
- * UsbInterruptDataEndpoint.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 26 Jul 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBINTERRUPTDATAENDPOINT_HPP_
-#define LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBINTERRUPTDATAENDPOINT_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USB_MODULE_LOWLEVEL_SPECIFIC_USBINTERRUPTDATAENDPOINT_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USB_MODULE_LOWLEVEL_SPECIFIC_USBINTERRUPTDATAENDPOINT_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 #include <arm-no-os/serial-module/lowlevel/SerialRingBuffer.hpp>
@@ -137,4 +137,4 @@ public:
     }
 };
 
-#endif /* LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBINTERRUPTDATAENDPOINT_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USB_MODULE_LOWLEVEL_SPECIFIC_USBINTERRUPTDATAENDPOINT_HPP_ */

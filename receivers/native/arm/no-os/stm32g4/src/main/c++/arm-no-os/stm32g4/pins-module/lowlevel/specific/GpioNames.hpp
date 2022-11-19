@@ -1,8 +1,8 @@
 /*
- * GpioNames.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 23 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
 #if defined(STM32G431xx)

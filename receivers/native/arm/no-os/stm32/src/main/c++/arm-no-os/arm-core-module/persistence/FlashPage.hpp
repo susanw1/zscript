@@ -1,8 +1,8 @@
 /*
- * FlashPage.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 3 Jan 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
 #if defined(STM32G4)

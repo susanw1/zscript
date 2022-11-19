@@ -1,12 +1,13 @@
 /*
- * ZcodeStrings.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 9 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef ARDUINO_FLASH_ZCODESTRINGS_HPP_
-#define ARDUINO_FLASH_ZCODESTRINGS_HPP_
+#ifndef SRC_MAIN_CPP_ARDUINO_CONVERTER_FILES_ZCODESTRINGS_HPP_
+#define SRC_MAIN_CPP_ARDUINO_CONVERTER_FILES_ZCODESTRINGS_HPP_
+
 #include <ZcodeIncludes.hpp>
 
 template<class ZP>
@@ -200,4 +201,4 @@ const char ZcodeStrings<ZP>::badModuleAreaSpecifier[] PROGMEM = "Module area is 
 template<class ZP>
 const char ZcodeStrings<ZP>::debugOverrun[] PROGMEM = "#Debug buffer out of space, some data lost\n";
 
-#endif /* SRC_MAIN_C___ZCODE_ZCODESTRINGS_HPP_ */
+#endif /* SRC_MAIN_CPP_ARDUINO_CONVERTER_FILES_ZCODESTRINGS_HPP_ */

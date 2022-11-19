@@ -1,12 +1,13 @@
 /*
- * RCodeUcpdSystem.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 6 Apr 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_USB_PD_COMMANDS_UCPD_HPP_
-#define SRC_TEST_CPP_USB_PD_COMMANDS_UCPD_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_USBC_PD_MODULE_LOWLEVEL_UCPD_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_USBC_PD_MODULE_LOWLEVEL_UCPD_HPP_
+
 #include <arm-no-os/llIncludes.hpp>
 
 #pragma GCC push_options
@@ -150,4 +151,5 @@ template<class LL>
 UcpdParsedManufacturerInfoMessage<LL> Ucpd<LL>::manufacturerInfoMessage;
 
 #pragma GCC pop_options
-#endif /* SRC_TEST_CPP_USB_PD_COMMANDS_UCPD_HPP_ */
+
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_USBC_PD_MODULE_LOWLEVEL_UCPD_HPP_ */

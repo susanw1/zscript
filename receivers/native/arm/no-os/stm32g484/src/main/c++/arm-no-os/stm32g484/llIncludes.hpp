@@ -1,12 +1,12 @@
 /*
- * llIncludes.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 18 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_COMMANDS_LOWLEVEL_LLINCLUDESINDIVIDUAL_HPP_
-#define SRC_TEST_CPP_COMMANDS_LOWLEVEL_LLINCLUDESINDIVIDUAL_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G484_LLINCLUDES_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G484_LLINCLUDES_HPP_
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -31,4 +31,4 @@ public:
     static const uint8_t spiAlternateFunction = 5;
 };
 
-#endif /* SRC_TEST_CPP_COMMANDS_LOWLEVEL_LLINCLUDESINDIVIDUAL_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G484_LLINCLUDES_HPP_ */

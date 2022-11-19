@@ -1,12 +1,12 @@
 /*
- * ZcodeSerialReadCommand.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 20 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef NO_OS_SRC_MAIN_C___MODULES_SERIAL_ZCODESERIALREADCOMMAND_HPP_
-#define NO_OS_SRC_MAIN_C___MODULES_SERIAL_ZCODESERIALREADCOMMAND_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_COMMANDS_ZCODESERIALREADCOMMAND_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_COMMANDS_ZCODESERIALREADCOMMAND_HPP_
 
 #include <zcode/modules/ZcodeCommand.hpp>
 #include <arm-no-os/serial-module/lowlevel/UartManager.hpp>
@@ -70,4 +70,4 @@ public:
 
 };
 
-#endif /* NO_OS_SRC_MAIN_C___MODULES_SERIAL_ZCODESERIALREADCOMMAND_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_COMMANDS_ZCODESERIALREADCOMMAND_HPP_ */

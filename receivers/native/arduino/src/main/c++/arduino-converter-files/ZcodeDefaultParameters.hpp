@@ -1,12 +1,12 @@
 /*
- * ZcodeParameters.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 7 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef ARDUINO_SRC_MAIN_CPP_DEFAULT_TEST_PARAMETERS_HPP_
-#define ARDUINO_SRC_MAIN_CPP_DEFAULT_TEST_PARAMETERS_HPP_
+#ifndef SRC_MAIN_CPP_ARDUINO_CONVERTER_FILES_ZCODEDEFAULTPARAMETERS_HPP_
+#define SRC_MAIN_CPP_ARDUINO_CONVERTER_FILES_ZCODEDEFAULTPARAMETERS_HPP_
 
 #define ZCODE_IDENTIFY_USER_FIRMWARE_STRING         "Zcode Default Platform for Arduino"
 #define ZCODE_IDENTIFY_USER_FIRMWARE_VERSION        0x0001
@@ -92,4 +92,4 @@ public:
     static const uint8_t pinCount = 21;
 };
 
-#endif /* ARDUINO_SRC_MAIN_CPP_DEFAULT_TEST_PARAMETERS_HPP_ */
+#endif /* SRC_MAIN_CPP_ARDUINO_CONVERTER_FILES_ZCODEDEFAULTPARAMETERS_HPP_ */

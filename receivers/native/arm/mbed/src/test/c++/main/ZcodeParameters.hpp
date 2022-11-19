@@ -1,12 +1,14 @@
 /*
- * ZcodeParameters.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 7 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
-#define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
+#ifndef SRC_TEST_CPP_MAIN_ZCODEPARAMETERS_HPP_
+#define SRC_TEST_CPP_MAIN_ZCODEPARAMETERS_HPP_
+
+
 #include "ZcodeIncludes.hpp"
 
 #include <mbed.h>
@@ -71,4 +73,4 @@ public:
 
 };
 
-#endif /* SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_ */
+#endif /* SRC_TEST_CPP_MAIN_ZCODEPARAMETERS_HPP_ */

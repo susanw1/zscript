@@ -1,12 +1,13 @@
 /*
- * DigitalPinController.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 24 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ARDUINO_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_
-#define SRC_MAIN_C___ARDUINO_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_
+#ifndef SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_
+#define SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_
+
 #include <zcode/modules/ZcodeCommand.hpp>
 #include "PinController.hpp"
 
@@ -107,4 +108,4 @@ uint8_t DigitalPinController<ZP>::openDrain[(ZP::pinCount + 7) / 8];
 template<class ZP>
 uint8_t DigitalPinController<ZP>::pullUp[(ZP::pinCount + 7) / 8];
 
-#endif /* SRC_MAIN_C___ARDUINO_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_ */
+#endif /* SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_ */

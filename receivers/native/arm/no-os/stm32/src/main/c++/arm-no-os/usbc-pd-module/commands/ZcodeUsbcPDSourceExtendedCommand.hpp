@@ -1,12 +1,13 @@
 /*
- * ZcodeUsbcPDSourceExtendedCommand.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 16 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___MODULES_USBCPD_ZCODEUSBCPDSOURCEEXTENDEDCOMMAND_HPP_
-#define SRC_MAIN_C___MODULES_USBCPD_ZCODEUSBCPDSOURCEEXTENDEDCOMMAND_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_USBC_PD_MODULE_COMMANDS_ZCODEUSBCPDSOURCEEXTENDEDCOMMAND_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_USBC_PD_MODULE_COMMANDS_ZCODEUSBCPDSOURCEEXTENDEDCOMMAND_HPP_
+
 #include <zcode/modules/ZcodeCommand.hpp>
 #include <arm-no-os/usbc-pd-module/lowlevel/Ucpd.hpp>
 
@@ -57,4 +58,4 @@ public:
 
 };
 
-#endif /* SRC_MAIN_C___MODULES_USBCPD_ZCODEUSBCPDSOURCEEXTENDEDCOMMAND_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_USBC_PD_MODULE_COMMANDS_ZCODEUSBCPDSOURCEEXTENDEDCOMMAND_HPP_ */

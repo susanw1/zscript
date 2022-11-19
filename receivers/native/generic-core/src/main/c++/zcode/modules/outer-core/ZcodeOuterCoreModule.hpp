@@ -1,12 +1,13 @@
 /*
- * ZcodeOuterCoreModule.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 11 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ZCODE_MODULES_OUTER_CORE_ZCODEOUTERCOREMODULE_HPP_
-#define SRC_MAIN_C___ZCODE_MODULES_OUTER_CORE_ZCODEOUTERCOREMODULE_HPP_
+#ifndef SRC_MAIN_CPP_ZCODE_MODULES_OUTER_CORE_ZCODEOUTERCOREMODULE_HPP_
+#define SRC_MAIN_CPP_ZCODE_MODULES_OUTER_CORE_ZCODEOUTERCOREMODULE_HPP_
+
 #ifdef ZCODE_HPP_INCLUDED
 #error Must be included before Zcode.hpp
 #endif
@@ -65,4 +66,4 @@ public:
 };
 // want function of form: void execute(ZcodeRunningCommandSlot<ZP> *slot, uint16_t command)
 
-#endif /* SRC_MAIN_C___ZCODE_MODULES_OUTER_CORE_ZCODEOUTERCOREMODULE_HPP_ */
+#endif /* SRC_MAIN_CPP_ZCODE_MODULES_OUTER_CORE_ZCODEOUTERCOREMODULE_HPP_ */

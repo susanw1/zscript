@@ -1,12 +1,12 @@
 /*
- * I2cPins.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 8 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CPINS_HPP_
-#define SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CPINS_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G484_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CPINS_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G484_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CPINS_HPP_
 
 #define I2C_1_SCL_PA_13_ PA_13,GPIO_AF4
 #define I2C_1_SDA_PA_14_ PA_14,GPIO_AF4
@@ -72,4 +72,4 @@
 #define _I2C_4_SCL_PG_3_ 1
 #define _I2C_4_SDA_PG_4_ 1
 
-#endif /* SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CMANAGERCPP_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G484_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CPINS_HPP_ */

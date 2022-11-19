@@ -1,12 +1,12 @@
 /*
- * Clockcpp.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 6 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___LOWLEVEL_CLOCKSLOWLEVEL_SPECIFIC_CLOCKCPP_HPP_
-#define SRC_MAIN_C___LOWLEVEL_CLOCKSLOWLEVEL_SPECIFIC_CLOCKCPP_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_CLOCK_SPECIFIC_CLOCKCPP_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_CLOCK_SPECIFIC_CLOCKCPP_HPP_
 
 #include "../Clock.hpp"
 #include "../ClockManager.hpp"
@@ -368,4 +368,5 @@ int Clock<LL>::set(uint32_t targetFreqKhz, SystemClock source) {
         return -1;
     }
 }
-#endif /* SRC_MAIN_C___LOWLEVEL_CLOCKSLOWLEVEL_SPECIFIC_CLOCKCPP_HPP_ */
+
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_CLOCK_SPECIFIC_CLOCKCPP_HPP_ */

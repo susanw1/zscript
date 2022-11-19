@@ -1,12 +1,13 @@
 /*
- * UipUdpWrapper.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 11 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
 #ifndef SRC_TEST_CPP_CHANNELS_UIPUDPWRAPPER_HPP_
 #define SRC_TEST_CPP_CHANNELS_UIPUDPWRAPPER_HPP_
+
 
 #include "../UIP/UdpSocket.h"
 
@@ -102,4 +103,5 @@ public:
     }
 
 };
+
 #endif /* SRC_TEST_CPP_CHANNELS_UIPUDPWRAPPER_HPP_ */

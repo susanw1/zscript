@@ -1,12 +1,12 @@
 /*
- * Serial.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 1 Aug 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef LOWLEVEL_UARTLOWLEVEL_SERIAL_HPP_
-#define LOWLEVEL_UARTLOWLEVEL_SERIAL_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_SERIAL_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_SERIAL_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 
@@ -100,4 +100,4 @@ public:
 
 };
 
-#endif /* LOWLEVEL_UARTLOWLEVEL_SERIAL_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_SERIAL_HPP_ */

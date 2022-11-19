@@ -1,12 +1,12 @@
 /*
- * Usb.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 24 Jul 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef LOWLEVEL_USBSERIALLOWLEVEL_USB_HPP_
-#define LOWLEVEL_USBSERIALLOWLEVEL_USB_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_USB_MODULE_LOWLEVEL_USB_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_USB_MODULE_LOWLEVEL_USB_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 #include <arm-no-os/serial-module/lowlevel/Serial.hpp>
@@ -159,4 +159,4 @@ public:
 template<class LL>
 Usb<LL> Usb<LL>::usb;
 
-#endif /* LOWLEVEL_USBSERIALLOWLEVEL_USB_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_USB_MODULE_LOWLEVEL_USB_HPP_ */

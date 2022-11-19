@@ -1,12 +1,12 @@
 /*
- * ClockManager.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 24 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_CLOCKMANAGER_HPP_
-#define SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_CLOCKMANAGER_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_CLOCK_CLOCKMANAGER_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_CLOCK_CLOCKMANAGER_HPP_
 
 #define CLOCKLOWLEVEL_NO_CPP
 #include <arm-no-os/llIncludes.hpp>
@@ -31,4 +31,4 @@ public:
 
 #include "specific/Clockcpp.hpp"
 
-#endif /* SRC_TEST_CPP_LOWLEVEL_CLOCKSLOWLEVEL_CLOCKMANAGER_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_CLOCK_CLOCKMANAGER_HPP_ */

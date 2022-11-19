@@ -1,5 +1,11 @@
-#include "../support/ZcodeParameters.hpp"
+/*
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ *
+ * SPDX-License-Identifier: MIT
+ */
 
+#include "../support/ZcodeParameters.hpp"
 #ifdef ZCODE_SUPPORT_ADDRESSING
 #ifdef ZCODE_SUPPORT_DEBUG
 #include <zcode/modules/core/ZcodeDebugAddressingSystem.hpp>

@@ -1,12 +1,12 @@
 /*
- * I2cManagercpp.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 8 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CPINS_HPP_
-#define SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CPINS_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F030X8_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CPINS_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32F030X8_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CPINS_HPP_
 
 #define I2C_1_SCL_PB_6_ PB_6,GPIO_AF1
 #define I2C_1_SDA_PB_7_ PB_7,GPIO_AF1
@@ -32,4 +32,4 @@
 #define _I2C_2_SCL_PF_6_ 1
 #define _I2C_2_SDA_PF_7_ 1
 
-#endif /* SRC_MAIN_C___LOWLEVEL_I2CLOWLEVEL_SPECIFIC_I2CPINS_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F030X8_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CPINS_HPP_ */

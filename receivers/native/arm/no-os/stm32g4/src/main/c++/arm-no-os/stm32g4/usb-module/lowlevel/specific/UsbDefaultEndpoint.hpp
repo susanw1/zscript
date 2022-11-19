@@ -1,12 +1,12 @@
 /*
- * UsbDefaultEndpoint.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 24 Jul 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBDEFAULTENDPOINT_HPP_
-#define LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBDEFAULTENDPOINT_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USB_MODULE_LOWLEVEL_SPECIFIC_USBDEFAULTENDPOINT_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USB_MODULE_LOWLEVEL_SPECIFIC_USBDEFAULTENDPOINT_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 #include "UsbRegisters.hpp"
@@ -437,4 +437,5 @@ constexpr uint8_t UsbDefaultEndpoint<LL>::interface1Endpoint3Descriptor[];
 
 template<class LL>
 constexpr uint8_t UsbDefaultEndpoint<LL>::configurationDescriptorAll[];
-#endif /* LOWLEVEL_USBSERIALLOWLEVEL_SPECIFIC_USBDEFAULTENDPOINT_HPP_ */
+
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USB_MODULE_LOWLEVEL_SPECIFIC_USBDEFAULTENDPOINT_HPP_ */

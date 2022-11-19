@@ -1,12 +1,11 @@
 /*
- * I2cManagercpp.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 4 Aug 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
 #include "../I2cManager.hpp"
-
 #if defined(STM32G4)
 #include <arm-no-os/stm32g4/i2c-module/lowlevel/specific/I2cManagercpp.hpp>
 #elif defined(STM32F0)

@@ -1,3 +1,10 @@
+/*
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
 #if !defined(ZCODE_IDENTIFY_PLATFORM_FIRMWARE_STRING) || !defined(ZCODE_IDENTIFY_PLATFORM_FIRMWARE_VERSION)
 #define ZCODE_IDENTIFY_PLATFORM_FIRMWARE_STRING  "zcode.org Arduino API"
 #define ZCODE_IDENTIFY_PLATFORM_FIRMWARE_VERSION 0x0001

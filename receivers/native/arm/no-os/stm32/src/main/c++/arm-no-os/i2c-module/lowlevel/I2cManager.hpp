@@ -1,12 +1,12 @@
 /*
- * I2cManager.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 19 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_COMMANDS_LOWLEVEL_I2CLOWLEVEL_I2CMANAGER_HPP_
-#define SRC_TEST_CPP_COMMANDS_LOWLEVEL_I2CLOWLEVEL_I2CMANAGER_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_LOWLEVEL_I2CMANAGER_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_LOWLEVEL_I2CMANAGER_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 #include "I2c.hpp"
@@ -36,4 +36,4 @@ public:
 };
 #include "specific/I2cManagercpp.hpp"
 
-#endif /* SRC_TEST_CPP_COMMANDS_LOWLEVEL_I2CLOWLEVEL_I2CMANAGER_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_LOWLEVEL_I2CMANAGER_HPP_ */

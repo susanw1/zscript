@@ -1,12 +1,12 @@
 /*
- * ZcodeParameters.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 7 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
-#define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
+#ifndef SRC_TEST_CPP_SUPPORT_ZCODEPARAMETERS_HPP_
+#define SRC_TEST_CPP_SUPPORT_ZCODEPARAMETERS_HPP_
 
 // This module doesn't really have a "user" or "platform" - it's just test env
 #define ZCODE_IDENTIFY_USER_FIRMWARE_STRING "My Test System!"
@@ -77,4 +77,4 @@ public:
     static const uint16_t mappingAddressCount = 32;
 };
 
-#endif /* SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_ */
+#endif /* SRC_TEST_CPP_SUPPORT_ZCODEPARAMETERS_HPP_ */

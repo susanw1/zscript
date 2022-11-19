@@ -1,12 +1,13 @@
 /*
- * UipUdpSequenceInStream.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 10 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
 #ifndef SRC_TEST_CPP_CHANNELS_UIPUDPCHANNELINSTREAM_HPP_
 #define SRC_TEST_CPP_CHANNELS_UIPUDPCHANNELINSTREAM_HPP_
+
 
 #include "instreams/ZcodeChannelInStream.hpp"
 #include "UipUdpWrapper.hpp"
@@ -65,4 +66,5 @@ public:
         }
     }
 };
+
 #endif /* SRC_TEST_CPP_CHANNELS_UIPUDPCHANNELINSTREAM_HPP_ */

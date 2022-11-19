@@ -1,12 +1,13 @@
 /*
- * DigitalPinController.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 24 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ARM_NO_OS_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_
-#define SRC_MAIN_C___ARM_NO_OS_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_
+
 #include <zcode/modules/ZcodeCommand.hpp>
 #include <arm-no-os/pins-module/lowlevel/Gpio.hpp>
 #include "PinController.hpp"
@@ -88,4 +89,4 @@ public:
     }
 };
 
-#endif /* SRC_MAIN_C___ARM_NO_OS_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_ */

@@ -1,3 +1,10 @@
+/*
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
 //we do this to ensure we have a valid config...
 #ifdef ZCODE_USE_MODULE_ADDRESSING
 #define ZCODE_SUPPORT_ADDRESSING
@@ -21,7 +28,7 @@
 #endif
 
 // makes the above #define's the only needed ones...
-#ifdef ARDUINO_USE_MODULE_ADDRESS_ROUTER
+#ifdef ZCODE_ARDUINO_USE_MODULE_ADDRESS_ROUTER
 #define ZCODE_SUPPORT_ADDRESSING
 #endif
 

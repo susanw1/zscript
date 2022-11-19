@@ -1,12 +1,13 @@
 /*
- * PinController.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 25 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ARDUINO_PINS_MODULE_PIN_CONTROLLER_PINCONTROLLER_HPP_
-#define SRC_MAIN_C___ARDUINO_PINS_MODULE_PIN_CONTROLLER_PINCONTROLLER_HPP_
+#ifndef SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_PINCONTROLLER_HPP_
+#define SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_PINCONTROLLER_HPP_
+
 #include <zcode/modules/ZcodeCommand.hpp>
 
 enum PinControllerCapability {
@@ -140,4 +141,5 @@ bool PinController<ZP>::writePin(uint8_t pinIndex, uint16_t value, ZcodeExecutio
     }
     return true;
 }
-#endif /* SRC_MAIN_C___ARDUINO_PINS_MODULE_PIN_CONTROLLER_PINCONTROLLER_HPP_ */
+
+#endif /* SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_PINCONTROLLER_HPP_ */

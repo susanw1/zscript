@@ -1,12 +1,11 @@
 /*
- * UartInternal.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 8 Jul 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
 #include "UartRegisters.hpp"
-
 #if defined(STM32G4)
 #include <arm-no-os/stm32g4/serial-module/lowlevel/specific/UartInternal.hpp>
 #elif defined(STM32F0)

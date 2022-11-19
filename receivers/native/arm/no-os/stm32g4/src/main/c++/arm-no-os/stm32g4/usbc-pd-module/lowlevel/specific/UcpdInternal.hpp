@@ -1,12 +1,13 @@
 /*
- * Ucpd.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 15 Jan 2021
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_USB_PD_UCPD_HPP_
-#define SRC_TEST_CPP_USB_PD_UCPD_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USBC_PD_MODULE_LOWLEVEL_SPECIFIC_UCPDINTERNAL_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USBC_PD_MODULE_LOWLEVEL_SPECIFIC_UCPDINTERNAL_HPP_
+
 #include <arm-no-os/llIncludes.hpp>
 #include <arm-no-os/system/clock/SystemMilliClock.hpp>
 #include <arm-no-os/system/clock/ClockManager.hpp>
@@ -648,4 +649,4 @@ bool UcpdInternal<LL>::voltageMismatch = false;
 template<class LL>
 bool UcpdInternal<LL>::hasContract = false;
 
-#endif /* SRC_TEST_CPP_USB_PD_UCPD_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USBC_PD_MODULE_LOWLEVEL_SPECIFIC_UCPDINTERNAL_HPP_ */

@@ -1,12 +1,13 @@
 /*
- * GpioManager.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 23 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGER_HPP_
-#define SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGER_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_GPIOMANAGER_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_GPIOMANAGER_HPP_
+
 #define GPIOLOWLEVEL_NO_CPP
 #include <arm-no-os/llIncludes.hpp>
 #include "Gpio.hpp"
@@ -38,4 +39,5 @@ public:
 #include "specific/GpioManagercpp.hpp"
 #undef GPIOLOWLEVEL_NO_CPP
 #include "specific/Gpiocpp.hpp"
-#endif /* SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGER_HPP_ */
+
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_GPIOMANAGER_HPP_ */

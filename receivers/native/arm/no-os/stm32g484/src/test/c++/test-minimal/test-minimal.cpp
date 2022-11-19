@@ -1,3 +1,10 @@
+/*
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
 #define INCLUDE_CPP_IN_FILE_ONLY_USE_ONCE
 
 #include "ZcodeParameters.hpp"

@@ -1,5 +1,12 @@
-#ifndef SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CRECEIVECOMMAND_HPP_
-#define SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CRECEIVECOMMAND_HPP_
+/*
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_COMMANDS_ZCODEI2CRECEIVECOMMAND_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_COMMANDS_ZCODEI2CRECEIVECOMMAND_HPP_
 
 #include <zcode/modules/ZcodeCommand.hpp>
 #include "GeneralI2cAction.hpp"
@@ -16,4 +23,4 @@ public:
     }
 };
 
-#endif /* SRC_MAIN_CPP_ZCODE_COMMANDS_ZCODEI2CRECEIVECOMMAND_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_COMMANDS_ZCODEI2CRECEIVECOMMAND_HPP_ */

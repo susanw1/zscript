@@ -1,12 +1,12 @@
 /*
- * ZcodeI2cChannel.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 1 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef ARDUINO_I2C_CHANNEL_HPP_
-#define ARDUINO_I2C_CHANNEL_HPP_
+#ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_CHANNELS_ZCODEI2CCHANNEL_HPP_
+#define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_CHANNELS_ZCODEI2CCHANNEL_HPP_
 
 #ifndef ZCODE_HPP_INCLUDED
 #error ZcodeI2cChannel.hpp needs to be included after Zcode.hpp
@@ -188,4 +188,4 @@ public:
 
 };
 
-#endif /* ARDUINO_I2C_CHANNEL_HPP_ */
+#endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_CHANNELS_ZCODEI2CCHANNEL_HPP_ */

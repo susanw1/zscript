@@ -1,12 +1,12 @@
 /*
- * llIncludes.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 18 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_COMMANDS_LOWLEVEL_LLINCLUDES_HPP_
-#define SRC_TEST_CPP_COMMANDS_LOWLEVEL_LLINCLUDES_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_LLINCLUDES_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_LLINCLUDES_HPP_
 
 #if defined(STM32G431xx) or defined(STM32G441xx) or defined(STM32G471xx) \
     or defined(STM32G473xx) or defined(STM32G483xx) or defined(STM32G474xx) \
@@ -35,4 +35,4 @@ enum PeripheralOperationMode {
     DMA, INTERRUPT, SYNCHRONOUS
 };
 
-#endif /* SRC_TEST_CPP_COMMANDS_LOWLEVEL_LLINCLUDES_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_LLINCLUDES_HPP_ */

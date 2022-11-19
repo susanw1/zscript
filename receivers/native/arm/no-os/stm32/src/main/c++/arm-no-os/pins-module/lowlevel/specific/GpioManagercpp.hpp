@@ -1,11 +1,11 @@
 /*
- * GpioManagercpp.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 6 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
-#include "../GpioManager.hpp"
 
+#include "../GpioManager.hpp"
 #if defined(STM32G4)
 #include <arm-no-os/stm32g4/pins-module/lowlevel/specific/GpioManagercpp.hpp>
 #elif defined(STM32F0)

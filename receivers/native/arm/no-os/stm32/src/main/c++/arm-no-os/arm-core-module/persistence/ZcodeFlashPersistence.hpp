@@ -1,12 +1,12 @@
 /*
- * ZcodeFlashPersistence.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 11 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_COMMANDS_ZCODEMBEDFLASHPERSISTENCE_HPP_
-#define SRC_TEST_CPP_COMMANDS_ZCODEMBEDFLASHPERSISTENCE_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_ARM_CORE_MODULE_PERSISTENCE_ZCODEFLASHPERSISTENCE_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_ARM_CORE_MODULE_PERSISTENCE_ZCODEFLASHPERSISTENCE_HPP_
 
 #include <zcode/ZcodeIncludes.hpp>
 #include <arm-no-os/arm-core-module/persistence/FlashPage.hpp>
@@ -130,4 +130,4 @@ private:
 template<class LL>
 ZcodeFlashPersistence<LL> ZcodeFlashPersistence<LL>::persist;
 
-#endif /* SRC_TEST_CPP_COMMANDS_ZCODEMBEDFLASHPERSISTENCE_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_ARM_CORE_MODULE_PERSISTENCE_ZCODEFLASHPERSISTENCE_HPP_ */

@@ -1,12 +1,12 @@
 /*
- * ZcodeSerialChannel.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 1 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef ARDUINO_SERIAL_CHANNEL_HPP_
-#define ARDUINO_SERIAL_CHANNEL_HPP_
+#ifndef SRC_MAIN_CPP_ARDUINO_SERIAL_MODULE_CHANNELS_ZCODESERIALCHANNEL_HPP_
+#define SRC_MAIN_CPP_ARDUINO_SERIAL_MODULE_CHANNELS_ZCODESERIALCHANNEL_HPP_
 
 #ifndef ZCODE_HPP_INCLUDED
 #error ZcodeSerialChannel.hpp needs to be included after Zcode.hpp
@@ -89,7 +89,7 @@ public:
             ZcodeCommandChannel<ZP>(&seqin, &out, false), seqin(this) {
     }
     void giveInfo(ZcodeExecutionCommandSlot<ZP> slot) {
-        ZcodeOutStream < ZP > *out = slot.getOut();
+        ZcodeOutStream<ZP> *out = slot.getOut();
         out->writeField16('B', ZP::serialBigSize);
         out->writeField16('F', ZP::fieldNum);
         out->writeField8('N', 0);
@@ -98,9 +98,9 @@ public:
     }
 
     void readSetup(ZcodeExecutionCommandSlot<ZP> slot) {
-        ZcodeOutStream < ZP > *out = slot.getOut();
+        ZcodeOutStream<ZP> *out = slot.getOut();
         out->writeStatus(OK);
     }
 
 };
-#endif /* ARDUINO_SERIAL_CHANNEL_HPP_ */
+#endif /* SRC_MAIN_CPP_ARDUINO_SERIAL_MODULE_CHANNELS_ZCODESERIALCHANNEL_HPP_ */

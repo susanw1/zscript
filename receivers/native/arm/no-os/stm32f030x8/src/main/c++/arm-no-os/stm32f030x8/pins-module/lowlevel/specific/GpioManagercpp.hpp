@@ -1,12 +1,12 @@
 /*
- * GpioManagercpp.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 6 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGERCPP_HPP_
-#define SRC_MAIN_C___LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGERCPP_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F030X8_PINS_MODULE_LOWLEVEL_SPECIFIC_GPIOMANAGERCPP_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32F030X8_PINS_MODULE_LOWLEVEL_SPECIFIC_GPIOMANAGERCPP_HPP_
 
 #define PortAAddr ((GpioPort*) 0x48000000)
 #define PortBAddr ((GpioPort*) 0x48000400)
@@ -79,4 +79,4 @@ GpioPort* GpioManager<LL>::getPort(GpioPinName name) {
     }
 }
 
-#endif /* SRC_MAIN_C___LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIOMANAGERCPP_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F030X8_PINS_MODULE_LOWLEVEL_SPECIFIC_GPIOMANAGERCPP_HPP_ */

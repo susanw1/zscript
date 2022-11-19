@@ -1,12 +1,12 @@
 /*
- * ZcodeParameters.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 7 Sep 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
-#define SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_
+#ifndef SRC_MAIN_CPP_FIRSTARDUINOTEST_ZCODEPARAMETERS_HPP_
+#define SRC_MAIN_CPP_FIRSTARDUINOTEST_ZCODEPARAMETERS_HPP_
 
 #define ZCODE_IDENTIFY_USER_FIRMWARE_STRING         "Zcode Arduino Testing"
 #define ZCODE_IDENTIFY_USER_FIRMWARE_VERSION        0x0001
@@ -41,8 +41,8 @@
 #define ZCODE_USE_MODULE_ADDRESSING
 //#define ZCODE_USE_MAPPING_ADDRESSING
 
-#define I2C_ENABLE_GENERAL_CALL() TWAR |= 1
-#define I2C_SET_ADDRESS(addr) TWAR = addr<<1
+#define I2C_ENABLE_GENERAL_CALL() (TWAR |= 1)
+#define I2C_SET_ADDRESS(addr) (TWAR = addr<<1)
 
 template<class ZP>
 class ZcodeModuleAddressRouter;
@@ -97,4 +97,4 @@ public:
     static const uint8_t pinCount = 21;
 };
 
-#endif /* SRC_TEST_CPP_ZCODE_ZCODEPARAMETERS_HPP_ */
+#endif /* SRC_MAIN_CPP_FIRSTARDUINOTEST_ZCODEPARAMETERS_HPP_ */

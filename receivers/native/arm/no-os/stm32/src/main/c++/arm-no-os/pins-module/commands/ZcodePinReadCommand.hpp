@@ -1,12 +1,12 @@
 /*
- * ZcodePinReadCommand.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 25 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ARM_NO_OS_PINS_MODULE_COMMANDS_ZCODEPINREADCOMMAND_HPP_
-#define SRC_MAIN_C___ARM_NO_OS_PINS_MODULE_COMMANDS_ZCODEPINREADCOMMAND_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_COMMANDS_ZCODEPINREADCOMMAND_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_COMMANDS_ZCODEPINREADCOMMAND_HPP_
 
 #include <zcode/modules/ZcodeCommand.hpp>
 #include <arm-no-os/pins-module/lowlevel/GpioManager.hpp>
@@ -40,4 +40,4 @@ public:
 
 };
 
-#endif /* SRC_MAIN_C___ARM_NO_OS_PINS_MODULE_COMMANDS_ZCODEPINREADCOMMAND_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_COMMANDS_ZCODEPINREADCOMMAND_HPP_ */

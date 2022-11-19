@@ -1,12 +1,12 @@
 /*
- * InterruptManager.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 5 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___LOWLEVEL_INTERRUPTLOWLEVEL_INTERRUPTMANAGER_HPP_
-#define SRC_MAIN_C___LOWLEVEL_INTERRUPTLOWLEVEL_INTERRUPTMANAGER_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_INTERRUPT_INTERRUPTMANAGER_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_INTERRUPT_INTERRUPTMANAGER_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 
@@ -112,4 +112,4 @@ public:
 #include "InterruptManagercpp.hpp"
 #endif
 
-#endif /* SRC_MAIN_C___LOWLEVEL_INTERRUPTLOWLEVEL_INTERRUPTMANAGER_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_INTERRUPT_INTERRUPTMANAGER_HPP_ */

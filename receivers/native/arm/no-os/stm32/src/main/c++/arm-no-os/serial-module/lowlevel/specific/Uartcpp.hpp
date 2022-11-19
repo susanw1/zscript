@@ -1,12 +1,12 @@
 /*
- * Uartcpp.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 8 Jul 2022
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTCPP_HPP_
-#define SRC_MAIN_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTCPP_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_SPECIFIC_UARTCPP_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_SPECIFIC_UARTCPP_HPP_
 
 #include "../Uart.hpp"
 #include "../UartManager.hpp"
@@ -52,7 +52,7 @@ void Uart<LL>::clearRxFifo() {
         if (datum < 0) {
             if (datum != -SerialFramingError) {
                 rxBuffer.write(LL::uartEscapingChar);
-                rxBuffer.write((uint8_t) -datum);
+                rxBuffer.write((uint8_t) - datum);
             }
         } else if (datum == LL::uartEscapingChar) {
             rxBuffer.write(LL::uartEscapingChar);
@@ -300,4 +300,4 @@ void Uart<LL>::interrupt() {
     uart.clearFlags();
 }
 
-#endif /* SRC_MAIN_C___LOWLEVEL_UARTLOWLEVEL_SPECIFIC_UARTCPP_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_SPECIFIC_UARTCPP_HPP_ */

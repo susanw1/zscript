@@ -1,12 +1,12 @@
 /*
- * GpioNames.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 23 Dec 2020
- *      Author: robert
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIONAMES_HPP_
-#define SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIONAMES_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F030X8_PINS_MODULE_LOWLEVEL_SPECIFIC_GPIONAMES_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32F030X8_PINS_MODULE_LOWLEVEL_SPECIFIC_GPIONAMES_HPP_
 
 #include <arm-no-os/llIncludes.hpp>
 
@@ -117,4 +117,4 @@ struct GpioPinName {
     uint8_t pin :4;
 };
 
-#endif /* SRC_TEST_CPP_INCLUDE_LOWLEVEL_GPIOLOWLEVEL_SPECIFIC_GPIONAMES_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F030X8_PINS_MODULE_LOWLEVEL_SPECIFIC_GPIONAMES_HPP_ */
