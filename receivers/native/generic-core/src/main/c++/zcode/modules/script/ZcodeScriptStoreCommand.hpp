@@ -40,7 +40,7 @@ public:
                 slot.fail(BAD_PARAM, (string_t) ZP::Strings::failScriptBadAddress);
             }
         }
-        if (valid && address + slot.getBigField()->getLength() < ZP::scriptLength) {
+        if (valid && address + slot.getBigField()->getLength() < ZP::maxScriptSize) {
             space->write(slot.getBigField()->getData(), slot.getBigField()->getLength(), address, slot.getFields()->has('L'));
             out->writeStatus(OK);
         } else {

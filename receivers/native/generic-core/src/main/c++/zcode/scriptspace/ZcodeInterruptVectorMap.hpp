@@ -17,11 +17,11 @@ private:
 
     uint16_t vectorNum = 0;
     uint16_t mostRecent = 0;
-    scriptSpaceAddress_t vectors[ZP::interruptVectorNum];
-    uint16_t addresses[ZP::interruptVectorNum];
-    uint8_t specificities[ZP::interruptVectorNum];
-    uint8_t buses[ZP::interruptVectorNum];
-    uint16_t types[ZP::interruptVectorNum];
+    scriptSpaceAddress_t vectors[ZP::maxInterruptScripts];
+    uint16_t addresses[ZP::maxInterruptScripts];
+    uint8_t specificities[ZP::maxInterruptScripts];
+    uint8_t buses[ZP::maxInterruptScripts];
+    uint16_t types[ZP::maxInterruptScripts];
 
     bool matches(uint16_t i, uint16_t type, uint8_t bus, uint16_t addr, uint8_t specificity) {
         return specificities[i] == specificity
@@ -35,7 +35,7 @@ private:
                 return true;
             }
         }
-        if (vectorNum >= ZP::interruptVectorNum) {
+        if (vectorNum >= ZP::maxInterruptScripts) {
             return false;
         }
         specificities[vectorNum] = specificity;

@@ -38,7 +38,7 @@ public:
         }
         out->writeField8('G', (uint8_t) space->isRunning());
         out->writeField16('L', space->getLength());
-        out->writeField32('M', ZP::scriptLength);
+        out->writeField32('M', ZP::maxScriptSize);
         out->writeField16('C', MODULE_CAPABILITIES(001));
         out->writeStatus(OK);
 

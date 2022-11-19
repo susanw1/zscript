@@ -20,18 +20,18 @@ private:
     typedef typename ZP::lockNumber_t lockNumber_t;
 
     /** Bitset of boolean locks */
-    uint8_t locks[(ZP::lockNum + 7) / 8];
+    uint8_t locks[(ZP::maxLocks + 7) / 8];
 
 public:
     ZcodeLocks() {
-        for (lockNumber_t i = 0; i < (ZP::lockNum + 7) / 8; ++i) {
+        for (lockNumber_t i = 0; i < (ZP::maxLocks + 7) / 8; ++i) {
             locks[i] = 0;
         }
     }
 
     bool canLock(ZcodeLockSet<ZP> *l) {
         const uint8_t *lockSet = l->getLocks();
-        for (lockNumber_t i = 0; i < (ZP::lockNum + 7) / 8; i++) {
+        for (lockNumber_t i = 0; i < (ZP::maxLocks + 7) / 8; i++) {
             if ((locks[i] & lockSet[i]) != 0) {
                 return false;
             }
@@ -41,7 +41,7 @@ public:
 
     bool lock(ZcodeLockSet<ZP> *l) {
         const uint8_t *lockSet = l->getLocks();
-        for (lockNumber_t i = 0; i < (ZP::lockNum + 7) / 8; i++) {
+        for (lockNumber_t i = 0; i < (ZP::maxLocks + 7) / 8; i++) {
             if ((locks[i] & lockSet[i]) == 0) {
                 locks[i] = (uint8_t) (locks[i] | lockSet[i]);
             } else {
@@ -57,7 +57,7 @@ public:
 
     void unlock(ZcodeLockSet<ZP> *l) {
         const uint8_t *lockSet = l->getLocks();
-        for (lockNumber_t i = 0; i < (ZP::lockNum + 7) / 8; i++) {
+        for (lockNumber_t i = 0; i < (ZP::maxLocks + 7) / 8; i++) {
             locks[i] = (uint8_t) (locks[i] & ~lockSet[i]);
         }
         l->unsetLocked();

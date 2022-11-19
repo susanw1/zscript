@@ -38,7 +38,7 @@ private:
     ZcodeNotificationManager<ZP> *notifications;
     //ZcodeEvilArrayInitialiserSolution<ZP> channelActual;
     ZcodeScriptSpaceChannel<ZP> channels[ZP::scriptChannelCount];
-    uint8_t space[ZP::scriptLength];
+    uint8_t space[ZP::maxScriptSize];
     scriptSpaceAddress_t length = 0;
     uint8_t delay = 0;
     bool running = false;
@@ -47,7 +47,7 @@ private:
 public:
     ZcodeScriptSpace() :
             notifications(Zcode<ZP>::zcode.getNotificationManager()) {
-        for (scriptSpaceAddress_t i = 0; i < ZP::scriptLength; ++i) {
+        for (scriptSpaceAddress_t i = 0; i < ZP::maxScriptSize; ++i) {
             space[i] = 0;
         }
 //        for (uint8_t i = 0; i < ZP::scriptChannelCount - 1; ++i) {

@@ -175,7 +175,7 @@ public:
     void giveInfo(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
         out->writeField16('B', ZP::i2cBigSize);
-        out->writeField16('F', ZP::fieldNum);
+        out->writeField16('F', ZP::maxParams);
         out->writeField8('N', 0);
         out->writeField8('M', 0x5);
         out->writeStatus(OK);

@@ -109,7 +109,7 @@ public:
         out->writeField32('H', seqin.getSerial()->getMaxBaud());
         out->writeField16('P', seqin.getSerial()->getId());
         out->writeField16('B', ZP::serialChannelBigFieldSize);
-        out->writeField16('F', ZP::fieldNum);
+        out->writeField16('F', ZP::maxParams);
         out->writeField8('N', 0);
         out->writeField8('A', 0);
         out->writeField8('M', 0x7);

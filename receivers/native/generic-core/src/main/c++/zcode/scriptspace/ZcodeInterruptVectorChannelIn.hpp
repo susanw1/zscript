@@ -22,12 +22,12 @@ private:
     typedef typename ZP::scriptSpaceAddress_t scriptSpaceAddress_t;
     ZcodeScriptSpace<ZP> *space;
     scriptSpaceAddress_t pos = 0;
-    uint8_t big[ZP::scriptBigSize];
+    uint8_t big[ZP::scriptBigFieldSize];
     bool running = false;
 
 public:
     ZcodeInterruptVectorChannelIn(ZcodeCommandChannel<ZP> *channel) :
-            ZcodeChannelInStream<ZP>(channel, big, ZP::scriptBigSize), space(Zcode<ZP>::zcode.getSpace()) {
+            ZcodeChannelInStream<ZP>(channel, big, ZP::scriptBigFieldSize), space(Zcode<ZP>::zcode.getSpace()) {
     }
 
     void initialSetup(ZcodeScriptSpace<ZP> *space) {

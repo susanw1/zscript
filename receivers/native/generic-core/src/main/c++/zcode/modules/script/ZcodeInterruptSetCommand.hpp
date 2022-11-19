@@ -44,7 +44,7 @@ public:
             slot.fail(BAD_PARAM, (string_t) ZP::Strings::failInterruptBadType);
             return;
         }
-        if (!slot.getFields()->get('V', &vector) || vector >= ZP::scriptLength) {
+        if (!slot.getFields()->get('V', &vector) || vector >= ZP::maxScriptSize) {
             slot.fail(BAD_PARAM, (string_t) ZP::Strings::failInterruptBadVector);
             return;
         }

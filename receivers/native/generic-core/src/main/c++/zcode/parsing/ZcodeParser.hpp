@@ -25,7 +25,7 @@ public:
         for (uint8_t i = 0; i < Zcode<ZP>::zcode.getChannelCount(); i++) {
             ZcodeChannelInStream<ZP> *in = Zcode<ZP>::zcode.getChannel(i)->in;
             in->getSlot()->clearHasData();
-            while (in->pushData() && count++ < ZP::parseIterationMax)
+            while (in->pushData() && count++ < ZP::maxParseIterations)
                 ;
         }
     }

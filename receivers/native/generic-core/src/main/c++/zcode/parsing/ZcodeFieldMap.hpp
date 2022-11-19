@@ -18,15 +18,15 @@ class ZcodeFieldMap {
 private:
     typedef typename ZP::fieldMapSize_t fieldMapSize_t;
 
-    uint16_t values[ZP::fieldNum];
-    char fields[ZP::fieldNum];
+    uint16_t values[ZP::maxParams];
+    char fields[ZP::maxParams];
     fieldMapSize_t size = 0;
     uint8_t nibbleCount = 0;
 
 public:
     bool add16(char f, uint16_t v) {
         nibbleCount = 0;
-        if (size == ZP::fieldNum) {
+        if (size == ZP::maxParams) {
             return false;
         }
         for (uint8_t i = 0; i < size; ++i) {
