@@ -67,7 +67,7 @@ void ZcodeInitialiseSlot(ZcodeCommandSlot *slot) {
     ZcodeFieldMapReset(&slot->fieldMap);
     ZcodeCommandSlotParsingState_resetToSequence(&slot->state);
     ZcodeCommandSlotStatus_reset(&slot->runStatus);
-    slot->runStatus.hasWrittenTerminator = false;
+    slot->runStatus.hasWrittenTerminator = true;
     slot->runStatus.quietEnd = false;
     slot->runStatus.hasOutLock = false;
     slot->runStatus.hasData = false;

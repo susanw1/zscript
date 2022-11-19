@@ -13,10 +13,10 @@
 #include <zcode/modules/ZcodeCommand.h>
 
 void ZcodeChannelReadSetup(ZcodeCommandSlot *slot) {
-
+    ZcodeOutStream_WriteStatus(OK);
 }
 void ZcodeChannelWriteInfo(ZcodeCommandSlot *slot) {
-
+    ZcodeOutStream_WriteStatus(OK);
 }
 
 bool ZcodeOutStream_OpenBool = false;

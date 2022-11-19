@@ -28,6 +28,7 @@ void ZCodeRunnerWriteTerminator(ZcodeCommandSlot *commandSlot, char term) {
 void ZcodeRunNext(Zcode *zcode) {
     ZcodeCommandSlot *commandSlot = &zcode->slot;
     if (commandSlot->state.waitingOnRun && (commandSlot->runStatus.hasOutLock || ZcodeOutStream_Lock())) {
+        commandSlot->runStatus.hasOutLock = true;
         if (commandSlot->runStatus.isFirstCommand) {
             ZcodeOutStream_Open();
             if (commandSlot->runStatus.isBroadcast) {
@@ -52,30 +53,11 @@ void ZcodeRunNext(Zcode *zcode) {
             if (!commandSlot->runStatus.hasWrittenTerminator) {
                 ZCodeRunnerWriteTerminator(commandSlot, EOL_SYMBOL);
             }
-            if (commandSlot->runStatus.hasOutLock) {
-                ZcodeOutStream_Unlock();
-            }
+            ZcodeOutStream_Unlock();
+            commandSlot->runStatus.hasOutLock = false;
             ZcodeOutStream_Close();
         }
     }
-}
-
-void ZcodeCommandFail(ZcodeCommandSlot *commandSlot, ZcodeResponseStatus failStatus) {
-    if (commandSlot->runStatus.quietEnd) {
-        commandSlot->runStatus.hasWrittenTerminator = false;
-    }
-    if (!commandSlot->runStatus.hasWrittenTerminator) {
-        ZCodeRunnerWriteTerminator(commandSlot, commandSlot->starter);
-    }
-    ZcodeCommandSlot_failExternal(commandSlot, failStatus);
-    ZcodeOutStream_WriteStatus(failStatus);
-    if (commandSlot->terminator == EOL_SYMBOL) {
-        ZCodeRunnerWriteTerminator(commandSlot, EOL_SYMBOL);
-    } else {
-        commandSlot->runStatus.hasWrittenTerminator = false;
-    }
-    ZcodeCommandSlot_finish(commandSlot);
-    commandSlot->runStatus.quietEnd = false;
 }
 
 void ZcodeCommandQuietEnd(ZcodeCommandSlot *commandSlot) {
@@ -90,6 +72,19 @@ void ZcodeCommandMildFail(ZcodeCommandSlot *commandSlot, ZcodeResponseStatus fai
         commandSlot->runStatus.hasWrittenTerminator = false;
     }
     ZcodeCommandSlot_failExternal(commandSlot, failStatus);
+}
+
+void ZcodeCommandFail(ZcodeCommandSlot *commandSlot, ZcodeResponseStatus failStatus) {
+    ZcodeCommandMildFail(commandSlot, failStatus);
+    ZcodeOutStream_WriteStatus(failStatus);
+}
+
+void ZcodeCommandFailWithMessage(ZcodeCommandSlot *commandSlot, ZcodeResponseStatus failStatus, const char *message) {
+    ZcodeCommandMildFail(commandSlot, failStatus);
+    ZcodeOutStream_WriteStatus(failStatus);
+    if (message != NULL && message[0] != 0) {
+        ZcodeOutStream_WriteBigStringField(message);
+    }
 }
 
 void ZcodeRunnerPerformFail(ZcodeCommandSlot *commandSlot) {

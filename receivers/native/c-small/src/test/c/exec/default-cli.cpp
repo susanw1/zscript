@@ -18,19 +18,18 @@
 
 int main(void) {
     Zcode z;
-    printf("%li", sizeof(z));
 
     int ch;
     bool hasChar = false;
     ZcodeInitialise(&z);
     while (true) {
         ZcodeRunNext(&z);
-        if (hasChar) {
+        if (!z.slot.state.waitingOnRun && hasChar) {
             if (ZcodeAcceptByte(&z, (char) ch)) {
                 hasChar = false;
             }
         }
-        while (!hasChar && (ch = getchar()) != EOF) {
+        while (!z.slot.state.waitingOnRun && !hasChar && (ch = getchar()) != EOF) {
             if (!ZcodeAcceptByte(&z, (char) ch)) {
                 hasChar = true;
                 break;

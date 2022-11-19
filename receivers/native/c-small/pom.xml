@@ -28,9 +28,6 @@
                                 <includes>**/*.h</includes>
                             </includePath>
                         </includePaths>
-                        <testOptions>
-                            <testOption>-O0</testOption>
-                        </testOptions>
                         <options>
                             <option>-flto</option>
                             <option>-g</option>
