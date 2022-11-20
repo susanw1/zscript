@@ -10,11 +10,14 @@
 
 #include "../ZcodeIncludes.h"
 
+struct ZcodeFieldMapInfo {
+    uint8_t nibbleCount :3;
+    uint8_t fieldCount :5;
+};
 struct ZcodeFieldMap {
     uint16_t values[ZCODE_FIELD_COUNT];
     char fields[ZCODE_FIELD_COUNT];
-    uint8_t fieldCount;
-    uint8_t nibbleCount;
+    ZcodeFieldMapInfo state;
 };
 
 typedef struct ZcodeFieldMap ZcodeFieldMap;

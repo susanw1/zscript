@@ -10,11 +10,15 @@
 
 #include "../ZcodeIncludes.h"
 
+struct ZcodeBigFieldInfo {
+    uint8_t currentHex :4;
+    bool inNibble :1;
+};
+
 struct ZcodeBigField {
     uint8_t big[ZCODE_BIG_FIELD_SIZE];
     ZcodeBigFieldAddress_t pos;
-    uint8_t currentHex;
-    bool inNibble;
+    ZcodeBigFieldInfo state;
 };
 typedef struct ZcodeBigField ZcodeBigField;
 

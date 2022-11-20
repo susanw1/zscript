@@ -11,8 +11,8 @@
 #include "parsing/ZcodeCommandSlot.h"
 
 struct Zcode {
-    bool activated;
     ZcodeCommandSlot slot;
+    bool activated;
 };
 
 typedef struct Zcode Zcode;

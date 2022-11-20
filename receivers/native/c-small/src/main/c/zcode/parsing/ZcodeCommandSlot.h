@@ -43,7 +43,7 @@ struct ZcodeCommandSlot {
     ZcodeBigField bigField;
 
     ZcodeCommandSlotParsingState state;
-    uint16_t respStatus;
+    uint8_t respStatus;
     ZcodeCommandSlotStatus runStatus;
     char terminator;
     char starter;

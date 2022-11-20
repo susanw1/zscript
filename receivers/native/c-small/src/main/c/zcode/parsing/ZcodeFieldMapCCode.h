@@ -10,17 +10,17 @@
 #include "ZcodeFieldMap.h"
 
 bool ZcodeFieldMapAdd16(ZcodeFieldMap *map, char f, uint16_t v) {
-    map->nibbleCount = 0;
-    if (map->fieldCount == ZCODE_FIELD_COUNT) {
+    map->state.nibbleCount = 0;
+    if (map->state.fieldCount == ZCODE_FIELD_COUNT) {
         return false;
     }
-    for (uint8_t i = 0; i < map->fieldCount; ++i) {
+    for (uint8_t i = 0; i < map->state.fieldCount; ++i) {
         if (map->fields[i] == f) {
             return false;
         }
     }
-    map->fields[map->fieldCount] = f;
-    map->values[map->fieldCount++] = v;
+    map->fields[map->state.fieldCount] = f;
+    map->values[map->state.fieldCount++] = v;
     return true;
 }
 
@@ -29,25 +29,25 @@ bool ZcodeFieldMapAddBlank(ZcodeFieldMap *map, char f) {
 }
 
 bool ZcodeFieldMapAdd4(ZcodeFieldMap *map, uint8_t nibble) {
-    if (map->nibbleCount >= 4) {
+    if (map->state.nibbleCount >= 4) {
         return false;
     }
-    map->values[map->fieldCount - 1] = (uint16_t) ((map->values[map->fieldCount - 1] << 4) | nibble);
-    map->nibbleCount++;
+    map->values[map->state.fieldCount - 1] = (uint16_t) ((map->values[map->state.fieldCount - 1] << 4) | nibble);
+    map->state.nibbleCount++;
     return true;
 }
 
 bool ZcodeFieldMapAdd8(ZcodeFieldMap *map, uint8_t byte) {
-    if (map->nibbleCount >= 3) {
+    if (map->state.nibbleCount >= 3) {
         return false;
     }
-    map->values[map->fieldCount - 1] = (uint16_t) ((map->values[map->fieldCount - 1] << 8) | byte);
-    map->nibbleCount++;
+    map->values[map->state.fieldCount - 1] = (uint16_t) ((map->values[map->state.fieldCount - 1] << 8) | byte);
+    map->state.nibbleCount++;
     return true;
 }
 
 bool ZcodeFieldMapHas(ZcodeFieldMap *map, char f) {
-    for (uint8_t i = 0; i < map->fieldCount; i++) {
+    for (uint8_t i = 0; i < map->state.fieldCount; i++) {
         if (map->fields[i] == f) {
             return true;
         }
@@ -56,7 +56,7 @@ bool ZcodeFieldMapHas(ZcodeFieldMap *map, char f) {
 }
 
 uint16_t ZcodeFieldMapGetDef(ZcodeFieldMap *map, char f, uint16_t def) {
-    for (uint8_t i = 0; i < map->fieldCount; i++) {
+    for (uint8_t i = 0; i < map->state.fieldCount; i++) {
         if (map->fields[i] == f) {
             return map->values[i];
         }
@@ -65,7 +65,7 @@ uint16_t ZcodeFieldMapGetDef(ZcodeFieldMap *map, char f, uint16_t def) {
 }
 
 bool ZcodeFieldMapGetDest(ZcodeFieldMap *map, char f, uint16_t *dest) {
-    for (uint8_t i = 0; i < map->fieldCount; i++) {
+    for (uint8_t i = 0; i < map->state.fieldCount; i++) {
         if (map->fields[i] == f) {
             *dest = map->values[i];
             return true;
@@ -75,7 +75,7 @@ bool ZcodeFieldMapGetDest(ZcodeFieldMap *map, char f, uint16_t *dest) {
 }
 
 int32_t ZcodeFieldMapGet(ZcodeFieldMap *map, char f) {
-    for (uint8_t i = 0; i < map->fieldCount; i++) {
+    for (uint8_t i = 0; i < map->state.fieldCount; i++) {
         if (map->fields[i] == f) {
             return map->values[i];
         }
@@ -84,12 +84,12 @@ int32_t ZcodeFieldMapGet(ZcodeFieldMap *map, char f) {
 }
 
 void ZcodeFieldMapReset(ZcodeFieldMap *map) {
-    map->fieldCount = 0;
-    map->nibbleCount = 0;
+    map->state.fieldCount = 0;
+    map->state.nibbleCount = 0;
 }
 
 void ZcodeFieldMapCopyToOutput(ZcodeFieldMap *map) {
-    for (uint8_t i = 0; i < map->fieldCount; i++) {
+    for (uint8_t i = 0; i < map->state.fieldCount; i++) {
         if (map->fields[i] != ECHO_PARAM && map->fields[i] != CMD_PARAM && map->fields[i] != STATUS_RESP_PARAM) {
             ZcodeOutStream_WriteField16(map->fields[i], map->values[i]);
         }

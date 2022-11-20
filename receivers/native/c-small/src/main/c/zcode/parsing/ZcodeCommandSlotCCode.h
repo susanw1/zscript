@@ -118,7 +118,7 @@ void ZcodeCommandSlot_failExternal(ZcodeCommandSlot *slot, ZcodeResponseStatus s
 void ZcodeCommandSlot_inStringParse(ZcodeCommandSlot *slot, char c) {
     if (c == BIGFIELD_QUOTE_MARKER) {
         slot->state.isInString = false;
-        if (slot->state.isEscaped || slot->bigField.inNibble) {
+        if (slot->state.isEscaped || slot->bigField.state.inNibble) {
             ZcodeCommandSlot_parseFail(slot, c, PARSE_ERROR);
             return;
         }
@@ -138,7 +138,7 @@ void ZcodeCommandSlot_inStringParse(ZcodeCommandSlot *slot, char c) {
             ZcodeCommandSlot_parseFail(slot, c, PARSE_ERROR);
             return;
         }
-        if (slot->bigField.inNibble) {
+        if (slot->bigField.state.inNibble) {
             slot->state.isEscaped = false;
         }
         ZcodeBigFieldAddNibble(&slot->bigField, (uint8_t) val);
@@ -153,7 +153,7 @@ void ZcodeCommandSlot_inBigParse(ZcodeCommandSlot *slot, char c) {
     int8_t val = ZcodeCommandSlot_getHex(c);
     if (val == -1) {
         slot->state.isInBig = false;
-        if (slot->bigField.inNibble) {
+        if (slot->bigField.state.inNibble) {
             ZcodeCommandSlot_parseFail(slot, c, PARSE_ERROR);
             return;
         }

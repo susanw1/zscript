@@ -12,27 +12,27 @@
 
 void ZcodeBigFieldReset(ZcodeBigField *big) {
     big->pos = 0;
-    big->inNibble = 0;
+    big->state.inNibble = 0;
 }
 
 bool ZcodeBigFieldAddNibble(ZcodeBigField *big, uint8_t nibble) {
     if (big->pos == ZCODE_BIG_FIELD_SIZE) {
         return false;
     }
-    if (big->inNibble) {
-        big->currentHex = (uint8_t) (big->currentHex << 4);
-        big->currentHex |= nibble;
-        big->big[big->pos++] = big->currentHex;
-        big->currentHex = 0;
+    if (big->state.inNibble) {
+        big->state.currentHex = (uint8_t) (big->state.currentHex << 4);
+        big->state.currentHex |= nibble;
+        big->big[big->pos++] = big->state.currentHex;
+        big->state.currentHex = 0;
     } else {
-        big->currentHex = nibble;
+        big->state.currentHex = nibble;
     }
-    big->inNibble = !big->inNibble;
+    big->state.inNibble = !big->state.inNibble;
     return true;
 }
 
 bool ZcodeBigFieldAddByte(ZcodeBigField *big, uint8_t b) {
-    if (big->pos == ZCODE_BIG_FIELD_SIZE || big->inNibble) {
+    if (big->pos == ZCODE_BIG_FIELD_SIZE || big->state.inNibble) {
         return false;
     }
     big->big[big->pos++] = b;

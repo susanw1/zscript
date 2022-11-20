@@ -18,7 +18,7 @@
 
 #define MODULE_SWITCH() MODULE_SWITCHING_GENERIC(MODULE_SWITCH_CHECK, MODULE_SWITCH_SWITCH)
 
-static const uint16_t MAX_SYSTEM_CODE = 15;
+#define MAX_SYSTEM_CODE  15
 
 void runZcodeCommand(Zcode *z) {
     ZcodeCommandSlot *slot = &z->slot;
@@ -26,7 +26,7 @@ void runZcodeCommand(Zcode *z) {
         ZcodeRunnerPerformFail(slot);
         return;
     }
-    if (slot->fieldMap.fieldCount == 0 && slot->bigField.pos == 0) {
+    if (slot->fieldMap.state.fieldCount == 0 && slot->bigField.pos == 0) {
         ZcodeOutStream_SilentSucceed();
         return;
     }
