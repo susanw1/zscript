@@ -31,13 +31,13 @@ class Zcode;
 
 template<class ZP>
 class ZcodeDebugAddressingSystem: public ZcodeModuleAddressingSystem<ZP> {
-    typedef typename ZP::debugOutputBufferLength_t debugOutputBufferLength_t;
+    typedef typename ZP::debugOutputBufferSize_t debugOutputBufferSize_t;
 
 public:
 
     static void routeAddress(ZcodeExecutionCommandSlot<ZP> slot, ZcodeAddressingInfo<ZP> *addressingInfo) {
         slot.getZcode()->getDebug().print((const char*) (slot.getBigField()->getData() + addressingInfo->start),
-                (debugOutputBufferLength_t) (slot.getBigField()->getLength() - addressingInfo->start));
+                (debugOutputBufferSize_t) (slot.getBigField()->getLength() - addressingInfo->start));
         slot.getZcode()->getDebug().attemptFlush();
     }
 

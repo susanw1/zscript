@@ -25,12 +25,12 @@ private:
     ZcodeScriptSpace<ZP> *space;
     ZcodeScriptSpaceChannel<ZP> *channel;
     scriptSpaceAddress_t pos = 0;
-    uint8_t big[ZP::scriptBigSize];
+    uint8_t big[ZP::scriptBigFieldSize];
     uint8_t delay = 0;
 
 public:
     ZcodeScriptSpaceChannelIn(ZcodeScriptSpaceChannel<ZP> *channel) :
-            ZcodeChannelInStream<ZP>(channel, big, ZP::scriptBigSize), space(Zcode<ZP>::zcode.getSpace()), channel(channel) {
+            ZcodeChannelInStream<ZP>(channel, big, ZP::scriptBigFieldSize), space(Zcode<ZP>::zcode.getSpace()), channel(channel) {
     }
 
     void initialSetup(ZcodeScriptSpace<ZP> *space) {

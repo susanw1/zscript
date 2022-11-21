@@ -59,30 +59,28 @@ public:
     }
 
     typedef uint16_t scriptSpaceAddress_t;
-    typedef uint16_t scriptSpaceOutLength_t;
     typedef uint16_t bigFieldAddress_t;
     typedef uint8_t fieldMapSize_t;
-    typedef uint8_t commandNum_t;
-    typedef uint16_t debugOutputBufferLength_t;
+    typedef uint16_t debugOutputBufferSize_t;
     typedef uint8_t lockNumber_t;
 
-    static const int fieldNum = 10;
+    static const int maxParams = 10;
 
     static const bool findInterruptSourceAddress = true;
-    static const int interruptStoreNum = 5;
-    static const int interruptVectorWorkingNum = 5;
-    static const int interruptVectorNum = 5;
-    static const uint16_t scriptLength = 128;
-    static const uint16_t scriptBigSize = 16;
+    static const int interruptNotificationQueueLength = 5;
+    static const int scriptedNotificationQueueLength = 5;
+    static const int maxInterruptScripts = 5;
+    static const uint16_t maxScriptSize = 128;
+    static const uint16_t scriptBigFieldSize = 16;
     static const uint8_t scriptChannelCount = 1;
 
-    static const uint16_t parseIterationMax = 128;
+    static const uint16_t maxParseIterations = 128;
 
     static const int scriptOutBufferSize = 32;
     static const uint16_t scriptOutReadBufferSize = 16;
     static const uint16_t interruptVectorOutReadBufferSize = 32;
-    static const int lockNum = 8;
-    static const int debugBufferLength = 32;
+    static const int maxLocks = 8;
+    static const int debugBufferSize = 32;
 
     static const uint16_t serialBigSize = 32;
     static const uint16_t serialChannelReadBufferSize = 8;

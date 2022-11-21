@@ -22,7 +22,7 @@ private:
 
     ZcodeInterruptVectorChannel<ZP> channel;
     ZcodeInterruptVectorMap<ZP> vectorMap;
-    ZcodeBusInterrupt<ZP> waitingInterrupts[ZP::interruptVectorWorkingNum];
+    ZcodeBusInterrupt<ZP> waitingInterrupts[ZP::scriptedNotificationQueueLength];
     uint8_t waitingNum = 0;
 
 public:
@@ -35,7 +35,7 @@ public:
     }
 
     bool canAccept() {
-        return waitingNum < ZP::interruptVectorWorkingNum;
+        return waitingNum < ZP::scriptedNotificationQueueLength;
     }
 
     void acceptInterrupt(ZcodeBusInterrupt<ZP> *i) {

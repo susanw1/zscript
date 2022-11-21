@@ -138,7 +138,7 @@ public:
     void giveInfo(ZcodeExecutionCommandSlot<TestParams> slot) {
         ZcodeOutStream<TestParams> *out = slot.getOut();
         out->writeField16('B', 1024);
-        out->writeField16('F', TestParams::fieldNum);
+        out->writeField16('F', TestParams::maxParams);
         out->writeField8('N', 0);
         out->writeField8('M', 0);
         out->writeBigStringField("Local test channel on for comparing string input/output");

@@ -28,7 +28,7 @@ private:
     typedef typename ZP::lockNumber_t lockNumber_t;
     friend class ZcodeLocks<ZP> ;
 
-    uint8_t locks[(ZP::lockNum + 7) / 8];
+    uint8_t locks[(ZP::maxLocks + 7) / 8];
     lockNumber_t currentSettingPos;
     ZcodeLockSetStatus status;
 
@@ -40,7 +40,7 @@ private:
     }
 public:
     ZcodeLockSet() {
-        for (lockNumber_t i = 0; i < (ZP::lockNum + 7) / 8; ++i) {
+        for (lockNumber_t i = 0; i < (ZP::maxLocks + 7) / 8; ++i) {
             locks[i] = 0;
         }
         status.locked = false;
@@ -71,7 +71,7 @@ public:
     }
 
     bool isAtEnd() {
-        return currentSettingPos >= (ZP::lockNum + 7) / 8;
+        return currentSettingPos >= (ZP::maxLocks + 7) / 8;
     }
 
     const uint8_t* getLocks() const {
@@ -103,12 +103,12 @@ public:
     }
 
     void clearAll() {
-        for (lockNumber_t i = 0; i < (ZP::lockNum + 7) / 8; ++i) {
+        for (lockNumber_t i = 0; i < (ZP::maxLocks + 7) / 8; ++i) {
             locks[i] = 0;
         }
     }
     void setAll() {
-        for (lockNumber_t i = 0; i < (ZP::lockNum + 7) / 8; ++i) {
+        for (lockNumber_t i = 0; i < (ZP::maxLocks + 7) / 8; ++i) {
             locks[i] = 0xFF;
         }
     }

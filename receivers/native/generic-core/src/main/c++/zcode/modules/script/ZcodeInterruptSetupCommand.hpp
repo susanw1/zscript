@@ -31,7 +31,7 @@ public:
         ZcodeOutStream<ZP> *out = slot.getOut();
 //        ZcodeScriptSpace<ZP> *space = slot.getZcode()->getSpace();
 
-        out->writeField8('I', ZP::interruptVectorNum);
+        out->writeField8('I', ZP::maxInterruptScripts);
         out->writeStatus(OK);
 
     }

@@ -203,7 +203,7 @@ public:
     void giveInfo(ZcodeExecutionCommandSlot<ZP> slot) {
         ZcodeOutStream<ZP> *out = slot.getOut();
         out->writeField16('B', ZP::ethernetUdpChannelBigFieldSize);
-        out->writeField16('F', ZP::fieldNum);
+        out->writeField16('F', ZP::maxParams);
         out->writeField8('N', 0);
         out->writeField16('M', 0x111);
         out->writeBigStringField("UDP based channel");
