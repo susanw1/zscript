@@ -20,9 +20,7 @@ bool ZcodeBigFieldAddNibble(ZcodeBigField *big, uint8_t nibble) {
         return false;
     }
     if (big->state.inNibble) {
-        big->state.currentHex = (uint8_t) (big->state.currentHex << 4);
-        big->state.currentHex |= nibble;
-        big->big[big->pos++] = big->state.currentHex;
+        big->big[big->pos++] = (big->state.currentHex << 4) | nibble;
         big->state.currentHex = 0;
     } else {
         big->state.currentHex = nibble;
