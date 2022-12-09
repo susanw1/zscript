@@ -26,6 +26,7 @@ struct ZcodeAddressingInfo {
 
 #define ADDRESSING_SWITCH_UTIL(func) func(slot, &addressingInfo);
 #define ADDRESSING_RESP_SWITCH_UTIL(func) func(interrupt, out);
+#define ADDRESSING_IS_ADDRESSED_SWITCH_UTIL(func) return func(interrupt);
 
 template<class ZP>
 class ZcodeModuleAddressingSystem {

@@ -18,6 +18,8 @@
 
 #define ADDRESSING_SWITCH000 ADDRESSING_SWITCH_UTIL(ZcodeDebugAddressingSystem<ZP>::routeAddress)
 #define ADDRESSING_RESP_SWITCH000 ADDRESSING_RESP_SWITCH_UTIL(ZcodeDebugAddressingSystem<ZP>::routeResponse)
+#define ADDRESSING_IS_ADDRESSED_SWITCH000 ADDRESSING_IS_ADDRESSED_SWITCH_UTIL(ZcodeDebugAddressingSystem<ZP>::isAddressed)
+
 #define ADDRESSING_LEVEL000 0
 
 template<class ZP>
@@ -44,6 +46,11 @@ public:
     static void routeResponse(ZcodeBusInterrupt<ZP> *interrupt, ZcodeOutStream<ZP> *out) {
         (void) interrupt;
         (void) out;
+    }
+
+    static bool isAddressed(ZcodeBusInterrupt<ZP> *interrupt) {
+        (void) interrupt;
+        return true;
     }
 };
 

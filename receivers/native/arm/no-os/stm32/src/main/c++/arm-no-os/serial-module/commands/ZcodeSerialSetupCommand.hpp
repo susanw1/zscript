@@ -15,6 +15,9 @@
 #define COMMAND_EXISTS_0071 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
+class ZcodeSerialModule;
+
+template<class ZP>
 class ZcodeSerialSetupCommand: public ZcodeCommand<ZP> {
     typedef typename ZP::LL LL;
     typedef typename LL::HW HW;
@@ -36,7 +39,7 @@ public:
             slot.fail(BAD_PARAM, "Port number invalid");
             return;
         }
-        if (UartManager<LL>::isMasked(port)) {
+        if (ZcodeSerialModule<ZP>::isMasked(port)) {
             slot.fail(BAD_PARAM, "Port not available");
             return;
         }
@@ -63,10 +66,18 @@ public:
         if (slot.getFields()->has('S')) {
             singleNdoubleStop = true;
         }
+#ifdef SERIAL_ADDRESSING
         if (slot.getFields()->has('A')) {
-            slot.fail(CMD_FAIL, "Auto baud rate detection not supported");
+            ZcodeSerialModule<ZP>::addressSerial(port);
+        } else {
+            ZcodeSerialModule<ZP>::unaddressSerial(port);
+        }
+#else
+        if (slot.getFields()->has('A')) {
+            slot.fail(CMD_FAIL, "Serial addressing not supported");
             return;
         }
+#endif
 
         serial->init(NULL, baud, singleNdoubleStop);
         out->writeStatus(OK);

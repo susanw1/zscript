@@ -16,6 +16,7 @@
 
 #define ADDRESSING_SWITCH007 ADDRESSING_SWITCH_UTIL(ZcodeSerialAddressingSystem<ZP>::routeAddress)
 #define ADDRESSING_RESP_SWITCH007 ADDRESSING_RESP_SWITCH_UTIL(ZcodeSerialAddressingSystem<ZP>::routeResponse)
+#define ADDRESSING_IS_ADDRESSED_SWITCH007 ADDRESSING_IS_ADDRESSED_SWITCH_UTIL(ZcodeSerialAddressingSystem<ZP>::isAddressed)
 #define ADDRESSING_LEVEL007 1
 
 template<class ZP>
@@ -23,6 +24,9 @@ class ZcodeOutStream;
 
 template<class ZP>
 class Zcode;
+
+template<class ZP>
+class ZcodeSerialModule;
 
 template<class ZP>
 class ZcodeSerialAddressingSystem: public ZcodeModuleAddressingSystem<ZP> {
@@ -35,7 +39,7 @@ public:
 
     static void routeAddress(ZcodeExecutionCommandSlot<ZP> slot, ZcodeAddressingInfo<ZP> *addressingInfo) {
         uint8_t port = addressingInfo->port;
-        if (UartManager<LL>::isMasked(port)) {
+        if (ZcodeSerialModule<ZP>::isMasked(port) || !ZcodeSerialModule<ZP>::isAddressed(port)) {
             slot.fail(BAD_ADDRESSING, "Not available for addressing");
             return;
         }
@@ -71,6 +75,14 @@ public:
             }
             isAtStart = false;
         }
+    }
+
+    static bool isAddressed(ZcodeBusInterrupt<ZP> *interrupt) {
+        uint8_t port = interrupt->getNotificationPort();
+        if (port >= HW::serialCount) {
+            return false;
+        }
+        return ZcodeSerialModule<ZP>::isAddressed(port);
     }
 };
 

@@ -21,6 +21,9 @@ template<class ZP>
 class ZcodeSerialBusInterruptSource;
 
 template<class ZP>
+class ZcodeSerialModule;
+
+template<class ZP>
 class SerialChannelInStream: public ZcodeChannelInStream<ZP> {
 private:
 
@@ -95,12 +98,12 @@ public:
 
     SerialChannel(Serial *serial) :
             ZcodeCommandChannel<ZP>(&seqin, &out, false), seqin(this, serial), out(serial) {
-        UartManager<LL>::maskSerial(serial->getId());
+        ZcodeSerialModule<ZP>::maskSerial(serial->getId());
         seqin.getSerial()->init(NULL, 9600, false);
     }
     SerialChannel(Serial *serial, uint32_t baud) :
             ZcodeCommandChannel<ZP>(&seqin, &out, false), seqin(this, serial), out(serial) {
-        UartManager<LL>::maskSerial(serial->getId());
+        ZcodeSerialModule<ZP>::maskSerial(serial->getId());
         seqin.getSerial()->init(NULL, baud, false);
     }
 

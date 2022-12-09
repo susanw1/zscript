@@ -43,7 +43,7 @@ public:
     static const uint16_t persistentMacAddressLocation = 40;
     static const uint16_t mainPersistentMemoryLocation = 48;
 
-    static const int ucpdRxBufferSize = 1024;
+    static const int ucpdRxBufferSize = 512;
     static const int ucpdTxBufferSize = 256;
     static const DmaIdentifier ucpdRxDma = 4;
     static const DmaIdentifier ucpdTxDma = 5;
@@ -61,7 +61,7 @@ public:
 
     static const char *ucpdManufacturerInfo;
 
-    static const uint16_t UartBufferRxSize = 1024;
+    static const uint16_t UartBufferRxSize = 512;
     static const uint16_t UartBufferTxSize = 256;  // want rx buffer much larger, as it has to store any data which hasn't yet been read.
 
     static const DmaIdentifier uart1TxDma = 1;

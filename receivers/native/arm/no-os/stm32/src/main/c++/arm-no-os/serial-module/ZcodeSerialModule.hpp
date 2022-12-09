@@ -36,13 +36,39 @@ class ZcodeSerialModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
     typedef typename ZP::LL LL;
 
+    static uint16_t mask;
+    static uint16_t addressed;
+
 public:
 
 #ifdef SERIAL_ADDRESSING
     typedef ZcodeSerialBusInterruptSource<ZP> busInterruptSource;
+    static void addressSerial(SerialIdentifier id) {
+        addressed |= (1 << id);
+    }
+    static void unaddressSerial(SerialIdentifier id) {
+        addressed &= ~(1 << id);
+    }
+    static bool isAddressed(SerialIdentifier id) {
+        return (addressed & (1 << id)) != 0;
+    }
+#else
+    static bool isAddressed(SerialIdentifier id) {
+        return false;
+    }
 #endif
 
     typedef SerialChannel<ZP> channel;
+
+    static void maskSerial(SerialIdentifier id) {
+        mask |= (1 << id);
+    }
+    static void unmaskSerial(SerialIdentifier id) {
+        mask &= ~(1 << id);
+    }
+    static bool isMasked(SerialIdentifier id) {
+        return (mask & (1 << id)) != 0;
+    }
 
     static void init() {
         UartManager<LL>::init();
@@ -78,5 +104,9 @@ public:
         }
     }
 };
+template<class ZP>
+uint16_t ZcodeSerialModule<ZP>::mask = 0;
+template<class ZP>
+uint16_t ZcodeSerialModule<ZP>::addressed = 0;
 
 #endif /* SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_ZCODESERIALMODULE_HPP_ */

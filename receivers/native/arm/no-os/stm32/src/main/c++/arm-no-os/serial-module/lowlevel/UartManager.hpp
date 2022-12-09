@@ -22,23 +22,12 @@ class UartManager {
     private:
     static Uart<LL> uarts[HW::uartCount];
 
-    static uint16_t mask;
-
     static void interrupt(uint8_t id);
 
     UartManager() {
     }
 
 public:
-    static void maskSerial(SerialIdentifier id) {
-        mask |= (1 << id);
-    }
-    static void unmaskSerial(SerialIdentifier id) {
-        mask &= ~(1 << id);
-    }
-    static bool isMasked(SerialIdentifier id) {
-        return (mask & (1 << id)) != 0;
-    }
 
     static void init();
 
@@ -52,8 +41,6 @@ public:
         return uarts + id;
     }
 };
-template<class ZP>
-uint16_t UartManager<ZP>::mask = 0;
 
 #include "specific/UartManagercpp.hpp"
 

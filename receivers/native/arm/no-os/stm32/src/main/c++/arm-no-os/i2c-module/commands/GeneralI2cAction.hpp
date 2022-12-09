@@ -11,6 +11,9 @@
 #include <zcode/modules/ZcodeCommand.hpp>
 #include <arm-no-os/i2c-module/lowlevel/I2cManager.hpp>
 
+template<class ZP>
+class ZcodeI2cModule;
+
 /**
  * Handles the Send, Receive, and Send+Receive cases directly - they're pretty similar
  */
@@ -93,6 +96,10 @@ public:
             }
             if (retries == 0) {
                 retries = 1;
+            }
+            if (ZcodeI2cModule<ZP>::isAddressed(port, address)) {
+                slot.fail(BAD_PARAM, "Port not available");
+                return;
             }
 
             if (!I2cManager<LL>::getI2cById(port)->lock()) {

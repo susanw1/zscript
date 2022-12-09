@@ -14,13 +14,18 @@
 #define COMMAND_EXISTS_0051 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
+class ZcodeI2cModule;
+
+template<class ZP>
 class ZcodeI2cSetupCommand: public ZcodeCommand<ZP> {
 private:
 
 public:
     static constexpr uint8_t CODE = 0x01;
+    // if set, determines which address to set addressing on
+    static constexpr char CMD_PARAM_I2C_ADDRESS_B = 'B';
 
-    // if set, determines which port to control; else set all ports
+    // if set, determines which port to control; else set all ports (if not present, addressing flag has no effect)
     static constexpr char CMD_PARAM_I2C_PORT_P = 'P';
 
     // chooses comms frequency, from 10, 100, 400 and 1000 kHz
@@ -64,6 +69,24 @@ public:
                 for (I2cIdentifier i = 0; i < HW::i2cCount; i++) {
                     I2cManager<LL>::getI2cById(i)->setFrequency((I2cFrequency) freqValue);
                 }
+            }
+        }
+        uint16_t port;
+        if (slot.getFields()->get(CMD_PARAM_I2C_PORT_P, &port)) {
+            uint16_t addr;
+            if (slot.getFields()->get(CMD_PARAM_I2C_ADDRESS_B, &addr)) {
+#ifdef I2C_ADDRESSING
+                if (slot.getFields()->has('A')) {
+                    ZcodeI2cModule<ZP>::addressI2c(port, addr);
+                } else {
+                    ZcodeI2cModule<ZP>::unaddressI2c(port, addr);
+                }
+#else
+                if (slot.getFields()->has('A')) {
+                    slot.fail(CMD_FAIL, "I2C addressing not supported");
+                    return;
+                }
+#endif
             }
         }
         slot.getOut()->writeStatus(OK);

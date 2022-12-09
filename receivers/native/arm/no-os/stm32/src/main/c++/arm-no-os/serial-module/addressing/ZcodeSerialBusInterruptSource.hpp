@@ -14,6 +14,9 @@
 #include <arm-no-os/serial-module/lowlevel/Serial.hpp>
 
 template<class ZP>
+class ZcodeSerialModule;
+
+template<class ZP>
 class ZcodeSerialBusInterruptSource: public ZcodeBusInterruptSource<ZP> {
     typedef typename ZP::LL LL;
     typedef typename LL::HW HW;
@@ -21,7 +24,7 @@ class ZcodeSerialBusInterruptSource: public ZcodeBusInterruptSource<ZP> {
     static uint16_t serialIntReceivedBits;
 
     static void callback(SerialIdentifier id) {
-        if (!UartManager<LL>::isMasked(id)) {
+        if (!ZcodeSerialModule<ZP>::isMasked(id)) {
             serialIntReceivedBits |= 1 << id;
         }
     }

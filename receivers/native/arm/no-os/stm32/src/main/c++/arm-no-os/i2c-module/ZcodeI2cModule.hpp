@@ -32,11 +32,38 @@ template<class ZP>
 class ZcodeI2cModule: public ZcodeModule<ZP> {
     typedef typename ZP::Strings::string_t string_t;
     typedef typename ZP::LL LL;
+    typedef typename LL::HW HW;
+
+#ifdef I2C_ADDRESSING
+    static uint8_t addressed[(256 * HW::i2cCount) / 8];
+#endif
 
 public:
 
 #ifdef I2C_ADDRESSING
     typedef ZcodeI2cBusInterruptSource<ZP> busInterruptSource;
+
+    static void addressI2c(I2cIdentifier id, uint16_t address) {
+        if (address < 0x100) {
+            addressed[id * 256 / 8 + address / 8] |= (1 << (address & 0x3));
+        }
+    }
+    static void unaddressI2c(I2cIdentifier id, uint16_t address) {
+        if (address < 0x100) {
+            addressed[id * 256 / 8 + address / 8] &= ~(1 << (address & 0x3));
+        }
+    }
+    static bool isAddressed(I2cIdentifier id, uint16_t address) {
+        if (address < 0x100) {
+            return (addressed[id * 256 / 8 + address / 8] & (1 << (address & 0x3))) != 0;
+        } else {
+            return false;
+        }
+    }
+#else
+    static bool isAddressed(I2cIdentifier id, uint16_t address) {
+        return false;
+    }
 #endif
 
     static void init() {
@@ -70,5 +97,7 @@ public:
         }
     }
 };
+template<class ZP>
+uint8_t ZcodeI2cModule<ZP>::addressed[(256 * ZcodeI2cModule<ZP>::HW::i2cCount) / 8];
 
 #endif /* SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_ZCODEI2CMODULE_HPP_ */

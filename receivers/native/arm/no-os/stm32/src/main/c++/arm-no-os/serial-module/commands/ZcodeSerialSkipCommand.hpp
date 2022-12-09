@@ -15,6 +15,9 @@
 #define COMMAND_EXISTS_0074 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
+class ZcodeSerialModule;
+
+template<class ZP>
 class ZcodeSerialSkipCommand: public ZcodeCommand<ZP> {
     typedef typename ZP::LL LL;
     typedef typename LL::HW HW;
@@ -31,7 +34,7 @@ public:
             slot.fail(BAD_PARAM, "Port number missing");
             return;
         }
-        if (UartManager<LL>::isMasked(port)) {
+        if (ZcodeSerialModule<ZP>::isMasked(port) || ZcodeSerialModule<ZP>::isAddressed(port)) {
             slot.fail(BAD_PARAM, "Port not available");
             return;
         }

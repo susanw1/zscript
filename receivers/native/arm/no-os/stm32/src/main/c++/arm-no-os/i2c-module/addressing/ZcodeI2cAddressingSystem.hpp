@@ -15,7 +15,11 @@
 
 #define ADDRESSING_SWITCH005 ADDRESSING_SWITCH_UTIL(ZcodeI2cAddressingSystem<ZP>::routeAddress)
 #define ADDRESSING_RESP_SWITCH005 ADDRESSING_RESP_SWITCH_UTIL(ZcodeI2cAddressingSystem<ZP>::routeResponse)
+#define ADDRESSING_IS_ADDRESSED_SWITCH005 ADDRESSING_IS_ADDRESSED_SWITCH_UTIL(ZcodeI2cAddressingSystem<ZP>::isAddressed)
 #define ADDRESSING_LEVEL005 2
+
+template<class ZP>
+class ZcodeI2cModule;
 
 template<class ZP>
 class ZcodeOutStream;
@@ -58,6 +62,10 @@ public:
 
         if (!i2c->lock()) {
             slot.fail(CMD_FAIL, "Port locked");
+            return;
+        }
+        if (!ZcodeI2cModule<ZP>::isAddressed(port, address)) {
+            slot.fail(BAD_PARAM, "Port not available for addressing");
             return;
         }
         I2cTerminationStatus status = i2c->transmit10(address, tenBit, slot.getBigField()->getData() + addressingInfo->start,
@@ -151,6 +159,9 @@ public:
             out->writeField8('I', infoValue);
         }
         i2c->unlock();
+    }
+    static bool isAddressed(ZcodeBusInterrupt<ZP> *interrupt) {
+        return ZcodeI2cModule<ZP>::isAddressed(interrupt->getNotificationPort(), interrupt->getFoundAddress());
     }
 };
 

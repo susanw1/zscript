@@ -37,6 +37,9 @@
 #define ADDRESSING_RESP_SWITCH_SWITCH(x, y) ADDRESSING_RESP_SWITCH##x##y break;
 //
 
+#define ADDRESSING_IS_ADDRESSED_SWITCH_SWITCH(x, y) ADDRESSING_IS_ADDRESSED_SWITCH##x##y
+//
+
 #define ADDRESSING_LEVEL_CHECK0(x, y) ADDRESSING_LEVEL_HELPERV(0, ADDRESSING_LEVEL##x##y)
 #define ADDRESSING_LEVEL_CHECK1(x, y) ADDRESSING_LEVEL_HELPERV(1, ADDRESSING_LEVEL##x##y)
 #define ADDRESSING_LEVEL_CHECK2(x, y) ADDRESSING_LEVEL_HELPERV(2, ADDRESSING_LEVEL##x##y)
@@ -49,6 +52,11 @@
 #define ADDRESSING_RESP_SWITCH() MODULE_SWITCHING_GENERIC(ADDRESSING_SWITCH_CHECK, ADDRESSING_RESP_SWITCH_SWITCH)
 
 #define ADDRESSING_LEVEL(v) MODULE_SWITCHING_GENERIC(ADDRESSING_LEVEL_CHECK##v, ADDRESSING_LEVEL_SWITCH)
+//
+
+//
+
+#define ADDRESSING_IS_ADDRESSED() MODULE_SWITCHING_GENERIC(ADDRESSING_SWITCH_CHECK, ADDRESSING_IS_ADDRESSED_SWITCH_SWITCH)
 
 //This sets up the control command
 #define COMMAND_VALUE_0012 MODULE_CAPABILITIES_UTIL
@@ -105,6 +113,15 @@ protected:
         return -1;
         }
     }
+    static bool isAddressed(ZcodeBusInterrupt<ZP> *interrupt) {
+        switch (interrupt->getNotificationModule()) {
+        ADDRESSING_IS_ADDRESSED()
+
+    default:
+        return false;
+        }
+    }
+
     //Yes this method is total evil. idk what else to do...
     static void overwriteWithAddressingSymbol(ZcodeExecutionCommandSlot<ZP> slot, ZcodeAddressingInfo<ZP> *addrInfo) {
         if (addrInfo->start > 0 && slot.getBigField()->getData()[addrInfo->start - 1] == '.') {
