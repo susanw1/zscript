@@ -10,14 +10,14 @@
 #include <zcode/ZcodeAbstractOutStream.h>
 #include <zcode/modules/ZcodeCommand.h>
 
-void ZcodeChannelReadSetup(ZcodeCommandSlot *slot) {
+void ZcodeChannelReadSetup() {
     ZcodeOutStream_WriteField16('B', ZCODE_BIG_FIELD_SIZE);
     ZcodeOutStream_WriteField16('F', ZCODE_FIELD_COUNT);
     ZcodeOutStream_WriteField8('N', 0);
     ZcodeOutStream_WriteField8('M', 0x7);
     ZcodeOutStream_WriteStatus(OK);
 }
-void ZcodeChannelWriteInfo(ZcodeCommandSlot *slot) {
+void ZcodeChannelWriteInfo() {
     ZcodeOutStream_WriteStatus(OK);
 }
 
