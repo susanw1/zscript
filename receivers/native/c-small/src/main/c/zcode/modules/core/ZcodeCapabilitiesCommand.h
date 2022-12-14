@@ -14,10 +14,18 @@
 
 #define COMMAND_EXISTS_0000 EXISTENCE_MARKER_UTIL
 
-void ZcodeCapabilitiesCommandExecute(ZcodeCommandSlot *slot) {
+void ZcodeCapabilitiesCommandExecute() {
     ZcodeOutStream_WriteStatus(OK);
+#if MODULE_CAPABILITIES(000)>0xff
     ZcodeOutStream_WriteField16('C', MODULE_CAPABILITIES(000));
+#else
+    ZcodeOutStream_WriteField8('C', MODULE_CAPABILITIES(000));
+#endif
+#if COMMAND_SWITCH_EXISTS_BOTTOM_BYTE(00)>0xff
     ZcodeOutStream_WriteField16('M', COMMAND_SWITCH_EXISTS_BOTTOM_BYTE(00));
+#else
+    ZcodeOutStream_WriteField8('M', COMMAND_SWITCH_EXISTS_BOTTOM_BYTE(00));
+#endif
 
     // TODO to be completed!
 }

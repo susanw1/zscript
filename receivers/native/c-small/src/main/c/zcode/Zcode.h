@@ -10,15 +10,22 @@
 #include "ZcodeIncludes.h"
 #include "parsing/ZcodeCommandSlot.h"
 
+struct ZcodeState {
+    bool activated :1;
+    uint8_t targetSlot :4;
+};
+
+typedef struct ZcodeState ZcodeState;
+
 struct Zcode {
     ZcodeCommandSlot slot;
-    bool activated;
+    ZcodeState state;
 };
 
 typedef struct Zcode Zcode;
 
-void ZcodeRunNext(Zcode *zcode);
-void ZcodeInitialise(Zcode *zcode);
-bool ZcodeAcceptByte(Zcode *zcode, char c);
+void ZcodeRunNext();
+void ZcodeInitialise();
+bool ZcodeAcceptByte(char c);
 
 #endif /* SRC_MAIN_C_ZCODE_ZCODE_H_ */

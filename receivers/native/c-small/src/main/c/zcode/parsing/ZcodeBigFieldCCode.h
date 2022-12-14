@@ -10,34 +10,38 @@
 
 #include "ZcodeBigField.h"
 
-void ZcodeBigFieldReset(ZcodeBigField *big) {
+void ZcodeBigFieldReset() {
+    ZcodeBigField *big = &zcode.slot.bigField;
     big->pos = 0;
-    big->state.inNibble = 0;
+    big->inNibble = 0;
 }
 
-bool ZcodeBigFieldAddNibble(ZcodeBigField *big, uint8_t nibble) {
+bool ZcodeBigFieldAddNibble(uint8_t nibble) {
+    ZcodeBigField *big = &zcode.slot.bigField;
     if (big->pos == ZCODE_BIG_FIELD_SIZE) {
         return false;
     }
-    if (big->state.inNibble) {
-        big->big[big->pos++] = (big->state.currentHex << 4) | nibble;
-        big->state.currentHex = 0;
+    if (big->inNibble) {
+        big->big[big->pos++] = (uint8_t) ((big->currentHex << 4) | nibble);
+        big->currentHex = 0;
     } else {
-        big->state.currentHex = nibble;
+        big->currentHex = nibble;
     }
-    big->state.inNibble = !big->state.inNibble;
+    big->inNibble = !big->inNibble;
     return true;
 }
 
-bool ZcodeBigFieldAddByte(ZcodeBigField *big, uint8_t b) {
-    if (big->pos == ZCODE_BIG_FIELD_SIZE || big->state.inNibble) {
+bool ZcodeBigFieldAddByte(uint8_t b) {
+    ZcodeBigField *big = &zcode.slot.bigField;
+    if (big->pos == ZCODE_BIG_FIELD_SIZE || big->inNibble) {
         return false;
     }
     big->big[big->pos++] = b;
     return true;
 }
 
-void ZcodeBigFieldCopyToOutput(ZcodeBigField *big) {
+void ZcodeBigFieldCopyToOutput() {
+    ZcodeBigField *big = &zcode.slot.bigField;
     if (big->pos > 0) {
         ZcodeOutStream_WriteBigHexField(big->big, big->pos);
     }

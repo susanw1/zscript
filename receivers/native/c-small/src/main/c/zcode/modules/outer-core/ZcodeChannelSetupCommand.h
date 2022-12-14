@@ -13,20 +13,20 @@
 
 #define COMMAND_EXISTS_0018 EXISTENCE_MARKER_UTIL
 
-void ZcodeChannelSetupCommandExecute(ZcodeCommandSlot *slot) {
+void ZcodeChannelSetupCommandExecute() {
     uint16_t targetIndex = 0;
-    if (ZcodeFieldMapGetDest(&slot->fieldMap, 'C', &targetIndex)) {
+    if (ZcodeFieldMapGetDest('C', &targetIndex)) {
         if (targetIndex >= 1) {
-            ZcodeCommandFail(slot, BAD_PARAM);
+            ZcodeCommandFail(BAD_PARAM);
             return;
         }
     }
 #ifdef ZCODE_GENERATE_NOTIFICATIONS
-    if (ZcodeFieldMapGetDest(&slot->fieldMap, 'N')) {
+    if (ZcodeFieldMapGetDest( 'N')) {
         ZcodeChannelSetNotifications();
     }
 #endif
-    ZcodeChannelReadSetup(slot);
+    ZcodeChannelReadSetup();
 }
 
 #endif /* SRC_MAIN_C_ZCODE_MODULES_CORE_ZCODECHANNELSETUPCOMMAND_H_ */

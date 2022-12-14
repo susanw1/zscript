@@ -11,11 +11,12 @@
 #include "ZcodeOutStream.h"
 #include "parsing/ZcodeCommandSlotCCode.h"
 
-void ZcodeRunnerPerformFail(ZcodeCommandSlot *commandSlot);
+void ZcodeRunnerPerformFail();
 #include "ZcodeCommandFinderCCode.h"
 
-void ZCodeRunnerWriteTerminator(ZcodeCommandSlot *commandSlot, char term) {
-    commandSlot->runStatus.hasWrittenTerminator = true;
+void ZCodeRunnerWriteTerminator(char term) {
+    ZcodeCommandSlot *slot = &zcode.slot;
+    slot->runStatus.hasWrittenTerminator = true;
     if (term == EOL_SYMBOL) {
         ZcodeOutStream_WriteCommandSequenceSeparator();
     } else if (term == ANDTHEN_SYMBOL) {
@@ -25,75 +26,78 @@ void ZCodeRunnerWriteTerminator(ZcodeCommandSlot *commandSlot, char term) {
     }
 }
 
-void ZcodeRunNext(Zcode *zcode) {
-    ZcodeCommandSlot *commandSlot = &zcode->slot;
-    if (commandSlot->state.waitingOnRun && (commandSlot->runStatus.hasOutLock || ZcodeOutStream_Lock())) {
-        commandSlot->runStatus.hasOutLock = true;
-        if (commandSlot->runStatus.isFirstCommand) {
+void ZcodeRunNext() {
+    ZcodeCommandSlot *slot = &zcode.slot;
+    if (slot->state.waitingOnRun && (slot->runStatus.hasOutLock || ZcodeOutStream_Lock())) {
+        slot->runStatus.hasOutLock = true;
+        if (slot->runStatus.isFirstCommand) {
             ZcodeOutStream_Open();
-            if (commandSlot->runStatus.isBroadcast) {
+            if (slot->runStatus.isBroadcast) {
                 ZcodeOutStream_MarkBroadcast();
             }
         }
-        if (!commandSlot->runStatus.hasWrittenTerminator) {
-            ZCodeRunnerWriteTerminator(commandSlot, commandSlot->starter);
+        if (!slot->runStatus.hasWrittenTerminator) {
+            ZCodeRunnerWriteTerminator(slot->starter);
         }
-        commandSlot->runStatus.hasWrittenTerminator = false;
-        runZcodeCommand(zcode);
-        if (!commandSlot->runStatus.hasWrittenTerminator) {
-            if (commandSlot->terminator == EOL_SYMBOL) {
-                ZCodeRunnerWriteTerminator(commandSlot, EOL_SYMBOL);
+        slot->runStatus.hasWrittenTerminator = false;
+        runZcodeCommand();
+        if (!slot->runStatus.hasWrittenTerminator) {
+            if (slot->terminator == EOL_SYMBOL) {
+                ZCodeRunnerWriteTerminator(EOL_SYMBOL);
             } else {
-                commandSlot->runStatus.hasWrittenTerminator = false;
+                slot->runStatus.hasWrittenTerminator = false;
             }
         }
-        ZcodeCommandSlot_finish(commandSlot);
+        ZcodeCommandSlot_finish();
     } else {
-        if (commandSlot->runStatus.hasOutLock && commandSlot->runStatus.isFirstCommand) {
-            if (!commandSlot->runStatus.hasWrittenTerminator) {
-                ZCodeRunnerWriteTerminator(commandSlot, EOL_SYMBOL);
+        if (slot->runStatus.hasOutLock && slot->runStatus.isFirstCommand) {
+            if (!slot->runStatus.hasWrittenTerminator) {
+                ZCodeRunnerWriteTerminator(EOL_SYMBOL);
             }
             ZcodeOutStream_Unlock();
-            commandSlot->runStatus.hasOutLock = false;
+            slot->runStatus.hasOutLock = false;
             ZcodeOutStream_Close();
         }
     }
 }
 
-void ZcodeCommandQuietEnd(ZcodeCommandSlot *commandSlot) {
-    if (commandSlot->runStatus.isFirstCommand && commandSlot->terminator == EOL_SYMBOL) {
-        commandSlot->runStatus.quietEnd = !commandSlot->runStatus.hasWrittenTerminator;
-        commandSlot->runStatus.hasWrittenTerminator = true;
+void ZcodeCommandQuietEnd() {
+    ZcodeCommandSlot *slot = &zcode.slot;
+    if (slot->runStatus.isFirstCommand && slot->terminator == EOL_SYMBOL) {
+        slot->runStatus.quietEnd = !slot->runStatus.hasWrittenTerminator;
+        slot->runStatus.hasWrittenTerminator = true;
     }
 }
 
-void ZcodeCommandMildFail(ZcodeCommandSlot *commandSlot, ZcodeResponseStatus failStatus) {
-    if (commandSlot->runStatus.quietEnd) {
-        commandSlot->runStatus.hasWrittenTerminator = false;
+void ZcodeCommandMildFail(ZcodeResponseStatus failStatus) {
+    ZcodeCommandSlot *slot = &zcode.slot;
+    if (slot->runStatus.quietEnd) {
+        slot->runStatus.hasWrittenTerminator = false;
     }
-    ZcodeCommandSlot_failExternal(commandSlot, failStatus);
+    ZcodeCommandSlot_failExternal(failStatus);
 }
 
-void ZcodeCommandFail(ZcodeCommandSlot *commandSlot, ZcodeResponseStatus failStatus) {
-    ZcodeCommandMildFail(commandSlot, failStatus);
+void ZcodeCommandFail(ZcodeResponseStatus failStatus) {
+    ZcodeCommandMildFail(failStatus);
     ZcodeOutStream_WriteStatus(failStatus);
 }
 
-void ZcodeCommandFailWithMessage(ZcodeCommandSlot *commandSlot, ZcodeResponseStatus failStatus, const char *message) {
-    ZcodeCommandMildFail(commandSlot, failStatus);
+void ZcodeCommandFailWithMessage(ZcodeResponseStatus failStatus, const char *message) {
+    ZcodeCommandMildFail(failStatus);
     ZcodeOutStream_WriteStatus(failStatus);
     if (message != NULL && message[0] != 0) {
         ZcodeOutStream_WriteBigStringField(message);
     }
 }
 
-void ZcodeRunnerPerformFail(ZcodeCommandSlot *commandSlot) {
-    if (commandSlot->runStatus.quietEnd) {
-        commandSlot->runStatus.hasWrittenTerminator = false;
+void ZcodeRunnerPerformFail() {
+    ZcodeCommandSlot *slot = &zcode.slot;
+    if (slot->runStatus.quietEnd) {
+        slot->runStatus.hasWrittenTerminator = false;
     }
-    ZcodeOutStream_WriteStatus((ZcodeResponseStatus) commandSlot->respStatus);
-    ZCodeRunnerWriteTerminator(commandSlot, EOL_SYMBOL);
-    ZcodeCommandSlot_finish(commandSlot);
-    commandSlot->runStatus.quietEnd = false;
+    ZcodeOutStream_WriteStatus((ZcodeResponseStatus) slot->respStatus);
+    ZCodeRunnerWriteTerminator(EOL_SYMBOL);
+    ZcodeCommandSlot_finish();
+    slot->runStatus.quietEnd = false;
 }
 #endif /* SRC_MAIN_C_ZCODE_ZCODERUNNERCCODE_H_ */

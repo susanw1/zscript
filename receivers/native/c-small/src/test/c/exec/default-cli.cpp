@@ -7,6 +7,15 @@
 
 #include <stdio.h>
 
+#include <stdbool.h>
+
+#include <stdint.h>
+#include <stdlib.h>
+
+#define ZCODE_BIG_FIELD_SIZE 10
+#define ZCODE_FIELD_COUNT 10
+typedef uint16_t ZcodeBigFieldAddress_t;
+
 #include <zcode/modules/outer-core/ZcodeOuterCoreModule.h>
 #include <zcode/modules/core/ZcodeCoreModule.h>
 
@@ -17,20 +26,19 @@
 #include <zcode/ZcodeCCode.h>
 
 int main(void) {
-    Zcode z;
 
     int ch;
     bool hasChar = false;
-    ZcodeInitialise(&z);
+    ZcodeInitialise();
     while (true) {
-        ZcodeRunNext(&z);
-        if (!z.slot.state.waitingOnRun && hasChar) {
-            if (ZcodeAcceptByte(&z, (char) ch)) {
+        ZcodeRunNext();
+        if (!zcode.slot.state.waitingOnRun && hasChar) {
+            if (ZcodeAcceptByte((char) ch)) {
                 hasChar = false;
             }
         }
-        while (!z.slot.state.waitingOnRun && !hasChar && (ch = getchar()) != EOF) {
-            if (!ZcodeAcceptByte(&z, (char) ch)) {
+        while (!zcode.slot.state.waitingOnRun && !hasChar && (ch = getchar()) != EOF) {
+            if (!ZcodeAcceptByte((char) ch)) {
                 hasChar = true;
                 break;
             }

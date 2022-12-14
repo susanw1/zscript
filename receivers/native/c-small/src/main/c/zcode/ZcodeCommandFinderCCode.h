@@ -20,30 +20,30 @@
 
 #define MAX_SYSTEM_CODE  15
 
-void runZcodeCommand(Zcode *z) {
-    ZcodeCommandSlot *slot = &z->slot;
+void runZcodeCommand() {
+    ZcodeCommandSlot *slot = &zcode.slot;
     if (slot->state.hasFailed) {
-        ZcodeRunnerPerformFail(slot);
+        ZcodeRunnerPerformFail();
         return;
     }
-    if (slot->fieldMap.state.fieldCount == 0 && slot->bigField.pos == 0) {
+    if (slot->fieldMap.fieldCount == 0 && slot->bigField.pos == 0) {
         ZcodeOutStream_SilentSucceed();
         return;
     }
 
     uint16_t echoValue;
-    if (ZcodeFieldMapGetDest(&slot->fieldMap, ECHO_PARAM, &echoValue)) {
+    if (ZcodeFieldMapGetDest(ECHO_PARAM, &echoValue)) {
         ZcodeOutStream_WriteField16(ECHO_PARAM, echoValue);
     }
 
     uint16_t command;
-    if (!ZcodeFieldMapGetDest(&slot->fieldMap, CMD_PARAM, &command)) {
-        ZcodeCommandFail(slot, UNKNOWN_CMD);
+    if (!ZcodeFieldMapGetDest(CMD_PARAM, &command)) {
+        ZcodeCommandFail(UNKNOWN_CMD);
         return;
     }
 
-    if (command > MAX_SYSTEM_CODE && !z->activated) {
-        ZcodeCommandFail(slot, NOT_ACTIVATED);
+    if (command > MAX_SYSTEM_CODE && !zcode.state.activated) {
+        ZcodeCommandFail(NOT_ACTIVATED);
         return;
     }
 
@@ -54,7 +54,7 @@ void runZcodeCommand(Zcode *z) {
     MODULE_SWITCH()
 
 default:
-    ZcodeCommandFail(slot, UNKNOWN_CMD);
+    ZcodeCommandFail(UNKNOWN_CMD);
     break;
     }
 }

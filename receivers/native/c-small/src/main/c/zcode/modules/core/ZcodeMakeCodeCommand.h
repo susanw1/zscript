@@ -15,7 +15,7 @@
 
 static uint16_t codeNumberForZcodeMatching = 0;
 
-void ZcodeMakeCodeCommandExecute(ZcodeCommandSlot *slot) {
+void ZcodeMakeCodeCommandExecute() {
     codeNumberForZcodeMatching++;
     ZcodeOutStream_WriteField16('C', codeNumberForZcodeMatching);
     ZcodeOutStream_WriteStatus(OK);

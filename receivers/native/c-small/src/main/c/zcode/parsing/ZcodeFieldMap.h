@@ -10,36 +10,33 @@
 
 #include "../ZcodeIncludes.h"
 
-struct ZcodeFieldMapInfo {
-    uint8_t nibbleCount :3;
-    uint8_t fieldCount :5;
-};
 struct ZcodeFieldMap {
     uint16_t values[ZCODE_FIELD_COUNT];
     char fields[ZCODE_FIELD_COUNT];
-    ZcodeFieldMapInfo state;
+    uint8_t nibbleCount;
+    uint8_t fieldCount;
 };
 
 typedef struct ZcodeFieldMap ZcodeFieldMap;
 
-bool ZcodeFieldMapAdd16(ZcodeFieldMap *map, char f, uint16_t v);
+bool ZcodeFieldMapAdd16(char f, uint16_t v);
 
-bool ZcodeFieldMapAddBlank(ZcodeFieldMap *map, char f);
+bool ZcodeFieldMapAddBlank(char f);
 
-bool ZcodeFieldMapAdd4(ZcodeFieldMap *map, uint8_t nibble);
+bool ZcodeFieldMapAdd4(uint8_t nibble);
 
-bool ZcodeFieldMapAdd8(ZcodeFieldMap *map, uint8_t byte);
+bool ZcodeFieldMapAdd8(uint8_t byte);
 
-bool ZcodeFieldMapHas(ZcodeFieldMap *map, char f);
+bool ZcodeFieldMapHas(char f);
 
-uint16_t ZcodeFieldMapGetDef(ZcodeFieldMap *map, char f, uint16_t def);
+uint16_t ZcodeFieldMapGetDef(char f, uint16_t def);
 
-bool ZcodeFieldMapGetDest(ZcodeFieldMap *map, char f, uint16_t *dest);
+bool ZcodeFieldMapGetDest(char f, uint16_t *dest);
 
-int32_t ZcodeFieldMapGet(ZcodeFieldMap *map, char f);
+int32_t ZcodeFieldMapGet(char f);
 
-void ZcodeFieldMapReset(ZcodeFieldMap *map);
+void ZcodeFieldMapReset();
 
-void ZcodeFieldMapCopyToOutput(ZcodeFieldMap *map);
+void ZcodeFieldMapCopyToOutput();
 
 #endif /* SRC_MAIN_C_ZCODE_PARSING_ZCODEFIELDMAP_H_ */

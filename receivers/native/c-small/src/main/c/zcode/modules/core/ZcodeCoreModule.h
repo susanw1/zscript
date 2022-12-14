@@ -21,48 +21,48 @@
 #include "ZcodeChannelInfoCommand.h"
 
 #define MODULE_EXISTS_000 EXISTENCE_MARKER_UTIL
-#define MODULE_SWITCH_000 ZcodeCoreModuleExecute(z, slot, commandBottomBits);
+#define MODULE_SWITCH_000 ZcodeCoreModuleExecute(commandBottomBits);
 
 #include "ZcodeCapabilitiesCommand.h"
 
-void ZcodeCoreModuleExecute(Zcode *z, ZcodeCommandSlot *slot, uint8_t bottomBits) {
+void ZcodeCoreModuleExecute(uint8_t bottomBits) {
 
     switch (bottomBits) {
     case 0x0:
-        ZcodeCapabilitiesCommandExecute(slot);
+        ZcodeCapabilitiesCommandExecute();
         break;
     case 0x1:
-        ZcodeEchoCommandExecute(slot);
+        ZcodeEchoCommandExecute();
         break;
     case 0x2:
-        ZcodeActivateCommandExecute(z);
+        ZcodeActivateCommandExecute();
         break;
 #ifdef ZCODE_CORE_RESET_COMMAND
         case 0x3:
-            ZCODE_CORE_RESET_COMMAND(slot);
+            ZCODE_CORE_RESET_COMMAND();
             break;
 #endif
 #ifdef ZCODE_CORE_FETCH_GUID
         case 0x4:
-            ZCODE_CORE_FETCH_GUID(slot);
+            ZCODE_CORE_FETCH_GUID();
             break;
 #endif
     case 0x8:
-        ZcodeChannelInfoCommandExecute(slot);
+        ZcodeChannelInfoCommandExecute();
         break;
     case 0xc:
-        ZcodeMakeCodeCommandExecute(slot);
+        ZcodeMakeCodeCommandExecute();
         break;
     case 0xd:
-        ZcodeMatchCodeCommandExecute(slot);
+        ZcodeMatchCodeCommandExecute();
         break;
 #ifdef ZCODE_CORE_USER_COMMAND
         case 0xf:
-            ZCODE_CORE_USER_COMMAND(slot);
+            ZCODE_CORE_USER_COMMAND();
             break;
 #endif
     default:
-        ZcodeCommandFail(slot, UNKNOWN_CMD);
+        ZcodeCommandFail(UNKNOWN_CMD);
         break;
     }
 }

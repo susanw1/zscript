@@ -11,8 +11,8 @@
 #include "../ZcodeIncludes.h"
 #include "../parsing/ZcodeCommandSlot.h"
 
-void ZcodeChannelReadSetup(ZcodeCommandSlot *slot);
-void ZcodeChannelWriteInfo(ZcodeCommandSlot *slot);
+void ZcodeChannelReadSetup();
+void ZcodeChannelWriteInfo();
 
 #define COMMAND_SWITCH_TAKE_IF_DEF(thing, x, ...) x
 #define COMMAND_SWITCH_TAKE_IF_DEFI(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEF(thing, x, __VA_ARG__)
@@ -21,7 +21,7 @@ void ZcodeChannelWriteInfo(ZcodeCommandSlot *slot);
 #define COMMAND_SWITCH_TAKE_IF_DEFIV(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEFIII(thing, x, __VA_ARG__)
 #define COMMAND_SWITCH_TAKE_IF_DEFV(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEFIV(thing, x, __VA_ARG__)
 
-#define MODULE_SWITCH_UTIL(func) func(slot, commandBottomBits);
+#define MODULE_SWITCH_UTIL(func) func(commandBottomBits);
 
 #define EXISTENCE_MARKER_UTIL 0,
 

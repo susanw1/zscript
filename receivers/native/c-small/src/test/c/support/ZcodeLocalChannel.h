@@ -12,10 +12,10 @@
 #include <zcode/ZcodeAbstractOutStream.h>
 #include <zcode/modules/ZcodeCommand.h>
 
-void ZcodeChannelReadSetup(ZcodeCommandSlot *slot) {
+void ZcodeChannelReadSetup() {
     ZcodeOutStream_WriteStatus(OK);
 }
-void ZcodeChannelWriteInfo(ZcodeCommandSlot *slot) {
+void ZcodeChannelWriteInfo() {
     ZcodeOutStream_WriteStatus(OK);
 }
 

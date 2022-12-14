@@ -13,17 +13,17 @@
 
 #define COMMAND_EXISTS_0008 EXISTENCE_MARKER_UTIL
 
-void ZcodeChannelInfoCommandExecute(ZcodeCommandSlot *slot) {
+void ZcodeChannelInfoCommandExecute() {
     uint16_t targetIndex = 0;
-    if (ZcodeFieldMapGetDest(&slot->fieldMap, 'C', &targetIndex)) {
+    if (ZcodeFieldMapGetDest('C', &targetIndex)) {
         if (targetIndex >= 1) {
-            ZcodeCommandFail(slot, BAD_PARAM);
+            ZcodeCommandFail(BAD_PARAM);
             return;
         }
     }
     ZcodeOutStream_WriteField8('C', 1);
     ZcodeOutStream_WriteField8('U', 0);
-    ZcodeChannelWriteInfo(slot);
+    ZcodeChannelWriteInfo();
 }
 
 #endif /* SRC_MAIN_C___ZCODE_MODULES_CORE_ZCODECHANNELINFOCOMMAND_HPP_ */

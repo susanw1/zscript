@@ -14,16 +14,16 @@
 
 #define COMMAND_EXISTS_000D EXISTENCE_MARKER_UTIL
 
-void ZcodeMatchCodeCommandExecute(ZcodeCommandSlot *slot) {
+void ZcodeMatchCodeCommandExecute() {
     uint16_t value = 0;
-    if (ZcodeFieldMapGetDest(&slot->fieldMap, 'C', &value)) {
+    if (ZcodeFieldMapGetDest('C', &value)) {
         if (value == codeNumberForZcodeMatching) {
             ZcodeOutStream_WriteStatus(OK);
         } else {
-            ZcodeCommandFail(slot, CMD_FAIL);
+            ZcodeCommandFail(CMD_FAIL);
         }
     } else {
-        ZcodeCommandFail(slot, BAD_PARAM);
+        ZcodeCommandFail(BAD_PARAM);
     }
 }
 

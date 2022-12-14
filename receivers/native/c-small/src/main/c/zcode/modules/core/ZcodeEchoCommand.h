@@ -13,16 +13,16 @@
 
 #define COMMAND_EXISTS_0001 EXISTENCE_MARKER_UTIL
 
-void ZcodeEchoCommandExecute(ZcodeCommandSlot *slot) {
+void ZcodeEchoCommandExecute() {
     uint16_t statusResult;
-    if (!ZcodeFieldMapGetDest(&slot->fieldMap, STATUS_RESP_PARAM, &statusResult)) {
+    if (!ZcodeFieldMapGetDest(STATUS_RESP_PARAM, &statusResult)) {
         ZcodeOutStream_WriteStatus(OK);
     } else {
-        ZcodeCommandFail(slot, (ZcodeResponseStatus) statusResult);
+        ZcodeCommandFail((ZcodeResponseStatus) statusResult);
     }
 
-    ZcodeFieldMapCopyToOutput(&slot->fieldMap);
-    ZcodeBigFieldCopyToOutput(&slot->bigField);
+    ZcodeFieldMapCopyToOutput();
+    ZcodeBigFieldCopyToOutput();
 }
 
 #endif /* SRC_TEST_CPP_ZCODE_COMMANDS_ZCODEECHOCOMMAND_HPP_ */

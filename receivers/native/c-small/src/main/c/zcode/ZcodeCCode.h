@@ -7,15 +7,16 @@
 
 #ifndef SRC_MAIN_C_ZCODE_ZCODECCODE_H_
 #define SRC_MAIN_C_ZCODE_ZCODECCODE_H_
+#include "ZcodeCCodeInclude.h"
 
 #include "Zcode.h"
 #include "ZcodeRunnerCCode.h"
 
-void ZcodeInitialise(Zcode *zcode) {
-    zcode->activated = false;
-    ZcodeInitialiseSlot(&zcode->slot);
+void ZcodeInitialise() {
+    zcode.state.activated = false;
+    ZcodeInitialiseSlot();
 }
-bool ZcodeAcceptByte(Zcode *zcode, char c) {
-    return ZcodeSlotAcceptByte(&zcode->slot, c);
+bool ZcodeAcceptByte(char c) {
+    return ZcodeSlotAcceptByte(c);
 }
 #endif /* SRC_MAIN_C_ZCODE_ZCODECCODE_H_ */

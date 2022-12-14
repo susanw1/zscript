@@ -20,30 +20,30 @@
 
 #include "ZcodeExtendedCapabilitiesCommand.h"
 
-#define MODULE_SWITCH_001 ZcodeOuterCoreModuleExecute(z, slot, commandBottomBits);
+#define MODULE_SWITCH_001 ZcodeOuterCoreModuleExecute(commandBottomBits);
 
-void ZcodeOuterCoreModuleExecute(Zcode *z, ZcodeCommandSlot *slot, uint8_t bottomBits) {
+void ZcodeOuterCoreModuleExecute(uint8_t bottomBits) {
 
     switch (bottomBits) {
     case 0x0:
-        ZcodeExtendedCapabilitiesCommandExecute(slot);
+        ZcodeExtendedCapabilitiesCommandExecute();
         break;
 
 #ifdef ZCODE_CORE_WRITE_GUID
         case 0x4:
-        ZCODE_CORE_WRITE_GUID(slot);
+        ZCODE_CORE_WRITE_GUID();
         break;
 #endif
     case 0x8:
-        ZcodeChannelSetupCommandExecute(slot);
+        ZcodeChannelSetupCommandExecute();
         break;
 #ifdef ZCODE_OUTER_CORE_USER_COMMAND
         case 0xf:
-        ZCODE_OUTER_CORE_USER_COMMAND(slot);
+        ZCODE_OUTER_CORE_USER_COMMAND();
         break;
 #endif
     default:
-        ZcodeCommandFail(slot, UNKNOWN_CMD);
+        ZcodeCommandFail(UNKNOWN_CMD);
         break;
     }
 }

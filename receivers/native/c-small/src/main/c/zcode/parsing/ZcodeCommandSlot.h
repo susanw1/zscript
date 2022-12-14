@@ -14,7 +14,6 @@
 struct ZcodeCommandSlotParsingState {
     bool hasFailed :1;
     bool isComment :1;
-    bool isAddressing :1;
     bool isParsingParallel :1;
     bool waitingOnRun :1;
     bool isAtSeqBegining :1;
@@ -50,13 +49,13 @@ struct ZcodeCommandSlot {
 };
 typedef struct ZcodeCommandSlot ZcodeCommandSlot;
 
-void ZcodeInitialiseSlot(ZcodeCommandSlot *slot);
+void ZcodeInitialiseSlot();
 
-bool ZcodeSlotAcceptByte(ZcodeCommandSlot *slot, char c); // returns false <=> the data couldn't be used and needs to be resent later.
+bool ZcodeSlotAcceptByte(char c); // returns false <=> the data couldn't be used and needs to be resent later.
 
-void ZcodeCommandSlot_finish(ZcodeCommandSlot *slot);
+void ZcodeCommandSlot_finish();
 
-void ZcodeCommandFail(ZcodeCommandSlot *commandSlot, ZcodeResponseStatus failStatus);
-void ZcodeCommandMildFail(ZcodeCommandSlot *commandSlot, ZcodeResponseStatus failStatus);
+void ZcodeCommandFail(ZcodeResponseStatus failStatus);
+void ZcodeCommandMildFail(ZcodeResponseStatus failStatus);
 
 #endif /* SRC_MAIN_C_ZCODE_ZCODECOMMANDSLOT_H_ */
