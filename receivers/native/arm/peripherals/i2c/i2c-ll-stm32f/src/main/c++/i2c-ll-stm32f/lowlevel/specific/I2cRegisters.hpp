@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CREGISTERS_HPP_
 #define SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CREGISTERS_HPP_
 
-#include <arm-no-os/llIncludes.hpp>
+#include <llIncludes.hpp>
 
 struct I2cRegisters {
     volatile uint32_t CR1;

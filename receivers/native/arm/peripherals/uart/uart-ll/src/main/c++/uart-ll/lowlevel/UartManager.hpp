@@ -10,7 +10,7 @@
 
 #include <uart-ll/UartLLInterfaceInclude.hpp>
 
-#include <arm-no-os/llIncludes.hpp>
+#include <llIncludes.hpp>
 #include "Uart.hpp"
 
 class Serial;
@@ -19,7 +19,7 @@ template<class LL>
 class UartManager {
     typedef typename LL::HW HW;
     private:
-    static Uart<LL> uarts[HW::uartCount];
+    static Uart<LL> uarts[UART_COUNT];
 
     static void interrupt(uint8_t id);
 

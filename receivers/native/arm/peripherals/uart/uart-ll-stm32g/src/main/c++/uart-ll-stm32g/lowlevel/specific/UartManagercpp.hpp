@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SERIAL_MODULE_LOWLEVEL_SPECIFIC_UARTMANAGERCPP_HPP_
-#define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SERIAL_MODULE_LOWLEVEL_SPECIFIC_UARTMANAGERCPP_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SERIAL_MODULE_LOWLEVEL_SPECIFIC_UARTMANAGERCPP_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SERIAL_MODULE_LOWLEVEL_SPECIFIC_UARTMANAGERCPP_HPP_
 
 #include "UartInternal.hpp"
 #include <utility/PreprocessorArrayInitialiser.hpp>
@@ -96,6 +96,9 @@ InterruptManager::setInterrupt(&UartManager::interrupt, UartInt);
 for (int i = 0; i < HW::uartCount; ++i) {
     InterruptManager::enableInterrupt(UartInt, i, 8);
 }
+#ifdef USE_USB_SERIAL
+    Usb<LL>::usb.setId(HW::uartCount);
+#endif
 }
 
-#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SERIAL_MODULE_LOWLEVEL_SPECIFIC_UARTMANAGERCPP_HPP_ */
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SERIAL_MODULE_LOWLEVEL_SPECIFIC_UARTMANAGERCPP_HPP_ */

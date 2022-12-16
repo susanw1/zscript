@@ -53,18 +53,15 @@ private:
     void txOverflowInterrupt();
 
 public:
-    void setUart(UartInternal<LL> uart, Dma<LL> *txDma, DmaMuxRequest requestTx) {
-        this->id = uart.getId();
-        this->uart = uart;
-        this->txDma = txDma;
-        this->requestTx = requestTx;
+
+    Uart(UartInternal<LL> uart, Dma<LL> *txDma) :
+            id(uart.getId()), targetValueCallback(NULL), rxOverflowCallback(NULL), uart(uart), requestTx(DMAMUX_NO_MUX), txDma(txDma) {
     }
-    void setUart(UartInternal<LL> uart, Dma<LL> *txDma) {
-        this->id = uart.getId();
-        this->uart = uart;
-        this->txDma = txDma;
-        this->requestTx = DMAMUX_NO_MUX;
+
+    Uart(UartInternal<LL> uart, Dma<LL> *txDma, DmaMuxRequest requestTx) :
+            id(uart.getId()), targetValueCallback(NULL), rxOverflowCallback(NULL), uart(uart), requestTx(requestTx), txDma(txDma) {
     }
+
     uint32_t getMaxBaud() {
         return ClockManager<LL>::getClock(SysClock)->getFreqKhz() * 1000 / 16;
     }

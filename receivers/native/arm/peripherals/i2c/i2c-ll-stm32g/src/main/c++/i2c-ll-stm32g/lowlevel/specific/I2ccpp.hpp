@@ -11,14 +11,9 @@
 #include <i2c-ll/I2cLLInterfaceInclude.hpp>
 #include <i2c-ll/lowlevel/I2c.hpp>
 
-#include <arm-no-os/system/clock/ClockManager.hpp>
+#include <clock-ll/ClockManager.hpp>
 
 #include "I2cInternal.hpp"
-
-template<class LL>
-I2c<LL>::I2c() :
-        i2c(), id(0), state( { 0, false, false, false, false, false, false, false }), callback(NULL) {
-}
 
 template<class LL>
 bool I2c<LL>::init() {
@@ -40,7 +35,7 @@ bool I2c<LL>::init() {
 template<class LL>
 void I2c<LL>::setFrequency(I2cFrequency freq) {
     i2c.disablePeripheral();
-    i2c.setFrequency(ClockManager < LL > ::getClock(HSI), freq);
+    i2c.setFrequency(ClockManager<LL>::getClock(HSI), freq);
     i2c.enablePeripheral();
 }
 

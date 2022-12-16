@@ -8,7 +8,12 @@
 #ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CCPP_HPP_
 #define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CCPP_HPP_
 
-#include <arm-no-os/system/clock/ClockManager.hpp>
+#include <i2c-ll/I2cLLInterfaceInclude.hpp>
+#include <i2c-ll/lowlevel/I2c.hpp>
+
+#include <clock-ll/ClockManager.hpp>
+
+#include "I2cInternal.hpp"
 
 template<class LL>
 I2c<LL>::I2c() :
@@ -24,7 +29,7 @@ bool I2c<LL>::init() {
     state.lockBool = false;
     i2c.activateClock(id);
     i2c.disablePeripheral();
-    setFrequency (kHz100);
+    setFrequency(kHz100);
     i2c.doBasicSetup();
     bool worked = i2c.recoverSdaJam(); // just make sure no stupid states
     i2c.activatePins();
@@ -35,7 +40,7 @@ bool I2c<LL>::init() {
 template<class LL>
 void I2c<LL>::setFrequency(I2cFrequency freq) {
     i2c.disablePeripheral();
-    i2c.setFrequency(ClockManager < LL > ::getClock(HSI), freq);
+    i2c.setFrequency(ClockManager<LL>::getClock(HSI), freq);
     i2c.enablePeripheral();
 }
 

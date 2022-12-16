@@ -10,11 +10,11 @@
 
 #include <i2c-ll/I2cLLInterfaceInclude.hpp>
 
-#include <arm-no-os/llIncludes.hpp>
-#include <arm-no-os/pins-module/lowlevel/Gpio.hpp>
-#include <arm-no-os/pins-module/lowlevel/GpioManager.hpp>
-#include <arm-no-os/system/clock/ClockManager.hpp>
-#include <arm-no-os/system/clock/SystemMilliClock.hpp>
+#include <llIncludes.hpp>
+#include <pins-ll/lowlevel/Gpio.hpp>
+#include <pins-ll/lowlevel/GpioManager.hpp>
+#include <clock-ll/ClockManager.hpp>
+#include <clock-ll/SystemMilliClock.hpp>
 #include "I2cRegisters.hpp"
 
 struct I2cState {
@@ -61,20 +61,9 @@ private:
         registers->CR1 = cr1r;
     }
 public:
-    I2cInternal() :
-            sda(PA_1), sdaFunction(0), scl(PA_1), sclFunction(0), registers(NULL) {
-    }
     I2cInternal(GpioPinName sda, PinAlternateFunction sdaFunction, GpioPinName scl, PinAlternateFunction sclFunction, I2cRegisters *registers) :
             sda(sda), sdaFunction(sdaFunction), scl(scl), sclFunction(sclFunction), registers(registers) {
     }
-    void operator=(const I2cInternal &other) {
-        sda = other.sda;
-        sdaFunction = other.sdaFunction;
-        scl = other.scl;
-        sclFunction = other.sclFunction;
-        registers = other.registers;
-    }
-
     void activateClock(I2cIdentifier id);
     void activatePins();
     bool recoverSdaJam();
@@ -362,16 +351,16 @@ bool I2cInternal<LL>::recoverSdaJam() {
         return true;
     }
     sclPin.set();
-    SystemMilliClock < LL > ::blockDelayMillis(10);
+    SystemMilliClock<LL>::blockDelayMillis(10);
     if (!sclPin.read()) {
         activatePins();
         return false;
     }
     while (!sdaPin.read() && attempts > 0) {
         sclPin.set();
-        SystemMilliClock < LL > ::blockDelayMillis(10);
+        SystemMilliClock<LL>::blockDelayMillis(10);
         sclPin.reset();
-        SystemMilliClock < LL > ::blockDelayMillis(10);
+        SystemMilliClock<LL>::blockDelayMillis(10);
         attempts--;
     }
     sdaPin.reset();

@@ -20,9 +20,6 @@ public:
     GpioPin(GpioPinName pin) :
             pin(pin) {
     }
-    GpioPin() :
-            pin( { 0, 0 }) {
-    }
     void init();
 
     void write(bool value);

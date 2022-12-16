@@ -25,21 +25,15 @@ class ZcodeI2cBusInterruptHandler {
     HandlerStatus status;
 
 public:
-    ZcodeI2cBusInterruptHandler() :
-            interruptPin(), status( { false, 0 }) {
-    }
     ZcodeI2cBusInterruptHandler(GpioPin<LL> interruptPin, I2cIdentifier id) :
             interruptPin(interruptPin), status( { false, id }) {
-    }
-    void setup(GpioPin<LL> interruptPin, I2cIdentifier id) {
-        this->interruptPin = interruptPin;
-        status = { false, id };
         interruptPin.init();
         interruptPin.setOutputMode(OpenDrain);
         interruptPin.setOutputSpeed(VeryHighSpeed);
         interruptPin.setPullMode(PullUp);
         interruptPin.setMode(Input);
     }
+
     bool hasNotification() {
         if (status.notificationFlag) {
             return false;
@@ -79,20 +73,14 @@ public:
 
 template<class ZP>
 class ZcodeI2cBusInterruptSource: public ZcodeBusInterruptSource<ZP> {
-    static const GpioPin<ZP::LL> interruptPins[ZP::LL::HW::i2cCount];
-    ZcodeI2cBusInterruptHandler<ZP> handlers[ZP::LL::HW::i2cCount];
+    ZcodeI2cBusInterruptHandler<ZP> handlers[I2C_COUNT];
 
 public:
 
-    ZcodeI2cBusInterruptSource() :
-            handlers() {
-        for (uint8_t i = 0; i < ZP::LL::HW::i2cCount; ++i) {
-            handlers[i].setup(interruptPins[i], i);
-        }
-    }
+    ZcodeI2cBusInterruptSource();
 
     ZcodeNotificationInfo takeUncheckedNotification() {
-        for (I2cIdentifier i = 0; i < ZP::LL::HW::i2cCount; ++i) {
+        for (I2cIdentifier i = 0; i < I2C_COUNT; ++i) {
             if (handlers[i].hasNotification()) {
                 handlers[i].setNotificationFlag();
                 ZcodeNotificationInfo info;
@@ -117,15 +105,12 @@ public:
         return handlers[id].getAddress();
     }
 
-}
-;
+};
+#define I2C_BUS_INTERRUPT_SOURCE_INITIALISE(x) ZcodeI2cBusInterruptHandler<LL>(I2C_##x##_ALERT, x)
 
-#if defined(I2C_LL_STM32G)
-#include <i2c-ll-stm32f/addressing/ZcodeI2cBusInterruptSource.hpp>
-#elif defined(I2C_LL_STM32F)
-#include <i2c-ll-stm32g/addressing/ZcodeI2cBusInterruptSource.hpp>
-#else
-#error Please select a supported device family
-#endif
+template<class ZP>
+ZcodeI2cBusInterruptHandler<ZP> ZcodeI2cBusInterruptSource<ZP>::handlers[] = {
+        ARRAY_INITIALISE_1(I2C_BUS_INTERRUPT_SOURCE_INITIALISE, I2C_COUNT)
+};
 
 #endif /* SRC_MAIN_CPP_ARM_NO_OS_I2C_MODULE_ADDRESSING_ZCODEI2C2CHANNELBUSINTERRUPTSOURCE_HPP_ */

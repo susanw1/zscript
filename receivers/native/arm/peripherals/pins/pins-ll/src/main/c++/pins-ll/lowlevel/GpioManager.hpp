@@ -17,20 +17,14 @@ template<class LL>
 class GpioManager {
 private:
     typedef typename LL::HW HW;
-    static GpioPin<LL> pins[HW::pinCount];
 
 public:
     static void init();
 
     static void activateClock(GpioPinName name);
 
-    static GpioPin<LL> getPin(GpioPinName name);
-
-    static GpioPin<LL> getPin(uint8_t id) {
-        if (id >= HW::pinCount) {
-            return pins[0];
-        }
-        return pins[id];
+    static GpioPin<LL> getPin(GpioPinName name) {
+        return GpioPin(name);
     }
 
     static GpioPort* getPort(GpioPinName name);

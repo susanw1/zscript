@@ -48,7 +48,8 @@ private:
     DmaMuxRequest requestRx = DMAMUX_NO_MUX;
 
     void dmaInterrupt(DmaTerminationStatus status);
-    #endif
+#endif
+
     uint16_t address = 0;
     uint16_t position = 0;
     uint16_t rxLen = 0;
@@ -66,32 +67,25 @@ private:
 
     void restartReceive();
 
-#ifdef I2C_DMA
-    void setI2c(I2cInternal<LL> i2c, I2cIdentifier id, DmaMuxRequest requestTx, DmaMuxRequest requestRx) {
-        this->i2c = i2c;
-        this->id = id;
-        this->requestTx = requestTx;
-        this->requestRx = requestRx;
-    }
-#endif
-    void setI2c(I2cInternal<LL> i2c, I2cIdentifier id) {
-        this->i2c = i2c;
-        this->id = id;
-
-#ifdef I2C_DMA
-        this->requestTx = DMAMUX_NO_MUX;
-        this->requestRx = DMAMUX_NO_MUX;
-#endif
-    }
     I2cTerminationStatus transmit10(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, bool stop);
 
 public:
 
-    I2c();
+#ifdef I2C_DMA
+    I2c<LL>::I2c(I2cInternal<LL> i2c, I2cIdentifier id, DmaMuxRequest requestTx, DmaMuxRequest requestRx) :
+            i2c(i2c), id(id), requestTx(requestTx), requestRx(requestRx), state(), callback(NULL)  {
+    }
+#endif
 
+    I2c<LL>::I2c(I2cInternal<LL> i2c, I2cIdentifier id) :
+            i2c(i2c), id(id), state(), callback(NULL) {
+    }
+
+#ifdef I2C_DMA
     void setDma(Dma<LL> *dma) {
         this->dma = dma;
     }
+#endif
 
     bool init();
 

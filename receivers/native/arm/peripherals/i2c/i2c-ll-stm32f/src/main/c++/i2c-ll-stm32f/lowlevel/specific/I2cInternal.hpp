@@ -8,11 +8,13 @@
 #ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CINTERNAL_HPP_
 #define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_I2C_MODULE_LOWLEVEL_SPECIFIC_I2CINTERNAL_HPP_
 
-#include <arm-no-os/llIncludes.hpp>
-#include <arm-no-os/pins-module/lowlevel/Gpio.hpp>
-#include <arm-no-os/pins-module/lowlevel/GpioManager.hpp>
-#include <arm-no-os/system/clock/ClockManager.hpp>
-#include <arm-no-os/system/clock/SystemMilliClock.hpp>
+#include <i2c-ll/I2cLLInterfaceInclude.hpp>
+
+#include <llIncludes.hpp>
+#include <pins-ll/lowlevel/Gpio.hpp>
+#include <pins-ll/lowlevel/GpioManager.hpp>
+#include <clock-ll/ClockManager.hpp>
+#include <clock-ll/SystemMilliClock.hpp>
 #include "I2cRegisters.hpp"
 
 struct I2cState {
@@ -328,16 +330,16 @@ bool I2cInternal<LL>::recoverSdaJam() {
         return true;
     }
     sclPin.set();
-    SystemMilliClock < LL > ::blockDelayMillis(10);
+    SystemMilliClock<LL>::blockDelayMillis(10);
     if (!sclPin.read()) {
         activatePins();
         return false;
     }
     while (!sdaPin.read() && attempts > 0) {
         sclPin.set();
-        SystemMilliClock < LL > ::blockDelayMillis(10);
+        SystemMilliClock<LL>::blockDelayMillis(10);
         sclPin.reset();
-        SystemMilliClock < LL > ::blockDelayMillis(10);
+        SystemMilliClock<LL>::blockDelayMillis(10);
         attempts--;
     }
     sdaPin.reset();

@@ -32,25 +32,24 @@
 #endif
 #endif
 
-template<class LL>
-I2c<LL> I2cManager<LL>::i2cs[HW::i2cCount];
+#ifdef I2C_DMA
+#define I2C_INITIALISE(x) I2c<LL>(\
+        I2cInternal<LL>(I2C_SDA(I2C1, I2C1_SDA), I2C_SCL(I2C1, I2C1_SCL), I2C##x##_REGISTER_LOC),\
+        x,\
+        DMAMUX_I2C##x##_TX,\
+        DMAMUX_I2C##x##_RX\
+        )
+#else
+#define I2C_INITIALISE(x) I2c<LL>(\
+        I2cInternal<LL>(I2C_SDA(I2C1, I2C1_SDA), I2C_SCL(I2C1, I2C1_SCL), I2C##x##_REGISTER_LOC),\
+        x\
+        )
+#endif
 
 template<class LL>
-I2cInternal<LL> getI2cInternal_internal(I2cIdentifier id) {
-    if (id == 0) {
-#ifdef USE_I2C_1
-        return I2cInternal<LL>(I2C_SDA(I2C_1, I2C_1_SDA), I2C_SCL(I2C_1, I2C_1_SCL), (I2cRegisters*) 0x40005400);
-#else
-        return I2cInternal<LL>();
-#endif
-    } else {
-#ifdef USE_I2C_2
-        return I2cInternal<LL>(I2C_SDA(I2C_2, I2C_2_SDA), I2C_SCL(I2C_2, I2C_2_SCL), (I2cRegisters*) 0x40005800);
-#else
-        return I2cInternal<LL>();
-#endif
-    }
-}
+I2c<LL> I2cManager<LL>::i2cs[] = {
+        ARRAY_INITIALISE_1(I2C_INITIALISE, I2C_COUNT)
+};
 
 template<class LL>
 void I2cManager<LL>::interrupt(uint8_t id) {
@@ -59,11 +58,9 @@ void I2cManager<LL>::interrupt(uint8_t id) {
 
 template<class LL>
 void I2cManager<LL>::init() {
-
     InterruptManager::setInterrupt(&I2cManager::interrupt, InterruptType::I2cInt);
 
     for (int i = 0; i < HW::i2cCount; ++i) {
-        i2cs[i].setI2c(getI2cInternal_internal < LL > (i), i);
         i2cs[i].init();
         InterruptManager::enableInterrupt(InterruptType::I2cInt, i, 10);
     }

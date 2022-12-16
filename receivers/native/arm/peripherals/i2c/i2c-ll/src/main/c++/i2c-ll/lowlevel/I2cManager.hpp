@@ -18,7 +18,7 @@ class I2cManager {
     private:
 
     friend class I2c<LL> ;
-    static I2c<LL> i2cs[HW::i2cCount];
+    static I2c<LL> i2cs[I2C_COUNT];
 
     static void interrupt(uint8_t);
 
