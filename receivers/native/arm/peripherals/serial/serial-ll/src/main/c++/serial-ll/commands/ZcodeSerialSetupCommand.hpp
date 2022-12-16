@@ -1,0 +1,77 @@
+/*
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_COMMANDS_ZCODESERIALSETUPCOMMAND_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_COMMANDS_ZCODESERIALSETUPCOMMAND_HPP_
+
+#include <zcode/modules/ZcodeCommand.hpp>
+#include <serial-ll/lowlevel/SerialManager.hpp>
+#include <serial-ll/lowlevel/Serial.hpp>
+
+#define COMMAND_EXISTS_0071 EXISTENCE_MARKER_UTIL
+
+template<class ZP>
+class ZcodeSerialSetupCommand: public ZcodeCommand<ZP> {
+    typedef typename ZP::LL LL;
+    typedef typename LL::HW HW;
+
+public:
+    static constexpr uint8_t CODE = 0x01;
+
+    static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
+        ZcodeOutStream<ZP> *out = slot.getOut();
+        uint16_t port = 0;
+        uint32_t baud = 0;
+        bool singleNdoubleStop = false;
+
+        if (!slot.getFields()->get('P', &port)) {
+            slot.fail(BAD_PARAM, "Port number missing");
+            return;
+        }
+        if (port >= SerialManager<LL>::serialCount) {
+            slot.fail(BAD_PARAM, "Port number invalid");
+            return;
+        }
+        if (SerialManager<LL>::isMasked(port)) {
+            slot.fail(BAD_PARAM, "Port not available");
+            return;
+        }
+        Serial *serial = SerialManager<LL>::getSerialById(port);
+
+        for (uint8_t i = 0; i < slot.getBigField()->getLength(); ++i) {
+            baud <<= 8;
+            baud |= slot.getBigField()->getData()[i];
+        }
+        if (slot.getBigField()->getLength() == 0) {
+            baud = 9600;
+        } else if (slot.getBigField()->getLength() > 4 || baud <= serial->getMinBaud() || baud >= serial->getMaxBaud()) {
+            slot.fail(BAD_PARAM, "Invalid baud rate");
+            return;
+        }
+        if (slot.getFields()->has('C')) { //check parity
+            slot.fail(CMD_FAIL, "Parity not supported");
+            return;
+        }
+        if (slot.getFields()->has('O')) {
+            slot.fail(CMD_FAIL, "Noise detection not supported");
+            return;
+        }
+        if (slot.getFields()->has('S')) {
+            singleNdoubleStop = true;
+        }
+        if (slot.getFields()->has('A')) {
+            slot.fail(CMD_FAIL, "Auto baud rate detection not supported");
+            return;
+        }
+
+        serial->init(NULL, baud, singleNdoubleStop);
+        out->writeStatus(OK);
+    }
+
+};
+
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_COMMANDS_ZCODESERIALSETUPCOMMAND_HPP_ */
