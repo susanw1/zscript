@@ -137,11 +137,12 @@
                             <run>false</run>
                         </test>
                     </tests>
-					<sysLibs>
+<!-- 					<sysLibs>
 						<sysLib>
 							<name>arm-none-eabi</name>
 						</sysLib>
 					</sysLibs>
+-->
                 </configuration>
             </plugin>
 

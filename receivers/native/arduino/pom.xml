@@ -9,26 +9,20 @@
 
     <artifactId>zcode-receivers-arduino</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode Arduino Receiver - TBD</name>
+    <name>Zcode Arduino Receiver</name>
+
+    <properties>
+        <generic-core-version>${project.version}</generic-core-version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.zcode</groupId>
             <artifactId>generic-receiver-core</artifactId>
-            <version>${project.version}</version>
+            <version>${generic-core-version}</version>
             <type>nar</type>
         </dependency>
     </dependencies>
-
-    <properties>
-        <!-- 
-		<cpu>cortex-m4</cpu>
-		<device-family>STM32G484xx</device-family>
-		<device>STM32G484RE</device>
-		<cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
-		<cpp-optimizations>-O3 -flto</cpp-optimizations>
--->
-    </properties>
 
     <build>
         <plugins>
@@ -51,17 +45,17 @@
                             <include>**/*.cxx</include>
                             <include>**/*.cc</include>
                         </includes>
-                        <excludes>
-                            <exclude>channels/Serial/**</exclude>
-                            <exclude>channels/Uip/**</exclude>
-                        </excludes>
 
-                        <includePaths></includePaths>
+                        <includePaths>
+                            <includePath>
+                                <path>${project.basedir}/src/main/c++</path>
+                            </includePath>
+                        </includePaths>
 
                         <optionSet>${cpp-warnings} ${cpp-optimizations}</optionSet>
                         <options>
                             <option>-mthumb</option>
-                            <option>-fno-common</option>
+                            <option>-fno-com mon</option>
                             <option>-mcpu=${cpu}</option>
                             <option>--specs=nosys.specs</option>
                         </options>
@@ -77,16 +71,26 @@
                     <linker>
                         <name>ld</name>
                         <prefix>avr-</prefix>
-                        <!-- 						
-						<sysLibs>
-							<sysLib>
-								<name>stdc++</name>
-							</sysLib>
-						</sysLibs>
--->
                     </linker>
-
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <finalName>Zcode</finalName>
+                    <descriptors>
+                        <descriptor>src/assembly/assemble-arduino-lib.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-arduino-lib</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
