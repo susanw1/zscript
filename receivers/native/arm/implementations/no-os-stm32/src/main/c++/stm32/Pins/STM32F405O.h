@@ -12,7 +12,6 @@
 #define PortE 4
 #define PortH 5
 #define PortI 6
-#define Port_ 7
 
 struct GpioPinName {
     uint8_t port:4;
@@ -98,8 +97,5 @@ struct GpioPinName {
 
 #define PI0 ((GpioPinName){PortI, Pin0})
 #define PI1 ((GpioPinName){PortI, Pin1})
-
-#define P_1 ((GpioPinName){Port_, Pin1})
-#define P_2 ((GpioPinName){Port_, Pin2})
 
 #endif /* LOWLEVEL_INCLUDE_DEVICE_PINS */

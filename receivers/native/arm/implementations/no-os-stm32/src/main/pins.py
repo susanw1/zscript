@@ -14,7 +14,7 @@ for i in range(1, len(sys.argv)):
    root = tree.getroot()
       
    for pin in root.iter("{http://mcd.rou.st.com/modules.php?name=mcu}Pin"):
-      match = re.search('P.\d*', pin.get("Name"))
+      match = re.search('^P.\d+', pin.get("Name"))
       if(match):
          pins.add(match.group(0));
 #   print(pins)

@@ -9,7 +9,6 @@
 #define PortB 1
 #define PortC 2
 #define PortH 3
-#define PortS 4
 
 struct GpioPinName {
     uint8_t port:4;
@@ -41,7 +40,6 @@ struct GpioPinName {
 #define PB6 ((GpioPinName){PortB, Pin6})
 #define PB7 ((GpioPinName){PortB, Pin7})
 #define PB8 ((GpioPinName){PortB, Pin8})
-#define PB11 ((GpioPinName){PortB, Pin11})
 
 #define PC14 ((GpioPinName){PortC, Pin14})
 #define PC15 ((GpioPinName){PortC, Pin15})

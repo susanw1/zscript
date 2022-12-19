@@ -5,17 +5,14 @@
 #ifndef LOWLEVEL_INCLUDE_DEVICE_PINS
 #define LOWLEVEL_INCLUDE_DEVICE_PINS
 
-#define Port1 0
-#define Port2 1
-#define PortA 2
-#define PortB 3
-#define PortC 4
-#define PortD 5
-#define PortE 6
-#define PortF 7
-#define PortG 8
-#define PortH 9
-#define PortW 10
+#define PortA 0
+#define PortB 1
+#define PortC 2
+#define PortD 3
+#define PortE 4
+#define PortF 5
+#define PortG 6
+#define PortH 7
 
 struct GpioPinName {
     uint8_t port:4;

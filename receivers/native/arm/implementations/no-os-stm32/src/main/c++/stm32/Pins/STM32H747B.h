@@ -14,7 +14,6 @@
 #define PortG 6
 #define PortH 7
 #define PortI 8
-#define PortS 9
 
 struct GpioPinName {
     uint8_t port:4;
