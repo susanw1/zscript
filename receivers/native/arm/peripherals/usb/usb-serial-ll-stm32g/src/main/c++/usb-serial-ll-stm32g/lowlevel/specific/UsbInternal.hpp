@@ -9,9 +9,9 @@
 #define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USB_MODULE_LOWLEVEL_SPECIFIC_USBINTERNAL_HPP_
 
 #include <llIncludes.hpp>
-#include <clock-ll/SystemMilliClock.hpp>
 #include <arm-no-os/system/interrupt/InterruptManager.hpp>
 #include <pins-ll/lowlevel/GpioManager.hpp>
+#include "../../../../../../../../clock/src/main/c++/clock-ll/SystemMilliClock.hpp"
 #include "UsbRegisters.hpp"
 
 #include "UsbDefaultEndpoint.hpp"

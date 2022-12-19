@@ -8,9 +8,9 @@
 #ifndef SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_SPECIFIC_UARTCPP_HPP_
 #define SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_SPECIFIC_UARTCPP_HPP_
 
+#include <clock-ll/ClockManager.hpp>
 #include "../Uart.hpp"
 #include "../UartManager.hpp"
-#include <clock-ll/ClockManager.hpp>
 
 template<class LL>
 void UartDmaCallback(Dma<LL> *dma, DmaTerminationStatus status) {
@@ -51,6 +51,8 @@ void Uart<LL>::clearRxFifo() {
         int16_t datum = uart.read();
         if (datum < 0) {
             if (datum != -SerialFramingError) {
+                //TODO: implement proper break handling
+            } else {
                 rxBuffer.write(LL::uartEscapingChar);
                 rxBuffer.write((uint8_t) -datum);
             }
@@ -84,7 +86,7 @@ void Uart<LL>::clearRxFifo() {
 }
 
 template<class LL>
-SerialError Uart<LL>::getError(uint16_t length) {
+SerialEvent Uart<LL>::getError(uint16_t length) {
     clearRxFifo();
     peekDist = 0;
     rxBuffer.resetPeek();
@@ -96,7 +98,7 @@ SerialError Uart<LL>::getError(uint16_t length) {
             val = rxBuffer.peek();
             if (val != LL::uartEscapingChar) {
                 rxBuffer.resetPeek();
-                return (SerialError) val;
+                return (SerialEvent) val;
             }
         }
     }
@@ -105,49 +107,53 @@ SerialError Uart<LL>::getError(uint16_t length) {
 }
 
 template<class LL>
-uint16_t Uart<LL>::read(uint8_t *buffer, uint16_t length) {
+SerialReadResult Uart<LL>::read(uint8_t *buffer, uint16_t length) {
     clearRxFifo();
+    SerialEvent event = SerialNoError;
     peekDist = 0;
     uint16_t i;
     for (i = 0; i < length; ++i) {
         int16_t val = rxBuffer.read();
         if (val == -1) {
+            event = SerialNoMoreData;
             break;
         } else if (val == LL::uartEscapingChar) {
             val = rxBuffer.read();
             if (val == LL::uartEscapingChar) {
                 buffer[i] = val;
             } else {
-                i--;
+                event = val;
+                break;
             }
         } else {
             buffer[i] = val;
         }
     }
     availableData -= i;
-    return i;
+    return {event, i};
 }
 
 template<class LL>
-int16_t Uart<LL>::read() {
+SerialSingleResult Uart<LL>::read() {
     clearRxFifo();
     peekDist = 0;
-    while (true) {
-        int16_t val = rxBuffer.read();
+    int16_t val = rxBuffer.read();
+    availableData--;
+    if (val == LL::uartEscapingChar) {
+        val = rxBuffer.read();
         if (val == LL::uartEscapingChar) {
-            val = rxBuffer.read();
-            if (val == LL::uartEscapingChar) {
-                availableData--;
-                return val;
-            }
+            availableData--;
+            return {SerialNoError, val};
         } else {
-            if (val != -1) {
-                availableData--;
-            }
-            return val; // this includes if read returned -1
+            return {val, 0xFF};
+        }
+    } else {
+        if (val != -1) {
+            return {SerialNoError, val};
+        } else {
+            return {SerialNoMoreData, 0xFF};
         }
     }
-
 }
 
 template<class LL>
@@ -208,17 +214,21 @@ uint16_t Uart<LL>::availablePeek() {
 template<class LL>
 uint16_t Uart<LL>::peek(uint8_t *buffer, uint16_t length) {
     clearRxFifo();
+    SerialEvent event = SerialNoError;
+    peekDist = 0;
     uint16_t i;
     for (i = 0; i < length; ++i) {
         int16_t val = rxBuffer.peek();
         if (val == -1) {
+            event = SerialNoMoreData;
             break;
         } else if (val == LL::uartEscapingChar) {
             val = rxBuffer.peek();
             if (val == LL::uartEscapingChar) {
                 buffer[i] = val;
             } else {
-                i--;
+                event = val;
+                break;
             }
         } else {
             buffer[i] = val;
@@ -229,21 +239,24 @@ uint16_t Uart<LL>::peek(uint8_t *buffer, uint16_t length) {
 }
 
 template<class LL>
-int16_t Uart<LL>::peek() {
+SerialSingleResult Uart<LL>::peek() {
     clearRxFifo();
-    while (true) {
-        int16_t val = rxBuffer.peek();
+    peekDist = 0;
+    int16_t val = rxBuffer.peek();
+    peekDist++;
+    if (val == LL::uartEscapingChar) {
+        val = rxBuffer.peek();
         if (val == LL::uartEscapingChar) {
-            val = rxBuffer.peek();
-            if (val == LL::uartEscapingChar) {
-                peekDist++;
-                return val;
-            }
+            availableData--;
+            return {SerialNoError, val};
         } else {
-            if (val != -1) {
-                peekDist++;
-            }
-            return val; // this includes if read returned -1
+            return {val, 0xFF};
+        }
+    } else {
+        if (val != -1) {
+            return {SerialNoError, val};
+        } else {
+            return {SerialNoMoreData, 0xFF};
         }
     }
 } //-1 if no data
@@ -295,7 +308,7 @@ void Uart<LL>::init(void (*volatile bufferOverflowCallback)(SerialIdentifier), u
 }
 
 template<class LL>
-void Uart<LL>::interrupt() {
+void Uart<LL>::rxDataArrivedInterrupt() {
     clearRxFifo();
     uart.clearFlags();
 }

@@ -5,11 +5,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_CLOCK_CLOCK_HPP_
-#define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_CLOCK_CLOCK_HPP_
+#ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_CLOCK_CLOCK_HPP_
+#define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_CLOCK_CLOCK_HPP_
 
-#include <arm-no-os/llIncludes.hpp>
-#include "specific/SystemClocks.hpp"
+#include <llIncludes.hpp>
+#include "SystemClocks.hpp"
 
 template<class LL>
 class Clock {
@@ -39,10 +39,7 @@ public:
         return source;
     }
 };
-#ifndef CLOCKLOWLEVEL_NO_CPP
-#include "specific/Clockcpp.hpp"
-#endif
+#include "Clockcpp.hpp"
 
-#include "../clock-ll/ClockManager.hpp"
-
-#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_CLOCK_CLOCK_HPP_ */
+#include <clock-ll/ClockManager.hpp>
+#endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_CLOCK_CLOCK_HPP_ */

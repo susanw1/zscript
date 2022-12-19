@@ -8,9 +8,8 @@
 #ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_CLOCK_CLOCKMANAGER_HPP_
 #define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_CLOCK_CLOCKMANAGER_HPP_
 
-#define CLOCKLOWLEVEL_NO_CPP
-#include <arm-no-os/llIncludes.hpp>
-#include "../clock-ll/Clock.hpp"
+#include <llIncludes.hpp>
+#include "specific/Clock.hpp"
 
 template<class LL>
 class ClockManager {
@@ -26,9 +25,5 @@ public:
     static void slowSetup();
 };
 #include "specific/ClockManagercpp.hpp"
-
-#undef CLOCKLOWLEVEL_NO_CPP
-
-#include "specific/Clockcpp.hpp"
 
 #endif /* SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_CLOCK_CLOCKMANAGER_HPP_ */

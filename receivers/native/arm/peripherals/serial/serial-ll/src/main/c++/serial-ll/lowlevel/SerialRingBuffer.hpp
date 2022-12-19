@@ -296,6 +296,21 @@ public:
             writePos = writePos + length - size;
         }
     }
+
+    int16_t getDistance(uint8_t value) {
+        uint16_t i = 0;
+        uint16_t pos = readPos;
+        while (pos != writePos) {
+            if (data[pos++] == value) {
+                return i;
+            }
+            i++;
+            if (pos == size) {
+                pos = 0;
+            }
+        }
+        return -1;
+    }
 };
 
 #endif /* SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_SERIALRINGBUFFER_HPP_ */

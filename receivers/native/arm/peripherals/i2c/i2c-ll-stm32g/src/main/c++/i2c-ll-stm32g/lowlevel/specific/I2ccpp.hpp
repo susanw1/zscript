@@ -10,9 +10,7 @@
 
 #include <i2c-ll/I2cLLInterfaceInclude.hpp>
 #include <i2c-ll/lowlevel/I2c.hpp>
-
 #include <clock-ll/ClockManager.hpp>
-
 #include "I2cInternal.hpp"
 
 template<class LL>

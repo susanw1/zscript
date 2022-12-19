@@ -20,7 +20,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <clock-ll/SystemMilliClock.hpp>
+#include "../../../../../../../../clock/src/main/c++/clock-ll/SystemMilliClock.hpp"
 #include "Dhcp.h"
 #include "Ethernet.h"
 #include "utility/w5100.h"

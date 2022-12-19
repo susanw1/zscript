@@ -9,9 +9,9 @@
 #define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USBC_PD_MODULE_LOWLEVEL_SPECIFIC_UCPDINTERNAL_HPP_
 
 #include <llIncludes.hpp>
-#include <clock-ll/SystemMilliClock.hpp>
-#include <clock-ll/ClockManager.hpp>
 #include <dma-ll/DmaManager.hpp>
+#include "../../../../../../../../clock/src/main/c++/clock-ll/ClockManager.hpp"
+#include "../../../../../../../../clock/src/main/c++/clock-ll/SystemMilliClock.hpp"
 #include "UcpdParser.hpp"
 
 enum PowerStatus {

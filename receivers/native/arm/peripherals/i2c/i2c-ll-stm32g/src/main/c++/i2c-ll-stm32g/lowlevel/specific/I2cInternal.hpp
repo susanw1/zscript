@@ -13,8 +13,8 @@
 #include <llIncludes.hpp>
 #include <pins-ll/lowlevel/Gpio.hpp>
 #include <pins-ll/lowlevel/GpioManager.hpp>
-#include <clock-ll/ClockManager.hpp>
-#include <clock-ll/SystemMilliClock.hpp>
+#include "../../../../../../../../clock/src/main/c++/clock-ll/SystemMilliClock.hpp"
+#include "../../../../../../../../clock-ll/src/main/c++/clock-ll/ClockManager.hpp"
 #include "I2cRegisters.hpp"
 
 struct I2cState {

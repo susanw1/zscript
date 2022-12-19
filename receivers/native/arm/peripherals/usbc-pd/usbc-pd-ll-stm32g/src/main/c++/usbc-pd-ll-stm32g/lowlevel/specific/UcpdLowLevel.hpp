@@ -9,10 +9,10 @@
 #define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_USBC_PD_MODULE_LOWLEVEL_SPECIFIC_UCPDLOWLEVEL_HPP_
 
 #include <llIncludes.hpp>
-#include <clock-ll/SystemMilliClock.hpp>
-#include <clock-ll/ClockManager.hpp>
 #include <dma-ll/DmaManager.hpp>
 #include <interrupt-ll/InterruptManager.hpp>
+#include "../../../../../../../../clock-ll/src/main/c++/clock-ll/ClockManager.hpp"
+#include "../../../../../../../../clock-ll/src/main/c++/clock-ll/SystemMilliClock.hpp"
 
 enum UcpdTxTerminationStatus {
     UcpdTxAborted, UcpdTxMessageDiscarded, UcpdTxDmaFail, UcpdMessageSent

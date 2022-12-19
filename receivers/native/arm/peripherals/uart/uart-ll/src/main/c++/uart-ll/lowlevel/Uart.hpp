@@ -13,8 +13,8 @@
 #include <llIncludes.hpp>
 #include "specific/UartInternal.hpp"
 #include <dma-ll/DmaManager.hpp>
-#include "Serial.hpp"
-#include "SerialRingBuffer.hpp"
+#include <serial-ll/lowlevel/AbstractRingBufferSerial.hpp>
+#include <serial-ll/lowlevel/SerialRingBuffer.hpp>
 
 template<class LL>
 class UartManager;
@@ -35,18 +35,28 @@ private:
     SerialRingBuffer<LL::UartBufferRxSize> rxBuffer;
     SerialRingBuffer<LL::UartBufferTxSize> txBuffer;
     UartInternal<LL> uart;
+
+#ifdef UART_TX_DMA
     DmaMuxRequest requestTx = DMAMUX_NO_MUX;
     Dma<LL> *txDma = NULL;
-    uint16_t dmaStartDist = 0;
+    uint16_t dmaTxStartDist = 0;
+#endif
+#ifdef UART_RX_DMA
+    DmaMuxRequest requestRx = DMAMUX_NO_MUX;
+    Dma<LL> *rxDma = NULL;
+#endif
     uint16_t availableData = 0;
     uint16_t peekDist = 0;
     uint8_t targetValue = 0;
 
+#ifdef UART_TX_DMA
     friend void UartDmaCallback<LL>(Dma<LL>*, DmaTerminationStatus);
-    friend void UartTxOverflowCallback<LL>(SerialIdentifier);
+#endif
+
+    friend void UartTxOverflowCallback<LL>(SerialIdentifier); //for the tx buffer...
     friend UartManager<LL> ;
 
-    void interrupt();
+    void rxDataArrivedInterrupt();
 
     void dmaInterrupt(DmaTerminationStatus status);
 
@@ -116,7 +126,7 @@ public:
 
     void clearRxFifo();
 
-    SerialError getError(uint16_t length);
+    SerialEvent getEvent(uint16_t length);
 
     uint16_t skip(uint16_t length);
 
@@ -125,15 +135,15 @@ public:
         return availableData;
     }
 
-    uint16_t read(uint8_t *buffer, uint16_t length);
+    SerialReadResult read(uint8_t *buffer, uint16_t length);
 
-    int16_t read(); //-1 if no data
+    SerialSingleResult read(); //-1 if no data
 
     uint16_t availablePeek();
 
-    uint16_t peek(uint8_t *buffer, uint16_t length);
+    SerialReadResult peek(uint8_t *buffer, uint16_t length);
 
-    int16_t peek(); //-1 if no data
+    SerialSingleResult peek(); //-1 if no data
 
     void resetPeek();
 
@@ -141,6 +151,11 @@ public:
 
     int32_t getDistance(uint8_t value);  //returns the number of bytes until the specified value appears, including the value
 };
+template<class LL>
+void Uart<LL>::rxDataArrivedInterrupt() {
+    clearRxFifo();
+    uart.clearFlags();
+}
 #include "specific/Uartcpp.hpp"
 
 #endif /* SRC_MAIN_CPP_ARM_NO_OS_SERIAL_MODULE_LOWLEVEL_UART_HPP_ */

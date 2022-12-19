@@ -9,11 +9,11 @@
 #define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SERIAL_MODULE_LOWLEVEL_SPECIFIC_UARTINTERNAL_HPP_
 
 #include <llIncludes.hpp>
-#include <clock-ll/ClockManager.hpp>
 #include <pins-ll/lowlevel/Gpio.hpp>
 #include <pins-ll/lowlevel/GpioManager.hpp>
 
 #include <serial-ll/lowlevel/Serial.hpp>
+#include "../../../../../../../../clock/src/main/c++/clock-ll/ClockManager.hpp"
 
 template<class LL>
 class Uart;
