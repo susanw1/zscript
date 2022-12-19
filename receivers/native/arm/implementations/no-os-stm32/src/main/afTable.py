@@ -33,7 +33,7 @@ for i in range(2, len(sys.argv)):
    
    # add peripherals which do share numbering systems
    extraFuncs = set()
-   for func in functions:
+   for func in sorted(functions):
       functionChildren[func] = set()
       strFuncName = re.search('^[^\d]+', func).group(0)
       if(strFuncName in peripheralInheritenceInject):
@@ -62,7 +62,7 @@ for i in range(2, len(sys.argv)):
    # Then add peripherals which don't share numbering
    functionInjectNumberMap = {} # preserves the numbering for given original peripherals
    extraFuncs = set()
-   for func in functions:
+   for func in sorted(functions):
       strFuncName = re.search('^[^\d]+', func).group(0)
       match = re.search('\d+', func)
       if(match and (strFuncName in peripheralInheritenceIncrement)):
