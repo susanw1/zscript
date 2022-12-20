@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.zcode</groupId>
+        <artifactId>zcode-receivers-uart</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>zcode-receivers-uart-ll</artifactId>
+    <packaging>nar</packaging>
+    <name>Zcode ll UART</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.zcode</groupId>
+            <artifactId>zcode-receivers-uart-core</artifactId>
+            <version>${project.version}</version>
+            <type>nar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.zcode</groupId>
+            <artifactId>zcode-receivers-serial-ll</artifactId>
+            <version>${project.version}</version>
+            <type>nar</type>
+        </dependency>
+    </dependencies>
+</project>

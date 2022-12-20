@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.zcode</groupId>
+        <artifactId>zcode-receivers-arm</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>zcode-receivers-peripherals</artifactId>
+    <packaging>pom</packaging>
+    <name>Zcode modules for native code</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.zcode</groupId>
+            <artifactId>zcode-receivers-implementations</artifactId>
+            <version>${project.version}</version>
+            <type>nar</type>
+        </dependency>
+    </dependencies>
+    <modules>
+        <module>clock</module>
+        <module>dma</module>
+        <module>i2c</module>
+        <module>pins</module>
+        <module>serial</module>
+        <module>spi</module>
+        <module>uart</module>
+        <module>udp</module>
+        <module>usb</module>
+        <module>usbc-pd</module>
+    </modules>
+</project>
