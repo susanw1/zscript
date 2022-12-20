@@ -1,7 +1,7 @@
-#ifndef DEVICE_DEFINITION_FILE_H
-#define DEVICE_DEFINITION_FILE_H
+#ifndef STM32_SETUP_H
+#define STM32_SETUP_H
 
-#include "switchingFile.h"
+#include "deviceSelector.h"
 
 #define Pin0 0
 #define Pin1 1
@@ -37,8 +37,17 @@
 #define GPIO_AF14 14
 #define GPIO_AF15 15
 
+typedef uint8_t DmaIdentifier;
+typedef uint8_t SerialIdentifier;
+typedef uint8_t I2cIdentifier;
+typedef uint8_t PinAlternateFunction;
+
+enum PeripheralOperationMode {
+    DMA, INTERRUPT, SYNCHRONOUS
+};
+
 #ifndef ZCODE_IDENTIFY_PLATFORM_HARDWARE_VERSION
 #define ZCODE_IDENTIFY_PLATFORM_HARDWARE_VERSION 0x0001
 #endif
 
-#endif /* DEVICE_DEFINITION_FILE_H */
+#endif /* STM32_SETUP_H */
