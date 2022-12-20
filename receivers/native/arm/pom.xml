@@ -14,5 +14,40 @@
     <modules>
         <!-- <module>mbed</module> -->
         <!-- <module>no-os</module> -->
+        <module>zcode-receivers-implementations</module>
+        <module>zcode-receivers-peripherals</module>
     </modules>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.maven-nar</groupId>
+                <artifactId>nar-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <cpp>
+                        <name>gcc</name>
+                        <exceptions>false</exceptions>
+                        <debug>true</debug>
+                        <includePaths>
+                            <includePath>
+                                <path>${project.basedir}/src/main/c++</path>
+                                <includes>**/*.h*</includes>
+                            </includePath>
+                        </includePaths>
+                        <options>
+                            <option>-flto</option>
+                            <option>-g</option>
+                            <option>-Wall</option>
+                            <option>-Wextra</option>
+                        </options>
+                    </cpp>
+                    <libraries>
+                        <library>
+                            <type>static</type>
+                        </library>
+                    </libraries>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
