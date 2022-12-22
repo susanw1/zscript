@@ -13,9 +13,9 @@
 
     <properties>
         <generic-core-version>${project.version}</generic-core-version>
-        <arduino-enabled>false</arduino-enabled>
+        <arduino-skip>false</arduino-skip>
 
-        <cpu>atmega3f8p</cpu>
+        <cpu>atmega328p</cpu>
         <cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
         <cpp-optimizations>-Os</cpp-optimizations>
 
@@ -42,7 +42,7 @@
                 <artifactId>nar-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <skip>true</skip>
+                    <skip>${arduino-skip}</skip>
                     <architecture>avr</architecture>
                     <os>arduino</os>
                     <cpp>
@@ -101,12 +101,13 @@
                     <tests>
                         <test>
                             <name>I2cChannelDemo</name>
-                            <link></link>
+                            <link>none</link>
                             <run>false</run>
                         </test>
                     </tests>
                 </configuration>
             </plugin>
+            
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
