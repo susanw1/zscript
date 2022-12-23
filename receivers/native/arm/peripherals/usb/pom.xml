@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
     <name>Zcode USB</name>
     <modules>
+        <module>all</module>
         <module>usb-core</module>
         <module>usb-serial-ll</module>
         <module>usb-serial-ll-stm32g</module>

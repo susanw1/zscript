@@ -3,16 +3,11 @@
 
     <parent>
         <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-peripherals</artifactId>
+        <artifactId>zcode-receivers-system</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-dma</artifactId>
-    <packaging>pom</packaging>
-    <name>Zcode DMA</name>
-    <modules>
-        <module>all</module>
-        <module>dma-ll</module>
-        <module>dma-ll-stm32g</module>
-    </modules>
+    <artifactId>zcode-receivers-system-core</artifactId>
+    <packaging>nar</packaging>
+    <name>Zcode system Core</name>
 </project>

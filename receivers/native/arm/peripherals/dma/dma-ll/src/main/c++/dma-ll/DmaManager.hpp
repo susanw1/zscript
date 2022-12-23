@@ -8,8 +8,8 @@
 #ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_DMA_DMAMANAGER_HPP_
 #define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_DMA_DMAMANAGER_HPP_
 
-#include <arm-no-os/llIncludes.hpp>
-#include "../dma-ll/Dma.hpp"
+#include <llIncludes.hpp>
+#include "Dma.hpp"
 
 template<class LL>
 class DmaManager {

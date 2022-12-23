@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_DMA_DMA_HPP_
 #define SRC_MAIN_CPP_ARM_NO_OS_STM32F0_SYSTEM_DMA_DMA_HPP_
 
-#include <arm-no-os/llIncludes.hpp>
+#include <llIncludes.hpp>
 #include "specific/DmaChannelInternal.hpp"
 
 enum DmaTerminationStatus {
@@ -83,7 +83,7 @@ public:
 
     void halt();
 
-    void setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize,
+    void setupGeneric(const uint8_t *peripheralOrSource, bool peripheralOrSourceIncrement, uint8_t peripheralOrSourceSize, DmaMuxRequest request,
             const uint8_t *target, bool targetIncrement, uint8_t targetSize, bool memToMem, uint16_t transferLength, uint8_t dir, bool circular,
             DmaPriority priority, void (*callback)(Dma*, DmaTerminationStatus), bool interruptOnHalf);
 

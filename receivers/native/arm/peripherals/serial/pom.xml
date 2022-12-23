@@ -11,6 +11,8 @@
     <packaging>pom</packaging>
     <name>Zcode Serial</name>
     <modules>
+        <module>all</module>
+        <module>serial-core</module>
         <module>serial-ll</module>
     </modules>
 </project>

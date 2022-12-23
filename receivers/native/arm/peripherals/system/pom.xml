@@ -7,14 +7,14 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-uart</artifactId>
+    <artifactId>zcode-receivers-system</artifactId>
     <packaging>pom</packaging>
-    <name>Zcode UART</name>
+    <name>Zcode system things</name>
     <modules>
         <module>all</module>
-        <module>uart-core</module>
-        <module>uart-ll</module>
-        <module>uart-ll-stm32f</module>
-        <module>uart-ll-stm32g</module>
+        <module>system-core</module>
+        <module>system-ll</module>
+        <module>system-ll-stm32f</module>
+        <module>system-ll-stm32g</module>
     </modules>
 </project>
