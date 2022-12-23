@@ -8,10 +8,6 @@
     </parent>
 
     <artifactId>zcode-receivers-implementations</artifactId>
-    <packaging>pom</packaging>
-    <name>Zcode device specific code</name>
-
-    <modules>
-        <module>no-os-stm32</module>
-    </modules>
+    <packaging>nar</packaging>
+    <name>Implementations</name>
 </project>

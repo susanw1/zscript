@@ -143,7 +143,7 @@ with open("deviceSelector.h", "w") as out:
          out.write("#if")
          started = True
       out.write(" defined(" + device+")\n")
-      out.write("#include \"Setup/"+device+"\"\n")
+      out.write("#include \"Setup/"+device+".h\"\n")
    out.write("#else\n")
    out.write("#error No known device selected, please insure that the device is set\n")
    out.write("#endif\n")
