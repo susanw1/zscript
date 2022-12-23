@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
     <name>Zcode pins</name>
     <modules>
+        <module>all</module>
         <module>pins-core</module>
         <module>pins-ll</module>
         <module>pins-ll-stm32</module>

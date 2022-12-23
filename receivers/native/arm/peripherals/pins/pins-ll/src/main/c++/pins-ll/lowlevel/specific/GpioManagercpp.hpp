@@ -6,10 +6,8 @@
  */
 
 #include "../GpioManager.hpp"
-#if defined(STM32G4)
-#include <arm-no-os/stm32g4/pins-module/lowlevel/specific/GpioManagercpp.hpp>
-#elif defined(STM32F0)
-#include <arm-no-os/stm32f0/pins-module/lowlevel/specific/GpioManagercpp.hpp>
+#if defined(STM32)
+#include <pins-ll-stm32/lowlevel/specific/GpioManagercpp.hpp>
 #else
 #error Please select a supported device family
 #endif

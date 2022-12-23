@@ -9,9 +9,8 @@
 #define SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_GPIOMANAGER_HPP_
 
 #define GPIOLOWLEVEL_NO_CPP
-#include <arm-no-os/llIncludes.hpp>
+#include <llIncludes.hpp>
 #include "Gpio.hpp"
-#include "specific/GpioNames.hpp"
 
 template<class LL>
 class GpioManager {

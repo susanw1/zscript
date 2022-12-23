@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_GPIO_HPP_
 #define SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_GPIO_HPP_
 
-#include <arm-no-os/llIncludes.hpp>
+#include <llIncludes.hpp>
 #include "specific/GpioPort.hpp"
 
 template<class LL>
