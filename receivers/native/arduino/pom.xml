@@ -13,7 +13,7 @@
 
     <properties>
         <generic-core-version>${project.version}</generic-core-version>
-        <arduino-skip>false</arduino-skip>
+        <arduino-build-test-skip>true</arduino-build-test-skip>
 
         <cpu>atmega328p</cpu>
         <cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
@@ -42,7 +42,7 @@
                 <artifactId>nar-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <skip>${arduino-skip}</skip>
+                    <skip>${arduino-build-test-skip}</skip>
                     <architecture>avr</architecture>
                     <os>arduino</os>
                     <cpp>
