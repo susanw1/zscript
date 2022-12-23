@@ -10,8 +10,8 @@
 
 #include <llIncludes.hpp>
 #include <dma-ll/DmaManager.hpp>
-#include "../../../../../../../../clock/src/main/c++/clock-ll/ClockManager.hpp"
-#include "../../../../../../../../clock/src/main/c++/clock-ll/SystemMilliClock.hpp"
+#include <clock-ll/ClockManager.hpp>
+#include <clock-ll/SystemMilliClock.hpp>
 #include "UcpdParser.hpp"
 
 enum PowerStatus {

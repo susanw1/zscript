@@ -7,7 +7,7 @@
 
 #include <usbc-pd-ll/UsbcPdLLInterfaceInclude.hpp>
 
-#if defined(USBC_PD_LL_STM32G)
+#if defined(USBC_PD_LL_STM32_Ver_ucpd_v1_0)
 #include <usbc-pd-ll-stm32g/lowlevel/specific/UcpdInternal.hpp>
 #else
 #error Please select a supported device family

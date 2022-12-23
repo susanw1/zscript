@@ -11,6 +11,8 @@
     <packaging>pom</packaging>
     <name>Zcode USB C Power Delivery</name>
     <modules>
+        <module>all</module>
+        <module>usbc-pd-core</module>
         <module>usbc-pd-ll</module>
         <module>usbc-pd-ll-stm32g</module>
     </modules>
