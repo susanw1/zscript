@@ -9,26 +9,31 @@
 
     <artifactId>zcode-receivers-arduino</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode Arduino Receiver - TBD</name>
+    <name>Zcode Arduino Receiver</name>
+
+    <properties>
+        <generic-core-version>${project.version}</generic-core-version>
+        <arduino-build-test-skip>true</arduino-build-test-skip>
+
+        <cpu>atmega328p</cpu>
+        <cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
+        <cpp-optimizations>-Os</cpp-optimizations>
+
+        <arduino-deploy-path>${user.home}/.arduino15/packages/arduino</arduino-deploy-path>
+        <arduino-gcc-path>${arduino-deploy-path}/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin</arduino-gcc-path>
+        <arduino-cores-path>${arduino-deploy-path}/hardware/avr/1.8.6/cores/arduino</arduino-cores-path>
+        <arduino-libraries-path>${arduino-deploy-path}/hardware/avr/1.8.6/libraries</arduino-libraries-path>
+        <arduino-variants-path>${arduino-deploy-path}/hardware/avr/1.8.6/variants</arduino-variants-path>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.zcode</groupId>
             <artifactId>generic-receiver-core</artifactId>
-            <version>${project.version}</version>
+            <version>${generic-core-version}</version>
             <type>nar</type>
         </dependency>
     </dependencies>
-
-    <properties>
-        <!-- 
-		<cpu>cortex-m4</cpu>
-		<device-family>STM32G484xx</device-family>
-		<device>STM32G484RE</device>
-		<cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
-		<cpp-optimizations>-O3 -flto</cpp-optimizations>
--->
-    </properties>
 
     <build>
         <plugins>
@@ -37,56 +42,89 @@
                 <artifactId>nar-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
+                    <skip>${arduino-build-test-skip}</skip>
                     <architecture>avr</architecture>
                     <os>arduino</os>
                     <cpp>
                         <name>g++</name>
                         <prefix>avr-</prefix>
+                        <toolPath>${arduino-gcc-path}</toolPath>
                         <exceptions>false</exceptions>
                         <debug>true</debug>
                         <sourceDirectory>src/main/c++</sourceDirectory>
+                        <testSourceDirectory>src/test/c++</testSourceDirectory>
 
-                        <includes>
-                            <include>**/*.cpp</include>
-                            <include>**/*.cxx</include>
-                            <include>**/*.cc</include>
-                        </includes>
-                        <excludes>
-                            <exclude>channels/Serial/**</exclude>
-                            <exclude>channels/Uip/**</exclude>
-                        </excludes>
+                        <includePaths>
+                            <includePath>
+                                <path>${project.basedir}/src/main/c++</path>
+                            </includePath>
+                        </includePaths>
 
-                        <includePaths></includePaths>
+                        <testIncludePaths>
+                            <includePath>
+                                <path>${project.basedir}/src/main/c++/arduino-converter-files</path>
+                            </includePath>
+                            <includePath>
+                                <path>${arduino-cores-path}</path>
+                            </includePath>
+                            <includePath>
+                                <path>${arduino-libraries-path}/Wire/src</path>
+                            </includePath>
+                            <includePath>
+                                <path>${arduino-variants-path}/eightanaloginputs</path>
+                            </includePath>
+                        </testIncludePaths>
 
                         <optionSet>${cpp-warnings} ${cpp-optimizations}</optionSet>
                         <options>
-                            <option>-mthumb</option>
-                            <option>-fno-common</option>
-                            <option>-mcpu=${cpu}</option>
-                            <option>--specs=nosys.specs</option>
+                            <option>-std=gnu++11</option>
+                            <option>-CC</option>
+                            <option>-mmcu=${cpu}</option>
+                            <option>-ffunction-sections</option>
+                            <option>-fdata-sections</option>
+                            <option>-fno-threadsafe-statics</option>
                         </options>
                         <defines>
-                            <define>${device-family}</define>
+                            <define>ARDUINO=10819</define>
+                            <define>ARDUINO_AVR_NANO</define>
+                            <define>ARDUINO_ARCH_AVR</define>
+                            <define>F_CPU=16000000L</define>
                         </defines>
                     </cpp>
-                    <libraries>
-                        <library>
-                            <type>static</type>
-                        </library>
-                    </libraries>
+
                     <linker>
                         <name>ld</name>
                         <prefix>avr-</prefix>
-                        <!-- 						
-						<sysLibs>
-							<sysLib>
-								<name>stdc++</name>
-							</sysLib>
-						</sysLibs>
--->
+                        <toolPath>${arduino-gcc-path}</toolPath>
                     </linker>
 
+                    <tests>
+                        <test>
+                            <name>I2cChannelDemo</name>
+                            <link>none</link>
+                            <run>false</run>
+                        </test>
+                    </tests>
                 </configuration>
+            </plugin>
+            
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <finalName>Zcode</finalName>
+                    <descriptors>
+                        <descriptor>src/assembly/assemble-arduino-lib.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-arduino-lib</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

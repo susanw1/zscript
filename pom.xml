@@ -26,6 +26,7 @@
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
+        <maven-assembly-plugin.version>3.4.2</maven-assembly-plugin.version>
     </properties>
 
     <modules>
@@ -161,7 +162,61 @@
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>${exec-maven-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven-assembly-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
+
+    <description>Simple text-based command/response system for controlling MCUs.</description>
+    <url>https://github.com/susanw1/zcode</url>
+    <inceptionYear>2019</inceptionYear>
+
+    <organization>
+        <name>Zcode Team</name>
+        <url>https://groups.google.com/g/zcode-group</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <comments>Zcode itself, except for implementation components where specifically indicated</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Susan Witts</name>
+            <id>SusanW</id>
+            <url>https://www.linkedin.com/in/susan-witts/</url>
+            <timezone>Europe/London</timezone>
+            <email>susanwitts1@gmail.com</email>
+            <organization>Zcode Team</organization>
+        </developer>
+        <developer>
+            <name>More-Wrong</name>
+            <url>https://github.com/More-Wrong/</url>
+            <timezone>Europe/London</timezone>
+            <organization>Zcode Team</organization>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/susanw1/zcode/issues/</url>
+    </issueManagement>
+
+    <scm>
+        <url>https://github.com/susanw1/zcode</url>
+        <connection>scm:git:git://github.com/susanw1/zcode.git</connection>
+        <developerConnection>scm:git:git@github.com:susanw1/zcode.git</developerConnection>
+    </scm>
+
+    <prerequisites>
+        <maven>3.6.3</maven>
+    </prerequisites>
 </project>
