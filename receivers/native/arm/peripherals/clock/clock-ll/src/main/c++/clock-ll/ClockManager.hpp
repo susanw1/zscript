@@ -10,6 +10,7 @@
 
 #include <llIncludes.hpp>
 #include "specific/Clock.hpp"
+#include "specific/ClockRegisters.hpp"
 
 template<class LL>
 class ClockManager {
@@ -17,12 +18,14 @@ private:
     static Clock<LL> clocks[NONE];
 
 public:
+    static const ClockRegisters *regs;
+
     static Clock<LL>* getClock(SystemClock clock) {
         return clocks + (uint8_t) clock;
     }
-    static void fastSetup();
+    static void hfSetup();
     static void basicSetup();
-    static void slowSetup();
+    static void lfSetup();
 };
 #include "specific/ClockManagercpp.hpp"
 

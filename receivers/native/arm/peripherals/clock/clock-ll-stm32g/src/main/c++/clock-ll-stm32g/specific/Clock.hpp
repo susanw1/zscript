@@ -11,25 +11,33 @@
 #include <llIncludes.hpp>
 #include "SystemClocks.hpp"
 
+enum ClockStrategy {
+    EXACT_FREQUENCY,
+    CLOSEST_FREQUENCY,
+    CLOSEST_FREQUENCY_BELOW,
+    CLOSEST_FREQUENCY_ABOVE
+};
+
 template<class LL>
 class Clock {
 private:
     uint32_t freq;
     uint8_t clock;
     uint8_t source;
+    uint8_t strategy;
 
 public:
     Clock(uint32_t freq,
             SystemClock clock,
             SystemClock source) :
-            freq(freq), clock((uint8_t) clock), source((uint8_t) source) {
+            freq(freq), clock((uint8_t) clock), source((uint8_t) source), strategy(EXACT_FREQUENCY) {
     }
 
     uint32_t getDivider(uint32_t targetFreqKhz) {
         return freq / targetFreqKhz;
     }
 
-    int set(uint32_t targetFreqKhz, SystemClock source);
+    int set(uint32_t targetFreqKhz, SystemClock source, ClockStrategy strategy);
 
     uint32_t getFreqKhz() {
         return freq;

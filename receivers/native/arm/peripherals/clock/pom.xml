@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
     <name>Zcode Clock</name>
     <modules>
+        <module>all</module>
         <module>clock-ll</module>
         <module>clock-ll-stm32f</module>
         <module>clock-ll-stm32g</module>
