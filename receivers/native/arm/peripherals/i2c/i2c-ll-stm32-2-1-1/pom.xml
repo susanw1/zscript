@@ -7,9 +7,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-i2c-ll-stm32f</artifactId>
+    <artifactId>zcode-receivers-i2c-ll-stm32-2-1-1</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode ll I2C for STM32F</name>
+    <name>Zcode ll I2C 2 v1.1 for STM32</name>
     <dependencies>
         <dependency>
             <groupId>org.zcode</groupId>

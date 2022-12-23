@@ -11,9 +11,9 @@
     <packaging>pom</packaging>
     <name>Zcode I2C</name>
     <modules>
+        <module>all</module>
         <module>i2c-core</module>
         <module>i2c-ll</module>
-        <module>i2c-ll-stm32f</module>
-        <module>i2c-ll-stm32g</module>
+        <module>i2c-ll-stm32-2-1-1</module>
     </modules>
 </project>

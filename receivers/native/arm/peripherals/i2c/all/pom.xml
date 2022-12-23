@@ -7,13 +7,26 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-i2c-ll-stm32g</artifactId>
+    <artifactId>zcode-receivers-i2c-all</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode ll I2C for STM32G</name>
+    <name>Zcode full peripheral set</name>
+
     <dependencies>
         <dependency>
             <groupId>org.zcode</groupId>
+            <artifactId>zcode-receivers-i2c-core</artifactId>
+            <version>${project.version}</version>
+            <type>nar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.zcode</groupId>
             <artifactId>zcode-receivers-i2c-ll</artifactId>
+            <version>${project.version}</version>
+            <type>nar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.zcode</groupId>
+            <artifactId>zcode-receivers-i2c-ll-stm32-2-1-1</artifactId>
             <version>${project.version}</version>
             <type>nar</type>
         </dependency>
