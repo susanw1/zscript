@@ -175,9 +175,9 @@ private:
 // DHCP Library v0.3 - April 25, 2009
 // Author: Jordan Terrell - blog.jordanterrell.com
 #include <string.h>
-#include <arm-no-os/system/clock/SystemMilliClock.hpp>
-#include "../../../wiznet-udp/lowlevel/src/Ethernet.h"
-#include "../../../wiznet-udp/lowlevel/src/utility/w5100.h"
+#include <clock-ll/SystemMilliClock.hpp>
+#include "Ethernet.h"
+#include "utility/w5100.h"
 
 template<class LL>
 int DhcpClass<LL>::beginWithDHCP(uint8_t *mac, unsigned long timeout, unsigned long responseTimeout)

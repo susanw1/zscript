@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
     <name>Zcode UDP</name>
     <modules>
+        <module>all</module>
         <module>udp-core</module>
         <module>wiznet-udp-ll</module>
     </modules>

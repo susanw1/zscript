@@ -40,9 +40,9 @@ protected:
 // (c) Copyright 2009-2010 MCQN Ltd.
 // Released under Apache License, version 2.0
 
-#include "../../../wiznet-udp/lowlevel/src/Ethernet.h"
-#include <arm-no-os/system/clock/SystemMilliClock.hpp>
-#include "../../../wiznet-udp/lowlevel/src/utility/w5100.h"
+#include "Ethernet.h"
+#include <clock-ll/SystemMilliClock.hpp>
+#include "utility/w5100.h"
 
 #define SOCKET_NONE              255
 // Various flags and header field values for a DNS message
@@ -139,7 +139,7 @@ int DNSClient<LL>::getHostByName(const char *aHostname, IPAddress &aResult, uint
     }
 
     // Find a socket to use
-    if (iUdp.begin(1024 + (SystemMilliClock < LL > ::getTimeMillis() & 0xF)) == 1) {
+    if (iUdp.begin(1024 + (SystemMilliClock<LL>::getTimeMillis() & 0xF)) == 1) {
         // Try up to three times
         int retries = 0;
         // while ((retries < 3) && (ret <= 0)) {
@@ -193,7 +193,7 @@ uint16_t DNSClient<LL>::BuildRequest(const char *aName)
     //    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
     // As we only support one request at a time at present, we can simplify
     // some of this header
-    iRequestId = SystemMilliClock < LL > ::getTimeMillis(); // generate a random ID
+    iRequestId = SystemMilliClock<LL>::getTimeMillis(); // generate a random ID
     uint16_t twoByteBuffer;
 
     // FIXME We should also check that there's enough space available to write to, rather
@@ -252,14 +252,14 @@ uint16_t DNSClient<LL>::BuildRequest(const char *aName)
 template<class LL>
 uint16_t DNSClient<LL>::ProcessResponse(uint16_t aTimeout, IPAddress &aAddress)
         {
-    uint32_t startTime = SystemMilliClock < LL > ::getTimeMillis();
+    uint32_t startTime = SystemMilliClock<LL>::getTimeMillis();
 
     // Wait for a response packet
     while (iUdp.parsePacket() <= 0) {
-        if ((SystemMilliClock < LL > ::getTimeMillis() - startTime) > aTimeout) {
+        if ((SystemMilliClock<LL>::getTimeMillis() - startTime) > aTimeout) {
             return TIMED_OUT;
         }
-        SystemMilliClock < LL > ::blockDelayMillis(50);
+        SystemMilliClock<LL>::blockDelayMillis(50);
     }
 
     // We've had a reply!

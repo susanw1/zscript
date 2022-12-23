@@ -141,9 +141,9 @@ public:
  * bjoern@cs.stanford.edu 12/30/2008
  */
 
-#include "../../../wiznet-udp/lowlevel/src/Ethernet.h"
-#include "../../../wiznet-udp/lowlevel/src/Dns.h"
-#include "../../../wiznet-udp/lowlevel/src/utility/w5100.h"
+#include "Ethernet.h"
+#include "Dns.h"
+#include "utility/w5100.h"
 
 /* Start EthernetUDP socket, listening at local port PORT */
 template<class LL>

@@ -25,29 +25,6 @@
 #ifndef USE_SPI_1
 #error SPI_1 is needed for udp comunications...
 #endif
-#ifdef USE_SPI_1
-#if !SPI_SCK(_SPI_1, SPI_1_SCK)
-#error  Not defined as a valid SPI 1 SCK pin: SPI_1_SCK
-#endif
-#if !SPI_MISO(_SPI_1, SPI_1_MISO)
-#error  Not defined as a valid SPI 1 MISO pin: SPI_1_MISO
-#endif
-#if !SPI_MOSI(_SPI_1, SPI_1_MOSI)
-#error  Not defined as a valid SPI 1 MOSI pin: SPI_1_MOSI
-#endif
-#endif
-
-#ifdef USE_SPI_2
-#if !SPI_SCK(_SPI_2, SPI_2_SCK)
-#error  Not defined as a valid SPI 2 SCK pin: SPI_2_SCK
-#endif
-#if !SPI_MISO(_SPI_2, SPI_2_MISO)
-#error  Not defined as a valid SPI 2 MISO pin: SPI_2_MISO
-#endif
-#if !SPI_MOSI(_SPI_2, SPI_2_MOSI)
-#error  Not defined as a valid SPI 2 MOSI pin: SPI_2_MOSI
-#endif
-#endif
 
 template<class LL>
 class SPIClass {

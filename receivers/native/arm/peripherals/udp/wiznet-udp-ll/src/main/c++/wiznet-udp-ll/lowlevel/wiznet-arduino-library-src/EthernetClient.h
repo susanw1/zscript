@@ -74,11 +74,11 @@ private:
     uint16_t _timeout;
 };
 
-#include "../../../wiznet-udp/lowlevel/src/Ethernet.h"
-#include "../../../wiznet-udp/lowlevel/src/Client.h"
-#include <arm-no-os/system/clock/SystemMilliClock.hpp>
-#include "../../../wiznet-udp/lowlevel/src/Dns.h"
-#include "../../../wiznet-udp/lowlevel/src/utility/w5100.h"
+#include "Ethernet.h"
+#include "Client.h"
+#include <clock-ll/SystemMilliClock.hpp>
+#include "Dns.h"
+#include "utility/w5100.h"
 
 template<class LL>
 int EthernetClient<LL>::connect(const char *host, uint16_t port)
@@ -117,7 +117,7 @@ int EthernetClient<LL>::connect(IPAddress ip, uint16_t port)
     if (sockindex >= MAX_SOCK_NUM)
         return 0;
     Ethernet<LL> .socketConnect(sockindex, rawIPAddress(ip), port);
-    uint32_t start = SystemMilliClock < LL > ::getTimeMillis();
+    uint32_t start = SystemMilliClock<LL>::getTimeMillis();
     while (1) {
         uint8_t stat = Ethernet<LL> .socketStatus(sockindex);
         if (stat == SnSR::ESTABLISHED)
@@ -126,9 +126,9 @@ int EthernetClient<LL>::connect(IPAddress ip, uint16_t port)
             return 1;
         if (stat == SnSR::CLOSED)
             return 0;
-        if (SystemMilliClock < LL > ::getTimeMillis() - start > _timeout)
+        if (SystemMilliClock<LL>::getTimeMillis() - start > _timeout)
             break;
-        SystemMilliClock < LL > ::blockDelayMillis(1);
+        SystemMilliClock<LL>::blockDelayMillis(1);
     }
     Ethernet<LL> .socketClose(sockindex);
     sockindex = MAX_SOCK_NUM;
@@ -220,7 +220,7 @@ void EthernetClient<LL>::stop()
 
     // attempt to close the connection gracefully (send a FIN to other side)
     Ethernet<LL> .socketDisconnect(sockindex);
-    unsigned long start = SystemMilliClock < LL > ::getTimeMillis();
+    unsigned long start = SystemMilliClock<LL>::getTimeMillis();
 
     // wait up to a second for the connection to close
     do {
@@ -228,8 +228,8 @@ void EthernetClient<LL>::stop()
             sockindex = MAX_SOCK_NUM;
             return; // exit the loop
         }
-        SystemMilliClock < LL > ::blockDelayMillis(1);
-    } while (SystemMilliClock < LL > ::getTimeMillis() - start < _timeout);
+        SystemMilliClock<LL>::blockDelayMillis(1);
+    } while (SystemMilliClock<LL>::getTimeMillis() - start < _timeout);
 
     // if it hasn't closed, close it forcefully
     Ethernet<LL> .socketClose(sockindex);

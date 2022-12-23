@@ -155,9 +155,9 @@ extern EthernetClass<LL> Ethernet;
 
 #define UDP_TX_PACKET_MAX_SIZE 24
 
-#include "../../../wiznet-udp/lowlevel/src/socket.h"
-#include "../../../wiznet-udp/lowlevel/src/Dhcp.h"
-#include "../../../wiznet-udp/lowlevel/src/Dns.h"
-#include "../../../wiznet-udp/lowlevel/src/EthernetUdp.h"
-#include "../../../wiznet-udp/lowlevel/src/Ethernetcpp.h"
+#include "socket.h"
+#include "Dhcp.h"
+#include "Dns.h"
+#include "EthernetUdp.h"
+#include "Ethernetcpp.h"
 #endif

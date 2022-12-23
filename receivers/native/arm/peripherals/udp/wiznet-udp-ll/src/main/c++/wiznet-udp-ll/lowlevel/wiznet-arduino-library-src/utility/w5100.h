@@ -487,9 +487,8 @@ private:
  * published by the Free Software Foundation.
  */
 
-#include "../../../../../../../../wiznet-udp-ll/src/main/c++/wiznet-udp-ll/lowlevel/wiznet-arduino-library-src/Ethernet.h"
-#include <arm-no-os/system/clock/SystemMilliClock.hpp>
-#include "../../../../wiznet-udp/lowlevel/src/utility/w5100.h"
+#include "../Ethernet.h"
+#include <clock-ll/SystemMilliClock.hpp>
 #include <string.h>
 
 /***************************************************/
@@ -581,7 +580,7 @@ uint8_t W5100Class<LL>::init(void)
     // case maximum 560 ms pulse length.  This delay is meant to wait
     // until the reset pulse is ended.  If your hardware has a shorter
     // reset time, this can be edited or removed.
-    SystemMilliClock < LL > ::blockDelayMillis(560);
+    SystemMilliClock<LL>::blockDelayMillis(560);
     //Serial.println("w5100 init");
 
     SPI<LL> .begin();
@@ -697,7 +696,7 @@ uint8_t W5100Class<LL>::softReset(void)
         //Serial.println(mr, HEX);
         if (mr == 0)
             return 1;
-        SystemMilliClock < LL > ::blockDelayMillis(1);
+        SystemMilliClock<LL>::blockDelayMillis(1);
     } while (++count < 20);
     return 0;
 }

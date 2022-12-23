@@ -584,4 +584,4 @@ bool EthernetClass<LL>::socketSendUDP(uint8_t s)
     return true;
 }
 
-#include "../../../wiznet-udp/lowlevel/src/EthernetServer.h"
+#include "EthernetServer.h"

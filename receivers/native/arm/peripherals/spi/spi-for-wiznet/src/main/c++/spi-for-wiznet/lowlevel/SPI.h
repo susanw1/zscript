@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#if defined(SPI_WIZNET_STM32)
+#if defined(STM32)
 #include <spi-for-wiznet-stm32/lowlevel/SPI.h>
 #else
 #error Please select a supported device family
