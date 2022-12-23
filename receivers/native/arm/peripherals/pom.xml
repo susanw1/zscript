@@ -11,15 +11,8 @@
     <packaging>pom</packaging>
     <name>Zcode modules for native code</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.zcode</groupId>
-            <artifactId>zcode-receivers-implementations</artifactId>
-            <version>${project.version}</version>
-            <type>nar</type>
-        </dependency>
-    </dependencies>
     <modules>
+        <module>system</module>
         <module>clock</module>
         <module>dma</module>
         <module>i2c</module>
@@ -30,5 +23,14 @@
         <module>udp</module>
         <module>usb</module>
         <module>usbc-pd</module>
+        <module>all</module>
     </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.zcode</groupId>
+            <artifactId>zcode-receivers-implementations</artifactId>
+            <version>${project.version}</version>
+            <type>nar</type>
+        </dependency>
+    </dependencies>
 </project>

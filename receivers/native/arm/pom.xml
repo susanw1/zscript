@@ -14,8 +14,9 @@
     <modules>
         <!-- <module>mbed</module> -->
         <!-- <module>no-os</module> -->
-        <module>zcode-receivers-implementations</module>
-        <module>zcode-receivers-peripherals</module>
+        <module>implementations</module>
+        <module>peripherals</module>
+        <module>examples</module>
     </modules>
     <build>
         <plugins>
