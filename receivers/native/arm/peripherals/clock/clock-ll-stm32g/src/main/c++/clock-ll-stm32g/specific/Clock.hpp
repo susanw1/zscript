@@ -37,7 +37,7 @@ public:
         return freq / targetFreqKhz;
     }
 
-    int set(uint32_t targetFreqKhz, SystemClock source, ClockStrategy strategy);
+    int8_t set(uint32_t targetFreqKhz, SystemClock source, ClockStrategy strategy);
 
     uint32_t getFreqKhz() {
         return freq;

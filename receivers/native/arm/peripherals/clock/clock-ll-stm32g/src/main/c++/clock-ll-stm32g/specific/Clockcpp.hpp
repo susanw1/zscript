@@ -147,6 +147,9 @@ int32_t setVcoClock(uint32_t targetFreqKhz, SystemClock source, ClockStrategy st
 
 template<class LL>
 int8_t Clock<LL>::set(uint32_t targetFreqKhz, SystemClock source, ClockStrategy strategy) {
+    int8_t div;
+    uint32_t sourceFreq;
+    int8_t presc;
     this->strategy = (uint8_t) strategy;
     switch (clock) {
     case SysClock:
@@ -209,7 +212,7 @@ int8_t Clock<LL>::set(uint32_t targetFreqKhz, SystemClock source, ClockStrategy 
             return -1;
         }
 
-        int8_t div = findDivScale<LL>(targetFreqKhz, ClockManager<LL>::getClock(VCO)->freq, strategy, 31);
+        div = findDivScale<LL>(targetFreqKhz, ClockManager<LL>::getClock(VCO)->freq, strategy, 31);
         if (div == -1) {
             return -1;
         }
@@ -237,7 +240,7 @@ int8_t Clock<LL>::set(uint32_t targetFreqKhz, SystemClock source, ClockStrategy 
             return -1;
         }
 
-        int8_t div = findDivScale<LL>(targetFreqKhz, ClockManager<LL>::getClock(VCO)->freq / 2, strategy, 4);
+        div = findDivScale<LL>(targetFreqKhz, ClockManager<LL>::getClock(VCO)->freq / 2, strategy, 4);
         if (div == -1) {
             return -1;
         }
@@ -262,7 +265,7 @@ int8_t Clock<LL>::set(uint32_t targetFreqKhz, SystemClock source, ClockStrategy 
             return -1;
         }
 
-        int8_t div = findDivScale<LL>(targetFreqKhz, ClockManager<LL>::getClock(VCO)->freq / 2, strategy, 4);
+        div = findDivScale<LL>(targetFreqKhz, ClockManager<LL>::getClock(VCO)->freq / 2, strategy, 4);
         if (div == -1) {
             return -1;
         }
@@ -278,8 +281,8 @@ int8_t Clock<LL>::set(uint32_t targetFreqKhz, SystemClock source, ClockStrategy 
         }
         return 0;
     case HCLK:
-        uint32_t sourceFreq = ClockManager<LL>::getClock(SysClock)->freq;
-        int8_t presc = findPowerScale<LL>(targetFreqKhz, sourceFreq, strategy, 9, 4);
+        sourceFreq = ClockManager<LL>::getClock(SysClock)->freq;
+        presc = findPowerScale<LL>(targetFreqKhz, sourceFreq, strategy, 9, 4);
         if (presc == -1) {
             return -1;
         }
@@ -296,8 +299,8 @@ int8_t Clock<LL>::set(uint32_t targetFreqKhz, SystemClock source, ClockStrategy 
         ClockManager<LL>::regs->setHclkPresc(presc);
         return 0;
     case PCLK_1:
-        uint32_t sourceFreq = ClockManager<LL>::getClock(HCLK)->freq;
-        int8_t presc = findPowerScale<LL>(targetFreqKhz, sourceFreq, strategy, 4);
+        sourceFreq = ClockManager<LL>::getClock(HCLK)->freq;
+        presc = findPowerScale<LL>(targetFreqKhz, sourceFreq, strategy, 4);
         if (presc == -1) {
             return -1;
         }
@@ -311,8 +314,8 @@ int8_t Clock<LL>::set(uint32_t targetFreqKhz, SystemClock source, ClockStrategy 
         ClockManager<LL>::regs->setPclk1Presc(presc);
         return 0;
     case PCLK_2:
-        uint32_t sourceFreq = ClockManager<LL>::getClock(HCLK)->freq;
-        int8_t presc = findPowerScale<LL>(targetFreqKhz, sourceFreq, strategy, 4);
+        sourceFreq = ClockManager<LL>::getClock(HCLK)->freq;
+        presc = findPowerScale<LL>(targetFreqKhz, sourceFreq, strategy, 4);
         if (presc == -1) {
             return -1;
         }

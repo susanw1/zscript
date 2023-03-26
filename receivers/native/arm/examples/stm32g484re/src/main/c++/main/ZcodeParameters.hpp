@@ -14,6 +14,7 @@
 #define ZCODE_IDENTIFY_USER_HARDWARE_VERSION 0x0001
 
 #include "GeneralLLSetup.hpp"
+#include <system-ll/ZcodeSystemModule.hpp>
 
 #include <zcode/ZcodeIncludes.hpp>
 #include <zcode/ZcodeStrings.hpp>

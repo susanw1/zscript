@@ -8,9 +8,9 @@
 #ifndef SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_ZCODESYSTEMMODULE_HPP_
 #define SRC_MAIN_CPP_ARM_NO_OS_STM32G4_SYSTEM_ZCODESYSTEMMODULE_HPP_
 
-#include "clock/SystemMilliClock.hpp"
-#include "clock/ClockManager.hpp"
-#include "dma/DmaManager.hpp"
+#include <clock-ll/SystemMilliClock.hpp>
+#include <clock-ll/ClockManager.hpp>
+#include <dma-ll/DmaManager.hpp>
 
 #ifdef ZCODE_HPP_INCLUDED
 #error Must be included before Zcode.hpp

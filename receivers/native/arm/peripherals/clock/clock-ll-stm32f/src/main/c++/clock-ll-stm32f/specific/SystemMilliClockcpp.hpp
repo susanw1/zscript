@@ -11,7 +11,7 @@
 #include <clock-ll/SystemMilliClock.hpp>
 
 template<class LL>
-static void SystemMilliClock<LL>::init() {
+void SystemMilliClock<LL>::init() {
     const uint32_t enableSysTickEnable = 0x1;
     const uint32_t enableSysTickEnableInt = 0x2;
     const uint32_t enableSysTickSetAsClock = 0x4;
@@ -24,7 +24,7 @@ static void SystemMilliClock<LL>::init() {
 }
 
 template<class LL>
-static void SystemMilliClock<LL>::blockDelayMillis(uint32_t delay) {
+void SystemMilliClock<LL>::blockDelayMillis(uint32_t delay) {
     uint32_t end = getTimeMillis() + delay;
     while (end > getTimeMillis())
         ;
@@ -32,7 +32,7 @@ static void SystemMilliClock<LL>::blockDelayMillis(uint32_t delay) {
 }
 
 template<class LL>
-static uint32_t SystemMilliClock<LL>::getTimeMillis() {
+uint32_t SystemMilliClock<LL>::getTimeMillis() {
     return timeBroad;
 }
 
