@@ -3,6 +3,8 @@ package org.zcode.javaclient.builders;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.zcode.javaclient.components.Command;
+import org.zcode.javaclient.components.ResponseSequence;
 import org.zcode.model.datamodel.ZcodeDataModel.CommandModel;
 import org.zcode.model.datamodel.ZcodeDataModel.ModuleModel;
 import org.zcode.model.loader.ModelLoader;
@@ -24,43 +26,10 @@ public class Zcode {
         return new ModuleCommandFinder(moduleBankName, moduleName);
     }
 
-    public Response parseResponse(Command c, String responseString) {
-        return new Response(responseString);
+    public ResponseSequence parseResponse(Command c, String responseString) {
+        return null;
+//        return new ResponseSequence(responseString);
     }
-
-//    public <C extends ZcodeModule> C forModule(Class<C> moduleType) {
-//        ModuleCommandFinderHandler handler = new ModuleCommandFinderHandler();
-//        return moduleType.cast(Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] { moduleType }, handler));
-//    }
-//
-//    class ModuleCommandFinderHandler implements InvocationHandler {
-//        @Override
-//        public Object invoke(Object moduleProxy, Method method, Object[] args) throws Throwable {
-//            System.out.println("proxy method called: " + method);
-//
-//            final String commandName = method.getName();
-//
-//            final String packageName    = moduleProxy.getClass().getPackageName();
-//            final String trailingPart   = packageName.substring(packageName.lastIndexOf('.') + 1);
-//            final String moduleBankName = Character.toUpperCase(trailingPart.charAt(0)) + trailingPart.substring(1);
-//
-//            final ModuleBank  moduleBank  = moduleBanks.get(moduleBankName);
-//            final ModuleModel moduleModel = moduleBank.getModule(moduleProxy.getClass().getSimpleName());
-//
-//            final CommandModel commandModel = moduleModel.getCommands().stream()
-//                    .filter(cmd -> cmd.getName().equals(commandName))
-//                    .findFirst()
-//                    .orElseThrow(() -> new RuntimeException("unknown command: " + commandName));
-//
-//            final String commandClassName = Character.toUpperCase(commandName.charAt(0)) + commandName.substring(1);
-//
-//            final Class<?> commandClass = stream(moduleProxy.getClass().getDeclaredClasses())
-//                    .filter(c -> c.getSimpleName().equals(commandClassName))
-//                    .findFirst()
-//                    .orElseThrow(() -> new RuntimeException("unknown command: " + commandName));
-//            return null;
-//        }
-//    }
 
     class ModuleCommandFinder {
         private final ModuleModel moduleModel;
@@ -90,7 +59,7 @@ public class Zcode {
         }
 
         public Command build() {
-            return new Command();
+            return null;
         }
     }
 }
