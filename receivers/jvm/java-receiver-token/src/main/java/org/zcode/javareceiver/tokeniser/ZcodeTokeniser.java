@@ -1,23 +1,23 @@
 package org.zcode.javareceiver.tokeniser;
 
 public class ZcodeTokeniser {
-    public static final byte ODD_BIG_FIELD_LENGTH_ERROR = 1;
-    public static final byte FIELD_TOO_LONG_ERROR = 2;
+    public static final byte ODD_BIG_FIELD_LENGTH_ERROR  = 1;
+    public static final byte FIELD_TOO_LONG_ERROR        = 2;
     public static final byte STRING_NOT_TERMINATED_ERROR = 3;
-    public static final byte STRING_ESCAPING_ERROR = 4;
+    public static final byte STRING_ESCAPING_ERROR       = 4;
 
-    public static final byte ERROR_FIELD_KEY = (byte) 0xFF;
+    public static final byte ERROR_FIELD_KEY      = (byte) 0xFF;
     public static final byte ADDRESSING_FIELD_KEY = (byte) 0x80;
 
-    private final static boolean DROP_COMMENTS = false;
+    private final static boolean   DROP_COMMENTS = false;
     private final ZcodeTokenBuffer buffer;
-    private boolean numeric;
-    private boolean skipToNL;
-    private boolean addressing;
+    private boolean                numeric;
+    private boolean                skipToNL;
+    private boolean                addressing;
 
     private boolean isText;
     private boolean isNormalString;
-    private int escapingCount; // 2 bits
+    private int     escapingCount; // 2 bits
 
     private ZcodeTokeniser(ZcodeTokenBuffer buffer) {
         this.buffer = buffer;

@@ -69,13 +69,13 @@ public class ZcodeTokenBuffer {
     public void closeField() {
         if (numeric && inNibble) {
             byte hold = 0;
-            int  pos  = next(next(readLimit));
-            while (pos != writePos) {
-                byte tmp = (byte) (data[pos] & 0xF);
-                data[pos] = (byte) (hold | (data[pos] >> 4));
-                hold = (byte) (tmp << 4);
+            int  pos  = next(readLimit);
+            do {
                 pos = next(pos);
-            }
+                byte tmp = (byte) (data[pos] & 0xF);
+                data[pos] = (byte) (hold | (data[pos] >> 4) & 0xF);
+                hold = (byte) (tmp << 4);
+            } while (pos != writePos);
         }
         readLimit = writePos;
         inNibble = false;

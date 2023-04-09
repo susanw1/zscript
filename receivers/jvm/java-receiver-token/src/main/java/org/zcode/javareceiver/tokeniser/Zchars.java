@@ -1,15 +1,15 @@
 package org.zcode.javareceiver.tokeniser;
 
 public class Zchars {
-    public static final byte Z_NEWLINE = '\n';
-    public static final byte Z_AND = '&';
-    public static final byte Z_OR = '|';
-    public static final byte Z_LOCKS = '%';
-    public static final byte Z_BIGFIELD = '+';
-    public static final byte Z_STRINGFIELD = '"';
-    public static final byte Z_STRING_COMMENT = '=';
-    public static final byte Z_COMMENT = '#';
-    public static final byte Z_ADDRESSING = '@';
+    public static final byte Z_NEWLINE             = '\n';
+    public static final byte Z_AND                 = '&';
+    public static final byte Z_OR                  = '|';
+    public static final byte Z_LOCKS               = '%';
+    public static final byte Z_BIGFIELD            = '+';
+    public static final byte Z_STRINGFIELD         = '"';
+    public static final byte Z_STRING_COMMENT      = '=';
+    public static final byte Z_COMMENT             = '#';
+    public static final byte Z_ADDRESSING          = '@';
     public static final byte Z_ADDRESSING_CONTINUE = '.';
 
     public static boolean shouldIgnore(byte b) {

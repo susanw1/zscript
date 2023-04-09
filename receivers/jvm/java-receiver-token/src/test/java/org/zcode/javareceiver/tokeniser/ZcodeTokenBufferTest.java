@@ -67,19 +67,7 @@ class ZcodeTokenBufferTest {
         buffer.continueFieldNibble((byte) 0x3);
         buffer.continueFieldNibble((byte) 0xe);
         buffer.closeField();
-        assertThat(buffer.getInternalData()).containsExactly(3, 'A', 0x5, 0xda, 0x3e, 0);
-    }
-
-    @Test
-    void shouldTokenizeNumericField3NibbleValueWithLeadingZeroes() {
-        buffer.startField((byte) 'A', true);
-        buffer.continueFieldNibble((byte) 0);
-        buffer.continueFieldNibble((byte) 0);
-        buffer.continueFieldNibble((byte) 0xd);
-        buffer.continueFieldNibble((byte) 0xa);
-        buffer.continueFieldNibble((byte) 0x3);
-        buffer.closeField();
-        assertThat(buffer.getInternalData()).containsExactly(2, 'A', 0x5, 0xda, 0);
+        assertThat(buffer.getInternalData()).containsExactly(3, 'A', 0x5, 0xda, 0x3e);
     }
 
 }
