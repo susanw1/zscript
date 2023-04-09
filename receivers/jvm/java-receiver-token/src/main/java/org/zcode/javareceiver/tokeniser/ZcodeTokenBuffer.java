@@ -15,6 +15,16 @@ public class ZcodeTokenBuffer {
         return pos;
     }
 
+    public void fail(byte code) {
+        closeField();
+        data[writePos] = 1;
+        writePos = next(writePos);
+        data[writePos] = (byte) 0xFF;
+        writePos = next(writePos);
+        data[writePos] = code;
+        writePos = next(writePos);
+    }
+
     public void startField(byte key, boolean numeric) {
         closeField();
         this.numeric = numeric;
