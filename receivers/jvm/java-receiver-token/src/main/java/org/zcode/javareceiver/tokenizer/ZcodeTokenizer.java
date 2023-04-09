@@ -31,7 +31,7 @@ public class ZcodeTokenizer {
         this.escapingCount = 0;
     }
 
-    byte parseHex(byte b) {
+    static byte parseHex(byte b) {
         if (b >= '0' && b <= '9') {
             return (byte) (b - '0');
         } else if (b >= 'a' && b <= 'd') {

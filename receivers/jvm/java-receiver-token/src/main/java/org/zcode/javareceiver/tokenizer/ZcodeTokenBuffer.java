@@ -2,15 +2,15 @@ package org.zcode.javareceiver.tokenizer;
 
 public interface ZcodeTokenBuffer {
 
-    ZcodeTokenBuffer startToken(byte b, boolean c);
+    void startToken(byte b, boolean c);
 
-    ZcodeTokenBuffer closeToken();
+    void closeToken();
 
-    ZcodeTokenBuffer continueTokenByte(byte b);
+    void continueTokenByte(byte b);
 
-    ZcodeTokenBuffer continueTokenNibble(byte b);
+    void continueTokenNibble(byte b);
 
-    ZcodeTokenBuffer fail(byte errorCode);
+    void fail(byte errorCode);
 
     boolean isTokenOpen();
 

@@ -25,7 +25,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         return data.clone();
     }
 
-    public int offset(int pos, int offset) {
+    private int offset(int pos, int offset) {
         pos += offset;
         if (pos >= data.length) {
             pos = 0;
@@ -34,7 +34,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     }
 
     @Override
-    public ZcodeTokenBuffer fail(byte code) {
+    public void fail(byte code) {
         closeToken();
         data[writePos] = 1;
         writePos = offset(writePos, 1);
@@ -42,11 +42,10 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         writePos = offset(writePos, 1);
         data[writePos] = code;
         writePos = offset(writePos, 1);
-        return this;
     }
 
     @Override
-    public ZcodeTokenBuffer startToken(byte key, boolean numeric) {
+    public void startToken(byte key, boolean numeric) {
         closeToken();
         this.numeric = numeric;
         data[writePos] = 0;
@@ -54,7 +53,6 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         data[writePos] = key;
         writePos = offset(writePos, 1);
         inNibble = false;
-        return this;
     }
 
     private void extendToken() {
@@ -66,7 +64,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     }
 
     @Override
-    public ZcodeTokenBuffer continueTokenNibble(byte nibble) {
+    public void continueTokenNibble(byte nibble) {
         if (writePos == readLimit) {
             throw new IllegalStateException("Can't write byte without field");
         }
@@ -81,11 +79,10 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             data[writeLastLen]++;
         }
         inNibble = !inNibble;
-        return this;
     }
 
     @Override
-    public ZcodeTokenBuffer continueTokenByte(byte b) {
+    public void continueTokenByte(byte b) {
         if (inNibble) {
             throw new IllegalStateException("Can't write byte while in nibble");
         }
@@ -98,11 +95,10 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         data[writePos] = b;
         writePos = offset(writePos, 1);
         data[writeLastLen]++;
-        return this;
     }
 
     @Override
-    public ZcodeTokenBuffer closeToken() {
+    public void closeToken() {
         if (numeric && inNibble) {
             if (writeLastLen != readLimit) {
                 throw new IllegalStateException("Can't cope with numeric fields longer than 255 bytes");
@@ -119,7 +115,6 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         writeLastLen = writePos;
         readLimit = writePos;
         inNibble = false;
-        return this;
     }
 
     @Override
