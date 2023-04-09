@@ -49,7 +49,7 @@ public class ZcodeTokenizer {
             return;
         }
         skipToNL = false;
-        if (!buffer.isFieldOpen()) {
+        if (!buffer.isTokenOpen()) {
             startToken(b);
             return;
         }
@@ -62,7 +62,7 @@ public class ZcodeTokenizer {
         byte hex = parseHex(b);
         if (b == 0x10) {
             // Check big field odd length
-            if (!numeric && buffer.getCurrentWriteFieldKey() == Zchars.Z_BIGFIELD && buffer.isInNibble()) {
+            if (!numeric && buffer.getCurrentWriteTokenKey() == Zchars.Z_BIGFIELD && buffer.isInNibble()) {
                 buffer.fail(ODD_BIG_FIELD_LENGTH_ERROR);
                 skipToNL = true;
                 if (b != Zchars.Z_NEWLINE) {
@@ -74,13 +74,13 @@ public class ZcodeTokenizer {
         }
         if (numeric) {
             // Check field length
-            if (buffer.getCurrentWriteFieldNibbleLength() == 4) {
+            if (buffer.getCurrentWriteTokenNibbleLength() == 4) {
                 buffer.fail(FIELD_TOO_LONG_ERROR);
                 skipToNL = true;
                 return;
             }
             // Skip leading zeros
-            if (buffer.getCurrentWriteFieldLength() == 0 && hex == 0) {
+            if (buffer.getCurrentWriteTokenLength() == 0 && hex == 0) {
                 return;
             }
         }

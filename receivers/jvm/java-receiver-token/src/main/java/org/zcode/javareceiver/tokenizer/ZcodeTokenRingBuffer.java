@@ -1,7 +1,7 @@
 package org.zcode.javareceiver.tokenizer;
 
 public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
-    public static final byte FIELD_EXTENSION = (byte) 0xE0;
+    public static final byte TOKEN_EXTENSION = (byte) 0xE0;
 
     byte[] data;
     int    readLimit;
@@ -57,11 +57,11 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         return this;
     }
 
-    private void extendField() {
+    private void extendToken() {
         data[writePos] = 0;
         writeLastLen = writePos;
         writePos = offset(writePos, 1);
-        data[writePos] = FIELD_EXTENSION;
+        data[writePos] = TOKEN_EXTENSION;
         writePos = offset(writePos, 1);
     }
 
@@ -75,7 +75,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             writePos = offset(writePos, 1);
         } else {
             if (data[writeLastLen] == 0xFF) {
-                extendField();
+                extendToken();
             }
             data[writePos] = (byte) (nibble << 4);
             data[writeLastLen]++;
@@ -93,7 +93,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             throw new IllegalStateException("Can't write byte without field");
         }
         if (data[writeLastLen] == 0xFF) {
-            extendField();
+            extendToken();
         }
         data[writePos] = b;
         writePos = offset(writePos, 1);
@@ -128,22 +128,22 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     }
 
     @Override
-    public int getCurrentWriteFieldKey() {
+    public int getCurrentWriteTokenKey() {
         return data[offset(readLimit, 1)];
     }
 
     @Override
-    public int getCurrentWriteFieldLength() {
+    public int getCurrentWriteTokenLength() {
         return data[readLimit];
     }
 
     @Override
-    public int getCurrentWriteFieldNibbleLength() {
+    public int getCurrentWriteTokenNibbleLength() {
         return data[readLimit] * 2 - (inNibble ? 1 : 0);
     }
 
     @Override
-    public boolean isFieldOpen() {
+    public boolean isTokenOpen() {
         return readLimit != writePos;
     }
 }

@@ -12,13 +12,13 @@ public interface ZcodeTokenBuffer {
 
     ZcodeTokenBuffer fail(byte errorCode);
 
-    boolean isFieldOpen();
+    boolean isTokenOpen();
 
-    int getCurrentWriteFieldKey();
+    int getCurrentWriteTokenKey();
 
-    int getCurrentWriteFieldLength();
+    int getCurrentWriteTokenLength();
 
     boolean isInNibble();
 
-    int getCurrentWriteFieldNibbleLength();
+    int getCurrentWriteTokenNibbleLength();
 }
