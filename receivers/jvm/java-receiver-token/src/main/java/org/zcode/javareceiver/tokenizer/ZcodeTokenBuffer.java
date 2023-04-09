@@ -1,11 +1,12 @@
 package org.zcode.javareceiver.tokenizer;
 
 public class ZcodeTokenBuffer implements TokenBuffer {
-    byte[] data;
+    public final byte FIELD_EXTENSION = (byte) 0xE0;
 
-    int writeLimit;
-    int readLimit;
-    int writePos;
+    byte[] data;
+    int    readLimit;
+    int    writeLastLen;
+    int    writePos;
 
     boolean inNibble = false;
     boolean numeric  = false;
@@ -24,8 +25,8 @@ public class ZcodeTokenBuffer implements TokenBuffer {
         return data.clone();
     }
 
-    public int next(int pos) {
-        pos++;
+    public int offset(int pos, int offset) {
+        pos += offset;
         if (pos >= data.length) {
             pos = 0;
         }
@@ -35,11 +36,11 @@ public class ZcodeTokenBuffer implements TokenBuffer {
     public TokenBuffer fail(byte code) {
         closeToken();
         data[writePos] = 1;
-        writePos = next(writePos);
+        writePos = offset(writePos, 1);
         data[writePos] = (byte) 0xFF;
-        writePos = next(writePos);
+        writePos = offset(writePos, 1);
         data[writePos] = code;
-        writePos = next(writePos);
+        writePos = offset(writePos, 1);
         return this;
     }
 
@@ -47,43 +48,70 @@ public class ZcodeTokenBuffer implements TokenBuffer {
         closeToken();
         this.numeric = numeric;
         data[writePos] = 0;
-        writePos = next(writePos);
+        writePos = offset(writePos, 1);
         data[writePos] = key;
-        writePos = next(writePos);
+        writePos = offset(writePos, 1);
         inNibble = false;
         return this;
     }
 
+    private void extendField() {
+        data[writePos] = 0;
+        writeLastLen = writePos;
+        writePos = offset(writePos, 1);
+        data[writePos] = FIELD_EXTENSION;
+        writePos = offset(writePos, 1);
+    }
+
     public TokenBuffer continueTokenNibble(byte nibble) {
+        if (writePos == readLimit) {
+            throw new IllegalStateException("Can't write byte without field");
+        }
         if (inNibble) {
             data[writePos] |= nibble;
-            writePos = next(writePos);
+            writePos = offset(writePos, 1);
         } else {
+            if (data[writeLastLen] == 0xFF) {
+                extendField();
+            }
             data[writePos] = (byte) (nibble << 4);
-            data[readLimit]++;
+            data[writeLastLen]++;
         }
         inNibble = !inNibble;
         return this;
     }
 
     public TokenBuffer continueTokenByte(byte b) {
+        if (inNibble) {
+            throw new IllegalStateException("Can't write byte while in nibble");
+        }
+        if (writePos == readLimit) {
+            throw new IllegalStateException("Can't write byte without field");
+        }
+        if (data[writeLastLen] == 0xFF) {
+            extendField();
+        }
         data[writePos] = b;
-        writePos = next(writePos);
-        data[readLimit]++;
+        writePos = offset(writePos, 1);
+        data[writeLastLen]++;
         return this;
     }
 
     public TokenBuffer closeToken() {
         if (numeric && inNibble) {
+            if (writeLastLen != readLimit) {
+                throw new IllegalStateException("Can't cope with numeric fields longer than 255 bytes");
+            }
             byte hold = 0;
-            int  pos  = next(readLimit);
+            int  pos  = offset(readLimit, 1);
             do {
-                pos = next(pos);
+                pos = offset(pos, 1);
                 byte tmp = (byte) (data[pos] & 0xF);
                 data[pos] = (byte) (hold | (data[pos] >> 4) & 0xF);
                 hold = (byte) (tmp << 4);
             } while (pos != writePos);
         }
+        writeLastLen = writePos;
         readLimit = writePos;
         inNibble = false;
         return this;
@@ -94,7 +122,7 @@ public class ZcodeTokenBuffer implements TokenBuffer {
     }
 
     public int getCurrentWriteFieldKey() {
-        return data[next(readLimit)];
+        return data[offset(readLimit, 1)];
     }
 
     public int getCurrentWriteFieldLength() {
@@ -108,5 +136,4 @@ public class ZcodeTokenBuffer implements TokenBuffer {
     public boolean isFieldOpen() {
         return readLimit != writePos;
     }
-
 }
