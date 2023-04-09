@@ -1,4 +1,4 @@
-package org.zcode.javareceiver.tokeniser;
+package org.zcode.javareceiver.tokenizer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -10,63 +10,63 @@ class ZcodeTokenBufferTest {
 
     @Test
     void shouldTokenizeNumericFieldWithNoValue() {
-        buffer.startField((byte) 'A', true);
+        buffer.startToken((byte) 'A', true);
         assertThat(buffer.getInternalData()).containsExactly(0, 'A', 0, 0, 0);
     }
 
     @Test
     void shouldTokenizeNumericFieldWithValue() {
-        buffer.startField((byte) 'A', true);
-        buffer.continueFieldNibble((byte) 5);
-        buffer.closeField();
+        buffer.startToken((byte) 'A', true);
+        buffer.continueTokenNibble((byte) 5);
+        buffer.closeToken();
         assertThat(buffer.getInternalData()).containsExactly(1, 'A', 5, 0, 0);
     }
 
     @Test
     void shouldTokenizeNumericFieldWithByteValue() {
-        buffer.startField((byte) 'A', true);
-        buffer.continueFieldByte((byte) 234);
+        buffer.startToken((byte) 'A', true);
+        buffer.continueTokenByte((byte) 234);
         assertThat(buffer.getInternalData()).containsExactly(1, 'A', (byte) 234, 0, 0);
     }
 
     @Test
     void shouldTokenizeNumericFieldWith2NibbleValue() {
-        buffer.startField((byte) 'A', true);
-        buffer.continueFieldNibble((byte) 5);
-        buffer.continueFieldNibble((byte) 0xd);
+        buffer.startToken((byte) 'A', true);
+        buffer.continueTokenNibble((byte) 5);
+        buffer.continueTokenNibble((byte) 0xd);
         assertThat(buffer.getInternalData()).containsExactly(1, 'A', 0x5d, 0, 0);
     }
 
     @Test
     void shouldTokenizeNumericFieldWith3NibbleValue() {
-        buffer.startField((byte) 'A', true);
-        buffer.continueFieldNibble((byte) 5);
-        buffer.continueFieldNibble((byte) 0xd);
-        buffer.continueFieldNibble((byte) 0xa);
-        buffer.closeField();
+        buffer.startToken((byte) 'A', true);
+        buffer.continueTokenNibble((byte) 5);
+        buffer.continueTokenNibble((byte) 0xd);
+        buffer.continueTokenNibble((byte) 0xa);
+        buffer.closeToken();
         assertThat(buffer.getInternalData()).containsExactly(2, 'A', 0x5, 0xda, 0);
     }
 
     @Test
     void shouldTokenizeNumericFieldWith4NibbleValue() {
-        buffer.startField((byte) 'A', true);
-        buffer.continueFieldNibble((byte) 5);
-        buffer.continueFieldNibble((byte) 0xd);
-        buffer.continueFieldNibble((byte) 0xa);
-        buffer.continueFieldNibble((byte) 0x3);
-        buffer.closeField();
+        buffer.startToken((byte) 'A', true);
+        buffer.continueTokenNibble((byte) 5);
+        buffer.continueTokenNibble((byte) 0xd);
+        buffer.continueTokenNibble((byte) 0xa);
+        buffer.continueTokenNibble((byte) 0x3);
+        buffer.closeToken();
         assertThat(buffer.getInternalData()).containsExactly(2, 'A', 0x5d, 0xa3, 0);
     }
 
     @Test
     void shouldTokenizeNumericField5NibbleValue() {
-        buffer.startField((byte) 'A', true);
-        buffer.continueFieldNibble((byte) 5);
-        buffer.continueFieldNibble((byte) 0xd);
-        buffer.continueFieldNibble((byte) 0xa);
-        buffer.continueFieldNibble((byte) 0x3);
-        buffer.continueFieldNibble((byte) 0xe);
-        buffer.closeField();
+        buffer.startToken((byte) 'A', true);
+        buffer.continueTokenNibble((byte) 5);
+        buffer.continueTokenNibble((byte) 0xd);
+        buffer.continueTokenNibble((byte) 0xa);
+        buffer.continueTokenNibble((byte) 0x3);
+        buffer.continueTokenNibble((byte) 0xe);
+        buffer.closeToken();
         assertThat(buffer.getInternalData()).containsExactly(3, 'A', 0x5, 0xda, 0x3e);
     }
 

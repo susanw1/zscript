@@ -1,6 +1,6 @@
-package org.zcode.javareceiver.tokeniser;
+package org.zcode.javareceiver.tokenizer;
 
-public class ZcodeTokeniser {
+public class ZcodeTokenizer {
     public static final byte ODD_BIG_FIELD_LENGTH_ERROR  = 1;
     public static final byte FIELD_TOO_LONG_ERROR        = 2;
     public static final byte STRING_NOT_TERMINATED_ERROR = 3;
@@ -19,7 +19,7 @@ public class ZcodeTokeniser {
     private boolean isNormalString;
     private int     escapingCount; // 2 bits
 
-    private ZcodeTokeniser(ZcodeTokenBuffer buffer) {
+    private ZcodeTokenizer(ZcodeTokenBuffer buffer) {
         this.buffer = buffer;
         this.numeric = false;
         this.skipToNL = false;
@@ -48,7 +48,7 @@ public class ZcodeTokeniser {
         }
         skipToNL = false;
         if (!buffer.isFieldOpen()) {
-            startField(b);
+            startToken(b);
             return;
         }
 
@@ -67,7 +67,7 @@ public class ZcodeTokeniser {
                     return;
                 }
             }
-            startField(b);
+            startToken(b);
             return;
         }
         if (numeric) {
@@ -83,7 +83,7 @@ public class ZcodeTokeniser {
             }
         }
 
-        buffer.continueFieldNibble(hex);
+        buffer.continueTokenNibble(hex);
     }
 
     void acceptText(byte b) {
@@ -91,36 +91,36 @@ public class ZcodeTokeniser {
             if (isNormalString) {
                 buffer.fail(STRING_NOT_TERMINATED_ERROR);
             }
-            buffer.startField(b, true);
-            buffer.closeField();
+            buffer.startToken(b, true);
+            buffer.closeToken();
             isText = false;
         } else if (escapingCount > 0) {
             byte hex = parseHex(b);
             if (hex != 0x10) {
-                buffer.continueFieldNibble(hex);
+                buffer.continueTokenNibble(hex);
                 escapingCount--;
             } else {
                 if (buffer.isInNibble()) {
-                    buffer.continueFieldNibble((byte) 0);
+                    buffer.continueTokenNibble((byte) 0);
                 }
                 buffer.fail(STRING_ESCAPING_ERROR);
                 escapingCount = 0;
                 skipToNL = true;
             }
         } else if (isNormalString && b == Zchars.Z_STRINGFIELD) {
-            buffer.closeField();
+            buffer.closeToken();
             isText = false;
         } else if (isNormalString && b == Zchars.Z_STRING_COMMENT) {
             escapingCount = 2;
         } else {
-            buffer.continueFieldByte(b);
+            buffer.continueTokenByte(b);
         }
     }
 
-    void startField(byte b) {
+    void startToken(byte b) {
         if (addressing && (b != Zchars.Z_ADDRESSING_CONTINUE && b != Zchars.Z_NEWLINE)) {
-            buffer.startField(ADDRESSING_FIELD_KEY, false);
-            buffer.continueFieldByte(b);
+            buffer.startToken(ADDRESSING_FIELD_KEY, false);
+            buffer.continueTokenByte(b);
             addressing = false;
             isText = true;
             escapingCount = 0;
@@ -134,7 +134,7 @@ public class ZcodeTokeniser {
         if (Zchars.isNonNumerical(b)) {
             numeric = false;
         }
-        buffer.startField(b, numeric);
+        buffer.startToken(b, numeric);
 
         if (b == Zchars.Z_COMMENT) {
             if (DROP_COMMENTS) {
@@ -154,7 +154,7 @@ public class ZcodeTokeniser {
         }
         isText = false;
         if (Zchars.isSeperator(b)) {
-            buffer.closeField();
+            buffer.closeToken();
         }
     }
 }

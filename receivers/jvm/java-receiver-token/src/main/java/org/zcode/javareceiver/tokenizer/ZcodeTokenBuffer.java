@@ -1,7 +1,8 @@
-package org.zcode.javareceiver.tokeniser;
+package org.zcode.javareceiver.tokenizer;
 
 public class ZcodeTokenBuffer {
     byte[]  data;
+    int     writeLimit;
     int     readLimit;
     int     writePos;
     boolean inNibble = false;
@@ -21,7 +22,7 @@ public class ZcodeTokenBuffer {
         return data.clone();
     }
 
-    private int next(int pos) {
+    public int next(int pos) {
         pos++;
         if (pos >= data.length) {
             pos = 0;
@@ -30,7 +31,7 @@ public class ZcodeTokenBuffer {
     }
 
     public void fail(byte code) {
-        closeField();
+        closeToken();
         data[writePos] = 1;
         writePos = next(writePos);
         data[writePos] = (byte) 0xFF;
@@ -39,8 +40,8 @@ public class ZcodeTokenBuffer {
         writePos = next(writePos);
     }
 
-    public void startField(byte key, boolean numeric) {
-        closeField();
+    public void startToken(byte key, boolean numeric) {
+        closeToken();
         this.numeric = numeric;
         data[writePos] = 0;
         writePos = next(writePos);
@@ -49,7 +50,7 @@ public class ZcodeTokenBuffer {
         inNibble = false;
     }
 
-    public void continueFieldNibble(byte nibble) {
+    public void continueTokenNibble(byte nibble) {
         if (inNibble) {
             data[writePos] |= nibble;
             writePos = next(writePos);
@@ -60,13 +61,13 @@ public class ZcodeTokenBuffer {
         inNibble = !inNibble;
     }
 
-    public void continueFieldByte(byte b) {
+    public void continueTokenByte(byte b) {
         data[writePos] = b;
         writePos = next(writePos);
         data[readLimit]++;
     }
 
-    public void closeField() {
+    public void closeToken() {
         if (numeric && inNibble) {
             byte hold = 0;
             int  pos  = next(readLimit);

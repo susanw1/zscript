@@ -1,4 +1,4 @@
-package org.zcode.javareceiver.tokeniser;
+package org.zcode.javareceiver.tokenizer;
 
 public class Zchars {
     public static final byte Z_NEWLINE             = '\n';
