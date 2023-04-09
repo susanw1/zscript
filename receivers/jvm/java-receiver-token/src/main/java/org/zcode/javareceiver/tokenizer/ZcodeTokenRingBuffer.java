@@ -148,6 +148,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 data[pos] = (byte) (hold | (data[pos] >> 4) & 0xF);
                 hold = (byte) (tmp << 4);
             } while (pos != writePos);
+            writePos = offset(writePos, 1);
         }
         writeLastLen = writePos;
         readLimit = writePos;
