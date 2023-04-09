@@ -1,12 +1,14 @@
 package org.zcode.javareceiver.tokenizer;
 
 public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
-    public static final byte TOKEN_EXTENSION = (byte) 0xE0;
+    public static final byte TOKEN_EXTENSION      = (byte) 0x81;
+    public static final byte BUFFER_OVERRUN_ERROR = (byte) 0xF0;
 
     byte[] data;
-    int    readLimit;
-    int    writeLastLen;
-    int    writePos;
+    int    readStart    = 0;
+    int    readLimit    = 0;
+    int    writeLastLen = 0;
+    int    writePos     = 0;
 
     boolean inNibble = false;
     boolean numeric  = false;
@@ -25,7 +27,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         return data.clone();
     }
 
-    private int offset(int pos, int offset) {
+    public int offset(int pos, int offset) {
         pos += offset;
         if (pos >= data.length) {
             pos = 0;
@@ -33,19 +35,41 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         return pos;
     }
 
-    @Override
-    public void fail(byte code) {
+    private void failInternal(byte code) {
         closeToken();
-        data[writePos] = 1;
-        writePos = offset(writePos, 1);
-        data[writePos] = (byte) 0xFF;
+        data[writePos] = 0;
         writePos = offset(writePos, 1);
         data[writePos] = code;
         writePos = offset(writePos, 1);
+        writeLastLen = writePos;
+        readLimit = writePos;
+        inNibble = false;
     }
 
     @Override
-    public void startToken(byte key, boolean numeric) {
+    public boolean fail(byte code) {
+        if (getAvailableWrite() < 6) {
+            failInternal(BUFFER_OVERRUN_ERROR);
+            return false;
+        }
+        failInternal(code);
+        return true;
+    }
+
+    public int getAvailableWrite() {
+        if (writePos >= readStart) {
+            return data.length - writePos + readStart - 1;
+        } else {
+            return readStart - writePos - 1;
+        }
+    }
+
+    @Override
+    public boolean startToken(byte key, boolean numeric) {
+        if (getAvailableWrite() < 4) {
+            failInternal(BUFFER_OVERRUN_ERROR);
+            return false;
+        }
         closeToken();
         this.numeric = numeric;
         data[writePos] = 0;
@@ -53,6 +77,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         data[writePos] = key;
         writePos = offset(writePos, 1);
         inNibble = false;
+        return true;
     }
 
     private void extendToken() {
@@ -64,9 +89,14 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     }
 
     @Override
-    public void continueTokenNibble(byte nibble) {
+    public boolean continueTokenNibble(byte nibble) {
         if (writePos == readLimit) {
             throw new IllegalStateException("Can't write byte without field");
+        }
+
+        if (!inNibble && (getAvailableWrite() < 3 || data[writeLastLen] == 0xFF && getAvailableWrite() < 5)) {
+            failInternal(BUFFER_OVERRUN_ERROR);
+            return false;
         }
         if (inNibble) {
             data[writePos] |= nibble;
@@ -79,15 +109,21 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             data[writeLastLen]++;
         }
         inNibble = !inNibble;
+        return true;
     }
 
     @Override
-    public void continueTokenByte(byte b) {
+    public boolean continueTokenByte(byte b) {
         if (inNibble) {
             throw new IllegalStateException("Can't write byte while in nibble");
         }
         if (writePos == readLimit) {
             throw new IllegalStateException("Can't write byte without field");
+        }
+
+        if (getAvailableWrite() < 3 || data[writeLastLen] == 0xFF && getAvailableWrite() < 5) {
+            failInternal(BUFFER_OVERRUN_ERROR);
+            return false;
         }
         if (data[writeLastLen] == 0xFF) {
             extendToken();
@@ -95,6 +131,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         data[writePos] = b;
         writePos = offset(writePos, 1);
         data[writeLastLen]++;
+        return true;
     }
 
     @Override
@@ -140,5 +177,9 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     @Override
     public boolean isTokenOpen() {
         return readLimit != writePos;
+    }
+
+    public void setIterator(ZcodeTokenIterator iterator) {
+        iterator.set(this, readStart);
     }
 }

@@ -23,4 +23,14 @@ public class Zchars {
     public static boolean isNonNumerical(byte b) {
         return b == Z_LOCKS || b == Z_BIGFIELD || b == Z_COMMENT || b == Z_STRINGFIELD;
     }
+
+    public static byte parseHex(byte b) {
+        if (b >= '0' && b <= '9') {
+            return (byte) (b - '0');
+        } else if (b >= 'a' && b <= 'f') {
+            return (byte) (b - 'a' + 10);
+        } else {
+            return 0x10;
+        }
+    }
 }

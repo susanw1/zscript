@@ -11,7 +11,7 @@ class ZcharsTest {
         for (char i = 0; i < 257; i++) {
             final int  ch       = Character.digit(i, 16);
             final byte expected = (byte) (ch == -1 || Character.isUpperCase(i) ? 0x10 : ch);
-            assertThat(ZcodeTokenizer.parseHex((byte) i)).as("char " + i + " (asc " + (int) i + ")").isEqualTo(expected);
+            assertThat(Zchars.parseHex((byte) i)).as("char " + i + " (asc " + (int) i + ")").isEqualTo(expected);
         }
     }
 
