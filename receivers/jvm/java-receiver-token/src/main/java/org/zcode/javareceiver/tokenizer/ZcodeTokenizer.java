@@ -11,7 +11,7 @@ public class ZcodeTokenizer {
 
     private final static boolean DROP_COMMENTS = false;
 
-    private final TokenBuffer buffer;
+    private final ZcodeTokenBuffer buffer;
 
     private boolean numeric;
     private boolean skipToNL;
@@ -21,7 +21,7 @@ public class ZcodeTokenizer {
     private boolean isNormalString;
     private int     escapingCount; // 2 bits
 
-    private ZcodeTokenizer(TokenBuffer buffer) {
+    private ZcodeTokenizer(ZcodeTokenBuffer buffer) {
         this.buffer = buffer;
         this.numeric = false;
         this.skipToNL = false;

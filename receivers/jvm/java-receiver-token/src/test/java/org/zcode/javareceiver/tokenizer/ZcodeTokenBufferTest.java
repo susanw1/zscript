@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 class ZcodeTokenBufferTest {
 
-    private ZcodeTokenBuffer buffer = ZcodeTokenBuffer.createBufferWithCapacity(5);
+    private ZcodeTokenRingBuffer buffer = ZcodeTokenRingBuffer.createBufferWithCapacity(5);
 
     @Test
     void shouldTokenizeNumericFieldWithNoValue() {
