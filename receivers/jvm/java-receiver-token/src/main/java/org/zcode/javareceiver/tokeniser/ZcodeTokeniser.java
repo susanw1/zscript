@@ -1,15 +1,33 @@
 package org.zcode.javareceiver.tokeniser;
 
 public class ZcodeTokeniser {
-    private final static boolean DROP_COMMENTS = false;
-    ZcodeTokenBuffer buffer;
-    boolean numeric;
-    boolean skipToNL;
-    boolean addressing;
+    public static final byte ODD_BIG_FIELD_LENGTH_ERROR = 1;
+    public static final byte FIELD_TOO_LONG_ERROR = 2;
+    public static final byte STRING_NOT_TERMINATED_ERROR = 3;
+    public static final byte STRING_ESCAPING_ERROR = 4;
 
-    boolean isText;
-    boolean isNormalString;
-    int escapingCount; // 2 bits
+    public static final byte ERROR_FIELD_KEY = (byte) 0xFF;
+    public static final byte ADDRESSING_FIELD_KEY = (byte) 0x80;
+
+    private final static boolean DROP_COMMENTS = false;
+    private final ZcodeTokenBuffer buffer;
+    private boolean numeric;
+    private boolean skipToNL;
+    private boolean addressing;
+
+    private boolean isText;
+    private boolean isNormalString;
+    private int escapingCount; // 2 bits
+
+    private ZcodeTokeniser(ZcodeTokenBuffer buffer) {
+        this.buffer = buffer;
+        this.numeric = false;
+        this.skipToNL = false;
+        this.addressing = false;
+        this.isText = false;
+        this.isNormalString = false;
+        this.escapingCount = 0;
+    }
 
     byte parseHex(byte b) {
         if (b >= '0' && b <= '9') {
@@ -22,10 +40,10 @@ public class ZcodeTokeniser {
     }
 
     void accept(byte b) {
-        if (!isText && (b == ' ' || b == '\t' || b == '\r' || b == ',')) {
+        if (!isText && Zchars.shouldIgnore(b)) {
             return;
         }
-        if (skipToNL && b != '\n') {
+        if (skipToNL && b != Zchars.Z_NEWLINE) {
             return;
         }
         skipToNL = false;
@@ -41,25 +59,38 @@ public class ZcodeTokeniser {
 
         byte hex = parseHex(b);
         if (b == 0x10) {
+            // Check big field odd length
+            if (!numeric && buffer.getCurrentWriteFieldKey() == Zchars.Z_BIGFIELD && buffer.isInNibble()) {
+                buffer.fail(ODD_BIG_FIELD_LENGTH_ERROR);
+                skipToNL = true;
+                if (b != Zchars.Z_NEWLINE) {
+                    return;
+                }
+            }
             startField(b);
             return;
         }
-        if (buffer.getCurrentWriteFieldNibbleLength() == 4) {
-            buffer.fail((byte) 1); // TODO: assign proper codes
-            skipToNL = true;
-            return;
+        if (numeric) {
+            // Check field length
+            if (buffer.getCurrentWriteFieldNibbleLength() == 4) {
+                buffer.fail(FIELD_TOO_LONG_ERROR);
+                skipToNL = true;
+                return;
+            }
+            // Skip leading zeros
+            if (buffer.getCurrentWriteFieldLength() == 0 && hex == 0) {
+                return;
+            }
         }
+
         buffer.continueFieldNibble(hex);
     }
 
     void acceptText(byte b) {
-        if (b == '\n') {
+        if (b == Zchars.Z_NEWLINE) {
             if (isNormalString) {
-                buffer.fail((byte) 2); // TODO: assign proper codes
+                buffer.fail(STRING_NOT_TERMINATED_ERROR);
             }
-//            else if (escapingCount != 0) {
-//                buffer.fail((byte) 3); // TODO: assign proper codes
-//            }
             buffer.startField(b, true);
             buffer.closeField();
             isText = false;
@@ -69,17 +100,17 @@ public class ZcodeTokeniser {
                 buffer.continueFieldNibble(hex);
                 escapingCount--;
             } else {
-                buffer.fail((byte) 4); // TODO: assign proper codes
                 if (buffer.isInNibble()) {
                     buffer.continueFieldNibble((byte) 0);
                 }
+                buffer.fail(STRING_ESCAPING_ERROR);
                 escapingCount = 0;
                 skipToNL = true;
             }
-        } else if (isNormalString && b == '"') {
+        } else if (isNormalString && b == Zchars.Z_STRINGFIELD) {
             buffer.closeField();
             isText = false;
-        } else if (isNormalString && b == '=') {
+        } else if (isNormalString && b == Zchars.Z_STRING_COMMENT) {
             escapingCount = 2;
         } else {
             buffer.continueFieldByte(b);
@@ -87,8 +118,8 @@ public class ZcodeTokeniser {
     }
 
     void startField(byte b) {
-        if (addressing && (b != '@' && b != '.' && b != '\n')) {
-            buffer.startField((byte) 0x80, false);
+        if (addressing && (b != Zchars.Z_ADDRESSING && b != Zchars.Z_ADDRESSING_CONTINUE && b != Zchars.Z_NEWLINE)) {
+            buffer.startField(ADDRESSING_FIELD_KEY, false);
             buffer.continueFieldByte(b);
             addressing = false;
             isText = true;
@@ -96,16 +127,16 @@ public class ZcodeTokeniser {
             isNormalString = false;
             return;
         }
-        if (b == '@') {
+        if (b == Zchars.Z_ADDRESSING) {
             addressing = true;
         }
         numeric = true;
-        if (b == '%' || b == '+' || b == '#' || b == '"') {
+        if (Zchars.isNonNumerical(b)) {
             numeric = false;
         }
         buffer.startField(b, numeric);
 
-        if (b == '#') {
+        if (b == Zchars.Z_COMMENT) {
             if (DROP_COMMENTS) {
                 skipToNL = true;
             } else {
@@ -115,14 +146,14 @@ public class ZcodeTokeniser {
             }
             return;
         }
-        if (b == '"') {
+        if (b == Zchars.Z_STRINGFIELD) {
             isText = true;
             escapingCount = 0;
             isNormalString = true;
             return;
         }
         isText = false;
-        if (b == '\n' || b == '&' || b == '|') {
+        if (Zchars.isSeperator(b)) {
             buffer.closeField();
         }
     }

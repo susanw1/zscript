@@ -71,6 +71,10 @@ public class ZcodeTokenBuffer {
         return inNibble;
     }
 
+    public int getCurrentWriteFieldKey() {
+        return data[next(readLimit)];
+    }
+
     public int getCurrentWriteFieldLength() {
         return data[readLimit];
     }
