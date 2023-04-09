@@ -118,7 +118,7 @@ public class ZcodeTokeniser {
     }
 
     void startField(byte b) {
-        if (addressing && (b != Zchars.Z_ADDRESSING && b != Zchars.Z_ADDRESSING_CONTINUE && b != Zchars.Z_NEWLINE)) {
+        if (addressing && (b != Zchars.Z_ADDRESSING_CONTINUE && b != Zchars.Z_NEWLINE)) {
             buffer.startField(ADDRESSING_FIELD_KEY, false);
             buffer.continueFieldByte(b);
             addressing = false;
