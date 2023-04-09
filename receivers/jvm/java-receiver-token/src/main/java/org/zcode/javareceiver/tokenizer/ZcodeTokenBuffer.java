@@ -1,10 +1,12 @@
 package org.zcode.javareceiver.tokenizer;
 
-public class ZcodeTokenBuffer {
-    byte[]  data;
-    int     writeLimit;
-    int     readLimit;
-    int     writePos;
+public class ZcodeTokenBuffer implements TokenBuffer {
+    byte[] data;
+
+    int writeLimit;
+    int readLimit;
+    int writePos;
+
     boolean inNibble = false;
     boolean numeric  = false;
 
@@ -30,7 +32,7 @@ public class ZcodeTokenBuffer {
         return pos;
     }
 
-    public void fail(byte code) {
+    public TokenBuffer fail(byte code) {
         closeToken();
         data[writePos] = 1;
         writePos = next(writePos);
@@ -38,9 +40,10 @@ public class ZcodeTokenBuffer {
         writePos = next(writePos);
         data[writePos] = code;
         writePos = next(writePos);
+        return this;
     }
 
-    public void startToken(byte key, boolean numeric) {
+    public TokenBuffer startToken(byte key, boolean numeric) {
         closeToken();
         this.numeric = numeric;
         data[writePos] = 0;
@@ -48,9 +51,10 @@ public class ZcodeTokenBuffer {
         data[writePos] = key;
         writePos = next(writePos);
         inNibble = false;
+        return this;
     }
 
-    public void continueTokenNibble(byte nibble) {
+    public TokenBuffer continueTokenNibble(byte nibble) {
         if (inNibble) {
             data[writePos] |= nibble;
             writePos = next(writePos);
@@ -59,15 +63,17 @@ public class ZcodeTokenBuffer {
             data[readLimit]++;
         }
         inNibble = !inNibble;
+        return this;
     }
 
-    public void continueTokenByte(byte b) {
+    public TokenBuffer continueTokenByte(byte b) {
         data[writePos] = b;
         writePos = next(writePos);
         data[readLimit]++;
+        return this;
     }
 
-    public void closeToken() {
+    public TokenBuffer closeToken() {
         if (numeric && inNibble) {
             byte hold = 0;
             int  pos  = next(readLimit);
@@ -80,6 +86,7 @@ public class ZcodeTokenBuffer {
         }
         readLimit = writePos;
         inNibble = false;
+        return this;
     }
 
     public boolean isInNibble() {

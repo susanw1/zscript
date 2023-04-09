@@ -9,17 +9,19 @@ public class ZcodeTokenizer {
     public static final byte ERROR_FIELD_KEY      = (byte) 0xFF;
     public static final byte ADDRESSING_FIELD_KEY = (byte) 0x80;
 
-    private final static boolean   DROP_COMMENTS = false;
-    private final ZcodeTokenBuffer buffer;
-    private boolean                numeric;
-    private boolean                skipToNL;
-    private boolean                addressing;
+    private final static boolean DROP_COMMENTS = false;
+
+    private final TokenBuffer buffer;
+
+    private boolean numeric;
+    private boolean skipToNL;
+    private boolean addressing;
 
     private boolean isText;
     private boolean isNormalString;
     private int     escapingCount; // 2 bits
 
-    private ZcodeTokenizer(ZcodeTokenBuffer buffer) {
+    private ZcodeTokenizer(TokenBuffer buffer) {
         this.buffer = buffer;
         this.numeric = false;
         this.skipToNL = false;
