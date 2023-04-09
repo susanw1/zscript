@@ -1,11 +1,25 @@
 package org.zcode.javareceiver.tokeniser;
 
 public class ZcodeTokenBuffer {
-    byte[] data;
-    int readLimit;
-    int writePos;
+    byte[]  data;
+    int     readLimit;
+    int     writePos;
     boolean inNibble = false;
-    boolean numeric = false;
+    boolean numeric  = false;
+
+    public static ZcodeTokenBuffer createBufferWithCapacity(int sz) {
+        return new ZcodeTokenBuffer(sz);
+    }
+
+    // construct via static factories
+    private ZcodeTokenBuffer(int sz) {
+        data = new byte[sz];
+    }
+
+    // Visible for testing only!
+    byte[] getInternalData() {
+        return data.clone();
+    }
 
     private int next(int pos) {
         pos++;
@@ -55,7 +69,7 @@ public class ZcodeTokenBuffer {
     public void closeField() {
         if (numeric && inNibble) {
             byte hold = 0;
-            int pos = next(next(readLimit));
+            int  pos  = next(next(readLimit));
             while (pos != writePos) {
                 byte tmp = (byte) (data[pos] & 0xF);
                 data[pos] = (byte) (hold | (data[pos] >> 4));

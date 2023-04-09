@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>java-receiver-token</artifactId>
-    <name>Zcode Receiver in Java</name>
+    <name>Zcode Receiver Using Token Buffer in Java</name>
 
     <dependencies>
         <dependency>
