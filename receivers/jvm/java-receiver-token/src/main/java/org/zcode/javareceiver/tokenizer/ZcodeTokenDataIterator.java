@@ -25,7 +25,7 @@ public class ZcodeTokenDataIterator {
             byte tmp = buffer.data[position];
             position = buffer.offset(position, 1);
             return tmp;
-        } else if (buffer.readLimit == position || buffer.data[buffer.offset(position, 1)] != ZcodeTokenRingBuffer.TOKEN_EXTENSION) {
+        } else if (buffer.writeStart == position || buffer.data[buffer.offset(position, 1)] != ZcodeTokenRingBuffer.TOKEN_EXTENSION) {
             throw new IllegalStateException("Cannot call next to go beyond current Token");
         } else {
             remainingSegmentLength = buffer.data[position];
@@ -37,13 +37,13 @@ public class ZcodeTokenDataIterator {
     }
 
     public boolean hasNext() {
-        return remainingSegmentLength > 0 || (position != buffer.readLimit && buffer.data[buffer.offset(position, 1)] == ZcodeTokenRingBuffer.TOKEN_EXTENSION);
+        return remainingSegmentLength > 0 || (position != buffer.writeStart && buffer.data[buffer.offset(position, 1)] == ZcodeTokenRingBuffer.TOKEN_EXTENSION);
     }
 
     public int calculateRemainingLength() {
         int len    = remainingSegmentLength;
         int tmpPos = buffer.offset(position, remainingSegmentLength);
-        while (tmpPos != buffer.readLimit && buffer.data[buffer.offset(tmpPos, 1)] == ZcodeTokenRingBuffer.TOKEN_EXTENSION) {
+        while (tmpPos != buffer.writeStart && buffer.data[buffer.offset(tmpPos, 1)] == ZcodeTokenRingBuffer.TOKEN_EXTENSION) {
             len += buffer.data[tmpPos];
             tmpPos = buffer.offset(position, buffer.data[tmpPos] + 2);
         }

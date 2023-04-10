@@ -10,7 +10,7 @@ public class ZcodeTokenIterator {
     public void set(ZcodeTokenRingBuffer buffer, int position) {
         this.buffer = buffer;
         this.position = position;
-        if (position == buffer.readLimit) {
+        if (position == buffer.writeStart) {
             this.key = 0;
             this.valid = false;
         } else {
@@ -26,7 +26,7 @@ public class ZcodeTokenIterator {
     byte next() {
         do {
             position = buffer.offset(position, buffer.data[position] + 2);
-            if (position == buffer.readLimit) {
+            if (position == buffer.writeStart) {
                 key = 0;
                 valid = false;
                 return 0;
