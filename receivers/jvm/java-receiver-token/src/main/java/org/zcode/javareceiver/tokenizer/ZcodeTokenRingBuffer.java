@@ -3,14 +3,12 @@ package org.zcode.javareceiver.tokenizer;
 import static java.text.MessageFormat.format;
 
 public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
-    public static final byte TOKEN_EXTENSION      = (byte) 0x81;
-    public static final byte BUFFER_OVERRUN_ERROR = (byte) 0xF0;
-
     /**
      * Zcode shouldn't need huge buffers, so 64K is our extreme limit. It should be addressable by uint16 indexes. Note that *exact* 64K size implies that data.length cannot be
      * held in a uint16, so careful code required if porting!
      */
-    private static final int MAX_RING_BUFFER_SIZE = 0x1_0000;
+    private static final int  MAX_RING_BUFFER_SIZE = 0x1_0000;
+    private static final byte MAX_DATA_LENGTH      = (byte) 255;
 
     /** the ring-buffer's data array */
     byte[] data;
@@ -51,16 +49,16 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         return (pos + offset) % data.length;
     }
 
-    private void writeAndMove2(byte b1, byte b2) {
-        data[writePos] = b1;
+    private void writeNewTokenStart(byte key) {
+        data[writePos] = 0;
         writePos = offset(writePos, 1);
-        data[writePos] = b2;
+        data[writePos] = key;
         writePos = offset(writePos, 1);
     }
 
     private void failInternal(final byte errorCode) {
         endToken();
-        writeAndMove2((byte) 0, errorCode);
+        writeNewTokenStart(errorCode);
         writeLastLen = writePos;
         writeStart = writePos;
         inNibble = false;
@@ -78,11 +76,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
 
     @Override
     public int getAvailableWrite() {
-        if (writePos >= readStart) {
-            return data.length - writePos + readStart - 1;
-        } else {
-            return readStart - writePos - 1;
-        }
+        return (writePos >= readStart ? data.length : 0) + readStart - writePos - 1;
     }
 
     @Override
@@ -93,23 +87,23 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         }
         endToken();
         this.numeric = numeric;
-        writeAndMove2((byte) 0, key);
+        writeNewTokenStart(key);
         inNibble = false;
         return true;
     }
 
     private void extendToken() {
         writeLastLen = writePos;
-        writeAndMove2((byte) 0, TOKEN_EXTENSION);
+        writeNewTokenStart(TOKEN_EXTENSION);
     }
 
     @Override
     public boolean continueTokenNibble(byte nibble) {
         if (writePos == writeStart) {
-            throw new IllegalStateException("Can't write byte without field");
+            throw new IllegalStateException("Digit with missing field key");
         }
 
-        if (!inNibble && (getAvailableWrite() < 3 || data[writeLastLen] == 0xFF && getAvailableWrite() < 5)) {
+        if (!inNibble && (getAvailableWrite() < 3 || data[writeLastLen] == MAX_DATA_LENGTH && getAvailableWrite() < 5)) {
             failInternal(BUFFER_OVERRUN_ERROR);
             return false;
         }
@@ -117,7 +111,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             data[writePos] |= nibble;
             writePos = offset(writePos, 1);
         } else {
-            if (data[writeLastLen] == 0xFF) {
+            if (data[writeLastLen] == MAX_DATA_LENGTH) {
                 extendToken();
             }
             data[writePos] = (byte) (nibble << 4);
@@ -133,7 +127,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             throw new IllegalStateException("Incomplete nibble");
         }
         if (writePos == writeStart) {
-            throw new IllegalStateException("Can't write byte without field");
+            throw new IllegalStateException("Byte with missing field key");
         }
 
         if (getAvailableWrite() < 3 || data[writeLastLen] == 0xFF && getAvailableWrite() < 5) {
@@ -156,6 +150,8 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 if (writeLastLen != writeStart) {
                     throw new IllegalStateException("Illegal numeric field longer than 255 bytes");
                 }
+
+                // if odd nibble count, then shuffle nibbles through token's data to ensure "right-aligned", eg 4ad0 really means 04ad
                 byte hold = 0;
                 int  pos  = offset(writeStart, 1);
                 do {
@@ -179,16 +175,25 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
 
     @Override
     public int getCurrentWriteTokenKey() {
+        if (isTokenComplete()) {
+            throw new IllegalStateException("token isn't being written");
+        }
         return data[offset(writeStart, 1)];
     }
 
     @Override
     public int getCurrentWriteTokenLength() {
+        if (isTokenComplete()) {
+            throw new IllegalStateException("token isn't being written");
+        }
         return data[writeStart];
     }
 
     @Override
     public int getCurrentWriteTokenNibbleLength() {
+        if (isTokenComplete()) {
+            throw new IllegalStateException("token isn't being written");
+        }
         return data[writeStart] * 2 - (inNibble ? 1 : 0);
     }
 
@@ -200,5 +205,43 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     @Override
     public void setIterator(ZcodeTokenIterator iterator) {
         iterator.set(this, readStart);
+    }
+
+    public static class TokenStartIndex {
+        private final int indexValue;
+
+        private TokenStartIndex(int readIndex) {
+            indexValue = readIndex;
+        }
+    }
+
+    /** Can we encapsulate things like this? */
+
+    TokenStartIndex nextNewReadToken() {
+        return nextNewReadToken(new TokenStartIndex(readStart));
+    }
+
+    TokenStartIndex nextNewReadToken(TokenStartIndex currentIndex) {
+        int index = currentIndex.indexValue;
+
+        if (index == writeStart) {
+            return null;
+        }
+
+        byte key;
+        do {
+            index = offset(index, (data[index] + 2) & 0xff);
+            key = data[offset(index, 1)];
+        } while (index != writeStart && key == ZcodeTokenRingBuffer.TOKEN_EXTENSION);
+        return index == writeStart ? null : new TokenStartIndex(index);
+    }
+
+    /**
+     * Moves read ptr to the next readable token, and returns a TokenStartIndex cookie, or null if we've run out of valid readable tokens.
+     */
+    TokenStartIndex skipToNextReadToken() {
+        final TokenStartIndex nextNewReadToken = nextNewReadToken();
+        readStart = (nextNewReadToken != null) ? nextNewReadToken.indexValue : writeStart;
+        return nextNewReadToken;
     }
 }
