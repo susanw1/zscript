@@ -7,8 +7,8 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     public static final byte BUFFER_OVERRUN_ERROR = (byte) 0xF0;
 
     /**
-     * Zcode shouldn't need huge buffers, so 64K is our extreme limit. It should be addressable by uint16 indexes.
-     * Note that *exact* 64K size implies that data.length cannot be held in a uint16, so careful code required if porting!
+     * Zcode shouldn't need huge buffers, so 64K is our extreme limit. It should be addressable by uint16 indexes. Note that *exact* 64K size implies that data.length cannot be
+     * held in a uint16, so careful code required if porting!
      */
     private static final int MAX_RING_BUFFER_SIZE = 0x1_0000;
 
@@ -59,7 +59,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     }
 
     private void failInternal(final byte errorCode) {
-        closeToken();
+        endToken();
         writeAndMove2((byte) 0, errorCode);
         writeLastLen = writePos;
         writeStart = writePos;
@@ -90,7 +90,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             failInternal(BUFFER_OVERRUN_ERROR);
             return false;
         }
-        closeToken();
+        endToken();
         this.numeric = numeric;
         writeAndMove2((byte) 0, key);
         inNibble = false;
@@ -149,7 +149,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     }
 
     @Override
-    public void closeToken() {
+    public void endToken() {
         if (inNibble) {
             if (numeric) {
                 if (writeLastLen != writeStart) {
@@ -192,8 +192,8 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     }
 
     @Override
-    public boolean isTokenOpen() {
-        return writeStart != writePos;
+    public boolean isTokenComplete() {
+        return writeStart == writePos;
     }
 
     public void setIterator(ZcodeTokenIterator iterator) {

@@ -4,15 +4,15 @@ public interface ZcodeTokenBuffer {
 
     boolean startToken(byte b, boolean c);
 
-    void closeToken();
+    void endToken();
 
     boolean continueTokenByte(byte b);
 
     boolean continueTokenNibble(byte b);
 
-    boolean fail(byte errorCode);
+    boolean isTokenComplete();
 
-    boolean isTokenOpen();
+    boolean fail(byte errorCode);
 
     int getCurrentWriteTokenKey();
 

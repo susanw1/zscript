@@ -44,7 +44,7 @@ public class ZcodeTokenizer {
 
         skipToNL = false;
 
-        if (!buffer.isTokenOpen()) {
+        if (buffer.isTokenComplete()) {
             startToken(b);
             return;
         }
@@ -101,7 +101,7 @@ public class ZcodeTokenizer {
                 skipToNL = true;
                 return;
             }
-            buffer.closeToken();
+            buffer.endToken();
             isText = false;
         } else if (escapingCount > 0) {
             byte hex = Zchars.parseHex(b);
@@ -121,7 +121,7 @@ public class ZcodeTokenizer {
                 skipToNL = true;
             }
         } else if (isNormalString && b == Zchars.Z_BIGFIELD_STRING) {
-            buffer.closeToken();
+            buffer.endToken();
             isText = false;
         } else if (isNormalString && b == Zchars.Z_STRING_ESCAPE) {
             escapingCount = 2;
@@ -180,7 +180,7 @@ public class ZcodeTokenizer {
         }
         isText = false;
         if (Zchars.isSeparator(b)) {
-            buffer.closeToken();
+            buffer.endToken();
         }
     }
 }
