@@ -16,30 +16,29 @@ public class ZcodeReceiverSequence {
     private final ZcodeAddressingSequence addrSeq = new ZcodeAddressingSequence();
     private final ZcodeCommandSequence    cmdSeq  = new ZcodeCommandSequence();
 
-    ZcodeOutputStream out;
-    Zcode             zcode;
-    ZcodeTokenBuffer  buffer;
-    ZcodeLockSet      locks;
+    Zcode            zcode;
+    ZcodeTokenBuffer buffer;
+    ZcodeLockSet     locks;
 
     int     sequenceType      = UNKNOWN_SEQUENCE;
     boolean hasFoundSeperator = false;
     boolean locked            = false;
-    boolean outLocked         = false;
     boolean skipToNewline     = false;
     byte    failStatus        = 0;
 
     public void moveAlong() {
-        if (failStatus != 0) {
-            fail(failStatus);
-        }
         if (!hasFoundSeperator && buffer.hasNewState()) {
             checkForSeperator();
             buffer.clearNewState();
         }
         if (skipToNewline) {
             skipToNL();
+        } else if (failStatus != 0) {
+            return;
         } else if (sequenceType == UNKNOWN_SEQUENCE) {
             parseSeqBegin();
+        } else if (sequenceType == COMMAND_SEQUENCE) {
+            cmdSeq.parse(this);
         }
     }
 
@@ -75,7 +74,6 @@ public class ZcodeReceiverSequence {
             break;
         case '@':
             sequenceType = ADDRESSED_SEQUENCE;
-            addrSeq.parse(this);
             break;
         default:
             sequenceType = COMMAND_SEQUENCE;
@@ -104,7 +102,6 @@ public class ZcodeReceiverSequence {
         addrSeq.reset();
         cmdSeq.reset();
         locks.setAll();
-        failStatus = 0;
         sequenceType = UNKNOWN_SEQUENCE;
         skipToNewline = false;
         checkForSeperator();
@@ -133,13 +130,8 @@ public class ZcodeReceiverSequence {
     }
 
     public void fail(byte code) {
-        if (lockOut()) {
-            out.writeStatus(code);
-            out.close();
-            resetSequence();
-        } else {
-            failStatus = code;
-        }
+        failStatus = code;
+        skipToNL();
     }
 
     private void unlock() {
@@ -147,82 +139,41 @@ public class ZcodeReceiverSequence {
             zcode.unlock(locks);
             locked = false;
         }
-        if (outLocked) {
-            out.unlock();
-            outLocked = false;
-        }
-    }
-
-    public boolean lockOut() {
-        outLocked = outLocked || out.lock();
-        return outLocked;
-    }
-
-    public boolean lockLockset() {
-        locked = locked || zcode.lock(locks);
-        return locked;
-    }
-
-    public boolean canLockOut() {
-        return outLocked || out.lock();
-    }
-
-    public boolean canLockLockset() {
-        return locked || zcode.canLock(locks);
     }
 
     public boolean canLock() {
-        return (locked || zcode.canLock(locks)) && (outLocked || !out.isLocked());
+        return locked || zcode.canLock(locks);
     }
 
     public boolean lock() {
-        if (outLocked || !out.isLocked()) {
-            if (locked || zcode.lock(locks)) {
-                return outLocked || out.lock();
-            }
+        if (locked || zcode.lock(locks)) {
+            return true;
         }
         return false;
     }
 
-    public boolean canLockExec() {
-        if (sequenceType == COMMAND_SEQUENCE) {
-            return canLock();
-        } else if (sequenceType == ADDRESSED_SEQUENCE) {
-            return canLockLockset();
-        } else {
-            return canLockOut();
-        }
-    }
-
-    public boolean lockExec() {
-        if (sequenceType == COMMAND_SEQUENCE) {
-            return lock();
-        } else if (sequenceType == ADDRESSED_SEQUENCE) {
-            return lockLockset();
-        } else {
-            return lockOut();
-        }
-    }
-
-    public boolean commandReady() {
-        return hasFoundSeperator && sequenceType == COMMAND_SEQUENCE;
-    }
-
-    public boolean addressingReady() {
-        return hasFoundSeperator && sequenceType == ADDRESSED_SEQUENCE;
+    public boolean needsOutput() {
+        return sequenceType != ADDRESSED_SEQUENCE;
     }
 
     public boolean needsRunning() {
-        return (sequenceType == COMMAND_SEQUENCE && hasFoundSeperator && cmdSeq.needsRunning())
+        return failStatus != 0 || (sequenceType == COMMAND_SEQUENCE && hasFoundSeperator && cmdSeq.needsRunning())
                 || (sequenceType == ADDRESSED_SEQUENCE && hasFoundSeperator && addrSeq.needsRunning());
     }
 
-    public void run() {
-        if (sequenceType == ADDRESSED_SEQUENCE) {
+    public boolean isFinished() {
+        return sequenceType == UNKNOWN_SEQUENCE;
+    }
+
+    public void run(ZcodeOutputStream out) {
+        if (failStatus != 0) {
+            out.writeStatus(failStatus);
+            failStatus = 0;
+        } else if (sequenceType == ADDRESSED_SEQUENCE) {
             addrSeq.run(this);
         } else if (sequenceType == COMMAND_SEQUENCE) {
             if (cmdSeq.checkParse(this)) {
-                cmdSeq.run(this);
+                cmdSeq.run(this, out);
             }
         }
     }

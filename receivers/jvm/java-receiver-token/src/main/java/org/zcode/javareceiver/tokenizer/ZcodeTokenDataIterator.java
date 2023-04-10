@@ -50,7 +50,10 @@ public class ZcodeTokenDataIterator {
         return len;
     }
 
-    public byte[] getContiguous() {
-        return Arrays.copyOfRange(buffer.data, position, Math.max(position + remainingSegmentLength, buffer.data.length));
+    public byte[] takeContiguous() {
+        byte[] result = Arrays.copyOfRange(buffer.data, position, Math.max(position + remainingSegmentLength, buffer.data.length));
+        position = buffer.offset(position, remainingSegmentLength);
+        remainingSegmentLength = 0;
+        return result;
     }
 }

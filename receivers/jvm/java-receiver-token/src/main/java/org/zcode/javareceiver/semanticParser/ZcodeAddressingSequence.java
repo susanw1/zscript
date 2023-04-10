@@ -12,7 +12,7 @@ public class ZcodeAddressingSequence {
             return;
         }
         if (addrResult.addressingResponse == AddressingResult.ADDRESSING_NOT_STARTED) {
-            if (seq.hasFoundSeperator && seq.lockLockset()) {
+            if (seq.hasFoundSeperator) {
                 ZcodeTokenIterator iterator = new ZcodeTokenIterator();
                 seq.buffer.setIterator(iterator);
                 if (!iterator.isValid()) {

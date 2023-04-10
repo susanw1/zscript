@@ -41,6 +41,10 @@ public class ZcodeTokenIterator {
         return valid;
     }
 
+    public boolean hasData() {
+        return buffer.data[position] > 0;
+    }
+
     public void setTokenDataIterator(ZcodeTokenDataIterator iterator) {
         iterator.set(buffer, key, position);
     }

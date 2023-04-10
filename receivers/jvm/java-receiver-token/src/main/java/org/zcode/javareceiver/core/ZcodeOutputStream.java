@@ -26,4 +26,19 @@ public class ZcodeOutputStream {
     public void close() {
 
     }
+
+    public void writeField(byte c, int echoField) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void open() {
+        // TODO Auto-generated method stub
+
+    }
+
+    public boolean isOpen() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }
