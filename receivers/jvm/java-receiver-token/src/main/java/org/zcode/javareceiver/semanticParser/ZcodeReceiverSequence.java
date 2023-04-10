@@ -26,6 +26,8 @@ public class ZcodeReceiverSequence {
     boolean skipToNewline     = false;
     byte    failStatus        = 0;
 
+    // TODO: add hasFoundNewLine to check for errors as well
+
     public void moveAlong() {
         if (!hasFoundSeperator && buffer.hasNewState()) {
             checkForSeperator();

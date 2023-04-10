@@ -3,6 +3,8 @@ package org.zcode.javareceiver.tokenizer;
 import static java.text.MessageFormat.format;
 
 public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
+    // TODO: Raise flag on error and on newline
+
     /**
      * Zcode shouldn't need huge buffers, so 64K is our extreme limit. It should be addressable by uint16 indexes. Note that *exact* 64K size implies that data.length cannot be
      * held in a uint16, so careful code required if porting!

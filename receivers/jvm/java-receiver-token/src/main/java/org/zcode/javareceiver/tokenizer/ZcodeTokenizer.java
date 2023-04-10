@@ -32,6 +32,9 @@ public class ZcodeTokenizer {
         this.escapingCount = 0;
     }
 
+    // TODO: Add system to allow not buffOvr for e.g. UDP
+    // TODO: Give error on key with top bit set
+
     void accept(byte b) {
         if (!isText && Zchars.shouldIgnore(b)) {
             return;
