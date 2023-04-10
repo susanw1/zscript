@@ -19,11 +19,11 @@ public class ZcodeTokenIterator {
         }
     }
 
-    byte getCurrentKey() {
+    public byte getCurrentKey() {
         return key;
     }
 
-    byte next() {
+    public byte next() {
         do {
             position = buffer.offset(position, buffer.data[position] + 2);
             if (position == buffer.writeStart) {
@@ -59,7 +59,7 @@ public class ZcodeTokenIterator {
         }
     }
 
-    public void close() {
+    public void moveReadStart() {
         buffer.readStart = position;
     }
 }

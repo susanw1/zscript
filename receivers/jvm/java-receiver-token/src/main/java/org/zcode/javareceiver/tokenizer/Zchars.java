@@ -24,6 +24,10 @@ public class Zchars {
         return b == Z_LOCKS || b == Z_BIGFIELD_HEX || b == Z_COMMENT || b == Z_BIGFIELD_STRING;
     }
 
+    public static boolean isCommandKey(byte b) {
+        return (b >= 'A' && b <= 'Z') || b == Z_BIGFIELD_HEX || b == Z_BIGFIELD_STRING;
+    }
+
     static final int PARSE_NOT_HEX_0X10 = 0x10;
 
     public static byte parseHex(byte b) {
