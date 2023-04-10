@@ -76,6 +76,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         return true;
     }
 
+    @Override
     public int getAvailableWrite() {
         if (writePos >= readStart) {
             return data.length - writePos + readStart - 1;
@@ -196,6 +197,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         return writeStart == writePos;
     }
 
+    @Override
     public void setIterator(ZcodeTokenIterator iterator) {
         iterator.set(this, readStart);
     }

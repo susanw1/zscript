@@ -21,4 +21,8 @@ public interface ZcodeTokenBuffer {
     boolean isInNibble();
 
     int getCurrentWriteTokenNibbleLength();
+
+    void setIterator(ZcodeTokenIterator iterator);
+
+    int getAvailableWrite();
 }

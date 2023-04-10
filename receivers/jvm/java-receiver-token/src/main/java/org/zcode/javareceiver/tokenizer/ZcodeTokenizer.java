@@ -40,7 +40,13 @@ public class ZcodeTokenizer {
         if (skipToNL && b != Zchars.Z_NEWLINE) {
             return;
         }
-        // TODO: add overrun hysteresis here
+
+        if (bufferOvr) {
+            if (buffer.getAvailableWrite() < 10) {
+                return;
+            }
+            bufferOvr = false;
+        }
 
         skipToNL = false;
 
