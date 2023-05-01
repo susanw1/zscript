@@ -15,14 +15,14 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     /** the ring-buffer's data array */
     byte[] data;
 
-    /** index of first byte that readers own, defines the upper limit to writeable space */
+    /** index of first byte that readers own, defines the upper limit to writable space */
     int         readStart    = 0;
     /** index of first byte that the writer owns, defines the upper limit to readable space */
     int         writeStart   = 0;
     /** start index of most recent token segment (esp required for long multi-segment tokens) */
     private int writeLastLen = 0;
     /** the current write index into data array */
-    private int writePos     = 0;
+    private int writeCursor  = 0;
 
     boolean inNibble = false;
     boolean numeric  = false;
@@ -44,26 +44,31 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         return data.clone();
     }
 
-    int offset(final int pos, final int offset) {
-        if (pos < 0 || offset < 0 || offset >= data.length) {
-            throw new IllegalArgumentException(format("Unexpected values [pos={}, offset={}]", pos, offset));
+    /**
+     * Utility method that performs wrap-around for a lookup into the ring-buffer (ie modulo length)
+     * 
+     * @param index  location in the underlying ring-buffer
+     * @param offset an offset to add, >= 0
+     * @return a new index, at the requested offset
+     */
+    int offset(final int index, final int offset) {
+        if (index < 0 || offset < 0 || offset >= data.length) {
+            throw new IllegalArgumentException(format("Unexpected values [pos={}, offset={}]", index, offset));
         }
-        return (pos + offset) % data.length;
+        return (index + offset) % data.length;
     }
 
     private void writeNewTokenStart(byte key) {
-        data[writePos] = 0;
-        writePos = offset(writePos, 1);
-        data[writePos] = key;
-        writePos = offset(writePos, 1);
+        data[writeCursor] = 0;
+        writeCursor = offset(writeCursor, 1);
+        data[writeCursor] = key;
+        writeCursor = offset(writeCursor, 1);
     }
 
     private void failInternal(final byte errorCode) {
         endToken();
         writeNewTokenStart(errorCode);
-        writeLastLen = writePos;
-        writeStart = writePos;
-        inNibble = false;
+        endToken();
     }
 
     @Override
@@ -78,7 +83,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
 
     @Override
     public int getAvailableWrite() {
-        return (writePos >= readStart ? data.length : 0) + readStart - writePos - 1;
+        return (writeCursor >= readStart ? data.length : 0) + readStart - writeCursor - 1;
     }
 
     @Override
@@ -94,14 +99,14 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         return true;
     }
 
-    private void extendToken() {
-        writeLastLen = writePos;
+    private void startNewSegment() {
+        writeLastLen = writeCursor;
         writeNewTokenStart(TOKEN_EXTENSION);
     }
 
     @Override
     public boolean continueTokenNibble(byte nibble) {
-        if (writePos == writeStart) {
+        if (writeCursor == writeStart) {
             throw new IllegalStateException("Digit with missing field key");
         }
 
@@ -110,13 +115,13 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             return false;
         }
         if (inNibble) {
-            data[writePos] |= nibble;
-            writePos = offset(writePos, 1);
+            data[writeCursor] |= nibble;
+            writeCursor = offset(writeCursor, 1);
         } else {
             if (data[writeLastLen] == MAX_DATA_LENGTH) {
-                extendToken();
+                startNewSegment();
             }
-            data[writePos] = (byte) (nibble << 4);
+            data[writeCursor] = (byte) (nibble << 4);
             data[writeLastLen]++;
         }
         inNibble = !inNibble;
@@ -128,19 +133,19 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         if (inNibble) {
             throw new IllegalStateException("Incomplete nibble");
         }
-        if (writePos == writeStart) {
+        if (writeCursor == writeStart) {
             throw new IllegalStateException("Byte with missing field key");
         }
 
-        if (getAvailableWrite() < 3 || data[writeLastLen] == 0xFF && getAvailableWrite() < 5) {
+        if (getAvailableWrite() < 3 || data[writeLastLen] == MAX_DATA_LENGTH && getAvailableWrite() < 5) {
             failInternal(BUFFER_OVERRUN_ERROR);
             return false;
         }
-        if (data[writeLastLen] == 0xFF) {
-            extendToken();
+        if (data[writeLastLen] == MAX_DATA_LENGTH) {
+            startNewSegment();
         }
-        data[writePos] = b;
-        writePos = offset(writePos, 1);
+        data[writeCursor] = b;
+        writeCursor = offset(writeCursor, 1);
         data[writeLastLen]++;
         return true;
     }
@@ -161,12 +166,12 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                     byte tmp = (byte) (data[pos] & 0xF);
                     data[pos] = (byte) (hold | (data[pos] >> 4) & 0xF);
                     hold = (byte) (tmp << 4);
-                } while (pos != writePos);
+                } while (pos != writeCursor);
             }
-            writePos = offset(writePos, 1);
+            writeCursor = offset(writeCursor, 1);
         }
-        writeLastLen = writePos;
-        writeStart = writePos;
+
+        writeLastLen = writeStart = writeCursor;
         inNibble = false;
     }
 
@@ -201,7 +206,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
 
     @Override
     public boolean isTokenComplete() {
-        return writeStart == writePos;
+        return writeStart == writeCursor;
     }
 
     @Override

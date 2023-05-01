@@ -1,6 +1,9 @@
 package org.zcode.javareceiver.tokenizer;
 
 public interface ZcodeTokenBuffer {
+    /**
+     * Special token key to indicate that this segment is a continuation of the previous token due to its data size hitting maximum.
+     */
     public static final byte TOKEN_EXTENSION = (byte) 0x81;
 
     public static final byte BUFFER_OVERRUN_ERROR             = (byte) 0xF0;

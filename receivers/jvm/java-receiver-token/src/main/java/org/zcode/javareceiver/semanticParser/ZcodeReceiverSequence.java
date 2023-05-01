@@ -29,10 +29,11 @@ public class ZcodeReceiverSequence {
     // TODO: add hasFoundNewLine to check for errors as well
 
     public void moveAlong() {
-        if (!hasFoundSeperator && buffer.hasNewState()) {
-            checkForSeperator();
-            buffer.clearNewState();
-        }
+        // TODO, check this, it was syntax-erroring
+//        if (!hasFoundSeperator && buffer.hasNewState()) {
+//            checkForSeperator();
+//            buffer.clearNewState();
+//        }
         if (skipToNewline) {
             skipToNL();
         } else if (failStatus != 0) {
@@ -129,6 +130,7 @@ public class ZcodeReceiverSequence {
 
     private byte mapTokenFails(byte code) {
         // TODO: add error mapping
+        return 0;
     }
 
     public void fail(byte code) {

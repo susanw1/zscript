@@ -23,6 +23,7 @@ public class ZcodeTokenizer {
 
     private ZcodeTokenizer(final ZcodeTokenBuffer buffer) {
         this.buffer = buffer;
+
         this.skipToNL = false;
         this.bufferOvr = false;
         this.numeric = false;
