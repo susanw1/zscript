@@ -2,6 +2,19 @@ package org.zcode.javareceiver.tokenizer;
 
 import static java.text.MessageFormat.format;
 
+/**
+ * Ring-buffer implementation of a Token Buffer - the tokens making up incoming command or response sequences are encoded and accessed here. Rules are:
+ * <ol>
+ * <li>Maximum size is 64k bytes - Zcode isn't expected to work on huge datasets.</li>
+ * <li>All indices are incremented modulo the length of the underlying byte array.</li>
+ * <li>There is a writable area, owned by a TokenWriter, in the space <i>writeStart <= i < readStart</i>.</li>
+ * <li>There is a readable area, owned by a TokenIterator, in the space <i>readStart <= i < writeStart</i>.</li>
+ * <li>A token is written as >=2 bytes at <i>writeStart</i>: <code>datalen | key | [data]</code> - so tokens can be iterated by adding (datalen+2) to an existing token start.</li>
+ * <li>Tokens may exceed datalen of 255 using additional new token with special key <i>TOKEN_EXTENSION</i></li>
+ * <li></li>
+ * </ol>
+ * 
+ */
 public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     // TODO: Raise flag on error and on newline
 
@@ -13,19 +26,14 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     private static final byte MAX_DATA_LENGTH      = (byte) 255;
 
     /** the ring-buffer's data array */
-    byte[] data;
+    private byte[] data;
 
-    /** index of first byte that readers own, defines the upper limit to writable space */
-    int         readStart    = 0;
-    /** index of first byte that the writer owns, defines the upper limit to readable space */
-    int         writeStart   = 0;
-    /** start index of most recent token segment (esp required for long multi-segment tokens) */
-    private int writeLastLen = 0;
-    /** the current write index into data array */
-    private int writeCursor  = 0;
+    private TokenWriter tokenWriter;
 
-    boolean inNibble = false;
-    boolean numeric  = false;
+    /** index of first byte owned by reader, writable space ends just before it */
+    private int readStart  = 0;
+    /** index of first byte owned by TokenWriter, readable space ends just before it */
+    private int writeStart = 0;
 
     public static ZcodeTokenRingBuffer createBufferWithCapacity(int sz) {
         return new ZcodeTokenRingBuffer(sz);
@@ -37,11 +45,184 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             throw new IllegalArgumentException(format("size too big [sz={}, max={}]", sz, MAX_RING_BUFFER_SIZE));
         }
         data = new byte[sz];
+        tokenWriter = new TokenRingBufferWriter();
     }
 
     // Visible for testing only!
     byte[] getInternalData() {
         return data.clone();
+    }
+
+    @Override
+    public TokenWriter getTokenWriter() {
+        return tokenWriter;
+    }
+
+    private class TokenRingBufferWriter implements TokenWriter {
+        /** start index of most recent token segment (esp required for long multi-segment tokens) */
+        private int writeLastLen = 0;
+        /** the current write index into data array */
+        private int writeCursor  = 0;
+
+        private boolean inNibble = false;
+        private boolean numeric  = false;
+
+        @Override
+        public boolean startToken(byte key, boolean numeric) {
+            // We need 2 bytes for new token, plus 1 if we're closing off an old nibble.
+            if (!reserve(3)) {
+                failInternal(BUFFER_OVERRUN_ERROR);
+                return false;
+            }
+            endToken();
+            this.numeric = numeric;
+            writeNewTokenStart(key);
+            return true;
+        }
+
+        @Override
+        public boolean continueTokenNibble(byte nibble) {
+            if (isTokenComplete()) {
+                throw new IllegalStateException("Digit with missing field key");
+            }
+            if (nibble < 0 || nibble > 0xf) {
+                throw new IllegalArgumentException("nibble value out of range");
+            }
+
+            if (inNibble) {
+                data[writeCursor] |= nibble;
+                writeCursor = offset(writeCursor, 1);
+            } else if (!reserve(1) || data[writeLastLen] == MAX_DATA_LENGTH && !reserve(4)) {
+                failInternal(BUFFER_OVERRUN_ERROR);
+                return false;
+            } else {
+                if (data[writeLastLen] == MAX_DATA_LENGTH) {
+                    startNewSegment();
+                }
+                data[writeCursor] = (byte) (nibble << 4);
+                data[writeLastLen]++;
+            }
+            inNibble = !inNibble;
+            return true;
+        }
+
+        @Override
+        public boolean continueTokenByte(byte b) {
+            if (inNibble) {
+                throw new IllegalStateException("Incomplete nibble");
+            }
+            if (isTokenComplete()) {
+                throw new IllegalStateException("Byte with missing field key");
+            }
+
+            if (!reserve(2) || data[writeLastLen] == MAX_DATA_LENGTH && !reserve(4)) {
+                failInternal(BUFFER_OVERRUN_ERROR);
+                return false;
+            }
+            if (data[writeLastLen] == MAX_DATA_LENGTH) {
+                startNewSegment();
+            }
+            data[writeCursor] = b;
+            writeCursor = offset(writeCursor, 1);
+            data[writeLastLen]++;
+            return true;
+        }
+
+        private void startNewSegment() {
+            writeLastLen = writeCursor;
+            writeNewTokenStart(TOKEN_EXTENSION);
+        }
+
+        @Override
+        public void endToken() {
+            if (inNibble) {
+                if (numeric) {
+                    if (writeLastLen != writeStart) {
+                        throw new IllegalStateException("Illegal numeric field longer than 255 bytes");
+                    }
+
+                    // if odd nibble count, then shuffle nibbles through token's data to ensure "right-aligned", eg 4ad0 really means 04ad
+                    byte hold = 0;
+                    int  pos  = offset(writeStart, 1);
+                    do {
+                        pos = offset(pos, 1);
+                        byte tmp = (byte) (data[pos] & 0xF);
+                        data[pos] = (byte) (hold | (data[pos] >> 4) & 0xF);
+                        hold = (byte) (tmp << 4);
+                    } while (pos != writeCursor);
+                }
+                writeCursor = offset(writeCursor, 1);
+            }
+
+            writeLastLen = writeStart = writeCursor;
+            inNibble = false;
+        }
+
+        public boolean reserve(int size) {
+            return getAvailableWrite() >= size;
+        }
+
+        @Override
+        public int getAvailableWrite() {
+            return (writeCursor >= readStart ? data.length : 0) + readStart - writeCursor - 1;
+        }
+
+        @Override
+        public boolean isInNibble() {
+            return inNibble;
+        }
+
+        @Override
+        public int getCurrentWriteTokenKey() {
+            if (isTokenComplete()) {
+                throw new IllegalStateException("token isn't being written");
+            }
+            return data[offset(writeStart, 1)];
+        }
+
+        @Override
+        public int getCurrentWriteTokenLength() {
+            if (isTokenComplete()) {
+                throw new IllegalStateException("token isn't being written");
+            }
+            return data[writeStart];
+        }
+
+        @Override
+        public int getCurrentWriteTokenNibbleLength() {
+            if (isTokenComplete()) {
+                throw new IllegalStateException("token isn't being written");
+            }
+            return data[writeStart] * 2 - (inNibble ? 1 : 0);
+        }
+
+        @Override
+        public boolean isTokenComplete() {
+            return writeStart == writeCursor;
+        }
+
+        private void writeNewTokenStart(byte key) {
+            data[writeCursor] = 0;
+            writeCursor = offset(writeCursor, 1);
+            data[writeCursor] = key;
+            writeCursor = offset(writeCursor, 1);
+        }
+
+        private void failInternal(final byte errorCode) {
+            if (!isTokenComplete()) {
+                // reset current token back to start
+                writeCursor = writeLastLen = writeStart;
+            }
+            writeNewTokenStart(errorCode);
+            endToken();
+        }
+
+        @Override
+        public boolean fail(byte errorCode) {
+            final boolean bufferOvr = getAvailableWrite() < 6;
+            failInternal(bufferOvr ? BUFFER_OVERRUN_ERROR : errorCode);
+            return !bufferOvr;
+        }
     }
 
     /**
@@ -58,157 +239,6 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         return (index + offset) % data.length;
     }
 
-    private void writeNewTokenStart(byte key) {
-        data[writeCursor] = 0;
-        writeCursor = offset(writeCursor, 1);
-        data[writeCursor] = key;
-        writeCursor = offset(writeCursor, 1);
-    }
-
-    private void failInternal(final byte errorCode) {
-        endToken();
-        writeNewTokenStart(errorCode);
-        endToken();
-    }
-
-    @Override
-    public boolean fail(byte errorCode) {
-        if (getAvailableWrite() < 6) {
-            failInternal(BUFFER_OVERRUN_ERROR);
-            return false;
-        }
-        failInternal(errorCode);
-        return true;
-    }
-
-    @Override
-    public int getAvailableWrite() {
-        return (writeCursor >= readStart ? data.length : 0) + readStart - writeCursor - 1;
-    }
-
-    @Override
-    public boolean startToken(byte key, boolean numeric) {
-        if (getAvailableWrite() < 4) {
-            failInternal(BUFFER_OVERRUN_ERROR);
-            return false;
-        }
-        endToken();
-        this.numeric = numeric;
-        writeNewTokenStart(key);
-        inNibble = false;
-        return true;
-    }
-
-    private void startNewSegment() {
-        writeLastLen = writeCursor;
-        writeNewTokenStart(TOKEN_EXTENSION);
-    }
-
-    @Override
-    public boolean continueTokenNibble(byte nibble) {
-        if (writeCursor == writeStart) {
-            throw new IllegalStateException("Digit with missing field key");
-        }
-
-        if (!inNibble && (getAvailableWrite() < 3 || data[writeLastLen] == MAX_DATA_LENGTH && getAvailableWrite() < 5)) {
-            failInternal(BUFFER_OVERRUN_ERROR);
-            return false;
-        }
-        if (inNibble) {
-            data[writeCursor] |= nibble;
-            writeCursor = offset(writeCursor, 1);
-        } else {
-            if (data[writeLastLen] == MAX_DATA_LENGTH) {
-                startNewSegment();
-            }
-            data[writeCursor] = (byte) (nibble << 4);
-            data[writeLastLen]++;
-        }
-        inNibble = !inNibble;
-        return true;
-    }
-
-    @Override
-    public boolean continueTokenByte(byte b) {
-        if (inNibble) {
-            throw new IllegalStateException("Incomplete nibble");
-        }
-        if (writeCursor == writeStart) {
-            throw new IllegalStateException("Byte with missing field key");
-        }
-
-        if (getAvailableWrite() < 3 || data[writeLastLen] == MAX_DATA_LENGTH && getAvailableWrite() < 5) {
-            failInternal(BUFFER_OVERRUN_ERROR);
-            return false;
-        }
-        if (data[writeLastLen] == MAX_DATA_LENGTH) {
-            startNewSegment();
-        }
-        data[writeCursor] = b;
-        writeCursor = offset(writeCursor, 1);
-        data[writeLastLen]++;
-        return true;
-    }
-
-    @Override
-    public void endToken() {
-        if (inNibble) {
-            if (numeric) {
-                if (writeLastLen != writeStart) {
-                    throw new IllegalStateException("Illegal numeric field longer than 255 bytes");
-                }
-
-                // if odd nibble count, then shuffle nibbles through token's data to ensure "right-aligned", eg 4ad0 really means 04ad
-                byte hold = 0;
-                int  pos  = offset(writeStart, 1);
-                do {
-                    pos = offset(pos, 1);
-                    byte tmp = (byte) (data[pos] & 0xF);
-                    data[pos] = (byte) (hold | (data[pos] >> 4) & 0xF);
-                    hold = (byte) (tmp << 4);
-                } while (pos != writeCursor);
-            }
-            writeCursor = offset(writeCursor, 1);
-        }
-
-        writeLastLen = writeStart = writeCursor;
-        inNibble = false;
-    }
-
-    @Override
-    public boolean isInNibble() {
-        return inNibble;
-    }
-
-    @Override
-    public int getCurrentWriteTokenKey() {
-        if (isTokenComplete()) {
-            throw new IllegalStateException("token isn't being written");
-        }
-        return data[offset(writeStart, 1)];
-    }
-
-    @Override
-    public int getCurrentWriteTokenLength() {
-        if (isTokenComplete()) {
-            throw new IllegalStateException("token isn't being written");
-        }
-        return data[writeStart];
-    }
-
-    @Override
-    public int getCurrentWriteTokenNibbleLength() {
-        if (isTokenComplete()) {
-            throw new IllegalStateException("token isn't being written");
-        }
-        return data[writeStart] * 2 - (inNibble ? 1 : 0);
-    }
-
-    @Override
-    public boolean isTokenComplete() {
-        return writeStart == writeCursor;
-    }
-
     @Override
     public void setIterator(ZcodeTokenIterator iterator) {
         iterator.set(this, readStart);
@@ -217,8 +247,8 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     public static class TokenStartIndex {
         private final int indexValue;
 
-        private TokenStartIndex(int readIndex) {
-            indexValue = readIndex;
+        private TokenStartIndex(int indexValue) {
+            this.indexValue = indexValue;
         }
     }
 

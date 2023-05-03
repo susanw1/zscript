@@ -5,48 +5,50 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.BUFFER_OVERRUN_ERROR;
 
 import org.junit.jupiter.api.Test;
+import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenWriter;
 
 class ZcodeTokenRingBufferTest {
 
     private static final int BUFSIZE = 10;
 
     private ZcodeTokenRingBuffer buffer = ZcodeTokenRingBuffer.createBufferWithCapacity(BUFSIZE);
+    TokenWriter                  writer = buffer.getTokenWriter();
 
     /**
      * Validates the exposed buffer state.
      */
     private void verifyBufferState(boolean tokenComplete, int availableWrite) {
-        assertThat(buffer.isTokenComplete()).as("TokenComplete").isEqualTo(tokenComplete);
-        assertThat(buffer.getAvailableWrite()).as("AvailableWrite").isEqualTo(availableWrite);
+        assertThat(writer.isTokenComplete()).as("TokenComplete").isEqualTo(tokenComplete);
+        assertThat(writer.getAvailableWrite()).as("AvailableWrite").isEqualTo(availableWrite);
     }
 
     private void verifyBufferState(boolean tokenComplete, int availableWrite, int currentTokenKey, boolean inNibble, int tokenLength, int nibbleLength) {
         verifyBufferState(tokenComplete, availableWrite);
-        if (!buffer.isTokenComplete()) {
-            assertThat(buffer.getCurrentWriteTokenKey()).as("CurrentWriteTokenKey").isEqualTo(currentTokenKey);
-            assertThat(buffer.isInNibble()).as("InNibble").isEqualTo(inNibble);
-            assertThat(buffer.getCurrentWriteTokenLength()).as("CurrentWriteTokenLength").isEqualTo(tokenLength);
-            assertThat(buffer.getCurrentWriteTokenNibbleLength()).as("CurrentWriteTokenNibbleLength").isEqualTo(nibbleLength);
+        if (!writer.isTokenComplete()) {
+            assertThat(writer.getCurrentWriteTokenKey()).as("CurrentWriteTokenKey").isEqualTo(currentTokenKey);
+            assertThat(writer.isInNibble()).as("InNibble").isEqualTo(inNibble);
+            assertThat(writer.getCurrentWriteTokenLength()).as("CurrentWriteTokenLength").isEqualTo(tokenLength);
+            assertThat(writer.getCurrentWriteTokenNibbleLength()).as("CurrentWriteTokenNibbleLength").isEqualTo(nibbleLength);
         }
     }
 
     @Test
     void shouldTokenizeNumericFieldWithNoValue() {
-        buffer.startToken((byte) 'A', true);
+        writer.startToken((byte) 'A', true);
         assertThat(buffer.getInternalData()).startsWith(0, 'A', 0);
 
         verifyBufferState(false, 7, 'A', false, 0, 0);
-        buffer.endToken();
+        writer.endToken();
         verifyBufferState(true, 7);
     }
 
     @Test
     void shouldTokenizeNumericFieldWithNibbleValue() {
-        buffer.startToken((byte) 'A', true);
-        buffer.continueTokenNibble((byte) 5);
+        writer.startToken((byte) 'A', true);
+        writer.continueTokenNibble((byte) 5);
 
         verifyBufferState(false, 7, 'A', true, 1, 1);
-        buffer.endToken();
+        writer.endToken();
         assertThat(buffer.getInternalData()).startsWith(1, 'A', 5, 0);
         verifyBufferState(true, 6);
     }
@@ -68,35 +70,35 @@ class ZcodeTokenRingBufferTest {
     @Test
     void shouldFailToAcceptByteIfNoTokenStarted() {
         assertThatThrownBy(() -> {
-            buffer.continueTokenByte((byte) 0xa2);
+            writer.continueTokenByte((byte) 0xa2);
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessage("Byte with missing field key");
-        buffer.endToken();
+        writer.endToken();
         verifyBufferState(true, 9);
     }
 
     @Test
     void shouldFailToAcceptNibbleIfNoTokenStarted() {
         assertThatThrownBy(() -> {
-            buffer.continueTokenNibble((byte) 3);
+            writer.continueTokenNibble((byte) 3);
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessage("Digit with missing field key");
 
-        buffer.endToken();
+        writer.endToken();
         verifyBufferState(true, 9);
     }
 
     @Test
     void shouldFailToTokenizeNumericFieldWithOddNibbleAndByteValue() {
         assertThatThrownBy(() -> {
-            buffer.startToken((byte) 'A', true);
-            buffer.continueTokenNibble((byte) 3);
-            buffer.continueTokenByte((byte) 123);
+            writer.startToken((byte) 'A', true);
+            writer.continueTokenNibble((byte) 3);
+            writer.continueTokenByte((byte) 123);
             verifyBufferState(false, 6, 'A', true, 1, 1);
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessage("Incomplete nibble");
 
-        buffer.endToken();
+        writer.endToken();
         verifyBufferState(true, 6);
     }
 
@@ -110,7 +112,7 @@ class ZcodeTokenRingBufferTest {
     void shouldTokenizeNumericFieldWith3NibbleValue() {
         insertNumericTokenNibbles('A', (byte) 5, (byte) 0xd, (byte) 0xa);
         verifyBufferState(false, 6, 'A', true, 2, 3);
-        buffer.endToken();
+        writer.endToken();
         assertThat(buffer.getInternalData()).startsWith(2, 'A', 0x5, 0xda, 0);
     }
 
@@ -118,7 +120,7 @@ class ZcodeTokenRingBufferTest {
     void shouldTokenizeNumericFieldWith4NibbleValue() {
         insertNumericTokenNibbles('A', (byte) 5, (byte) 0xd, (byte) 0xa, (byte) 0x3);
         verifyBufferState(false, 5, 'A', false, 2, 4);
-        buffer.endToken();
+        writer.endToken();
         assertThat(buffer.getInternalData()).startsWith(2, 'A', 0x5d, 0xa3, 0);
     }
 
@@ -126,56 +128,56 @@ class ZcodeTokenRingBufferTest {
     void shouldTokenizeNumericField5NibbleValue() {
         insertNumericTokenNibbles('A', (byte) 5, (byte) 0xd, (byte) 0xa, (byte) 0x3, (byte) 0xe);
         verifyBufferState(false, 5, 'A', true, 3, 5);
-        buffer.endToken();
+        writer.endToken();
         assertThat(buffer.getInternalData()).startsWith(3, 'A', 0x5, 0xda, 0x3e, 0);
     }
 
     @Test
     void shouldTokenize2NumericFields() {
-        buffer.startToken((byte) 'A', true);
-        buffer.endToken();
-        buffer.startToken((byte) 'B', true);
+        writer.startToken((byte) 'A', true);
+        writer.endToken();
+        writer.startToken((byte) 'B', true);
         verifyBufferState(false, 5, 'B', false, 0, 0);
-        buffer.endToken();
+        writer.endToken();
         assertThat(buffer.getInternalData()).startsWith(0, 'A', 0, 'B', 0);
         verifyBufferState(true, 5);
     }
 
     @Test
     void shouldTokenize2NumericFieldsWithValues() {
-        buffer.startToken((byte) 'A', true);
-        buffer.continueTokenNibble((byte) 5);
-        buffer.endToken();
-        buffer.startToken((byte) 'B', true);
-        buffer.endToken();
+        writer.startToken((byte) 'A', true);
+        writer.continueTokenNibble((byte) 5);
+        writer.endToken();
+        writer.startToken((byte) 'B', true);
+        writer.endToken();
         assertThat(buffer.getInternalData()).startsWith(1, 'A', 5, 0, 'B', 0);
         verifyBufferState(true, 4);
     }
 
     @Test
     void shouldTokenizeNonNumericField() {
-        buffer.startToken((byte) '+', false);
+        writer.startToken((byte) '+', false);
         verifyBufferState(false, 7, '+', false, 0, 0);
-        buffer.endToken();
+        writer.endToken();
         assertThat(buffer.getInternalData()).startsWith(0, '+', 0);
         verifyBufferState(true, 7);
     }
 
     @Test
     void shouldTokenize2NonNumericFields() {
-        buffer.startToken((byte) '+', false);
-        buffer.endToken();
-        buffer.startToken((byte) '+', false);
-        buffer.endToken();
+        writer.startToken((byte) '+', false);
+        writer.endToken();
+        writer.startToken((byte) '+', false);
+        writer.endToken();
         assertThat(buffer.getInternalData()).startsWith(0, '+', 0, '+', 0);
     }
 
     @Test
     void shouldTokenize2NonNumericFieldsWithValues() {
         insertNonNumericTokenNibbles('+', (byte) 5, (byte) 0xa);
-        buffer.endToken();
-        buffer.startToken((byte) '+', false);
-        buffer.endToken();
+        writer.endToken();
+        writer.startToken((byte) '+', false);
+        writer.endToken();
         assertThat(buffer.getInternalData()).startsWith(1, '+', 0x5a, 0, '+', 0);
     }
 
@@ -183,9 +185,9 @@ class ZcodeTokenRingBufferTest {
     void shouldTokenizeMixedFieldsWithOddNibbleValues() {
         insertNumericTokenNibbles('A', (byte) 5, (byte) 0xa, (byte) 0xb);
         verifyBufferState(false, 6, 'A', true, 2, 3);
-        buffer.endToken();
-        buffer.startToken((byte) '+', false);
-        buffer.endToken();
+        writer.endToken();
+        writer.startToken((byte) '+', false);
+        writer.endToken();
         assertThat(buffer.getInternalData()).startsWith(2, 'A', 0x5, 0xab, 0, '+', 0);
         verifyBufferState(true, 3);
     }
@@ -193,16 +195,16 @@ class ZcodeTokenRingBufferTest {
     @Test
     void shouldTokenizeMixedFieldsWithValues() {
         insertNumericTokenNibbles('A', (byte) 5, (byte) 0xa, (byte) 0xb);
-        buffer.endToken();
-        buffer.startToken((byte) '+', false);
-        buffer.endToken();
+        writer.endToken();
+        writer.startToken((byte) '+', false);
+        writer.endToken();
         assertThat(buffer.getInternalData()).startsWith(2, 'A', 0x5, 0xab, 0, '+', 0);
     }
 
     @Test
     void shouldTokenizeNonNumericFieldWithOddNibbles() {
         insertNonNumericTokenNibbles('+', (byte) 0xa, (byte) 0xb, (byte) 0xc);
-        buffer.endToken();
+        writer.endToken();
         assertThat(buffer.getInternalData()).startsWith(2, '+', 0xab, 0xc0);
         verifyBufferState(true, 5);
     }
@@ -210,21 +212,21 @@ class ZcodeTokenRingBufferTest {
     @Test
     void shouldSkipToNextToken() {
         insertByteToken(5);
-        buffer.endToken();
+        writer.endToken();
         buffer.skipToNextReadToken();
         verifyBufferState(true, BUFSIZE - 1);
 
         insertNumericToken('X', (byte) 0xb1, (byte) 0xb2);
         assertThat(buffer.getInternalData()).startsWith(0xb2, '+', 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 2, 'X', 0xb1);
         verifyBufferState(false, BUFSIZE - 5, 'X', false, 2, 4);
-        buffer.endToken();
+        writer.endToken();
         verifyBufferState(true, BUFSIZE - 5);
 
         insertNumericToken('Y', (byte) 0xc1);
         assertThat(buffer.getInternalData()).startsWith(0xb2, 1, 'Y', 0xc1, 0xa2, 0xa3, 0xa4, 2, 'X', 0xb1);
         verifyBufferState(false, BUFSIZE - 8, 'Y', false, 1, 2);
 
-        buffer.endToken();
+        writer.endToken();
 
         assertThat(buffer.skipToNextReadToken()).isNotNull();
         verifyBufferState(true, BUFSIZE - 4);
@@ -237,31 +239,31 @@ class ZcodeTokenRingBufferTest {
     @Test
     void shouldWriteBufferOverflowOnTokenKey() {
         insertByteToken(5);
-        buffer.endToken();
+        writer.endToken();
         verifyBufferState(true, 2);
 
-        assertThat(buffer.startToken((byte) 'A', true)).as("key").isFalse();
+        assertThat(writer.startToken((byte) 'A', true)).as("key").isFalse();
         assertThat(buffer.getInternalData()).startsWith(5, '+', 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0, BUFFER_OVERRUN_ERROR, 0x0);
     }
 
     @Test
     void shouldWriteBufferOverflowOnTokenData() {
-        insertByteToken(2);
-        buffer.endToken();
-        verifyBufferState(true, 5);
+        insertByteToken(3);
+        writer.endToken();
+        verifyBufferState(true, 4);
 
-        assertThat(buffer.startToken((byte) 'A', true)).as("key").isTrue();
-        assertThat(buffer.continueTokenByte((byte) 0x32)).as("data=0x32").isTrue();
-        assertThat(buffer.continueTokenByte((byte) 0x33)).as("data=0x33").isFalse();
+        assertThat(writer.startToken((byte) 'A', true)).as("key").isTrue();
+        assertThat(writer.continueTokenByte((byte) 0x32)).as("data=0x32").isTrue();
+        assertThat(writer.continueTokenByte((byte) 0x33)).as("data=0x33").isFalse();
 
-        assertThat(buffer.getInternalData()).startsWith(2, '+', 0xa0, 0xa1, 1, 'A', 0x32, 0, BUFFER_OVERRUN_ERROR, 0x0);
+        assertThat(buffer.getInternalData()).startsWith(3, '+', 0xa0, 0xa1, 0xa2, 0, BUFFER_OVERRUN_ERROR, 0x32);
     }
 
     private void insertNumericToken(char key, byte... data) {
-        boolean ok = buffer.startToken((byte) key, true);
+        boolean ok = writer.startToken((byte) key, true);
         assertThat(ok).as("key").isTrue();
         for (byte b : data) {
-            ok = buffer.continueTokenByte(b);
+            ok = writer.continueTokenByte(b);
             assertThat(ok).as("data=" + b).isTrue();
         }
     }
@@ -275,20 +277,20 @@ class ZcodeTokenRingBufferTest {
     }
 
     private void insertTokenNibbles(char key, boolean numeric, byte... nibbles) {
-        boolean ok = buffer.startToken((byte) key, numeric);
+        boolean ok = writer.startToken((byte) key, numeric);
         assertThat(ok).as("key").isTrue();
         for (byte b : nibbles) {
-            ok = buffer.continueTokenNibble(b);
+            ok = writer.continueTokenNibble(b);
             assertThat(ok).as("data=" + b).isTrue();
         }
     }
 
     private void insertByteToken(int count) {
-        boolean ok = buffer.startToken((byte) '+', false);
+        boolean ok = writer.startToken((byte) '+', false);
         assertThat(ok).as("key").isTrue();
 
         for (int i = 0; i < count; i++) {
-            ok = buffer.continueTokenByte((byte) (0xa0 + i));
+            ok = writer.continueTokenByte((byte) (0xa0 + i));
             assertThat(ok).as("data #" + i).isTrue();
         }
 

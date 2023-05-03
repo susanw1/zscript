@@ -12,27 +12,32 @@ public interface ZcodeTokenBuffer {
     public static final byte ERROR_CODE_STRING_NOT_TERMINATED = (byte) 0xF3;
     public static final byte ERROR_CODE_STRING_ESCAPING       = (byte) 0xF4;
 
-    boolean startToken(byte b, boolean c);
-
-    void endToken();
-
-    boolean continueTokenByte(byte b);
-
-    boolean continueTokenNibble(byte b);
-
-    boolean isTokenComplete();
-
-    boolean fail(byte errorCode);
-
-    int getCurrentWriteTokenKey();
-
-    int getCurrentWriteTokenLength();
-
-    boolean isInNibble();
-
-    int getCurrentWriteTokenNibbleLength();
-
     void setIterator(ZcodeTokenIterator iterator);
 
-    int getAvailableWrite();
+    TokenWriter getTokenWriter();
+
+    public interface TokenWriter {
+        boolean startToken(byte b, boolean c);
+
+        void endToken();
+
+        boolean continueTokenByte(byte b);
+
+        boolean continueTokenNibble(byte b);
+
+        boolean isTokenComplete();
+
+        boolean fail(byte errorCode);
+
+        int getCurrentWriteTokenKey();
+
+        int getCurrentWriteTokenLength();
+
+        boolean isInNibble();
+
+        int getCurrentWriteTokenNibbleLength();
+
+        int getAvailableWrite();
+    }
+
 }
