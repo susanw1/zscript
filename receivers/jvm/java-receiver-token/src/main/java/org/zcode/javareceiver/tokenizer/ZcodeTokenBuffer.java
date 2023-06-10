@@ -17,17 +17,17 @@ public interface ZcodeTokenBuffer {
     TokenWriter getTokenWriter();
 
     public interface TokenWriter {
-        boolean startToken(byte b, boolean c);
+        void startToken(byte b, boolean c);
 
         void endToken();
 
-        boolean continueTokenByte(byte b);
+        void continueTokenByte(byte b);
 
-        boolean continueTokenNibble(byte b);
+        void continueTokenNibble(byte b);
 
         boolean isTokenComplete();
 
-        boolean fail(byte errorCode);
+        void fail(byte errorCode);
 
         int getCurrentWriteTokenKey();
 
@@ -37,7 +37,7 @@ public interface ZcodeTokenBuffer {
 
         int getCurrentWriteTokenNibbleLength();
 
-        int getAvailableWrite();
+        boolean checkAvailableCapacity(int size);
     }
 
 }

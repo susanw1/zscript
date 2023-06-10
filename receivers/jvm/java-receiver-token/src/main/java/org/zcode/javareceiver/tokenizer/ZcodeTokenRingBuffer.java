@@ -68,20 +68,14 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         private boolean numeric  = false;
 
         @Override
-        public boolean startToken(byte key, boolean numeric) {
-            // We need 2 bytes for new token, plus 1 if we're closing off an old nibble.
-            if (!reserve(3)) {
-                failInternal(BUFFER_OVERRUN_ERROR);
-                return false;
-            }
+        public void startToken(byte key, boolean numeric) {
             endToken();
             this.numeric = numeric;
             writeNewTokenStart(key);
-            return true;
         }
 
         @Override
-        public boolean continueTokenNibble(byte nibble) {
+        public void continueTokenNibble(byte nibble) {
             if (isTokenComplete()) {
                 throw new IllegalStateException("Digit with missing field key");
             }
@@ -91,10 +85,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
 
             if (inNibble) {
                 data[writeCursor] |= nibble;
-                writeCursor = offset(writeCursor, 1);
-            } else if (!reserve(1) || data[writeLastLen] == MAX_DATA_LENGTH && !reserve(4)) {
-                failInternal(BUFFER_OVERRUN_ERROR);
-                return false;
+                moveCursor();
             } else {
                 if (data[writeLastLen] == MAX_DATA_LENGTH) {
                     startNewSegment();
@@ -103,11 +94,10 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 data[writeLastLen]++;
             }
             inNibble = !inNibble;
-            return true;
         }
 
         @Override
-        public boolean continueTokenByte(byte b) {
+        public void continueTokenByte(byte b) {
             if (inNibble) {
                 throw new IllegalStateException("Incomplete nibble");
             }
@@ -115,17 +105,12 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 throw new IllegalStateException("Byte with missing field key");
             }
 
-            if (!reserve(2) || data[writeLastLen] == MAX_DATA_LENGTH && !reserve(4)) {
-                failInternal(BUFFER_OVERRUN_ERROR);
-                return false;
-            }
             if (data[writeLastLen] == MAX_DATA_LENGTH) {
                 startNewSegment();
             }
             data[writeCursor] = b;
-            writeCursor = offset(writeCursor, 1);
+            moveCursor();
             data[writeLastLen]++;
-            return true;
         }
 
         private void startNewSegment() {
@@ -151,19 +136,19 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                         hold = (byte) (tmp << 4);
                     } while (pos != writeCursor);
                 }
-                writeCursor = offset(writeCursor, 1);
+                moveCursor();
             }
 
             writeLastLen = writeStart = writeCursor;
             inNibble = false;
         }
 
-        public boolean reserve(int size) {
+        @Override
+        public boolean checkAvailableCapacity(int size) {
             return getAvailableWrite() >= size;
         }
 
-        @Override
-        public int getAvailableWrite() {
+        private int getAvailableWrite() {
             return (writeCursor >= readStart ? data.length : 0) + readStart - writeCursor - 1;
         }
 
@@ -203,25 +188,28 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
 
         private void writeNewTokenStart(byte key) {
             data[writeCursor] = 0;
-            writeCursor = offset(writeCursor, 1);
+            moveCursor();
             data[writeCursor] = key;
-            writeCursor = offset(writeCursor, 1);
+            moveCursor();
         }
 
-        private void failInternal(final byte errorCode) {
+        @Override
+        public void fail(final byte errorCode) {
             if (!isTokenComplete()) {
-                // reset current token back to start
+                // reset current token back to writeStart
                 writeCursor = writeLastLen = writeStart;
             }
             writeNewTokenStart(errorCode);
             endToken();
         }
 
-        @Override
-        public boolean fail(byte errorCode) {
-            final boolean bufferOvr = getAvailableWrite() < 6;
-            failInternal(bufferOvr ? BUFFER_OVERRUN_ERROR : errorCode);
-            return !bufferOvr;
+        private void moveCursor() {
+            final int nextCursor = offset(writeCursor, 1);
+            if (nextCursor == readStart) {
+                // this should never happen - someone should have made sure there was space
+                throw new IllegalStateException("Out of buffer - should have reserved more");
+            }
+            writeCursor = nextCursor;
         }
     }
 
