@@ -2,6 +2,9 @@ package org.zcode.javareceiver.tokenizer;
 
 import static java.text.MessageFormat.format;
 
+import java.util.Iterator;
+import java.util.function.Predicate;
+
 /**
  * Ring-buffer implementation of a Token Buffer - the tokens making up incoming command or response sequences are encoded and accessed here. Rules are:
  * <ol>
@@ -9,7 +12,8 @@ import static java.text.MessageFormat.format;
  * <li>All indices are incremented modulo the length of the underlying byte array.</li>
  * <li>There is a writable area, owned by a TokenWriter, in the space <i>writeStart <= i < readStart</i>.</li>
  * <li>There is a readable area, owned by a TokenIterator, in the space <i>readStart <= i < writeStart</i>.</li>
- * <li>A token is written as >=2 bytes at <i>writeStart</i>: <code>datalen | key | [data]</code> - so tokens can be iterated by adding (datalen+2) to an existing token start.</li>
+ * <li>A token is written as >=2 bytes at <i>writeStart</i>: <code>key | datalen | [data]</code> - so tokens can be iterated by adding (datalen+2) to an existing token start.</li>
+ * <li>A marker is written as 1 byte at <i>writeStart</i>, indicating a dataless key - markers are identified as a key with top 3 bits set (eg from 0xe0-0xff).</li>
  * <li>Tokens may exceed datalen of 255 using additional new token with special key <i>TOKEN_EXTENSION</i></li>
  * <li></li>
  * </ol>
@@ -22,8 +26,8 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
      * Zcode shouldn't need huge buffers, so 64K is our extreme limit. It should be addressable by uint16 indexes. Note that *exact* 64K size implies that data.length cannot be
      * held in a uint16, so careful code required if porting!
      */
-    private static final int  MAX_RING_BUFFER_SIZE = 0x1_0000;
-    private static final byte MAX_DATA_LENGTH      = (byte) 255;
+    private static final int  MAX_RING_BUFFER_SIZE  = 0x1_0000;
+    private static final byte MAX_TOKEN_DATA_LENGTH = (byte) 255;
 
     /** the ring-buffer's data array */
     private byte[] data;
@@ -59,7 +63,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     }
 
     private class TokenRingBufferWriter implements TokenWriter {
-        /** start index of most recent token segment (esp required for long multi-segment tokens) */
+        /** index of data-length fieid of most recent token segment (esp required for long multi-segment tokens) */
         private int writeLastLen = 0;
         /** the current write index into data array */
         private int writeCursor  = 0;
@@ -80,15 +84,18 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 throw new IllegalStateException("Digit with missing field key");
             }
             if (nibble < 0 || nibble > 0xf) {
-                throw new IllegalArgumentException("nibble value out of range");
+                throw new IllegalArgumentException("Nibble value out of range");
             }
 
             if (inNibble) {
                 data[writeCursor] |= nibble;
                 moveCursor();
             } else {
-                if (data[writeLastLen] == MAX_DATA_LENGTH) {
-                    startNewSegment();
+                if (data[writeLastLen] == MAX_TOKEN_DATA_LENGTH) {
+                    if (numeric) {
+                        throw new IllegalArgumentException("Illegal numeric field longer than 255 bytes");
+                    }
+                    writeNewTokenStart(TOKEN_EXTENSION);
                 }
                 data[writeCursor] = (byte) (nibble << 4);
                 data[writeLastLen]++;
@@ -105,26 +112,24 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 throw new IllegalStateException("Byte with missing field key");
             }
 
-            if (data[writeLastLen] == MAX_DATA_LENGTH) {
-                startNewSegment();
+            if (data[writeLastLen] == MAX_TOKEN_DATA_LENGTH) {
+                if (numeric) {
+                    throw new IllegalArgumentException("Illegal numeric field longer than 255 bytes");
+                }
+                writeNewTokenStart(TOKEN_EXTENSION);
             }
             data[writeCursor] = b;
             moveCursor();
             data[writeLastLen]++;
         }
 
-        private void startNewSegment() {
-            writeLastLen = writeCursor;
-            writeNewTokenStart(TOKEN_EXTENSION);
-        }
-
         @Override
         public void endToken() {
             if (inNibble) {
                 if (numeric) {
-                    if (writeLastLen != writeStart) {
-                        throw new IllegalStateException("Illegal numeric field longer than 255 bytes");
-                    }
+//                    if (writeLastLen != writeStart) {
+//                        throw new IllegalStateException("Illegal numeric field longer than 255 bytes");
+//                    }
 
                     // if odd nibble count, then shuffle nibbles through token's data to ensure "right-aligned", eg 4ad0 really means 04ad
                     byte hold = 0;
@@ -139,7 +144,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 moveCursor();
             }
 
-            writeLastLen = writeStart = writeCursor;
+            writeStart = writeCursor;
             inNibble = false;
         }
 
@@ -162,7 +167,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             if (isTokenComplete()) {
                 throw new IllegalStateException("token isn't being written");
             }
-            return data[offset(writeStart, 1)];
+            return Byte.toUnsignedInt(data[writeStart]);
         }
 
         @Override
@@ -170,7 +175,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             if (isTokenComplete()) {
                 throw new IllegalStateException("token isn't being written");
             }
-            return data[writeStart];
+            return Byte.toUnsignedInt(data[offset(writeStart, 1)]);
         }
 
         @Override
@@ -178,7 +183,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             if (isTokenComplete()) {
                 throw new IllegalStateException("token isn't being written");
             }
-            return data[writeStart] * 2 - (inNibble ? 1 : 0);
+            return Byte.toUnsignedInt(data[writeStart + 1]) * 2 - (inNibble ? 1 : 0);
         }
 
         @Override
@@ -186,10 +191,22 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             return writeStart == writeCursor;
         }
 
-        private void writeNewTokenStart(byte key) {
-            data[writeCursor] = 0;
-            moveCursor();
+        @Override
+        public void writeMarker(final byte key) {
+            if (!ZcodeTokenBuffer.isMarker(key)) {
+                throw new IllegalArgumentException("invalid marker [key=0x" + Integer.toHexString(key) + "]");
+            }
+            endToken();
             data[writeCursor] = key;
+            moveCursor();
+            endToken();
+        }
+
+        private void writeNewTokenStart(final byte key) {
+            data[writeCursor] = key;
+            moveCursor();
+            data[writeCursor] = 0;
+            writeLastLen = writeCursor;
             moveCursor();
         }
 
@@ -197,10 +214,9 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         public void fail(final byte errorCode) {
             if (!isTokenComplete()) {
                 // reset current token back to writeStart
-                writeCursor = writeLastLen = writeStart;
+                writeCursor = writeStart;
             }
-            writeNewTokenStart(errorCode);
-            endToken();
+            writeMarker(errorCode);
         }
 
         private void moveCursor() {
@@ -232,41 +248,189 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         iterator.set(this, readStart);
     }
 
-    public static class TokenStartIndex {
-        private final int indexValue;
-
-        private TokenStartIndex(int indexValue) {
-            this.indexValue = indexValue;
-        }
-    }
-
-    /** Can we encapsulate things like this? */
-
-    TokenStartIndex nextNewReadToken() {
-        return nextNewReadToken(new TokenStartIndex(readStart));
-    }
-
-    TokenStartIndex nextNewReadToken(TokenStartIndex currentIndex) {
-        int index = currentIndex.indexValue;
-
-        if (index == writeStart) {
-            return null;
-        }
-
-        byte key;
-        do {
-            index = offset(index, (data[index] + 2) & 0xff);
-            key = data[offset(index, 1)];
-        } while (index != writeStart && key == ZcodeTokenRingBuffer.TOKEN_EXTENSION);
-        return index == writeStart ? null : new TokenStartIndex(index);
+    @Override
+    public RingBufferToken createReadToken() {
+        return readStart == writeStart ? null : new RingBufferToken(readStart);
     }
 
     /**
-     * Moves read ptr to the next readable token, and returns a TokenStartIndex cookie, or null if we've run out of valid readable tokens.
+     * A view of a token starting at a known index. In principle, all the operations around navigating tokens as stored in the buffer are encapsulated here.
+     * 
+     * Fundamentally, the ReadToken is nothing more than an index into the RingBuffer: it's really just a uint16 or uint8. If you re-implement this in C, then that's what you'd
+     * have. But at a higher level, it has the following rules:
+     * <ul>
+     * <li>you can only create a Token from the valid start of the readable space, or from another token.</li>
+     * <li>you can't go off the end of the readable space.</li>
+     * </ul>
+     * 
+     * Any operation which gives a ReadToken where these rules might break should return null.
      */
-    TokenStartIndex skipToNextReadToken() {
-        final TokenStartIndex nextNewReadToken = nextNewReadToken();
-        readStart = (nextNewReadToken != null) ? nextNewReadToken.indexValue : writeStart;
-        return nextNewReadToken;
+    private class RingBufferToken implements ReadToken {
+        private final int index;
+
+        private RingBufferToken(int index) {
+            if (index < 0 || index >= data.length) {
+                throw new IllegalArgumentException("index out of data bounds [index=" + index + "]");
+            }
+            if (index == writeStart) {
+                throw new IllegalArgumentException("index is not in readable area");
+            }
+            this.index = index;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void advanceReadStart() {
+            readStart = index;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public byte getKey() {
+            return data[index];
+        }
+
+        /**
+         * Determines the size of the data portion of just this token (not including any extensions).
+         * 
+         * @return this Token's data size - 0 to 255
+         */
+        private int getSegmentDataSize() {
+            return ZcodeTokenBuffer.isMarker(data[index]) ? 0 : Byte.toUnsignedInt(data[offset(index, 1)]);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int getDataSize() {
+            int totalSz = 0;
+
+            int             thisSz;
+            RingBufferToken t = this;
+
+            do {
+                thisSz = t.getSegmentDataSize();
+                totalSz += thisSz;
+            } while (thisSz == MAX_TOKEN_DATA_LENGTH && (t = t.next()) != null && t.getKey() == ZcodeTokenRingBuffer.TOKEN_EXTENSION);
+
+            return totalSz;
+        }
+
+        /**
+         * TODO: finish me! I'm a bit complicated!
+         * 
+         * Exposes the data as a set of byte[] units, as though we were posting the data to a DMA system in chunks. Notes: this is
+         * 
+         * 
+         * Implementation note: if this is re-implemented in C, it wouldn't be *copying* the bytes. It would be referencing them as a [const char*, size] pair pointing directly
+         * into the buffer to avoid copies.
+         * 
+         * @return
+         */
+        @Override
+        public Iterator<byte[]> dataAsByteArrays() {
+            return new Iterator<byte[]>() {
+                RingBufferToken currentToken       = RingBufferToken.this;
+                int             remainingInSegment = 0;
+
+                @Override
+                public boolean hasNext() {
+                    return currentToken != null && currentToken.getSegmentDataSize() > 0;
+                }
+
+                @Override
+                public byte[] next() {
+                    if (remainingInSegment == 0) {
+                        // processing new segment
+                        remainingInSegment = currentToken.getSegmentDataSize();
+                    }
+
+                    // We want actualUnitLength clamped to the length of the data buffer, so we return data that's cut across the ring buffer as two parts
+                    // TODO: FIGURE THIS OUT!! :
+                    int    actualUnitLength = remainingInSegment;
+                    byte[] b                = new byte[actualUnitLength];
+                    System.arraycopy(data, index + 2, b, 0, actualUnitLength);
+                    remainingInSegment -= actualUnitLength;
+                    currentToken = currentToken.next();
+                    if (currentToken != null && currentToken.getKey() != TOKEN_EXTENSION) {
+                        currentToken = null;
+                    }
+                    return b;
+                }
+            };
+        }
+
+        @Override
+        public Iterator<Byte> dataAsByteStream() {
+            return new Iterator<Byte>() {
+                RingBufferToken currentToken       = RingBufferToken.this;
+                int             remainingInSegment = currentToken.getSegmentDataSize();
+
+                @Override
+                public boolean hasNext() {
+                    return currentToken != null && remainingInSegment > 0;
+                }
+
+                @Override
+                public Byte next() {
+                    if (!hasNext()) {
+                        // defensive against mistakes
+                        throw new IllegalStateException("hasNext() method should have prevented this state!");
+                    }
+                    int  dataCursor = offset(index, currentToken.getSegmentDataSize() - remainingInSegment + 2);
+                    byte b          = data[dataCursor];
+                    remainingInSegment--;
+
+                    if (remainingInSegment == 0) {
+                        currentToken = currentToken.next();
+                        if (currentToken != null) {
+                            if (currentToken.getKey() != TOKEN_EXTENSION) {
+                                currentToken = null;
+                            } else {
+                                remainingInSegment = currentToken.getSegmentDataSize();
+                            }
+                        }
+                    }
+                    return b;
+                }
+            };
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public RingBufferToken findFirst(Predicate<? super ReadToken> p) {
+            RingBufferToken t = this;
+            while (t != null && !p.test(t)) {
+                t = t.next();
+            }
+            return t;
+        }
+
+        /**
+         * Utility to create a Token for the token immediately after this one, if there is one (note, might be an extension of this one).
+         * 
+         * @return a valid Token, or null if none exists yet (eg if that would run off the end of the read space)
+         */
+        private RingBufferToken next() {
+            int nextStart = offset(index, getTokenExtent());
+            return nextStart == writeStart ? null : new RingBufferToken(nextStart);
+        }
+
+        /**
+         * Utility method for determining how many bytes this token occupies in the buffer, taking into account key and any data, but not extensions. This amount is how much to add
+         * to this token's start index find the next token's start index.
+         * 
+         * @return the number of bytes associates with this token (1 - 257)
+         */
+        private int getTokenExtent() {
+            return ZcodeTokenBuffer.isMarker(data[index]) ? 1 : Byte.toUnsignedInt(data[offset(index, 1)]) + 2;
+        }
     }
 }

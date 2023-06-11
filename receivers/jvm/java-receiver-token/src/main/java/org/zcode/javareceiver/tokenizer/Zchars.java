@@ -6,7 +6,7 @@ public class Zchars {
     public static final byte Z_ORELSE              = '|';
     public static final byte Z_LOCKS               = '%';
     public static final byte Z_BIGFIELD_HEX        = '+';
-    public static final byte Z_BIGFIELD_STRING     = '"';
+    public static final byte Z_BIGFIELD_QUOTED     = '"';
     public static final byte Z_STRING_ESCAPE       = '=';
     public static final byte Z_COMMENT             = '#';
     public static final byte Z_ADDRESSING          = '@';
@@ -21,11 +21,11 @@ public class Zchars {
     }
 
     public static boolean isNonNumerical(byte b) {
-        return b == Z_LOCKS || b == Z_BIGFIELD_HEX || b == Z_COMMENT || b == Z_BIGFIELD_STRING;
+        return b == Z_LOCKS || b == Z_BIGFIELD_HEX || b == Z_COMMENT || b == Z_BIGFIELD_QUOTED;
     }
 
     public static boolean isCommandKey(byte b) {
-        return (b >= 'A' && b <= 'Z') || b == Z_BIGFIELD_HEX || b == Z_BIGFIELD_STRING;
+        return (b >= 'A' && b <= 'Z') || b == Z_BIGFIELD_HEX || b == Z_BIGFIELD_QUOTED;
     }
 
     static final int PARSE_NOT_HEX_0X10 = 0x10;

@@ -40,12 +40,17 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenWriter;
  * @param b the new byte of zcode input
  */
 public class ZcodeTokenizer {
-    public static final byte ERROR_CODE_ODD_BIGFIELD_LENGTH   = (byte) 0xF1;
-    public static final byte ERROR_CODE_FIELD_TOO_LONG        = (byte) 0xF2;
-    public static final byte ERROR_CODE_STRING_NOT_TERMINATED = (byte) 0xF3;
-    public static final byte ERROR_CODE_STRING_ESCAPING       = (byte) 0xF4;
-
     public static final byte ADDRESSING_FIELD_KEY = (byte) 0x80;
+
+    public static final byte NORMAL_SEQUENCE_END              = (byte) 0xf0;
+    public static final byte ERROR_BUFFER_OVERRUN             = (byte) 0xf1;
+    public static final byte ERROR_CODE_ODD_BIGFIELD_LENGTH   = (byte) 0xf2;
+    public static final byte ERROR_CODE_FIELD_TOO_LONG        = (byte) 0xf3;
+    public static final byte ERROR_CODE_STRING_NOT_TERMINATED = (byte) 0xf4;
+    public static final byte ERROR_CODE_STRING_ESCAPING       = (byte) 0xf5;
+
+    public static final byte CMD_END_ANDTHEN = (byte) 0xe1;
+    public static final byte CMD_END_ORELSE  = (byte) 0xe2;
 
     private final static boolean DROP_COMMENTS = false;
 
@@ -53,6 +58,7 @@ public class ZcodeTokenizer {
 
     private boolean skipToNL;
     private boolean bufferOvr;
+    private boolean tokenizerError;
     private boolean numeric;
     private boolean addressing;
 
@@ -60,11 +66,16 @@ public class ZcodeTokenizer {
     private boolean isNormalString;
     private int     escapingCount; // 2 bit counter, from 2 to 0
 
+    // params for max numeric,
     private ZcodeTokenizer(final TokenWriter writer) {
         this.writer = writer;
+        resetFlags();
+    }
 
+    private void resetFlags() {
         this.skipToNL = false;
         this.bufferOvr = false;
+        this.tokenizerError = false;
         this.numeric = false;
         this.addressing = false;
         this.isText = false;
@@ -80,9 +91,8 @@ public class ZcodeTokenizer {
      */
     public void dataLost() {
         if (!bufferOvr) {
-            writer.fail(ZcodeTokenBuffer.BUFFER_OVERRUN_ERROR);
+            writer.fail(ERROR_BUFFER_OVERRUN);
             bufferOvr = true;
-            skipToNL = true;
         }
     }
 
@@ -97,112 +107,112 @@ public class ZcodeTokenizer {
     }
 
     /**
+     * TODO: Review: this seems a bit simple...
      * 
      * @param b
      * @return
      */
     public boolean offer(byte b) {
-        // TODO
-        return true;
+        if (checkCapacity()) {
+            accept(b);
+            return true;
+        }
+        // if (this is due to a huge command ... we need to know whether reader is actually able to run. If not, then...) {
+        // dataLost();
+        // }
+        return false;
     }
 
     /**
-     * There are two modes of processing a byte of zcode input with respect to overrun conditions.
-     * 
-     * 1) If an unbuffered (or minimally buffered) channel is feeding chars into the tokenizer, then running out of tokenizer buffer is fatal to the current sequence: we're going
-     * to drop chars. Consequently, we must mark the buffer as OVERRUN at that point, so that the reader gets signalled asap to stop processing and eg return error.
-     * 
-     * 2) If a buffered channel is feeding chars in, then it needs to be able to tell (up front) when its char won't fit, so it can avoid taking the char from its buffer and
-     * perhaps wait for some command processing to happen. Once some commands in a sequence have been processed, there may be more room.
-     * 
-     * 3) Even in the buffered channel case, there may come a point where either the channel's data *must* be flushed before it was able to be presented, in which case
-     * {@link #dataLost()} should be called to mark the sequence as OVERRUN.
-     * 
-     * 4) If an incoming single command is too long for the buffer, then it will become OVERRUN no matter what.
+     * Process a byte of Zcode input into the parser.
      * 
      * @param b the new byte of zcode input
      */
-    void accept(byte b) {
+    public void accept(byte b) {
         if (!isText && Zchars.shouldIgnore(b)) {
             return;
         }
 
-        if (bufferOvr || skipToNL && b != Zchars.Z_NEWLINE) {
+        if (bufferOvr || tokenizerError || skipToNL) {
+            if (b == Zchars.Z_NEWLINE) {
+                if (skipToNL) {
+                    writer.writeMarker(NORMAL_SEQUENCE_END);
+                }
+                resetFlags();
+            }
             return;
         }
 
-        if (bufferOvr) {
-            if (!writer.checkAvailableCapacity(10)) {
-                return;
-            }
-            bufferOvr = false;
-        }
-
-        skipToNL = false;
+        // TODO: Hysteresis on bufferOvr - review this approach given we're rewinding current token on failure marker
+//        if (bufferOvr) {
+//            if (!writer.checkAvailableCapacity(10)) {
+//                return;
+//            }
+//            bufferOvr = false;
+//        }
 
         if (writer.isTokenComplete()) {
-            startToken(b);
+            startNewToken(b);
             return;
         }
 
         if (isText) {
+            // "text" is broadly interpreted: we're pushing non-numeric bytes into a current token
             acceptText(b);
             return;
         }
 
         byte hex = Zchars.parseHex(b);
-        if (hex == Zchars.PARSE_NOT_HEX_0X10) {
-            // Check big field odd length
-            if (!numeric && writer.getCurrentWriteTokenKey() == Zchars.Z_BIGFIELD_HEX && writer.isInNibble()) {
-                writer.fail(ERROR_CODE_ODD_BIGFIELD_LENGTH);
-                skipToNL = true;
-                if (b != Zchars.Z_NEWLINE) {
+        if (hex != Zchars.PARSE_NOT_HEX_0X10) {
+            if (numeric) {
+                // Check field length
+                if (writer.getCurrentWriteTokenNibbleLength() == 4) {
+                    writer.fail(ERROR_CODE_FIELD_TOO_LONG);
+                    tokenizerError = true;
+                    return;
+                }
+                // Skip leading zeros
+                if (writer.getCurrentWriteTokenLength() == 0 && hex == 0) {
                     return;
                 }
             }
-            startToken(b);
+            writer.continueTokenNibble(hex);
             return;
         }
 
-        if (numeric) {
-            // Check field length
-            if (writer.getCurrentWriteTokenNibbleLength() == 4) {
-                writer.fail(ERROR_CODE_FIELD_TOO_LONG);
-                skipToNL = true;
-                return;
+        // Check big field odd length
+        if (!numeric && writer.getCurrentWriteTokenKey() == Zchars.Z_BIGFIELD_HEX && writer.isInNibble()) {
+            writer.fail(ERROR_CODE_ODD_BIGFIELD_LENGTH);
+            tokenizerError = true;
+            if (b == Zchars.Z_NEWLINE) {
+                // interesting case: the error above could be caused by b==Z_NEWLINE, but we've written an error marker, so just reset and return
+                resetFlags();
             }
-            // Skip leading zeros
-            if (writer.getCurrentWriteTokenLength() == 0 && hex == 0) {
-                return;
-            }
+            return;
         }
 
-        writer.continueTokenNibble(hex);
+        startNewToken(b);
     }
 
-    void acceptText(byte b) {
+    private void acceptText(byte b) {
         if (b == Zchars.Z_NEWLINE) {
             if (isNormalString) {
                 writer.fail(ERROR_CODE_STRING_NOT_TERMINATED);
-                return;
+                tokenizerError = true;
+            } else {
+                writer.writeMarker(NORMAL_SEQUENCE_END);
+                resetFlags();
             }
-            writer.startToken(b, true);
-            writer.endToken();
-            isText = false;
         } else if (escapingCount > 0) {
             byte hex = Zchars.parseHex(b);
-            if (hex != Zchars.PARSE_NOT_HEX_0X10) {
+            if (hex == Zchars.PARSE_NOT_HEX_0X10) {
+                writer.fail(ERROR_CODE_STRING_ESCAPING);
+                tokenizerError = true;
+            } else {
                 writer.continueTokenNibble(hex);
                 escapingCount--;
-            } else {
-                if (writer.isInNibble()) {
-                    writer.continueTokenNibble((byte) 0);
-                }
-                writer.fail(ERROR_CODE_STRING_ESCAPING);
-                escapingCount = 0;
-                skipToNL = true;
             }
-        } else if (isNormalString && b == Zchars.Z_BIGFIELD_STRING) {
+        } else if (isNormalString && b == Zchars.Z_BIGFIELD_QUOTED) {
             writer.endToken();
             isText = false;
         } else if (isNormalString && b == Zchars.Z_STRING_ESCAPE) {
@@ -212,8 +222,14 @@ public class ZcodeTokenizer {
         }
     }
 
-    void startToken(byte b) {
-        if (addressing && (b != Zchars.Z_ADDRESSING_CONTINUE && b != Zchars.Z_NEWLINE)) {
+    private void startNewToken(byte b) {
+        if (b == Zchars.Z_NEWLINE) {
+            writer.writeMarker(NORMAL_SEQUENCE_END);
+            resetFlags();
+            return;
+        }
+
+        if (addressing && b != Zchars.Z_ADDRESSING_CONTINUE) {
             writer.startToken(ADDRESSING_FIELD_KEY, false);
             writer.continueTokenByte(b);
             addressing = false;
@@ -222,13 +238,30 @@ public class ZcodeTokenizer {
             isNormalString = false;
             return;
         }
+
+        if (Zchars.isSeparator(b)) {
+            byte marker = 0;
+            switch (b) {
+            case Zchars.Z_ANDTHEN:
+                marker = CMD_END_ANDTHEN;
+                break;
+            case Zchars.Z_ORELSE:
+                marker = CMD_END_ORELSE;
+                break;
+            // more for other constructs? '(', ')'
+            }
+            if (marker != 0) {
+                writer.writeMarker(marker);
+                return;
+            }
+        }
+
         if (b == Zchars.Z_ADDRESSING) {
             addressing = true;
         }
-        numeric = true;
-        if (Zchars.isNonNumerical(b)) {
-            numeric = false;
-        }
+
+        numeric = !Zchars.isNonNumerical(b);
+        isText = false;
         writer.startToken(b, numeric);
 
         if (b == Zchars.Z_COMMENT) {
@@ -236,20 +269,16 @@ public class ZcodeTokenizer {
                 skipToNL = true;
             } else {
                 isText = true;
-                escapingCount = 0;
                 isNormalString = false;
+                escapingCount = 0;
             }
             return;
         }
-        if (b == Zchars.Z_BIGFIELD_STRING) {
+        if (b == Zchars.Z_BIGFIELD_QUOTED) {
             isText = true;
-            escapingCount = 0;
             isNormalString = true;
+            escapingCount = 0;
             return;
-        }
-        isText = false;
-        if (Zchars.isSeparator(b)) {
-            writer.endToken();
         }
     }
 }
