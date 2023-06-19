@@ -63,7 +63,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
     }
 
     private class TokenRingBufferWriter implements TokenWriter {
-        /** index of data-length fieid of most recent token segment (esp required for long multi-segment tokens) */
+        /** index of data-length field of most recent token segment (esp required for long multi-segment tokens) */
         private int writeLastLen = 0;
         /** the current write index into data array */
         private int writeCursor  = 0;
@@ -163,17 +163,17 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         }
 
         @Override
-        public int getCurrentWriteTokenKey() {
+        public byte getCurrentWriteTokenKey() {
             if (isTokenComplete()) {
-                throw new IllegalStateException("token isn't being written");
+                throw new IllegalStateException("no token being written");
             }
-            return Byte.toUnsignedInt(data[writeStart]);
+            return data[writeStart];
         }
 
         @Override
         public int getCurrentWriteTokenLength() {
             if (isTokenComplete()) {
-                throw new IllegalStateException("token isn't being written");
+                throw new IllegalStateException("no token being written");
             }
             return Byte.toUnsignedInt(data[offset(writeStart, 1)]);
         }
@@ -243,6 +243,19 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         return (index + offset) % data.length;
     }
 
+    /**
+     * Utility for determining whether the specified index is in the current readable area, defined as readStart <= index < writeStart (but accounting for this being a ringbuffer).
+     * 
+     * Everything included in the readable area is committed and immutable.
+     * 
+     * @param index the index to check
+     * @return true if in readable area; false otherwise
+     */
+    boolean isInReadableArea(int index) {
+        return writeStart >= readStart && (index >= readStart && index < writeStart)
+                || writeStart < readStart && (index < writeStart || index >= readStart);
+    }
+
     @Override
     public void setIterator(ZcodeTokenIterator iterator) {
         iterator.set(this, readStart);
@@ -272,8 +285,8 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             if (index < 0 || index >= data.length) {
                 throw new IllegalArgumentException("index out of data bounds [index=" + index + "]");
             }
-            if (index == writeStart) {
-                throw new IllegalArgumentException("index is not in readable area");
+            if (!isInReadableArea(index)) {
+                throw new IllegalArgumentException("index is not in readable area [index=" + index + "]");
             }
             this.index = index;
         }
@@ -365,6 +378,9 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             };
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public Iterator<Byte> dataAsByteStream() {
             return new Iterator<Byte>() {

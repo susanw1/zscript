@@ -42,12 +42,13 @@ public interface ZcodeTokenBuffer {
 
         void fail(byte errorCode);
 
-        int getCurrentWriteTokenKey();
+        byte getCurrentWriteTokenKey();
 
         int getCurrentWriteTokenLength();
 
         boolean isInNibble();
 
+        // do we need this?
         int getCurrentWriteTokenNibbleLength();
 
         boolean checkAvailableCapacity(int size);

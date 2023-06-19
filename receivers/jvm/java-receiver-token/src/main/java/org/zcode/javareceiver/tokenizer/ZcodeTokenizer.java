@@ -55,6 +55,7 @@ public class ZcodeTokenizer {
     private final static boolean DROP_COMMENTS = false;
 
     private final TokenWriter writer;
+    private final int         maxNumericBytes;
 
     private boolean skipToNL;
     private boolean bufferOvr;
@@ -66,9 +67,9 @@ public class ZcodeTokenizer {
     private boolean isNormalString;
     private int     escapingCount; // 2 bit counter, from 2 to 0
 
-    // params for max numeric,
-    private ZcodeTokenizer(final TokenWriter writer) {
+    public ZcodeTokenizer(final TokenWriter writer, final int maxNumericBytes) {
         this.writer = writer;
+        this.maxNumericBytes = maxNumericBytes;
         resetFlags();
     }
 
@@ -166,13 +167,14 @@ public class ZcodeTokenizer {
         if (hex != Zchars.PARSE_NOT_HEX_0X10) {
             if (numeric) {
                 // Check field length
-                if (writer.getCurrentWriteTokenNibbleLength() == 4) {
+                final int currentLength = writer.getCurrentWriteTokenLength();
+                if (currentLength == maxNumericBytes && !writer.isInNibble()) {
                     writer.fail(ERROR_CODE_FIELD_TOO_LONG);
                     tokenizerError = true;
                     return;
                 }
                 // Skip leading zeros
-                if (writer.getCurrentWriteTokenLength() == 0 && hex == 0) {
+                if (currentLength == 0 && hex == 0) {
                     return;
                 }
             }
@@ -198,11 +200,11 @@ public class ZcodeTokenizer {
         if (b == Zchars.Z_NEWLINE) {
             if (isNormalString) {
                 writer.fail(ERROR_CODE_STRING_NOT_TERMINATED);
-                tokenizerError = true;
             } else {
                 writer.writeMarker(NORMAL_SEQUENCE_END);
-                resetFlags();
             }
+            // we've written some marker, so reset as per the newline:
+            resetFlags();
         } else if (escapingCount > 0) {
             byte hex = Zchars.parseHex(b);
             if (hex == Zchars.PARSE_NOT_HEX_0X10) {

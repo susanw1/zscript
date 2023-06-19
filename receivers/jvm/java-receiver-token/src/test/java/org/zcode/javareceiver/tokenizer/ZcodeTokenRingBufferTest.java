@@ -20,13 +20,14 @@ class ZcodeTokenRingBufferTest {
      */
     private void verifyBufferState(boolean tokenComplete, int availableWrite) {
         assertThat(writer.isTokenComplete()).as("TokenComplete").isEqualTo(tokenComplete);
-//        assertThat(writer.getAvailableWrite()).as("AvailableWrite").isEqualTo(availableWrite);
+        assertThat(writer.checkAvailableCapacity(availableWrite)).as("AvailableWrite").isTrue();
+        assertThat(writer.checkAvailableCapacity(availableWrite + 1)).as("AvailableWrite+1").isFalse();
     }
 
     private void verifyBufferState(boolean tokenComplete, int availableWrite, int currentTokenKey, boolean inNibble, int tokenLength, int nibbleLength) {
         verifyBufferState(tokenComplete, availableWrite);
         if (!writer.isTokenComplete()) {
-            assertThat(writer.getCurrentWriteTokenKey()).as("CurrentWriteTokenKey").isEqualTo(currentTokenKey);
+            assertThat(writer.getCurrentWriteTokenKey()).as("CurrentWriteTokenKey").isEqualTo((byte) currentTokenKey);
             assertThat(writer.isInNibble()).as("InNibble").isEqualTo(inNibble);
             assertThat(writer.getCurrentWriteTokenLength()).as("CurrentWriteTokenLength").isEqualTo(tokenLength);
             assertThat(writer.getCurrentWriteTokenNibbleLength()).as("CurrentWriteTokenNibbleLength").isEqualTo(nibbleLength);
