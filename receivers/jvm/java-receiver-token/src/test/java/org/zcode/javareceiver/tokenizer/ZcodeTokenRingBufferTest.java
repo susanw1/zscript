@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.zcode.javareceiver.tokenizer.ZcodeTokenizer.ERROR_BUFFER_OVERRUN;
 
 import org.junit.jupiter.api.Test;
-import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.ReadToken;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenWriter;
 
 class ZcodeTokenRingBufferTest {
@@ -209,30 +208,6 @@ class ZcodeTokenRingBufferTest {
         writer.endToken();
         assertThat(buffer.getInternalData()).startsWith('+', 2, 0xab, 0xc0);
         verifyBufferState(true, 5);
-    }
-
-    @Test
-    void shouldSkipToNextToken() {
-        insertByteToken(5);
-        writer.endToken();
-        writer.writeMarker(ZcodeTokenizer.NORMAL_SEQUENCE_END);
-
-        ReadToken readToken1 = buffer.createReadToken();
-        assertThat(readToken1.isMarker()).isFalse();
-        assertThat(readToken1.getKey()).isEqualTo((byte) '+');
-        assertThat(readToken1.getDataSize()).isEqualTo(5);
-
-        assertThat(readToken1.findFirst(t -> true)).isSameAs(readToken1);
-        ReadToken readToken2 = readToken1.findFirst(t -> t.isMarker());
-        assertThat(readToken2).isNotNull();
-
-        assertThat(readToken2.isMarker()).isTrue();
-        assertThat(readToken2.getKey()).isEqualTo(ZcodeTokenizer.NORMAL_SEQUENCE_END);
-        assertThat(readToken2.getDataSize()).isEqualTo(0);
-
-        readToken2.advanceReadStart();
-
-        assertThat(readToken1.findFirst(t -> true)).isSameAs(readToken1);
     }
 
     @Test

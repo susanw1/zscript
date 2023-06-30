@@ -295,7 +295,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             }
 
             @Override
-            public void FlushBuffer() {
+            public void flushBuffer() {
                 readStart = index;
             }
 
@@ -340,6 +340,9 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 }
                 if (!isInReadableArea(index)) {
                     throw new IllegalArgumentException("index is not in readable area [index=" + index + "]");
+                }
+                if (data[index] == ZcodeTokenRingBuffer.TOKEN_EXTENSION) {
+                    throw new IllegalArgumentException("Tokens cannot begin with extension key");
                 }
                 this.index = index;
             }

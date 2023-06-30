@@ -6,5 +6,5 @@ public interface BufferIterator<T> extends Iterator<T> {
     /**
      * Empties the buffer up to the next item, so the previously read item is lost.
      */
-    void FlushBuffer();
+    void flushBuffer();
 }
