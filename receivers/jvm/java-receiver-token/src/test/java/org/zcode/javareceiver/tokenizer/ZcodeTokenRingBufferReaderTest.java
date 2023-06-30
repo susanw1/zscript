@@ -2,12 +2,15 @@ package org.zcode.javareceiver.tokenizer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
+import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.Test;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
@@ -16,7 +19,7 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenWriter;
 class ZcodeTokenRingBufferReaderTest {
 
     private static final int  BUFSIZE = 1000;
-    private static final long SEED    = 2000;
+    private static final long SEED    = 2001;
 
     private ZcodeTokenRingBuffer         buffer = ZcodeTokenRingBuffer.createBufferWithCapacity(BUFSIZE);
     TokenReader                          reader = buffer.getTokenReader();
@@ -104,11 +107,12 @@ class ZcodeTokenRingBufferReaderTest {
                     assertThat(found.getData16()).isEqualTo(exp32);
                 }
             }
-            // FIXME: there *must* be a more elegant way of doing this, but I don't know enough about bashing Iterator<Byte> and byte[] to make them into two things I can compare.
-            Iterator<Byte> data = found.data();
-            for (int i = 0; i < expected.data.length; i++) {
-                assertThat(data.next()).isEqualTo(expected.data[i]);
-            }
+            ByteArrayOutputStream st = new ByteArrayOutputStream();
+            Streams.stream(found.data()).forEach(t -> st.write(t));
+            assertThat(st.toByteArray()).containsExactly(expected.data);
+        }
+        if (expected.isExtended) {
+            assertThat(found.getDataSize()).isEqualTo(expected.data.length);
         }
     }
 
@@ -234,4 +238,63 @@ class ZcodeTokenRingBufferReaderTest {
         testIteratorCorrectness(reader.getTokens(), 1);
     }
 
+    @Test
+    void shouldIterateTokenDataInContiguousChunks() {
+        Random r = new Random(SEED);
+        writeExtendedToken(r, 800);
+        DmaIterator data = reader.getTokens().next().data();
+        int         i    = 0;
+        for (DmaIterator iterator = data; iterator.hasNext();) {
+            byte[] nextCont = iterator.nextContiguous();
+            assertThat(nextCont).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i, Math.min(i + 255, 800)));
+            i += 255;
+        }
+    }
+
+    @Test
+    void shouldIterateTokenDataInLimtedContiguousChunks() {
+        Random r = new Random(SEED);
+        writeExtendedToken(r, 800);
+        DmaIterator data = reader.getTokens().next().data();
+        int         i    = 0;
+        for (DmaIterator iterator = data; iterator.hasNext();) {
+            assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i, Math.min(i + 200, 800)));
+            if (iterator.hasNext()) {
+                assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i + 200, Math.min(i + 255, 800)));
+                i += 255;
+            }
+        }
+    }
+
+    @Test
+    void shouldIterateTokenDataInLimtedContiguousChunksAroundEnd() {
+        int    initialLength = 700;
+        Random r             = new Random(SEED);
+        writeExtendedToken(r, initialLength);
+        BufferIterator<ReadToken> it = reader.getTokens();
+        it.next();
+        it.flushBuffer();
+        writeExtendedToken(r, 800);
+        DmaIterator data = reader.getTokens().next().data();
+        int         i    = 0;
+        for (DmaIterator iterator = data; iterator.hasNext();) {
+            int offset = 200;
+            if (i + initialLength + (initialLength + 254) / 255 * 2 + i / 255 * 2 < BUFSIZE
+                    && i + 200 + initialLength + (initialLength + 254) / 255 * 2 + i / 255 * 2 + 2 > BUFSIZE) {
+                offset = BUFSIZE - (initialLength + i + (initialLength + 254) / 255 * 2 + i / 255 * 2 + 2);
+            }
+            assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(1).data, i, Math.min(i + offset, 800)));
+            if (iterator.hasNext()) {
+                if (i + offset > 800) {
+                    throw new AssertionError("Iterator didn't terminate when it should have");
+                }
+                if (offset + 200 < 255) {
+                    assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(1).data, i + offset, Math.min(i + offset + 200, 800)));
+                    offset += 200;
+                }
+                assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(1).data, i + offset, Math.min(i + 255, 800)));
+                i += 255;
+            }
+        }
+    }
 }

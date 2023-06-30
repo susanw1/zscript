@@ -378,7 +378,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                     public boolean hasNext() {
                         // Copes with empty tokens which still have extensions... probably not a valid thing anyway, but still, it didn't cost anything.
                         while (segRemaining == 0) {
-                            if (data[itIndex] == ZcodeTokenRingBuffer.TOKEN_EXTENSION) {
+                            if (itIndex != writeStart && data[itIndex] == ZcodeTokenRingBuffer.TOKEN_EXTENSION) {
                                 segRemaining = Byte.toUnsignedInt(data[offset(itIndex, 1)]);
                                 itIndex = offset(itIndex, 2);
                             } else {
@@ -417,7 +417,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 long value = 0;
                 for (int i = 0; i < getSegmentDataSize(); i++) {
                     if (value > 0xFFFFFF) {
-                        throw new IllegalStateException("More than 16 bits of data");
+                        throw new IllegalStateException("More than 32 bits of data");
                     }
                     value <<= 8;
                     value += Byte.toUnsignedInt(data[offset(index, i + 2)]);
@@ -461,7 +461,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 int index   = this.index;
 
                 do {
-                    int segSz = data[offset(index, 1)];
+                    int segSz = Byte.toUnsignedInt(data[offset(index, 1)]);
                     totalSz += segSz;
                     index = offset(index, segSz + 2);
                 } while (index != writeStart && data[index] == ZcodeTokenRingBuffer.TOKEN_EXTENSION);
