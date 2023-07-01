@@ -57,7 +57,7 @@ public interface ZcodeTokenBuffer {
          * 
          * @return an iterator over ReadTokens available.
          */
-        BufferIterator<ReadToken> getTokens();
+        TokenBufferIterator iterator();
 
         /**
          * Checks whether any tokens can be read.
@@ -73,13 +73,18 @@ public interface ZcodeTokenBuffer {
          */
         ReadToken getFirstReadToken();
 
+        /**
+         * Removes the first token from the readable space
+         */
+        void flushFirstReadToken();
+
         interface ReadToken {
             /**
              * Creates an iterator starting at this token.
              * 
              * @return an iterator over ReadTokens available.
              */
-            BufferIterator<ReadToken> getNextTokens();
+            TokenBufferIterator getNextTokens();
 
             /**
              * Determines the key associated with this token.
@@ -104,7 +109,7 @@ public interface ZcodeTokenBuffer {
              * 
              * @return an iterator that exposes the data as a succession of individual bytes.
              */
-            DmaIterator data();
+            BlockIterator blockIterator();
 
             /**
              * Exposes the data as a single number (uint32).

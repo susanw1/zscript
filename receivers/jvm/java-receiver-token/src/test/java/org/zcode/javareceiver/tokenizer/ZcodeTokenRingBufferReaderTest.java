@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Random;
 
 import org.assertj.core.util.Streams;
@@ -108,7 +109,7 @@ class ZcodeTokenRingBufferReaderTest {
                 }
             }
             ByteArrayOutputStream st = new ByteArrayOutputStream();
-            Streams.stream(found.data()).forEach(t -> st.write(t));
+            Streams.stream(found.blockIterator()).forEach(t -> st.write(t));
             assertThat(st.toByteArray()).containsExactly(expected.data);
         }
         if (expected.isExtended) {
@@ -116,11 +117,12 @@ class ZcodeTokenRingBufferReaderTest {
         }
     }
 
-    private void testIteratorCorrectness(Iterator<ReadToken> iterator, int offset) {
-        int i;
-        for (i = offset; iterator.hasNext(); i++) {
+    private void testIteratorCorrectness(OptIterator<ReadToken> iterator, int offset) {
+        int i = offset;
+
+        for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); i++, opt = iterator.next()) {
             try {
-                testTokenSimilarity(iterator.next(), tokens.get(i));
+                testTokenSimilarity(opt.get(), tokens.get(i));
             } catch (ArrayIndexOutOfBoundsException e) {
                 throw new AssertionError("Expected fewer tokens than found from iterator");
             }
@@ -135,8 +137,9 @@ class ZcodeTokenRingBufferReaderTest {
         assertThat(reader.hasReadToken()).isTrue();
         assertThat(reader.getFirstReadToken().getKey()).isEqualTo(tokens.get(0).key);
         Iterator<TokenExpectation> expectations = tokens.iterator();
-        for (Iterator<ReadToken> iterator = reader.getTokens(); iterator.hasNext();) {
-            ReadToken token = iterator.next();
+        OptIterator<ReadToken>     iterator     = reader.iterator();
+        for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
+            ReadToken token = opt.get();
             try {
                 TokenExpectation expectation = expectations.next();
                 assertThat(token.getKey()).isEqualTo(expectation.key);
@@ -154,8 +157,9 @@ class ZcodeTokenRingBufferReaderTest {
         assertThat(reader.hasReadToken()).isTrue();
         assertThat(reader.getFirstReadToken().getKey()).isEqualTo(tokens.get(0).key);
         Iterator<TokenExpectation> expectations = tokens.iterator();
-        for (Iterator<ReadToken> iterator = reader.getTokens(); iterator.hasNext();) {
-            ReadToken token = iterator.next();
+        OptIterator<ReadToken>     iterator     = reader.iterator();
+        for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
+            ReadToken token = opt.get();
             try {
                 TokenExpectation expectation = expectations.next();
                 assertThat(token.getKey()).isEqualTo(expectation.key);
@@ -177,8 +181,9 @@ class ZcodeTokenRingBufferReaderTest {
         assertThat(reader.hasReadToken()).isTrue();
         assertThat(reader.getFirstReadToken().getKey()).isEqualTo(tokens.get(0).key);
         Iterator<TokenExpectation> expectations = tokens.iterator();
-        for (Iterator<ReadToken> iterator = reader.getTokens(); iterator.hasNext();) {
-            ReadToken token = iterator.next();
+        OptIterator<ReadToken>     iterator     = reader.iterator();
+        for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
+            ReadToken token = opt.get();
             try {
                 TokenExpectation expectation = expectations.next();
                 assertThat(token.getKey()).isEqualTo(expectation.key);
@@ -197,12 +202,7 @@ class ZcodeTokenRingBufferReaderTest {
         writeNormalTokens(r, 10, 2);
         writeExtendedToken(r, 400);
         writeNormalTokens(r, 10, 2);
-        testIteratorCorrectness(reader.getTokens(), 0);
-        int i = 0;
-        for (Iterator<ReadToken> iterator = reader.getTokens(); iterator.hasNext();) {
-            ReadToken token = iterator.next();
-            testIteratorCorrectness(reader.getTokens(), 0);
-        }
+        testIteratorCorrectness(reader.iterator(), 0);
     }
 
     @Test
@@ -214,8 +214,10 @@ class ZcodeTokenRingBufferReaderTest {
         writeExtendedToken(r, 400);
         writeNormalTokens(r, 10, 2);
         int i = 1;
-        for (Iterator<ReadToken> iterator = reader.getTokens(); iterator.hasNext();) {
-            ReadToken token = iterator.next();
+
+        OptIterator<ReadToken> iterator = reader.iterator();
+        for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
+            ReadToken token = opt.get();
             testIteratorCorrectness(token.getNextTokens(), i++);
         }
     }
@@ -224,27 +226,27 @@ class ZcodeTokenRingBufferReaderTest {
     void shouldIterateTokenDataThroughExtensions() {
         Random r = new Random(SEED);
         writeExtendedToken(r, 800);
-        testIteratorCorrectness(reader.getTokens(), 0);
+        testIteratorCorrectness(reader.iterator(), 0);
     }
 
     @Test
     void shouldIterateTokenDataThroughLoopingBuffer() {
         Random r = new Random(SEED);
         writeExtendedToken(r, 800);
-        BufferIterator<ReadToken> it = reader.getTokens();
+        TokenBufferIterator it = reader.iterator();
         it.next();
         it.flushBuffer();
         writeExtendedToken(r, 800);
-        testIteratorCorrectness(reader.getTokens(), 1);
+        testIteratorCorrectness(reader.iterator(), 1);
     }
 
     @Test
     void shouldIterateTokenDataInContiguousChunks() {
         Random r = new Random(SEED);
         writeExtendedToken(r, 800);
-        DmaIterator data = reader.getTokens().next().data();
-        int         i    = 0;
-        for (DmaIterator iterator = data; iterator.hasNext();) {
+        BlockIterator data = reader.iterator().next().get().blockIterator();
+        int           i    = 0;
+        for (BlockIterator iterator = data; iterator.hasNext();) {
             byte[] nextCont = iterator.nextContiguous();
             assertThat(nextCont).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i, Math.min(i + 255, 800)));
             i += 255;
@@ -255,9 +257,9 @@ class ZcodeTokenRingBufferReaderTest {
     void shouldIterateTokenDataInLimtedContiguousChunks() {
         Random r = new Random(SEED);
         writeExtendedToken(r, 800);
-        DmaIterator data = reader.getTokens().next().data();
-        int         i    = 0;
-        for (DmaIterator iterator = data; iterator.hasNext();) {
+        BlockIterator data = reader.iterator().next().get().blockIterator();
+        int           i    = 0;
+        for (BlockIterator iterator = data; iterator.hasNext();) {
             assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i, Math.min(i + 200, 800)));
             if (iterator.hasNext()) {
                 assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i + 200, Math.min(i + 255, 800)));
@@ -271,13 +273,13 @@ class ZcodeTokenRingBufferReaderTest {
         int    initialLength = 700;
         Random r             = new Random(SEED);
         writeExtendedToken(r, initialLength);
-        BufferIterator<ReadToken> it = reader.getTokens();
+        TokenBufferIterator it = reader.iterator();
         it.next();
         it.flushBuffer();
         writeExtendedToken(r, 800);
-        DmaIterator data = reader.getTokens().next().data();
-        int         i    = 0;
-        for (DmaIterator iterator = data; iterator.hasNext();) {
+        BlockIterator data = reader.iterator().next().get().blockIterator();
+        int           i    = 0;
+        for (BlockIterator iterator = data; iterator.hasNext();) {
             int offset = 200;
             if (i + initialLength + (initialLength + 254) / 255 * 2 + i / 255 * 2 < BUFSIZE
                     && i + 200 + initialLength + (initialLength + 254) / 255 * 2 + i / 255 * 2 + 2 > BUFSIZE) {

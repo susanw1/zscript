@@ -2,7 +2,7 @@ package org.zcode.javareceiver.tokenizer;
 
 import java.util.Iterator;
 
-public interface DmaIterator extends Iterator<Byte> {
+public interface BlockIterator extends Iterator<Byte> {
     /**
      * Returns the as many elements in the iteration as are contiguous in memory (would give a pointer into the iterated structure in C++).
      *

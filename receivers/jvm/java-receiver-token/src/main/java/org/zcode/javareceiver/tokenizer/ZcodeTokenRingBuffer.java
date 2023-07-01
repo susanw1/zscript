@@ -4,6 +4,7 @@ import static java.text.MessageFormat.format;
 
 import java.util.Arrays;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 /**
  * Ring-buffer implementation of a Token Buffer - the tokens making up incoming command or response sequences are encoded and accessed here. Rules are:
@@ -266,7 +267,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
 
     private class TokenRingBufferReader implements TokenReader {
 
-        private class RingBufferTokenIterator implements BufferIterator<ReadToken> {
+        private class RingBufferTokenIterator implements TokenBufferIterator {
             private int index;
 
             public RingBufferTokenIterator(int index) {
@@ -274,14 +275,9 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             }
 
             @Override
-            public boolean hasNext() {
-                return index != writeStart;
-            }
-
-            @Override
-            public ReadToken next() {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
+            public Optional<ReadToken> next() {
+                if (index == writeStart) {
+                    return Optional.empty();
                 }
                 int indexTmp = index;
                 if (ZcodeTokenBuffer.isMarker(data[index])) {
@@ -291,7 +287,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                         index = offset(index, Byte.toUnsignedInt(data[offset(index, 1)]) + 2);
                     } while (data[index] == ZcodeTokenRingBuffer.TOKEN_EXTENSION);
                 }
-                return new RingBufferToken(indexTmp);
+                return Optional.of(new RingBufferToken(indexTmp));
             }
 
             @Override
@@ -302,7 +298,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         }
 
         @Override
-        public BufferIterator<ReadToken> getTokens() {
+        public TokenBufferIterator iterator() {
             return new RingBufferTokenIterator(readStart);
         }
 
@@ -317,6 +313,13 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 throw new NoSuchElementException("No read tokens available");
             }
             return new RingBufferToken(readStart);
+        }
+
+        @Override
+        public void flushFirstReadToken() {
+            TokenBufferIterator it = iterator();
+            it.next();
+            it.flushBuffer();
         }
 
         /**
@@ -348,18 +351,18 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             }
 
             @Override
-            public BufferIterator<ReadToken> getNextTokens() {
+            public TokenBufferIterator getNextTokens() {
                 RingBufferTokenIterator iterator = new RingBufferTokenIterator(index);
                 iterator.next();
                 return iterator;
             }
 
             @Override
-            public DmaIterator data() {
+            public BlockIterator blockIterator() {
                 if (isMarker()) {
                     throw new IllegalStateException("Cannot get data from marker token");
                 }
-                return new DmaIterator() {
+                return new BlockIterator() {
                     private int itIndex      = offset(index, 2);
                     private int segRemaining = getSegmentDataSize();
 
@@ -479,5 +482,6 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             }
 
         }
+
     }
 }

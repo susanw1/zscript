@@ -1,10 +1,12 @@
 package org.zcode.javareceiver.tokenizer;
 
-import java.util.Iterator;
+import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 
-public interface BufferIterator<T> extends Iterator<T> {
+public interface TokenBufferIterator extends OptIterator<ReadToken> {
+
     /**
      * Empties the buffer up to the next item, so the previously read item is lost.
      */
     void flushBuffer();
+
 }
