@@ -1,5 +1,8 @@
 ZCODE
 ===
+
+Note: needs much updating and breaking up a bit.
+
 ### General
 
 Zcode is a simple command-response system, designed to allow the control of Microcontrollers (MCUs) over many possible communication protocols, by either computer or human generated commands, with easily parsed responses.
