@@ -1,9 +1,9 @@
 package org.zcode.javareceiver.tokenizer;
 
 public class ZcodeTokenBufferFlags {
-    private boolean markerWritten;
-    private boolean seqMarkerWritten;
-    private boolean canRead;
+    private boolean markerWritten    = false;
+    private boolean seqMarkerWritten = false;
+    private boolean readerBlocked    = true; // TODO: Is a terrible name
 
     public void setMarkerWritten() {
         this.markerWritten = true;
@@ -13,8 +13,8 @@ public class ZcodeTokenBufferFlags {
         this.seqMarkerWritten = true;
     }
 
-    public void setCanRead() {
-        this.canRead = true;
+    public void clearReaderBlocked() {
+        this.readerBlocked = false;
     }
 
     public void clearMarkerWritten() {
@@ -25,8 +25,8 @@ public class ZcodeTokenBufferFlags {
         this.seqMarkerWritten = false;
     }
 
-    public void clearCanRead() {
-        this.canRead = false;
+    public void setReaderBlocked() {
+        this.readerBlocked = true;
     }
 
     public boolean isMarkerWritten() {
@@ -37,8 +37,8 @@ public class ZcodeTokenBufferFlags {
         return seqMarkerWritten;
     }
 
-    public boolean isCanRead() {
-        return canRead;
+    public boolean isReaderBlocked() {
+        return readerBlocked;
     }
 
 }

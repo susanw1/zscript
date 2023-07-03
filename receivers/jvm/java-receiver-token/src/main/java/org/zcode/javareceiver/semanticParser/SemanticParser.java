@@ -142,8 +142,6 @@ public class SemanticParser {
 
     private void dealWithFlags() {
         ZcodeTokenBufferFlags flags = new ZcodeTokenBufferFlags(); // TODO: get this properly
-        flags.setMarkerWritten();
-        flags.setSeqMarkerWritten();
         if (flags.isMarkerWritten()) {
             flags.clearMarkerWritten();
             if (!haveNextMarker) {
@@ -155,6 +153,11 @@ public class SemanticParser {
             if (!haveSeqEndMarker) {
                 findSeqEndMarker();
             }
+        }
+        if (haveNextMarker) {
+            flags.clearReaderBlocked();
+        } else {
+            flags.setReaderBlocked();
         }
     }
 

@@ -85,8 +85,6 @@ public class ZcodeTokenizer {
         this.escapingCount = 0;
     }
 
-    // TODO: Give error on key with top bit set
-
     /**
      * If a channel becomes aware that it has lost (or is about to lose) data, either because the channel has run out of buffer, or because the TokenBuffer is out of room, then it
      * can signal the Tokenizer to mark the current command sequence as overrun.
@@ -115,15 +113,13 @@ public class ZcodeTokenizer {
      * @return
      */
     public boolean offer(byte b) {
-        if (checkCapacity()) {
+        if (checkCapacity() || writer.getFlags().isReaderBlocked()) {
             accept(b);
             return true;
         }
-        // if (this is due to a huge command ... we need to know whether reader is actually able to run. If not, then...) {
-        // dataLost();
-        // }
         return false;
     }
+    // TODO: Discuss dataLost changes.
 
     /**
      * Process a byte of Zcode input into the parser.
@@ -138,10 +134,18 @@ public class ZcodeTokenizer {
         if (bufferOvr || tokenizerError || skipToNL) {
             if (b == Zchars.Z_NEWLINE) {
                 if (skipToNL) {
+                    if (!checkCapacity()) {
+                        dataLost();
+                        return;
+                    }
                     writer.writeMarker(NORMAL_SEQUENCE_END);
                 }
                 resetFlags();
             }
+            return;
+        }
+        if (!checkCapacity()) {
+            dataLost();
             return;
         }
 

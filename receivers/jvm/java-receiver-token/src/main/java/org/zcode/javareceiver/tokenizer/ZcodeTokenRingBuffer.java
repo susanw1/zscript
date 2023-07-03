@@ -37,6 +37,8 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
 
     private final TokenReader tokenReader;
 
+    private final ZcodeTokenBufferFlags flags;
+
     /** index of first byte owned by reader, writable space ends just before it */
     private int readStart  = 0;
     /** index of first byte owned by TokenWriter, readable space ends just before it */
@@ -54,6 +56,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         data = new byte[sz];
         tokenWriter = new TokenRingBufferWriter();
         tokenReader = new TokenRingBufferReader();
+        flags = new ZcodeTokenBufferFlags();
     }
 
     // Visible for testing only!
@@ -79,6 +82,11 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
 
         private boolean inNibble = false;
         private boolean numeric  = false;
+
+        @Override
+        public ZcodeTokenBufferFlags getFlags() {
+            return flags;
+        }
 
         @Override
         public void startToken(byte key, boolean numeric) {
@@ -197,6 +205,10 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             if (!ZcodeTokenBuffer.isMarker(key)) {
                 throw new IllegalArgumentException("invalid marker [key=0x" + Integer.toHexString(key) + "]");
             }
+            if (ZcodeTokenBuffer.isSequenceEndMarker(key)) {
+                flags.setSeqMarkerWritten();
+            }
+            flags.setMarkerWritten();
             endToken();
             data[writeCursor] = key;
             moveCursor();
@@ -290,6 +302,11 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 readStart = index;
             }
 
+        }
+
+        @Override
+        public ZcodeTokenBufferFlags getFlags() {
+            return flags;
         }
 
         @Override

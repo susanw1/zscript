@@ -23,6 +23,8 @@ public interface ZcodeTokenBuffer {
     TokenWriter getTokenWriter();
 
     public interface TokenWriter {
+        ZcodeTokenBufferFlags getFlags();
+
         void startToken(byte b, boolean c);
 
         void endToken();
@@ -49,6 +51,8 @@ public interface ZcodeTokenBuffer {
     TokenReader getTokenReader();
 
     public interface TokenReader {
+        ZcodeTokenBufferFlags getFlags();
+
         /**
          * Creates an iterator over the readable tokens.
          * 
