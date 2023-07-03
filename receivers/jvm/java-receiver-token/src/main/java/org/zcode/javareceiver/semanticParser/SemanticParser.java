@@ -11,19 +11,21 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenBufferFlags;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class SemanticParser {
-    public static final int NO_ERROR                 = 0;
-    public static final int INTERNAL_ERROR           = 1;
-    public static final int MARKER_ERROR             = 2;
-    public static final int MULTIPLE_ECHO_ERROR      = 3;
-    public static final int MULTIPLE_LOCKS_ERROR     = 4;
-    public static final int COMMENT_WITH_STUFF_ERROR = 5;
-    public static final int OTHER_ERROR              = 6;
+    // 16 booleans, 5 uint8_t, 1 uint16_t = 9 bytes of status
+
+    public static final byte NO_ERROR                 = 0;
+    public static final byte INTERNAL_ERROR           = 1;
+    public static final byte MARKER_ERROR             = 2;
+    public static final byte MULTIPLE_ECHO_ERROR      = 3;
+    public static final byte MULTIPLE_LOCKS_ERROR     = 4;
+    public static final byte COMMENT_WITH_STUFF_ERROR = 5;
+    public static final byte OTHER_ERROR              = 6;
 
     private final TokenReader reader;
 
     private ZcodeLockSet locks    = null;
     private boolean      hasLocks = false;
-    private int          echo     = 0;
+    private int          echo     = 0;    // 16 bit
     private boolean      hasEcho  = false;
 
     private byte    nextMarker     = 0;
@@ -45,9 +47,9 @@ public class SemanticParser {
 
     private boolean isFailed          = false;
     private boolean isSkippingHandler = false;
-    private int     bracketCounter    = 0;
+    private byte    bracketCounter    = 0;
 
-    private int error = NO_ERROR;
+    private byte error = NO_ERROR;
 
     private boolean skipToNL      = false;
     private boolean needSendError = false;
@@ -97,6 +99,8 @@ public class SemanticParser {
         }
         if (skipToNL) {
             skipToSeqEnd();
+            needSendError = false;
+            error = NO_ERROR;
             return ZcodeAction.noAction(this);
         }
         if (isAddressing) {
@@ -218,6 +222,9 @@ public class SemanticParser {
             skipToMarker();
             marker = reader.getFirstReadToken().getKey();
         }
+        if (reader.hasReadToken()) {
+            reader.flushFirstReadToken();
+        }
         if (ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
             resetToSequence();
             findNextMarker();
@@ -279,9 +286,7 @@ public class SemanticParser {
         isFailed = false;
         isSkippingHandler = false;
         bracketCounter = 0;
-        error = NO_ERROR;
         skipToNL = false;
-        needSendError = false;
         findSeqEndMarker();
     }
 

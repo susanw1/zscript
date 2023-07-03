@@ -23,30 +23,30 @@ public class ZcodeAction {
 
     private final SemanticParser parser;
     private final ActionType     type;
-    private final int            info;
+    private final byte           info;
 
     public static ZcodeAction noAction(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.NO_ACTION, semanticParser, 0);
+        return new ZcodeAction(ActionType.NO_ACTION, semanticParser, (byte) 0);
     }
 
-    public static ZcodeAction error(SemanticParser semanticParser, int error) {
+    public static ZcodeAction error(SemanticParser semanticParser, byte error) {
         return new ZcodeAction(ActionType.ERROR, semanticParser, error);
     }
 
     public static ZcodeAction addressing(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.ADDRESSING, semanticParser, 0);
+        return new ZcodeAction(ActionType.ADDRESSING, semanticParser, (byte) 0);
     }
 
     public static ZcodeAction addressingMoveAlong(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.ADDRESSING_MOVEALONG, semanticParser, 0);
+        return new ZcodeAction(ActionType.ADDRESSING_MOVEALONG, semanticParser, (byte) 0);
     }
 
     public static ZcodeAction commandMoveAlong(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.COMMAND_MOVEALONG, semanticParser, 0);
+        return new ZcodeAction(ActionType.COMMAND_MOVEALONG, semanticParser, (byte) 0);
     }
 
     public static ZcodeAction firstCommand(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.FIRST_COMMAND, semanticParser, 0);
+        return new ZcodeAction(ActionType.FIRST_COMMAND, semanticParser, (byte) 0);
     }
 
     public static ZcodeAction runCommand(SemanticParser semanticParser, byte info) {
@@ -54,10 +54,10 @@ public class ZcodeAction {
     }
 
     public static ZcodeAction endSequence(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.END_SEQUENCE, semanticParser, 0);
+        return new ZcodeAction(ActionType.END_SEQUENCE, semanticParser, (byte) 0);
     }
 
-    private ZcodeAction(ActionType type, SemanticParser parser, int info) {
+    private ZcodeAction(ActionType type, SemanticParser parser, byte info) {
         this.parser = parser;
         this.type = type;
         this.info = info;
@@ -75,6 +75,7 @@ public class ZcodeAction {
         switch (type) {
         case ERROR:
             sendError(out);
+            parser.errorSent();
             break;
         case ADDRESSING:
             parser.setStarted();
