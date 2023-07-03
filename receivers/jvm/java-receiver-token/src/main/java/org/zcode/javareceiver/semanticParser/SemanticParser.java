@@ -217,10 +217,16 @@ public class SemanticParser {
     }
 
     private void skipToSeqEnd() {
+        if (!haveSeqEndMarker) {
+            return;
+        }
         byte marker = reader.getFirstReadToken().getKey();
         while (reader.hasReadToken() && !ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
             skipToMarker();
             marker = reader.getFirstReadToken().getKey();
+            if (!ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
+                reader.flushFirstReadToken();
+            }
         }
         if (reader.hasReadToken()) {
             reader.flushFirstReadToken();
@@ -341,6 +347,7 @@ public class SemanticParser {
 
     public void errorSent() {
         needSendError = false;
+        error = NO_ERROR;
     }
 
     public void seqEndSent() {

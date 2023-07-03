@@ -11,7 +11,7 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 public class Main {
     public static void main(String[] args) {
         ZcodeCommandFinder.addModule(new ZcodeCoreModule());
-        String               code     = "Z2&Z2&Z1S10&Z0|Z1B01S&Z0|Z1B02\n";
+        String               code     = "Z2&Z2&Z1S10|Z1A10\n";
         ZcodeExecutor        executor = new ZcodeExecutor();
         ZcodeTokenRingBuffer rbuff    = ZcodeTokenRingBuffer.createBufferWithCapacity(100);
         ZcodeTokenizer       in       = new ZcodeTokenizer(rbuff.getTokenWriter(), 2);

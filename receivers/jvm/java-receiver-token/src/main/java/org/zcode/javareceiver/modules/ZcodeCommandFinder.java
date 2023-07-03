@@ -3,7 +3,6 @@ package org.zcode.javareceiver.modules;
 import java.util.Optional;
 
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.execution.ZcodeCommandEnviroment;
 import org.zcode.javareceiver.execution.ZcodeCommandView;
 
 public class ZcodeCommandFinder {
@@ -25,38 +24,36 @@ public class ZcodeCommandFinder {
             view.getOutStream().silentSucceed();
             return;
         }
-        ZcodeCommandEnviroment env   = new ZcodeCommandEnviroment(view);
-        Optional<Integer>      value = env.getField((byte) 'Z');
+        Optional<Integer> value = view.getField((byte) 'Z');
         if (value.isEmpty()) {
-            env.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            view.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
             return;
         }
         int cmd = value.get();
         if ((cmd >> 4) >= 0x1000) {
-            env.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            view.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
             return;
         }
         if (cmd > MAX_SYSTEM_CMD && !view.isActivated()) {
-            env.status(ZcodeStatus.NOT_ACTIVATED);
+            view.status(ZcodeStatus.NOT_ACTIVATED);
             return;
         }
         if (modules[cmd >> 4] == null) {
-            env.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            view.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
             return;
         }
-        modules[cmd >> 4].execute(env, cmd & 0xF);
-        if (view.isComplete() && !env.statusGiven()) {
-            env.status(ZcodeStatus.SUCCESS);
+        modules[cmd >> 4].execute(view, cmd & 0xF);
+        if (view.isComplete() && !view.statusGiven()) {
+            view.status(ZcodeStatus.SUCCESS);
         }
     }
 
     public static void moveAlong(ZcodeCommandView view) {
-        ZcodeCommandEnviroment env = new ZcodeCommandEnviroment(view);
 
-        int cmd = env.getField((byte) 'Z').get();
-        modules[cmd >> 4].moveAlong(env, cmd & 0xF);
-        if (view.isComplete() && !env.statusGiven()) {
-            env.status(ZcodeStatus.SUCCESS);
+        int cmd = view.getField((byte) 'Z').get();
+        modules[cmd >> 4].moveAlong(view, cmd & 0xF);
+        if (view.isComplete() && !view.statusGiven()) {
+            view.status(ZcodeStatus.SUCCESS);
         }
     }
 }

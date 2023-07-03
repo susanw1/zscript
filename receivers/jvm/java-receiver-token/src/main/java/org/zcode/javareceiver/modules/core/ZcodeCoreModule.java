@@ -1,7 +1,7 @@
 package org.zcode.javareceiver.modules.core;
 
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.execution.ZcodeCommandEnviroment;
+import org.zcode.javareceiver.execution.ZcodeCommandView;
 import org.zcode.javareceiver.modules.ZcodeModule;
 
 public class ZcodeCoreModule implements ZcodeModule {
@@ -12,30 +12,30 @@ public class ZcodeCoreModule implements ZcodeModule {
     }
 
     @Override
-    public void execute(ZcodeCommandEnviroment env, int command) {
+    public void execute(ZcodeCommandView view, int command) {
         switch (command) {
         case 0x0:
-            ZcodeCapabilitiesCommand.execute(env);
+            ZcodeCapabilitiesCommand.execute(view);
             break;
         case 0x1:
-            ZcodeEchoCommand.execute(env);
+            ZcodeEchoCommand.execute(view);
             break;
         case 0x2:
-            ZcodeActivateCommand.execute(env);
+            ZcodeActivateCommand.execute(view);
             break;
         case 0xc:
-            ZcodeMakeCodeCommand.execute(env);
+            ZcodeMakeCodeCommand.execute(view);
             break;
         case 0xd:
-            ZcodeMatchCodeCommand.execute(env);
+            ZcodeMatchCodeCommand.execute(view);
             break;
         default:
-            env.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            view.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
         }
     }
 
     @Override
-    public void moveAlong(ZcodeCommandEnviroment env, int command) {
+    public void moveAlong(ZcodeCommandView view, int command) {
     }
 
 }

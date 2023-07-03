@@ -4,20 +4,20 @@ import java.util.Iterator;
 import java.util.Optional;
 
 import org.zcode.javareceiver.core.ZcodeOutStream;
-import org.zcode.javareceiver.execution.ZcodeCommandEnviroment;
+import org.zcode.javareceiver.execution.ZcodeCommandView;
 import org.zcode.javareceiver.tokenizer.OptIterator;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 
 public class ZcodeEchoCommand {
 
-    public static void execute(ZcodeCommandEnviroment env) {
-        ZcodeOutStream         out      = env.getOutStream();
-        OptIterator<ReadToken> iterator = env.tokenIterator();
+    public static void execute(ZcodeCommandView view) {
+        ZcodeOutStream         out      = view.getOutStream();
+        OptIterator<ReadToken> iterator = view.iterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ReadToken token = opt.get();
             if (token.getKey() == 'S') {
                 int status = token.getData16();
-                env.status((byte) status);
+                view.status((byte) status);
                 continue;
             }
             out.startField(token.getKey());
