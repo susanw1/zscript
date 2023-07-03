@@ -22,8 +22,8 @@ class ZcodeTokenRingBufferReaderTest {
     private static final int  BUFSIZE = 1000;
     private static final long SEED    = 2001;
 
-    private ZcodeTokenRingBuffer         buffer = ZcodeTokenRingBuffer.createBufferWithCapacity(BUFSIZE);
-    TokenReader                          reader = buffer.getTokenReader();
+    private final ZcodeTokenRingBuffer   buffer = ZcodeTokenRingBuffer.createBufferWithCapacity(BUFSIZE);
+    private final TokenReader            reader = buffer.getTokenReader();
     private final List<TokenExpectation> tokens = new ArrayList<>();
 
     private class TokenExpectation {

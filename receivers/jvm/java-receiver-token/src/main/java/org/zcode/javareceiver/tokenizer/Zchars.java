@@ -28,6 +28,11 @@ public class Zchars {
         return (b >= 'A' && b <= 'Z') || b == Z_BIGFIELD_HEX || b == Z_BIGFIELD_QUOTED;
     }
 
+    public static boolean isAllowableKey(byte b) {
+        // disallow hex, non-printing and top-bit-set keys
+        return b >= 0x20 && parseHex(b) == PARSE_NOT_HEX_0X10;
+    }
+
     static final int PARSE_NOT_HEX_0X10 = 0x10;
 
     public static byte parseHex(byte b) {

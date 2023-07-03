@@ -68,7 +68,27 @@ class ZcodeTokenizerTest {
                 Arguments.of("Key with explicit zero", "A0", "tA--m" + END),
                 Arguments.of("Key 1-nibble value with leading zero", "A0a\n", "tA--nam" + END),
                 Arguments.of("Key 2-nibble value with leading zero", "A0ab\n", "tA--nanbm" + END),
-                Arguments.of("Key 3-nibble value with leading zero", "A0abc\n", "tA--nanbncm" + END));
+                Arguments.of("Key 3-nibble value with leading zero", "A0abc\n", "tA--nanbncm" + END),
+                Arguments.of("Illegal low-value key check", "A5\f1\n", "tAn5f" + (char) ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN + "----"));
+    }
+
+    @ParameterizedTest(name = "{0}: {1}")
+    @MethodSource
+    public void shouldRejectInvalidKeys(String desc, String zcode, String bufferActions) {
+        when(writer.isTokenComplete()).thenReturn(true, false, true, false, true);
+        validateZcodeActions(zcode, bufferActions);
+    }
+
+    private static Stream<Arguments> shouldRejectInvalidKeys() {
+        // Note, all these go bad-key,value or key,value,bad-key or key,value,"",bad-key ... to fit with the test's isTokenComplete setup
+        return Stream.of(
+                Arguments.of("Illegal low-value key check", "A5\f1\n", "tAn5f" + (char) ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN + "----"),
+                Arguments.of("Illegal high-value key check x80", "A5\u0080a\n", "tAn5f" + (char) ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN + "------"),
+                Arguments.of("Illegal high-value key check xf0", "A5\u00f0a\n", "tAn5f" + (char) ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN + "------"),
+                Arguments.of("Illegal hex key check 'a'", "A5\"\"a\n", "tAn5s\"--f" + (char) ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN + "------"),
+                Arguments.of("Illegal hex key check 'f'", "A5\"\"f\n", "tAn5s\"--f" + (char) ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN + "------"),
+                Arguments.of("Illegal hex key check '7'", "A5\"\"7\n", "tAn5s\"--f" + (char) ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN + "------"),
+                Arguments.of("Illegal hex key check '7' at start", "7\n", "f" + (char) ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN + "------"));
     }
 
     @ParameterizedTest(name = "{0}: {1}")
@@ -89,8 +109,6 @@ class ZcodeTokenizerTest {
     public void shouldHandleBigFields(String desc, String zcode, String bufferActions) {
         validateZcodeActions(zcode, bufferActions);
     }
-
-    // validateZcodeActions("\"a\nA\n", "s\"baf" + (char) ZcodeTokenizer.ERROR_CODE_STRING_NOT_TERMINATED + "tAm" + END + "--");
 
     private static Stream<Arguments> shouldHandleBigFields() {
         return Stream.of(

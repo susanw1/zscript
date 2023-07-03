@@ -48,6 +48,7 @@ public class ZcodeTokenizer {
     public static final byte ERROR_CODE_FIELD_TOO_LONG        = (byte) 0xf3;
     public static final byte ERROR_CODE_STRING_NOT_TERMINATED = (byte) 0xf4;
     public static final byte ERROR_CODE_STRING_ESCAPING       = (byte) 0xf5;
+    public static final byte ERROR_CODE_ILLEGAL_TOKEN         = (byte) 0xf6;
 
     public static final byte CMD_END_ANDTHEN = (byte) 0xe1;
     public static final byte CMD_END_ORELSE  = (byte) 0xe2;
@@ -260,6 +261,12 @@ public class ZcodeTokenizer {
 
         if (b == Zchars.Z_ADDRESSING) {
             addressing = true;
+        }
+
+        if (!Zchars.isAllowableKey(b)) {
+            writer.fail(ERROR_CODE_ILLEGAL_TOKEN);
+            tokenizerError = true;
+            return;
         }
 
         numeric = !Zchars.isNonNumerical(b);

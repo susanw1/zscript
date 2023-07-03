@@ -43,9 +43,6 @@ public interface ZcodeTokenBuffer {
 
         boolean isInNibble();
 
-        // do we need this?
-        int getCurrentWriteTokenNibbleLength();
-
         boolean checkAvailableCapacity(int size);
     }
 

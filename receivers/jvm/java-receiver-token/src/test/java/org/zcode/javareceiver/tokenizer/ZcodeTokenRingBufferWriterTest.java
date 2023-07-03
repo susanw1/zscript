@@ -7,7 +7,7 @@ import static org.zcode.javareceiver.tokenizer.ZcodeTokenizer.ERROR_BUFFER_OVERR
 import org.junit.jupiter.api.Test;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenWriter;
 
-class ZcodeTokenRingBufferTest {
+class ZcodeTokenRingBufferWriterTest {
 
     private static final int BUFSIZE = 10;
 
@@ -23,13 +23,12 @@ class ZcodeTokenRingBufferTest {
         assertThat(writer.checkAvailableCapacity(availableWrite + 1)).as("AvailableWrite+1").isFalse();
     }
 
-    private void verifyBufferState(boolean tokenComplete, int availableWrite, int currentTokenKey, boolean inNibble, int tokenLength, int nibbleLength) {
+    private void verifyBufferState(boolean tokenComplete, int availableWrite, int currentTokenKey, boolean inNibble, int tokenLength) {
         verifyBufferState(tokenComplete, availableWrite);
         if (!writer.isTokenComplete()) {
             assertThat(writer.getCurrentWriteTokenKey()).as("CurrentWriteTokenKey").isEqualTo((byte) currentTokenKey);
             assertThat(writer.isInNibble()).as("InNibble").isEqualTo(inNibble);
             assertThat(writer.getCurrentWriteTokenLength()).as("CurrentWriteTokenLength").isEqualTo(tokenLength);
-            assertThat(writer.getCurrentWriteTokenNibbleLength()).as("CurrentWriteTokenNibbleLength").isEqualTo(nibbleLength);
         }
     }
 
@@ -38,7 +37,7 @@ class ZcodeTokenRingBufferTest {
         writer.startToken((byte) 'A', true);
         assertThat(buffer.getInternalData()).startsWith('A', 0, 0);
 
-        verifyBufferState(false, 7, 'A', false, 0, 0);
+        verifyBufferState(false, 7, 'A', false, 0);
         writer.endToken();
         verifyBufferState(true, 7);
     }
@@ -48,7 +47,7 @@ class ZcodeTokenRingBufferTest {
         writer.startToken((byte) 'A', true);
         writer.continueTokenNibble((byte) 5);
 
-        verifyBufferState(false, 7, 'A', true, 1, 1);
+        verifyBufferState(false, 7, 'A', true, 1);
         writer.endToken();
         assertThat(buffer.getInternalData()).startsWith('A', 1, 5, 0);
         verifyBufferState(true, 6);
@@ -58,14 +57,14 @@ class ZcodeTokenRingBufferTest {
     void shouldTokenizeNumericFieldWithByteValue() {
         insertNumericToken('A', (byte) 234);
         assertThat(buffer.getInternalData()).startsWith('A', 1, (byte) 234, 0);
-        verifyBufferState(false, 6, 'A', false, 1, 2);
+        verifyBufferState(false, 6, 'A', false, 1);
     }
 
     @Test
     void shouldTokenizeNumericFieldWith2ByteValue() {
         insertNumericToken('A', (byte) 234, (byte) 123);
         assertThat(buffer.getInternalData()).startsWith('A', 2, 234, 123, 0);
-        verifyBufferState(false, 5, 'A', false, 2, 4);
+        verifyBufferState(false, 5, 'A', false, 2);
     }
 
     @Test
@@ -95,7 +94,7 @@ class ZcodeTokenRingBufferTest {
             writer.startToken((byte) 'A', true);
             writer.continueTokenNibble((byte) 3);
             writer.continueTokenByte((byte) 123);
-            verifyBufferState(false, 6, 'A', true, 1, 1);
+            verifyBufferState(false, 6, 'A', true, 1);
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessage("Incomplete nibble");
 
@@ -112,7 +111,7 @@ class ZcodeTokenRingBufferTest {
     @Test
     void shouldTokenizeNumericFieldWith3NibbleValue() {
         insertNumericTokenNibbles('A', (byte) 5, (byte) 0xd, (byte) 0xa);
-        verifyBufferState(false, 6, 'A', true, 2, 3);
+        verifyBufferState(false, 6, 'A', true, 2);
         writer.endToken();
         assertThat(buffer.getInternalData()).startsWith('A', 2, 0x5, 0xda, 0);
     }
@@ -120,7 +119,7 @@ class ZcodeTokenRingBufferTest {
     @Test
     void shouldTokenizeNumericFieldWith4NibbleValue() {
         insertNumericTokenNibbles('A', (byte) 5, (byte) 0xd, (byte) 0xa, (byte) 0x3);
-        verifyBufferState(false, 5, 'A', false, 2, 4);
+        verifyBufferState(false, 5, 'A', false, 2);
         writer.endToken();
         assertThat(buffer.getInternalData()).startsWith('A', 2, 0x5d, 0xa3, 0);
     }
@@ -128,7 +127,7 @@ class ZcodeTokenRingBufferTest {
     @Test
     void shouldTokenizeNumericField5NibbleValue() {
         insertNumericTokenNibbles('A', (byte) 5, (byte) 0xd, (byte) 0xa, (byte) 0x3, (byte) 0xe);
-        verifyBufferState(false, 5, 'A', true, 3, 5);
+        verifyBufferState(false, 5, 'A', true, 3);
         writer.endToken();
         assertThat(buffer.getInternalData()).startsWith('A', 3, 0x5, 0xda, 0x3e, 0);
     }
@@ -138,7 +137,7 @@ class ZcodeTokenRingBufferTest {
         writer.startToken((byte) 'A', true);
         writer.endToken();
         writer.startToken((byte) 'B', true);
-        verifyBufferState(false, 5, 'B', false, 0, 0);
+        verifyBufferState(false, 5, 'B', false, 0);
         writer.endToken();
         assertThat(buffer.getInternalData()).startsWith('A', 0, 'B', 0, 0);
         verifyBufferState(true, 5);
@@ -158,7 +157,7 @@ class ZcodeTokenRingBufferTest {
     @Test
     void shouldTokenizeNonNumericField() {
         writer.startToken((byte) '+', false);
-        verifyBufferState(false, 7, '+', false, 0, 0);
+        verifyBufferState(false, 7, '+', false, 0);
         writer.endToken();
         assertThat(buffer.getInternalData()).startsWith('+', 0, 0);
         verifyBufferState(true, 7);
@@ -185,7 +184,7 @@ class ZcodeTokenRingBufferTest {
     @Test
     void shouldTokenizeMixedFieldsWithOddNibbleValues() {
         insertNumericTokenNibbles('A', (byte) 5, (byte) 0xa, (byte) 0xb);
-        verifyBufferState(false, 6, 'A', true, 2, 3);
+        verifyBufferState(false, 6, 'A', true, 2);
         writer.endToken();
         writer.startToken((byte) '+', false);
         writer.endToken();
@@ -267,6 +266,6 @@ class ZcodeTokenRingBufferTest {
 
         // check first few... only works if this was the first thing in the buffer! Remove these checks soon...
         assertThat(buffer.getInternalData()).startsWith('+', count, (byte) 0xa0, (byte) 0xa1);
-        verifyBufferState(false, BUFSIZE - 3 - count, '+', false, count, count * 2);
+        verifyBufferState(false, BUFSIZE - 3 - count, '+', false, count);
     }
 }

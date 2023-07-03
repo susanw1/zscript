@@ -188,14 +188,6 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         }
 
         @Override
-        public int getCurrentWriteTokenNibbleLength() {
-            if (isTokenComplete()) {
-                throw new IllegalStateException("token isn't being written");
-            }
-            return Byte.toUnsignedInt(data[writeStart + 1]) * 2 - (inNibble ? 1 : 0);
-        }
-
-        @Override
         public boolean isTokenComplete() {
             return writeStart == writeCursor;
         }
@@ -212,6 +204,9 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
         }
 
         private void writeNewTokenStart(final byte key) {
+            if (ZcodeTokenBuffer.isMarker(key)) {
+                throw new IllegalArgumentException("invalid token [key=0x" + Integer.toHexString(key) + "]");
+            }
             data[writeCursor] = key;
             moveCursor();
             data[writeCursor] = 0;
