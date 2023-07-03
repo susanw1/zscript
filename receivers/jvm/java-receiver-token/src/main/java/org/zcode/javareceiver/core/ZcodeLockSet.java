@@ -1,14 +1,24 @@
 package org.zcode.javareceiver.core;
 
-import org.zcode.javareceiver.tokenizer.Zchars;
-import org.zcode.javareceiver.tokenizer.ZcodeTokenDataIterator;
+import java.util.Iterator;
+
+import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 
 public class ZcodeLockSet {
 
-    public void set(ZcodeTokenDataIterator data) {
-        if (data.getKey() != Zchars.Z_LOCKS) {
-            throw new IllegalArgumentException("Zcode Locks must be parsed from a lock token");
-        }
+    public static ZcodeLockSet from(ReadToken first) {
+        return new ZcodeLockSet();
+    }
+
+    public static ZcodeLockSet allLocked() {
+        return new ZcodeLockSet();
+    }
+
+    private ZcodeLockSet() {
+        // TODO Auto-generated constructor stub
+    }
+
+    public void set(Iterator<Byte> data) {
     }
 
     public void setAll() {
