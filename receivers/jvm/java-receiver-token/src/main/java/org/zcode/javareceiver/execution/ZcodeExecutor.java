@@ -7,9 +7,12 @@ import org.zcode.javareceiver.core.ZcodeChannel;
 import org.zcode.javareceiver.semanticParser.ZcodeAction;
 
 public class ZcodeExecutor {
+    private final List<ZcodeChannel> channels  = new ArrayList<>();
+    private final ZcodeScheduler     scheduler = new ZcodeScheduler();
 
-    List<ZcodeChannel> channels  = new ArrayList<>();
-    ZcodeScheduler     scheduler = new ZcodeScheduler();
+    public void addChannel(ZcodeChannel channel) {
+        channels.add(channel);
+    }
 
     public void progress() {
         List<ZcodeAction> possibleActions = new ArrayList<>();

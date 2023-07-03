@@ -1,33 +1,31 @@
 package org.zcode.javareceiver.core;
 
-public class ZcodeOutStream {
+public interface ZcodeOutStream {
 
-    public void writeStatus(byte code) {
+    void open();
 
-    }
+    void endSequence();
 
-    public void open() {
-        // TODO Auto-generated method stub
+    void close();
 
-    }
+    boolean isOpen();
 
-    public void endSequence() {
-        // TODO Auto-generated method stub
+    void silentSucceed();
 
-    }
+    void writeString(String string);
 
-    public void close() {
-        // TODO Auto-generated method stub
+    void startField(byte key);
 
-    }
+    void continueField(byte next);
 
-    public void writeField(char field, int value) {
-        // TODO Auto-generated method stub
-    }
+    void writeField(byte field, int value);
 
-    public boolean isOpen() {
-        // TODO Auto-generated method stub
-        return false;
-    }
+    void writeField(char field, int value);
+
+    void writeByte(byte c);
+
+    void writeOrElse();
+
+    void writeAndThen();
 
 }

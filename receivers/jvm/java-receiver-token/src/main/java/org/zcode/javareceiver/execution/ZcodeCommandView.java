@@ -1,5 +1,6 @@
 package org.zcode.javareceiver.execution;
 
+import java.util.BitSet;
 import java.util.Optional;
 
 import org.zcode.javareceiver.core.ZcodeOutStream;
@@ -18,6 +19,10 @@ public class ZcodeCommandView {
         this.out = out;
     }
 
+    public ZcodeOutStream getOutStream() {
+        return out;
+    }
+
     public OptIterator<ReadToken> iterator() {
         return new OptIterator<ZcodeTokenBuffer.TokenReader.ReadToken>() {
             OptIterator<ReadToken> internal = parser.getReader().iterator();
@@ -30,39 +35,74 @@ public class ZcodeCommandView {
         };
     }
 
-    public void execute() {
-        // TODO: implement
-    }
-
-    public void moveAlong() {
-        // TODO: write
-    }
-
     public boolean verify() {
-        OptIterator<ReadToken> iter = iterator();
+        OptIterator<ReadToken> iter      = iterator();
+        BitSet                 foundCmds = new BitSet(26);
         for (Optional<ReadToken> opt = iter.next(); opt.isPresent(); opt = iter.next()) {
             ReadToken rt  = opt.get();
             byte      key = rt.getKey();
             if ('A' <= key && key <= 'Z') {
+                if (foundCmds.get(key - 'A')) {
+                    setComplete();
+                    error(ZcodeStatus.TOKEN_ERROR);
+                    return false;
+                }
+                foundCmds.set(key - 'A');
                 if (rt.getDataSize() > 2) {
-                    fail();
+                    setComplete();
+                    error(ZcodeStatus.TOKEN_ERROR);
                     return false;
                 }
             } else if (key != '"' && key != '+') {
-                fail();
+                setComplete();
+                error(ZcodeStatus.TOKEN_ERROR);
                 return false;
             }
         }
         return true;
     }
 
-    private void fail() {
+    private void error(byte status) {
         if (!out.isOpen()) {
             out.open();
         }
-        out.writeStatus(ZcodeStatus.TOKEN_FORMAT_ERROR);
+        out.writeField('S', status);
         out.endSequence();
         out.close();
-        parser.fail();
+        parser.error();
     }
+
+    public void fail(byte status) {
+        if (status < 0x10) {
+            parser.error();
+        } else {
+            parser.softFail();
+        }
+        out.writeField('S', status);
+    }
+
+    public void setComplete() {
+        parser.setComplete(true);
+    }
+
+    public void clearComplete() {
+        parser.setComplete(false);
+    }
+
+    public boolean isActivated() {
+        return parser.isActivated();
+    }
+
+    public boolean isEmpty() {
+        return parser.getReader().getFirstReadToken().isMarker();
+    }
+
+    public void activate() {
+        parser.activate();
+    }
+
+    public boolean isComplete() {
+        return parser.isComplete();
+    }
+
 }

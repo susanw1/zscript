@@ -29,6 +29,8 @@ public class SemanticParser {
     private byte    nextMarker     = 0;
     private boolean haveNextMarker = false;
 
+    private byte prevMarker = 0;
+
     private byte    seqEndMarker     = 0;
     private boolean haveSeqEndMarker = false;
 
@@ -39,7 +41,7 @@ public class SemanticParser {
     private boolean complete     = false;
     private boolean started      = false;
     private boolean needsAction  = false;
-    private boolean firstCommand = false;
+    private boolean firstCommand = true;
 
     private boolean isFailed          = false;
     private boolean isSkippingHandler = false;
@@ -49,6 +51,9 @@ public class SemanticParser {
 
     private boolean skipToNL      = false;
     private boolean needSendError = false;
+    private boolean needEndSeq    = false;
+
+    private boolean activated = false;
 
     public SemanticParser(TokenReader reader) {
         this.reader = reader;
@@ -58,8 +63,11 @@ public class SemanticParser {
         if (needSendError) {
             return ZcodeAction.error(this, error);
         }
+
         if (complete) {
             complete = false;
+            started = false;
+            skipToMarker();
             if (isAddressing) {
                 reader.flushFirstReadToken();
                 resetToSequence();
@@ -68,7 +76,11 @@ public class SemanticParser {
                 reader.flushFirstReadToken();
                 flowControl(marker);
             }
+            prevMarker = nextMarker;
             findNextMarker();
+        }
+        if (needEndSeq) {
+            return ZcodeAction.endSequence(this);
         }
         dealWithFlags();
         if (!haveNextMarker) {
@@ -117,10 +129,10 @@ public class SemanticParser {
                 return ZcodeAction.firstCommand(this);
             } else {
                 if (isSkippingHandler || isFailed) {
-                    skipToMarker();
+                    complete = true;
                     return ZcodeAction.noAction(this);
                 } else {
-                    return ZcodeAction.runCommand(this);
+                    return ZcodeAction.runCommand(this, prevMarker);
                 }
             }
         }
@@ -129,6 +141,7 @@ public class SemanticParser {
     private void flowControl(byte marker) {
         if (ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
             resetToSequence();
+            needEndSeq = true;
         } else {
             if (marker == ZcodeTokenizer.CMD_END_ORELSE) {
                 if (isFailed) {
@@ -141,7 +154,7 @@ public class SemanticParser {
     }
 
     private void dealWithFlags() {
-        ZcodeTokenBufferFlags flags = new ZcodeTokenBufferFlags(); // TODO: get this properly
+        ZcodeTokenBufferFlags flags = reader.getFlags();
         if (flags.isMarkerWritten()) {
             flags.clearMarkerWritten();
             if (!haveNextMarker) {
@@ -254,6 +267,7 @@ public class SemanticParser {
 
     private void resetToSequence() {
         locks = ZcodeLockSet.allLocked();
+        prevMarker = 0;
         hasLocks = false;
         hasEcho = false;
         atSeqStart = true;
@@ -269,6 +283,10 @@ public class SemanticParser {
         skipToNL = false;
         needSendError = false;
         findSeqEndMarker();
+    }
+
+    public void setStarted() {
+        this.started = true;
     }
 
     public byte getSeqEndMarker() {
@@ -291,12 +309,41 @@ public class SemanticParser {
         return echo;
     }
 
-    public void fail() {
+    public void error() {
         skipToNL = true;
         error = OTHER_ERROR;
     }
 
-    public void setComplete() {
-        complete = true;
+    public void setComplete(boolean b) {
+        complete = b;
     }
+
+    public void softFail() {
+        isFailed = true;
+    }
+
+    public boolean isActivated() {
+        return activated;
+    }
+
+    public void activate() {
+        activated = true;
+    }
+
+    public void clearFirstCommand() {
+        firstCommand = false;
+    }
+
+    public void errorSent() {
+        needSendError = false;
+    }
+
+    public void seqEndSent() {
+        needEndSeq = false;
+    }
+
+    public boolean isComplete() {
+        return complete;
+    }
+
 }
