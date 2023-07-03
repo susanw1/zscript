@@ -10,7 +10,6 @@ import org.zcode.javareceiver.semanticParser.SemanticParser;
 import org.zcode.javareceiver.tokenizer.BlockIterator;
 import org.zcode.javareceiver.tokenizer.OptIterator;
 import org.zcode.javareceiver.tokenizer.Zchars;
-import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 
 public class ZcodeCommandView {
@@ -66,8 +65,7 @@ public class ZcodeCommandView {
 
         OptIterator<ReadToken> it = iterator();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
-            ReadToken token = opt.get();
-            if ('A' <= token.getKey() && token.getKey() <= 'Z') {
+            if (Zchars.isNumericKey(opt.get().getKey())) {
                 count++;
             }
         }
@@ -87,7 +85,7 @@ public class ZcodeCommandView {
                 }
                 for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
                     ReadToken token = opt.get();
-                    if (token.getKey() == Zchars.Z_BIGFIELD_HEX || token.getKey() == Zchars.Z_BIGFIELD_QUOTED) {
+                    if (Zchars.isBigField(token.getKey())) {
                         internal = token.blockIterator();
                         if (internal.hasNext()) {
                             return true;
@@ -129,7 +127,7 @@ public class ZcodeCommandView {
         OptIterator<ReadToken> it = iterator();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             ReadToken token = opt.get();
-            if (token.getKey() == Zchars.Z_BIGFIELD_HEX || token.getKey() == Zchars.Z_BIGFIELD_QUOTED) {
+            if (Zchars.isBigField(token.getKey())) {
                 size += token.getDataSize();
             }
         }
@@ -153,7 +151,7 @@ public class ZcodeCommandView {
     }
 
     public OptIterator<ReadToken> iterator() {
-        return new OptIterator<ZcodeTokenBuffer.TokenReader.ReadToken>() {
+        return new OptIterator<ReadToken>() {
             OptIterator<ReadToken> internal = parser.getReader().iterator();
 
             @Override

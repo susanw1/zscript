@@ -3,7 +3,7 @@ package org.zcode.javareceiver.tokenizer;
 public class ZcodeTokenBufferFlags {
     private boolean markerWritten    = false;
     private boolean seqMarkerWritten = false;
-    private boolean readerBlocked    = true; // TODO: Is a terrible name
+    private boolean readerBlocked    = true;
 
     public void setMarkerWritten() {
         this.markerWritten = true;
@@ -11,6 +11,10 @@ public class ZcodeTokenBufferFlags {
 
     public void setSeqMarkerWritten() {
         this.seqMarkerWritten = true;
+    }
+
+    public boolean isReaderBlocked() {
+        return readerBlocked;
     }
 
     public void clearReaderBlocked() {
@@ -35,10 +39,6 @@ public class ZcodeTokenBufferFlags {
 
     public boolean isSeqMarkerWritten() {
         return seqMarkerWritten;
-    }
-
-    public boolean isReaderBlocked() {
-        return readerBlocked;
     }
 
 }

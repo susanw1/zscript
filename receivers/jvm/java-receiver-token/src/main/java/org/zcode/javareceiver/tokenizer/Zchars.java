@@ -24,8 +24,16 @@ public class Zchars {
         return b == Z_LOCKS || b == Z_BIGFIELD_HEX || b == Z_COMMENT || b == Z_BIGFIELD_QUOTED;
     }
 
+    public static boolean isBigField(byte b) {
+        return b == Z_BIGFIELD_HEX || b == Z_BIGFIELD_QUOTED;
+    }
+
+    public static boolean isNumericKey(byte b) {
+        return (b >= 'A' && b <= 'Z');
+    }
+
     public static boolean isCommandKey(byte b) {
-        return (b >= 'A' && b <= 'Z') || b == Z_BIGFIELD_HEX || b == Z_BIGFIELD_QUOTED;
+        return isNumericKey(b) || isBigField(b);
     }
 
     public static boolean isAllowableKey(byte b) {

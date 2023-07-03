@@ -187,6 +187,14 @@ public class SemanticParser {
         if (token.isPresent()) {
             nextMarker = token.get().getKey();
             haveNextMarker = true;
+
+            if (ZcodeTokenBuffer.isSequenceEndMarker(nextMarker)) {
+                seqEndMarker = nextMarker;
+                haveSeqEndMarker = true;
+                if (nextMarker != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
+                    error = MARKER_ERROR;
+                }
+            }
         } else {
             haveNextMarker = false;
         }
@@ -200,10 +208,10 @@ public class SemanticParser {
         }
         if (token.isPresent()) {
             seqEndMarker = token.get().getKey();
+            haveSeqEndMarker = true;
             if (token.get().getKey() != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
                 error = MARKER_ERROR;
             }
-            haveSeqEndMarker = true;
         } else {
             haveSeqEndMarker = false;
         }

@@ -431,6 +431,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 }
                 long value = 0;
                 for (int i = 0; i < getSegmentDataSize(); i++) {
+                    // Check before we left shift. Avoids overflowing data type.
                     if (value > 0xFFFFFF) {
                         throw new IllegalStateException("More than 32 bits of data");
                     }
@@ -447,6 +448,7 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
                 }
                 int value = 0;
                 for (int i = 0; i < getSegmentDataSize(); i++) {
+                    // Check before we left shift. Avoids overflowing data type.
                     if (value > 0xFF) {
                         throw new IllegalStateException("More than 16 bits of data");
                     }
