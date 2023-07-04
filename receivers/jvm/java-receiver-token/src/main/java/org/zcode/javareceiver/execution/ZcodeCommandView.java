@@ -150,7 +150,7 @@ public class ZcodeCommandView {
         return statusGiven;
     }
 
-    public OptIterator<ReadToken> iterator() {
+    private OptIterator<ReadToken> iterator() {
         return new OptIterator<ReadToken>() {
             OptIterator<ReadToken> internal = parser.getReader().iterator();
 
@@ -159,6 +159,17 @@ public class ZcodeCommandView {
                 return internal.next().filter(t -> !t.isMarker());
             }
 
+        };
+    }
+
+    public OptIterator<ZcodeField> fieldIterator() {
+        return new OptIterator<ZcodeField>() {
+            OptIterator<ReadToken> iter = iterator();
+
+            @Override
+            public Optional<ZcodeField> next() {
+                return iter.next().map(r -> new ZcodeField(r));
+            }
         };
     }
 

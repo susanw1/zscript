@@ -1,5 +1,7 @@
 package org.zcode.javareceiver.core;
 
+import org.zcode.javareceiver.execution.ZcodeField;
+
 public interface ZcodeOutStream {
 
     void open();
@@ -19,6 +21,8 @@ public interface ZcodeOutStream {
     void continueField(byte next);
 
     void writeField(byte field, int value);
+
+    void writeField(ZcodeField field);
 
     void writeField(char field, int value);
 

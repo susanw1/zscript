@@ -2,6 +2,9 @@ package org.zcode.javareceiver.core;
 
 import java.nio.charset.StandardCharsets;
 
+import org.zcode.javareceiver.execution.ZcodeField;
+import org.zcode.javareceiver.tokenizer.Zchars;
+
 public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
 
     @Override
@@ -44,6 +47,26 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
     @Override
     public void writeField(char field, int value) {
         writeField((byte) field, value);
+    }
+
+    @Override
+    public void writeField(ZcodeField field) {
+        if (field.isBigField()) {
+            if (field.getKey() == Zchars.Z_BIGFIELD_QUOTED) {
+                writeByte((byte) '"');
+                for (byte b : field) {
+                    writeByte(b);
+                }
+                writeByte((byte) '"');
+            } else {
+                writeByte((byte) '+');
+                for (byte b : field) {
+                    writeHex(b);
+                }
+            }
+        } else {
+            writeField(field.getKey(), field.getValue());
+        }
     }
 
     @Override
