@@ -5,23 +5,31 @@ import java.util.Iterator;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 
 public class ZcodeLockSet {
+    private final byte[] locks;
 
     public static ZcodeLockSet from(ReadToken first) {
-        return new ZcodeLockSet();
+        byte[] locks = new byte[first.getDataSize()];
+
+        int i = 0;
+        for (Iterator<Byte> iterator = first.blockIterator(); iterator.hasNext();) {
+            locks[i++] = iterator.next();
+        }
+        return new ZcodeLockSet(locks);
     }
 
     public static ZcodeLockSet allLocked() {
-        return new ZcodeLockSet();
+        byte[] locks = new byte[ZcodeLocks.LOCK_COUNT];
+        for (int i = 0; i < locks.length; i++) {
+            locks[i] = (byte) 0xFF;
+        }
+        return new ZcodeLockSet(locks);
     }
 
-    private ZcodeLockSet() {
-        // TODO Auto-generated constructor stub
+    private ZcodeLockSet(byte[] locks) {
+        this.locks = locks;
     }
 
-    public void set(Iterator<Byte> data) {
-    }
-
-    public void setAll() {
-
+    byte[] getLocks() {
+        return locks;
     }
 }

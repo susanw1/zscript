@@ -1,6 +1,4 @@
-package org.zcode.javareceiver.addressing;
-
-import org.zcode.javareceiver.execution.ZcodeAddressingView;
+package org.zcode.javareceiver.execution;
 
 public class ZcodeAddressingSystem {
 

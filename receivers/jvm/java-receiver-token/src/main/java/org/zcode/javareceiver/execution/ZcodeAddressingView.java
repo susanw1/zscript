@@ -12,16 +12,6 @@ public class ZcodeAddressingView {
         this.out = out;
     }
 
-    public void execute() {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void moveAlong() {
-        // TODO Auto-generated method stub
-
-    }
-
     public boolean verify() {
         // TODO Auto-generated method stub
         return false;

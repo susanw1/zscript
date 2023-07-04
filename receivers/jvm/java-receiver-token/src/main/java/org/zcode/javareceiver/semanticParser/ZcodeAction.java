@@ -1,9 +1,9 @@
 package org.zcode.javareceiver.semanticParser;
 
-import org.zcode.javareceiver.addressing.ZcodeAddressingSystem;
-import org.zcode.javareceiver.core.ZcodeLockSet;
+import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
+import org.zcode.javareceiver.execution.ZcodeAddressingSystem;
 import org.zcode.javareceiver.execution.ZcodeAddressingView;
 import org.zcode.javareceiver.execution.ZcodeCommandView;
 import org.zcode.javareceiver.modules.ZcodeCommandFinder;
@@ -67,11 +67,7 @@ public class ZcodeAction {
         return type != ActionType.NO_ACTION;
     }
 
-    public ZcodeLockSet getLocks() {
-        return parser.getLocks();
-    }
-
-    public void performAction(ZcodeOutStream out) {
+    public void performAction(Zcode z, ZcodeOutStream out) {
         switch (type) {
         case ERROR:
             sendError(out);
@@ -120,6 +116,8 @@ public class ZcodeAction {
         case END_SEQUENCE:
             parser.seqEndSent();
             out.endSequence();
+            z.unlock(parser.getLocks());
+            parser.setLocked(false);
         case NO_ACTION:
             break;
         }
@@ -155,5 +153,22 @@ public class ZcodeAction {
     @Override
     public String toString() {
         return type.name();
+    }
+
+    public boolean canLock(Zcode z) {
+        return parser.isLocked() || z.canLock(parser.getLocks());
+    }
+
+    public boolean isLocked() {
+        return parser.isLocked();
+    }
+
+    public boolean lock(Zcode zcode) {
+        if (parser.isLocked()) {
+            return true;
+        }
+        boolean l = zcode.lock(parser.getLocks());
+        parser.setLocked(l);
+        return l;
     }
 }

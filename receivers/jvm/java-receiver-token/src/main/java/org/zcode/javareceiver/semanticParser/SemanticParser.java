@@ -23,9 +23,9 @@ public class SemanticParser {
 
     private final TokenReader reader;
 
-    private ZcodeLockSet locks    = null;
+    private ZcodeLockSet locks    = ZcodeLockSet.allLocked();
     private boolean      hasLocks = false;
-    private int          echo     = 0;    // 16 bit
+    private int          echo     = 0;                       // 16 bit
     private boolean      hasEcho  = false;
 
     private byte    nextMarker     = 0;    // 5 bit really
@@ -56,6 +56,7 @@ public class SemanticParser {
     private boolean needEndSeq    = false;
 
     private boolean activated = false;
+    private boolean locked    = false;
 
     public SemanticParser(TokenReader reader) {
         this.reader = reader;
@@ -386,6 +387,14 @@ public class SemanticParser {
 
     public boolean isComplete() {
         return complete;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public boolean isLocked() {
+        return locked;
     }
 
 }
