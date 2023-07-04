@@ -28,12 +28,12 @@ public class SemanticParser {
     private int          echo     = 0;    // 16 bit
     private boolean      hasEcho  = false;
 
-    private byte    nextMarker     = 0;
+    private byte    nextMarker     = 0;    // 5 bit really
     private boolean haveNextMarker = false;
 
-    private byte prevMarker = 0;
+    private byte prevMarker = 0; // 5 bit really
 
-    private byte    seqEndMarker     = 0;
+    private byte    seqEndMarker     = 0;    // 4 bits really
     private boolean haveSeqEndMarker = false;
 
     private boolean atSeqStart = true;
@@ -47,9 +47,9 @@ public class SemanticParser {
 
     private boolean isFailed          = false;
     private boolean isSkippingHandler = false;
-    private byte    bracketCounter    = 0;
+    private int     parenCounter      = 0;
 
-    private byte error = NO_ERROR;
+    private byte error = NO_ERROR; // 3 bit really
 
     private boolean skipToNL      = false;
     private boolean needSendError = false;
@@ -149,9 +149,30 @@ public class SemanticParser {
         } else {
             if (marker == ZcodeTokenizer.CMD_END_ORELSE) {
                 if (isFailed) {
-                    isFailed = false;
+                    if (parenCounter == 0) {
+                        isFailed = false;
+                    }
                 } else {
                     isSkippingHandler = true;
+                    parenCounter = 0;
+                }
+            } else if (marker == ZcodeTokenizer.CMD_END_OPEN_PAREN) {
+                if (isFailed || isSkippingHandler) {
+                    parenCounter++;
+                }
+            } else if (marker == ZcodeTokenizer.CMD_END_CLOSE_PAREN) {
+                if (isFailed) {
+                    if (parenCounter != 0) {
+                        parenCounter--;
+                    } else {
+                        // TODO: We might want to print the ')', as that matches up the open/close parens.
+                    }
+                } else if (isSkippingHandler) {
+                    if (parenCounter == 0) {
+                        isSkippingHandler = false;
+                    } else {
+                        parenCounter--;
+                    }
                 }
             }
         }
@@ -299,7 +320,7 @@ public class SemanticParser {
         firstCommand = true;
         isFailed = false;
         isSkippingHandler = false;
-        bracketCounter = 0;
+        parenCounter = 0;
         skipToNL = false;
         findSeqEndMarker();
     }
@@ -339,6 +360,7 @@ public class SemanticParser {
 
     public void softFail() {
         isFailed = true;
+        parenCounter = 0;
     }
 
     public boolean isActivated() {

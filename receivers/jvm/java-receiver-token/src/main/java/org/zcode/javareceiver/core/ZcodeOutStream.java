@@ -34,4 +34,8 @@ public interface ZcodeOutStream {
 
     void writeAndThen();
 
+    void writeOpenParen();
+
+    void writeCloseParen();
+
 }

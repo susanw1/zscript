@@ -4,6 +4,8 @@ public class Zchars {
     public static final byte Z_NEWLINE             = '\n';
     public static final byte Z_ANDTHEN             = '&';
     public static final byte Z_ORELSE              = '|';
+    public static final byte Z_OPENPAREN           = '(';
+    public static final byte Z_CLOSEPAREN          = ')';
     public static final byte Z_LOCKS               = '%';
     public static final byte Z_BIGFIELD_HEX        = '+';
     public static final byte Z_BIGFIELD_QUOTED     = '"';
@@ -17,7 +19,7 @@ public class Zchars {
     }
 
     public static boolean isSeparator(byte b) {
-        return b == Z_NEWLINE || b == Z_ANDTHEN || b == Z_ORELSE;
+        return b == Z_NEWLINE || b == Z_ANDTHEN || b == Z_ORELSE || b == Z_OPENPAREN || b == Z_CLOSEPAREN;
     }
 
     public static boolean isNonNumerical(byte b) {

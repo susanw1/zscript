@@ -50,8 +50,10 @@ public class ZcodeTokenizer {
     public static final byte ERROR_CODE_STRING_ESCAPING       = (byte) 0xf5;
     public static final byte ERROR_CODE_ILLEGAL_TOKEN         = (byte) 0xf6;
 
-    public static final byte CMD_END_ANDTHEN = (byte) 0xe1;
-    public static final byte CMD_END_ORELSE  = (byte) 0xe2;
+    public static final byte CMD_END_ANDTHEN     = (byte) 0xe1;
+    public static final byte CMD_END_ORELSE      = (byte) 0xe2;
+    public static final byte CMD_END_OPEN_PAREN  = (byte) 0xe3;
+    public static final byte CMD_END_CLOSE_PAREN = (byte) 0xe4;
 
     private final static boolean DROP_COMMENTS = false;
 
@@ -255,11 +257,19 @@ public class ZcodeTokenizer {
             case Zchars.Z_ORELSE:
                 marker = CMD_END_ORELSE;
                 break;
+            case Zchars.Z_OPENPAREN:
+                marker = CMD_END_OPEN_PAREN;
+                break;
+            case Zchars.Z_CLOSEPAREN:
+                marker = CMD_END_CLOSE_PAREN;
+                break;
             // more for other constructs? '(', ')'
             }
             if (marker != 0) {
                 writer.writeMarker(marker);
                 return;
+            } else {
+                throw new IllegalStateException("Unknown seperator: " + (char) b);
             }
         }
 

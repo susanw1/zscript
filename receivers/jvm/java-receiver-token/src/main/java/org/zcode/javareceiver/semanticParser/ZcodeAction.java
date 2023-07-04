@@ -99,9 +99,13 @@ public class ZcodeAction {
                     out.writeAndThen();
                 } else if (info == ZcodeTokenizer.CMD_END_ORELSE) {
                     out.writeOrElse();
+                } else if (info == ZcodeTokenizer.CMD_END_OPEN_PAREN) {
+                    out.writeOpenParen();
+                } else if (info == ZcodeTokenizer.CMD_END_CLOSE_PAREN) {
+                    out.writeCloseParen();
                 } else if (info == ZcodeTokenizer.NORMAL_SEQUENCE_END) {
                 } else {
-                    throw new IllegalStateException();
+                    throw new IllegalStateException("Unknown marker");
                 }
             }
             parser.setStarted();

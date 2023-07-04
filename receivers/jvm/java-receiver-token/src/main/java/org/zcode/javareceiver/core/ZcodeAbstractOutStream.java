@@ -110,4 +110,14 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
     public void writeAndThen() {
         writeByte((byte) '&');
     }
+
+    @Override
+    public void writeOpenParen() {
+        writeByte((byte) '(');
+    }
+
+    @Override
+    public void writeCloseParen() {
+        writeByte((byte) ')');
+    }
 }

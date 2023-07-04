@@ -13,7 +13,7 @@ public class Main {
     public static void main(String[] args) {
         ZcodeCommandFinder.addModule(new ZcodeCoreModule());
         ZcodeCommandFinder.addModule(new ZcodeOuterCoreModule());
-        String               code     = "Z2&Z14+0102030405060708090a0b0c0d0e0f10\nZ4\n";
+        String               code     = "(Z1S10)Z1&Z1|Z1)\n";
         ZcodeExecutor        executor = new ZcodeExecutor();
         ZcodeTokenRingBuffer rbuff    = ZcodeTokenRingBuffer.createBufferWithCapacity(100);
         ZcodeTokenizer       in       = new ZcodeTokenizer(rbuff.getTokenWriter(), 2);
