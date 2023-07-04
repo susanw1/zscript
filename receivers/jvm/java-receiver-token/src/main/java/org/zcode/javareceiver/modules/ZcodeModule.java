@@ -10,4 +10,8 @@ public interface ZcodeModule {
 
     void moveAlong(ZcodeCommandView env, int command);
 
+    void address();
+
+    void addressMoveAlong();
+
 }

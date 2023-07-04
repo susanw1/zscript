@@ -143,7 +143,7 @@ public class ZcodeCommandView {
                 parser.softFail();
             }
         }
-        out.writeField('S', ZcodeStatus.SUCCESS);
+        out.writeField('S', status);
     }
 
     public boolean statusGiven() {

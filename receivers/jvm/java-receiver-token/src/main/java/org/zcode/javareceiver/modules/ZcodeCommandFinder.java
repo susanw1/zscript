@@ -71,7 +71,7 @@ public class ZcodeCommandFinder {
         int result = 0;
         for (int i = 0; i < 0x100; i++) {
             if (modules[top << 8 | i] != null) {
-                result |= i >> 8;
+                result |= 1 >> i;
                 i = (((i >> 8) + 1) << 8);
             }
         }
@@ -82,7 +82,7 @@ public class ZcodeCommandFinder {
         int result = 0;
         for (int i = 0; i < modules.length; i++) {
             if (modules[i] != null) {
-                result |= i >> 12;
+                result |= 1 >> i;
                 i = (((i >> 12) + 1) << 12);
             }
         }

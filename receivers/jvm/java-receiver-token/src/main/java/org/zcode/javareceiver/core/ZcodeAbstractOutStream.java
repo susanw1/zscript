@@ -10,7 +10,8 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
     @Override
     public abstract void writeByte(byte b);
 
-    private byte toHex(byte nibble) {
+    private byte toHex(byte n) {
+        int nibble = Byte.toUnsignedInt(n);
         if (nibble < 10) {
             return (byte) (nibble + '0');
         } else {
@@ -19,7 +20,7 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
     }
 
     private void writeHex(byte b) {
-        writeByte(toHex((byte) (b >> 4)));
+        writeByte(toHex((byte) ((b >> 4) & 0xF)));
         writeByte(toHex((byte) (b & 0xF)));
     }
 
@@ -39,7 +40,7 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
             writeHex((byte) (value & 0xFF));
         } else if (value >= (1 << 4)) {
             writeHex((byte) (value & 0xFF));
-        } else if (value >= 0) {
+        } else if (value > 0) {
             writeByte(toHex((byte) (value & 0xF)));
         }
     }

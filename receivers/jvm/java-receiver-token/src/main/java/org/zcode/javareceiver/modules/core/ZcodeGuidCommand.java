@@ -18,6 +18,7 @@ public class ZcodeGuidCommand {
             bb.putLong(uuid.getMostSignificantBits());
             bb.putLong(uuid.getLeastSignificantBits());
             view.getOutStream().writeBig(bb.array());
+
         }
     }
 
@@ -29,9 +30,10 @@ public class ZcodeGuidCommand {
             int    i    = 0;
             for (Iterator<Byte> iterator = view.getBigField(); iterator.hasNext();) {
                 byte b = iterator.next();
-                data[i] = b;
+                data[i++] = b;
             }
-            uuid = UUID.nameUUIDFromBytes(data);
+            ByteBuffer bb = ByteBuffer.wrap(data);
+            uuid = new UUID(bb.getLong(), bb.getLong());
         }
     }
 

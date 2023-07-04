@@ -1,40 +1,29 @@
-package org.zcode.javareceiver.modules.core;
+package org.zcode.javareceiver.modules.outerCore;
 
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeCommandView;
 import org.zcode.javareceiver.modules.ZcodeModule;
+import org.zcode.javareceiver.modules.core.ZcodeGuidCommand;
 
-public class ZcodeCoreModule implements ZcodeModule {
+public class ZcodeOuterCoreModule implements ZcodeModule {
 
     public static int getCommands() {
-        return 0x3007;
+        return 0x0011;
     }
 
     @Override
     public int getModuleID() {
-        return 0;
+        return 1;
     }
 
     @Override
     public void execute(ZcodeCommandView view, int command) {
         switch (command) {
         case 0x0:
-            ZcodeCapabilitiesCommand.execute(view);
-            break;
-        case 0x1:
-            ZcodeEchoCommand.execute(view);
-            break;
-        case 0x2:
-            ZcodeActivateCommand.execute(view);
+            ZcodeExtendedCapabilitiesCommand.execute(view);
             break;
         case 0x4:
-            ZcodeGuidCommand.fetch(view);
-            break;
-        case 0xc:
-            ZcodeRandomCodeCommand.make(view);
-            break;
-        case 0xd:
-            ZcodeRandomCodeCommand.match(view);
+            ZcodeGuidCommand.set(view);
             break;
         default:
             view.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
@@ -54,5 +43,4 @@ public class ZcodeCoreModule implements ZcodeModule {
     public void addressMoveAlong() {
 
     }
-
 }
