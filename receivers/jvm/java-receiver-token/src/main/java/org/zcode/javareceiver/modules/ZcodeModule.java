@@ -1,5 +1,6 @@
 package org.zcode.javareceiver.modules;
 
+import org.zcode.javareceiver.execution.ZcodeAddressingView;
 import org.zcode.javareceiver.execution.ZcodeCommandView;
 
 public interface ZcodeModule {
@@ -10,8 +11,8 @@ public interface ZcodeModule {
 
     void moveAlong(ZcodeCommandView env, int command);
 
-    void address();
+    void address(ZcodeAddressingView view);
 
-    void addressMoveAlong();
+    void addressMoveAlong(ZcodeAddressingView view);
 
 }

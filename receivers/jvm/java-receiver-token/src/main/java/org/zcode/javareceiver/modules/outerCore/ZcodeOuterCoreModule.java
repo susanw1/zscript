@@ -1,6 +1,7 @@
 package org.zcode.javareceiver.modules.outerCore;
 
 import org.zcode.javareceiver.core.ZcodeStatus;
+import org.zcode.javareceiver.execution.ZcodeAddressingView;
 import org.zcode.javareceiver.execution.ZcodeCommandView;
 import org.zcode.javareceiver.modules.ZcodeModule;
 import org.zcode.javareceiver.modules.core.ZcodeGuidCommand;
@@ -35,12 +36,10 @@ public class ZcodeOuterCoreModule implements ZcodeModule {
     }
 
     @Override
-    public void address() {
-
+    public void address(ZcodeAddressingView view) {
     }
 
     @Override
-    public void addressMoveAlong() {
-
+    public void addressMoveAlong(ZcodeAddressingView view) {
     }
 }

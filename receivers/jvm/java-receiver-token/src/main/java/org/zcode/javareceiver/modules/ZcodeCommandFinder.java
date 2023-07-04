@@ -89,4 +89,8 @@ public class ZcodeCommandFinder {
         return result;
     }
 
+    public static ZcodeModule getModule(int addr) {
+        return modules[addr];
+    }
+
 }
