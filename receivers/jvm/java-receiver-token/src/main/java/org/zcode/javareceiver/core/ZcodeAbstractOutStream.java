@@ -83,6 +83,14 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
     }
 
     @Override
+    public void writeBig(byte[] data) {
+        writeByte((byte) '+');
+        for (byte b : data) {
+            writeHex(b);
+        }
+    }
+
+    @Override
     public void startField(byte key) {
         writeByte(key);
     }

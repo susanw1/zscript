@@ -56,4 +56,37 @@ public class ZcodeCommandFinder {
             view.status(ZcodeStatus.SUCCESS);
         }
     }
+
+    public static int getCommandSwitchExistsBottom(int top) {
+        int result = 0;
+        for (int i = 0; i < 0x10; i++) {
+            if (modules[top << 4 | i] != null) {
+                result |= 1 << i;
+            }
+        }
+        return result;
+    }
+
+    public static int getCommandSwitchExistsTop(int top) {
+        int result = 0;
+        for (int i = 0; i < 0x100; i++) {
+            if (modules[top << 8 | i] != null) {
+                result |= i >> 8;
+                i = (((i >> 8) + 1) << 8);
+            }
+        }
+        return result;
+    }
+
+    public static int getCommandSwitchExistsBroad() {
+        int result = 0;
+        for (int i = 0; i < modules.length; i++) {
+            if (modules[i] != null) {
+                result |= i >> 12;
+                i = (((i >> 12) + 1) << 12);
+            }
+        }
+        return result;
+    }
+
 }

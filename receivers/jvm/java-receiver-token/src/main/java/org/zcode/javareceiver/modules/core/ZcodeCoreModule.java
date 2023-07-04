@@ -6,6 +6,10 @@ import org.zcode.javareceiver.modules.ZcodeModule;
 
 public class ZcodeCoreModule implements ZcodeModule {
 
+    public static int getCommands() {
+        return 0x3007;
+    }
+
     @Override
     public int getModuleID() {
         return 0;
@@ -23,11 +27,14 @@ public class ZcodeCoreModule implements ZcodeModule {
         case 0x2:
             ZcodeActivateCommand.execute(view);
             break;
+        case 0x4:
+            ZcodeGuidCommand.fetch(view);
+            break;
         case 0xc:
-            ZcodeMakeCodeCommand.execute(view);
+            ZcodeRandomCodeCommand.make(view);
             break;
         case 0xd:
-            ZcodeMatchCodeCommand.execute(view);
+            ZcodeRandomCodeCommand.match(view);
             break;
         default:
             view.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
@@ -36,6 +43,14 @@ public class ZcodeCoreModule implements ZcodeModule {
 
     @Override
     public void moveAlong(ZcodeCommandView view, int command) {
+    }
+
+    public void address() {
+
+    }
+
+    public void addressMoveAlong() {
+
     }
 
 }

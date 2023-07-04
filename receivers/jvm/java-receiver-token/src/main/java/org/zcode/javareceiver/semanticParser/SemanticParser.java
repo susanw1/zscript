@@ -104,16 +104,16 @@ public class SemanticParser {
             return ZcodeAction.noAction(this);
         }
         if (isAddressing) {
-            if (error != NO_ERROR) {
-                needSendError = true;
-                return ZcodeAction.error(this, error);
-            }
+
             if (started) {
                 if (needsAction) {
                     return ZcodeAction.addressing(this);
                 } else {
                     return ZcodeAction.noAction(this);
                 }
+            } else if (error != NO_ERROR) {
+                needSendError = true;
+                return ZcodeAction.error(this, error);
             } else {
                 return ZcodeAction.addressing(this);
             }

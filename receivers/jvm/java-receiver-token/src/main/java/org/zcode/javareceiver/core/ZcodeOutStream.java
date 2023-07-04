@@ -16,6 +16,8 @@ public interface ZcodeOutStream {
 
     void writeString(String string);
 
+    void writeBig(byte[] data);
+
     void startField(byte key);
 
     void continueField(byte next);
