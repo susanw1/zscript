@@ -81,7 +81,7 @@ public interface ZcodeTokenBuffer {
 
         interface ReadToken {
             /**
-             * Creates an iterator starting at this token.
+             * Creates an iterator where calling next will first give this token.
              * 
              * @return an iterator over ReadTokens available.
              */

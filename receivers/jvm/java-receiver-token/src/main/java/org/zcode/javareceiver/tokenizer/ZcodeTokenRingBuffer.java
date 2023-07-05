@@ -365,7 +365,6 @@ public class ZcodeTokenRingBuffer implements ZcodeTokenBuffer {
             @Override
             public TokenBufferIterator getNextTokens() {
                 RingBufferTokenIterator iterator = new RingBufferTokenIterator(index);
-                iterator.next();
                 return iterator;
             }
 
