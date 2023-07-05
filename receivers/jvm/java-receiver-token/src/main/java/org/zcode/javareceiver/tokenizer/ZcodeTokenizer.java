@@ -129,7 +129,7 @@ public class ZcodeTokenizer {
      * @param b the new byte of zcode input
      */
     public void accept(byte b) {
-        if (!isText && Zchars.shouldIgnore(b)) {
+        if (!isText && Zchars.shouldIgnore(b) || Zchars.alwaysIgnore(b)) {
             return;
         }
 
