@@ -1,9 +1,10 @@
 package org.zcode.javareceiver.core;
 
+import org.zcode.javareceiver.execution.ZcodeCommandView;
 import org.zcode.javareceiver.semanticParser.SemanticParser;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 
-public class ZcodeChannel {
+public abstract class ZcodeChannel {
     protected final SemanticParser p;
     protected final ZcodeOutStream out;
 
@@ -28,4 +29,8 @@ public class ZcodeChannel {
     public void moveAlong() {
 
     }
+
+    public abstract void channelInfo(ZcodeCommandView view);
+
+    public abstract void channelSetup(ZcodeCommandView view);
 }
