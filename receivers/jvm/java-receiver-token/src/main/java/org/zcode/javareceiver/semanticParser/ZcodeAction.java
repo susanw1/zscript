@@ -18,7 +18,8 @@ public class ZcodeAction {
         FIRST_COMMAND,
         COMMAND,
         COMMAND_MOVEALONG,
-        END_SEQUENCE
+        END_SEQUENCE,
+        CLOSE_PAREN
     }
 
     private final SemanticParser parser;
@@ -55,6 +56,10 @@ public class ZcodeAction {
 
     public static ZcodeAction endSequence(SemanticParser semanticParser) {
         return new ZcodeAction(ActionType.END_SEQUENCE, semanticParser, (byte) 0);
+    }
+
+    public static ZcodeAction closeParen(SemanticParser semanticParser) {
+        return new ZcodeAction(ActionType.CLOSE_PAREN, semanticParser, (byte) 0);
     }
 
     private ZcodeAction(ActionType type, SemanticParser parser, byte info) {
@@ -118,6 +123,11 @@ public class ZcodeAction {
             out.endSequence();
             z.unlock(parser.getLocks());
             parser.setLocked(false);
+            break;
+        case CLOSE_PAREN:
+            parser.closeParenSent();
+            out.writeCloseParen();
+            break;
         case NO_ACTION:
             break;
         }

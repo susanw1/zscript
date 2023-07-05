@@ -7,9 +7,6 @@ import org.zcode.javareceiver.tokenizer.Zchars;
 
 public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
 
-    @Override
-    public abstract void writeByte(byte b);
-
     private byte toHex(byte n) {
         int nibble = Byte.toUnsignedInt(n);
         if (nibble < 10) {
@@ -24,6 +21,41 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
         writeByte(toHex((byte) (b & 0xF)));
     }
 
+    private boolean writeHexTrim(byte b) {
+        if ((b & 0xF0) != 0) {
+            writeByte(toHex((byte) ((b >> 4) & 0xF)));
+            writeByte(toHex((byte) (b & 0xF)));
+            return true;
+        } else if (b != 0) {
+            writeByte(toHex((byte) (b & 0xF)));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void writeStringByte(byte b) {
+        if (b == '\n') {
+            writeByte((byte) '=');
+            writeByte((byte) '0');
+            writeByte((byte) 'a');
+        } else if (b == '"') {
+            writeByte((byte) '=');
+            writeByte((byte) '2');
+            writeByte((byte) '2');
+        } else if (b == '=') {
+            writeByte((byte) '=');
+            writeByte((byte) '3');
+            writeByte((byte) 'd');
+        } else if (b == '\000') {
+            writeByte((byte) '=');
+            writeByte((byte) '0');
+            writeByte((byte) '0');
+        } else {
+            writeByte(b);
+        }
+    }
+
     @Override
     public void endSequence() {
         writeByte((byte) '\n');
@@ -32,16 +64,10 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
     @Override
     public void writeField(byte field, int value) {
         writeByte(field);
-        if (value >= (1 << 12)) {
-            writeHex((byte) (value >> 8));
+        if (writeHexTrim((byte) (value >> 8))) {
             writeHex((byte) (value & 0xFF));
-        } else if (value >= (1 << 8)) {
-            writeByte(toHex((byte) ((value >> 8) & 0xF)));
-            writeHex((byte) (value & 0xFF));
-        } else if (value >= (1 << 4)) {
-            writeHex((byte) (value & 0xFF));
-        } else if (value > 0) {
-            writeByte(toHex((byte) (value & 0xF)));
+        } else {
+            writeHexTrim((byte) (value & 0xFF));
         }
     }
 
@@ -56,7 +82,7 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
             if (field.getKey() == Zchars.Z_BIGFIELD_QUOTED) {
                 writeByte((byte) '"');
                 for (byte b : field) {
-                    writeByte(b);
+                    writeStringByte(b);
                 }
                 writeByte((byte) '"');
             } else {
@@ -71,14 +97,15 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
     }
 
     @Override
-    public void silentSucceed() {
+    public void writeString(String string) {
+        writeString(string.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
-    public void writeString(String string) {
+    public void writeString(byte[] data) {
         writeByte((byte) '"');
-        for (byte b : string.getBytes(StandardCharsets.UTF_8)) {
-            writeByte(b);
+        for (byte b : data) {
+            writeStringByte(b);
         }
         writeByte((byte) '"');
     }
@@ -89,16 +116,6 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream {
         for (byte b : data) {
             writeHex(b);
         }
-    }
-
-    @Override
-    public void startField(byte key) {
-        writeByte(key);
-    }
-
-    @Override
-    public void continueField(byte next) {
-        writeHex(next);
     }
 
     @Override

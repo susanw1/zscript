@@ -3,6 +3,7 @@ package org.zcode.javareceiver.semanticParser;
 import java.util.Optional;
 
 import org.zcode.javareceiver.core.ZcodeLockSet;
+import org.zcode.javareceiver.core.ZcodeLocks;
 import org.zcode.javareceiver.tokenizer.TokenBufferIterator;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader;
@@ -17,7 +18,7 @@ public class SemanticParser {
     public static final byte INTERNAL_ERROR           = 1;
     public static final byte MARKER_ERROR             = 2;
     public static final byte MULTIPLE_ECHO_ERROR      = 3;
-    public static final byte MULTIPLE_LOCKS_ERROR     = 4;
+    public static final byte LOCKS_ERROR              = 4;
     public static final byte COMMENT_WITH_STUFF_ERROR = 5;
     public static final byte OTHER_ERROR              = 6;
 
@@ -51,9 +52,10 @@ public class SemanticParser {
 
     private byte error = NO_ERROR; // 3 bit really
 
-    private boolean skipToNL      = false;
-    private boolean needSendError = false;
-    private boolean needEndSeq    = false;
+    private boolean skipToNL       = false;
+    private boolean needSendError  = false;
+    private boolean needEndSeq     = false;
+    private boolean needCloseParen = false;
 
     private boolean activated = false;
     private boolean locked    = false;
@@ -84,6 +86,8 @@ public class SemanticParser {
         }
         if (needEndSeq) {
             return ZcodeAction.endSequence(this);
+        } else if (needCloseParen) {
+            return ZcodeAction.closeParen(this);
         }
         dealWithFlags();
         if (!haveNextMarker) {
@@ -166,7 +170,7 @@ public class SemanticParser {
                     if (parenCounter != 0) {
                         parenCounter--;
                     } else {
-                        // TODO: We might want to print the ')', as that matches up the open/close parens.
+                        needCloseParen = true;
                     }
                 } else if (isSkippingHandler) {
                     if (parenCounter == 0) {
@@ -281,11 +285,15 @@ public class SemanticParser {
                 hasEcho = true;
             } else if (first.getKey() == '%') {
                 if (hasLocks) {
-                    error = MULTIPLE_LOCKS_ERROR;
+                    error = LOCKS_ERROR;
+                    skipToNL = true;
+                    break;
+                } else if (first.getDataSize() > ZcodeLocks.LOCK_BYTENUM) {
+                    error = LOCKS_ERROR;
                     skipToNL = true;
                     break;
                 }
-                locks = ZcodeLockSet.from(first);
+                locks = ZcodeLockSet.from(first.blockIterator());
                 hasLocks = true;
             }
             reader.flushFirstReadToken();
@@ -383,6 +391,10 @@ public class SemanticParser {
 
     public void seqEndSent() {
         needEndSeq = false;
+    }
+
+    public void closeParenSent() {
+        needCloseParen = false;
     }
 
     public boolean isComplete() {

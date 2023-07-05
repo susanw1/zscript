@@ -42,6 +42,7 @@ class ZcodeTokenizerTest {
     @BeforeEach
     void setUp() throws Exception {
         tokenizer = new ZcodeTokenizer(writer, 2);
+        when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
     }
 
     @Test
@@ -57,7 +58,6 @@ class ZcodeTokenizerTest {
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource
     public void shouldHandleSimpleNumericFields(String desc, String zcode, String bufferActions) {
-        when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
         validateZcodeActions(zcode, bufferActions);
     }
 
@@ -79,7 +79,6 @@ class ZcodeTokenizerTest {
     @MethodSource
     public void shouldRejectInvalidKeys(String desc, String zcode, String bufferActions) {
         when(writer.isTokenComplete()).thenReturn(true, false, true, false, true);
-        when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
         validateZcodeActions(zcode, bufferActions);
     }
 
@@ -98,7 +97,6 @@ class ZcodeTokenizerTest {
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource
     public void shouldHandleLogicalSequencesOfNumericFields(String desc, String zcode, String bufferActions) {
-        when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
         validateZcodeActions(zcode, bufferActions);
     }
 
@@ -112,7 +110,6 @@ class ZcodeTokenizerTest {
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource
     public void shouldHandleBigFields(String desc, String zcode, String bufferActions) {
-        when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
         validateZcodeActions(zcode, bufferActions);
     }
 
@@ -120,6 +117,7 @@ class ZcodeTokenizerTest {
         return Stream.of(
                 Arguments.of("Bigfield hex", "A0 +1234\n", "tA----s+n1n2n3n4m" + END),
                 Arguments.of("Bigfield string", "A1 \"hello\"\n", "tAn1--s\"bhbeblblbo--m" + END),
+                Arguments.of("Bigfield string with nulls", "A1 \"\000hel\000lo\"\000\n", "tAn1--s\"--bhbebl--blbo----m" + END),
                 Arguments.of("Bigfield string with escape", "A1 \"h=65llo\"\n", "tAn1--s\"bh--n6n5blblbo--m" + END),
                 Arguments.of("Bigfield hex and string", "+12\"a\"\n", "s+n1n2s\"ba--m" + END),
                 Arguments.of("Bigfield string not terminated", "\"a\nA\n", "s\"baf" + (char) ZcodeTokenizer.ERROR_CODE_STRING_NOT_TERMINATED + "tAm" + END + "--"),
@@ -129,7 +127,6 @@ class ZcodeTokenizerTest {
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource
     public void shouldHandleComment(String desc, String zcode, String bufferActions) {
-        when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
         validateZcodeActions(zcode, bufferActions);
     }
 
@@ -142,13 +139,13 @@ class ZcodeTokenizerTest {
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource
     public void shouldHandleAddressing(String desc, String zcode, String bufferActions) {
-        when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
         validateZcodeActions(zcode, bufferActions);
     }
 
     private static Stream<Arguments> shouldHandleAddressing() {
         return Stream.of(
                 Arguments.of("Simple address", "@2Z\n", "t@n2aZm" + END),
+                Arguments.of("Simple address with nulls", "\000@\000a\000Z\000\n", "--t@--na--aZ--m" + END),
                 Arguments.of("Simple address, complex content", "@2Z12345\"a=\n", "t@n2aZb1b2b3b4b5b\"bab=m" + END),
                 Arguments.of("Multilevel address", "@2.1Z\n", "t@n2t.n1aZm" + END),
                 Arguments.of("Compound multilevel addresses", "@2.3@4.5Z\n", "t@n2t.n3a@b4b.b5bZm" + END));
@@ -167,7 +164,7 @@ class ZcodeTokenizerTest {
         int index = 0;
         for (byte c : zcode.getBytes()) {
             tokenizer.accept(c);
-            System.out.println("c = " + c);
+//            System.out.println("c = " + c);
             char action = bufferActions.charAt(index * 2);
             byte arg    = (byte) bufferActions.charAt(index * 2 + 1);
             try {
@@ -213,7 +210,6 @@ class ZcodeTokenizerTest {
     @Test 
     public void shouldAcceptSingleKeyAtTokenStart() {
         when(writer.isTokenComplete()).thenReturn(true);
-        when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
         validateZcodeActions("Z\n", "tZm" + END);
     }
 
@@ -228,13 +224,11 @@ class ZcodeTokenizerTest {
     public void shouldFailOnLongNumber() {
         when(writer.getCurrentWriteTokenLength()).thenReturn(0).thenReturn(1).thenReturn(1).thenReturn(2).thenReturn(2).thenThrow(RuntimeException.class);
         when(writer.isInNibble()).thenReturn(true).thenReturn(false).thenThrow(RuntimeException.class);
-        when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
         validateZcodeActions("Z12345\n\n", "tZn1n2n3n4f" + (char) ZcodeTokenizer.ERROR_CODE_FIELD_TOO_LONG + "--m"+END + "--");
     }
 
     @Test
     public void shouldFailOnOddHexString() {
-        when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
         when(writer.getCurrentWriteTokenKey()).thenReturn(Zchars.Z_BIGFIELD_HEX);
         when(writer.isInNibble()).thenReturn(false) .thenReturn(true).thenReturn(false).thenReturn(true).thenThrow(RuntimeException.class);
         validateZcodeActions("+123A\nB\n", "s+n1n2n3f" + (char) ZcodeTokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH + "--tBm" + END + "--");
@@ -242,7 +236,6 @@ class ZcodeTokenizerTest {
 
     @Test
     public void shouldFailOnOddHexStringTerminatedByNL() {
-        when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
         when(writer.getCurrentWriteTokenKey()).thenReturn(Zchars.Z_BIGFIELD_HEX);
         when(writer.isInNibble()).thenReturn(false) .thenReturn(true).thenReturn(false).thenReturn(true).thenThrow(RuntimeException.class);
         validateZcodeActions("+12abc\nA\n", "s+n1n2nanbncf" + (char) ZcodeTokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH + "tAm" + END + "--");

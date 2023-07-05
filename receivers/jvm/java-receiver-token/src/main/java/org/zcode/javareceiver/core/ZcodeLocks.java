@@ -1,8 +1,8 @@
 package org.zcode.javareceiver.core;
 
 public class ZcodeLocks {
-    public static final int LOCK_COUNT = 32;
-    private final byte[]    locks      = new byte[LOCK_COUNT];
+    public static final int LOCK_BYTENUM = 32;
+    private final byte[]    locks      = new byte[LOCK_BYTENUM];
 
     public boolean lock(ZcodeLockSet l) {
         if (!canLock(l)) {

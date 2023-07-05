@@ -14,6 +14,10 @@ public class Zchars {
     public static final byte Z_ADDRESSING          = '@';
     public static final byte Z_ADDRESSING_CONTINUE = '.';
 
+    public static boolean alwaysIgnore(byte b) {
+        return b == '\0';
+    }
+
     public static boolean shouldIgnore(byte b) {
         return b == ' ' || b == '\r' || b == '\t' || b == ',' || b == '\0';
     }

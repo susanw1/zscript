@@ -21,7 +21,6 @@ public class ZcodeCommandFinder {
         view.setComplete();
         if (view.isEmpty()) {
             view.setComplete();
-            view.getOutStream().silentSucceed();
             return;
         }
         Optional<Integer> value = view.getField((byte) 'Z');

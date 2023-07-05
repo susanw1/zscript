@@ -26,6 +26,9 @@ public class ZcodeOuterCoreModule implements ZcodeModule {
         case 0x4:
             ZcodeGuidCommand.set(view);
             break;
+        case 0x8:
+            ZcodeChannelSetupCommand.execute(view);
+            break;
         default:
             view.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
         }

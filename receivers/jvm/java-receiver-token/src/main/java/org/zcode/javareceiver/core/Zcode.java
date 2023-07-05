@@ -6,12 +6,17 @@ import java.util.List;
 import org.zcode.javareceiver.execution.ZcodeExecutor;
 
 public class Zcode {
+    private static final Zcode       zcode    = new Zcode();
     private final ZcodeLocks         locks    = new ZcodeLocks();
     private final List<ZcodeChannel> channels = new ArrayList<>();
     private final ZcodeExecutor      executor;
 
-    public Zcode() {
+    private Zcode() {
         executor = new ZcodeExecutor(this);
+    }
+
+    public static Zcode getZcode() {
+        return zcode;
     }
 
     public void addChannel(ZcodeChannel ch) {
@@ -35,6 +40,10 @@ public class Zcode {
             channel.moveAlong();
         }
         executor.progress(channels);
+    }
+
+    public List<ZcodeChannel> getChannels() {
+        return channels;
     }
 
 }

@@ -32,6 +32,9 @@ public class ZcodeCoreModule implements ZcodeModule {
         case 0x4:
             ZcodeGuidCommand.fetch(view);
             break;
+        case 0x8:
+            ZcodeChannelInfoCommand.execute(view);
+            break;
         case 0xc:
             ZcodeRandomCodeCommand.make(view);
             break;

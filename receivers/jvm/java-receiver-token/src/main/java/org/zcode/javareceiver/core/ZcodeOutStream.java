@@ -6,29 +6,27 @@ public interface ZcodeOutStream {
 
     void open();
 
-    void endSequence();
-
     void close();
 
     boolean isOpen();
 
-    void silentSucceed();
+    void writeByte(byte c);
 
     void writeString(String string);
 
+    void writeString(byte[] data);
+
     void writeBig(byte[] data);
-
-    void startField(byte key);
-
-    void continueField(byte next);
 
     void writeField(byte field, int value);
 
+    default void writeField(char field, int value) {
+        writeField((byte) field, value);
+    }
+
     void writeField(ZcodeField field);
 
-    void writeField(char field, int value);
-
-    void writeByte(byte c);
+    void endSequence();
 
     void writeOrElse();
 

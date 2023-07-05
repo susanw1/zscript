@@ -206,6 +206,18 @@ class ZcodeTokenRingBufferReaderTest {
     }
 
     @Test
+    void flushFirstShouldFlush() {
+        Random r = new Random(SEED);
+        writeNormalTokens(r, 10, 2);
+        writeMarkerTokens(r, 50);
+        writeNormalTokens(r, 10, 2);
+        writeExtendedToken(r, 400);
+        writeNormalTokens(r, 10, 2);
+        reader.flushFirstReadToken();
+        testIteratorCorrectness(reader.iterator(), 1);
+    }
+
+    @Test
     void iteratorsStartedFromTokensShouldMatch() {
         Random r = new Random(SEED);
         writeNormalTokens(r, 10, 2);
