@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
         ZcodeCommandFinder.addModule(new ZcodeCoreModule());
         ZcodeCommandFinder.addModule(new ZcodeOuterCoreModule());
-        byte[] code = "Z2(Z1S10)Z1&Z1|Z1)\n@2Banana\n".getBytes();
+        byte[] code = "Z2(Z1S10)Z1&Z1|Z1\n".getBytes();
 
         Zcode                zcode = new Zcode();
         ZcodeTokenRingBuffer rbuff = ZcodeTokenRingBuffer.createBufferWithCapacity(100);

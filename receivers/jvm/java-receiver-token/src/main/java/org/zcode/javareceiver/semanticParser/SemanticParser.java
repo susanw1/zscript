@@ -51,9 +51,10 @@ public class SemanticParser {
 
     private byte error = NO_ERROR; // 3 bit really
 
-    private boolean skipToNL      = false;
-    private boolean needSendError = false;
-    private boolean needEndSeq    = false;
+    private boolean skipToNL       = false;
+    private boolean needSendError  = false;
+    private boolean needEndSeq     = false;
+    private boolean needCloseParen = false;
 
     private boolean activated = false;
     private boolean locked    = false;
@@ -84,6 +85,8 @@ public class SemanticParser {
         }
         if (needEndSeq) {
             return ZcodeAction.endSequence(this);
+        } else if (needCloseParen) {
+            return ZcodeAction.closeParen(this);
         }
         dealWithFlags();
         if (!haveNextMarker) {
@@ -166,7 +169,7 @@ public class SemanticParser {
                     if (parenCounter != 0) {
                         parenCounter--;
                     } else {
-                        // TODO: We might want to print the ')', as that matches up the open/close parens.
+                        needCloseParen = true;
                     }
                 } else if (isSkippingHandler) {
                     if (parenCounter == 0) {
@@ -383,6 +386,10 @@ public class SemanticParser {
 
     public void seqEndSent() {
         needEndSeq = false;
+    }
+
+    public void closeParenSent() {
+        needCloseParen = false;
     }
 
     public boolean isComplete() {
