@@ -1,6 +1,6 @@
 package org.zcode.javareceiver.core;
 
-import org.zcode.javareceiver.execution.ZcodeCommandView;
+import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.semanticParser.SemanticParser;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 
@@ -29,7 +29,7 @@ public abstract class ZcodeChannel {
 
     }
 
-    public abstract void channelInfo(final ZcodeCommandView view);
+    public abstract void channelInfo(final ZcodeCommandContext ctx);
 
-    public abstract void channelSetup(final ZcodeCommandView view);
+    public abstract void channelSetup(final ZcodeCommandContext ctx);
 }

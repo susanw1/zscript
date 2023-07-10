@@ -4,6 +4,7 @@ import java.util.BitSet;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.semanticParser.SemanticParser;
@@ -12,18 +13,18 @@ import org.zcode.javareceiver.tokenizer.OptIterator;
 import org.zcode.javareceiver.tokenizer.Zchars;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 
-public class ZcodeCommandView {
+public class ZcodeCommandContext {
     private final SemanticParser parser;
     private final ZcodeOutStream out;
 
     private boolean statusGiven = false;
 
-    public ZcodeCommandView(final SemanticParser parser, final ZcodeOutStream out) {
+    public ZcodeCommandContext(final SemanticParser parser, final ZcodeOutStream out) {
         this.parser = parser;
         this.out = out;
     }
 
-    public ZcodeOutStream getOutStream() {
+    public ZcodeCommandOutStream getOutStream() {
         return out;
     }
 
@@ -136,8 +137,8 @@ public class ZcodeCommandView {
 
     public void status(final byte status) {
         statusGiven = true;
-        if (status != ZcodeStatus.SUCCESS) {
-            if (status < 0x10) {
+        if (!ZcodeStatus.isSuccess(status)) {
+            if (ZcodeStatus.isSystemError(status)) {
                 parser.error();
             } else {
                 parser.softFail();

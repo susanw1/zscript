@@ -4,8 +4,8 @@ import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeAddressingSystem;
-import org.zcode.javareceiver.execution.ZcodeAddressingView;
-import org.zcode.javareceiver.execution.ZcodeCommandView;
+import org.zcode.javareceiver.execution.ZcodeAddressingContext;
+import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.modules.ZcodeCommandFinder;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
@@ -82,13 +82,13 @@ public class ZcodeAction {
             break;
         case ADDRESSING:
             parser.setStarted();
-            ZcodeAddressingView view = new ZcodeAddressingView(parser, out);
-            if (view.verify()) {
-                ZcodeAddressingSystem.execute(view);
+            ZcodeAddressingContext addrCtx = new ZcodeAddressingContext(parser, out);
+            if (addrCtx.verify()) {
+                ZcodeAddressingSystem.execute(addrCtx);
             }
             break;
         case ADDRESSING_MOVEALONG:
-            ZcodeAddressingSystem.moveAlong(new ZcodeAddressingView(parser, out));
+            ZcodeAddressingSystem.moveAlong(new ZcodeAddressingContext(parser, out));
             break;
         case FIRST_COMMAND:
             out.open();
@@ -113,13 +113,13 @@ public class ZcodeAction {
                 }
             }
             parser.setStarted();
-            ZcodeCommandView cmdview = new ZcodeCommandView(parser, out);
-            if (cmdview.verify()) {
-                ZcodeCommandFinder.execute(cmdview);
+            ZcodeCommandContext cmdCtx = new ZcodeCommandContext(parser, out);
+            if (cmdCtx.verify()) {
+                ZcodeCommandFinder.execute(cmdCtx);
             }
             break;
         case COMMAND_MOVEALONG:
-            ZcodeCommandFinder.moveAlong(new ZcodeCommandView(parser, out));
+            ZcodeCommandFinder.moveAlong(new ZcodeCommandContext(parser, out));
             break;
         case END_SEQUENCE:
             parser.seqEndSent();

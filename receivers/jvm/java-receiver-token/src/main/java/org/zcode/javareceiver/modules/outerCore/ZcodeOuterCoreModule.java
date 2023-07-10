@@ -1,8 +1,8 @@
 package org.zcode.javareceiver.modules.outerCore;
 
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.execution.ZcodeAddressingView;
-import org.zcode.javareceiver.execution.ZcodeCommandView;
+import org.zcode.javareceiver.execution.ZcodeAddressingContext;
+import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.modules.ZcodeModule;
 import org.zcode.javareceiver.modules.core.ZcodeGuidCommand;
 
@@ -18,31 +18,31 @@ public class ZcodeOuterCoreModule implements ZcodeModule {
     }
 
     @Override
-    public void execute(ZcodeCommandView view, int command) {
+    public void execute(ZcodeCommandContext ctx, int command) {
         switch (command) {
         case 0x0:
-            ZcodeExtendedCapabilitiesCommand.execute(view);
+            ZcodeExtendedCapabilitiesCommand.execute(ctx);
             break;
         case 0x4:
-            ZcodeGuidCommand.set(view);
+            ZcodeGuidCommand.set(ctx);
             break;
         case 0x8:
-            ZcodeChannelSetupCommand.execute(view);
+            ZcodeChannelSetupCommand.execute(ctx);
             break;
         default:
-            view.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            ctx.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
         }
     }
 
     @Override
-    public void moveAlong(ZcodeCommandView view, int command) {
+    public void moveAlong(ZcodeCommandContext ctx, int command) {
     }
 
     @Override
-    public void address(ZcodeAddressingView view) {
+    public void address(ZcodeAddressingContext ctx) {
     }
 
     @Override
-    public void addressMoveAlong(ZcodeAddressingView view) {
+    public void addressMoveAlong(ZcodeAddressingContext ctx) {
     }
 }

@@ -6,24 +6,24 @@ import org.zcode.javareceiver.modules.ZcodeModule;
 
 public class ZcodeAddressingSystem {
 
-    public static void execute(ZcodeAddressingView view) {
-        if (!view.isActivated()) {
-            view.status(ZcodeStatus.NOT_ACTIVATED);
+    public static void execute(ZcodeAddressingContext ctx) {
+        if (!ctx.isActivated()) {
+            ctx.status(ZcodeStatus.NOT_ACTIVATED);
             return;
         }
-        int addr = view.getAddressSegments().next().get();
+        int addr = ctx.getAddressSegments().next().get();
 
         ZcodeModule module = ZcodeCommandFinder.getModule(addr);
         if (module == null) {
-            view.status(ZcodeStatus.ADDRESSING_ERROR);
+            ctx.status(ZcodeStatus.ADDRESSING_ERROR);
             return;
         }
-        view.setComplete();
-        module.address(view);
+        ctx.setComplete();
+        module.address(ctx);
     }
 
-    public static void moveAlong(ZcodeAddressingView view) {
-        int addr = view.getAddressSegments().next().get();
-        ZcodeCommandFinder.getModule(addr).addressMoveAlong(view);
+    public static void moveAlong(ZcodeAddressingContext ctx) {
+        int addr = ctx.getAddressSegments().next().get();
+        ZcodeCommandFinder.getModule(addr).addressMoveAlong(ctx);
     }
 }

@@ -2,7 +2,7 @@ package org.zcode.javareceiver.demoRun;
 
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeChannel;
-import org.zcode.javareceiver.execution.ZcodeCommandView;
+import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.modules.ZcodeCommandFinder;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
 import org.zcode.javareceiver.modules.outerCore.ZcodeOuterCoreModule;
@@ -29,12 +29,12 @@ public class Main {
             }
 
             @Override
-            public void channelInfo(ZcodeCommandView view) {
-                view.getOutStream().writeString("Basic text channel");
+            public void channelInfo(ZcodeCommandContext ctx) {
+                ctx.getOutStream().writeString("Basic text channel");
             }
 
             @Override
-            public void channelSetup(ZcodeCommandView view) {
+            public void channelSetup(ZcodeCommandContext ctx) {
             }
         });
         for (int i = 0; i < 10000; i++) {

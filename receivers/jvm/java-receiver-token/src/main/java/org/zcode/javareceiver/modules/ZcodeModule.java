@@ -1,18 +1,18 @@
 package org.zcode.javareceiver.modules;
 
-import org.zcode.javareceiver.execution.ZcodeAddressingView;
-import org.zcode.javareceiver.execution.ZcodeCommandView;
+import org.zcode.javareceiver.execution.ZcodeAddressingContext;
+import org.zcode.javareceiver.execution.ZcodeCommandContext;
 
 public interface ZcodeModule {
 
     int getModuleID();
 
-    void execute(ZcodeCommandView env, int command);
+    void execute(ZcodeCommandContext ctx, int command);
 
-    void moveAlong(ZcodeCommandView env, int command);
+    void moveAlong(ZcodeCommandContext ctx, int command);
 
-    void address(ZcodeAddressingView view);
+    void address(ZcodeAddressingContext ctx);
 
-    void addressMoveAlong(ZcodeAddressingView view);
+    void addressMoveAlong(ZcodeAddressingContext ctx);
 
 }
