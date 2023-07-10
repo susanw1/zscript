@@ -23,4 +23,17 @@ public class ZcodeStatus {
     public static final byte COMMAND_ERROR = 0xf;
     /** non-fatal command failure (e.g. I2C nack) */
     public static final byte COMMAND_FAIL  = 0x10;
+
+    public static boolean isSuccess(final byte code) {
+        return code == SUCCESS;
+    }
+
+    public static boolean isSystemError(final byte code) {
+        return code > SUCCESS && code <= COMMAND_ERROR;
+    }
+
+    public static boolean isFailure(final byte code) {
+        return (code & ~0xf) != 0;
+    }
+
 }

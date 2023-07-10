@@ -21,7 +21,10 @@ public class ZcodePrintingOutStream extends ZcodeAbstractOutStream {
     }
 
     @Override
-    public void writeByte(byte b) {
+    public void writeByte(final byte b) {
+        if (!isOpen()) {
+            throw new IllegalStateException("outstream not open");
+        }
         System.out.print((char) b);
     }
 

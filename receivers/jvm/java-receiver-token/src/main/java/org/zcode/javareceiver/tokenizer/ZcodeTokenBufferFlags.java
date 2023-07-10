@@ -1,5 +1,8 @@
 package org.zcode.javareceiver.tokenizer;
 
+/**
+ *
+ */
 public class ZcodeTokenBufferFlags {
     private boolean markerWritten    = false;
     private boolean seqMarkerWritten = false;
@@ -9,8 +12,24 @@ public class ZcodeTokenBufferFlags {
         this.markerWritten = true;
     }
 
+    public boolean getAndClearMarkerWritten() {
+        if (markerWritten) {
+            markerWritten = false;
+            return true;
+        }
+        return false;
+    }
+
     public void setSeqMarkerWritten() {
         this.seqMarkerWritten = true;
+    }
+
+    public boolean getAndClearSeqMarkerWritten() {
+        if (seqMarkerWritten) {
+            seqMarkerWritten = false;
+            return true;
+        }
+        return false;
     }
 
     public boolean isReaderBlocked() {
@@ -21,24 +40,8 @@ public class ZcodeTokenBufferFlags {
         this.readerBlocked = false;
     }
 
-    public void clearMarkerWritten() {
-        this.markerWritten = false;
-    }
-
-    public void clearSeqMarkerWritten() {
-        this.seqMarkerWritten = false;
-    }
-
     public void setReaderBlocked() {
         this.readerBlocked = true;
-    }
-
-    public boolean isMarkerWritten() {
-        return markerWritten;
-    }
-
-    public boolean isSeqMarkerWritten() {
-        return seqMarkerWritten;
     }
 
 }

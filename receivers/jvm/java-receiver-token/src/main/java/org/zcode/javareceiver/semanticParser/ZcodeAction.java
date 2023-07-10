@@ -10,7 +10,7 @@ import org.zcode.javareceiver.modules.ZcodeCommandFinder;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class ZcodeAction {
-    private enum ActionType {
+    enum ActionType {
         NO_ACTION,
         ERROR,
         ADDRESSING,
@@ -137,7 +137,9 @@ public class ZcodeAction {
         if (!out.isOpen()) {
             out.open();
         }
+
         parser.errorSent();
+
         switch (info) {
         case SemanticParser.NO_ERROR:
             throw new IllegalStateException();
@@ -156,6 +158,7 @@ public class ZcodeAction {
             out.writeField('S', ZcodeStatus.SEQUENCE_ERROR);
             break;
         }
+
         out.endSequence();
         out.close();
     }
@@ -180,5 +183,15 @@ public class ZcodeAction {
         boolean l = zcode.lock(parser.getLocks());
         parser.setLocked(l);
         return l;
+    }
+
+    // visible for testing
+    ActionType getType() {
+        return type;
+    }
+
+    // visible for testing
+    byte getInfo() {
+        return info;
     }
 }

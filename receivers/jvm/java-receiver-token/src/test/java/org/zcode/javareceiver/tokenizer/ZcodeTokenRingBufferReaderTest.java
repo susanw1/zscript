@@ -225,7 +225,7 @@ class ZcodeTokenRingBufferReaderTest {
         writeNormalTokens(r, 10, 2);
         writeExtendedToken(r, 400);
         writeNormalTokens(r, 10, 2);
-        int i = 1;
+        int i = 0;
 
         OptIterator<ReadToken> iterator = reader.iterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
