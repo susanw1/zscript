@@ -72,6 +72,8 @@ public class ZcodeAction {
         return type != ActionType.NO_ACTION;
     }
 
+    // TODO: response type
+    // TODO: close out stream
     public void performAction(Zcode z, ZcodeOutStream out) {
         switch (type) {
         case ERROR:
@@ -90,6 +92,7 @@ public class ZcodeAction {
             break;
         case FIRST_COMMAND:
             out.open();
+            out.writeField('!', 0);
             if (parser.hasEcho()) {
                 out.writeField('_', parser.getEcho());
             }
@@ -121,6 +124,7 @@ public class ZcodeAction {
         case END_SEQUENCE:
             parser.seqEndSent();
             out.endSequence();
+            out.close();
             z.unlock(parser.getLocks());
             parser.setLocked(false);
             break;
