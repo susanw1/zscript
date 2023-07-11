@@ -28,9 +28,8 @@ public class ZcodeOrSeqElement extends CommandSeqElement {
     public CommandSeqElement reEvaluate() {
         if (!before.canFail()) {
             return before.reEvaluate();
-        } else {
-            return new ZcodeOrSeqElement(before.reEvaluate(), after.reEvaluate());
         }
+        return new ZcodeOrSeqElement(before.reEvaluate(), after.reEvaluate());
     }
 
     @Override
@@ -41,11 +40,7 @@ public class ZcodeOrSeqElement extends CommandSeqElement {
         }
         try {
             out.write(before.compile(false));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        out.write((byte) '|');
-        try {
+            out.write((byte) '|');
             out.write(after.compile(false));
         } catch (IOException e) {
             throw new RuntimeException(e);

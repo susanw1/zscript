@@ -3,11 +3,11 @@ package org.zcode.javaclient.zcodeApi;
 public abstract class CommandSeqElement {
     protected CommandSeqElement parent = null;
 
-    public void setParent(CommandSeqElement parent) {
+    void setParent(CommandSeqElement parent) {
         this.parent = parent;
     }
 
-    public CommandSeqElement getParent() {
+    CommandSeqElement getParent() {
         return parent;
     }
 
@@ -42,9 +42,8 @@ public abstract class CommandSeqElement {
     public CommandSeqElement dropFailureCondition() {
         if (canFail()) {
             return onFail(new ZcodeBlankCommand());
-        } else {
-            return this;
         }
+        return this;
     }
 
     public CommandSeqElement thenFail() {
@@ -58,9 +57,8 @@ public abstract class CommandSeqElement {
     public CommandSeqElement onFail(CommandSeqElement next) {
         if (canFail()) {
             return new ZcodeOrSeqElement(this, next);
-        } else {
-            return this;
         }
+        return this;
     }
 
     public CommandSeqElement abortOnFail() {
@@ -79,7 +77,7 @@ public abstract class CommandSeqElement {
 
     public abstract boolean canFail();
 
-    public abstract CommandSeqElement reEvaluate();
+    abstract CommandSeqElement reEvaluate();
 
     public abstract byte[] compile(boolean includeParens);
 }
