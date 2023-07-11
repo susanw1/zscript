@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.semanticParser.SemanticParser;
+import org.zcode.javareceiver.semanticParser.ParseState;
 import org.zcode.javareceiver.tokenizer.BlockIterator;
 import org.zcode.javareceiver.tokenizer.OptIterator;
 import org.zcode.javareceiver.tokenizer.Zchars;
@@ -12,10 +12,10 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class ZcodeAddressingContext {
-    private final SemanticParser parser;
+    private final ParseState     parser;
     private final ZcodeOutStream out;
 
-    public ZcodeAddressingContext(SemanticParser parser, ZcodeOutStream out) {
+    public ZcodeAddressingContext(ParseState parser, ZcodeOutStream out) {
         this.parser = parser;
         this.out = out;
     }

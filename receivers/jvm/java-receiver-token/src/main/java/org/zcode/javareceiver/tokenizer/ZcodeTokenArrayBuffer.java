@@ -16,7 +16,6 @@ import java.util.Optional;
  * </ol>
  *
  */
-
 public abstract class ZcodeTokenArrayBuffer implements ZcodeTokenBuffer {
     // TODO: Raise flag on error and on newline
 

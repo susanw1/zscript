@@ -7,19 +7,19 @@ import java.util.Optional;
 import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.semanticParser.SemanticParser;
+import org.zcode.javareceiver.semanticParser.ParseState;
 import org.zcode.javareceiver.tokenizer.BlockIterator;
 import org.zcode.javareceiver.tokenizer.OptIterator;
 import org.zcode.javareceiver.tokenizer.Zchars;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 
 public class ZcodeCommandContext {
-    private final SemanticParser parser;
+    private final ParseState     parser;
     private final ZcodeOutStream out;
 
     private boolean statusGiven = false;
 
-    public ZcodeCommandContext(final SemanticParser parser, final ZcodeOutStream out) {
+    public ZcodeCommandContext(final ParseState parser, final ZcodeOutStream out) {
         this.parser = parser;
         this.out = out;
     }

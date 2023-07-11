@@ -11,7 +11,7 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBufferFlags;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
-public class SemanticParser {
+public class SemanticParser implements ParseState {
     // 16 booleans, 5 uint8_t, 1 uint16_t = 9 bytes of status
 
     public static final byte NO_ERROR                 = 0;
@@ -113,38 +113,35 @@ public class SemanticParser {
             if (started) {
                 if (needsAction) {
                     return ZcodeAction.addressing(this);
-                } else {
-                    return ZcodeAction.noAction(this);
                 }
+                return ZcodeAction.noAction(this);
             }
             if (error != NO_ERROR) {
                 needSendError = true;
                 return ZcodeAction.error(this, error);
-            } else {
-                return ZcodeAction.addressing(this);
             }
+            return ZcodeAction.addressing(this);
         }
         if (started) {
             if (needsAction) {
                 return ZcodeAction.commandMoveAlong(this);
-            } else {
-                return ZcodeAction.noAction(this);
             }
+            return ZcodeAction.noAction(this);
         }
         if (error != NO_ERROR) {
             skipToNL = true;
             skipToSeqEnd();
             needSendError = true;
             return ZcodeAction.error(this, error);
-        } else if (firstCommand) {
+        }
+        if (firstCommand) {
             return ZcodeAction.firstCommand(this);
+        }
+        if (isSkippingHandler || isFailed) {
+            complete = true;
+            return ZcodeAction.noAction(this);
         } else {
-            if (isSkippingHandler || isFailed) {
-                complete = true;
-                return ZcodeAction.noAction(this);
-            } else {
-                return ZcodeAction.runCommand(this, prevMarker);
-            }
+            return ZcodeAction.runCommand(this, prevMarker);
         }
     }
 

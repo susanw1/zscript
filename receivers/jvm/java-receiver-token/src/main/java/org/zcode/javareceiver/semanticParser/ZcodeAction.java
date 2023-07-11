@@ -3,8 +3,8 @@ package org.zcode.javareceiver.semanticParser;
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.execution.ZcodeAddressingSystem;
 import org.zcode.javareceiver.execution.ZcodeAddressingContext;
+import org.zcode.javareceiver.execution.ZcodeAddressingSystem;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.modules.ZcodeCommandFinder;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
@@ -22,9 +22,9 @@ public class ZcodeAction {
         CLOSE_PAREN
     }
 
-    private final SemanticParser parser;
-    private final ActionType     type;
-    private final byte           info;
+    private final ParseState parser;
+    private final ActionType type;
+    private final byte       info;
 
     public static ZcodeAction noAction(SemanticParser semanticParser) {
         return new ZcodeAction(ActionType.NO_ACTION, semanticParser, (byte) 0);
@@ -62,7 +62,7 @@ public class ZcodeAction {
         return new ZcodeAction(ActionType.CLOSE_PAREN, semanticParser, (byte) 0);
     }
 
-    private ZcodeAction(ActionType type, SemanticParser parser, byte info) {
+    private ZcodeAction(ActionType type, ParseState parser, byte info) {
         this.parser = parser;
         this.type = type;
         this.info = info;

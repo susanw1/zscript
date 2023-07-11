@@ -8,7 +8,7 @@ public interface ZcodeTokenBuffer {
 
     /**
      * Determines whether the supplied byte is a valid "marker" key.
-     * 
+     *
      * @param key any byte
      * @return true if it's a marker; false otherwise
      */
@@ -55,21 +55,21 @@ public interface ZcodeTokenBuffer {
 
         /**
          * Creates an iterator over the readable tokens.
-         * 
+         *
          * @return an iterator over ReadTokens available.
          */
         TokenBufferIterator iterator();
 
         /**
          * Checks whether any tokens can be read.
-         * 
+         *
          * @return true iff a token is available for reading.
          */
         boolean hasReadToken();
 
         /**
          * Creates a ReadToken representing the current first readable token.
-         * 
+         *
          * @return a ReadToken representing the current first readable token, or throws an exception if no token is available.
          */
         ReadToken getFirstReadToken();
@@ -82,21 +82,21 @@ public interface ZcodeTokenBuffer {
         interface ReadToken {
             /**
              * Creates an iterator where calling next will first give this token.
-             * 
+             *
              * @return an iterator over ReadTokens available.
              */
             TokenBufferIterator getNextTokens();
 
             /**
              * Determines the key associated with this token.
-             * 
+             *
              * @return the key
              */
             byte getKey();
 
             /**
              * Determines the amount of data associated with this token, including any (immediately) following extension segment tokens.
-             * 
+             *
              * @return the "real" size of this token, including following extension segments
              */
             int getDataSize();
@@ -107,21 +107,21 @@ public interface ZcodeTokenBuffer {
 
             /**
              * Exposes the data as a stream of bytes. It manages hopping across extension segments.
-             * 
+             *
              * @return an iterator that exposes the data as a succession of individual bytes.
              */
             BlockIterator blockIterator();
 
             /**
              * Exposes the data as a single number (uint32).
-             * 
+             *
              * @return the value of the data, as a 4 byte number.
              */
             long getData32();
 
             /**
              * Exposes the data as a single number (uint16).
-             * 
+             *
              * @return the value of the data, as a 2 byte number.
              */
             int getData16();

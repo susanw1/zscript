@@ -25,5 +25,4 @@ public class ZcodeTokenExtendingBuffer extends ZcodeTokenArrayBuffer {
         }
         return index + offset;
     }
-
 }

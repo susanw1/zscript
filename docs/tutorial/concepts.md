@@ -1,11 +1,18 @@
 Glossary of Concepts
 ===
 
-This is a quick look-up guide to help with understanding Zcode terms and concepts.
+This is a quick look-up guide to help with understanding Zedcode terms and concepts.
+
+##### Channel
+
+A channel is a place where Zedcode commands come from, to feed into a Zedcode executor. The responses are typically fed back up the channel to the original sender. Usually, a channel would be implemented over a communications interface and would be provided as an optional part of a module relating to that interface. Some channels are not associated with communication, such as a Zscript channel, which will only send responses as notifications. 
+
+Channels can be Ordered (such as a serial line or TCP) or Unordered (such as UDP). If you use an unordered channel, and you pipeline the command sequences (ie you don't wait for responses between sends) the commands will be executed in the order they are received, and the responses may arrive back in yet another order. 
+
 
 ##### Activation
 
-When a Zcode-enabled device is switched on, it will only execute commands in the Core module. One of those commands is the `ACTIVATE` command, after which all commands are available. This mechanism means that if the device is unexpectedly reset, then an upstream system that is sending commands will become aware and can take remedial action, rather than just continuing to send commands with the device in an unknown state.
+After a Zedcode-enabled device is switched on, a Channel will only execute commands in the Core module (`Z0`-`Zf`). One of those commands is the `ACTIVATE` command (`Z2`), which enables all commands to be executable. This mechanism means that if the device is unexpectedly reset, then an upstream system that is sending commands will become aware and can take remedial action, rather than just continuing to send commands with the device in an unknown state. Activation is part of a channel - if there are multiple comms channels, they each need to be activated.
 
 ##### Addressing
 
@@ -16,12 +23,6 @@ Addresses may be hierarchical, like this `@1.2` perhaps representing sub-device 
 Addresses may be chained: `@1.2 @4 Z1`, where `@4 Z1` is processed by the sub-device.
 
 The decision about how to interpret an address is made by an _AddressRouter_ which is written as a part of the Zcode implementation. The embedded dev gets to choose just how addresses are interpreted.
-
-##### Channel
-
-A channel is a source of Zcode commands, which feeds a Zcode executor. The responses are typically fed back up the channel to the original sender. Typically, a channel which works over a particular comms interface would be provided as an optional part of a module relating to that interface. Some channels are not associated with comms, such as a Zscript executor, which will only send responses as notifications. 
-
-Channels can be Ordered (such as a serial line or TCP) or Unordered (such as UDP). If you use an unordered channel, and you pipeline the command sequences (ie you don't wait for responses between sends) the commands will be executed in the order they are received, and the responses may arrive back in yet another order. 
 
 ##### Notifications
 
