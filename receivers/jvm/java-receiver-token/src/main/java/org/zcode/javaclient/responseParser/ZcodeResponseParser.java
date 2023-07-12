@@ -105,7 +105,14 @@ public class ZcodeResponseParser {
         final List<Byte>      markers           = new ArrayList<>();
         final List<ReadToken> tokenAfterMarkers = new ArrayList<>();
         boolean               prevWasMarker     = false;
-        tokenAfterMarkers.add(reader.getFirstReadToken());
+
+        final OptIterator<ReadToken> itEndSeq = reader.iterator();
+        for (Optional<ReadToken> opt = itEndSeq.next(); opt.isPresent(); opt = itEndSeq.next()) {
+            if (opt.get().getKey() != '!' && opt.get().getKey() != '_') {
+                tokenAfterMarkers.add(opt.get());
+                break;
+            }
+        }
 
         final OptIterator<ReadToken> it = reader.iterator();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
