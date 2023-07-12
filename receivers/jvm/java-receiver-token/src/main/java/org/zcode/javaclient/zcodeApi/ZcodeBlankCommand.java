@@ -66,4 +66,7 @@ public class ZcodeBlankCommand extends ZcodeCommand {
     public void response(ZcodeUnparsedCommandResponse resp) {
     }
 
+    @Override
+    public void notExecuted() {
+    }
 }

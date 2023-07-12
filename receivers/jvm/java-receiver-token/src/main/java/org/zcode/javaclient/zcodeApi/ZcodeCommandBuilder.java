@@ -61,6 +61,13 @@ public abstract class ZcodeCommandBuilder<T extends ZcodeResponse> {
             }
         }
 
+        @Override
+        public void notExecuted() {
+            for (ZcodeResponseListener<T> listener : listeners) {
+                listener.notExecuted();
+            }
+        }
+
     }
 
     private class BigField {

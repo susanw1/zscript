@@ -28,6 +28,8 @@ public abstract class ZcodeCommand extends CommandSeqElement {
         }
     }
 
+    public abstract void notExecuted();
+
     public abstract void response(ZcodeUnparsedCommandResponse resp);
 
     public static ZcodeSequencePath findFirstCommand(final CommandSeqElement start) {
@@ -49,6 +51,37 @@ public abstract class ZcodeCommand extends CommandSeqElement {
             }
         }
         return new ZcodeSequencePath(markers, (ZcodeCommand) current);
+    }
+
+    public ZcodeSequencePath findNext() {
+        CommandSeqElement current = parent;
+        CommandSeqElement prev    = this;
+        List<Byte>        markers = new ArrayList<>();
+
+        while (current != null) {
+            if (current.getClass() == ZcodeOrSeqElement.class) {
+                ZcodeOrSeqElement orAncestor = (ZcodeOrSeqElement) current;
+                if (prev == orAncestor.before) {
+                    markers.add((byte) '|');
+                    return new ZcodeSequencePath(markers, findFirstCommand(orAncestor.after));
+                }
+            } else if (current.getClass() == ZcodeAndSeqElement.class) {
+                ZcodeAndSeqElement andAncestor = (ZcodeAndSeqElement) current;
+                if (prev != andAncestor.getElements().get(andAncestor.getElements().size() - 1)) {
+                    CommandSeqElement next = andAncestor.getElements().get(andAncestor.getElements().indexOf(prev) + 1);
+                    if (prev.getClass() != ZcodeOrSeqElement.class && next.getClass() != ZcodeOrSeqElement.class) {
+                        markers.add((byte) '&');
+                    }
+                    return new ZcodeSequencePath(markers, findFirstCommand(next));
+                }
+            }
+            if (current.getClass() == ZcodeOrSeqElement.class && current.getParent() != null && current.getParent().getClass() != ZcodeOrSeqElement.class) {
+                markers.add((byte) ')');
+            }
+            prev = current;
+            current = current.getParent();
+        }
+        return null;
     }
 
     public ZcodeSequencePath findFailPath() {

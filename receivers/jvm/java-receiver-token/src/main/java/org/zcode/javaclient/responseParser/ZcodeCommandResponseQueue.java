@@ -15,12 +15,12 @@ import org.zcode.javaclient.zcodeApi.ZcodeCommandBuilder;
 public class ZcodeCommandResponseQueue implements ZcodeCommandResponseSystem {
     private static final int MAX_SENT = 10;
 
+    private final ZcodeResponseAddressingSystem addrSystem = new ZcodeResponseAddressingSystem(this);
+
     private ZcodeConnection connection;
 
     private interface CommandEntry {
         byte[] compile();
-
-        void callback(final byte[] received);
 
         boolean canBePipelined();
     }
@@ -51,13 +51,44 @@ public class ZcodeCommandResponseQueue implements ZcodeCommandResponseSystem {
             return str.toByteArray();
         }
 
-        @Override
         public void callback(final byte[] received) {
             ZcodeResponseParser.parseFullResponse(cmdSeq, received);
         }
 
         public int getEcho() {
             return echo;
+        }
+
+        @Override
+        public boolean canBePipelined() {
+            return true;
+        }
+    }
+
+    private class AddrCommandSeqElEntry implements CommandEntry {
+        private final byte[]       cmdSeq;
+        private final ZcodeAddress addr;
+
+        public AddrCommandSeqElEntry(final byte[] cmdSeq, final ZcodeAddress addr) {
+            this.cmdSeq = cmdSeq;
+            this.addr = addr;
+        }
+
+        @Override
+        public byte[] compile() {
+            // TODO: decide on how locking will work...
+            ByteArrayOutputStream str = new ByteArrayOutputStream(addr.getAddr().length * 3 + cmdSeq.length);
+            try {
+                boolean isFirst = true;
+                for (int i : addr.getAddr()) {
+                    str.write(ZcodeCommandBuilder.writeField((byte) (isFirst ? '@' : '.'), i));
+                    isFirst = false;
+                }
+                str.write(cmdSeq);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return str.toByteArray();
         }
 
         @Override
@@ -80,7 +111,6 @@ public class ZcodeCommandResponseQueue implements ZcodeCommandResponseSystem {
             return data;
         }
 
-        @Override
         public void callback(final byte[] received) {
             callback.accept(received);
         }
@@ -101,8 +131,23 @@ public class ZcodeCommandResponseQueue implements ZcodeCommandResponseSystem {
         this.connection = connection;
         connection.onReceive(resp -> {
             ResponseHeader header = ZcodeResponseParser.parseResponseHeader(resp);
-            callback(resp, header.getEcho(), header.getType());
+            if (header.getAddr().length == 0) {
+                callback(resp, header.getEcho(), header.getType());
+            } else {
+                addrSystem.response(header.getAddr(), resp);
+            }
         });
+    }
+
+    @Override
+    public void send(final ZcodeAddress addr, final byte[] data) {
+        if (sent.size() < MAX_SENT && canPipeline) {
+            AddrCommandSeqElEntry el = new AddrCommandSeqElEntry(data, addr);
+            sent.add(el);
+            connection.send(el.compile());
+        } else {
+            toSend.add(new AddrCommandSeqElEntry(data, addr));
+        }
     }
 
     @Override
@@ -136,20 +181,17 @@ public class ZcodeCommandResponseQueue implements ZcodeCommandResponseSystem {
         if (respType != 0) {
             // TODO: notifications
         } else if (!canPipeline) {
-            sent.poll().callback(response);
+            ((ByteArrEntry) sent.poll()).callback(response);
             canPipeline = true;
         } else {
             boolean found = false;
             for (Iterator<CommandEntry> iterator = sent.iterator(); iterator.hasNext();) {
                 CommandEntry entryPlain = iterator.next();
-                if (entryPlain.getClass() == CommandSeqElEntry.class) {
-                    CommandSeqElEntry entry = (CommandSeqElEntry) entryPlain;
-                    if (entry.getEcho() == echo) {
-                        entry.callback(response);
-                        iterator.remove();
-                        found = true;
-                        break;
-                    }
+                if (entryPlain.getClass() == CommandSeqElEntry.class && ((CommandSeqElEntry) entryPlain).getEcho() == echo) {
+                    ((CommandSeqElEntry) entryPlain).callback(response);
+                    iterator.remove();
+                    found = true;
+                    break;
                 }
             }
             if (!found) {
@@ -166,6 +208,11 @@ public class ZcodeCommandResponseQueue implements ZcodeCommandResponseSystem {
                 sent.add(toSend.poll());
             }
         }
+    }
+
+    @Override
+    public ZcodeResponseAddressingSystem getResponseAddressingSystem() {
+        return new ZcodeResponseAddressingSystem(this);
     }
 
 }
