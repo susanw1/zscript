@@ -1,8 +1,8 @@
 package org.zcode.javareceiver.modules.core;
 
-import org.zcode.javareceiver.core.ZcodeOutStream;
+import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.execution.ZcodeCommandView;
+import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.modules.ZcodeCommandFinder;
 
 public class ZcodeCapabilitiesCommand {
@@ -31,11 +31,11 @@ public class ZcodeCapabilitiesCommand {
     public static int    coreZcodeVersion        = 0;
     public static String coreZcodeStr            = "Prototype parsing/running system for JVM";
 
-    public static void execute(ZcodeCommandView view) {
-        ZcodeOutStream out = view.getOutStream();
+    public static void execute(ZcodeCommandContext ctx) {
+        ZcodeCommandOutStream out = ctx.getOutStream();
         out.writeField('C', ZcodeCoreModule.getCommands());
         out.writeField('M', ZcodeCommandFinder.getCommandSwitchExistsBottom(0));
-        int versionType = view.getField((byte) 'V', 0);
+        int versionType = ctx.getField((byte) 'V', 0);
 
         String str = null;
         int    ver = 0;
@@ -67,7 +67,7 @@ public class ZcodeCapabilitiesCommand {
                 out.writeString(str);
             }
         } else {
-            view.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            ctx.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
         }
     }
 

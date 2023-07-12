@@ -3,14 +3,14 @@ package org.zcode.javareceiver.semanticParser;
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
+import org.zcode.javareceiver.execution.ZcodeAddressingContext;
 import org.zcode.javareceiver.execution.ZcodeAddressingSystem;
-import org.zcode.javareceiver.execution.ZcodeAddressingView;
-import org.zcode.javareceiver.execution.ZcodeCommandView;
+import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.modules.ZcodeCommandFinder;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class ZcodeAction {
-    private enum ActionType {
+    enum ActionType {
         NO_ACTION,
         ERROR,
         ADDRESSING,
@@ -22,9 +22,9 @@ public class ZcodeAction {
         CLOSE_PAREN
     }
 
-    private final SemanticParser parser;
-    private final ActionType     type;
-    private final byte           info;
+    private final ParseState parser;
+    private final ActionType type;
+    private final byte       info;
 
     public static ZcodeAction noAction(SemanticParser semanticParser) {
         return new ZcodeAction(ActionType.NO_ACTION, semanticParser, (byte) 0);
@@ -62,7 +62,7 @@ public class ZcodeAction {
         return new ZcodeAction(ActionType.CLOSE_PAREN, semanticParser, (byte) 0);
     }
 
-    private ZcodeAction(ActionType type, SemanticParser parser, byte info) {
+    private ZcodeAction(ActionType type, ParseState parser, byte info) {
         this.parser = parser;
         this.type = type;
         this.info = info;
@@ -72,6 +72,8 @@ public class ZcodeAction {
         return type != ActionType.NO_ACTION;
     }
 
+    // TODO: response type
+    // TODO: close out stream
     public void performAction(Zcode z, ZcodeOutStream out) {
         switch (type) {
         case ERROR:
@@ -80,16 +82,17 @@ public class ZcodeAction {
             break;
         case ADDRESSING:
             parser.setStarted();
-            ZcodeAddressingView view = new ZcodeAddressingView(parser, out);
-            if (view.verify()) {
-                ZcodeAddressingSystem.execute(view);
+            ZcodeAddressingContext addrCtx = new ZcodeAddressingContext(parser, out);
+            if (addrCtx.verify()) {
+                ZcodeAddressingSystem.execute(addrCtx);
             }
             break;
         case ADDRESSING_MOVEALONG:
-            ZcodeAddressingSystem.moveAlong(new ZcodeAddressingView(parser, out));
+            ZcodeAddressingSystem.moveAlong(new ZcodeAddressingContext(parser, out));
             break;
         case FIRST_COMMAND:
             out.open();
+            out.writeField('!', 0);
             if (parser.hasEcho()) {
                 out.writeField('_', parser.getEcho());
             }
@@ -110,17 +113,18 @@ public class ZcodeAction {
                 }
             }
             parser.setStarted();
-            ZcodeCommandView cmdview = new ZcodeCommandView(parser, out);
-            if (cmdview.verify()) {
-                ZcodeCommandFinder.execute(cmdview);
+            ZcodeCommandContext cmdCtx = new ZcodeCommandContext(parser, out);
+            if (cmdCtx.verify()) {
+                ZcodeCommandFinder.execute(cmdCtx);
             }
             break;
         case COMMAND_MOVEALONG:
-            ZcodeCommandFinder.moveAlong(new ZcodeCommandView(parser, out));
+            ZcodeCommandFinder.moveAlong(new ZcodeCommandContext(parser, out));
             break;
         case END_SEQUENCE:
             parser.seqEndSent();
             out.endSequence();
+            out.close();
             z.unlock(parser.getLocks());
             parser.setLocked(false);
             break;
@@ -137,7 +141,9 @@ public class ZcodeAction {
         if (!out.isOpen()) {
             out.open();
         }
+
         parser.errorSent();
+
         switch (info) {
         case SemanticParser.NO_ERROR:
             throw new IllegalStateException();
@@ -156,6 +162,7 @@ public class ZcodeAction {
             out.writeField('S', ZcodeStatus.SEQUENCE_ERROR);
             break;
         }
+
         out.endSequence();
         out.close();
     }
@@ -180,5 +187,15 @@ public class ZcodeAction {
         boolean l = zcode.lock(parser.getLocks());
         parser.setLocked(l);
         return l;
+    }
+
+    // visible for testing
+    ActionType getType() {
+        return type;
+    }
+
+    // visible for testing
+    byte getInfo() {
+        return info;
     }
 }

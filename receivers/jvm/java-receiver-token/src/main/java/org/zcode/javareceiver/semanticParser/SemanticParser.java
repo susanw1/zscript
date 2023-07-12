@@ -11,7 +11,7 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBufferFlags;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
-public class SemanticParser {
+public class SemanticParser implements ParseState {
     // 16 booleans, 5 uint8_t, 1 uint16_t = 9 bytes of status
 
     public static final byte NO_ERROR                 = 0;
@@ -60,7 +60,7 @@ public class SemanticParser {
     private boolean activated = false;
     private boolean locked    = false;
 
-    public SemanticParser(TokenReader reader) {
+    public SemanticParser(final TokenReader reader) {
         this.reader = reader;
     }
 
@@ -77,7 +77,7 @@ public class SemanticParser {
                 reader.flushFirstReadToken();
                 resetToSequence();
             } else {
-                byte marker = reader.getFirstReadToken().getKey();
+                final byte marker = reader.getFirstReadToken().getKey();
                 reader.flushFirstReadToken();
                 flowControl(marker);
             }
@@ -86,7 +86,8 @@ public class SemanticParser {
         }
         if (needEndSeq) {
             return ZcodeAction.endSequence(this);
-        } else if (needCloseParen) {
+        }
+        if (needCloseParen) {
             return ZcodeAction.closeParen(this);
         }
         dealWithFlags();
@@ -109,45 +110,42 @@ public class SemanticParser {
             return ZcodeAction.noAction(this);
         }
         if (isAddressing) {
-
             if (started) {
                 if (needsAction) {
                     return ZcodeAction.addressing(this);
-                } else {
-                    return ZcodeAction.noAction(this);
                 }
-            } else if (error != NO_ERROR) {
+                return ZcodeAction.noAction(this);
+            }
+            if (error != NO_ERROR) {
                 needSendError = true;
                 return ZcodeAction.error(this, error);
-            } else {
-                return ZcodeAction.addressing(this);
             }
+            return ZcodeAction.addressing(this);
+        }
+        if (started) {
+            if (needsAction) {
+                return ZcodeAction.commandMoveAlong(this);
+            }
+            return ZcodeAction.noAction(this);
+        }
+        if (error != NO_ERROR) {
+            skipToNL = true;
+            skipToSeqEnd();
+            needSendError = true;
+            return ZcodeAction.error(this, error);
+        }
+        if (firstCommand) {
+            return ZcodeAction.firstCommand(this);
+        }
+        if (isSkippingHandler || isFailed) {
+            complete = true;
+            return ZcodeAction.noAction(this);
         } else {
-            if (started) {
-                if (needsAction) {
-                    return ZcodeAction.commandMoveAlong(this);
-                } else {
-                    return ZcodeAction.noAction(this);
-                }
-            } else if (error != NO_ERROR) {
-                skipToNL = true;
-                skipToSeqEnd();
-                needSendError = true;
-                return ZcodeAction.error(this, error);
-            } else if (firstCommand) {
-                return ZcodeAction.firstCommand(this);
-            } else {
-                if (isSkippingHandler || isFailed) {
-                    complete = true;
-                    return ZcodeAction.noAction(this);
-                } else {
-                    return ZcodeAction.runCommand(this, prevMarker);
-                }
-            }
+            return ZcodeAction.runCommand(this, prevMarker);
         }
     }
 
-    private void flowControl(byte marker) {
+    private void flowControl(final byte marker) {
         if (ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
             resetToSequence();
             needEndSeq = true;
@@ -184,15 +182,13 @@ public class SemanticParser {
     }
 
     private void dealWithFlags() {
-        ZcodeTokenBufferFlags flags = reader.getFlags();
-        if (flags.isMarkerWritten()) {
-            flags.clearMarkerWritten();
+        final ZcodeTokenBufferFlags flags = reader.getFlags();
+        if (flags.getAndClearMarkerWritten()) {
             if (!haveNextMarker) {
                 findNextMarker();
             }
         }
-        if (flags.isSeqMarkerWritten()) {
-            flags.clearSeqMarkerWritten();
+        if (flags.getAndClearSeqMarkerWritten()) {
             if (!haveSeqEndMarker) {
                 findSeqEndMarker();
             }
@@ -205,8 +201,8 @@ public class SemanticParser {
     }
 
     private void findNextMarker() {
-        TokenBufferIterator it    = reader.iterator();
-        Optional<ReadToken> token = it.next();
+        final TokenBufferIterator it    = reader.iterator();
+        Optional<ReadToken>       token = it.next();
         while (token.isPresent() && !token.get().isMarker()) {
             token = it.next();
         }
@@ -227,8 +223,8 @@ public class SemanticParser {
     }
 
     private void findSeqEndMarker() {
-        TokenBufferIterator it    = reader.iterator();
-        Optional<ReadToken> token = it.next();
+        final TokenBufferIterator it    = reader.iterator();
+        Optional<ReadToken>       token = it.next();
         while (token.isPresent() && !ZcodeTokenBuffer.isSequenceEndMarker(token.get().getKey())) {
             token = it.next();
         }
@@ -244,7 +240,7 @@ public class SemanticParser {
     }
 
     private void skipToMarker() {
-        TokenBufferIterator it = reader.iterator();
+        final TokenBufferIterator it = reader.iterator();
         for (Optional<ReadToken> token = it.next(); token.isPresent() && !token.get().isMarker(); token = it.next()) {
             it.flushBuffer();
         }
@@ -288,7 +284,8 @@ public class SemanticParser {
                     error = LOCKS_ERROR;
                     skipToNL = true;
                     break;
-                } else if (first.getDataSize() > ZcodeLocks.LOCK_BYTENUM) {
+                }
+                if (first.getDataSize() > ZcodeLocks.LOCK_BYTENUM) {
                     error = LOCKS_ERROR;
                     skipToNL = true;
                     break;
@@ -363,7 +360,7 @@ public class SemanticParser {
         error = OTHER_ERROR;
     }
 
-    public void setComplete(boolean b) {
+    public void setComplete(final boolean b) {
         complete = b;
     }
 
@@ -401,7 +398,7 @@ public class SemanticParser {
         return complete;
     }
 
-    public void setLocked(boolean locked) {
+    public void setLocked(final boolean locked) {
         this.locked = locked;
     }
 

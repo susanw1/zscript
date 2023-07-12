@@ -1,12 +1,12 @@
 package org.zcode.javareceiver.modules.core;
 
-import org.zcode.javareceiver.execution.ZcodeCommandView;
+import org.zcode.javareceiver.execution.ZcodeCommandContext;
 
 public class ZcodeActivateCommand {
 
-    public static void execute(ZcodeCommandView view) {
-        view.getOutStream().writeField('A', view.isActivated() ? 1 : 0);
-        view.activate();
+    public static void execute(ZcodeCommandContext ctx) {
+        ctx.getOutStream().writeField('A', ctx.isActivated() ? 1 : 0);
+        ctx.activate();
     }
 
 }

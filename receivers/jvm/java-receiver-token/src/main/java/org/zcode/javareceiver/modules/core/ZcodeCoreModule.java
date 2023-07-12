@@ -1,8 +1,8 @@
 package org.zcode.javareceiver.modules.core;
 
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.execution.ZcodeAddressingView;
-import org.zcode.javareceiver.execution.ZcodeCommandView;
+import org.zcode.javareceiver.execution.ZcodeAddressingContext;
+import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.modules.ZcodeModule;
 import org.zcode.javareceiver.tokenizer.BlockIterator;
 
@@ -18,41 +18,41 @@ public class ZcodeCoreModule implements ZcodeModule {
     }
 
     @Override
-    public void execute(ZcodeCommandView view, int command) {
+    public void execute(ZcodeCommandContext ctx, int command) {
         switch (command) {
         case 0x0:
-            ZcodeCapabilitiesCommand.execute(view);
+            ZcodeCapabilitiesCommand.execute(ctx);
             break;
         case 0x1:
-            ZcodeEchoCommand.execute(view);
+            ZcodeEchoCommand.execute(ctx);
             break;
         case 0x2:
-            ZcodeActivateCommand.execute(view);
+            ZcodeActivateCommand.execute(ctx);
             break;
         case 0x4:
-            ZcodeGuidCommand.fetch(view);
+            ZcodeGuidCommand.fetch(ctx);
             break;
         case 0x8:
-            ZcodeChannelInfoCommand.execute(view);
+            ZcodeChannelInfoCommand.execute(ctx);
             break;
         case 0xc:
-            ZcodeRandomCodeCommand.make(view);
+            ZcodeRandomCodeCommand.make(ctx);
             break;
         case 0xd:
-            ZcodeRandomCodeCommand.match(view);
+            ZcodeRandomCodeCommand.match(ctx);
             break;
         default:
-            view.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            ctx.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
         }
     }
 
     @Override
-    public void moveAlong(ZcodeCommandView view, int command) {
+    public void moveAlong(ZcodeCommandContext ctx, int command) {
     }
 
     @Override
-    public void address(ZcodeAddressingView view) {
-        for (BlockIterator iterator = view.getAddressedData(); iterator.hasNext();) {
+    public void address(ZcodeAddressingContext ctx) {
+        for (BlockIterator iterator = ctx.getAddressedData(); iterator.hasNext();) {
             byte b = iterator.next();
             System.out.print((char) b);
         }
@@ -60,6 +60,6 @@ public class ZcodeCoreModule implements ZcodeModule {
     }
 
     @Override
-    public void addressMoveAlong(ZcodeAddressingView view) {
+    public void addressMoveAlong(ZcodeAddressingContext ctx) {
     }
 }

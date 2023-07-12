@@ -4,18 +4,18 @@ import java.util.Optional;
 
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.semanticParser.SemanticParser;
+import org.zcode.javareceiver.semanticParser.ParseState;
 import org.zcode.javareceiver.tokenizer.BlockIterator;
 import org.zcode.javareceiver.tokenizer.OptIterator;
 import org.zcode.javareceiver.tokenizer.Zchars;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
-public class ZcodeAddressingView {
-    private final SemanticParser parser;
+public class ZcodeAddressingContext {
+    private final ParseState     parser;
     private final ZcodeOutStream out;
 
-    public ZcodeAddressingView(SemanticParser parser, ZcodeOutStream out) {
+    public ZcodeAddressingContext(ParseState parser, ZcodeOutStream out) {
         this.parser = parser;
         this.out = out;
     }
@@ -43,8 +43,8 @@ public class ZcodeAddressingView {
     }
 
     public void status(byte status) {
-        if (status != ZcodeStatus.SUCCESS) {
-            if (status < 0x10) {
+        if (!ZcodeStatus.isSuccess(status)) {
+            if (ZcodeStatus.isSystemError(status)) {
                 parser.error();
             } else {
                 parser.softFail();
@@ -69,22 +69,22 @@ public class ZcodeAddressingView {
             if (hasReachedData) {
                 if (token.isMarker()) {
                     return true;
-                } else {
-                    status(ZcodeStatus.TOKEN_ERROR);
-                    return false;
                 }
-            } else if (token.getKey() == Zchars.Z_ADDRESSING || token.getKey() == Zchars.Z_ADDRESSING_CONTINUE) {
-                continue;
-            } else if (token.getKey() == ZcodeTokenizer.ADDRESSING_FIELD_KEY) {
-                if (i == 1) {
-                    status(ZcodeStatus.TOKEN_ERROR);
-                    return false;
-                }
-                hasReachedData = true;
-            } else {
                 status(ZcodeStatus.TOKEN_ERROR);
                 return false;
             }
+            if (token.getKey() == Zchars.Z_ADDRESSING || token.getKey() == Zchars.Z_ADDRESSING_CONTINUE) {
+                continue;
+            }
+            if (token.getKey() != ZcodeTokenizer.ADDRESSING_FIELD_KEY) {
+                status(ZcodeStatus.TOKEN_ERROR);
+                return false;
+            }
+            if (i == 1) {
+                status(ZcodeStatus.TOKEN_ERROR);
+                return false;
+            }
+            hasReachedData = true;
         }
         status(ZcodeStatus.TOKEN_ERROR);
         return false;

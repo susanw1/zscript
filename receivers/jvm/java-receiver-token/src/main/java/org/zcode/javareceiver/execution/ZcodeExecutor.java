@@ -21,8 +21,10 @@ public class ZcodeExecutor {
         for (ZcodeChannel ch : channels) {
             possibleActions.add(ch.getParser().getAction());
         }
+
         int         toExec = scheduler.decide(zcode, possibleActions);
         ZcodeAction action = possibleActions.get(toExec);
+
         if (action.needsPerforming() && action.lock(zcode)) {
             action.performAction(zcode, channels.get(toExec).getOutStream());
         }

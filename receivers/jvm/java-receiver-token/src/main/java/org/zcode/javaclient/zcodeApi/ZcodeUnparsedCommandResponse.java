@@ -1,30 +1,32 @@
-package org.zcode.javareceiver.execution;
+package org.zcode.javaclient.zcodeApi;
 
-import java.util.BitSet;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import org.zcode.javareceiver.core.ZcodeOutStream;
-import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.semanticParser.SemanticParser;
 import org.zcode.javareceiver.tokenizer.BlockIterator;
 import org.zcode.javareceiver.tokenizer.OptIterator;
 import org.zcode.javareceiver.tokenizer.Zchars;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 
-public class ZcodeCommandView {
-    private final SemanticParser parser;
-    private final ZcodeOutStream out;
+public class ZcodeUnparsedCommandResponse {
+    private final ReadToken first;
+    // TODO: split common code from CommandContext
 
-    private boolean statusGiven = false;
-
-    public ZcodeCommandView(SemanticParser parser, ZcodeOutStream out) {
-        this.parser = parser;
-        this.out = out;
+    public ZcodeUnparsedCommandResponse(ReadToken first) {
+        this.first = first;
     }
 
-    public ZcodeOutStream getOutStream() {
-        return out;
+    private OptIterator<ReadToken> iterator() {
+        return new OptIterator<ReadToken>() {
+            OptIterator<ReadToken> internal = first.getNextTokens();
+
+            @Override
+            public Optional<ReadToken> next() {
+                return internal.next().filter(t -> !t.isMarker());
+            }
+
+        };
     }
 
     public boolean hasField(byte f) {
@@ -134,104 +136,25 @@ public class ZcodeCommandView {
         return size;
     }
 
-    public void status(byte status) {
-        statusGiven = true;
-        if (status != ZcodeStatus.SUCCESS) {
-            if (status < 0x10) {
-                parser.error();
-            } else {
-                parser.softFail();
-            }
+    public String getBigFieldString() {
+        StringBuilder str = new StringBuilder();
+        for (Iterator<Byte> iterator = getBigField(); iterator.hasNext();) {
+            str.append((char) (byte) iterator.next());
         }
-        out.writeField('S', status);
+        return str.toString();
     }
 
-    public boolean statusGiven() {
-        return statusGiven;
-    }
-
-    private OptIterator<ReadToken> iterator() {
-        return new OptIterator<ReadToken>() {
-            OptIterator<ReadToken> internal = parser.getReader().iterator();
-
-            @Override
-            public Optional<ReadToken> next() {
-                return internal.next().filter(t -> !t.isMarker());
-            }
-
-        };
-    }
-
-    public OptIterator<ZcodeField> fieldIterator() {
-        return new OptIterator<ZcodeField>() {
-            OptIterator<ReadToken> iter = iterator();
-
-            @Override
-            public Optional<ZcodeField> next() {
-                return iter.next().map(r -> new ZcodeField(r));
-            }
-        };
-    }
-
-    public boolean verify() {
-        OptIterator<ReadToken> iter      = iterator();
-        BitSet                 foundCmds = new BitSet(26);
-        for (Optional<ReadToken> opt = iter.next(); opt.isPresent(); opt = iter.next()) {
-            ReadToken rt  = opt.get();
-            byte      key = rt.getKey();
-            if ('A' <= key && key <= 'Z') {
-                if (foundCmds.get(key - 'A')) {
-                    setComplete();
-                    error(ZcodeStatus.TOKEN_ERROR);
-                    return false;
-                }
-                foundCmds.set(key - 'A');
-                if (rt.getDataSize() > 2) {
-                    setComplete();
-                    error(ZcodeStatus.TOKEN_ERROR);
-                    return false;
-                }
-            } else if (key != '"' && key != '+') {
-                setComplete();
-                error(ZcodeStatus.TOKEN_ERROR);
-                return false;
-            }
+    public byte[] getBigFieldData() {
+        byte[] data = new byte[getBigFieldSize()];
+        int    i    = 0;
+        for (Iterator<Byte> iterator = getBigField(); iterator.hasNext();) {
+            data[i] = iterator.next();
         }
-        return true;
+        return data;
     }
 
-    private void error(byte status) {
-        if (!out.isOpen()) {
-            out.open();
-        }
-        out.writeField('S', status);
-        out.endSequence();
-        out.close();
-        parser.error();
-    }
-
-    public void setComplete() {
-        parser.setComplete(true);
-    }
-
-    public void clearComplete() {
-        parser.setComplete(false);
-    }
-
-    public boolean isActivated() {
-        return parser.isActivated();
-    }
-
-    public boolean isEmpty() {
-        return parser.getReader().getFirstReadToken().isMarker();
-    }
-
-    public void activate() {
-        parser.activate();
-    }
-
-    public boolean isComplete() {
-        return parser.isComplete();
+    public Optional<Integer> getField(char c) {
+        return getField((byte) c);
     }
 
 }
