@@ -66,10 +66,10 @@ public class ZcodeCommandResponseQueue implements ZcodeCommandResponseSystem {
     }
 
     private class AddrCommandSeqElEntry implements CommandEntry {
-        private final byte[] cmdSeq;
-        private final int[]  addr;
+        private final byte[]       cmdSeq;
+        private final ZcodeAddress addr;
 
-        public AddrCommandSeqElEntry(final byte[] cmdSeq, final int[] addr) {
+        public AddrCommandSeqElEntry(final byte[] cmdSeq, final ZcodeAddress addr) {
             this.cmdSeq = cmdSeq;
             this.addr = addr;
         }
@@ -77,10 +77,10 @@ public class ZcodeCommandResponseQueue implements ZcodeCommandResponseSystem {
         @Override
         public byte[] compile() {
             // TODO: decide on how locking will work...
-            ByteArrayOutputStream str = new ByteArrayOutputStream(addr.length * 3 + addr.length);
+            ByteArrayOutputStream str = new ByteArrayOutputStream(addr.getAddr().length * 3 + cmdSeq.length);
             try {
                 boolean isFirst = true;
-                for (int i : addr) {
+                for (int i : addr.getAddr()) {
                     str.write(ZcodeCommandBuilder.writeField((byte) (isFirst ? '@' : '.'), i));
                     isFirst = false;
                 }
@@ -140,7 +140,7 @@ public class ZcodeCommandResponseQueue implements ZcodeCommandResponseSystem {
     }
 
     @Override
-    public void send(final int[] addr, final byte[] data) {
+    public void send(final ZcodeAddress addr, final byte[] data) {
         if (sent.size() < MAX_SENT && canPipeline) {
             AddrCommandSeqElEntry el = new AddrCommandSeqElEntry(data, addr);
             sent.add(el);

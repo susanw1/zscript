@@ -5,6 +5,18 @@ import java.util.Arrays;
 public class ZcodeAddress {
     private final int[] addr;
 
+    public static ZcodeAddress from(int addr0) {
+        return new ZcodeAddress(new int[] { addr0 });
+    }
+
+    public static ZcodeAddress from(int addr0, int addr1) {
+        return new ZcodeAddress(new int[] { addr0, addr1 });
+    }
+
+    public static ZcodeAddress from(int addr0, int addr1, int addr2) {
+        return new ZcodeAddress(new int[] { addr0, addr1, addr2 });
+    }
+
     public ZcodeAddress(int[] addr) {
         this.addr = addr;
     }

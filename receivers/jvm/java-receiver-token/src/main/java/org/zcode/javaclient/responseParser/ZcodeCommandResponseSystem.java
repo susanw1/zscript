@@ -7,7 +7,7 @@ import org.zcode.javaclient.zcodeApi.CommandSeqElement;
 public interface ZcodeCommandResponseSystem {
     void send(CommandSeqElement seq);
 
-    void send(int[] addressSegments, byte[] data);
+    void send(ZcodeAddress addr, byte[] data);
 
     void send(byte[] zcode, Consumer<byte[]> callback);
 

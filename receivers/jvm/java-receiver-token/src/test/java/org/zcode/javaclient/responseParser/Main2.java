@@ -12,7 +12,8 @@ public class Main2 {
                 .build()
                 .andThen(new DemoActivateCommandBuilder().addResponseListener(r -> System.out.println(r.alreadyActivated())).build())
                 .andThen(new DemoActivateCommandBuilder().addResponseListener(r -> System.out.println(r.alreadyActivated())).build()));
-        ZcodeCommandResponseSystem zcodeOutAddr = new ZcodeCommandResponseQueue(zcodeOut.getResponseAddressingSystem().getAddressConnection(new int[] { 0x50, 0x0, 0x1 }));
+        ZcodeCommandResponseSystem zcodeOutAddr = new ZcodeCommandResponseQueue(
+                zcodeOut.getResponseAddressingSystem().getAddressConnection(ZcodeAddress.from(0x50, 0x0, 0x1)));
         zcodeOutAddr.send(new DemoCapabilitiesCommandBuilder()
                 .setVersionType(DemoCapabilitiesCommandBuilder.PLATFORM_FIRMWARE)
                 .addResponseListener(r -> System.out.println(r.getName()))
