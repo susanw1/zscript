@@ -1,8 +1,10 @@
 package org.zcode.javaclient.responseParser;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.zcode.javaclient.zcodeApi.CommandSeqElement;
 import org.zcode.javaclient.zcodeApi.ZcodeCommand;
@@ -89,7 +91,7 @@ public class ZcodeResponseParser {
         }
     }
 
-    //TODO: Trim the sequence level stuff off of first command
+    // TODO: Trim the sequence level stuff off of first command
     public static void parseFullResponse(final CommandSeqElement command, final byte[] responce) {
         final ZcodeTokenBuffer buffer = new ZcodeTokenExtendingBuffer();
         final ZcodeTokenizer   in     = new ZcodeTokenizer(buffer.getTokenWriter(), 4);
@@ -117,11 +119,17 @@ public class ZcodeResponseParser {
                 prevWasMarker = true;
             }
         }
-        ZcodeCommand      current     = null;
-        ZcodeSequencePath successPath = ZcodeCommand.findFirstCommand(command);
-        ZcodeSequencePath failPath    = ZcodeCommand.findFirstCommand(command);
+        matchMarkers(command, markers, tokenAfterMarkers);
+    }
+
+    private static void matchMarkers(final CommandSeqElement command, final List<Byte> markers, final List<ReadToken> tokenAfterMarkers) {
+        ZcodeCommand      current       = null;
+        ZcodeSequencePath successPath   = ZcodeCommand.findFirstCommand(command);
+        ZcodeSequencePath failPath      = ZcodeCommand.findFirstCommand(command);
+        Set<ZcodeCommand> sentResponses = new HashSet<>();
 
         int offset = 0;
+
         while (true) {
             boolean canBeSuccess = true;
             if (successPath == null) {
@@ -157,7 +165,7 @@ public class ZcodeResponseParser {
                     offset += failPath.getMarkers().size();
                     current = failPath.getNext();
                 } else {
-                    return;
+                    break;
                 }
             }
             if (current == null) {
@@ -166,6 +174,14 @@ public class ZcodeResponseParser {
             successPath = current.findSuccessPath();
             failPath = current.findFailPath();
             current.response(new ZcodeUnparsedCommandResponse(tokenAfterMarkers.get(offset)));
+            sentResponses.add(current);
+        }
+        for (ZcodeSequencePath path = ZcodeCommand.findFirstCommand(command); path != null; path = path.getNext().findNext()) {
+            ZcodeCommand cmd = path.getNext();
+            if (!sentResponses.contains(cmd)) {
+                cmd.notExecuted();
+            }
         }
     }
+
 }

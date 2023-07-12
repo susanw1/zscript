@@ -68,4 +68,7 @@ public class ZcodeFailureCommand extends ZcodeCommand {
     public void response(ZcodeUnparsedCommandResponse resp) {
     }
 
+    @Override
+    public void notExecuted() {
+    }
 }
