@@ -11,7 +11,6 @@ import org.zcode.javaclient.zcodeApi.ZcodeCommand;
 import org.zcode.javaclient.zcodeApi.ZcodeCommand.ZcodeSequencePath;
 import org.zcode.javaclient.zcodeApi.ZcodeUnparsedCommandResponse;
 import org.zcode.javareceiver.tokenizer.OptIterator;
-import org.zcode.javareceiver.tokenizer.Zchars;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
@@ -20,12 +19,18 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class ZcodeResponseParser {
     static class ResponseHeader {
-        private final int type;
-        private final int echo;
+        private final int[] addr;
+        private final int   type;
+        private final int   echo;
 
-        public ResponseHeader(int type, int echo) {
+        public ResponseHeader(int[] addr, int type, int echo) {
+            this.addr = addr;
             this.type = type;
             this.echo = echo;
+        }
+
+        public int[] getAddr() {
+            return addr;
         }
 
         public int getType() {
@@ -38,41 +43,55 @@ public class ZcodeResponseParser {
 
     }
 
-    // TODO: do this better
     public static ResponseHeader parseResponseHeader(byte[] resp) {
-        int     respType = -1;
-        int     echo     = -1;
-        boolean inEcho   = false;
-        if (resp.length == 0 || resp[0] != '!') {
-            throw new IllegalArgumentException("Not a value response");
+        final ZcodeTokenBuffer buffer = new ZcodeTokenExtendingBuffer();
+        final ZcodeTokenizer   in     = new ZcodeTokenizer(buffer.getTokenWriter(), 4);
+        final TokenReader      reader = buffer.getTokenReader();
+
+        ReadToken lastWritten = null;
+        for (final byte b : resp) {
+            in.accept(b);
+            if (lastWritten == null) {
+                if (reader.hasReadToken()) {
+                    lastWritten = reader.getFirstReadToken();
+                }
+            } else {
+                Optional<ReadToken> opt = lastWritten.getNextTokens().next();
+                if (opt.isPresent()) {
+                    lastWritten = opt.get();
+                }
+                if (lastWritten.getKey() != '_' && lastWritten.getKey() != '!' && lastWritten.getKey() != '@' && lastWritten.getKey() != '.') {
+                    break;
+                }
+            }
+            if (buffer.getTokenReader().getFlags().getAndClearMarkerWritten()) {
+                break;
+            }
         }
-        for (byte b : resp) {
-            int num = -1;
-            if (Zchars.shouldIgnore(b)) {
-                continue;
-            } else if (b == '!') {
-                respType = 0;
-            } else if (b == '_') {
-                inEcho = true;
-                echo = 0;
-            } else if ('0' <= b && b <= '9') {
-                num = b - '0';
-            } else if ('a' <= b && b <= 'f') {
-                num = b - 'a' + 10;
+        int respType = -1;
+        int echo     = -1;
+
+        List<Integer> addr = new ArrayList<>();
+
+        OptIterator<ReadToken> it = reader.iterator();
+        for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
+            ReadToken token = opt.get();
+            if (token.getKey() == '_') {
+                echo = token.getData16();
+            } else if (token.getKey() == '!') {
+                respType = token.getData16();
+            } else if (token.getKey() == '@' || token.getKey() == '.') {
+                addr.add(token.getData16());
             } else {
                 break;
             }
-            if (num != -1) {
-                if (inEcho) {
-                    echo <<= 4;
-                    echo |= num;
-                } else {
-                    respType <<= 4;
-                    respType |= num;
-                }
-            }
         }
-        return new ResponseHeader(respType, echo);
+        int[] addrArr = new int[addr.size()];
+        int   i       = 0;
+        for (int val : addr) {
+            addrArr[i++] = val;
+        }
+        return new ResponseHeader(addrArr, respType, echo);
     }
 
     private static byte convertMarkers(byte encoded) {
@@ -95,12 +114,9 @@ public class ZcodeResponseParser {
     public static void parseFullResponse(final CommandSeqElement command, final byte[] responce) {
         final ZcodeTokenBuffer buffer = new ZcodeTokenExtendingBuffer();
         final ZcodeTokenizer   in     = new ZcodeTokenizer(buffer.getTokenWriter(), 4);
-        System.out.print("resp: ");
         for (final byte b : responce) {
             in.accept(b);
-            System.out.print((char) b);
         }
-        System.out.println();
         final TokenReader     reader            = buffer.getTokenReader();
         final List<Byte>      markers           = new ArrayList<>();
         final List<ReadToken> tokenAfterMarkers = new ArrayList<>();
