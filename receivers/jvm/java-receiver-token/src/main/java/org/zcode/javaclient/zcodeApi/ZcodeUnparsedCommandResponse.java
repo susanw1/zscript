@@ -11,6 +11,7 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 
 public class ZcodeUnparsedCommandResponse {
     private final ReadToken first;
+    // TODO: split common code from CommandContext
 
     public ZcodeUnparsedCommandResponse(ReadToken first) {
         this.first = first;

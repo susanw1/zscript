@@ -36,6 +36,7 @@ public class ZcodeResponseParser {
 
     }
 
+    // TODO: do this better
     public static ResponseHeader parseResponseHeader(byte[] resp) {
         int     respType = -1;
         int     echo     = -1;
@@ -88,6 +89,7 @@ public class ZcodeResponseParser {
         }
     }
 
+    //TODO: Trim the sequence level stuff off of first command
     public static void parseFullResponse(final CommandSeqElement command, final byte[] responce) {
         final ZcodeTokenBuffer buffer = new ZcodeTokenExtendingBuffer();
         final ZcodeTokenizer   in     = new ZcodeTokenizer(buffer.getTokenWriter(), 4);

@@ -3,8 +3,9 @@ package org.zcode.javaclient.zcodeApiAttempt;
 import org.zcode.javaclient.zcodeApi.ZcodeCommandBuilder;
 import org.zcode.javaclient.zcodeApi.ZcodeResponse;
 import org.zcode.javaclient.zcodeApi.ZcodeUnparsedCommandResponse;
+import org.zcode.javaclient.zcodeApiAttempt.DemoCapabilitiesCommandBuilder.DemoCapabilitiesCommandResponse;
 
-public class DemoCapabilitiesCommandBuilder extends ZcodeCommandBuilder<org.zcode.javaclient.zcodeApiAttempt.DemoCapabilitiesCommandBuilder.DemoCapabilitiesCommandResponse> {
+public class DemoCapabilitiesCommandBuilder extends ZcodeCommandBuilder<DemoCapabilitiesCommandResponse> {
     public static final int USER_FIRMWARE     = 0;
     public static final int USER_HARDWARE     = 1;
     public static final int PLATFORM_FIRMWARE = 2;

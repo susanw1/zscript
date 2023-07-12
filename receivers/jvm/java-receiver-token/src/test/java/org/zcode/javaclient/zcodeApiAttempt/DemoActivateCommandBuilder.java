@@ -3,8 +3,9 @@ package org.zcode.javaclient.zcodeApiAttempt;
 import org.zcode.javaclient.zcodeApi.ZcodeCommandBuilder;
 import org.zcode.javaclient.zcodeApi.ZcodeResponse;
 import org.zcode.javaclient.zcodeApi.ZcodeUnparsedCommandResponse;
+import org.zcode.javaclient.zcodeApiAttempt.DemoActivateCommandBuilder.DemoActivateCommandResponse;
 
-public class DemoActivateCommandBuilder extends ZcodeCommandBuilder<org.zcode.javaclient.zcodeApiAttempt.DemoActivateCommandBuilder.DemoActivateCommandResponse> {
+public class DemoActivateCommandBuilder extends ZcodeCommandBuilder<DemoActivateCommandResponse> {
     public class DemoActivateCommandResponse implements ZcodeResponse {
         private final boolean alreadyActivated;
 
