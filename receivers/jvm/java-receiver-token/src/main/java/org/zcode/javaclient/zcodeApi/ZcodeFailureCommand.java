@@ -61,7 +61,7 @@ public class ZcodeFailureCommand extends ZcodeCommand {
 
     @Override
     public byte[] compile(boolean includeParens) {
-        return "Z1S10".getBytes(StandardCharsets.UTF_8);
+        return "Z1S2".getBytes(StandardCharsets.UTF_8);
     }
 
     @Override

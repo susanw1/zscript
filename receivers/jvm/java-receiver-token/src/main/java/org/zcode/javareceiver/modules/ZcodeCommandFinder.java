@@ -25,12 +25,12 @@ public class ZcodeCommandFinder {
         }
         Optional<Integer> value = ctx.getField((byte) 'Z');
         if (value.isEmpty()) {
-            ctx.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            ctx.status(ZcodeStatus.COMMAND_NOT_FOUND);
             return;
         }
         int cmd = value.get();
         if ((cmd >> 4) >= 0x1000) {
-            ctx.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            ctx.status(ZcodeStatus.FIELD_TOO_LONG);
             return;
         }
         if (cmd > MAX_SYSTEM_CMD && !ctx.isActivated()) {
@@ -38,7 +38,7 @@ public class ZcodeCommandFinder {
             return;
         }
         if (modules[cmd >> 4] == null) {
-            ctx.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            ctx.status(ZcodeStatus.COMMAND_NOT_FOUND);
             return;
         }
 

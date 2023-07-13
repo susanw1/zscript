@@ -18,7 +18,7 @@ public class ZcodeExtendedCapabilitiesCommand {
         if (targetOpt.isPresent()) {
             int target = targetOpt.get();
             if (target > 16) {
-                ctx.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+                ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
                 return;
             }
             int result = ZcodeCommandFinder.getCommandSwitchExistsTop(target);

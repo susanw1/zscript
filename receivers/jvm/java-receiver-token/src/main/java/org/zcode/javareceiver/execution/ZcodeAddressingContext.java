@@ -44,7 +44,7 @@ public class ZcodeAddressingContext {
 
     public void status(byte status) {
         if (!ZcodeStatus.isSuccess(status)) {
-            if (ZcodeStatus.isSystemError(status)) {
+            if (ZcodeStatus.isError(status)) {
                 parser.error();
             } else {
                 parser.softFail();
@@ -70,23 +70,23 @@ public class ZcodeAddressingContext {
                 if (token.isMarker()) {
                     return true;
                 }
-                status(ZcodeStatus.TOKEN_ERROR);
+                status(ZcodeStatus.INVALID_KEY);
                 return false;
             }
             if (token.getKey() == Zchars.Z_ADDRESSING || token.getKey() == Zchars.Z_ADDRESSING_CONTINUE) {
                 continue;
             }
             if (token.getKey() != ZcodeTokenizer.ADDRESSING_FIELD_KEY) {
-                status(ZcodeStatus.TOKEN_ERROR);
+                status(ZcodeStatus.INVALID_KEY);
                 return false;
             }
             if (i == 1) {
-                status(ZcodeStatus.TOKEN_ERROR);
+                status(ZcodeStatus.INTERNAL_ERROR);
                 return false;
             }
             hasReachedData = true;
         }
-        status(ZcodeStatus.TOKEN_ERROR);
+        status(ZcodeStatus.MISSING_KEY);
         return false;
     }
 

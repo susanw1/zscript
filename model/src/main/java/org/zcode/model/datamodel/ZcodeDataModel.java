@@ -77,7 +77,7 @@ public interface ZcodeDataModel {
         List<StatusModel> getStatus();
 
         default int getFullCommand() {
-            return getModule().getModuleBank().getId() << 16 | getModule().getId() << 4 | getCommand();
+            return getModule().getModuleBank().getId() << 8 | getModule().getId() << 4 | getCommand();
         }
     }
 

@@ -19,14 +19,14 @@ public class ZcodeChannelInfoCommand {
             }
             current++;
         }
+        int target = ctx.getField((byte) 'C', current);
+        if (target >= chs.size()) {
+            ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
+            return;
+        }
         ctx.getOutStream().writeField('C', chs.size());
         if (current <= chs.size()) {
             ctx.getOutStream().writeField('U', current);
-        }
-        int target = ctx.getField((byte) 'C', current);
-        if (target >= chs.size()) {
-            ctx.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
-            return;
         }
         chs.get(target).channelInfo(ctx);
     }
