@@ -21,7 +21,7 @@ public class ZcodeChannelSetupCommand {
         }
         int target = ctx.getField((byte) 'C', current);
         if (target >= chs.size()) {
-            ctx.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
             return;
         }
         chs.get(target).channelSetup(ctx);

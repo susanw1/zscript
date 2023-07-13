@@ -24,7 +24,7 @@ public class ZcodeGuidCommand {
 
     public static void set(ZcodeCommandContext ctx) {
         if (ctx.getBigFieldSize() != 16) {
-            ctx.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
         } else {
             byte[] data = new byte[16];
             int    i    = 0;

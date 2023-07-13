@@ -153,13 +153,31 @@ public class ZcodeAction {
         case SemanticParser.MARKER_ERROR:
             if (parser.getSeqEndMarker() == ZcodeTokenizer.ERROR_BUFFER_OVERRUN) {
                 out.writeField('S', ZcodeStatus.BUFFER_OVR_ERROR);
+            } else if (parser.getSeqEndMarker() == ZcodeTokenizer.ERROR_CODE_FIELD_TOO_LONG) {
+                out.writeField('S', ZcodeStatus.FIELD_TOO_LONG);
+            } else if (parser.getSeqEndMarker() == ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN) {
+                out.writeField('S', ZcodeStatus.ILLEGAL_KEY);
+            } else if (parser.getSeqEndMarker() == ZcodeTokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH) {
+                out.writeField('S', ZcodeStatus.ODD_LENGTH);
+            } else if (parser.getSeqEndMarker() == ZcodeTokenizer.ERROR_CODE_STRING_ESCAPING) {
+                out.writeField('S', ZcodeStatus.ESCAPING_ERROR);
+            } else if (parser.getSeqEndMarker() == ZcodeTokenizer.ERROR_CODE_STRING_NOT_TERMINATED) {
+                out.writeField('S', ZcodeStatus.UNTERMINATED_STRING);
             } else {
-                out.writeField('S', ZcodeStatus.SYNTAX_ERROR);
-                out.writeField('T', parser.getSeqEndMarker() & 0xf);
+                out.writeField('S', ZcodeStatus.INTERNAL_ERROR);
             }
             break;
+        case SemanticParser.COMMENT_WITH_STUFF_ERROR:
+            out.writeField('S', ZcodeStatus.INVALID_COMMENT);
+            break;
+        case SemanticParser.LOCKS_ERROR:
+            out.writeField('S', ZcodeStatus.INVALID_LOCKS);
+            break;
+        case SemanticParser.MULTIPLE_ECHO_ERROR:
+            out.writeField('S', ZcodeStatus.INVALID_ECHO);
+            break;
         default:
-            out.writeField('S', ZcodeStatus.SEQUENCE_ERROR);
+            out.writeField('S', ZcodeStatus.INTERNAL_ERROR);
             break;
         }
 

@@ -15,7 +15,7 @@ public class ZcodeAddressingSystem {
 
         ZcodeModule module = ZcodeCommandFinder.getModule(addr);
         if (module == null) {
-            ctx.status(ZcodeStatus.ADDRESSING_ERROR);
+            ctx.status(ZcodeStatus.ADDRESS_NOT_FOUND);
             return;
         }
         ctx.setComplete();

@@ -30,7 +30,7 @@ public class ZcodeOuterCoreModule implements ZcodeModule {
             ZcodeChannelSetupCommand.execute(ctx);
             break;
         default:
-            ctx.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            ctx.status(ZcodeStatus.COMMAND_NOT_FOUND);
         }
     }
 

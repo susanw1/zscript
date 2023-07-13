@@ -21,7 +21,7 @@ public class ZcodeRandomCodeCommand {
     public static void match(ZcodeCommandContext ctx) {
         Optional<Integer> givenCode = ctx.getField((byte) 'C');
         if (givenCode.isEmpty()) {
-            ctx.status(ZcodeStatus.COMMAND_FORMAT_ERROR);
+            ctx.status(ZcodeStatus.MISSING_KEY);
             return;
         }
         if (givenCode.get() != code) {

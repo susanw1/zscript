@@ -56,7 +56,7 @@ public class ZcodeAbortCommand extends ZcodeCommand {
 
     @Override
     public byte[] compile(boolean includeParens) {
-        return "Z1Sf".getBytes(StandardCharsets.UTF_8);
+        return "Z1S13".getBytes(StandardCharsets.UTF_8);
     }
 
     @Override

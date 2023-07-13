@@ -138,7 +138,7 @@ public class ZcodeCommandContext {
     public void status(final byte status) {
         statusGiven = true;
         if (!ZcodeStatus.isSuccess(status)) {
-            if (ZcodeStatus.isSystemError(status)) {
+            if (ZcodeStatus.isError(status)) {
                 parser.error();
             } else {
                 parser.softFail();
@@ -187,18 +187,18 @@ public class ZcodeCommandContext {
             if (Zchars.isNumericKey(key)) {
                 if (foundCmds.get(key - 'A')) {
                     setComplete();
-                    error(ZcodeStatus.TOKEN_ERROR);
+                    error(ZcodeStatus.REPEATED_KEY);
                     return false;
                 }
                 foundCmds.set(key - 'A');
                 if (rt.getDataSize() > 2) {
                     setComplete();
-                    error(ZcodeStatus.TOKEN_ERROR);
+                    error(ZcodeStatus.FIELD_TOO_LONG);
                     return false;
                 }
             } else if (key != '"' && key != '+') {
                 setComplete();
-                error(ZcodeStatus.TOKEN_ERROR);
+                error(ZcodeStatus.INVALID_KEY);
                 return false;
             }
         }
