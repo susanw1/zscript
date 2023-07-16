@@ -12,6 +12,7 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 public class ZcodeAction {
     enum ActionType {
         NO_ACTION,
+        NEEDS_TOKENS,
         ERROR,
         ADDRESSING,
         ADDRESSING_MOVEALONG,
@@ -28,6 +29,10 @@ public class ZcodeAction {
 
     public static ZcodeAction noAction(SemanticParser semanticParser) {
         return new ZcodeAction(ActionType.NO_ACTION, semanticParser, (byte) 0);
+    }
+
+    public static ZcodeAction needsTokens(SemanticParser semanticParser) {
+        return new ZcodeAction(ActionType.NEEDS_TOKENS, semanticParser, (byte) 0);
     }
 
     public static ZcodeAction error(SemanticParser semanticParser, byte error) {
@@ -69,12 +74,12 @@ public class ZcodeAction {
     }
 
     public boolean needsPerforming() {
-        return type != ActionType.NO_ACTION;
+        return type != ActionType.NO_ACTION && type != ActionType.NEEDS_TOKENS;
     }
 
     // TODO: response type
     // TODO: close out stream
-    public void performAction(Zcode z, ZcodeOutStream out) {
+    public void performAction(Zcode zcode, ZcodeOutStream out) {
         switch (type) {
         case ERROR:
             sendError(out);
@@ -88,6 +93,7 @@ public class ZcodeAction {
             }
             break;
         case ADDRESSING_MOVEALONG:
+            parser.clearNeedsAction();
             ZcodeAddressingSystem.moveAlong(new ZcodeAddressingContext(parser, out));
             break;
         case FIRST_COMMAND:
@@ -97,6 +103,7 @@ public class ZcodeAction {
                 out.writeField('_', parser.getEcho());
             }
             parser.clearFirstCommand();
+            // fall though
         case COMMAND:
             if (info != 0) {
                 if (info == ZcodeTokenizer.CMD_END_ANDTHEN) {
@@ -116,16 +123,34 @@ public class ZcodeAction {
             ZcodeCommandContext cmdCtx = new ZcodeCommandContext(parser, out);
             if (cmdCtx.verify()) {
                 ZcodeCommandFinder.execute(cmdCtx);
+                if (cmdCtx.isComplete()) {
+                    if (!cmdCtx.statusGiven()) {
+                        cmdCtx.status(ZcodeStatus.SUCCESS);
+                    } else if (cmdCtx.statusError()) {
+                        out.endSequence();
+                        out.close();
+                    }
+                }
             }
             break;
         case COMMAND_MOVEALONG:
-            ZcodeCommandFinder.moveAlong(new ZcodeCommandContext(parser, out));
+            parser.clearNeedsAction();
+            ZcodeCommandContext cmdCtx1 = new ZcodeCommandContext(parser, out);
+            ZcodeCommandFinder.moveAlong(cmdCtx1);
+            if (cmdCtx1.isComplete()) {
+                if (!cmdCtx1.statusGiven()) {
+                    cmdCtx1.status(ZcodeStatus.SUCCESS);
+                } else if (cmdCtx1.statusError()) {
+                    out.endSequence();
+                    out.close();
+                }
+            }
             break;
         case END_SEQUENCE:
             parser.seqEndSent();
             out.endSequence();
             out.close();
-            z.unlock(parser.getLocks());
+            zcode.unlock(parser.getLocks());
             parser.setLocked(false);
             break;
         case CLOSE_PAREN:
@@ -133,6 +158,7 @@ public class ZcodeAction {
             out.writeCloseParen();
             break;
         case NO_ACTION:
+        case NEEDS_TOKENS:
             break;
         }
     }
@@ -187,11 +213,11 @@ public class ZcodeAction {
 
     @Override
     public String toString() {
-        return type.name();
+        return "ActionType(" + type + ", info=" + Byte.toUnsignedInt(info) + ")";
     }
 
-    public boolean canLock(Zcode z) {
-        return parser.isLocked() || z.canLock(parser.getLocks());
+    public boolean canLock(Zcode zcode) {
+        return parser.isLocked() || zcode.canLock(parser.getLocks());
     }
 
     public boolean isLocked() {

@@ -18,6 +18,7 @@ public class ZcodeCommandContext {
     private final ZcodeOutStream out;
 
     private boolean statusGiven = false;
+    private boolean statusError = false;
 
     public ZcodeCommandContext(final ParseState parser, final ZcodeOutStream out) {
         this.parser = parser;
@@ -139,6 +140,7 @@ public class ZcodeCommandContext {
         statusGiven = true;
         if (!ZcodeStatus.isSuccess(status)) {
             if (ZcodeStatus.isError(status)) {
+                statusError = true;
                 parser.error();
             } else {
                 parser.softFail();
@@ -149,6 +151,10 @@ public class ZcodeCommandContext {
 
     public boolean statusGiven() {
         return statusGiven;
+    }
+
+    public boolean statusError() {
+        return statusError;
     }
 
     private OptIterator<ReadToken> iterator() {

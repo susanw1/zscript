@@ -69,7 +69,7 @@ public class SemanticParser implements ParseState {
             return ZcodeAction.error(this, error);
         }
 
-        if (complete) {
+        if (complete && !skipToNL) {
             complete = false;
             started = false;
             skipToMarker();
@@ -92,7 +92,7 @@ public class SemanticParser implements ParseState {
         }
         dealWithFlags();
         if (!haveNextMarker) {
-            return ZcodeAction.noAction(this);
+            return ZcodeAction.needsTokens(this);
         }
         if (atSeqStart) {
             atSeqStart = false;
@@ -112,7 +112,7 @@ public class SemanticParser implements ParseState {
         if (isAddressing) {
             if (started) {
                 if (needsAction) {
-                    return ZcodeAction.addressing(this);
+                    return ZcodeAction.addressingMoveAlong(this);
                 }
                 return ZcodeAction.noAction(this);
             }
@@ -140,13 +140,13 @@ public class SemanticParser implements ParseState {
         if (isSkippingHandler || isFailed) {
             complete = true;
             return ZcodeAction.noAction(this);
-        } else {
-            return ZcodeAction.runCommand(this, prevMarker);
         }
+        return ZcodeAction.runCommand(this, prevMarker);
     }
 
     private void flowControl(final byte marker) {
         if (ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
+            // only expects \n here - other error tokens are handled elsewhere
             resetToSequence();
             needEndSeq = true;
         } else {
@@ -155,7 +155,7 @@ public class SemanticParser implements ParseState {
                     if (parenCounter == 0) {
                         isFailed = false;
                     }
-                } else {
+                } else if (!isSkippingHandler) {
                     isSkippingHandler = true;
                     parenCounter = 0;
                 }
@@ -331,79 +331,107 @@ public class SemanticParser implements ParseState {
         findSeqEndMarker();
     }
 
+    @Override
     public void setStarted() {
         this.started = true;
     }
 
+    @Override
     public byte getSeqEndMarker() {
         return seqEndMarker;
     }
 
+    @Override
     public ZcodeLockSet getLocks() {
         return locks;
     }
 
+    @Override
     public TokenReader getReader() {
         return reader;
     }
 
+    @Override
     public boolean hasEcho() {
         return hasEcho;
     }
 
+    @Override
     public int getEcho() {
         return echo;
     }
 
+    @Override
     public void error() {
         skipToNL = true;
         error = OTHER_ERROR;
     }
 
+    @Override
     public void setComplete(final boolean b) {
         complete = b;
     }
 
+    @Override
     public void softFail() {
         isFailed = true;
         parenCounter = 0;
     }
 
+    @Override
     public boolean isActivated() {
         return activated;
     }
 
+    @Override
     public void activate() {
         activated = true;
     }
 
+    @Override
     public void clearFirstCommand() {
         firstCommand = false;
     }
 
+    @Override
     public void errorSent() {
         needSendError = false;
         error = NO_ERROR;
     }
 
+    @Override
     public void seqEndSent() {
         needEndSeq = false;
     }
 
+    @Override
     public void closeParenSent() {
         needCloseParen = false;
     }
 
+    @Override
     public boolean isComplete() {
         return complete;
     }
 
+    @Override
     public void setLocked(final boolean locked) {
         this.locked = locked;
     }
 
+    @Override
     public boolean isLocked() {
         return locked;
+    }
+
+    @Override
+    public void needsAction() {
+        needsAction = true;
+    }
+
+    @Override
+    public void clearNeedsAction() {
+        needsAction = false;
     }
 
 }

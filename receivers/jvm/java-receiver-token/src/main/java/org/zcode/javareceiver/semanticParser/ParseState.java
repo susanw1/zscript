@@ -42,4 +42,8 @@ public interface ParseState {
     void closeParenSent();
 
     byte getSeqEndMarker();
+
+    void needsAction();
+
+    void clearNeedsAction();
 }

@@ -11,8 +11,8 @@ class ZcodeTokenRingBufferWriterTest {
 
     private static final int BUFSIZE = 10;
 
-    private ZcodeTokenRingBuffer buffer = ZcodeTokenRingBuffer.createBufferWithCapacity(BUFSIZE);
-    TokenWriter                  writer = buffer.getTokenWriter();
+    private final ZcodeTokenRingBuffer buffer = ZcodeTokenRingBuffer.createBufferWithCapacity(BUFSIZE);
+    private final TokenWriter          writer = buffer.getTokenWriter();
 
     /**
      * Validates the exposed buffer state.

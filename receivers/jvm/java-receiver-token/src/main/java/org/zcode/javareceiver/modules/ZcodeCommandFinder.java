@@ -20,7 +20,6 @@ public class ZcodeCommandFinder {
     public static void execute(ZcodeCommandContext ctx) {
         ctx.setComplete();
         if (ctx.isEmpty()) {
-            ctx.setComplete();
             return;
         }
         Optional<Integer> value = ctx.getField((byte) 'Z');
@@ -43,18 +42,11 @@ public class ZcodeCommandFinder {
         }
 
         modules[cmd >> 4].execute(ctx, cmd & 0xF);
-
-        if (ctx.isComplete() && !ctx.statusGiven()) {
-            ctx.status(ZcodeStatus.SUCCESS);
-        }
     }
 
     public static void moveAlong(ZcodeCommandContext ctx) {
         int cmd = ctx.getField((byte) 'Z').get();
         modules[cmd >> 4].moveAlong(ctx, cmd & 0xF);
-        if (ctx.isComplete() && !ctx.statusGiven()) {
-            ctx.status(ZcodeStatus.SUCCESS);
-        }
     }
 
     public static int getCommandSwitchExistsBottom(int top) {

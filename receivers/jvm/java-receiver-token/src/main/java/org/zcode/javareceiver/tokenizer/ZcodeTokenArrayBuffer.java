@@ -477,6 +477,13 @@ public abstract class ZcodeTokenArrayBuffer implements ZcodeTokenBuffer {
                 return ZcodeTokenBuffer.isMarker(data[index]) ? 0 : Byte.toUnsignedInt(data[offset(index, 1)]);
             }
 
+            @Override
+            public String toString() {
+                if (ZcodeTokenBuffer.isMarker(data[index])) {
+                    return "Token(Marker:0x" + Integer.toHexString(Byte.toUnsignedInt(data[index])) + ")";
+                }
+                return "Token(key='" + (char) getKey() + "', len=" + getDataSize() + ")";
+            }
         }
 
     }
