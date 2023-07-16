@@ -40,6 +40,16 @@ Semantic parser (Java version) is done, and we've ported the tokenizer to C++. I
 
 * We realized that it might be bad not to be able to distinguish command sequences from responses - they both have the same general syntax and structure. *Decision*:  _All_ response-sequences MUST begin with `'!'`. Up to now, only notification (async) responses had them, to identify their source (eg script-space, or interrupt notification). Now, `'!'` really means `'!0'`, implying source `0`, which is the synchronous response source.
 
+2023-07-14
+---
+Decided to distinguish three types of boolean-like values: `flags` `booleans` and `tri-states`. 
+- A `flag` is either not present or present. 
+- A `boolean` is either zero (false) or non-zero (true)
+- A `tri-state` is not present, zero, or non-zero
+
+2023-07
+---
+Swapped meaning of Status `0x1`-`0xf` and `0x10`+ so that `0x10`+ indicate errors, and `0x1`-`0xf` indicate failures. This is because error statuses are more diverse than failure statuses.
 
 2023-06
 ---

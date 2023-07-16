@@ -135,8 +135,16 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
     }
 
-    protected ZscriptCommandBuilder<T> setField(char key, int value) {
-        return setField((byte) key, value);
+    protected ZscriptCommandBuilder<T> removeField(byte key) {
+        if ((key & 0x80) != 0) {
+            throw new IllegalArgumentException("Key not a valid Zcode Command key");
+        }
+        fields.remove(key);
+        return this;
+    }
+
+    protected ZscriptCommandBuilder<T> removeField(char key) {
+        return removeField((byte) key);
     }
 
     protected ZscriptCommandBuilder<T> setField(byte key, int value) {
@@ -147,8 +155,28 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         return this;
     }
 
+    protected ZscriptCommandBuilder<T> setField(char key, int value) {
+        return setField((byte) key, value);
+    }
+
+    protected int getField(byte key) {
+        if ((key & 0x80) != 0) {
+            throw new IllegalArgumentException("Key not a valid Zscript Command key");
+        }
+        return fields.get(key);
+    }
+
+    protected int getField(char key) {
+        return getField((byte) key);
+    }
+
     protected ZscriptCommandBuilder<T> addBigField(byte[] data) {
         bigFields.add(new BigField(data, false));
+        return this;
+    }
+
+    protected ZscriptCommandBuilder<T> addBigField(byte[] data, boolean asString) {
+        bigFields.add(new BigField(data, asString));
         return this;
     }
 

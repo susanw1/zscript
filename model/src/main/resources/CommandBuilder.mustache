@@ -1,0 +1,264 @@
+package org.zcode.javaclient.generatedCommands;
+
+import org.zcode.javaclient.zcodeApi.ZcodeCommandBuilder;
+import org.zcode.javaclient.zcodeApi.ZcodeResponse;
+import org.zcode.javaclient.zcodeApi.ZcodeUnparsedCommandResponse;
+
+public class {{CmdName}}CommandBuilder extends ZcodeCommandBuilder<{{CmdName}}CommandResponse> {
+{{#requestParams}}
+{{#allowedValues}}
+    public static final int {{Name}}_{{valueName}} = {{index}}
+{{/allowedValues}}
+{{/requestParams}}
+
+{{#responseParams}}
+{{#allowedValues}}
+    public static final int {{Name}}_{{valueName}} = {{index}}
+{{/allowedValues}}
+{{/responseParams}}
+
+
+    public {{CmdName}}CommandBuilder() {
+        setField('Z', (byte) 0x{{moduleID}}{{command}});
+    }
+    
+    public class {{CmdName}}CommandResponse implements ZcodeResponse {
+        private final ZcodeUnparsedCommandResponse resp;
+        
+        public {{CmdName}}CommandResponse(ZcodeUnparsedCommandResponse resp) {
+            this.resp = resp;
+        }
+
+{{#responseParams}}
+{{#bitset}}
+{{#bitfields}}
+{{#required}}
+        public boolean get{{Name}}{{BitFieldName}}({{#any}}byte key{{/any}}){
+            Optional<Integer> val = resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+            if (val.isEmpty()) {
+                throw new IllegalStateException("Response is missing required value: {{key}}");
+            }
+            return (val.get() & (1 << {{bitindex}})) == 0 ? false : true;
+        }
+{{/required}}
+{{^required}}
+        public boolean has{{Name}}{{BitFieldName}}({{#any}}byte key{{/any}})){
+            return resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}}).isPresent();
+        }
+        
+        public boolean has{{Name}}({{#any}}byte key{{/any}})){
+            return resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}}).isPresent();
+        }
+        
+        public boolean get{{Name}}{{BitFieldName}}({{#any}}byte key{{/any}})){
+            Optional<Integer> val = resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+            if (val.isEmpty()) {
+                throw new IllegalStateException("Response is missing required value: {{key}}");
+            }
+            return (val.get() & (1 << {{bitindex}})) == 0 ? false : true;
+        }
+        
+        public Optional<Boolean> get{{Name}}{{BitFieldName}}IfPresent({{#any}}byte key{{/any}})){
+            return resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}}).map(v -> (v & (1 << {{bitindex}})) == 0 ? false : true);
+        }
+{{/required}}
+{{/bitfields}}
+{{/bitset}}
+{{#number}}
+{{#required}}
+        public int get{{RespName}}({{#any}}byte key{{/any}})){
+            Optional<Integer> val = resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+            if (val.isEmpty()) {
+                throw new IllegalStateException("Response is missing required value: {{key}}");
+            }
+            return val.get();
+        }
+{{/required}}
+{{^required}}
+        public boolean has{{RespName}}({{#any}}byte key{{/any}})){
+            return resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}}).isPresent();
+        }
+        
+        public int get{{RespName}}({{#any}}byte key{{/any}})){
+            Optional<Integer> val = resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+            if (val.isEmpty()) {
+                throw new IllegalStateException("Response is missing requested value: {{key}}");
+            }
+            return val.get();
+        }
+        
+        public Optional<Integer> getIfPresent{{RespName}}({{#any}}byte key{{/any}})){
+            return resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+        }
+{{/required}}
+{{/number}}
+{{#flag}}
+        public boolean is{{RespName}}Set({{#any}}byte key{{/any}})){
+            return resp.hasField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+        }
+{{/flag}}
+{{#boolean}}
+        public boolean is{{RespName}}({{#any}}byte key{{/any}})){
+            Optional<Integer> val = resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+            if (val.isEmpty()) {
+                throw new IllegalStateException("Response is missing required value: {{key}}");
+            }
+            return val.get()==0 ? false : true;
+        }
+{{/boolean}}
+{{#tristate}}
+        public boolean is{{RespName}}Set({{#any}}byte key{{/any}})){
+            return resp.hasField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+        }
+        
+        public boolean is{{RespName}}({{#any}}byte key{{/any}})){
+            Optional<Integer> val = resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+            if (val.isEmpty()) {
+                throw new IllegalStateException("Response is missing required value: {{key}}");
+            }
+            return val.get()==0 ? false : true;
+        }
+        
+        public Optional<Boolean> is{{RespName}}({{#any}}byte key{{/any}})){
+            return resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}}).map(v -> v == 0 ? false : true);
+        }
+{{/tristate}}
+{{#enum}}
+{{#required}}
+        public int get{{RespName}}({{#any}}byte key{{/any}})){
+            Optional<Integer> val = resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+            if (val.isEmpty()) {
+                throw new IllegalStateException("Response is missing required value: {{key}}");
+            }
+            return val.get();
+        }
+{{/required}}
+{{^required}}
+        public boolean has{{RespName}}({{#any}}byte key{{/any}})){
+            return resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}}).isPresent();
+        }
+        
+        public int get{{RespName}}({{#any}}byte key{{/any}})){
+            Optional<Integer> val = resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+            if (val.isEmpty()) {
+                throw new IllegalStateException("Response is missing requested value: {{key}}");
+            }
+            return val.get();
+        }
+        
+        public Optional<Integer> getIfPresent{{RespName}}({{#any}}byte key{{/any}})){
+            return resp.getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+        }
+{{/required}}
+{{/enum}}
+{{#bytes}}
+        public byte[] get{{RespName}}(){
+            return resp.getBigFieldData();
+        }
+        
+        public String get{{RespName}}AsString(){
+            return resp.getBigFieldString();
+        }
+        
+        public Iterator<Byte> get{{RespName}}AsIterator(){
+            return resp.getBigField();
+        }
+{{/bytes}}
+{{#text}}
+        public String get{{RespName}}(){
+            return resp.getBigFieldString();
+        }
+        
+        public byte[] get{{RespName}}AsBytes(){
+            return resp.getBigFieldData();
+        }
+        
+        public Iterator<Byte> get{{RespName}}AsIterator(){
+            return resp.getBigField();
+        }
+{{/text}}
+
+{{/responseParams}}
+    }
+    
+{{#requestParams}}
+{{#bitset}}
+{{#bitfields}}
+    public {{CmdName}}CommandBuilder set{{Name}}{{BitFieldName}}({{#any}}byte key, {{/any}}boolean {{bitFieldName}}) {
+        if ({{bitFieldName}}) {
+            return setField({{#any}}key, {{/any}}{{^any}}{{key}}{{/any}}, getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}}) | (1<<{{bitindex}}));
+        } else {
+            return setField({{#any}}key, {{/any}}{{^any}}{{key}}{{/any}}, getField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}}) & ~(1<<{{bitindex}}));
+        }
+    }
+{{/bitfields}}
+{{/bitset}}
+{{#number}}
+    public {{CmdName}}CommandBuilder set{{Name}}({{#any}}byte key, {{/any}}int {{name}}) {
+        return setField({{#any}}key, {{/any}}{{^any}}{{key}}{{/any}}, {{name}});
+    }
+{{/number}}
+{{#flag}}
+    public {{CmdName}}CommandBuilder set{{Name}}({{#any}}byte key, {{/any}}boolean {{name}}) {
+        if ({{name}}) {
+            return setField({{#any}}key, {{/any}}{{^any}}{{key}}{{/any}}, 0);
+        } else {
+            return removeField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+        }
+    }
+{{/flag}}
+{{#boolean}}
+    public {{CmdName}}CommandBuilder set{{Name}}({{#any}}byte key, {{/any}}boolean {{name}}) {
+        return setField({{#any}}key, {{/any}}{{^any}}{{key}}{{/any}}, {{name}} ? 1 : 0);
+    }
+{{/boolean}}
+{{#tristate}}
+    public {{CmdName}}CommandBuilder set{{Name}}({{#any}}byte key, {{/any}}boolean {{name}}) {
+        return setField({{#any}}key, {{/any}}{{^any}}{{key}}{{/any}}, {{name}} ? 1 : 0);
+    }
+    public {{CmdName}}CommandBuilder remove{{Name}}({{#any}}byte key) {
+        return removeField({{#any}}key{{/any}}{{^any}}{{key}}{{/any}});
+    }
+{{/tristate}}
+{{#enum}}
+    public {{CmdName}}CommandBuilder set{{Name}}({{#any}}byte key, {{/any}}int {{name}}) {
+        return setField({{#any}}key, {{/any}}{{^any}}{{key}}{{/any}}, {{name}});
+    }
+{{/enum}}
+{{#bytes}}
+    public {{CmdName}}CommandBuilder set{{Name}}({{#any}}byte key, {{/any}}byte[] {{name}}) {
+        return addBigField({{{name}}, false);
+    }
+    
+    public {{CmdName}}CommandBuilder set{{Name}}AsString({{#any}}byte key, {{/any}}byte[] {{name}}) {
+        return addBigField({{name}}, true);
+    }
+    
+    public {{CmdName}}CommandBuilder set{{Name}}AsBytes({{#any}}byte key, {{/any}}byte[] {{name}}) {
+        return addBigField({{name}}, false);
+    }
+    
+    public {{CmdName}}CommandBuilder set{{Name}}AsShortest({{#any}}byte key, {{/any}}byte[] {{name}}) {
+        return addBigFieldAsSmallest({{name}});
+    }
+{{/bytes}}
+{{#text}}
+    public {{CmdName}}CommandBuilder set{{Name}}({{#any}}byte key, {{/any}}byte[] {{name}}) {
+        return addBigField({{{name}}, true);
+    }
+    
+    public {{CmdName}}CommandBuilder set{{Name}}AsString({{#any}}byte key, {{/any}}byte[] {{name}}) {
+        return addBigField({{name}}, true);
+    }
+    
+    public {{CmdName}}CommandBuilder set{{Name}}AsBytes({{#any}}byte key, {{/any}}byte[] {{name}}) {
+        return addBigField({{name}}, false);
+    }
+    
+    public {{CmdName}}CommandBuilder set{{Name}}AsShortest({{#any}}byte key, {{/any}}byte[] {{name}}) {
+        return addBigFieldAsSmallest({{name}});
+    }
+{{/text}}
+
+{{/requestParams}}
+}

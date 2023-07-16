@@ -86,6 +86,8 @@ public interface ZscriptDataModel {
         bitset,
         number,
         flag,
+        bool,
+        tristate,
         enums,
         bytes,
         text
