@@ -187,14 +187,15 @@ public abstract class ZcodeTokenArrayBuffer implements ZcodeTokenBuffer {
             if (!ZcodeTokenBuffer.isMarker(key)) {
                 throw new IllegalArgumentException("invalid marker [key=0x" + Integer.toHexString(key) + "]");
             }
-            if (ZcodeTokenBuffer.isSequenceEndMarker(key)) {
-                flags.setSeqMarkerWritten();
-            }
-            flags.setMarkerWritten();
             endToken();
             data[writeCursor] = key;
             moveCursor();
             endToken();
+
+            if (ZcodeTokenBuffer.isSequenceEndMarker(key)) {
+                flags.setSeqMarkerWritten();
+            }
+            flags.setMarkerWritten();
         }
 
         private void writeNewTokenStart(final byte key) {

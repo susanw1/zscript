@@ -56,7 +56,6 @@ public class ZcodeCoreModule implements ZcodeModule {
             byte b = iterator.next();
             System.out.print((char) b);
         }
-
     }
 
     @Override

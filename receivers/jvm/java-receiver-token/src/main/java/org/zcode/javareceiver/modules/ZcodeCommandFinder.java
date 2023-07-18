@@ -18,7 +18,8 @@ public class ZcodeCommandFinder {
     }
 
     public static void execute(ZcodeCommandContext ctx) {
-        ctx.setComplete();
+        // commands are completable unless marked otherwise
+        ctx.setCommandCanComplete();
         if (ctx.isEmpty()) {
             return;
         }

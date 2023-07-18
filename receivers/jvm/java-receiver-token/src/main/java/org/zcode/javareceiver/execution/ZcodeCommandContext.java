@@ -7,21 +7,21 @@ import java.util.Optional;
 import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.semanticParser.ParseState;
+import org.zcode.javareceiver.semanticParser.ContextView;
 import org.zcode.javareceiver.tokenizer.BlockIterator;
 import org.zcode.javareceiver.tokenizer.OptIterator;
 import org.zcode.javareceiver.tokenizer.Zchars;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 
 public class ZcodeCommandContext {
-    private final ParseState     parser;
+    private final ContextView    contextView;
     private final ZcodeOutStream out;
 
-    private boolean statusGiven = false;
-    private boolean statusError = false;
+//    private final boolean statusGiven = false;
+//    private final boolean statusError = false;
 
-    public ZcodeCommandContext(final ParseState parser, final ZcodeOutStream out) {
-        this.parser = parser;
+    public ZcodeCommandContext(final ContextView contextView, final ZcodeOutStream out) {
+        this.contextView = contextView;
         this.out = out;
     }
 
@@ -30,7 +30,7 @@ public class ZcodeCommandContext {
     }
 
     public boolean hasField(final byte f) {
-        final OptIterator<ReadToken> it = iterator();
+        final OptIterator<ReadToken> it = iteratorToMarker();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             final ReadToken token = opt.get();
             if (token.getKey() == f) {
@@ -41,7 +41,7 @@ public class ZcodeCommandContext {
     }
 
     public Optional<Integer> getField(final byte f) {
-        final OptIterator<ReadToken> it = iterator();
+        final OptIterator<ReadToken> it = iteratorToMarker();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             final ReadToken token = opt.get();
             if (token.getKey() == f) {
@@ -52,7 +52,7 @@ public class ZcodeCommandContext {
     }
 
     public int getField(final byte f, final int def) {
-        final OptIterator<ReadToken> it = iterator();
+        final OptIterator<ReadToken> it = iteratorToMarker();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             final ReadToken token = opt.get();
             if (token.getKey() == f) {
@@ -65,7 +65,7 @@ public class ZcodeCommandContext {
     public int getFieldCount() {
         int count = 0;
 
-        final OptIterator<ReadToken> it = iterator();
+        final OptIterator<ReadToken> it = iteratorToMarker();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             if (Zchars.isNumericKey(opt.get().getKey())) {
                 count++;
@@ -76,7 +76,7 @@ public class ZcodeCommandContext {
 
     public BlockIterator getBigField() {
         return new BlockIterator() {
-            OptIterator<ReadToken> it = iterator();
+            OptIterator<ReadToken> it = iteratorToMarker();
 
             BlockIterator internal = null;
 
@@ -126,7 +126,7 @@ public class ZcodeCommandContext {
     public int getBigFieldSize() {
         int size = 0;
 
-        final OptIterator<ReadToken> it = iterator();
+        final OptIterator<ReadToken> it = iteratorToMarker();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             final ReadToken token = opt.get();
             if (Zchars.isBigField(token.getKey())) {
@@ -137,29 +137,43 @@ public class ZcodeCommandContext {
     }
 
     public void status(final byte status) {
-        statusGiven = true;
-        if (!ZcodeStatus.isSuccess(status)) {
-            if (ZcodeStatus.isError(status)) {
-                statusError = true;
-                parser.error();
-            } else {
-                parser.softFail();
-            }
-        }
-        out.writeField('S', status);
+        contextView.setStatus(status);
     }
 
-    public boolean statusGiven() {
-        return statusGiven;
-    }
+//    private void error(final byte status) {
+//        if (!out.isOpen()) {
+//            out.open();
+//        }
+//        out.writeField('S', status);
+//        out.endSequence();
+//        out.close();
+//        contextView.error();
+//    }
 
-    public boolean statusError() {
-        return statusError;
-    }
+//  public void status(final byte status) {
+//        statusGiven = true;
+//        if (!ZcodeStatus.isSuccess(status)) {
+//            if (ZcodeStatus.isError(status)) {
+//                statusError = true;
+//                contextView.error();
+//            } else {
+//                contextView.softFail();
+//            }
+//        }
+//        out.writeField('S', status);
+//    }
+//
+//    public boolean statusGiven() {
+//        return statusGiven;
+//    }
+//
+//    public boolean statusError() {
+//        return statusError;
+//    }
 
-    private OptIterator<ReadToken> iterator() {
+    private OptIterator<ReadToken> iteratorToMarker() {
         return new OptIterator<ReadToken>() {
-            OptIterator<ReadToken> internal = parser.getReader().iterator();
+            OptIterator<ReadToken> internal = contextView.getReader().iterator();
 
             @Override
             public Optional<ReadToken> next() {
@@ -171,7 +185,7 @@ public class ZcodeCommandContext {
 
     public OptIterator<ZcodeField> fieldIterator() {
         return new OptIterator<ZcodeField>() {
-            OptIterator<ReadToken> iter = iterator();
+            OptIterator<ReadToken> iter = iteratorToMarker();
 
             @Override
             public Optional<ZcodeField> next() {
@@ -181,64 +195,54 @@ public class ZcodeCommandContext {
     }
 
     public boolean isEmpty() {
-        return parser.getReader().getFirstReadToken().isMarker();
+        return contextView.getReader().getFirstReadToken().isMarker();
     }
 
     public boolean verify() {
-        final OptIterator<ReadToken> iter      = iterator();
+        final OptIterator<ReadToken> iter      = iteratorToMarker();
         final BitSet                 foundCmds = new BitSet(26);
         for (Optional<ReadToken> opt = iter.next(); opt.isPresent(); opt = iter.next()) {
             final ReadToken rt  = opt.get();
             final byte      key = rt.getKey();
             if (Zchars.isNumericKey(key)) {
                 if (foundCmds.get(key - 'A')) {
-                    setComplete();
-                    error(ZcodeStatus.REPEATED_KEY);
+                    setCommandCanComplete();
+                    status(ZcodeStatus.REPEATED_KEY);
                     return false;
                 }
                 foundCmds.set(key - 'A');
                 if (rt.getDataSize() > 2) {
-                    setComplete();
-                    error(ZcodeStatus.FIELD_TOO_LONG);
+                    setCommandCanComplete();
+                    status(ZcodeStatus.FIELD_TOO_LONG);
                     return false;
                 }
             } else if (key != '"' && key != '+') {
-                setComplete();
-                error(ZcodeStatus.INVALID_KEY);
+                setCommandCanComplete();
+                status(ZcodeStatus.INVALID_KEY);
                 return false;
             }
         }
         return true;
     }
 
-    private void error(final byte status) {
-        if (!out.isOpen()) {
-            out.open();
-        }
-        out.writeField('S', status);
-        out.endSequence();
-        out.close();
-        parser.error();
+    public void setCommandCanComplete() {
+        contextView.setCommandCanComplete(true);
     }
 
-    public void setComplete() {
-        parser.setComplete(true);
+    public void clearCommandCanComplete() {
+        contextView.setCommandCanComplete(false);
     }
 
-    public void clearComplete() {
-        parser.setComplete(false);
-    }
-
-    public boolean isComplete() {
-        return parser.isComplete();
+    public boolean commandCanComplete() {
+        return contextView.commandCanComplete();
     }
 
     public boolean isActivated() {
-        return parser.isActivated();
+        return contextView.isActivated();
     }
 
     public void activate() {
-        parser.activate();
+        contextView.activate();
     }
 
 }

@@ -1,5 +1,7 @@
 package org.zcode.javareceiver.semanticParser;
 
+import java.util.function.Consumer;
+
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
@@ -23,9 +25,11 @@ public class ZcodeAction {
         CLOSE_PAREN
     }
 
-    private final ParseState parser;
-    private final ActionType type;
-    private final byte       info;
+    private final ActionType           type;
+    private final ParseState           parser;
+    private final byte                 info;
+    private final Consumer<ParseState> before;
+    private final Consumer<ParseState> after;
 
     public static ZcodeAction noAction(SemanticParser semanticParser) {
         return new ZcodeAction(ActionType.NO_ACTION, semanticParser, (byte) 0);
@@ -68,9 +72,15 @@ public class ZcodeAction {
     }
 
     private ZcodeAction(ActionType type, ParseState parser, byte info) {
+        this(type, parser, info, null, null);
+    }
+
+    private ZcodeAction(ActionType type, ParseState parser, byte info, Consumer<ParseState> before, Consumer<ParseState> after) {
         this.parser = parser;
         this.type = type;
         this.info = info;
+        this.before = before;
+        this.after = after;
     }
 
     public boolean needsPerforming() {
@@ -80,21 +90,24 @@ public class ZcodeAction {
     // TODO: response type
     // TODO: close out stream
     public void performAction(Zcode zcode, ZcodeOutStream out) {
+        if (before != null) {
+            before.accept(parser);
+        }
         switch (type) {
         case ERROR:
             sendError(out);
             parser.errorSent();
             break;
         case ADDRESSING:
-            parser.setStarted();
-            ZcodeAddressingContext addrCtx = new ZcodeAddressingContext(parser, out);
+            parser.setCommandStarted();
+            ZcodeAddressingContext addrCtx = new ZcodeAddressingContext((ContextView) parser);
             if (addrCtx.verify()) {
                 ZcodeAddressingSystem.execute(addrCtx);
             }
             break;
         case ADDRESSING_MOVEALONG:
             parser.clearNeedsAction();
-            ZcodeAddressingSystem.moveAlong(new ZcodeAddressingContext(parser, out));
+            ZcodeAddressingSystem.moveAlong(new ZcodeAddressingContext((ContextView) parser));
             break;
         case FIRST_COMMAND:
             out.open();
@@ -119,32 +132,32 @@ public class ZcodeAction {
                     throw new IllegalStateException("Unknown marker");
                 }
             }
-            parser.setStarted();
-            ZcodeCommandContext cmdCtx = new ZcodeCommandContext(parser, out);
+            parser.setCommandStarted();
+            ZcodeCommandContext cmdCtx = new ZcodeCommandContext((ContextView) parser, out);
             if (cmdCtx.verify()) {
                 ZcodeCommandFinder.execute(cmdCtx);
-                if (cmdCtx.isComplete()) {
-                    if (!cmdCtx.statusGiven()) {
-                        cmdCtx.status(ZcodeStatus.SUCCESS);
-                    } else if (cmdCtx.statusError()) {
-                        out.endSequence();
-                        out.close();
-                    }
-                }
+//                if (cmdCtx.isComplete()) {
+//                    if (!cmdCtx.statusGiven()) {
+//                        cmdCtx.setStatus(ZcodeStatus.SUCCESS);
+//                    } else if (cmdCtx.statusError()) {
+//                        out.endSequence();
+//                        out.close();
+//                    }
+//                }
             }
             break;
         case COMMAND_MOVEALONG:
             parser.clearNeedsAction();
-            ZcodeCommandContext cmdCtx1 = new ZcodeCommandContext(parser, out);
+            ZcodeCommandContext cmdCtx1 = new ZcodeCommandContext((ContextView) parser, out);
             ZcodeCommandFinder.moveAlong(cmdCtx1);
-            if (cmdCtx1.isComplete()) {
-                if (!cmdCtx1.statusGiven()) {
-                    cmdCtx1.status(ZcodeStatus.SUCCESS);
-                } else if (cmdCtx1.statusError()) {
-                    out.endSequence();
-                    out.close();
-                }
-            }
+//            if (cmdCtx1.isComplete()) {
+//                if (!cmdCtx1.statusGiven()) {
+//                    cmdCtx1.setStatus(ZcodeStatus.SUCCESS);
+//                } else if (cmdCtx1.statusError()) {
+//                    out.endSequence();
+//                    out.close();
+//                }
+//            }
             break;
         case END_SEQUENCE:
             parser.seqEndSent();
@@ -160,6 +173,10 @@ public class ZcodeAction {
         case NO_ACTION:
         case NEEDS_TOKENS:
             break;
+        }
+
+        if (after != null) {
+            after.accept(parser);
         }
     }
 
@@ -193,7 +210,7 @@ public class ZcodeAction {
                 out.writeField('S', ZcodeStatus.INTERNAL_ERROR);
             }
             break;
-        case SemanticParser.COMMENT_WITH_STUFF_ERROR:
+        case SemanticParser.COMMENT_WITH_SEQ_FIELDS_ERROR:
             out.writeField('S', ZcodeStatus.INVALID_COMMENT);
             break;
         case SemanticParser.LOCKS_ERROR:

@@ -75,7 +75,7 @@ public interface ZcodeTokenBuffer {
         ReadToken getFirstReadToken();
 
         /**
-         * Removes the first token from the readable space
+         * Removes the first token from the readable space and moves to the next one.
          */
         void flushFirstReadToken();
 

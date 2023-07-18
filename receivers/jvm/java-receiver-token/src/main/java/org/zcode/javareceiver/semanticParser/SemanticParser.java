@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.zcode.javareceiver.core.ZcodeLockSet;
 import org.zcode.javareceiver.core.ZcodeLocks;
+import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.tokenizer.TokenBufferIterator;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader;
@@ -11,16 +12,16 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBufferFlags;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
-public class SemanticParser implements ParseState {
+public class SemanticParser implements ParseState, ContextView {
     // 16 booleans, 5 uint8_t, 1 uint16_t = 9 bytes of status
 
-    public static final byte NO_ERROR                 = 0;
-    public static final byte INTERNAL_ERROR           = 1;
-    public static final byte MARKER_ERROR             = 2;
-    public static final byte MULTIPLE_ECHO_ERROR      = 3;
-    public static final byte LOCKS_ERROR              = 4;
-    public static final byte COMMENT_WITH_STUFF_ERROR = 5;
-    public static final byte OTHER_ERROR              = 6;
+    public static final byte NO_ERROR                      = 0;
+    public static final byte INTERNAL_ERROR                = 1;
+    public static final byte MARKER_ERROR                  = 2;
+    public static final byte MULTIPLE_ECHO_ERROR           = 3;
+    public static final byte LOCKS_ERROR                   = 4;
+    public static final byte COMMENT_WITH_SEQ_FIELDS_ERROR = 5;
+    public static final byte OTHER_ERROR                   = 6;
 
     private final TokenReader reader;
 
@@ -41,42 +42,57 @@ public class SemanticParser implements ParseState {
 
     private boolean isAddressing = false;
 
-    private boolean complete     = false;
-    private boolean started      = false;
-    private boolean needsAction  = false;
-    private boolean firstCommand = true;
+    private boolean commandCanComplete = false;
+    private boolean commandStarted     = false;
+    private boolean needsAction        = false;
+    private boolean firstCommand       = true;
 
     private boolean isFailed          = false;
     private boolean isSkippingHandler = false;
     private int     parenCounter      = 0;
 
-    private byte error = NO_ERROR; // 3 bit really
+    private byte       error  = NO_ERROR;            // 3 bit really
+    private final byte status = ZcodeStatus.SUCCESS; // 3 bit really
 
-    private boolean skipToNL       = false;
-    private boolean needSendError  = false;
+    private boolean skipToNL = false;
+//    private boolean needSendError  = false;
     private boolean needEndSeq     = false;
     private boolean needCloseParen = false;
 
     private boolean activated = false;
     private boolean locked    = false;
 
+    private ZcodeAction currentAction;
+
     public SemanticParser(final TokenReader reader) {
         this.reader = reader;
+        this.currentAction = ZcodeAction.noAction(this);
     }
 
     public ZcodeAction getAction() {
-        if (needSendError) {
-            return ZcodeAction.error(this, error);
+        if (!currentAction.needsPerforming()) {
+            currentAction = findNextAction(currentAction);
         }
+        return currentAction;
+    }
 
-        if (complete && !skipToNL) {
-            complete = false;
-            started = false;
+    private ZcodeAction findNextAction(ZcodeAction previousAction) {
+//        if (needSendError) {
+//            return ZcodeAction.error(this, error);
+//        }
+
+        // check if we've just completed a command/address
+        if (commandCanComplete && !skipToNL) {
+            commandCanComplete = false;
+            commandStarted = false;
+
             skipToMarker();
+
             if (isAddressing) {
                 reader.flushFirstReadToken();
                 resetToSequence();
             } else {
+                // read the separator or NL, flush it, and process it
                 final byte marker = reader.getFirstReadToken().getKey();
                 reader.flushFirstReadToken();
                 flowControl(marker);
@@ -84,63 +100,75 @@ public class SemanticParser implements ParseState {
             prevMarker = nextMarker;
             findNextMarker();
         }
+
         if (needEndSeq) {
             return ZcodeAction.endSequence(this);
         }
         if (needCloseParen) {
             return ZcodeAction.closeParen(this);
         }
+
         dealWithFlags();
+
         if (!haveNextMarker) {
             return ZcodeAction.needsTokens(this);
         }
+
+        // deals with '_' and '%',
         if (atSeqStart) {
             atSeqStart = false;
             parseSequenceLevel();
             if (skipToNL && error != NO_ERROR) {
                 skipToSeqEnd();
-                needSendError = true;
+//                needSendError = true;
                 return ZcodeAction.error(this, error);
             }
         }
+
         if (skipToNL) {
             skipToSeqEnd();
-            needSendError = false;
+//            needSendError = false;
             error = NO_ERROR;
             return ZcodeAction.noAction(this);
         }
+
         if (isAddressing) {
-            if (started) {
+            if (commandStarted) {
                 if (needsAction) {
                     return ZcodeAction.addressingMoveAlong(this);
                 }
                 return ZcodeAction.noAction(this);
             }
             if (error != NO_ERROR) {
-                needSendError = true;
+//                needSendError = true;
                 return ZcodeAction.error(this, error);
             }
             return ZcodeAction.addressing(this);
         }
-        if (started) {
+
+        if (commandStarted) {
             if (needsAction) {
                 return ZcodeAction.commandMoveAlong(this);
             }
             return ZcodeAction.noAction(this);
         }
+
         if (error != NO_ERROR) {
             skipToNL = true;
             skipToSeqEnd();
-            needSendError = true;
+//            needSendError = true;
             return ZcodeAction.error(this, error);
         }
+
         if (firstCommand) {
             return ZcodeAction.firstCommand(this);
         }
+
         if (isSkippingHandler || isFailed) {
-            complete = true;
+            commandCanComplete = true;
             return ZcodeAction.noAction(this);
         }
+
         return ZcodeAction.runCommand(this, prevMarker);
     }
 
@@ -188,11 +216,13 @@ public class SemanticParser implements ParseState {
                 findNextMarker();
             }
         }
+
         if (flags.getAndClearSeqMarkerWritten()) {
             if (!haveSeqEndMarker) {
                 findSeqEndMarker();
             }
         }
+
         if (haveNextMarker) {
             flags.clearReaderBlocked();
         } else {
@@ -203,9 +233,11 @@ public class SemanticParser implements ParseState {
     private void findNextMarker() {
         final TokenBufferIterator it    = reader.iterator();
         Optional<ReadToken>       token = it.next();
+
         while (token.isPresent() && !token.get().isMarker()) {
             token = it.next();
         }
+
         if (token.isPresent()) {
             nextMarker = token.get().getKey();
             haveNextMarker = true;
@@ -225,9 +257,11 @@ public class SemanticParser implements ParseState {
     private void findSeqEndMarker() {
         final TokenBufferIterator it    = reader.iterator();
         Optional<ReadToken>       token = it.next();
+
         while (token.isPresent() && !ZcodeTokenBuffer.isSequenceEndMarker(token.get().getKey())) {
             token = it.next();
         }
+
         if (token.isPresent()) {
             seqEndMarker = token.get().getKey();
             haveSeqEndMarker = true;
@@ -250,6 +284,7 @@ public class SemanticParser implements ParseState {
         if (!haveSeqEndMarker) {
             return;
         }
+
         byte marker = reader.getFirstReadToken().getKey();
         while (reader.hasReadToken() && !ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
             skipToMarker();
@@ -258,9 +293,11 @@ public class SemanticParser implements ParseState {
                 reader.flushFirstReadToken();
             }
         }
+
         if (reader.hasReadToken()) {
             reader.flushFirstReadToken();
         }
+
         if (ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
             resetToSequence();
             findNextMarker();
@@ -296,7 +333,9 @@ public class SemanticParser implements ParseState {
             reader.flushFirstReadToken();
             first = reader.getFirstReadToken();
         }
+
         isAddressing = first.getKey() == '@';
+
         if (first.getKey() == '#') {
             if (!ZcodeTokenBuffer.isSequenceEndMarker(nextMarker)) {
                 error = INTERNAL_ERROR;
@@ -305,7 +344,7 @@ public class SemanticParser implements ParseState {
                 error = MARKER_ERROR;
                 skipToNL = true;
             } else if (hasEcho || hasLocks) {
-                error = COMMENT_WITH_STUFF_ERROR;
+                error = COMMENT_WITH_SEQ_FIELDS_ERROR;
                 skipToNL = true;
             } else {
                 skipToNL = true;
@@ -315,15 +354,16 @@ public class SemanticParser implements ParseState {
 
     private void resetToSequence() {
         locks = ZcodeLockSet.allLocked();
+        atSeqStart = true;
+        firstCommand = true;
+        commandCanComplete = false;
+        commandStarted = false;
+        needsAction = false;
+
         prevMarker = 0;
         hasLocks = false;
         hasEcho = false;
-        atSeqStart = true;
         isAddressing = false;
-        complete = false;
-        started = false;
-        needsAction = false;
-        firstCommand = true;
         isFailed = false;
         isSkippingHandler = false;
         parenCounter = 0;
@@ -332,8 +372,13 @@ public class SemanticParser implements ParseState {
     }
 
     @Override
-    public void setStarted() {
-        this.started = true;
+    public void setStatus(byte status) {
+
+    }
+
+    @Override
+    public void setCommandStarted() {
+        this.commandStarted = true;
     }
 
     @Override
@@ -368,8 +413,8 @@ public class SemanticParser implements ParseState {
     }
 
     @Override
-    public void setComplete(final boolean b) {
-        complete = b;
+    public void setCommandCanComplete(final boolean b) {
+        commandCanComplete = b;
     }
 
     @Override
@@ -395,7 +440,7 @@ public class SemanticParser implements ParseState {
 
     @Override
     public void errorSent() {
-        needSendError = false;
+//        needSendError = false;
         error = NO_ERROR;
     }
 
@@ -410,8 +455,8 @@ public class SemanticParser implements ParseState {
     }
 
     @Override
-    public boolean isComplete() {
-        return complete;
+    public boolean commandCanComplete() {
+        return commandCanComplete;
     }
 
     @Override
