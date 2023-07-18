@@ -1,6 +1,7 @@
 package org.zcode.javareceiver.execution;
 
 import java.util.BitSet;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -121,6 +122,27 @@ public class ZcodeCommandContext {
             }
         }
         return size;
+    }
+
+    public String getBigFieldString() {
+        StringBuilder str = new StringBuilder();
+        for (Iterator<Byte> iterator = getBigField(); iterator.hasNext();) {
+            str.append((char) (byte) iterator.next());
+        }
+        return str.toString();
+    }
+
+    public byte[] getBigFieldData() {
+        byte[] data = new byte[getBigFieldSize()];
+        int    i    = 0;
+        for (Iterator<Byte> iterator = getBigField(); iterator.hasNext();) {
+            data[i++] = iterator.next();
+        }
+        return data;
+    }
+
+    public Optional<Integer> getField(char c) {
+        return getField((byte) c);
     }
 
     public void status(final byte status) {

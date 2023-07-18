@@ -15,6 +15,9 @@ public class ZcodeExecutor {
     }
 
     public void progress(List<? extends ActionSource> sources) {
+        if (sources.isEmpty()) {
+            return;
+        }
         List<ZcodeAction> possibleActions = new ArrayList<>();
 
         for (ActionSource source : sources) {

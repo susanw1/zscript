@@ -10,4 +10,11 @@
 	<artifactId>JavaZCodeSimulator</artifactId>
     <name>Zcode Simulator</name>
     
+    <dependencies>
+        <dependency>
+            <groupId>org.zcode</groupId>
+            <artifactId>java-receiver-token</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>
