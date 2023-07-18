@@ -3,6 +3,7 @@ package org.zcode.javareceiver.execution;
 import java.util.BitSet;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeOutStream;
@@ -29,37 +30,23 @@ public class ZcodeCommandContext {
         return out;
     }
 
-    public boolean hasField(final byte f) {
+    public OptionalInt getField(final byte f) {
         final OptIterator<ReadToken> it = iteratorToMarker();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             final ReadToken token = opt.get();
             if (token.getKey() == f) {
-                return true;
+                return OptionalInt.of(token.getData16());
             }
         }
-        return false;
+        return OptionalInt.empty();
     }
 
-    public Optional<Integer> getField(final byte f) {
-        final OptIterator<ReadToken> it = iteratorToMarker();
-        for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
-            final ReadToken token = opt.get();
-            if (token.getKey() == f) {
-                return Optional.of(token.getData16());
-            }
-        }
-        return Optional.empty();
+    public boolean hasField(final byte f) {
+        return getField(f).isPresent();
     }
 
     public int getField(final byte f, final int def) {
-        final OptIterator<ReadToken> it = iteratorToMarker();
-        for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
-            final ReadToken token = opt.get();
-            if (token.getKey() == f) {
-                return token.getData16();
-            }
-        }
-        return def;
+        return getField(f).orElse(def);
     }
 
     public int getFieldCount() {

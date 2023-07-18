@@ -81,7 +81,7 @@ public class SemanticParser implements ParseState, ContextView {
 //            return ZcodeAction.error(this, error);
 //        }
 
-        // check if we've just completed a command/address
+        // check if we've just completed a command/address - if so, tidy up.
         if (commandCanComplete && !skipToNL) {
             commandCanComplete = false;
             commandStarted = false;

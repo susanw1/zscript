@@ -1,6 +1,6 @@
 package org.zcode.javareceiver.modules.core;
 
-import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Random;
 
 import org.zcode.javareceiver.core.ZcodeCommandOutStream;
@@ -19,12 +19,12 @@ public class ZcodeRandomCodeCommand {
     }
 
     public static void match(ZcodeCommandContext ctx) {
-        Optional<Integer> givenCode = ctx.getField((byte) 'C');
+        OptionalInt givenCode = ctx.getField((byte) 'C');
         if (givenCode.isEmpty()) {
             ctx.status(ZcodeStatus.MISSING_KEY);
             return;
         }
-        if (givenCode.get() != code) {
+        if (givenCode.getAsInt() != code) {
             ctx.status(ZcodeStatus.COMMAND_FAIL);
         }
     }

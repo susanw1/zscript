@@ -1,6 +1,6 @@
 package org.zcode.javareceiver.modules;
 
-import java.util.Optional;
+import java.util.OptionalInt;
 
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
@@ -23,12 +23,12 @@ public class ZcodeCommandFinder {
         if (ctx.isEmpty()) {
             return;
         }
-        Optional<Integer> value = ctx.getField((byte) 'Z');
+        OptionalInt value = ctx.getField((byte) 'Z');
         if (value.isEmpty()) {
             ctx.status(ZcodeStatus.COMMAND_NOT_FOUND);
             return;
         }
-        int cmd = value.get();
+        int cmd = value.getAsInt();
         if ((cmd >> 4) >= 0x1000) {
             ctx.status(ZcodeStatus.FIELD_TOO_LONG);
             return;
@@ -46,7 +46,7 @@ public class ZcodeCommandFinder {
     }
 
     public static void moveAlong(ZcodeCommandContext ctx) {
-        int cmd = ctx.getField((byte) 'Z').get();
+        int cmd = ctx.getField((byte) 'Z').getAsInt();
         modules[cmd >> 4].moveAlong(ctx, cmd & 0xF);
     }
 
