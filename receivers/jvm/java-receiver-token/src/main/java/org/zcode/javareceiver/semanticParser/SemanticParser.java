@@ -209,6 +209,11 @@ public class SemanticParser implements ParseState, ContextView {
         }
     }
 
+    /**
+     * Checks the buffer's flags and makes sure we've identified the next marker and the next sequence marker, if available.
+     *
+     * Makes sure the buffer flag's readerBlocked status is up-to-date.
+     */
     private void dealWithFlags() {
         final ZcodeTokenBufferFlags flags = reader.getFlags();
         if (flags.getAndClearMarkerWritten()) {
@@ -231,11 +236,10 @@ public class SemanticParser implements ParseState, ContextView {
     }
 
     private void findNextMarker() {
-        final TokenBufferIterator it    = reader.iterator();
-        Optional<ReadToken>       token = it.next();
+        final TokenBufferIterator it = reader.iterator();
 
-        while (token.isPresent() && !token.get().isMarker()) {
-            token = it.next();
+        Optional<ReadToken> token;
+        for (token = it.next(); token.isPresent() && !token.get().isMarker(); token = it.next()) {
         }
 
         if (token.isPresent()) {
@@ -243,11 +247,7 @@ public class SemanticParser implements ParseState, ContextView {
             haveNextMarker = true;
 
             if (ZcodeTokenBuffer.isSequenceEndMarker(nextMarker)) {
-                seqEndMarker = nextMarker;
-                haveSeqEndMarker = true;
-                if (nextMarker != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
-                    error = MARKER_ERROR;
-                }
+                assignSeqEndMarker(nextMarker);
             }
         } else {
             haveNextMarker = false;
@@ -258,21 +258,34 @@ public class SemanticParser implements ParseState, ContextView {
         final TokenBufferIterator it    = reader.iterator();
         Optional<ReadToken>       token = it.next();
 
-        while (token.isPresent() && !ZcodeTokenBuffer.isSequenceEndMarker(token.get().getKey())) {
-            token = it.next();
+        for (token = it.next(); token.isPresent() && !ZcodeTokenBuffer.isSequenceEndMarker(token.get().getKey()); token = it.next()) {
         }
 
         if (token.isPresent()) {
-            seqEndMarker = token.get().getKey();
-            haveSeqEndMarker = true;
-            if (token.get().getKey() != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
-                error = MARKER_ERROR;
-            }
+            assignSeqEndMarker(token.get().getKey());
         } else {
             haveSeqEndMarker = false;
         }
     }
 
+    /**
+     * Sets <i>seqEndMarker</i>, <i>haveSeqEndMarker</i>, and (if not normal end) <i>error</i> appropriately.
+     *
+     * @param newSeqEndMarker the new end-marker to assign
+     */
+    private void assignSeqEndMarker(byte newSeqEndMarker) {
+        seqEndMarker = newSeqEndMarker;
+        haveSeqEndMarker = true;
+        if (newSeqEndMarker != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
+            error = MARKER_ERROR;
+        }
+    }
+
+    /**
+     * Updates reader index to point at the next marker token.
+     *
+     * Note: only call if marker is known to exist! Otherwise it just eats all the known tokens.
+     */
     private void skipToMarker() {
         final TokenBufferIterator it = reader.iterator();
         for (Optional<ReadToken> token = it.next(); token.isPresent() && !token.get().isMarker(); token = it.next()) {
@@ -280,11 +293,21 @@ public class SemanticParser implements ParseState, ContextView {
         }
     }
 
+    /**
+     * Fast-forwards the reader to the token after the next sequence end marker.
+     */
     private void skipToSeqEnd() {
         if (!haveSeqEndMarker) {
             return;
         }
 
+        // Why not just:
+//        TokenBufferIterator it = reader.iterator();
+//        for (Optional<ReadToken> token = it.next(); token.isPresent() && !ZcodeTokenBuffer.isSequenceEndMarker(token.get().getKey()); token = it.next()) {
+//            it.flushBuffer();
+//        }
+
+        // instead of this bit?
         byte marker = reader.getFirstReadToken().getKey();
         while (reader.hasReadToken() && !ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
             skipToMarker();
@@ -301,7 +324,6 @@ public class SemanticParser implements ParseState, ContextView {
         if (ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
             resetToSequence();
             findNextMarker();
-            skipToNL = false;
         }
     }
 

@@ -51,6 +51,11 @@ public interface ZcodeTokenBuffer {
     TokenReader getTokenReader();
 
     public interface TokenReader {
+        /**
+         * Access the writer<->reader control flags.
+         *
+         * @return
+         */
         ZcodeTokenBufferFlags getFlags();
 
         /**
@@ -75,7 +80,7 @@ public interface ZcodeTokenBuffer {
         ReadToken getFirstReadToken();
 
         /**
-         * Removes the first token from the readable space and moves to the next one.
+         * Removes the first token from the readable space and moves to the next one. Has no effect if no token is available.
          */
         void flushFirstReadToken();
 

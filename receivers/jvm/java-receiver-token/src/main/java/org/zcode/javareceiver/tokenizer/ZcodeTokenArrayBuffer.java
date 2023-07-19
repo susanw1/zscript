@@ -286,21 +286,33 @@ public abstract class ZcodeTokenArrayBuffer implements ZcodeTokenBuffer {
 
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public ZcodeTokenBufferFlags getFlags() {
             return flags;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public TokenBufferIterator iterator() {
             return new ArrayBufferTokenIterator(readStart);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public boolean hasReadToken() {
             return readStart != writeStart;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public ReadToken getFirstReadToken() {
             if (readStart == writeStart) {
@@ -309,6 +321,9 @@ public abstract class ZcodeTokenArrayBuffer implements ZcodeTokenBuffer {
             return new ArrayBufferToken(readStart);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void flushFirstReadToken() {
             final TokenBufferIterator it = iterator();
