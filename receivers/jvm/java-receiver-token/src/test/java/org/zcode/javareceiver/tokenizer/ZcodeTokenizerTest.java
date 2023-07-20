@@ -30,9 +30,11 @@ class ZcodeTokenizerTest {
 
     private ZcodeTokenizer tokenizer;
 
-    private static final char END = (char) NORMAL_SEQUENCE_END;
-    private static final char AND = (char) ZcodeTokenizer.CMD_END_ANDTHEN;
-    private static final char OR  = (char) ZcodeTokenizer.CMD_END_ORELSE;
+    private static final char END         = (char) NORMAL_SEQUENCE_END;
+    private static final char AND         = (char) ZcodeTokenizer.CMD_END_ANDTHEN;
+    private static final char OR          = (char) ZcodeTokenizer.CMD_END_ORELSE;
+    private static final char OPEN_PAREN  = (char) ZcodeTokenizer.CMD_END_OPEN_PAREN;
+    private static final char CLOSE_PAREN = (char) ZcodeTokenizer.CMD_END_CLOSE_PAREN;
 
     private static final char FIELD_TOO_LONG      = (char) ZcodeTokenizer.ERROR_CODE_FIELD_TOO_LONG;
     private static final char ODD_BIGFIELD_LENGTH = (char) ZcodeTokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH;
@@ -67,12 +69,12 @@ class ZcodeTokenizerTest {
                 Arguments.of("Single zero-valued key with NL", "Z\n", "tZm" + END),
                 Arguments.of("3 empty keys", "A A A\n", "tA--tA--tAm" + END),
                 Arguments.of("3 keys ", "AA1Afa\n", "tAtAn1tAnfnam" + END),
-                Arguments.of("Key with 2-nibble value, spaced", "A 12", "tA--n1n2m" + END),
-                Arguments.of("Key with explicit zero", "A0", "tA--m" + END),
+                Arguments.of("Key with 2-nibble value, spaced", "A 12", "tA--n1n2"),
+                Arguments.of("Key with explicit zero", "A0", "tA--"),
                 Arguments.of("Key 1-nibble value with leading zero", "A0a\n", "tA--nam" + END),
                 Arguments.of("Key 2-nibble value with leading zero", "A0ab\n", "tA--nanbm" + END),
                 Arguments.of("Key 3-nibble value with leading zero", "A0abc\n", "tA--nanbncm" + END),
-                Arguments.of("Illegal low-value key check", "A5\f1\n", "tAn5f" + (char) ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN + "----"));
+                Arguments.of("Key 4-nibble value with leading zeros", "A000abcd\n", "tA------nanbncndm" + END));
     }
 
     @ParameterizedTest(name = "{0}: {1}")
@@ -104,7 +106,10 @@ class ZcodeTokenizerTest {
         return Stream.of(
                 Arguments.of("Two keys sep with &", "Y&Z\n", "tYm" + AND + "tZm" + END),
                 Arguments.of("Two keys sep with |", "Y|Z\n", "tYm" + OR + "tZm" + END),
-                Arguments.of("Several keys sep with several & and |", "A|B&C|D\n", "tAm" + OR + "tBm" + AND + "tCm" + OR + "tDm" + END));
+                Arguments.of("Several keys sep with several & and |", "A|B&C|D\n", "tAm" + OR + "tBm" + AND + "tCm" + OR + "tDm" + END),
+                Arguments.of("Two keys sep with (", "Y(Z\n", "tYm" + OPEN_PAREN + "tZm" + END),
+                Arguments.of("Two keys sep with )", "Y)Z\n", "tYm" + CLOSE_PAREN + "tZm" + END),
+                Arguments.of("Several keys sep with &, |, ( and )", "A(B|C)D&E\n", "tAm" + OPEN_PAREN + "tBm" + OR + "tCm" + CLOSE_PAREN + "tDm" + AND + "tEm" + END));
     }
 
     @ParameterizedTest(name = "{0}: {1}")

@@ -109,6 +109,22 @@ class ZcodeTokenRingBufferWriterTest {
     }
 
     @Test
+    void shouldHandleFailingMidNibble() {
+        insertNumericTokenNibbles('C', (byte) 6);
+        insertNumericTokenNibbles('A', (byte) 5);
+        writer.fail(ERROR_BUFFER_OVERRUN);
+        assertThat(buffer.getInternalData()).startsWith('C', 1, 6, ERROR_BUFFER_OVERRUN);
+    }
+
+    @Test
+    void shouldHandleFailingMidToken() {
+        insertNumericTokenNibbles('C', (byte) 6);
+        insertNumericTokenNibbles('A', (byte) 5, (byte) 2);
+        writer.fail(ERROR_BUFFER_OVERRUN);
+        assertThat(buffer.getInternalData()).startsWith('C', 1, 6, ERROR_BUFFER_OVERRUN);
+    }
+
+    @Test
     void shouldTokenizeNumericFieldWith3NibbleValue() {
         insertNumericTokenNibbles('A', (byte) 5, (byte) 0xd, (byte) 0xa);
         verifyBufferState(false, 6, 'A', true, 2);
