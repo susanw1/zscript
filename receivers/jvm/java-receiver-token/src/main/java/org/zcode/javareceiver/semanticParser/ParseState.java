@@ -1,18 +1,14 @@
 package org.zcode.javareceiver.semanticParser;
 
-import org.zcode.javareceiver.core.ZcodeLockSet;
+import org.zcode.javareceiver.core.Zcode;
 
 /**
  * Defines methods accessed by ZcodeActions.
  */
 public interface ParseState {
-    void softFail();
-
-    void error();
-
     void errorSent();
 
-    void setCommandStarted();
+    void startCommand();
 
     boolean hasEcho();
 
@@ -20,18 +16,15 @@ public interface ParseState {
 
     void seqEndSent();
 
-    ZcodeLockSet getLocks();
-
-    void setLocked(boolean b);
-
-    boolean isLocked();
-
     void closeParenSent();
 
     byte getSeqEndMarker();
 
-    void clearFirstCommand();
-
     void clearNeedsAction();
 
+    boolean canLock(Zcode zcode);
+
+    boolean lock(Zcode zcode);
+
+    void unlock(Zcode zcode);
 }

@@ -2,6 +2,7 @@ package org.zcode.javareceiver.semanticParser;
 
 import java.util.Optional;
 
+import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeLockSet;
 import org.zcode.javareceiver.core.ZcodeLocks;
 import org.zcode.javareceiver.core.ZcodeStatus;
@@ -23,62 +24,66 @@ public class SemanticParser implements ParseState, ContextView {
     public static final byte COMMENT_WITH_SEQ_FIELDS_ERROR = 5;
     public static final byte OTHER_ERROR                   = 6;
 
-    private final TokenReader reader;
+    private final TokenReader        reader;
+    private final ZcodeActionFactory actionFactory;
 
+    // Marker status
+    private byte    nextMarker       = 0;    // 5 bit really
+    private boolean haveNextMarker   = false;
+    private byte    prevMarker       = 0;    // 5 bit really
+    private byte    seqEndMarker     = 0;    // 4 bits really
+    private boolean haveSeqEndMarker = false;
+
+    // parser state-machine
+    private boolean atSeqStart     = true;
+    private boolean isAddressing   = false;
+    private boolean firstCommand   = true;
+    private boolean commandStarted = false;
+
+    private boolean skipToNL = false;
+//  private boolean needSendError  = false;
+    private boolean needEndSeq     = false;
+    private boolean needCloseParen = false;
+
+    // command execution state-machine
+    private boolean commandCanComplete = false;
+    private boolean needsAction        = false;
+
+    // AND/OR logic
+    private boolean isFailed          = false;
+    private boolean isSkippingHandler = false;
+    private int     parenCounter      = 0;
+    private byte    error             = NO_ERROR;           // 3 bit really
+    private byte    status            = ZcodeStatus.SUCCESS;
+
+    // Sequence-start info
     private ZcodeLockSet locks    = ZcodeLockSet.allLocked();
     private boolean      hasLocks = false;
     private int          echo     = 0;                       // 16 bit
     private boolean      hasEcho  = false;
 
-    private byte    nextMarker     = 0;    // 5 bit really
-    private boolean haveNextMarker = false;
-
-    private byte prevMarker = 0; // 5 bit really
-
-    private byte    seqEndMarker     = 0;    // 4 bits really
-    private boolean haveSeqEndMarker = false;
-
-    private boolean atSeqStart = true;
-
-    private boolean isAddressing = false;
-
-    private boolean commandCanComplete = false;
-    private boolean commandStarted     = false;
-    private boolean needsAction        = false;
-    private boolean firstCommand       = true;
-
-    private boolean isFailed          = false;
-    private boolean isSkippingHandler = false;
-    private int     parenCounter      = 0;
-
-    private byte       error  = NO_ERROR;            // 3 bit really
-    private final byte status = ZcodeStatus.SUCCESS; // 3 bit really
-
-    private boolean skipToNL = false;
-//    private boolean needSendError  = false;
-    private boolean needEndSeq     = false;
-    private boolean needCloseParen = false;
-
+    // Execution state
     private boolean activated = false;
     private boolean locked    = false;
 
     private ZcodeAction currentAction;
 
-    public SemanticParser(final TokenReader reader) {
+    public SemanticParser(final TokenReader reader, ZcodeActionFactory actionFactory) {
         this.reader = reader;
-        this.currentAction = ZcodeAction.noAction(this);
+        this.actionFactory = actionFactory;
+        this.currentAction = actionFactory.noAction(this);
     }
 
     public ZcodeAction getAction() {
         if (!currentAction.needsPerforming()) {
-            currentAction = findNextAction(currentAction);
+            currentAction = findNextAction();
         }
         return currentAction;
     }
 
-    private ZcodeAction findNextAction(ZcodeAction previousAction) {
+    private ZcodeAction findNextAction() {
 //        if (needSendError) {
-//            return ZcodeAction.error(this, error);
+//            return actionFactory.error(this, error);
 //        }
 
         // check if we've just completed a command/address - if so, tidy up.
@@ -102,16 +107,19 @@ public class SemanticParser implements ParseState, ContextView {
         }
 
         if (needEndSeq) {
-            return ZcodeAction.endSequence(this);
+            return actionFactory.endSequence(this, p -> {
+                unlock(zcode);
+                seqEndSent();
+            });
         }
         if (needCloseParen) {
-            return ZcodeAction.closeParen(this);
+            return actionFactory.closeParen(this, p -> closeParenSent());
         }
 
-        dealWithFlags();
+        dealWithTokenBufferFlags();
 
         if (!haveNextMarker) {
-            return ZcodeAction.needsTokens(this);
+            return actionFactory.needsTokens(this);
         }
 
         // deals with '_' and '%',
@@ -121,7 +129,7 @@ public class SemanticParser implements ParseState, ContextView {
             if (skipToNL && error != NO_ERROR) {
                 skipToSeqEnd();
 //                needSendError = true;
-                return ZcodeAction.error(this, error);
+                return actionFactory.error(this, error);
             }
         }
 
@@ -129,47 +137,47 @@ public class SemanticParser implements ParseState, ContextView {
             skipToSeqEnd();
 //            needSendError = false;
             error = NO_ERROR;
-            return ZcodeAction.noAction(this);
+            return actionFactory.noAction(this);
         }
 
         if (isAddressing) {
             if (commandStarted) {
                 if (needsAction) {
-                    return ZcodeAction.addressingMoveAlong(this);
+                    return actionFactory.addressingMoveAlong(this, p -> clearNeedsAction());
                 }
-                return ZcodeAction.noAction(this);
+                return actionFactory.noAction(this);
             }
             if (error != NO_ERROR) {
 //                needSendError = true;
-                return ZcodeAction.error(this, error);
+                return actionFactory.error(this, error);
             }
-            return ZcodeAction.addressing(this);
+            return actionFactory.addressing(this, p -> startCommand(), null);
         }
 
         if (commandStarted) {
             if (needsAction) {
-                return ZcodeAction.commandMoveAlong(this);
+                return actionFactory.commandMoveAlong(this, p -> clearNeedsAction());
             }
-            return ZcodeAction.noAction(this);
+            return actionFactory.noAction(this);
         }
 
         if (error != NO_ERROR) {
             skipToNL = true;
             skipToSeqEnd();
 //            needSendError = true;
-            return ZcodeAction.error(this, error);
+            return actionFactory.error(this, error);
         }
 
         if (firstCommand) {
-            return ZcodeAction.firstCommand(this);
+            return actionFactory.firstCommand(this, p -> startCommand());
         }
 
         if (isSkippingHandler || isFailed) {
             commandCanComplete = true;
-            return ZcodeAction.noAction(this);
+            return actionFactory.noAction(this);
         }
 
-        return ZcodeAction.runCommand(this, prevMarker);
+        return actionFactory.runCommand(this, prevMarker, p -> startCommand(), null);
     }
 
     private void flowControl(final byte marker) {
@@ -214,7 +222,7 @@ public class SemanticParser implements ParseState, ContextView {
      *
      * Makes sure the buffer flag's readerBlocked status is up-to-date.
      */
-    private void dealWithFlags() {
+    private void dealWithTokenBufferFlags() {
         final ZcodeTokenBufferFlags flags = reader.getFlags();
         if (flags.getAndClearMarkerWritten()) {
             if (!haveNextMarker) {
@@ -394,70 +402,15 @@ public class SemanticParser implements ParseState, ContextView {
     }
 
     @Override
-    public void setStatus(byte status) {
-
-    }
-
-    @Override
-    public void setCommandStarted() {
+    public void startCommand() {
         this.commandStarted = true;
+        this.firstCommand = false;
+        this.status = ZcodeStatus.SUCCESS;
     }
 
     @Override
     public byte getSeqEndMarker() {
         return seqEndMarker;
-    }
-
-    @Override
-    public ZcodeLockSet getLocks() {
-        return locks;
-    }
-
-    @Override
-    public TokenReader getReader() {
-        return reader;
-    }
-
-    @Override
-    public boolean hasEcho() {
-        return hasEcho;
-    }
-
-    @Override
-    public int getEcho() {
-        return echo;
-    }
-
-    @Override
-    public void error() {
-        skipToNL = true;
-        error = OTHER_ERROR;
-    }
-
-    @Override
-    public void setCommandCanComplete(final boolean b) {
-        commandCanComplete = b;
-    }
-
-    @Override
-    public void softFail() {
-        isFailed = true;
-        parenCounter = 0;
-    }
-
-    @Override
-    public boolean isActivated() {
-        return activated;
-    }
-
-    @Override
-    public void activate() {
-        activated = true;
-    }
-
-    @Override
-    public void clearFirstCommand() {
-        firstCommand = false;
     }
 
     @Override
@@ -477,28 +430,86 @@ public class SemanticParser implements ParseState, ContextView {
     }
 
     @Override
+    public void clearNeedsAction() {
+        needsAction = false;
+    }
+
+    ////////////////////////////////
+    // Sequence Start state: locks and echo. Defined in {@link ParseState}.
+
+    @Override
+    public boolean canLock(final Zcode zcode) {
+        return locked || zcode.canLock(locks);
+    }
+
+    @Override
+    public boolean lock(Zcode zcode) {
+        if (locked) {
+            return true;
+        }
+        locked = zcode.lock(locks);
+        return locked;
+    }
+
+    @Override
+    public void unlock(Zcode zcode) {
+        zcode.unlock(locks);
+        this.locked = false;
+    }
+
+    @Override
+    public boolean hasEcho() {
+        return hasEcho;
+    }
+
+    @Override
+    public int getEcho() {
+        return echo;
+    }
+
+    ////////////////////////////////
+    // Defined in {@link ContextView}
+
+    @Override
+    public TokenReader getReader() {
+        return reader;
+    }
+
+    @Override
+    public void setCommandCanComplete(final boolean b) {
+        commandCanComplete = b;
+    }
+
+    @Override
     public boolean commandCanComplete() {
         return commandCanComplete;
     }
 
     @Override
-    public void setLocked(final boolean locked) {
-        this.locked = locked;
+    public boolean isActivated() {
+        return activated;
     }
 
     @Override
-    public boolean isLocked() {
-        return locked;
+    public void activate() {
+        activated = true;
+    }
+
+    @Override
+    public void setStatus(byte status) {
+        this.status = status;
+        if (ZcodeStatus.isError(status)) {
+            error = OTHER_ERROR;
+            skipToNL = true;
+        } else if (ZcodeStatus.isFailure(status)) {
+            isFailed = true;
+            parenCounter = 0;
+        }
     }
 
     @Override
     public void needsAction() {
         needsAction = true;
-    }
-
-    @Override
-    public void clearNeedsAction() {
-        needsAction = false;
     }
 
 }

@@ -29,7 +29,7 @@ class SemanticParserTest {
     private final ZcodeTokenBuffer buffer    = ZcodeTokenRingBuffer.createBufferWithCapacity(256);
     private final ZcodeTokenizer   tokenizer = new ZcodeTokenizer(buffer.getTokenWriter(), 2);
 
-    private final SemanticParser parser = new SemanticParser(buffer.getTokenReader());
+    private final SemanticParser parser = new SemanticParser(buffer.getTokenReader(), new ExecutionActionFactory());
 
     private final Zcode zcode = Zcode.getZcode();
 
