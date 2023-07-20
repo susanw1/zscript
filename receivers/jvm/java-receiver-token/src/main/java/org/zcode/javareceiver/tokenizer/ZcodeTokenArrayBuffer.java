@@ -213,6 +213,7 @@ public abstract class ZcodeTokenArrayBuffer implements ZcodeTokenBuffer {
             if (!isTokenComplete()) {
                 // reset current token back to writeStart
                 writeCursor = writeStart;
+                inNibble = false;
             }
             writeMarker(errorCode);
         }
