@@ -1,0 +1,222 @@
+modules:
+-   name: Servo
+    id: 4
+    version: 0.0.1
+    description: Basic servo functionality
+    
+    commands:
+    -   name: capabilities
+        command: 0
+        description: servo capabilities. 
+        operation: get
+        requestFields: []
+        responseFields:
+        -   key: C
+            name: commandsSet
+            description: which commands are enabled in the servo module
+            typeDefinition:
+                '@type': commands
+                bitFields: []
+            required: yes
+        -   key: P
+            name: servoPinCount
+            description: how many servo pins are available
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: R
+            name: pulseRate
+            description: Default time between pulses - in ms
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: 'N'
+            name: minimumPulseTime
+            description: minimum supported pulse time - in us
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: M
+            name: maximumPulseTime
+            description: maximum supported pulse time - in us
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: X
+            name: minimumPulseRate
+            description: Minimum supported time between pulses - in ms (not present if pulse rate not controllable)
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: 'Y'
+            name: maximumPulseRate
+            description: Maximum supported time between pulses - in ms (not present if pulse rate not controllable)
+            typeDefinition:
+                '@type': number
+            required: no
+            
+        -   key: B
+            name: capabilityBitset
+            description: capability bitset
+            typeDefinition:
+                '@type': bitset
+                bitFields:
+                - name: adjustableRange
+                  description: whether the device supports changing the pulse length range for each servo
+                - name: adjustableCenter
+                  description: whether the device supports changing the middle pulse length for each servo (is interpolated between this and ends)
+                - name: persistableCalibration
+                  description: whether the device supports persisting the calibrations for the servos
+                - name: slowMove
+                  description: whether the device supports gradual changes for servo position
+                - name: preciseSpeed
+                  description: whether the device supports precise speed setting
+            required: yes
+        status: []
+    -   name: setup
+        command: 1
+        description: allows reading and writing of setup information about specific servos
+        operation: put
+        requestFields: 
+        -   key: P
+            name: servoPin
+            description: which servo to setup
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: 'N'
+            name: minimumPulseTime
+            description: the length of pulse to be used as the minimum for the chosen servo, in us
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: 'M'
+            name: maximumPulseTime
+            description: the length of pulse to be used as the maximum for the chosen servo, in us
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: C
+            name: centerPulseTime
+            description: the length of pulse to be used as the center for the chosen servo, in us
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: V
+            name: pinChangeSpeed
+            description: the speed for the servo - 1 byte. A value of 255 will do a full sweep in ~1/3s, and a value of 1 will sweep in ~80s. This is conformant with adding V/16 to 1-byte position every 20ms, though any implementation with values close to this would be considered valid. 
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: W
+            name: pinChangeSpeedPrecise
+            description: the speed for the servo - 2 byte. The time to do a full sweep will be exactly '256/W's, allowing sweeps in anything from 4ms to 4 minutes.
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: D
+            name: persistCalibrations
+            description: if present, persists the current calibrations for the chosen servo
+            typeDefinition:
+                '@type': flag
+            required: no
+        -   key: R
+            name: resetCalibrations
+            description: if present, resets the calibrations for the chosen servo back to those in persistent memory, or default
+            typeDefinition:
+                '@type': flag
+            required: no
+        responseFields:
+        -   key: 'N'
+            name: minimumPulseTime
+            description: the length of pulse used as the minimum for the chosen servo, in us
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: 'M'
+            name: maximumPulseTime
+            description: the length of pulse  used as the maximum for the chosen servo, in us
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: C
+            name: centerPulseTime
+            description: the length of pulse used as the center for the chosen servo, in us
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: V
+            name: pinChangeSpeed
+            description: the speed for the servo - 1 byte. A value of 255 will do a full sweep in ~1/3s, and a value of 1 will sweep in ~80s. This is conformant with adding V/16 to 1-byte position every 20ms, though any implementation with values close to this would be considered valid. 
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: W
+            name: pinChangeSpeedPrecise
+            description: the speed for the servo - 2 byte. The time to do a full sweep will be exactly '256/W's, allowing sweeps in anything from 4ms to 4 minutes.
+            typeDefinition:
+                '@type': number
+            required: no
+        status: []
+    -   name: write
+        command: 2
+        description: moves a servo to a desired position. Changing the destination of a moving servo will immediately change its course
+        operation: put
+        requestFields: 
+        -   key: P
+            name: servoPin
+            description: which servo to setup
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: V
+            name: value
+            description: The value the pulse system should move towards, as a left-shifted value, so 8000 is the middle. 
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: F
+            name: force
+            description: if present, will ignore current speed settings, and assert the desired value immediately 
+            typeDefinition:
+                '@type': flag
+            required: no
+        -   key: E
+            name: enable
+            description: if present, and true, will enable servo at current position (may result in sudden movement), if false, will disable servo. Otherwise, unchanged 
+            typeDefinition:
+                '@type': tri-state
+            required: no
+        responseFields: []
+        status: []
+    -   name: read
+        command: 3
+        description: reads all dynamic state about a given servo
+        operation: get
+        requestFields: 
+        -   key: P
+            name: servoPin
+            description: which servo to setup
+            typeDefinition:
+                '@type': number
+            required: yes
+        responseFields:
+        -   key: V
+            name: value
+            description: The current target position for the servo
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: M
+            name: value
+            description: present if servo is currently moving
+            typeDefinition:
+                '@type': flag
+            required: no
+        -   key: E
+            name: value
+            description: present if servo is enabled
+            typeDefinition:
+                '@type': flag
+            required: no
+        status: []

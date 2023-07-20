@@ -3,7 +3,7 @@ modules:
     id: 4
     version: 0.0.1
     description: Basic pin functionality
-#Concerned about the multi-modal issues with the commands - the 'mode' field is an enum for digital, ignored for AtoD...
+    
     commands:
     -   name: capabilities
         command: 0
