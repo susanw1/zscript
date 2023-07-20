@@ -213,15 +213,15 @@ public class ZcodeCommandContext {
     }
 
     public void setCommandCanComplete() {
-        contextView.setCommandCanComplete(true);
+        contextView.setCommandComplete(true);
     }
 
     public void clearCommandCanComplete() {
-        contextView.setCommandCanComplete(false);
+        contextView.setCommandComplete(false);
     }
 
     public boolean commandCanComplete() {
-        return contextView.commandCanComplete();
+        return contextView.isCommandComplete();
     }
 
     public boolean isActivated() {

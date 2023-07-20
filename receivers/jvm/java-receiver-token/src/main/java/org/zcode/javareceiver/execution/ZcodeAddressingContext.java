@@ -88,16 +88,16 @@ public class ZcodeAddressingContext {
         return false;
     }
 
-    public void setCommandCanComplete() {
-        contextView.setCommandCanComplete(true);
+    public void setCommandComplete() {
+        contextView.setCommandComplete(true);
     }
 
-    public void clearCommandCanComplete() {
-        contextView.setCommandCanComplete(false);
+    public void clearCommandComplete() {
+        contextView.setCommandComplete(false);
     }
 
-    public boolean commandCanComplete() {
-        return contextView.commandCanComplete();
+    public boolean commandComplete() {
+        return contextView.isCommandComplete();
     }
 
     public boolean isActivated() {

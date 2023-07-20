@@ -46,8 +46,8 @@ public class SemanticParser implements ParseState, ContextView {
     private boolean needCloseParen = false;
 
     // command execution state-machine
-    private boolean commandCanComplete = false;
-    private boolean needsAction        = false;
+    private boolean commandComplete = false;
+    private boolean needsAction     = false;
 
     // AND/OR logic
     private boolean isFailed          = false;
@@ -87,8 +87,8 @@ public class SemanticParser implements ParseState, ContextView {
 //        }
 
         // check if we've just completed a command/address - if so, tidy up.
-        if (commandCanComplete && !skipToNL) {
-            commandCanComplete = false;
+        if (commandComplete && !skipToNL) {
+            commandComplete = false;
             commandStarted = false;
 
             skipToMarker();
@@ -173,7 +173,7 @@ public class SemanticParser implements ParseState, ContextView {
         }
 
         if (isSkippingHandler || isFailed) {
-            commandCanComplete = true;
+            commandComplete = true;
             return actionFactory.noAction(this);
         }
 
@@ -386,7 +386,7 @@ public class SemanticParser implements ParseState, ContextView {
         locks = ZcodeLockSet.allLocked();
         atSeqStart = true;
         firstCommand = true;
-        commandCanComplete = false;
+        commandComplete = false;
         commandStarted = false;
         needsAction = false;
 
@@ -476,13 +476,13 @@ public class SemanticParser implements ParseState, ContextView {
     }
 
     @Override
-    public void setCommandCanComplete(final boolean b) {
-        commandCanComplete = b;
+    public void setCommandComplete(final boolean b) {
+        commandComplete = b;
     }
 
     @Override
-    public boolean commandCanComplete() {
-        return commandCanComplete;
+    public boolean isCommandComplete() {
+        return commandComplete;
     }
 
     @Override

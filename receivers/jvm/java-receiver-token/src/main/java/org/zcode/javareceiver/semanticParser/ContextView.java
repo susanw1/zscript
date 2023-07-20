@@ -8,9 +8,9 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader;
 public interface ContextView {
     TokenReader getReader();
 
-    void setCommandCanComplete(boolean b);
+    void setCommandComplete(boolean b);
 
-    boolean commandCanComplete();
+    boolean isCommandComplete();
 
     void activate();
 

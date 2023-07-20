@@ -18,7 +18,7 @@ public class ZcodeAddressingSystem {
             ctx.status(ZcodeStatus.ADDRESS_NOT_FOUND);
             return;
         }
-        ctx.setCommandCanComplete();
+        ctx.setCommandComplete();
         module.address(ctx);
     }
 
