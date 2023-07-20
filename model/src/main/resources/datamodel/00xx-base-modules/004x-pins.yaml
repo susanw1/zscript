@@ -1,0 +1,181 @@
+modules:
+-   name: Pins
+    id: 4
+    version: 0.0.1
+    description: Basic pin functionality
+#Concerned about the multi-modal issues with the commands - the 'mode' field is an enum for digital, ignored for AtoD...
+    commands:
+    -   name: capabilities
+        command: 0
+        description: pin capabilities
+        operation: get
+        requestFields: []
+        responseFields:
+        -   key: C
+            name: commandsSet
+            description: which commands are enabled in the I2C module
+            typeDefinition:
+                '@type': commands
+                bitFields: []
+            required: yes
+        -   key: P
+            name: pinCount
+            description: how many pins are available
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: B
+            name: availableControllers
+            description: a set representing which pin controllers are available overall
+            typeDefinition:
+                '@type': bitset
+                bitFields:
+                - name: digital
+                  description: whether the device supports digital pin control
+                - name: AtoD
+                  description: whether the device supports AtoDs on the pins
+                - name: DtoA
+                  description: whether the device supports DtoAs on the pins
+            required: yes
+        status: []
+    -   name: digitalSetup
+        command: 1
+        description: digital pin setup
+        operation: put
+        requestFields: 
+        -   key: P
+            name: pin
+            description: 'which pin should be configured'
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: M
+            name: mode
+            description: 'which mode should be selected for the pin (default: DigitalInput)'
+            typeDefinition:
+                '@type': enum
+                allowedValues: [Input, InputPullUp, InputPullDown, Output, OpenDrain, OpenDrainPullUp, OpenDrainPullDown]
+            required: no
+        responseFields:
+        -   key: M
+            name: supportedModes
+            description: A bitset of the supported operational modes of the pin
+            typeDefinition:
+                '@type': bitset
+                bitFields: [Input, InputPullUp, InputPullDown, Output, OpenDrain, OpenDrainPullUp, OpenDrainPullDown]
+            required: no
+        status: []
+    -   name: digitalWrite
+        command: 2
+        description: digital pin write
+        operation: put
+        requestFields: 
+        -   key: P
+            name: pin
+            description: 'which pin should be written'
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: V
+            name: value
+            description: what value should be selected
+            typeDefinition:
+                '@type': boolean
+            required: yes
+        responseFields: []
+        status: []
+    -   name: digitalRead
+        command: 3
+        description: digital pin read
+        operation: get
+        requestFields: 
+        -   key: P
+            name: pin
+            description: 'which pin should be read'
+            typeDefinition:
+                '@type': number
+            required: yes
+        responseFields: 
+        -   key: V
+            name: value
+            description: value read from pin
+            typeDefinition:
+                '@type': boolean
+            required: yes
+        status: []
+    -   name: aToDSetup
+        command: 4
+        description: AtoD setup
+        operation: put
+        requestFields: 
+        -   key: P
+            name: pin
+            description: 'which pin should be configured'
+            typeDefinition:
+                '@type': number
+            required: yes
+        responseFields:
+        -   key: B
+            name: bitCount
+            description: 'how many bits of precision can be read'
+            typeDefinition:
+                '@type': number
+            required: yes
+        status: []
+    -   name: analogRead
+        command: 5
+        description: analog pin read
+        operation: get
+        requestFields: 
+        -   key: P
+            name: pin
+            description: 'which pin should be read from'
+            typeDefinition:
+                '@type': number
+            required: yes
+        responseFields: 
+        -   key: V
+            name: value
+            description: value read from pin, leftshifted to compensate for precision, so that 8000 is always half
+            typeDefinition:
+                '@type': number
+            required: yes
+        status: []
+    -   name: dToASetup
+        command: 6
+        description: DtoA setup
+        operation: put
+        requestFields: 
+        -   key: P
+            name: pin
+            description: 'which pin should be configured'
+            typeDefinition:
+                '@type': number
+            required: yes
+        responseFields:
+        -   key: B
+            name: bitCount
+            description: 'how many bits of precision can be written'
+            typeDefinition:
+                '@type': number
+            required: yes
+        status: []
+    -   name: analogWrite
+        command: 7
+        description: analog pin write
+        operation: get
+        requestFields: 
+        -   key: P
+            name: pin
+            description: 'which pin should be written to'
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: V
+            name: value
+            description: value to be written, leftshifted to compensate for precision, so that 8000 is always half
+            typeDefinition:
+                '@type': number
+            required: yes
+        responseFields: []
+        status: []
