@@ -38,7 +38,7 @@ bool testBufferContent(uint8_t *instructions, uint8_t *data, uint16_t instructio
                 return false;
             }
         } else {
-            std::cerr << "unknown instruction" << (int) instructions[i] << " at index: " << i << "\n";
+            std::cerr << "unknown instruction " << (int) instructions[i] << " at index: " << i << "\n";
             return false;
         }
     }
@@ -176,6 +176,17 @@ bool shouldHandleNumericalFields() {
             worked = false;
         }
     }
+    if (true) {
+        uint8_t instructions[] = "oooooooo";
+        uint8_t data[] = "A12345\n\n";
+        uint16_t instructionsLength = 8;
+        uint8_t dataExpected[] = { ZcodeTokenizer<zp>::ERROR_CODE_FIELD_TOO_LONG, ZcodeTokenizer<zp>::NORMAL_SEQUENCE_END, 0x12, 0x34 }; // buffer shrapnel
+        uint16_t dataLengthExpected = 4;
+        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+            std::cerr << "Failed on Too long number\n\n";
+            worked = false;
+        }
+    }
     return worked;
 }
 bool shouldRejectInvalidKeys() {
@@ -217,7 +228,7 @@ bool shouldRejectInvalidKeys() {
         uint8_t instructions[] = "oooooo";
         uint8_t data[] = "A5\"\"a\n";
         uint16_t instructionsLength = 6;
-        uint8_t dataExpected[] = { 'A', 1, 0x5, '"', 0, ZcodeTokenizer<zp>::ERROR_CODE_ILLEGAL_TOKEN }; // here we are just measuring shrapnel in the buffer
+        uint8_t dataExpected[] = { 'A', 1, 0x5, '"', 0, ZcodeTokenizer<zp>::ERROR_CODE_ILLEGAL_TOKEN };
         uint16_t dataLengthExpected = 6;
         if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
             std::cerr << "Failed on Illegal hex key check 'a'\n\n";
@@ -228,7 +239,7 @@ bool shouldRejectInvalidKeys() {
         uint8_t instructions[] = "oooooo";
         uint8_t data[] = "A5\"\"f\n";
         uint16_t instructionsLength = 6;
-        uint8_t dataExpected[] = { 'A', 1, 0x5, '"', 0, ZcodeTokenizer<zp>::ERROR_CODE_ILLEGAL_TOKEN }; // here we are just measuring shrapnel in the buffer
+        uint8_t dataExpected[] = { 'A', 1, 0x5, '"', 0, ZcodeTokenizer<zp>::ERROR_CODE_ILLEGAL_TOKEN };
         uint16_t dataLengthExpected = 6;
         if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
             std::cerr << "Failed on Illegal hex key check 'f'\n\n";
@@ -239,7 +250,7 @@ bool shouldRejectInvalidKeys() {
         uint8_t instructions[] = "oooooo";
         uint8_t data[] = "A5\"\"7\n";
         uint16_t instructionsLength = 6;
-        uint8_t dataExpected[] = { 'A', 1, 0x5, '"', 0, ZcodeTokenizer<zp>::ERROR_CODE_ILLEGAL_TOKEN }; // here we are just measuring shrapnel in the buffer
+        uint8_t dataExpected[] = { 'A', 1, 0x5, '"', 0, ZcodeTokenizer<zp>::ERROR_CODE_ILLEGAL_TOKEN };
         uint16_t dataLengthExpected = 6;
         if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
             std::cerr << "Failed on Illegal hex key check '7'\n\n";
@@ -250,7 +261,7 @@ bool shouldRejectInvalidKeys() {
         uint8_t instructions[] = "oo";
         uint8_t data[] = "7\n";
         uint16_t instructionsLength = 2;
-        uint8_t dataExpected[] = { ZcodeTokenizer<zp>::ERROR_CODE_ILLEGAL_TOKEN }; // here we are just measuring shrapnel in the buffer
+        uint8_t dataExpected[] = { ZcodeTokenizer<zp>::ERROR_CODE_ILLEGAL_TOKEN };
         uint16_t dataLengthExpected = 1;
         if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
             std::cerr << "Failed on Illegal hex key check '7' at start\n\n";
@@ -394,13 +405,24 @@ bool shouldHandleBigFields() {
         }
     }
     if (true) {
-        uint8_t instructions[] = "oooooooo";
-        uint8_t data[] = "A0 +123\n";
-        uint16_t instructionsLength = 8;
-        uint8_t dataExpected[] = { 'A', 0, ZcodeTokenizer<zp>::ERROR_CODE_ODD_BIGFIELD_LENGTH, 2, 0x12, 0x30 };
+        uint8_t instructions[] = "oooooooooo";
+        uint8_t data[] = "A0 +123\nV\n";
+        uint16_t instructionsLength = 10;
+        uint8_t dataExpected[] = { 'A', 0, ZcodeTokenizer<zp>::ERROR_CODE_ODD_BIGFIELD_LENGTH, 'V', 0, ZcodeTokenizer<zp>::NORMAL_SEQUENCE_END };
         uint16_t dataLengthExpected = 6;
         if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
-            std::cerr << "Failed on Bigfield odd length\n\n";
+            std::cerr << "Failed on Bigfield odd length NL terminated\n\n";
+            worked = false;
+        }
+    }
+    if (true) {
+        uint8_t instructions[] = "ooooooooooooo";
+        uint8_t data[] = "A0 +123ffB\nW\n";
+        uint16_t instructionsLength = 13;
+        uint8_t dataExpected[] = { 'A', 0, ZcodeTokenizer<zp>::ERROR_CODE_ODD_BIGFIELD_LENGTH, 'W', 0, ZcodeTokenizer<zp>::NORMAL_SEQUENCE_END, 0xf0 };
+        uint16_t dataLengthExpected = 7;
+        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+            std::cerr << "Failed on Bigfield odd length token terminated\n\n";
             worked = false;
         }
     }
@@ -455,6 +477,65 @@ bool shouldHandleComment() {
     }
     return worked;
 }
+bool shouldHandleAddressing() {
+    bool worked = true;
+    if (true) {
+        uint8_t instructions[] = "oooo";
+        uint8_t data[] = "@2Z\n";
+        uint16_t instructionsLength = 4;
+        uint8_t dataExpected[] = { '@', 1, 0x2, ZcodeTokenizer<zp>::ADDRESSING_FIELD_KEY, 1, 'Z', ZcodeTokenizer<zp>::NORMAL_SEQUENCE_END };
+        uint16_t dataLengthExpected = 7;
+        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+            std::cerr << "Failed on Simple address\n\n";
+            worked = false;
+        }
+    }
+    if (true) {
+        uint8_t instructions[] = "oooooooo";
+        uint8_t data[] = "\000@\000a\000Z\000\n";
+        uint16_t instructionsLength = 8;
+        uint8_t dataExpected[] = { '@', 1, 0xa, ZcodeTokenizer<zp>::ADDRESSING_FIELD_KEY, 1, 'Z', ZcodeTokenizer<zp>::NORMAL_SEQUENCE_END };
+        uint16_t dataLengthExpected = 7;
+        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+            std::cerr << "Failed on Simple address with nulls\n\n";
+            worked = false;
+        }
+    }
+    if (true) {
+        uint8_t instructions[] = "oooooooooooo";
+        uint8_t data[] = "@2Z12345\"a=\n";
+        uint16_t instructionsLength = 12;
+        uint8_t dataExpected[] = { '@', 1, 0x2, ZcodeTokenizer<zp>::ADDRESSING_FIELD_KEY, 9, 'Z', '1', '2', '3', '4', '5', '"', 'a', '=', ZcodeTokenizer<zp>::NORMAL_SEQUENCE_END };
+        uint16_t dataLengthExpected = 15;
+        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+            std::cerr << "Failed on Simple address, complex content\n\n";
+            worked = false;
+        }
+    }
+    if (true) {
+        uint8_t instructions[] = "oooooo";
+        uint8_t data[] = "@2.1Z\n";
+        uint16_t instructionsLength = 6;
+        uint8_t dataExpected[] = { '@', 1, 0x2, '.', 1, 0x1, ZcodeTokenizer<zp>::ADDRESSING_FIELD_KEY, 1, 'Z', ZcodeTokenizer<zp>::NORMAL_SEQUENCE_END };
+        uint16_t dataLengthExpected = 10;
+        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+            std::cerr << "Failed on Multilevel address\n\n";
+            worked = false;
+        }
+    }
+    if (true) {
+        uint8_t instructions[] = "oooooooooo";
+        uint8_t data[] = "@2.3@4.5Z\n";
+        uint16_t instructionsLength = 10;
+        uint8_t dataExpected[] = { '@', 1, 0x2, '.', 1, 0x3, ZcodeTokenizer<zp>::ADDRESSING_FIELD_KEY, 5, '@', '4', '.', '5', 'Z', ZcodeTokenizer<zp>::NORMAL_SEQUENCE_END };
+        uint16_t dataLengthExpected = 14;
+        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+            std::cerr << "Failed on Multilevel address\n\n";
+            worked = false;
+        }
+    }
+    return worked;
+}
 int main(int argc, char **argv) {
     (void) argc;
     (void) argv;
@@ -480,6 +561,10 @@ int main(int argc, char **argv) {
     }
     if (!shouldHandleComment()) {
         std::cerr << "Failed on handling comments \n";
+        return 1;
+    }
+    if (!shouldHandleAddressing()) {
+        std::cerr << "Failed on handling addressing \n";
         return 1;
     }
 }
