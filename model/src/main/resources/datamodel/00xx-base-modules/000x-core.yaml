@@ -9,36 +9,36 @@ modules:
         command: 0
         description: Top level identification, for hardware, software, modules, versions
         operation: get
-        requestParams: 
-        -   label: V
+        requestFields: 
+        -   key: V
             name: versionType
             description: selects which ident/version info to return
             typeDefinition:
                 '@type': enum
                 allowedValues: [UserFirmware, UserHardware, PlatformFirmware, PlatformHardware, CoreZscriptLanguage]
             required: no
-        responseParams:
-        -   label: C
+        responseFields:
+        -   key: C
             name: commandsSet
             description: which commands are enabled in this module
             typeDefinition:
                 '@type': commands
                 bitFields: []
             required: yes
-        -   label: M
+        -   key: M
             name: modulesBankSet
             description: which modules present in this bank (ie 00xx)
             typeDefinition:
                 '@type': commands
                 bitFields: []
             required: yes
-        -   label: V
+        -   key: V
             name: version
             description: 2-byte version number relating to requested versionType
             typeDefinition:
                 '@type': number
             required: yes
-        -   label: +
+        -   key: +
             name: ident
             description: identification string relating to requested versionType
             typeDefinition:
@@ -51,14 +51,14 @@ modules:
         command: 1
         description: Echoes all request params to the response, for testing purposes
         operation: get
-        requestParams:
-        -   label: S
+        requestFields:
+        -   key: S
             name: status
             description: determines the returned Status param - can be any status
             typeDefinition:
                 '@type': number
             required: no
-        -   label: +
+        -   key: +
             name: bigField
             description: any supplied value will be returned
             typeDefinition:
@@ -69,13 +69,13 @@ modules:
             typeDefinition:
                 '@type': number
             required: no
-        responseParams:
+        responseFields:
         -   name: any
             description: any supplied value will be returned
             typeDefinition:
                 '@type': number
             required: no
-        -   label: S
+        -   key: S
             name: status
             description: 'the supplied Status param - can be any status; default: OK'
             typeDefinition:
@@ -85,51 +85,57 @@ modules:
 
     -   name: activate
         command: 2
-        description: Activates zscript system, allowing commands 0x10 onwards to be executed
+        description: Activates zscript channel, allowing commands 0x10 onwards to be executed
         operation: put
-        requestParams:
-        -   label: K
-            name: key
-            description: must match the device's own key to allow activation
+        requestFields:
+        -   key: K
+            name: challenge
+            description: allows authentication (though in a user defined way)
             typeDefinition:
                 '@type': number
             required: no
-        responseParams:
-        -   label: A
+        responseFields:
+        -   key: A
             name: previousActivationState
             description: true if already activated; absent otherwise
             typeDefinition:
                 '@type': flag
             required: no
+        -   key: K
+            name: challenge
+            description: allows the receiver to give a challenge to the client
+            typeDefinition:
+                '@type': number
+            required: no
         status:
         -   code: CMD_FAIL
-            meaning: key match failure
+            meaning: challenge failure
 
 
     -   name: reset
         command: 3
         description: Resets the device(!) or channels. Device reset and *this channel* reset produces no response at all
         operation: put
-        requestParams:
-        -   label: C
+        requestFields:
+        -   key: C
             name: channel
             description: specifies channel to be reset
             typeDefinition:
                 '@type': number
             required: no
-        responseParams: []
+        responseFields: []
         status:
         -   code: CMD_FAIL
-            meaning: channel reset failed
+            meaning: reset failed
 
 
     -   name: readGuid
         command: 4
         description: Retrieves the system GUID, if set
         operation: get
-        requestParams: []
-        responseParams:
-        -   label: +
+        requestFields: []
+        responseFields:
+        -   key: +
             name: guid
             description: the previously set system GUID
             typeDefinition:
@@ -144,38 +150,44 @@ modules:
         command: 8
         description: Retrieves channel info
         operation: get
-        requestParams:
-        -   label: C
+        requestFields:
+        -   key: C
             name: channel
             description: 'which channel to configure (default: this channel)'
             typeDefinition:
                 '@type': number
             required: no
-        responseParams:
-        -   label: B
-            name: maxBigField
-            description: maximum number of bytes that can be supplied in request's big-field
+        -   key: K
+            name: challenge
+            description: allows the client to challenge the identity of the receiver
+            typeDefinition:
+                '@type': number
+            required: no
+        responseFields:
+        -   key: B
+            name: bufferLength
+            description: the total length of this channels token ring buffer
             typeDefinition:
                 '@type': number
             required: yes
-        -   label: F
-            name: maxRequestParams
-            description: maximum number of params that can be supplied in any request
-            typeDefinition:
-                '@type': number
-            required: yes
-        -   label: M
+        -   key: M
             name: associatedModule
             description: the module associated with this channel
             typeDefinition:
                 '@type': number
             required: yes
-        -   label: +
+        -   key: +
             name: name
             description: channel descriptor
             typeDefinition:
                 '@type': text
             required: yes
+        -   key: K
+            name: challenge
+            description: the answer to the identity challenge
+            typeDefinition:
+                '@type': number
+            required: no
         extension: channel
         status: []
 
@@ -184,9 +196,9 @@ modules:
         command: 12
         description: Generates a random match-code
         operation: post
-        requestParams: []
-        responseParams:
-        -   label: C
+        requestFields: []
+        responseFields:
+        -   key: C
             name: matchCode
             description: newly generated random match-code
             typeDefinition:
@@ -198,14 +210,14 @@ modules:
         command: 13
         description: Returns OK only if supplied code matches the previously generated match-code
         operation: get
-        requestParams:
-        -   label: C
+        requestFields:
+        -   key: C
             name: matchCode
             description: a match-code to confirm against previously generated one
             typeDefinition:
                 '@type': number
             required: yes
-        responseParams: []
+        responseFields: []
         status:
         -   code: CMD_FAIL
             meaning: supplied code didn't match
@@ -215,6 +227,6 @@ modules:
         command: 15
         description: Command kept free for user-defined system command
         operation: unknown
-        requestParams: []
-        responseParams: []
+        requestFields: []
+        responseFields: []
         status: []

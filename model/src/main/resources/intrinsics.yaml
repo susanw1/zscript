@@ -1,25 +1,13 @@
 intrinsics:
-    requestParams:
-    -   label: Z
+    requestFields:
+    -   key: Z
         name: command
         description: which operation to be performed
         typeDefinition:
             '@type': number
         required: yes
-    -   label: E
-        name: echo
-        description: value is always echoed in the response
-        typeDefinition:
-            '@type': number
-        required: no
-    responseParams:
-    -   label: E
-        name: echo
-        description: value echoed from the request
-        typeDefinition:
-            '@type': number
-        required: no
-    -   label: S
+    responseFields:
+    -   key: S
         name: status
         description: indicates success (0), failure (1-f) or error
         typeDefinition:

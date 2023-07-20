@@ -1,0 +1,230 @@
+modules:
+-   name: Serial
+    id: 7
+    version: 0.0.1
+    description: Serial Connectivity, including UARTs and other similar systems
+
+    commands:
+    -   name: capabilities
+        command: 0
+        description: Serial capabilities
+        operation: get
+        requestFields: 
+        -   key: F
+            name: frequencySelection
+            description: 'which frequency option should be investigated (default: maximum)'
+            typeDefinition:
+                '@type': number
+                bitFields: []
+            required: no
+        responseFields:
+        -   key: C
+            name: commandsSet
+            description: which commands are enabled in the I2C module
+            typeDefinition:
+                '@type': commands
+                bitFields: []
+            required: yes
+        -   key: N
+            name: notificationsSupported
+            description: whether notifications are supported for SMBus alerts or similar
+            typeDefinition:
+                '@type': flag
+            required: no
+        -   key: A
+            name: addressingSupported
+            description: whether addressing via the I2C port is available
+            typeDefinition:
+                '@type': flag
+            required: no
+        -   key: P
+            name: portCount
+            description: how many ports are available
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: F
+            name: frequenciesSupported
+            description: how many frequencies are supported as a 'menu' of frequencies - if not present, no preset frequencies are supported
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: B
+            name: bitsetCapabilities
+            description: a set of more specific capabilities of the module
+            typeDefinition:
+                '@type': bitset
+                bitFields:
+                - name: parity
+                  description: whether the device supports sending a parity bit
+                - name: singleDoubleStop
+                  description: whether the device supports choosing single or double stop bits
+                - name: autoBaud
+                  description: whether the device supports automatic baudrate detection
+                - name: arbitraryFrequency
+                  description: whether the device supports selecting baudrate as a freely varying number
+            required: yes
+        -   key: R
+            name: rxBufferSize
+            description: how many bytes of buffer have been assigned for received data
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: T
+            name: txBufferSize
+            description: how many bytes of buffer have been assigned for transmitted data
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: +
+            name: baudRate
+            description: the baud rate option requested in Hz (or maximum rate supported if not given)
+            typeDefinition:
+                '@type': number
+            required: yes
+        status: []
+    -   name: setup
+        command: 1
+        description: Serial setup
+        operation: put
+        requestFields: 
+        -   key: P
+            name: port
+            description: 'which port should be configured (default: all)'
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: F
+            name: frequency
+            description: which frequency option should be selected from the 'menu'
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: B
+            name: bitsetOptions
+            description: a set of more specific operational choices about the device's operation
+            typeDefinition:
+                '@type': bitset
+                bitFields:
+                - name: parity
+                  description: enables sending parity bits
+                - name: singleDoubleStop
+                  description: selects double stop bits rather than single
+                - name: autoBaud
+                  description: enables automatic baud rate detection
+            required: no
+        -   key: A
+            name: addressing
+            description: enables addressing
+            typeDefinition:
+                '@type': flag
+            required: no
+        -   key: N
+            name: notifications
+            description: enables notifications
+            typeDefinition:
+                '@type': flag
+            required: no
+        -   key: +
+            name: baudRate
+            description: the baud rate requested, in Hz
+            typeDefinition:
+                '@type': number
+            required: no
+        responseFields:
+        -   key: L
+            name: dataLength
+            description: the amount of data in the buffer of the given port
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: +
+            name: baudRate
+            description: the baud rate the device will now run at, in Hz (only present if frequency was changed)
+            typeDefinition:
+                '@type': number
+            required: no
+        status: []
+    -   name: send
+        command: 2
+        description: Serial send
+        operation: post
+        requestFields: 
+        -   key: P
+            name: port
+            description: 'which port should be used'
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: +
+            name: data
+            description: the data sent
+            typeDefinition:
+                '@type': bytes
+            required: yes
+        responseFields: []
+        status: []
+    -   name: receive
+        command: 3
+        description: Serial receive
+        operation: post
+        requestFields: 
+        -   key: P
+            name: port
+            description: 'which port should be used'
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: L
+            name: length
+            description: how much data is to be read from the buffer
+            typeDefinition:
+                '@type': number
+            required: yes
+        responseFields:
+        -   key: I
+            name: serialMarker
+            description: the type of terminator ending the read
+            typeDefinition:
+                '@type': enum
+                allowedValues: [Nothing, Break, ParityError, NoiseError, BufferOverflow]
+            required: yes
+        -   key: +
+            name: data
+            description: the data received up to the first serial
+            typeDefinition:
+                '@type': bytes
+            required: yes
+        status: []
+    -   name: skip
+        command: 4
+        description: Serial skip
+        operation: post
+        requestFields: 
+        -   key: P
+            name: port
+            description: 'which port should be used'
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: L
+            name: length
+            description: how much data is to be skipped from the buffer
+            typeDefinition:
+                '@type': number
+            required: yes
+        responseFields:
+        -   key: I
+            name: serialMarker
+            description: the type of terminator ending the skip
+            typeDefinition:
+                '@type': enum
+                allowedValues: [Nothing, Break, ParityError, NoiseError, BufferOverflow]
+            required: yes
+        -   key: L
+            name: length
+            description: how much data was skipped
+            typeDefinition:
+                '@type': number
+            required: yes
+        status: []

@@ -33,6 +33,20 @@ More general optimisation guides appear to be:
 - Most other optimisation attempts result in marginal or minimal gains. virtual functions aren't free, but aren't too bad either.
 
 
+2023-07-20
+---
+Rules on peripheral buffering (and the distinction between receivers/transmitters with and without buffers):
+
+A peripheral which has asynchronous data reception MUST buffer that data in some form (most likely a ring buffer).
+It SHOULD allow notification generation when that buffer is near-full, to allow intelligent handling by a client, but it MUST make it unambiguous when data is lost due to buffer overrun, and where in the buffer the data was lost from. It MAY generate notifications when it believes a useful amount of data has accumulated in the buffer.
+Errors/failures found in the reception of this data MUST be relayed at the appropriate point in the buffer - i.e. when the data with the error is read.
+
+A peripheral MAY also buffer transmitted data. This allows a command which is transmitting data to exit before the data is actually transmitted. This MUST NOT be done when the transmission of that data can result in an error/failure other than one which implies a loss of device function.
+The transmitted data MUST be transmitted in the order it was added to the buffer. If a command needs to add data to the transmit buffer, but the buffer is too full, it MUST either wait (ideally using the asynchronous system for command execution) for the buffer to be empty enough, or fail.
+
+If a command would affect the functioning of the peripheral but either of the read or write buffers have data in them, it MUST NOT run until both are empty. This can either be accomplished by waiting like any other asynchronous command (particularly if the write buffer has data in it), or by failing. 
+A 'force' flag MAY be allowed, which allows the command to take affect despite the current data state of the buffers. 
+
 2023-07
 ---
 Semantic parser (Java version) is done, and we've ported the tokenizer to C++. Interesting decisions along the way include:

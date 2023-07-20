@@ -38,34 +38,6 @@ modules:
             required: yes
         status: []
 
-    -   name: addressRoute
-        command: 1
-        description: sends data to configured addressing router
-        operation: post
-        requestParams: 
-        -   label: +
-            name: data
-            description: data to be sent to addressing system - MUST end in newline
-            typeDefinition:
-                '@type': bytes
-            required: yes
-        responseParams: []
-        status:
-        -   code: BAD_ADDRESSING
-            meaning: command may only be invoked from notification channel
-
-
-    -   name: addressSetup
-        command: 2
-        description: Configures the addressing system
-        operation: put
-        requestParams: []
-        responseParams: []
-        extension: addressing
-        status:
-        -   code: BAD_ADDRESSING
-            meaning: command may only be invoked from notification channel
-
 
     -   name: writeGuid
         command: 4

@@ -9,32 +9,58 @@ modules:
         command: 0
         description: I2C capabilities
         operation: get
-        requestParams: []
-        responseParams:
-        -   label: C
+        requestFields: []
+        responseFields:
+        -   key: C
             name: commandsSet
             description: which commands are enabled in the I2C module
             typeDefinition:
                 '@type': commands
                 bitFields: []
             required: yes
-        -   label: N
+        -   key: N
             name: notificationsSupported
-            description: whether notifications are supported
+            description: whether notifications are supported for SMBus alerts or similar
             typeDefinition:
                 '@type': flag
             required: no
-        -   label: P
+        -   key: A
+            name: addressingSupported
+            description: whether addressing via the I2C port is available
+            typeDefinition:
+                '@type': flag
+            required: no
+        -   key: P
             name: portCount
             description: how many ports are available
             typeDefinition:
                 '@type': number
             required: yes
-        -   label: F
+        -   key: F
             name: frequenciesSupported
-            description: how many frequencies are supported
+            description: how many frequencies are supported as a 'menu' of (0 -> slow, 1 -> 100kHz, 2 -> 400kHz, 3 -> 1MHz)
             typeDefinition:
                 '@type': number
+            required: yes
+        -   key: M
+            name: maximumSupportedFrequency
+            description: if present, arbitrary frequency selection is supported, and this is the highest supported (in units of kHz, giving a limit of 64MHz)
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: B
+            name: bitsetCapabilities
+            description: a set of more specific capabilities of the module
+            typeDefinition:
+                '@type': bitset
+                bitFields:
+                - name: lowSpeedSupported
+                  description: whether the device supports a frequency in the range 1kHz-10kHz, as a noise resistant mode
+                - name: busFree
+                  description: whether the device supports freeing from a bus lockup (due to a missed SCL pulse)
+                - name: smBusAddressResolution
+                  description: whether the device supports resolving I2C addresses associated with alerts
+                - 
             required: yes
         status: []
 
@@ -42,20 +68,50 @@ modules:
         command: 1
         description: configures the I2C subsystem
         operation: put
-        requestParams:
-        -   label: P
+        requestFields:
+        -   key: P
             name: port
             description: 'which port to configure (default: all)'
             typeDefinition:
                 '@type': number
             required: no
-        -   label: F
+        -   key: F
             name: frequency
-            description: the frequency to set
+            description: the frequency to set as a choice from the 'menu'
             typeDefinition:
                 '@type': number
             required: no
-        responseParams: []
+        -   key: K
+            name: frequencykHz
+            description: the frequency to set in kHz (the device will choose a frequency <= this)
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: A
+            name: addressing
+            description: enables addressing
+            typeDefinition:
+                '@type': flag
+            required: no
+        -   key: N
+            name: notifications
+            description: enables notifications
+            typeDefinition:
+                '@type': flag
+            required: no
+        -   key: R
+            name: resolveSMBus
+            description: whether the I2C system should resolve addresses when sending notifications for SMBus alerts.
+            typeDefinition:
+                '@type': flag
+            required: no
+        responseFields:
+        -   key: K
+            name: frequencykHz
+            description: the frequency the device will run at in kHz
+            typeDefinition:
+                '@type': number
+            required: no
         status:
         -   code: BAD_PARAM
             meaning: port or frequency out of range
@@ -64,52 +120,46 @@ modules:
         command: 2
         description: Sends data to a specified I2C device
         operation: post
-        requestParams:
-        -   label: P
+        requestFields:
+        -   key: P
             name: port
             description: which port to send to
             typeDefinition:
                 '@type': number
             required: yes
-        -   label: A
+        -   key: A
             name: address
             description: which address to send to (0-127, or 0-1023 depending on mode)
             typeDefinition:
                 '@type': number
             required: yes
-        -   label: N
+        -   key: N
             name: tenBitMode
             description: 'indicates if 10-bit addressing (default: 7 bit)'
             typeDefinition:
                 '@type': flag
             required: no
-        -   label: T
+        -   key: T
             name: retries
             description: 'how many times to try the write operation (default: 5)'
             typeDefinition:
                 '@type': number
             required: no
-        -   label: +
+        -   key: +
             name: data
             description: the data to send
             typeDefinition:
                 '@type': bytes
             required: no
-        responseParams:
-        -   label: A
-            name: address
-            description: the address the data was sent to
-            typeDefinition:
-                '@type': number
-            required: yes
-        -   label: I
+        responseFields:
+        -   key: I
             name: resultInfo
             description: detailed status info for I2C activity
             typeDefinition:
                 '@type': enum
                 allowedValues: [Ok, BufferOverrun, AddrNack, DataNack, Other ]
             required: yes
-        -   label: T
+        -   key: T
             name: attempts
             description: how many attempts we made to send
             typeDefinition:
@@ -126,60 +176,54 @@ modules:
         command: 3
         description: Receives data from a specified I2C device
         operation: post
-        requestParams:
-        -   label: P
+        requestFields:
+        -   key: P
             name: port
             description: which port to read from
             typeDefinition:
                 '@type': number
             required: yes
-        -   label: A
+        -   key: A
             name: address
             description: which address to read from (0-127, or 0-1023 depending on mode)
             typeDefinition:
                 '@type': number
             required: yes
-        -   label: N
+        -   key: N
             name: tenBitMode
             description: 'indicates if 10-bit addressing (default: 7 bit)'
             typeDefinition:
                 '@type': flag
             required: no
-        -   label: T
+        -   key: T
             name: retries
-            description: 'how many times to try the read operation (default: 5)'
+            description: 'how many times to try the receive operation (default: 5)'
             typeDefinition:
                 '@type': number
             required: no
-        -   label: L
+        -   key: L
             name: length
-            description: 'number of bytes to attempt to read (default: 0)'
+            description: 'number of bytes to attempt to receive (default: 0)'
             typeDefinition:
                 '@type': number
             required: no
-        responseParams:
-        -   label: A
-            name: address
-            description: the device's address
-            typeDefinition:
-                '@type': number
-            required: yes
-        -   label: I
+        responseFields:
+        -   key: I
             name: resultInfo
             description: detailed status info for I2C activity
             typeDefinition:
                 '@type': enum
                 allowedValues: [Ok, BufferOverrun, AddrNack, DataNack, Other ]
             required: yes
-        -   label: T
+        -   key: T
             name: attempts
-            description: how many attempts we made to read
+            description: how many attempts were made to receive
             typeDefinition:
                 '@type': number
             required: yes
-        -   label: +
+        -   key: +
             name: data
-            description: the data that was read
+            description: the data that was receive
             typeDefinition:
                 '@type': bytes
             required: no
@@ -194,66 +238,60 @@ modules:
             
     -   name: i2cSendReceive
         command: 4
-        description: Sends a message to a specified I2C device, then directly performs a receive
+        description: Sends a message to a specified I2C device, then performs a receive without an intervening stop bit
         operation: post
-        requestParams:
-        -   label: P
+        requestFields:
+        -   key: P
             name: port
             description: which port to send to/receive from
             typeDefinition:
                 '@type': number
             required: yes
-        -   label: A
+        -   key: A
             name: address
             description: which address to send to/receive from (0-127, or 0-1023 depending on mode)
             typeDefinition:
                 '@type': number
             required: yes
-        -   label: N
+        -   key: N
             name: tenBitMode
             description: 'indicates if 10-bit addressing (default: 7 bit)'
             typeDefinition:
                 '@type': flag
             required: no
-        -   label: T
+        -   key: T
             name: retries
             description: 'how many times to try the send/receive operation (default: 5)'
             typeDefinition:
                 '@type': number
             required: no
-        -   label: +
+        -   key: +
             name: data
             description: the data to send
             typeDefinition:
                 '@type': bytes
             required: no
-        -   label: L
+        -   key: L
             name: length
             description: 'number of bytes to attempt to read (default: 0)'
             typeDefinition:
                 '@type': number
             required: no
-        responseParams:
-        -   label: A
-            name: address
-            description: the address the data was sent/received
-            typeDefinition:
-                '@type': number
-            required: yes
-        -   label: I
+        responseFields:
+        -   key: I
             name: resultInfo
             description: detailed status info for I2C activity
             typeDefinition:
                 '@type': enum
                 allowedValues: [Ok, BufferOverrun, AddrNack, DataNack, Other ]
             required: yes
-        -   label: T
+        -   key: T
             name: attempts
             description: how many attempts we made to send/receive
             typeDefinition:
                 '@type': number
             required: yes
-        -   label: +
+        -   key: +
             name: data
             description: the data that was read
             typeDefinition:
