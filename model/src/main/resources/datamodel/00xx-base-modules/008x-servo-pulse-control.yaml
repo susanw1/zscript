@@ -191,7 +191,7 @@ modules:
         status: []
     -   name: read
         command: 3
-        description: reads all dynamic state about a given servo
+        description: reads dynamic state about a given servo
         operation: get
         requestFields: 
         -   key: P
