@@ -17,7 +17,7 @@ public class ZcodeTreeParser {
         int parenCount = 0;
 
         OptIterator<ReadToken> it = start.getNextTokens();
-        for (Optional<ReadToken> opt = it.next(); opt.isPresent() && !isSequenceEndMarker(opt.get().getKey()); opt = it.next()) {
+        for (Optional<ReadToken> opt = it.next(); opt.isPresent() && !opt.get().isSequenceEndMarker(); opt = it.next()) {
             ReadToken t = opt.get();
             if (t.getKey() == ZcodeTokenizer.CMD_END_OPEN_PAREN) {
                 parenCount++;
@@ -29,8 +29,9 @@ public class ZcodeTreeParser {
             }
         }
         ZcodeSequenceUnitPlace place = new ZcodeSequenceUnitPlace(start, ZcodeTokenizer.NORMAL_SEQUENCE_END, -lowest);
-        while (place.parse())
+        while (place.parse()) {
             ;
+        }
         return place;
     }
 
@@ -43,7 +44,7 @@ public class ZcodeTreeParser {
 
         OptIterator<ReadToken> it = start.getNextTokens();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent()
-                && (parenLevel != 0 || opt.get().getKey() != endMarker) && !isSequenceEndMarker(opt.get().getKey()); opt = it.next()) {
+                && (parenLevel != 0 || opt.get().getKey() != endMarker) && !opt.get().isSequenceEndMarker(); opt = it.next()) {
             ReadToken t = opt.get();
             hasMarker |= t.isMarker();
             if (hadNonParen) {
@@ -125,21 +126,20 @@ public class ZcodeTreeParser {
                 parenLevel--;
             }
         }
-        if (hasTokens) {
-            if (prevStart == null) {
-                prevStart = opt.get();
-            }
-            units.add(new ZcodeSequenceUnitPlace(prevStart, endMarker, parenLeft));
-
-//            System.out.println("And: " + (char) start.getKey() + " : " + Integer.toHexString(Byte.toUnsignedInt(endMarker)));
-            return new ZcodeAndSequenceUnit(units);
-        } else {
+        if (!hasTokens) {
             it = start.getNextTokens();
             for (opt = it.next(); opt.isPresent() && !opt.get().isMarker(); opt = it.next()) {
             }
 //            System.out.println("Command2: " + (char) start.getKey() + " : " + Integer.toHexString(Byte.toUnsignedInt(endMarker)));
             return new ZcodeCommandUnit(opt.get());
         }
+        if (prevStart == null) {
+            prevStart = opt.get();
+        }
+        units.add(new ZcodeSequenceUnitPlace(prevStart, endMarker, parenLeft));
+
+//            System.out.println("And: " + (char) start.getKey() + " : " + Integer.toHexString(Byte.toUnsignedInt(endMarker)));
+        return new ZcodeAndSequenceUnit(units);
     }
 
 }

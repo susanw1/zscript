@@ -11,13 +11,14 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class ZcodeAction {
     enum ActionType {
-        NO_ACTION,
-        NEEDS_TOKENS,
+        GO_AROUND,
+        WAIT_FOR_TOKENS,
+        WAIT_FOR_ASYNC,
         ERROR,
-        ADDRESSING,
+        INVOKE_ADDRESSING,
         ADDRESSING_MOVEALONG,
-        FIRST_COMMAND,
-        COMMAND,
+        RUN_FIRST_COMMAND,
+        RUN_COMMAND,
         COMMAND_MOVEALONG,
         END_SEQUENCE,
         CLOSE_PAREN
@@ -34,10 +35,10 @@ public class ZcodeAction {
     }
 
     public boolean needsPerforming() {
-        return type != ActionType.NO_ACTION && type != ActionType.NEEDS_TOKENS;
+        return type != ActionType.GO_AROUND && type != ActionType.WAIT_FOR_TOKENS && type != ActionType.WAIT_FOR_ASYNC;
     }
 
-    protected void performAction(Zcode zcode, ZcodeOutStream out) {
+    public void performAction(Zcode zcode, ZcodeOutStream out) {
         performActionImpl(zcode, out);
         parseState.actionPerformed(type);
     }
@@ -48,10 +49,8 @@ public class ZcodeAction {
         switch (type) {
         case ERROR:
             sendError(out, info, parseState.getSeqEndMarker());
-            parseState.errorSent();
             break;
-        case ADDRESSING:
-//            parseState.setCommandStarted();
+        case INVOKE_ADDRESSING:
             ZcodeAddressingContext addrCtx = new ZcodeAddressingContext((ContextView) parseState);
             if (addrCtx.verify()) {
                 ZcodeAddressingSystem.execute(addrCtx);
@@ -61,12 +60,10 @@ public class ZcodeAction {
 //            parseState.clearNeedsAction();
             ZcodeAddressingSystem.moveAlong(new ZcodeAddressingContext((ContextView) parseState));
             break;
-        case FIRST_COMMAND:
-//            parseState.clearFirstCommand();
+        case RUN_FIRST_COMMAND:
             startResponse(out);
             // fall though
-        case COMMAND:
-//            parseState.setCommandStarted(); /// moved to "before"
+        case RUN_COMMAND:
             sendNormalMarkerPrefix(out, info);
             ZcodeCommandContext cmdCtx = new ZcodeCommandContext((ContextView) parseState, out);
             if (cmdCtx.verify()) {
@@ -82,7 +79,6 @@ public class ZcodeAction {
             }
             break;
         case COMMAND_MOVEALONG:
-//            parseState.clearNeedsAction();
             ZcodeCommandContext cmdCtx1 = new ZcodeCommandContext((ContextView) parseState, out);
             ZcodeCommandFinder.moveAlong(cmdCtx1);
 //            if (cmdCtx1.isComplete()) {
@@ -104,8 +100,8 @@ public class ZcodeAction {
             out.writeCloseParen();
 //            parseState.closeParenSent();
             break;
-        case NO_ACTION:
-        case NEEDS_TOKENS:
+        case GO_AROUND:
+        case WAIT_FOR_TOKENS:
             break;
         }
     }

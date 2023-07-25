@@ -4,6 +4,7 @@ import java.util.OptionalInt;
 
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
+import org.zcode.javareceiver.tokenizer.Zchars;
 
 public class ZcodeCommandFinder {
     private static final ZcodeModule[] modules = new ZcodeModule[0x1000];
@@ -18,12 +19,12 @@ public class ZcodeCommandFinder {
     }
 
     public static void execute(ZcodeCommandContext ctx) {
-        // commands are completable unless marked otherwise
-        ctx.setCommandCanComplete();
+        // commands are completable unless explicitly marked otherwise by a command
+        ctx.commandComplete();
         if (ctx.isEmpty()) {
             return;
         }
-        OptionalInt value = ctx.getField((byte) 'Z');
+        OptionalInt value = ctx.getField(Zchars.Z_CMD);
         if (value.isEmpty()) {
             ctx.status(ZcodeStatus.COMMAND_NOT_FOUND);
             return;
@@ -46,7 +47,8 @@ public class ZcodeCommandFinder {
     }
 
     public static void moveAlong(ZcodeCommandContext ctx) {
-        int cmd = ctx.getField((byte) 'Z').getAsInt();
+        ctx.commandComplete();
+        int cmd = ctx.getField(Zchars.Z_CMD).getAsInt();
         modules[cmd >> 4].moveAlong(ctx, cmd & 0xF);
     }
 

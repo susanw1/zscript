@@ -18,9 +18,6 @@ public class ZcodeCommandContext {
     private final ContextView    contextView;
     private final ZcodeOutStream out;
 
-//    private final boolean statusGiven = false;
-//    private final boolean statusError = false;
-
     public ZcodeCommandContext(final ContextView contextView, final ZcodeOutStream out) {
         this.contextView = contextView;
         this.out = out;
@@ -193,18 +190,18 @@ public class ZcodeCommandContext {
             final byte      key = rt.getKey();
             if (Zchars.isNumericKey(key)) {
                 if (foundCmds.get(key - 'A')) {
-                    setCommandCanComplete();
+                    commandComplete();
                     status(ZcodeStatus.REPEATED_KEY);
                     return false;
                 }
                 foundCmds.set(key - 'A');
                 if (rt.getDataSize() > 2) {
-                    setCommandCanComplete();
+                    commandComplete();
                     status(ZcodeStatus.FIELD_TOO_LONG);
                     return false;
                 }
-            } else if (key != '"' && key != '+') {
-                setCommandCanComplete();
+            } else if (!Zchars.isBigField(key)) {
+                commandComplete();
                 status(ZcodeStatus.INVALID_KEY);
                 return false;
             }
@@ -212,15 +209,15 @@ public class ZcodeCommandContext {
         return true;
     }
 
-    public void setCommandCanComplete() {
+    public void commandComplete() {
         contextView.setCommandComplete(true);
     }
 
-    public void clearCommandCanComplete() {
+    public void commandNotComplete() {
         contextView.setCommandComplete(false);
     }
 
-    public boolean commandCanComplete() {
+    public boolean isCommandComplete() {
         return contextView.isCommandComplete();
     }
 

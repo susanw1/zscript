@@ -1,9 +1,11 @@
 package org.zcode.javareceiver.semanticParser;
 
 public interface ZcodeActionFactory {
-    ZcodeAction noAction(ParseState parseState);
+    ZcodeAction goAround(ParseState parseState);
 
-    ZcodeAction needsTokens(ParseState parseState);
+    ZcodeAction waitForAsync(ParseState parseState);
+
+    ZcodeAction waitForTokens(ParseState parseState);
 
     ZcodeAction error(ParseState parseState, byte error);
 

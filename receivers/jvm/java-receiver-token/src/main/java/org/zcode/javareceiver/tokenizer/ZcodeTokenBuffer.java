@@ -110,6 +110,10 @@ public interface ZcodeTokenBuffer {
                 return ZcodeTokenBuffer.isMarker(getKey());
             }
 
+            default boolean isSequenceEndMarker() {
+                return ZcodeTokenBuffer.isSequenceEndMarker(getKey());
+            }
+
             /**
              * Exposes the data as a stream of bytes. It manages hopping across extension segments.
              *

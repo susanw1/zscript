@@ -1,6 +1,7 @@
 package org.zcode.javareceiver.tokenizer;
 
 public class Zchars {
+    public static final byte Z_CMD                 = 'Z';
     public static final byte Z_NEWLINE             = '\n';
     public static final byte Z_ANDTHEN             = '&';
     public static final byte Z_ORELSE              = '|';
@@ -56,8 +57,7 @@ public class Zchars {
         }
         if (b >= 'a' && b <= 'f') {
             return (byte) (b - 'a' + 10);
-        } else {
-            return PARSE_NOT_HEX_0X10;
         }
+        return PARSE_NOT_HEX_0X10;
     }
 }
