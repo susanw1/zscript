@@ -17,6 +17,7 @@
         <slf4j.version>2.0.7</slf4j.version>
         <logback.version>1.4.6</logback.version>
         <jackson.version>2.15.2</jackson.version>
+        <antlr.version>4.13.0</antlr.version>
         <junit.version>5.10.0-M1</junit.version>
         <cucumber.version>7.11.2</cucumber.version>
         <assertj.version>3.24.2</assertj.version>
@@ -64,7 +65,12 @@
                 <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${antlr.version}</version>
+            </dependency>
+            
             <!-- Test Dependencies -->
             <!-- ================= -->
 
@@ -191,6 +197,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${maven-assembly-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-maven-plugin</artifactId>
+                    <version>${antlr.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
