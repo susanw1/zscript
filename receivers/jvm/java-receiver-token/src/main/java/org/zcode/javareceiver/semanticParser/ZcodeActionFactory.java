@@ -1,26 +1,24 @@
 package org.zcode.javareceiver.semanticParser;
 
-import java.util.function.Consumer;
-
 public interface ZcodeActionFactory {
-    ZcodeAction noAction(SemanticParser semanticParser);
+    ZcodeAction noAction(ParseState parseState);
 
-    ZcodeAction needsTokens(SemanticParser semanticParser);
+    ZcodeAction needsTokens(ParseState parseState);
 
-    ZcodeAction error(SemanticParser semanticParser, byte error);
+    ZcodeAction error(ParseState parseState, byte error);
 
-    ZcodeAction addressing(SemanticParser semanticParser, Consumer<ParseState> before, Consumer<ParseState> after);
+    ZcodeAction addressing(ParseState parseState);
 
-    ZcodeAction addressingMoveAlong(SemanticParser semanticParser, Consumer<ParseState> before);
+    ZcodeAction addressingMoveAlong(ParseState parseState);
 
-    ZcodeAction firstCommand(SemanticParser semanticParser, Consumer<ParseState> before);
+    ZcodeAction firstCommand(ParseState parseState);
 
-    ZcodeAction runCommand(SemanticParser semanticParser, byte prefixMarker, Consumer<ParseState> before, Consumer<ParseState> after);
+    ZcodeAction runCommand(ParseState parseState, byte prefixMarker);
 
-    ZcodeAction commandMoveAlong(SemanticParser semanticParser, Consumer<ParseState> before);
+    ZcodeAction commandMoveAlong(ParseState parseState);
 
-    ZcodeAction endSequence(SemanticParser semanticParser, Consumer<ParseState> after);
+    ZcodeAction endSequence(ParseState parseState);
 
-    ZcodeAction closeParen(SemanticParser semanticParser, Consumer<ParseState> after);
+    ZcodeAction closeParen(ParseState parseState);
 
 }

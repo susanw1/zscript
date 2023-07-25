@@ -1,7 +1,5 @@
 package org.zcode.javareceiver.semanticParser;
 
-import java.util.function.Consumer;
-
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
@@ -25,22 +23,14 @@ public class ZcodeAction {
         CLOSE_PAREN
     }
 
-    private final ActionType           type;
-    private final ParseState           parseState;
-    private final byte                 info;
-    private final Consumer<ParseState> before;
-    private final Consumer<ParseState> after;
+    private final ActionType type;
+    private final ParseState parseState;
+    private final byte       info;
 
     ZcodeAction(ActionType type, ParseState parser, byte info) {
-        this(type, parser, info, null, null);
-    }
-
-    ZcodeAction(ActionType type, ParseState parser, byte info, Consumer<ParseState> before, Consumer<ParseState> after) {
         this.parseState = parser;
         this.type = type;
         this.info = info;
-        this.before = before;
-        this.after = after;
     }
 
     public boolean needsPerforming() {
@@ -48,13 +38,8 @@ public class ZcodeAction {
     }
 
     protected void performAction(Zcode zcode, ZcodeOutStream out) {
-        if (before != null) {
-            before.accept(parseState);
-        }
         performActionImpl(zcode, out);
-        if (after != null) {
-            after.accept(parseState);
-        }
+        parseState.actionPerformed(type);
     }
 
     // TODO: response type

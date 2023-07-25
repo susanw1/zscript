@@ -1,11 +1,14 @@
 package org.zcode.javareceiver.semanticParser;
 
 import org.zcode.javareceiver.core.Zcode;
+import org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType;
 
 /**
  * Defines methods accessed by ZcodeActions.
  */
 public interface ParseState {
+    void actionPerformed(ActionType type);
+
     void errorSent();
 
     void startCommand();
@@ -27,4 +30,5 @@ public interface ParseState {
     boolean lock(Zcode zcode);
 
     void unlock(Zcode zcode);
+
 }

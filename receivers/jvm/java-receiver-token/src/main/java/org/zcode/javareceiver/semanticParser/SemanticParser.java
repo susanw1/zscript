@@ -1,12 +1,15 @@
 package org.zcode.javareceiver.semanticParser;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeLockSet;
 import org.zcode.javareceiver.core.ZcodeLocks;
 import org.zcode.javareceiver.core.ZcodeStatus;
+import org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType;
 import org.zcode.javareceiver.tokenizer.TokenBufferIterator;
+import org.zcode.javareceiver.tokenizer.Zchars;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
@@ -22,7 +25,7 @@ public class SemanticParser implements ParseState, ContextView {
     public static final byte MULTIPLE_ECHO_ERROR           = 3;
     public static final byte LOCKS_ERROR                   = 4;
     public static final byte COMMENT_WITH_SEQ_FIELDS_ERROR = 5;
-    public static final byte OTHER_ERROR                   = 6;
+    public static final byte OTHER_ERROR                   = 6; // means 'status' holds valid error status (not fail)
 
     private final TokenReader        reader;
     private final ZcodeActionFactory actionFactory;
@@ -35,23 +38,23 @@ public class SemanticParser implements ParseState, ContextView {
     private boolean haveSeqEndMarker = false;
 
     // parser state-machine
-    private boolean atSeqStart     = true;
-    private boolean isAddressing   = false;
-    private boolean firstCommand   = true;
-    private boolean commandStarted = false;
+//    private boolean atSeqStart     = true;  // PRESEQUENCE
+//    private boolean isAddressing   = false; // ADDRESSING_ASYNC
+//    private boolean firstCommand   = true;  // PRESEQUENCE
+//    private boolean commandStarted = false; // COMMAND_ASYNC
 
-    private boolean skipToNL = false;
-//  private boolean needSendError  = false;
-    private boolean needEndSeq     = false;
-    private boolean needCloseParen = false;
-
-    // command execution state-machine
-    private boolean commandComplete = false;
-    private boolean needsAction     = false;
+//    private boolean skipToNL = false; // SKIP_TO_NL
+////  private boolean needSendError  = false;
+//    private boolean needEndSeq     = false; // POSTSEQUENCE
+//    private boolean needCloseParen = false; // --- ???
+//
+//    // command execution state-machine
+//    private boolean commandComplete = false; // COMMAND_EXEC ...
+//    private boolean needsAction     = false; // COMMAND_ASYNC ...
 
     // AND/OR logic
-    private boolean isFailed          = false;
-    private boolean isSkippingHandler = false;
+    private boolean isFailed          = false;              // COMMAND_FAILED
+    private boolean isSkippingHandler = false;              // COMMAND_SKIP
     private int     parenCounter      = 0;
     private byte    error             = NO_ERROR;           // 3 bit really
     private byte    status            = ZcodeStatus.SUCCESS;
@@ -68,117 +71,211 @@ public class SemanticParser implements ParseState, ContextView {
 
     private ZcodeAction currentAction;
 
+    enum State {
+        PRESEQUENCE,
+        ADDRESSING_INCOMPLETE,
+        ADDRESSING_NEEDS_ACTION,
+        ADDRESSING_COMPLETE,
+        PRECOMMAND,
+        COMMAND_INCOMPLETE,
+        COMMAND_NEEDS_ACTION,
+        COMMAND_COMPLETE,
+        COMMAND_FAILED,
+        COMMAND_SKIP,
+        SEQUENCE_SKIP,
+        POSTSEQUENCE,
+        ERROR
+    }
+
+    private State state;
+
     public SemanticParser(final TokenReader reader, ZcodeActionFactory actionFactory) {
         this.reader = reader;
         this.actionFactory = actionFactory;
-        this.currentAction = actionFactory.noAction(this);
+        this.currentAction = null;
+        this.state = State.PRESEQUENCE;
     }
 
     public ZcodeAction getAction() {
-        if (!currentAction.needsPerforming()) {
+        // currentAction is always nulled after execution
+        if (currentAction == null || !currentAction.needsPerforming()) {
             currentAction = findNextAction();
         }
         return currentAction;
     }
 
     private ZcodeAction findNextAction() {
+        switch (state) {
+        case PRESEQUENCE:
+            dealWithTokenBufferFlags();
+            if (!haveNextMarker) {
+                return actionFactory.needsTokens(this);
+            }
+
+            state = parseSequenceLevel();
+
+            if (state == State.PRESEQUENCE) {
+                if (reader.getFirstReadToken().getKey() == Zchars.Z_ADDRESSING) {
+                    return setStateAndAction(State.ADDRESSING_INCOMPLETE, () -> actionFactory.addressing(this));
+                }
+                return setStateAndAction(State.PRECOMMAND, () -> actionFactory.firstCommand(this));
+            }
+            // force iteration to handle ERROR / SEQUENCE_SKIP
+            return actionFactory.noAction(this);
+
+        case ADDRESSING_INCOMPLETE:
+            return actionFactory.addressingMoveAlong(this);
+        case ADDRESSING_NEEDS_ACTION:
+            state = State.ADDRESSING_INCOMPLETE;
+            return actionFactory.addressingMoveAlong(this);
+        case PRECOMMAND:
+            return actionFactory.noAction(this);
+        case COMMAND_INCOMPLETE:
+            return actionFactory.noAction(this);
+        case COMMAND_FAILED:
+            return actionFactory.noAction(this);
+        case COMMAND_SKIP:
+            return actionFactory.noAction(this);
+        case SEQUENCE_SKIP:
+            return actionFactory.noAction(this);
+        case POSTSEQUENCE:
+            return actionFactory.noAction(this);
+        case ERROR:
+            return actionFactory.noAction(this);
+        }
+    }
+
+    private ZcodeAction setStateAndAction(State state, Supplier<ZcodeAction> s) {
+        this.state = State.COMMAND_INCOMPLETE;
+        return s.get();
+    }
+
+    @Override
+    public void actionPerformed(ActionType type) {
+        currentAction = null;
+        switch (type) {
+        case ADDRESSING:
+        case ADDRESSING_MOVEALONG:
+            state = (error == NO_ERROR) ? State.POSTSEQUENCE : State.ERROR;
+            break;
+        case CLOSE_PAREN:
+            break;
+        case FIRST_COMMAND:
+            break;
+        case COMMAND:
+            break;
+        case COMMAND_MOVEALONG:
+            break;
+        case END_SEQUENCE:
+            break;
+        case ERROR:
+            break;
+        case NEEDS_TOKENS:
+            break;
+        case NO_ACTION:
+            break;
+        }
+    }
+
 //        if (needSendError) {
 //            return actionFactory.error(this, error);
 //        }
-
-        // check if we've just completed a command/address - if so, tidy up.
-        if (commandComplete && !skipToNL) {
-            commandComplete = false;
-            commandStarted = false;
-
-            skipToMarker();
-
-            if (isAddressing) {
-                reader.flushFirstReadToken();
-                resetToSequence();
-            } else {
-                // read the separator or NL, flush it, and process it
-                final byte marker = reader.getFirstReadToken().getKey();
-                reader.flushFirstReadToken();
-                flowControl(marker);
-            }
-            prevMarker = nextMarker;
-            findNextMarker();
-        }
-
-        if (needEndSeq) {
-            return actionFactory.endSequence(this, p -> {
-                unlock(zcode);
-                seqEndSent();
-            });
-        }
-        if (needCloseParen) {
-            return actionFactory.closeParen(this, p -> closeParenSent());
-        }
-
-        dealWithTokenBufferFlags();
-
-        if (!haveNextMarker) {
-            return actionFactory.needsTokens(this);
-        }
-
-        // deals with '_' and '%',
-        if (atSeqStart) {
-            atSeqStart = false;
-            parseSequenceLevel();
-            if (skipToNL && error != NO_ERROR) {
-                skipToSeqEnd();
-//                needSendError = true;
-                return actionFactory.error(this, error);
-            }
-        }
-
-        if (skipToNL) {
-            skipToSeqEnd();
-//            needSendError = false;
-            error = NO_ERROR;
-            return actionFactory.noAction(this);
-        }
-
-        if (isAddressing) {
-            if (commandStarted) {
-                if (needsAction) {
-                    return actionFactory.addressingMoveAlong(this, p -> clearNeedsAction());
-                }
-                return actionFactory.noAction(this);
-            }
-            if (error != NO_ERROR) {
-//                needSendError = true;
-                return actionFactory.error(this, error);
-            }
-            return actionFactory.addressing(this, p -> startCommand(), null);
-        }
-
-        if (commandStarted) {
-            if (needsAction) {
-                return actionFactory.commandMoveAlong(this, p -> clearNeedsAction());
-            }
-            return actionFactory.noAction(this);
-        }
-
-        if (error != NO_ERROR) {
-            skipToNL = true;
-            skipToSeqEnd();
-//            needSendError = true;
-            return actionFactory.error(this, error);
-        }
-
-        if (firstCommand) {
-            return actionFactory.firstCommand(this, p -> startCommand());
-        }
-
-        if (isSkippingHandler || isFailed) {
-            commandComplete = true;
-            return actionFactory.noAction(this);
-        }
-
-        return actionFactory.runCommand(this, prevMarker, p -> startCommand(), null);
-    }
+//
+//        // check if we've just completed a command/address - if so, tidy up.
+//        if (commandComplete && !skipToNL)
+//
+//        {
+//            commandComplete = false;
+//            commandStarted = false;
+//
+//            skipToMarker();
+//
+//            if (isAddressing) {
+//                reader.flushFirstReadToken();
+//                resetToSequence();
+//            } else {
+//                // read the separator or NL, flush it, and process it
+//                final byte marker = reader.getFirstReadToken().getKey();
+//                reader.flushFirstReadToken();
+//                flowControl(marker);
+//            }
+//            prevMarker = nextMarker;
+//            findNextMarker();
+//        }
+//
+//        if (needEndSeq) {
+//            return actionFactory.endSequence(this, p -> {
+////                unlock(zcode);
+//                seqEndSent();
+//            });
+//        }
+//        if (needCloseParen) {
+//            return actionFactory.closeParen(this, p -> closeParenSent());
+//        }
+//
+//        dealWithTokenBufferFlags();
+//
+//        if (!haveNextMarker) {
+//            return actionFactory.needsTokens(this);
+//        }
+//
+//        // deals with '_' and '%',
+//        if (atSeqStart) {
+//            atSeqStart = false;
+//            parseSequenceLevel();
+//            if (skipToNL && error != NO_ERROR) {
+//                skipToSeqEnd();
+////                needSendError = true;
+//                return actionFactory.error(this, error);
+//            }
+//        }
+//
+//        if (skipToNL) {
+//            skipToSeqEnd();
+////            needSendError = false;
+//            error = NO_ERROR;
+//            return actionFactory.noAction(this);
+//        }
+//
+//        if (isAddressing) {
+//            if (commandStarted) {
+//                if (needsAction) {
+//                    return actionFactory.addressingMoveAlong(this, p -> clearNeedsAction());
+//                }
+//                return actionFactory.noAction(this);
+//            }
+//            if (error != NO_ERROR) {
+////                needSendError = true;
+//                return actionFactory.error(this, error);
+//            }
+//            return actionFactory.addressing(this);
+//        }
+//
+//        if (commandStarted) {
+//            if (needsAction) {
+//                return actionFactory.commandMoveAlong(this, p -> clearNeedsAction());
+//            }
+//            return actionFactory.noAction(this);
+//        }
+//
+//        if (error != NO_ERROR) {
+//            skipToNL = true;
+//            skipToSeqEnd();
+////            needSendError = true;
+//            return actionFactory.error(this, error);
+//        }
+//
+//        if (firstCommand) {
+//            return actionFactory.firstCommand(this, p -> startCommand());
+//        }
+//
+//        if (isSkippingHandler || isFailed) {
+//            commandComplete = true;
+//            return actionFactory.noAction(this);
+//        }
+//
+//        return actionFactory.runCommand(this, prevMarker, p -> startCommand(), null);
+//    }
 
     private void flowControl(final byte marker) {
         if (ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
@@ -299,6 +396,7 @@ public class SemanticParser implements ParseState, ContextView {
         for (Optional<ReadToken> token = it.next(); token.isPresent() && !token.get().isMarker(); token = it.next()) {
             it.flushBuffer();
         }
+        findNextMarker();
     }
 
     /**
@@ -309,53 +407,43 @@ public class SemanticParser implements ParseState, ContextView {
             return;
         }
 
-        // Why not just:
-//        TokenBufferIterator it = reader.iterator();
-//        for (Optional<ReadToken> token = it.next(); token.isPresent() && !ZcodeTokenBuffer.isSequenceEndMarker(token.get().getKey()); token = it.next()) {
-//            it.flushBuffer();
-//        }
-
-        // instead of this bit?
-        byte marker = reader.getFirstReadToken().getKey();
-        while (reader.hasReadToken() && !ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
-            skipToMarker();
-            marker = reader.getFirstReadToken().getKey();
-            if (!ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
-                reader.flushFirstReadToken();
-            }
+        TokenBufferIterator it = reader.iterator();
+        for (Optional<ReadToken> token = it.next(); !ZcodeTokenBuffer.isSequenceEndMarker(token.get().getKey()); token = it.next()) {
+            it.flushBuffer();
         }
 
-        if (reader.hasReadToken()) {
-            reader.flushFirstReadToken();
-        }
+        reader.flushFirstReadToken();
 
-        if (ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
-            resetToSequence();
-            findNextMarker();
-        }
+        resetToSequence();
+        findNextMarker();
+        findSeqEndMarker();
     }
 
-    private void parseSequenceLevel() {
+    /**
+     * Captures the initial fields - ECHO and LOCKS - at the beginning of a sequence, with lots of error checking. Also detects and error-checks COMMENT sequences.
+     *
+     * Presumes 'nextMarker' is up-to-date.
+     *
+     * @return the new state: ERROR, SEQUENCE_SKIP (for comments), or PRESEQUENCE (implying no error, normal sequence)
+     */
+    private State parseSequenceLevel() {
         ReadToken first = reader.getFirstReadToken();
-        while (first.getKey() == '_' || first.getKey() == '%') {
-            if (first.getKey() == '_') {
+        while (first.getKey() == Zchars.Z_ECHO || first.getKey() == Zchars.Z_LOCKS) {
+            if (first.getKey() == Zchars.Z_ECHO) {
                 if (hasEcho) {
                     error = MULTIPLE_ECHO_ERROR;
-                    skipToNL = true;
-                    break;
+                    return State.ERROR;
                 }
                 echo = first.getData16();
                 hasEcho = true;
-            } else if (first.getKey() == '%') {
+            } else if (first.getKey() == Zchars.Z_LOCKS) {
                 if (hasLocks) {
                     error = LOCKS_ERROR;
-                    skipToNL = true;
-                    break;
+                    return State.ERROR;
                 }
                 if (first.getDataSize() > ZcodeLocks.LOCK_BYTENUM) {
                     error = LOCKS_ERROR;
-                    skipToNL = true;
-                    break;
+                    return State.ERROR;
                 }
                 locks = ZcodeLockSet.from(first.blockIterator());
                 hasLocks = true;
@@ -364,49 +452,43 @@ public class SemanticParser implements ParseState, ContextView {
             first = reader.getFirstReadToken();
         }
 
-        isAddressing = first.getKey() == '@';
-
-        if (first.getKey() == '#') {
+        switch (first.getKey()) {
+        case Zchars.Z_COMMENT:
             if (!ZcodeTokenBuffer.isSequenceEndMarker(nextMarker)) {
                 error = INTERNAL_ERROR;
-                skipToNL = true;
-            } else if (nextMarker != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
-                error = MARKER_ERROR;
-                skipToNL = true;
-            } else if (hasEcho || hasLocks) {
-                error = COMMENT_WITH_SEQ_FIELDS_ERROR;
-                skipToNL = true;
-            } else {
-                skipToNL = true;
+                return State.ERROR;
             }
+            if (nextMarker != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
+                error = MARKER_ERROR;
+                return State.ERROR;
+            }
+            if (hasEcho || hasLocks) {
+                error = COMMENT_WITH_SEQ_FIELDS_ERROR;
+                return State.ERROR;
+            }
+            return State.SEQUENCE_SKIP;
         }
+        return State.PRESEQUENCE;
     }
 
     private void resetToSequence() {
         locks = ZcodeLockSet.allLocked();
-        atSeqStart = true;
-        firstCommand = true;
-        commandComplete = false;
-        commandStarted = false;
-        needsAction = false;
-
+        state = State.PRESEQUENCE;
         prevMarker = 0;
         hasLocks = false;
         hasEcho = false;
-        isAddressing = false;
         isFailed = false;
         isSkippingHandler = false;
         parenCounter = 0;
-        skipToNL = false;
         findSeqEndMarker();
     }
 
-    @Override
-    public void startCommand() {
-        this.commandStarted = true;
-        this.firstCommand = false;
-        this.status = ZcodeStatus.SUCCESS;
-    }
+//    @Override
+//    public void startCommand() {
+//        this.commandStarted = true;
+//        this.firstCommand = false;
+//        this.status = ZcodeStatus.SUCCESS;
+//    }
 
     @Override
     public byte getSeqEndMarker() {
@@ -419,20 +501,20 @@ public class SemanticParser implements ParseState, ContextView {
         error = NO_ERROR;
     }
 
-    @Override
-    public void seqEndSent() {
-        needEndSeq = false;
-    }
-
-    @Override
-    public void closeParenSent() {
-        needCloseParen = false;
-    }
-
-    @Override
-    public void clearNeedsAction() {
-        needsAction = false;
-    }
+//    @Override
+//    public void seqEndSent() {
+//        needEndSeq = false;
+//    }
+//
+//    @Override
+//    public void closeParenSent() {
+//        needCloseParen = false;
+//    }
+//
+//    @Override
+//    public void clearNeedsAction() {
+//        needsAction = false;
+//    }
 
     ////////////////////////////////
     // Sequence Start state: locks and echo. Defined in {@link ParseState}.
@@ -477,12 +559,27 @@ public class SemanticParser implements ParseState, ContextView {
 
     @Override
     public void setCommandComplete(final boolean b) {
-        commandComplete = b;
+        switch (state) {
+        case ADDRESSING_COMPLETE:
+        case ADDRESSING_INCOMPLETE:
+            state = b ? State.ADDRESSING_COMPLETE : State.ADDRESSING_INCOMPLETE;
+            break;
+        case COMMAND_COMPLETE:
+        case COMMAND_INCOMPLETE:
+            state = b ? State.COMMAND_COMPLETE : State.COMMAND_INCOMPLETE;
+            break;
+        case COMMAND_FAILED:
+//            error = OTHER_ERROR; // ?? should we do this? What error?
+//            state = State.ERROR;
+//            break;
+        default:
+            throw new IllegalStateException("Invalid state transition");
+        }
     }
 
     @Override
     public boolean isCommandComplete() {
-        return commandComplete;
+        return state == State.COMMAND_COMPLETE || state == State.ADDRESSING_COMPLETE;
     }
 
     @Override
@@ -500,16 +597,31 @@ public class SemanticParser implements ParseState, ContextView {
         this.status = status;
         if (ZcodeStatus.isError(status)) {
             error = OTHER_ERROR;
-            skipToNL = true;
+            state = State.ERROR;
         } else if (ZcodeStatus.isFailure(status)) {
-            isFailed = true;
-            parenCounter = 0;
+            switch (state) {
+            case COMMAND_COMPLETE:
+            case COMMAND_INCOMPLETE:
+                state = State.COMMAND_FAILED;
+                parenCounter = 0;
+                break;
+            default:
+                throw new IllegalStateException("Invalid state transition");
+            }
         }
     }
 
     @Override
     public void needsAction() {
-        needsAction = true;
+        switch (state) {
+        case ADDRESSING_INCOMPLETE:
+            state = State.ADDRESSING_NEEDS_ACTION;
+            break;
+        case COMMAND_INCOMPLETE:
+            state = State.COMMAND_NEEDS_ACTION;
+            break;
+        default:
+            throw new IllegalStateException("Invalid state transition");
+        }
     }
-
 }
