@@ -19,8 +19,8 @@ public class ExecutionActionFactory implements ZcodeActionFactory {
     }
 
     @Override
-    public ZcodeAction error(ParseState parseState, byte error) {
-        return new ZcodeAction(ActionType.ERROR, parseState, error);
+    public ZcodeAction error(ParseState parseState) {
+        return new ZcodeAction(ActionType.ERROR, parseState, (byte) 0);
     }
 
     @Override

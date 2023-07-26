@@ -2,7 +2,6 @@ package org.zcode.javareceiver.semanticParser;
 
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
-import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeAddressingContext;
 import org.zcode.javareceiver.execution.ZcodeAddressingSystem;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
@@ -48,7 +47,13 @@ public class ZcodeAction {
     protected void performActionImpl(Zcode zcode, ZcodeOutStream out) {
         switch (type) {
         case ERROR:
-            sendError(out, info, parseState.getSeqEndMarker());
+            if (!out.isOpen()) {
+                out.open();
+            }
+            out.writeField('S', parseState.getErrorStatus());
+            out.endSequence();
+            out.close();
+            parseState.unlock(zcode);
             break;
         case INVOKE_ADDRESSING:
             ZcodeAddressingContext addrCtx = new ZcodeAddressingContext((ContextView) parseState);
@@ -76,12 +81,10 @@ public class ZcodeAction {
         case END_SEQUENCE:
             out.endSequence();
             out.close();
-//            parseState.unlock(zcode);
-//            parseState.seqEndSent();
+            parseState.unlock(zcode);
             break;
         case CLOSE_PAREN:
             out.writeCloseParen();
-//            parseState.closeParenSent();
             break;
         case GO_AROUND:
         case WAIT_FOR_TOKENS:
@@ -96,70 +99,6 @@ public class ZcodeAction {
         if (parseState.hasEcho()) {
             out.writeField('_', parseState.getEcho());
         }
-    }
-
-    /**
-     * Outputs an 'S' status field for an <i>error</i> (not for command failure). Value is based either just on 'semanticParserError', or if SemanticParser.MARKER_ERROR, then uses
-     * 'tokenizerError'.
-     *
-     * @param out                 where to write output
-     * @param semanticParserError decides what type of status code to write
-     * @param tokenizerError      decides on status code when semanticParserError == SemanticParser.MARKER_ERROR
-     */
-    private static void sendError(ZcodeOutStream out, byte semanticParserError, byte tokenizerError) {
-        if (!out.isOpen()) {
-            out.open();
-        }
-
-//        errorSent();
-
-        byte statusValue = mapErrorToStatus(semanticParserError, tokenizerError);
-
-        out.writeField('S', statusValue);
-
-        out.endSequence();
-        out.close();
-    }
-
-    private static byte mapErrorToStatus(byte semanticParserError, byte tokenizerError) {
-        byte statusValue;
-        switch (semanticParserError) {
-        case SemanticParser.NO_ERROR:
-            throw new IllegalStateException();
-        case SemanticParser.INTERNAL_ERROR:
-            statusValue = ZcodeStatus.INTERNAL_ERROR;
-            break;
-        case SemanticParser.MARKER_ERROR:
-            if (tokenizerError == ZcodeTokenizer.ERROR_BUFFER_OVERRUN) {
-                statusValue = ZcodeStatus.BUFFER_OVR_ERROR;
-            } else if (tokenizerError == ZcodeTokenizer.ERROR_CODE_FIELD_TOO_LONG) {
-                statusValue = ZcodeStatus.FIELD_TOO_LONG;
-            } else if (tokenizerError == ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN) {
-                statusValue = ZcodeStatus.ILLEGAL_KEY;
-            } else if (tokenizerError == ZcodeTokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH) {
-                statusValue = ZcodeStatus.ODD_LENGTH;
-            } else if (tokenizerError == ZcodeTokenizer.ERROR_CODE_STRING_ESCAPING) {
-                statusValue = ZcodeStatus.ESCAPING_ERROR;
-            } else if (tokenizerError == ZcodeTokenizer.ERROR_CODE_STRING_NOT_TERMINATED) {
-                statusValue = ZcodeStatus.UNTERMINATED_STRING;
-            } else {
-                statusValue = (ZcodeStatus.INTERNAL_ERROR);
-            }
-            break;
-        case SemanticParser.COMMENT_WITH_SEQ_FIELDS_ERROR:
-            statusValue = ZcodeStatus.INVALID_COMMENT;
-            break;
-        case SemanticParser.LOCKS_ERROR:
-            statusValue = ZcodeStatus.INVALID_LOCKS;
-            break;
-        case SemanticParser.MULTIPLE_ECHO_ERROR:
-            statusValue = ZcodeStatus.INVALID_ECHO;
-            break;
-        default:
-            statusValue = ZcodeStatus.INTERNAL_ERROR;
-            break;
-        }
-        return statusValue;
     }
 
     private static void sendNormalMarkerPrefix(ZcodeOutStream out, byte info) {

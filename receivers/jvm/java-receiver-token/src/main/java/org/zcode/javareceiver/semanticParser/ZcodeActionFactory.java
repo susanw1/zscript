@@ -7,7 +7,7 @@ public interface ZcodeActionFactory {
 
     ZcodeAction waitForTokens(ParseState parseState);
 
-    ZcodeAction error(ParseState parseState, byte error);
+    ZcodeAction error(ParseState parseState);
 
     ZcodeAction addressing(ParseState parseState);
 

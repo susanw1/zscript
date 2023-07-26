@@ -20,14 +20,6 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 public class SemanticParser implements ParseState, ContextView {
     // 16 booleans, 5 uint8_t, 1 uint16_t = 9 bytes of status
 
-    public static final byte NO_ERROR                      = 0;
-    public static final byte INTERNAL_ERROR                = 1;
-    public static final byte MARKER_ERROR                  = 2;
-    public static final byte MULTIPLE_ECHO_ERROR           = 3;
-    public static final byte LOCKS_ERROR                   = 4;
-    public static final byte COMMENT_WITH_SEQ_FIELDS_ERROR = 5;
-    public static final byte OTHER_ERROR                   = 6; // means 'status' holds valid error status (not fail)
-
     private final TokenReader        reader;
     private final ZcodeActionFactory actionFactory;
 
@@ -37,26 +29,7 @@ public class SemanticParser implements ParseState, ContextView {
     private byte    seqEndMarker     = 0;    // 4 bits really
     private boolean haveSeqEndMarker = false;
 
-    // parser state-machine
-//    private boolean atSeqStart     = true;  // PRESEQUENCE
-//    private boolean isAddressing   = false; // ADDRESSING_ASYNC
-//    private boolean firstCommand   = true;  // PRESEQUENCE
-//    private boolean commandStarted = false; // COMMAND_ASYNC
-
-//    private boolean skipToNL = false; // SKIP_TO_NL
-////  private boolean needSendError  = false;
-//    private boolean needEndSeq     = false; // POSTSEQUENCE
-//    private boolean needCloseParen = false; // --- ???
-//
-//    // command execution state-machine
-//    private boolean commandComplete = false; // COMMAND_EXEC ...
-//    private boolean needsAction     = false; // COMMAND_ASYNC ...
-
-    // AND/OR logic
-//    private boolean isFailed          = false;              // COMMAND_FAILED
-//    private boolean isSkippingHandler = false;              // COMMAND_SKIP
     private int  parenCounter = 0;
-    private byte error        = NO_ERROR;           // 3 bit really
     private byte status       = ZcodeStatus.SUCCESS;
 
     // Sequence-start info - note, booleans are only usefully "true" during PRESEQUENCE - remove?
@@ -76,7 +49,6 @@ public class SemanticParser implements ParseState, ContextView {
         ADDRESSING_INCOMPLETE,
         ADDRESSING_NEEDS_ACTION,
         ADDRESSING_COMPLETE,
-        PRECOMMAND,
         COMMAND_INCOMPLETE,
         COMMAND_NEEDS_ACTION,
         COMMAND_COMPLETE_NEEDS_TOKENS,
@@ -84,8 +56,16 @@ public class SemanticParser implements ParseState, ContextView {
         COMMAND_FAILED,
         COMMAND_SKIP,
         SEQUENCE_SKIP,
-        POSTSEQUENCE,
-        ERROR
+        ERROR_TOKENIZER,
+        ERROR_MULTIPLE_ECHO,
+        ERROR_LOCKS,
+        ERROR_COMMENT_WITH_SEQ_FIELDS,
+        ERROR_STATUS
+    }
+
+    private boolean isInErrorState() {
+        return state == State.ERROR_TOKENIZER || state == State.ERROR_MULTIPLE_ECHO || state == State.ERROR_LOCKS || state == State.ERROR_COMMENT_WITH_SEQ_FIELDS
+                || state == State.ERROR_STATUS;
     }
 
     private State state;
@@ -121,7 +101,8 @@ public class SemanticParser implements ParseState, ContextView {
         switch (state) {
         case PRESEQUENCE:
             // expecting buffer to be pointing at start of sequence.
-            state = parseSequenceLevel();
+            status = ZcodeStatus.SUCCESS;
+            parseSequenceLevel();
             if (state == State.PRESEQUENCE) {
                 // expecting buffer to be pointing at first token after lock/echo preamble.
                 if (reader.getFirstReadToken().getKey() == Zchars.Z_ADDRESSING) {
@@ -174,18 +155,19 @@ public class SemanticParser implements ParseState, ContextView {
             }
 
             // flush the end marker - buffer is now pointing at the next sequence, if any
-            flushMarkerAndSeekNext(); // unsafe
+            flushMarkerAndSeekNext();
             resetToSequence();
             return actionFactory.goAround(this);
 
-        case POSTSEQUENCE:
-            // TODO
-            return actionFactory.goAround(this);
-        case ERROR:
-            state = State.SEQUENCE_SKIP;
-            return actionFactory.error(this, x);
+        case ERROR_COMMENT_WITH_SEQ_FIELDS:
+        case ERROR_LOCKS:
+        case ERROR_MULTIPLE_ECHO:
+        case ERROR_STATUS:
+        case ERROR_TOKENIZER:
+            seekMarker(true, true);
+            return actionFactory.error(this);
         default:
-            break;
+            throw new IllegalStateException();
         }
     }
 
@@ -211,14 +193,20 @@ public class SemanticParser implements ParseState, ContextView {
         case INVOKE_ADDRESSING:
         case ADDRESSING_MOVEALONG:
             // TODO ??? Looks wrong...
-            state = (error == NO_ERROR) ? State.POSTSEQUENCE : State.ERROR;
+//            state = (error == NO_ERROR) ? State.POSTSEQUENCE : State.ERROR;
             break;
         case END_SEQUENCE:
             resetToSequence();
             seekMarker(true, false);
             break;
         case ERROR:
-            // TODO!
+            seekMarker(true, true);
+            if (!haveSeqEndMarker) {
+                state = State.SEQUENCE_SKIP;
+            } else {
+                flushMarkerAndSeekNext();
+                resetToSequence();
+            }
             break;
         case CLOSE_PAREN:
         case RUN_FIRST_COMMAND:
@@ -256,7 +244,7 @@ public class SemanticParser implements ParseState, ContextView {
      * @return an appropriate action: END_SEQUENCE, RUN_COMMAND, CLOSE_PAREN, GO_AROUND
      */
     private ZcodeAction flowControl(final byte marker) {
-        if (state == State.ERROR) {
+        if (isInErrorState()) {
             return actionFactory.goAround(this);
         }
 
@@ -304,6 +292,7 @@ public class SemanticParser implements ParseState, ContextView {
 
         // handles AND, '(' and some ')' cases
         if (state == State.COMMAND_COMPLETE) {
+            status = ZcodeStatus.SUCCESS;
             state = State.COMMAND_INCOMPLETE;
             return actionFactory.runCommand(this, marker);
         }
@@ -320,7 +309,7 @@ public class SemanticParser implements ParseState, ContextView {
     private void dealWithTokenBufferFlags() {
         final ZcodeTokenBufferFlags flags = reader.getFlags();
 
-        if (flags.getAndClearSeqMarkerWritten()) {
+        if (state != State.COMMAND_INCOMPLETE && state != State.COMMAND_NEEDS_ACTION && flags.getAndClearSeqMarkerWritten()) {
             if (!haveSeqEndMarker) {
                 seekMarker(true, false);
             }
@@ -347,7 +336,7 @@ public class SemanticParser implements ParseState, ContextView {
         seqEndMarker = newSeqEndMarker;
         haveSeqEndMarker = true;
         if (newSeqEndMarker != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
-            state = errorState(MARKER_ERROR);
+            state = State.ERROR_TOKENIZER;
         }
     }
 
@@ -383,7 +372,7 @@ public class SemanticParser implements ParseState, ContextView {
 
         if (seekSeqEnd) {
             if (token.isPresent()) {
-                assignSeqEndMarker(token.get().getKey());
+                assignSeqEndMarker(token.get().getKey());// Literally only this case can happen mid command to cause an error...
             } else {
                 haveSeqEndMarker = false;
             }
@@ -432,23 +421,22 @@ public class SemanticParser implements ParseState, ContextView {
      *
      * Presumes 'nextMarker' is up-to-date.
      *
-     * @return the new state: ERROR, SEQUENCE_SKIP (for comments), or PRESEQUENCE (implying no error, normal sequence)
+     * Leaves the parser in: ERROR_*, SEQUENCE_SKIP (for comments), or PRESEQUENCE (implying no error, normal sequence)
      */
-    private State parseSequenceLevel() {
+    private void parseSequenceLevel() {
         ReadToken first = reader.getFirstReadToken();
         while (first.getKey() == Zchars.Z_ECHO || first.getKey() == Zchars.Z_LOCKS) {
             if (first.getKey() == Zchars.Z_ECHO) {
                 if (hasEcho) {
-                    return errorState(MULTIPLE_ECHO_ERROR);
+                    state = State.ERROR_MULTIPLE_ECHO;
+                    return;
                 }
                 echo = first.getData16();
                 hasEcho = true;
             } else if (first.getKey() == Zchars.Z_LOCKS) {
-                if (hasLocks) {
-                    return errorState(LOCKS_ERROR);
-                }
-                if (first.getDataSize() > ZcodeLocks.LOCK_BYTENUM) {
-                    return errorState(LOCKS_ERROR);
+                if (hasLocks || first.getDataSize() > ZcodeLocks.LOCK_BYTENUM) {
+                    state = State.ERROR_LOCKS;
+                    return;
                 }
                 locks = ZcodeLockSet.from(first.blockIterator());
                 hasLocks = true;
@@ -458,23 +446,16 @@ public class SemanticParser implements ParseState, ContextView {
         }
 
         if (first.getKey() == Zchars.Z_COMMENT) {
-            if (!ZcodeTokenBuffer.isSequenceEndMarker(nextMarker)) {
-                return errorState(INTERNAL_ERROR);
-            }
             if (nextMarker != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
-                return errorState(MARKER_ERROR);
+                state = State.ERROR_TOKENIZER;
+                return;
             }
             if (hasEcho || hasLocks) {
-                return errorState(COMMENT_WITH_SEQ_FIELDS_ERROR);
+                state = State.ERROR_COMMENT_WITH_SEQ_FIELDS;
+                return;
             }
-            return State.SEQUENCE_SKIP;
+            state = State.SEQUENCE_SKIP;
         }
-        return State.PRESEQUENCE;
-    }
-
-    private State errorState(byte semanticError) {
-        error = semanticError;
-        return State.ERROR;
     }
 
     private void resetToSequence() {
@@ -485,13 +466,47 @@ public class SemanticParser implements ParseState, ContextView {
         parenCounter = 0;
     }
 
-    @Override
-    public byte getSeqEndMarker() {
-        return seqEndMarker;
-    }
-
     ////////////////////////////////
     // Sequence Start state: locks and echo. Defined in {@link ParseState}.
+
+    @Override
+    public byte getErrorStatus() {
+        switch (state) {
+        case ERROR_COMMENT_WITH_SEQ_FIELDS:
+            return ZcodeStatus.INVALID_COMMENT;
+        case ERROR_LOCKS:
+            return ZcodeStatus.INVALID_LOCKS;
+        case ERROR_MULTIPLE_ECHO:
+            return ZcodeStatus.INVALID_ECHO;
+        case ERROR_STATUS:
+            return status;
+        case ERROR_TOKENIZER:
+            byte tokenizerError = reader.getFirstKey();
+            if (!reader.getFirstReadToken().isSequenceEndMarker()) {
+                throw new IllegalStateException();
+            }
+            byte statusValue;
+
+            if (tokenizerError == ZcodeTokenizer.ERROR_BUFFER_OVERRUN) {
+                statusValue = ZcodeStatus.BUFFER_OVR_ERROR;
+            } else if (tokenizerError == ZcodeTokenizer.ERROR_CODE_FIELD_TOO_LONG) {
+                statusValue = ZcodeStatus.FIELD_TOO_LONG;
+            } else if (tokenizerError == ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN) {
+                statusValue = ZcodeStatus.ILLEGAL_KEY;
+            } else if (tokenizerError == ZcodeTokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH) {
+                statusValue = ZcodeStatus.ODD_LENGTH;
+            } else if (tokenizerError == ZcodeTokenizer.ERROR_CODE_STRING_ESCAPING) {
+                statusValue = ZcodeStatus.ESCAPING_ERROR;
+            } else if (tokenizerError == ZcodeTokenizer.ERROR_CODE_STRING_NOT_TERMINATED) {
+                statusValue = ZcodeStatus.UNTERMINATED_STRING;
+            } else {
+                statusValue = (ZcodeStatus.INTERNAL_ERROR);
+            }
+            return statusValue;
+        default:
+            throw new IllegalStateException();
+        }
+    }
 
     @Override
     public boolean canLock(final Zcode zcode) {
@@ -569,7 +584,7 @@ public class SemanticParser implements ParseState, ContextView {
     public void setStatus(byte status) {
         this.status = status;
         if (ZcodeStatus.isError(status)) {
-            state = errorState(OTHER_ERROR);
+            state = State.ERROR_STATUS;
         } else if (ZcodeStatus.isFailure(status)) {
             switch (state) {
             case COMMAND_COMPLETE:
@@ -577,7 +592,11 @@ public class SemanticParser implements ParseState, ContextView {
                 state = State.COMMAND_FAILED;
                 parenCounter = 0;
                 break;
-            case ERROR:
+            case ERROR_COMMENT_WITH_SEQ_FIELDS:
+            case ERROR_LOCKS:
+            case ERROR_MULTIPLE_ECHO:
+            case ERROR_STATUS:
+            case ERROR_TOKENIZER:
                 // ignore: command cannot report failure after an ERROR.
                 break;
             default:

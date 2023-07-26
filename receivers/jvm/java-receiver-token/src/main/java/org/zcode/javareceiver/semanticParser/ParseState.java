@@ -7,21 +7,13 @@ import org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType;
  * Defines methods accessed by ZcodeActions.
  */
 public interface ParseState {
-    void actionPerformed(ActionType type);
+    byte getErrorStatus();
 
-    void startCommand();
+    void actionPerformed(ActionType type);
 
     boolean hasEcho();
 
     int getEcho();
-
-    void seqEndSent();
-
-    void closeParenSent();
-
-    byte getSeqEndMarker();
-
-    void clearNeedsAction();
 
     boolean canLock(Zcode zcode);
 
