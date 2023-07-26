@@ -18,15 +18,20 @@ public class ZcodeExecutor {
 
     public void progress(List<ZcodeChannel> channels) {
         List<ZcodeAction> possibleActions = new ArrayList<>();
+
         for (ZcodeChannel ch : channels) {
-            possibleActions.add(ch.getParser().getAction());
+            ZcodeAction action = ch.getParser().getAction();
+            if (action.isEmptyAction()) {
+                action.performAction(zcode, null);
+            }
+            possibleActions.add(action);
         }
 
-        int         toExec = scheduler.decide(zcode, possibleActions);
-        ZcodeAction action = possibleActions.get(toExec);
+        int         indexToExec = scheduler.decide(zcode, possibleActions);
+        ZcodeAction action      = possibleActions.get(indexToExec);
 
-        if (action.needsPerforming() && action.lock(zcode)) {
-            action.performAction(zcode, channels.get(toExec).getOutStream());
+        if (!action.isEmptyAction() && action.lock(zcode)) {
+            action.performAction(zcode, channels.get(indexToExec).getOutStream());
         }
     }
 

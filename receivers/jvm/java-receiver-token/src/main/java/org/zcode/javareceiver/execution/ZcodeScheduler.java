@@ -11,7 +11,7 @@ public class ZcodeScheduler {
         // TODO: a better one
         for (int i = 0; i < possibilities.size(); i++) {
             ZcodeAction r = possibilities.get(i);
-            if (possibilities.get(i).needsPerforming() && possibilities.get(i).canLock(zcode)) {
+            if (!possibilities.get(i).isEmptyAction() && possibilities.get(i).canLock(zcode)) {
                 return i;
             }
         }

@@ -34,8 +34,8 @@ public class ZcodeAction {
         this.info = info;
     }
 
-    public boolean needsPerforming() {
-        return type != ActionType.GO_AROUND && type != ActionType.WAIT_FOR_TOKENS && type != ActionType.WAIT_FOR_ASYNC;
+    public boolean isEmptyAction() {
+        return type == ActionType.GO_AROUND || type == ActionType.WAIT_FOR_TOKENS || type == ActionType.WAIT_FOR_ASYNC;
     }
 
     public void performAction(Zcode zcode, ZcodeOutStream out) {
@@ -57,7 +57,6 @@ public class ZcodeAction {
             }
             break;
         case ADDRESSING_MOVEALONG:
-//            parseState.clearNeedsAction();
             ZcodeAddressingSystem.moveAlong(new ZcodeAddressingContext((ContextView) parseState));
             break;
         case RUN_FIRST_COMMAND:
@@ -68,27 +67,11 @@ public class ZcodeAction {
             ZcodeCommandContext cmdCtx = new ZcodeCommandContext((ContextView) parseState, out);
             if (cmdCtx.verify()) {
                 ZcodeCommandFinder.execute(cmdCtx);
-//                if (cmdCtx.isComplete()) {
-//                    if (!cmdCtx.statusGiven()) {
-//                        cmdCtx.setStatus(ZcodeStatus.SUCCESS);
-//                    } else if (cmdCtx.statusError()) {
-//                        out.endSequence();
-//                        out.close();
-//                    }
-//                }
             }
             break;
         case COMMAND_MOVEALONG:
             ZcodeCommandContext cmdCtx1 = new ZcodeCommandContext((ContextView) parseState, out);
             ZcodeCommandFinder.moveAlong(cmdCtx1);
-//            if (cmdCtx1.isComplete()) {
-//                if (!cmdCtx1.statusGiven()) {
-//                    cmdCtx1.setStatus(ZcodeStatus.SUCCESS);
-//                } else if (cmdCtx1.statusError()) {
-//                    out.endSequence();
-//                    out.close();
-//                }
-//            }
             break;
         case END_SEQUENCE:
             out.endSequence();
@@ -102,6 +85,7 @@ public class ZcodeAction {
             break;
         case GO_AROUND:
         case WAIT_FOR_TOKENS:
+        case WAIT_FOR_ASYNC:
             break;
         }
     }

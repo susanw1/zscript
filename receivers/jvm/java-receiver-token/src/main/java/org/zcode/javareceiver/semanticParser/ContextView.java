@@ -18,5 +18,11 @@ public interface ContextView {
 
     void setStatus(byte status);
 
-    void needsAction();
+    /**
+     * Allows a background/async command component to signal that the command's code needs scheduling to move it along.
+     *
+     * Example, an interrupt-driven serial writer might call {@link #notifyNeedsAction()} in its interrupt handler to indicate that the data was all sent correctly. The command
+     * will be
+     */
+    void notifyNeedsAction();
 }
