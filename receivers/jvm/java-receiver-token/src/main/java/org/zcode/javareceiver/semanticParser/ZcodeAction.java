@@ -2,6 +2,7 @@ package org.zcode.javareceiver.semanticParser;
 
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
+import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeAddressingContext;
 import org.zcode.javareceiver.execution.ZcodeAddressingSystem;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
@@ -47,9 +48,7 @@ public class ZcodeAction {
     protected void performActionImpl(Zcode zcode, ZcodeOutStream out) {
         switch (type) {
         case ERROR:
-            if (!out.isOpen()) {
-                out.open();
-            }
+            startResponse(out, (byte) 0x10);
             out.writeField('S', parseState.getErrorStatus());
             out.endSequence();
             out.close();
@@ -65,7 +64,7 @@ public class ZcodeAction {
             ZcodeAddressingSystem.moveAlong(new ZcodeAddressingContext((ContextView) parseState));
             break;
         case RUN_FIRST_COMMAND:
-            startResponse(out);
+            startResponse(out, (byte) 0);
             // fall though
         case RUN_COMMAND:
             sendNormalMarkerPrefix(out, info);
@@ -73,10 +72,16 @@ public class ZcodeAction {
             if (cmdCtx.verify()) {
                 ZcodeCommandFinder.execute(cmdCtx);
             }
+            if (cmdCtx.isCommandComplete() && !parseState.hasSentStatus()) {
+                cmdCtx.status(ZcodeStatus.SUCCESS);
+            }
             break;
         case COMMAND_MOVEALONG:
             ZcodeCommandContext cmdCtx1 = new ZcodeCommandContext((ContextView) parseState, out);
             ZcodeCommandFinder.moveAlong(cmdCtx1);
+            if (cmdCtx1.isCommandComplete() && !parseState.hasSentStatus()) {
+                cmdCtx1.status(ZcodeStatus.SUCCESS);
+            }
             break;
         case END_SEQUENCE:
             out.endSequence();
@@ -93,9 +98,11 @@ public class ZcodeAction {
         }
     }
 
-    private void startResponse(ZcodeOutStream out) {
-        out.open();
-        out.writeField('!', 0);
+    private void startResponse(ZcodeOutStream out, byte respType) {
+        if (!out.isOpen()) {
+            out.open();
+        }
+        out.writeField('!', respType);
         if (parseState.hasEcho()) {
             out.writeField('_', parseState.getEcho());
         }

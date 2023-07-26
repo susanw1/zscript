@@ -122,6 +122,7 @@ public class ZcodeCommandContext {
 
     public void status(final byte status) {
         contextView.setStatus(status);
+        out.writeField('S', status);
     }
 
 //    private void error(final byte status) {
