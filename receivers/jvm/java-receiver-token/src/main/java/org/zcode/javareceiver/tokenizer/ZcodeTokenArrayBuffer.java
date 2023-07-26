@@ -283,7 +283,6 @@ public abstract class ZcodeTokenArrayBuffer implements ZcodeTokenBuffer {
             public void flushBuffer() {
                 readStart = index;
             }
-
         }
 
         /**

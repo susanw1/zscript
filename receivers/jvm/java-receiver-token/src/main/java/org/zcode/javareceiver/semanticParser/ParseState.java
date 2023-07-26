@@ -9,8 +9,6 @@ import org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType;
 public interface ParseState {
     void actionPerformed(ActionType type);
 
-    void errorSent();
-
     void startCommand();
 
     boolean hasEcho();

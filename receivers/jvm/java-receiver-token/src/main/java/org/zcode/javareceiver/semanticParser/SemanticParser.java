@@ -161,7 +161,7 @@ public class SemanticParser implements ParseState, ContextView {
             reader.flushFirstReadToken();
             ZcodeAction action = flowControl(nextMarker);
             prevMarker = nextMarker;
-            findNextMarker();
+            recordNextMarker();
             if (action.needsPerforming()) {
                 return action; // This implies we were in COMMAND_FAILED, and we still are.
             }
@@ -299,13 +299,13 @@ public class SemanticParser implements ParseState, ContextView {
         final ZcodeTokenBufferFlags flags = reader.getFlags();
         if (flags.getAndClearMarkerWritten()) {
             if (!haveNextMarker) {
-                findNextMarker();
+                recordNextMarker();
             }
         }
 
         if (flags.getAndClearSeqMarkerWritten()) {
             if (!haveSeqEndMarker) {
-                findSeqEndMarker();
+                recordSeqEndMarker();
             }
         }
 
@@ -316,7 +316,7 @@ public class SemanticParser implements ParseState, ContextView {
         }
     }
 
-    private void findNextMarker() {
+    private void recordNextMarker() {
         final TokenBufferIterator it = reader.iterator();
 
         Optional<ReadToken> token;
@@ -335,12 +335,8 @@ public class SemanticParser implements ParseState, ContextView {
         }
     }
 
-    private void findSeqEndMarker() {
-        final TokenBufferIterator it    = reader.iterator();
-        Optional<ReadToken>       token = it.next();
-
-        for (token = it.next(); token.isPresent() && !token.get().isSequenceEndMarker(); token = it.next()) {
-        }
+    private void recordSeqEndMarker() {
+        Optional<ReadToken> token = findSeqEndMarkerToken();
 
         if (token.isPresent()) {
             assignSeqEndMarker(token.get().getKey());
@@ -372,7 +368,17 @@ public class SemanticParser implements ParseState, ContextView {
         for (Optional<ReadToken> token = it.next(); token.isPresent() && !token.get().isMarker(); token = it.next()) {
             it.flushBuffer();
         }
-        findNextMarker();
+        recordNextMarker();
+    }
+
+    private Optional<ReadToken> findSeqEndMarkerToken() {
+        final TokenBufferIterator it = reader.iterator();
+        Optional<ReadToken>       token;
+
+        for (token = it.next(); token.isPresent() && !token.get().isSequenceEndMarker(); token = it.next()) {
+        }
+
+        return token;
     }
 
     /**
@@ -382,7 +388,6 @@ public class SemanticParser implements ParseState, ContextView {
         if (!haveSeqEndMarker) {
             return;
         }
-
         TokenBufferIterator it = reader.iterator();
         for (Optional<ReadToken> token = it.next(); !token.get().isSequenceEndMarker(); token = it.next()) {
             it.flushBuffer();
@@ -390,9 +395,10 @@ public class SemanticParser implements ParseState, ContextView {
 
         reader.flushFirstReadToken();
 
+        // TODO review this!
         resetToSequence();
-        findNextMarker();
-        findSeqEndMarker();
+        recordNextMarker();
+        recordSeqEndMarker();
     }
 
     /**
@@ -456,41 +462,13 @@ public class SemanticParser implements ParseState, ContextView {
         hasLocks = false;
         hasEcho = false;
         parenCounter = 0;
-        findSeqEndMarker();
+        recordSeqEndMarker();
     }
-
-//    @Override
-//    public void startCommand() {
-//        this.commandStarted = true;
-//        this.firstCommand = false;
-//        this.status = ZcodeStatus.SUCCESS;
-//    }
 
     @Override
     public byte getSeqEndMarker() {
         return seqEndMarker;
     }
-
-    @Override
-    public void errorSent() {
-//        needSendError = false;
-        error = NO_ERROR;
-    }
-
-//    @Override
-//    public void seqEndSent() {
-//        needEndSeq = false;
-//    }
-//
-//    @Override
-//    public void closeParenSent() {
-//        needCloseParen = false;
-//    }
-//
-//    @Override
-//    public void clearNeedsAction() {
-//        needsAction = false;
-//    }
 
     ////////////////////////////////
     // Sequence Start state: locks and echo. Defined in {@link ParseState}.
