@@ -22,6 +22,7 @@ public class ZcodeCommandFinder {
         // commands are completable unless explicitly marked otherwise by a command
         ctx.commandComplete();
         if (ctx.isEmpty()) {
+            ctx.silentSucceed();
             return;
         }
         OptionalInt value = ctx.getField(Zchars.Z_CMD);

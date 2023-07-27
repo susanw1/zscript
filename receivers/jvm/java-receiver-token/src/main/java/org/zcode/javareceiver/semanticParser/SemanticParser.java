@@ -172,7 +172,12 @@ public class SemanticParser implements ParseState, ContextView {
             return actionFactory.error(this);
         case ERROR_STATUS:
             seekMarker(true, true);
-            return actionFactory.endSequence(this);
+            if (haveSeqEndMarker) {
+                flushMarkerAndSeekNext();
+                return actionFactory.endSequence(this); // end sequence isn't quite right here, as the actionPerformed code is completely wrong
+            } else {
+                return actionFactory.waitForTokens(this);
+            }
         default:
             throw new IllegalStateException();
         }
@@ -204,7 +209,7 @@ public class SemanticParser implements ParseState, ContextView {
             break;
         case END_SEQUENCE:
             resetToSequence();
-            seekMarker(true, false);
+//            seekMarker(true, false); // Might not be necessary?
             break;
         case ERROR:
             seekMarker(true, true);
@@ -630,5 +635,10 @@ public class SemanticParser implements ParseState, ContextView {
         default:
             throw new IllegalStateException("Invalid state transition");
         }
+    }
+
+    @Override
+    public void silentSucceed() {
+        hasSentStatus = true;
     }
 }

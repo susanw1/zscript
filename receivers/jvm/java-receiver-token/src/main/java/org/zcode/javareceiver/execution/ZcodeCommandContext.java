@@ -230,4 +230,8 @@ public class ZcodeCommandContext {
         contextView.activate();
     }
 
+    public void silentSucceed() {
+        contextView.silentSucceed();
+    }
+
 }

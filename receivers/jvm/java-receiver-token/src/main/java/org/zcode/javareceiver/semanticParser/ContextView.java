@@ -25,4 +25,6 @@ public interface ContextView {
      * will be
      */
     void notifyNeedsAction();
+
+    void silentSucceed();
 }

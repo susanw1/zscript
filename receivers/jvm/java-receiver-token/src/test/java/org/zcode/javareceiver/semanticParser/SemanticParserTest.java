@@ -1,6 +1,7 @@
 package org.zcode.javareceiver.semanticParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.CLOSE_PAREN;
 import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.END_SEQUENCE;
 import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.RUN_COMMAND;
 import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.RUN_FIRST_COMMAND;
@@ -109,18 +110,18 @@ class SemanticParserTest {
         // feed all chars into tokens/buffer
         text.chars().forEachOrdered(c -> tokenizer.accept((byte) c));
 
-        buffer.getTokenReader().iterator().forEach(t -> System.out.print(t + " "));
-        System.out.println();
+//        buffer.getTokenReader().iterator().forEach(t -> System.out.print(t + " "));
+//        System.out.println();
 
         actionTypes.forEach(t -> {
-            System.out.println("Expecting actionType=" + t);
+//            System.out.println("Expecting actionType=" + t);
             ZcodeAction a1 = parser.getAction();
 
-            System.out.println("  Received action: actionType=" + a1 + "; state=" + parser.getState());
+//            System.out.println("  Received action: actionType=" + a1 + "; state=" + parser.getState());
             assertThat(a1.getType()).isEqualTo(t);
             a1.performAction(zcode, outStream);
 
-            System.out.println("   - After execute action: outStream=" + outStream.getString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());
+//            System.out.println("   - After execute action: outStream=" + outStream.getString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());
         });
         assertThat(outStream.getString()).isEqualTo(finalOutput);
     }
@@ -129,7 +130,7 @@ class SemanticParserTest {
         return Stream.of(
                 Arguments.of("Z1A\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS\n"),
                 Arguments.of("Z1A S1\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS1\n"),
-                // Arguments.of("Z1A S10\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS10\n"),
+                Arguments.of("Z1A S10\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS10\n"),
                 Arguments.of("Z1A & Z1B\n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS&BS\n"),
 
                 Arguments.of("Z1A & Z1B & Z1C\n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS&BS&CS\n"),
@@ -138,21 +139,22 @@ class SemanticParserTest {
                 Arguments.of("Z1A S1 | Z1B\n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS1|BS\n"),
                 Arguments.of("Z1A S1 | Z1B S2\n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS1|BS2\n"),
 
-//                Arguments.of("Z1A S10 | Z1B\n", List.of(RUN_FIRST_COMMAND, WAIT_FOR_TOKENS), "!AS10\n"), // Error: this fails to produce END_SEQUENCE!
+                Arguments.of("Z1A S10 | Z1B\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS10\n"), // Error: this fails to produce END_SEQUENCE!
                 Arguments.of("Z1A | (Z1B | Z1C) | Z1D \n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS\n"),
-//                Arguments.of("Z1A & (Z1B | Z1C) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS&(BS)\n"),
+                Arguments.of("Z1A & (Z1B | Z1C) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS&(BS)\n"),
 
-                // These need serious checking!!
-//                Arguments.of("Z1A S1 | (Z1B | Z1C) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS1|(BS)\n"),
-//                Arguments.of("Z1A S1 | (Z1B S1 | Z1C) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, WAIT_FOR_TOKENS), "!AS1|(BS1|CS)"), // !S1|(S1|S)\n
-//                Arguments.of("Z1A S1 | (Z1B S1 | Z1C S1) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, WAIT_FOR_TOKENS),
-//                        "!AS1|(S1|S1)S\n"), // !S1|(S1|S)\n
-//                Arguments.of("Z1A S1 | (Z1B S10 | Z1C) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, WAIT_FOR_TOKENS), "!S1|(S10"), // !S1|(S10)\n
-//                Arguments.of("Z1A S1 | (Z1B | Z1C S10) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!S\n"),
-//                Arguments.of("Z1A S1 | (Z1B | Z1C S10) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!S\n"));
-//                Arguments.of("Z1A | (Z1B | Z1C) | Z1D S10 \n", List.of(FIRST_COMMAND, COMMAND, END_SEQUENCE, NEEDS_TOKENS)), "!S\n"));
-//                Arguments.of("Z1A | (Z1B | Z1C) & Z1D \n", List.of(FIRST_COMMAND, COMMAND, END_SEQUENCE, NEEDS_TOKENS), "!S\n"),
-//                Arguments.of("Z1A | (Z1B | Z1C S10) & Z1D \n", List.of(FIRST_COMMAND, COMMAND, END_SEQUENCE, NEEDS_TOKENS), "!S\n"));
+                Arguments.of("Z1A S1 | (Z1B | Z1C) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS1|(BS)\n"),
+                Arguments.of("Z1A S1 | (Z1B S1 | Z1C) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS),
+                        "!AS1|(BS1|CS)\n"),
+                Arguments.of("Z1A S1 | (Z1B S1 | Z1C S1) | Z1D \n",
+                        List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, CLOSE_PAREN, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS),
+                        "!AS1|(BS1|CS1)|DS\n"),
+                Arguments.of("Z1A S1 | (Z1B S10 | Z1C) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS1|(BS10\n"),
+                Arguments.of("Z1A S1 | (Z1B | Z1C S10) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS1|(BS)\n"),
+                Arguments.of("Z1A S1 | (Z1B | Z1C S10) | Z1D \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS1|(BS)\n"),
+                Arguments.of("Z1A | (Z1B | Z1C) | Z1D S10 \n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS\n"),
+                Arguments.of("Z1A | (Z1B | Z1C) & Z1D \n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS\n"),
+                Arguments.of("Z1A | (Z1B | Z1C S10) & Z1D \n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS\n"),
                 Arguments.of("Z0\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!V1C3007M3S\n"));
     }
 }
