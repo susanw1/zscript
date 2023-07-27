@@ -11,7 +11,7 @@ public class ZcodeExtendedCapabilitiesCommand {
     public static void execute(ZcodeCommandContext ctx) {
         ZcodeCommandOutStream out = ctx.getOutStream();
         out.writeField('C', ZcodeOuterCoreModule.getCommands());
-        out.writeField('M', ctx.getZcode().getModuleFinder().getCommandSwitchExistsBroad());
+        out.writeField('M', ctx.getZcode().getModuleRegistry().getCommandSwitchExistsBroad());
         OptionalInt targetOpt = ctx.getField((byte) 'M');
 
         if (targetOpt.isPresent()) {
@@ -20,7 +20,7 @@ public class ZcodeExtendedCapabilitiesCommand {
                 ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
                 return;
             }
-            int result = ctx.getZcode().getModuleFinder().getCommandSwitchExistsTop(target);
+            int result = ctx.getZcode().getModuleRegistry().getCommandSwitchExistsTop(target);
             out.writeField('L', result);
         }
     }

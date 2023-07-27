@@ -22,7 +22,7 @@ public class SemanticParserAddressingTest {
 
     private final SemanticParser parser = new SemanticParser(buffer.getTokenReader(), new ExecutionActionFactory());
 
-    private final Zcode zcode = Zcode.getZcode();
+    private final Zcode zcode = new Zcode();
 
     private final StringBuilderOutStream outStream = new StringBuilderOutStream();
 
@@ -30,18 +30,18 @@ public class SemanticParserAddressingTest {
         // feed all chars into tokens/buffer
         text.chars().forEachOrdered(c -> tokenizer.accept((byte) c));
 
-//        buffer.getTokenReader().iterator().forEach(t -> System.out.print(t + " "));
-//        System.out.println();
+        buffer.getTokenReader().iterator().forEach(t -> System.out.print(t + " "));
+        System.out.println();
 
         actionTypes.forEach(t -> {
-//            System.out.println("Expecting actionType=" + t);
+            System.out.println("Expecting actionType=" + t);
             ZcodeAction a1 = parser.getAction();
 
-//            System.out.println("  Received action: actionType=" + a1 + "; state=" + parser.getState());
+            System.out.println("  Received action: actionType=" + a1 + "; state=" + parser.getState());
             assertThat(a1.getType()).isEqualTo(t);
             a1.performAction(zcode, outStream);
 
-//            System.out.println("   - After execute action: outStream=" + outStream.getString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());
+            System.out.println("   - After execute action: outStream=" + outStream.getString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());
         });
         assertThat(outStream.getString()).isEqualTo(finalOutput);
     }

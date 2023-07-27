@@ -68,7 +68,7 @@ public class ZcodeCapabilitiesCommand {
             ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
         }
         out.writeField('C', ZcodeCoreModule.getCommands());
-        out.writeField('M', ctx.getZcode().getModuleFinder().getCommandSwitchExistsBottom(0));
+        out.writeField('M', ctx.getZcode().getModuleRegistry().getCommandSwitchExistsBottom(0));
     }
 
 }

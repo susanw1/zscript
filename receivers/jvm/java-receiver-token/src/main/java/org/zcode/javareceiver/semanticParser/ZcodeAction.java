@@ -52,11 +52,11 @@ public class ZcodeAction {
         case INVOKE_ADDRESSING:
             ZcodeAddressingContext addrCtx = new ZcodeAddressingContext((ContextView) parseState);
             if (addrCtx.verify()) {
-                zcode.getModuleFinder().execute(addrCtx);
+                zcode.getModuleRegistry().execute(addrCtx);
             }
             break;
         case ADDRESSING_MOVEALONG:
-            zcode.getModuleFinder().moveAlong(new ZcodeAddressingContext((ContextView) parseState));
+            zcode.getModuleRegistry().moveAlong(new ZcodeAddressingContext((ContextView) parseState));
             break;
         case RUN_FIRST_COMMAND:
             startResponse(out, (byte) 0);
@@ -67,7 +67,7 @@ public class ZcodeAction {
             }
             ZcodeCommandContext cmdCtx = new ZcodeCommandContext(zcode, (ContextView) parseState, out);
             if (cmdCtx.verify()) {
-                zcode.getModuleFinder().execute(cmdCtx);
+                zcode.getModuleRegistry().execute(cmdCtx);
             }
             if (cmdCtx.isCommandComplete() && !parseState.hasSentStatus()) {
                 cmdCtx.status(ZcodeStatus.SUCCESS);
@@ -75,7 +75,7 @@ public class ZcodeAction {
             break;
         case COMMAND_MOVEALONG:
             ZcodeCommandContext cmdCtx1 = new ZcodeCommandContext(zcode, (ContextView) parseState, out);
-            zcode.getModuleFinder().moveAlong(cmdCtx1);
+            zcode.getModuleRegistry().moveAlong(cmdCtx1);
             if (cmdCtx1.isCommandComplete() && !parseState.hasSentStatus()) {
                 cmdCtx1.status(ZcodeStatus.SUCCESS);
             }
@@ -144,9 +144,4 @@ public class ZcodeAction {
     ActionType getType() {
         return type;
     }
-
-    // visible for testing
-//    byte getInfo() {
-//        return info;
-//    }
 }

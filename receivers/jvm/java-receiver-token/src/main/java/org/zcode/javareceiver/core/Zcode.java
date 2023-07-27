@@ -5,20 +5,20 @@ import java.util.List;
 
 import org.zcode.javareceiver.execution.ZcodeExecutor;
 import org.zcode.javareceiver.modules.ZcodeModule;
-import org.zcode.javareceiver.modules.ZcodeModuleFinder;
+import org.zcode.javareceiver.modules.ZcodeModuleRegistry;
 
 public class Zcode {
-    private final ZcodeModuleFinder  finder   = new ZcodeModuleFinder();
-    private final ZcodeLocks         locks    = new ZcodeLocks();
-    private final List<ZcodeChannel> channels = new ArrayList<>();
-    private final ZcodeExecutor      executor;
+    private final ZcodeModuleRegistry moduleRegistry = new ZcodeModuleRegistry();
+    private final ZcodeLocks          locks          = new ZcodeLocks();
+    private final List<ZcodeChannel>  channels       = new ArrayList<>();
+    private final ZcodeExecutor       executor;
 
     public Zcode() {
         executor = new ZcodeExecutor(this);
     }
 
     public void addModule(ZcodeModule m) {
-        finder.addModule(m);
+        moduleRegistry.addModule(m);
     }
 
     public void addChannel(ZcodeChannel ch) {
@@ -49,8 +49,8 @@ public class Zcode {
         return channels;
     }
 
-    public ZcodeModuleFinder getModuleFinder() {
-        return finder;
+    public ZcodeModuleRegistry getModuleRegistry() {
+        return moduleRegistry;
     }
 
 }

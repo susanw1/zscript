@@ -7,7 +7,7 @@ import org.zcode.javareceiver.execution.ZcodeAddressingContext;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.tokenizer.Zchars;
 
-public class ZcodeModuleFinder {
+public class ZcodeModuleRegistry {
     private static final int    MAX_SYSTEM_CMD = 0xF;
     private final ZcodeModule[] modules        = new ZcodeModule[0x1000];
 

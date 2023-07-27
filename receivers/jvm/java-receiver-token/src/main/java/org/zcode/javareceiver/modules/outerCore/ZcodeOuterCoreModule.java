@@ -24,7 +24,7 @@ public class ZcodeOuterCoreModule implements ZcodeModule {
             ZcodeExtendedCapabilitiesCommand.execute(ctx);
             break;
         case 0x4:
-            ((ZcodeCoreModule) ctx.getZcode().getModuleFinder().getModule(0)).getGuidCmd().set(ctx);
+            ((ZcodeCoreModule) ctx.getZcode().getModuleRegistry().getModule(0)).getGuidCmd().set(ctx);
             break;
         case 0x8:
             ZcodeChannelSetupCommand.execute(ctx);
