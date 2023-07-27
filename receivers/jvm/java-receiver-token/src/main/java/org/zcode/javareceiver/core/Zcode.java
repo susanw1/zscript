@@ -4,22 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.zcode.javareceiver.execution.ZcodeExecutor;
+import org.zcode.javareceiver.modules.ZcodeModule;
+import org.zcode.javareceiver.modules.ZcodeModuleFinder;
 
 public class Zcode {
-    private static final Zcode       zcode    = new Zcode();
+    private final ZcodeModuleFinder  finder   = new ZcodeModuleFinder();
     private final ZcodeLocks         locks    = new ZcodeLocks();
     private final List<ZcodeChannel> channels = new ArrayList<>();
     private final ZcodeExecutor      executor;
 
-    private Zcode() {
+    public Zcode() {
         executor = new ZcodeExecutor(this);
     }
 
-    public static Zcode getZcode() {
-        return zcode;
+    public void addModule(ZcodeModule m) {
+        finder.addModule(m);
     }
 
     public void addChannel(ZcodeChannel ch) {
+        ch.setChannelIndex((byte) channels.size());
         channels.add(ch);
     }
 
@@ -44,6 +47,10 @@ public class Zcode {
 
     public List<ZcodeChannel> getChannels() {
         return channels;
+    }
+
+    public ZcodeModuleFinder getModuleFinder() {
+        return finder;
     }
 
 }

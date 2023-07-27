@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.zcode.javareceiver.core.StringBuilderOutStream;
 import org.zcode.javareceiver.core.Zcode;
-import org.zcode.javareceiver.modules.ZcodeCommandFinder;
+import org.zcode.javareceiver.modules.ZcodeModuleFinder;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
 import org.zcode.javareceiver.modules.outerCore.ZcodeOuterCoreModule;
 import org.zcode.javareceiver.semanticParser.SemanticParser.State;
@@ -38,8 +38,8 @@ class SemanticParserTest {
 
     @BeforeAll
     static void setUp() throws Exception {
-        ZcodeCommandFinder.addModule(new ZcodeCoreModule());
-        ZcodeCommandFinder.addModule(new ZcodeOuterCoreModule());
+        ZcodeModuleFinder.addModule(new ZcodeCoreModule());
+        ZcodeModuleFinder.addModule(new ZcodeOuterCoreModule());
     }
 
     @Test

@@ -27,7 +27,10 @@ public abstract class ZcodeChannel {
     }
 
     public void moveAlong() {
+    }
 
+    public void setChannelIndex(byte i) {
+        p.setChannelIndex(i);
     }
 
     public abstract void channelInfo(final ZcodeCommandContext ctx);

@@ -11,7 +11,6 @@ import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeAbstractOutStream;
 import org.zcode.javareceiver.core.ZcodeChannel;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
-import org.zcode.javareceiver.modules.ZcodeCommandFinder;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
 import org.zcode.javareceiver.modules.outerCore.ZcodeOuterCoreModule;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenRingBuffer;
@@ -42,11 +41,11 @@ public class LocalZcodeConnection implements ZcodeConnection {
     }
 
     public LocalZcodeConnection() {
+        Zcode zcode = new Zcode();
 
-        ZcodeCommandFinder.addModule(new ZcodeCoreModule());
-        ZcodeCommandFinder.addModule(new ZcodeOuterCoreModule());
+        zcode.addModule(new ZcodeCoreModule());
+        zcode.addModule(new ZcodeOuterCoreModule());
 
-        Zcode                zcode = Zcode.getZcode();
         ZcodeTokenRingBuffer rbuff = ZcodeTokenRingBuffer.createBufferWithCapacity(100);
         zcode.addChannel(new ZcodeChannel(rbuff, new ZcodeAbstractOutStream() {
             private ByteArrayOutputStream stream = null;

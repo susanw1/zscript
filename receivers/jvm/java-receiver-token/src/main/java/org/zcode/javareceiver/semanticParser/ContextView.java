@@ -27,4 +27,6 @@ public interface ContextView {
     void notifyNeedsAction();
 
     void silentSucceed();
+
+    int getChannelIndex();
 }

@@ -4,9 +4,7 @@ import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeAddressingContext;
-import org.zcode.javareceiver.execution.ZcodeAddressingSystem;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
-import org.zcode.javareceiver.modules.ZcodeCommandFinder;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class ZcodeAction {
@@ -54,11 +52,11 @@ public class ZcodeAction {
         case INVOKE_ADDRESSING:
             ZcodeAddressingContext addrCtx = new ZcodeAddressingContext((ContextView) parseState);
             if (addrCtx.verify()) {
-                ZcodeAddressingSystem.execute(addrCtx);
+                zcode.getModuleFinder().execute(addrCtx);
             }
             break;
         case ADDRESSING_MOVEALONG:
-            ZcodeAddressingSystem.moveAlong(new ZcodeAddressingContext((ContextView) parseState));
+            zcode.getModuleFinder().moveAlong(new ZcodeAddressingContext((ContextView) parseState));
             break;
         case RUN_FIRST_COMMAND:
             startResponse(out, (byte) 0);
@@ -67,17 +65,17 @@ public class ZcodeAction {
             if (type == ActionType.RUN_COMMAND) {
                 sendNormalMarkerPrefix(out);
             }
-            ZcodeCommandContext cmdCtx = new ZcodeCommandContext((ContextView) parseState, out);
+            ZcodeCommandContext cmdCtx = new ZcodeCommandContext(zcode, (ContextView) parseState, out);
             if (cmdCtx.verify()) {
-                ZcodeCommandFinder.execute(cmdCtx);
+                zcode.getModuleFinder().execute(cmdCtx);
             }
             if (cmdCtx.isCommandComplete() && !parseState.hasSentStatus()) {
                 cmdCtx.status(ZcodeStatus.SUCCESS);
             }
             break;
         case COMMAND_MOVEALONG:
-            ZcodeCommandContext cmdCtx1 = new ZcodeCommandContext((ContextView) parseState, out);
-            ZcodeCommandFinder.moveAlong(cmdCtx1);
+            ZcodeCommandContext cmdCtx1 = new ZcodeCommandContext(zcode, (ContextView) parseState, out);
+            zcode.getModuleFinder().moveAlong(cmdCtx1);
             if (cmdCtx1.isCommandComplete() && !parseState.hasSentStatus()) {
                 cmdCtx1.status(ZcodeStatus.SUCCESS);
             }

@@ -5,14 +5,13 @@ import java.util.OptionalInt;
 import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
-import org.zcode.javareceiver.modules.ZcodeCommandFinder;
 
 public class ZcodeExtendedCapabilitiesCommand {
 
     public static void execute(ZcodeCommandContext ctx) {
         ZcodeCommandOutStream out = ctx.getOutStream();
         out.writeField('C', ZcodeOuterCoreModule.getCommands());
-        out.writeField('M', ZcodeCommandFinder.getCommandSwitchExistsBroad());
+        out.writeField('M', ctx.getZcode().getModuleFinder().getCommandSwitchExistsBroad());
         OptionalInt targetOpt = ctx.getField((byte) 'M');
 
         if (targetOpt.isPresent()) {
@@ -21,7 +20,7 @@ public class ZcodeExtendedCapabilitiesCommand {
                 ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
                 return;
             }
-            int result = ZcodeCommandFinder.getCommandSwitchExistsTop(target);
+            int result = ctx.getZcode().getModuleFinder().getCommandSwitchExistsTop(target);
             out.writeField('L', result);
         }
     }

@@ -21,6 +21,7 @@ public class SemanticParser implements ParseState, ContextView {
 
     private final TokenReader        reader;
     private final ZcodeActionFactory actionFactory;
+    private byte                     channelIndex;
 
     private class MarkerCache {
         private byte    nextMarker       = 0;    // 5 bit really
@@ -522,6 +523,10 @@ public class SemanticParser implements ParseState, ContextView {
         parenCounter = 0;
     }
 
+    public void setChannelIndex(byte channelIndex) {
+        this.channelIndex = channelIndex;
+    }
+
     ////////////////////////////////
     // Sequence Start state: locks and echo. Defined in {@link ParseState}.
 
@@ -689,5 +694,10 @@ public class SemanticParser implements ParseState, ContextView {
     @Override
     public void silentSucceed() {
         hasSentStatus = true;
+    }
+
+    @Override
+    public int getChannelIndex() {
+        return Byte.toUnsignedInt(channelIndex);
     }
 }

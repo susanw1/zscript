@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
 
+import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
@@ -15,10 +16,12 @@ import org.zcode.javareceiver.tokenizer.Zchars;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 
 public class ZcodeCommandContext {
+    private final Zcode          zcode;
     private final ContextView    contextView;
     private final ZcodeOutStream out;
 
-    public ZcodeCommandContext(final ContextView contextView, final ZcodeOutStream out) {
+    public ZcodeCommandContext(final Zcode zcode, final ContextView contextView, final ZcodeOutStream out) {
+        this.zcode = zcode;
         this.contextView = contextView;
         this.out = out;
     }
@@ -125,37 +128,6 @@ public class ZcodeCommandContext {
         out.writeField('S', status);
     }
 
-//    private void error(final byte status) {
-//        if (!out.isOpen()) {
-//            out.open();
-//        }
-//        out.writeField('S', status);
-//        out.endSequence();
-//        out.close();
-//        contextView.error();
-//    }
-
-//  public void status(final byte status) {
-//        statusGiven = true;
-//        if (!ZcodeStatus.isSuccess(status)) {
-//            if (ZcodeStatus.isError(status)) {
-//                statusError = true;
-//                contextView.error();
-//            } else {
-//                contextView.softFail();
-//            }
-//        }
-//        out.writeField('S', status);
-//    }
-//
-//    public boolean statusGiven() {
-//        return statusGiven;
-//    }
-//
-//    public boolean statusError() {
-//        return statusError;
-//    }
-
     private OptIterator<ReadToken> iteratorToMarker() {
         return new OptIterator<ReadToken>() {
             OptIterator<ReadToken> internal = contextView.getReader().iterator();
@@ -234,4 +206,11 @@ public class ZcodeCommandContext {
         contextView.silentSucceed();
     }
 
+    public Zcode getZcode() {
+        return zcode;
+    }
+
+    public int getChannelIndex() {
+        return contextView.getChannelIndex();
+    }
 }

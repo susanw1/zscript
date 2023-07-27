@@ -9,16 +9,16 @@ import org.zcode.javareceiver.execution.ZcodeCommandContext;
 
 public class ZcodeRandomCodeCommand {
 
-    private static final Random r = new Random();
-    private static int          code;
+    private final Random r = new Random();
+    private int          code;
 
-    public static void make(ZcodeCommandContext ctx) {
+    public void make(ZcodeCommandContext ctx) {
         ZcodeCommandOutStream out = ctx.getOutStream();
         code = r.nextInt(0x1000);
         out.writeField('C', code);
     }
 
-    public static void match(ZcodeCommandContext ctx) {
+    public void match(ZcodeCommandContext ctx) {
         OptionalInt givenCode = ctx.getField((byte) 'C');
         if (givenCode.isEmpty()) {
             ctx.status(ZcodeStatus.MISSING_KEY);

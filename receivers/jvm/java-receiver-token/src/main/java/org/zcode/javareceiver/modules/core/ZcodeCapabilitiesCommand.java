@@ -3,7 +3,6 @@ package org.zcode.javareceiver.modules.core;
 import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
-import org.zcode.javareceiver.modules.ZcodeCommandFinder;
 
 public class ZcodeCapabilitiesCommand {
 
@@ -20,18 +19,18 @@ public class ZcodeCapabilitiesCommand {
         return Integer.parseInt(version);
     }
 
-    public static int    userFirmwareVersion     = 1;
-    public static String userFirmwareStr         = "";
-    public static int    userHardwareVersion     = 1;
-    public static String userHardwareStr         = "";
-    public static int    platformFirmwareVersion = getVersion();
-    public static String platformFirmwareStr     = "Java JRE " + System.getProperty("java.runtime.version");
-    public static int    platformHardwareVersion = 0;
-    public static String platformHardwareStr     = System.getProperty("os.arch") + " " + System.getProperty("os.name");
-    public static int    coreZcodeVersion        = 0;
-    public static String coreZcodeStr            = "Prototype parsing/running system for JVM";
+    public int    userFirmwareVersion     = 1;
+    public String userFirmwareStr         = "";
+    public int    userHardwareVersion     = 1;
+    public String userHardwareStr         = "";
+    public int    platformFirmwareVersion = getVersion();
+    public String platformFirmwareStr     = "Java JRE " + System.getProperty("java.runtime.version");
+    public int    platformHardwareVersion = 0;
+    public String platformHardwareStr     = System.getProperty("os.arch") + " " + System.getProperty("os.name");
+    public int    coreZcodeVersion        = 0;
+    public String coreZcodeStr            = "Prototype parsing/running system for JVM";
 
-    public static void execute(ZcodeCommandContext ctx) {
+    public void execute(ZcodeCommandContext ctx) {
         ZcodeCommandOutStream out = ctx.getOutStream();
 
         int versionType = ctx.getField((byte) 'V', 0);
@@ -69,7 +68,7 @@ public class ZcodeCapabilitiesCommand {
             ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
         }
         out.writeField('C', ZcodeCoreModule.getCommands());
-        out.writeField('M', ZcodeCommandFinder.getCommandSwitchExistsBottom(0));
+        out.writeField('M', ctx.getZcode().getModuleFinder().getCommandSwitchExistsBottom(0));
     }
 
 }

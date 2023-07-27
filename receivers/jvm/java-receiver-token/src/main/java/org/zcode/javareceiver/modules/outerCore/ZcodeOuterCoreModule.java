@@ -4,7 +4,7 @@ import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeAddressingContext;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.modules.ZcodeModule;
-import org.zcode.javareceiver.modules.core.ZcodeGuidCommand;
+import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
 
 public class ZcodeOuterCoreModule implements ZcodeModule {
 
@@ -24,7 +24,7 @@ public class ZcodeOuterCoreModule implements ZcodeModule {
             ZcodeExtendedCapabilitiesCommand.execute(ctx);
             break;
         case 0x4:
-            ZcodeGuidCommand.set(ctx);
+            ((ZcodeCoreModule) ctx.getZcode().getModuleFinder().getModule(0)).getGuidCmd().set(ctx);
             break;
         case 0x8:
             ZcodeChannelSetupCommand.execute(ctx);
