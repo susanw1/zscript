@@ -84,8 +84,10 @@ public class ZcodeAction {
             }
             break;
         case END_SEQUENCE:
-            out.endSequence();
-            out.close();
+            if (out.isOpen()) {
+                out.endSequence();
+                out.close();
+            }
             parseState.unlock(zcode);
             break;
         case CLOSE_PAREN:

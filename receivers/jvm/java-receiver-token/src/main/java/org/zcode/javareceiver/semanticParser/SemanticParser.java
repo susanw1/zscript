@@ -127,9 +127,13 @@ public class SemanticParser implements ParseState, ContextView {
             return actionFactory.addressingMoveAlong(this);
 
         case ADDRESSING_COMPLETE:
-            // TODO should be skip to sequence end....?
-            seekMarker(false, true);
-            flushMarkerAndSeekNext();
+            seekMarker(true, true);
+            if (haveSeqEndMarker) {
+                flushMarkerAndSeekNext();
+                resetToSequence();
+            } else {
+                state = State.SEQUENCE_SKIP;
+            }
             return actionFactory.endSequence(this);
 
         case COMMAND_INCOMPLETE:
@@ -204,8 +208,6 @@ public class SemanticParser implements ParseState, ContextView {
         switch (type) {
         case INVOKE_ADDRESSING:
         case ADDRESSING_MOVEALONG:
-            // TODO ??? Looks wrong...
-//            state = (error == NO_ERROR) ? State.POSTSEQUENCE : State.ERROR;
             break;
         case END_SEQUENCE:
             resetToSequence();

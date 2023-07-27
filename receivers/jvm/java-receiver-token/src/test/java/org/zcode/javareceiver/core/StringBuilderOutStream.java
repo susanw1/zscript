@@ -4,19 +4,22 @@ package org.zcode.javareceiver.core;
  * Utility class for helping tests: ZcodeAbstractOutStream implementation that collects bytes
  */
 public class StringBuilderOutStream extends ZcodeAbstractOutStream {
-    StringBuilder str = new StringBuilder();
+    StringBuilder str  = new StringBuilder();
+    boolean       open = false;
 
     @Override
     public void open() {
+        open = true;
     }
 
     @Override
     public void close() {
+        open = false;
     }
 
     @Override
     public boolean isOpen() {
-        return false;
+        return open;
     }
 
     @Override
