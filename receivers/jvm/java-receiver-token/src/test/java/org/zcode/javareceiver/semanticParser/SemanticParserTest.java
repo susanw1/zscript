@@ -87,7 +87,7 @@ class SemanticParserTest {
 
         final ZcodeAction a2 = parser.getAction();
         assertThat(a2.getType()).isEqualTo(RUN_COMMAND);
-        assertThat(a2.getInfo()).isEqualTo(ZcodeTokenizer.CMD_END_ANDTHEN);
+//        assertThat(a2.getInfo()).isEqualTo(ZcodeTokenizer.CMD_END_ANDTHEN);
         a2.performAction(zcode, outStream);
         assertThat(outStream.getStringAndReset()).isEqualTo("&BS");
         assertThat(parser.getState()).isEqualTo(State.COMMAND_COMPLETE);

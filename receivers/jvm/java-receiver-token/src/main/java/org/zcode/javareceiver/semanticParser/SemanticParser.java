@@ -2,7 +2,6 @@ package org.zcode.javareceiver.semanticParser;
 
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeLockSet;
@@ -18,21 +17,181 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenBufferFlags;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class SemanticParser implements ParseState, ContextView {
-    // 16 booleans, 5 uint8_t, 1 uint16_t = 9 bytes of status
+    // 6 bytes + 1 pointer
 
     private final TokenReader        reader;
     private final ZcodeActionFactory actionFactory;
 
-    // Marker status
-    private byte    nextMarker       = 0;    // 5 bit really
-    private boolean haveNextMarker   = false;
-    private byte    seqEndMarker     = 0;    // 4 bits really
-    private boolean haveSeqEndMarker = false;
+    private class MarkerCache {
+        private byte    nextMarker       = 0;    // 5 bit really
+        private boolean haveNextMarker   = false;
+        private byte    seqEndMarker     = 0;    // 4 bits really
+        private boolean haveSeqEndMarker = false;
 
-    private int     parenCounter  = 0;
+        /**
+         * Checks the buffer's flags and makes sure we've identified the next marker and the next sequence marker, if available.
+         *
+         * Makes sure the buffer flag's readerBlocked status is up-to-date.
+         */
+        private void dealWithTokenBufferFlags() {
+            final ZcodeTokenBufferFlags flags = reader.getFlags();
+
+            if (state != State.COMMAND_INCOMPLETE && state != State.COMMAND_NEEDS_ACTION && flags.getAndClearSeqMarkerWritten()) {
+                if (!haveSeqEndMarker) {
+                    seekMarker(true, false);
+                }
+            }
+            if (flags.getAndClearMarkerWritten()) {
+                if (!haveNextMarker) {
+                    seekMarker(false, false);
+                }
+            }
+
+            if (haveNextMarker) {
+                flags.clearReaderBlocked();
+            } else {
+                flags.setReaderBlocked();
+            }
+        }
+
+        /**
+         * Scans the reader for the next Marker (or sequence-end Marker). If {@code flush} is set, then all tokens prior to the one returned are flushed.
+         *
+         * Also, in all circumstances, it ensures that the Marker cache values {@link #haveSeqEndMarker}/{@link #seqEndMarker} and {@link #haveNextMarker}/{@link #nextMarker} are
+         * all correct and up-to-date.
+         *
+         * If buffer's reader is pointing at a matching Marker already, it just returns that Marker (flush has no effect).
+         *
+         * @param seekSeqEnd if true, seeks the sequence-end marker, otherwise just seeks any marker
+         * @param flush      enables flushing of tokens (up to, but not including the Marker), otherwise buffer is unchanged
+         *
+         * @return the Marker token that was found, or empty if none
+         */
+        private Optional<ReadToken> seekMarker(final boolean seekSeqEnd, final boolean flush) {
+            final TokenBufferIterator it = reader.iterator();
+            Optional<ReadToken>       token;
+
+            Predicate<ReadToken> p = seekSeqEnd ? ReadToken::isSequenceEndMarker : ReadToken::isMarker;
+
+            boolean first = true;
+            for (token = it.next(); token.filter(p.negate()).isPresent(); token = it.next()) {
+                if (flush) {
+                    it.flushBuffer();
+                } else if (first && seekSeqEnd && token.get().isMarker()) {
+                    first = false;
+                    nextMarker = token.get().getKey();
+                    haveNextMarker = true;
+                }
+            }
+
+            if (seekSeqEnd) {
+                if (token.isPresent()) {
+                    assignSeqEndMarker(token.get().getKey());// Literally only this case can happen mid command to cause an error...
+                } else {
+                    haveSeqEndMarker = false;
+                }
+                if (flush || first) {
+                    haveNextMarker = haveSeqEndMarker;
+                    nextMarker = seqEndMarker;
+                }
+            } else {
+                haveNextMarker = token.isPresent();
+                if (token.isPresent()) {
+                    nextMarker = token.get().getKey();
+                    if (ZcodeTokenBuffer.isSequenceEndMarker(nextMarker)) {
+                        assignSeqEndMarker(nextMarker);
+                    }
+                }
+            }
+
+            return token;
+        }
+
+        /**
+         * Sets <i>seqEndMarker</i>, <i>haveSeqEndMarker</i>, and (if not normal end) <i>error</i> appropriately.
+         *
+         * @param newSeqEndMarker the new end-marker to assign
+         */
+        private void assignSeqEndMarker(byte newSeqEndMarker) {
+            seqEndMarker = newSeqEndMarker;
+            haveSeqEndMarker = true;
+            if (newSeqEndMarker != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
+                state = State.ERROR_TOKENIZER;
+            }
+        }
+
+        /**
+         * Used when reader is pointing at a marker: flush the marker and immediately seek the next marker to update cached marker state.
+         */
+        public void flushMarkerAndSeekNext() {
+            boolean isSeq = reader.getFirstReadToken().isSequenceEndMarker();
+            reader.flushFirstReadToken(); // unsafe
+            seekMarker(isSeq, false); // safe - cached marker state updated
+        }
+
+        /**
+         * Checks whether the reader has a marker, and returns WAIT_FOR_TOKENS if not
+         */
+        public ActionType checkNeedsTokens() {
+            if (!haveNextMarker || !haveSeqEndMarker) {
+                dealWithTokenBufferFlags();
+                if (!haveNextMarker) {
+                    return ActionType.WAIT_FOR_TOKENS;
+                }
+            }
+            return ActionType.INVALID;
+        }
+
+        /**
+         * Attempts to skip the sequence, flushing the marker if it is reached. Returns true if the reader is now on a new sequence.
+         */
+        public boolean skipSequence() {
+            seekMarker(true, true);
+            if (haveSeqEndMarker) {
+                flushMarkerAndSeekNext();
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * Drops as many tokens inside the sequence as possible, without discarding the sequence end marker.
+         */
+        public void discardSequenceToEnd() {
+            seekMarker(true, true);
+        }
+
+        /**
+         * Returns the next marker, and discards tokens up to, but not including it
+         */
+        public byte skipToAndGetNextMarker() {
+            markerCache.seekMarker(false, true);
+            if (!haveNextMarker) {
+                throw new IllegalStateException();
+            }
+            return nextMarker;
+        }
+
+        /**
+         * Operates on the first token on the reader. If it is a marker, returns and discards it, otherwise returns 0 and does nothing.
+         */
+        public byte takeCurrentMarker() {
+            byte marker = reader.getFirstKey();
+            if (!ZcodeTokenBuffer.isMarker(marker)) {
+                return 0;
+            }
+            flushMarkerAndSeekNext();
+            return marker;
+        }
+    }
+
+    // Marker status
+    private final MarkerCache markerCache = new MarkerCache();
+
+    private int     parenCounter  = 0;    // 8 bit
     private boolean hasSentStatus = false;
 
-    // Sequence-start info - note, booleans are only usefully "true" during PRESEQUENCE - remove?
+    // Sequence-start info - note, booleans are only usefully "true" during PRESEQUENCE - merge into state?
     private ZcodeLockSet locks    = ZcodeLockSet.allLocked();
     private boolean      hasLocks = false;
     private int          echo     = 0;                       // 16 bit
@@ -42,7 +201,9 @@ public class SemanticParser implements ParseState, ContextView {
     private boolean activated = false;
     private boolean locked    = false;
 
-    private ZcodeAction currentAction;
+    private ActionType currentAction; // 4 bits
+
+    private State state; // 5 bit
 
     enum State {
         PRESEQUENCE,
@@ -68,12 +229,10 @@ public class SemanticParser implements ParseState, ContextView {
                 || state == State.ERROR_STATUS;
     }
 
-    private State state;
-
     public SemanticParser(final TokenReader reader, ZcodeActionFactory actionFactory) {
         this.reader = reader;
         this.actionFactory = actionFactory;
-        this.currentAction = null;
+        this.currentAction = ActionType.INVALID;
         this.state = State.PRESEQUENCE;
     }
 
@@ -89,21 +248,17 @@ public class SemanticParser implements ParseState, ContextView {
      */
     public ZcodeAction getAction() {
         // currentAction is always nulled after action execution
-        while (currentAction == null || currentAction.getType() == ActionType.GO_AROUND) {
-            if (!haveNextMarker || !haveSeqEndMarker) {
-                dealWithTokenBufferFlags();
-                if (!haveNextMarker) {
-                    // future optimization: if we're in a SEQUENCE_SKIP state, we could burn off tokens regardless to empty the buffer?
-                    return actionFactory.waitForTokens(this);
-                }
+        while (currentAction == ActionType.INVALID || currentAction == ActionType.GO_AROUND) {
+            if (markerCache.checkNeedsTokens() == ActionType.WAIT_FOR_TOKENS) {
+                return actionFactory.waitForTokens(this);
             }
             // We now haveNextMarker (or we returned to wait for tokens).
             currentAction = findNextAction();
         }
-        return currentAction;
+        return actionFactory.ofType(this, currentAction);
     }
 
-    private ZcodeAction findNextAction() {
+    private ActionType findNextAction() {
         switch (state) {
         case PRESEQUENCE:
             // expecting buffer to be pointing at start of sequence.
@@ -111,99 +266,83 @@ public class SemanticParser implements ParseState, ContextView {
             if (state == State.PRESEQUENCE) {
                 // expecting buffer to be pointing at first token after lock/echo preamble.
                 if (reader.getFirstReadToken().getKey() == Zchars.Z_ADDRESSING) {
-                    return setStateAndAction(State.ADDRESSING_INCOMPLETE, () -> actionFactory.addressing(this));
+                    return setStateAndAction(State.ADDRESSING_INCOMPLETE, ActionType.INVOKE_ADDRESSING);
                 }
                 // Until first command is run (and starts presuming it will complete), assert that the command state is INcomplete
-                return setStateAndAction(State.COMMAND_INCOMPLETE, () -> actionFactory.firstCommand(this));
+                return setStateAndAction(State.COMMAND_INCOMPLETE, ActionType.RUN_FIRST_COMMAND);
             }
             // force iteration to handle ERROR / SEQUENCE_SKIP
-            return actionFactory.goAround(this);
+            return ActionType.GO_AROUND;
 
         case ADDRESSING_INCOMPLETE:
-            return actionFactory.waitForAsync(this);
+            return ActionType.WAIT_FOR_ASYNC;
 
         case ADDRESSING_NEEDS_ACTION:
             state = State.ADDRESSING_INCOMPLETE;
-            return actionFactory.addressingMoveAlong(this);
+            return ActionType.ADDRESSING_MOVEALONG;
 
         case ADDRESSING_COMPLETE:
-            seekMarker(true, true);
-            if (haveSeqEndMarker) {
-                flushMarkerAndSeekNext();
+            if (markerCache.skipSequence()) {
                 resetToSequence();
             } else {
                 state = State.SEQUENCE_SKIP;
             }
-            return actionFactory.endSequence(this);
+            return ActionType.END_SEQUENCE;
 
         case COMMAND_INCOMPLETE:
-            return actionFactory.waitForAsync(this);
+            return ActionType.WAIT_FOR_ASYNC;
 
         case COMMAND_NEEDS_ACTION:
             state = State.COMMAND_INCOMPLETE;
-            return actionFactory.commandMoveAlong(this);
+            return ActionType.COMMAND_MOVEALONG;
 
         case COMMAND_COMPLETE_NEEDS_TOKENS:
         case COMMAND_COMPLETE:
         case COMMAND_FAILED:
         case COMMAND_SKIP:
             // record the marker we know is at the end of the last command (and, def not an error), then move past it
-            ReadToken marker = seekMarker(false, true).get();
-            ZcodeAction action = flowControl(marker.getKey());
+            ActionType action = flowControl(markerCache.skipToAndGetNextMarker());
             if (state == State.COMMAND_INCOMPLETE && !seekSecondMarker()) {
-                return setStateAndAction(State.COMMAND_COMPLETE_NEEDS_TOKENS, () -> actionFactory.waitForTokens(this));
+                return setStateAndAction(State.COMMAND_COMPLETE_NEEDS_TOKENS, ActionType.WAIT_FOR_TOKENS);
             } else {
-                flushMarkerAndSeekNext();
+                if (action != ActionType.RUN_COMMAND) {
+                    markerCache.flushMarkerAndSeekNext();
+                }
                 return action;
             }
 
         case SEQUENCE_SKIP:
-            seekMarker(true, true);
-            if (!haveSeqEndMarker) {
-                return actionFactory.waitForTokens(this);
+            if (!markerCache.skipSequence()) {
+                return ActionType.WAIT_FOR_TOKENS;
             }
-
-            // flush the end marker - buffer is now pointing at the next sequence, if any
-            flushMarkerAndSeekNext();
             resetToSequence();
-            return actionFactory.goAround(this);
+            return ActionType.GO_AROUND;
 
         case ERROR_COMMENT_WITH_SEQ_FIELDS:
         case ERROR_LOCKS:
         case ERROR_MULTIPLE_ECHO:
         case ERROR_TOKENIZER:
-            seekMarker(true, true);
-            return actionFactory.error(this);
+            markerCache.discardSequenceToEnd();
+            return ActionType.ERROR;
         case ERROR_STATUS:
-            seekMarker(true, true);
-            if (haveSeqEndMarker) {
-                flushMarkerAndSeekNext();
-                return actionFactory.endSequence(this); // end sequence isn't quite right here, as the actionPerformed code is completely wrong
+            if (markerCache.skipSequence()) {
+                return ActionType.END_SEQUENCE;
             } else {
-                return actionFactory.waitForTokens(this);
+                return ActionType.WAIT_FOR_TOKENS;
             }
         default:
             throw new IllegalStateException();
         }
     }
 
-    /**
-     * Used when reader is pointing at a marker: flush the marker and immediately seek the next marker to update cached marker state.
-     */
-    private void flushMarkerAndSeekNext() {
-        boolean isSeq = reader.getFirstReadToken().isSequenceEndMarker();
-        reader.flushFirstReadToken(); // unsafe
-        seekMarker(isSeq, false); // safe - cached marker state updated
-    }
-
-    private ZcodeAction setStateAndAction(State state, Supplier<ZcodeAction> s) {
+    private ActionType setStateAndAction(State state, ActionType a) {
         this.state = State.COMMAND_INCOMPLETE;
-        return s.get();
+        return a;
     }
 
     @Override
     public void actionPerformed(ActionType type) {
-        currentAction = null;
+        currentAction = ActionType.INVALID;
 
         switch (type) {
         case INVOKE_ADDRESSING:
@@ -214,12 +353,10 @@ public class SemanticParser implements ParseState, ContextView {
 //            seekMarker(true, false); // Might not be necessary?
             break;
         case ERROR:
-            seekMarker(true, true);
-            if (!haveSeqEndMarker) {
-                state = State.SEQUENCE_SKIP;
-            } else {
-                flushMarkerAndSeekNext();
+            if (markerCache.skipSequence()) {
                 resetToSequence();
+            } else {
+                state = State.SEQUENCE_SKIP;
             }
             break;
         case CLOSE_PAREN:
@@ -231,6 +368,8 @@ public class SemanticParser implements ParseState, ContextView {
         case WAIT_FOR_ASYNC:
         case GO_AROUND:
             break;
+        case INVALID:
+            throw new IllegalStateException();
         }
     }
 
@@ -257,18 +396,18 @@ public class SemanticParser implements ParseState, ContextView {
      * @param marker the logical operator ending the previous command
      * @return an appropriate action: END_SEQUENCE, RUN_COMMAND, CLOSE_PAREN, GO_AROUND
      */
-    private ZcodeAction flowControl(final byte marker) {
+    private ActionType flowControl(final byte marker) {
         if (isInErrorState()) {
-            return actionFactory.goAround(this);
+            return ActionType.GO_AROUND;
         }
 
         if (ZcodeTokenBuffer.isSequenceEndMarker(marker)) {
             // only expects \n here - other error tokens are handled elsewhere in ERROR state
-            return actionFactory.endSequence(this);
+            return ActionType.END_SEQUENCE;
         }
 
         if (state == State.COMMAND_COMPLETE_NEEDS_TOKENS) {
-            return actionFactory.runCommand(this, marker);
+            return ActionType.RUN_COMMAND;
         }
 
         if (marker == ZcodeTokenizer.CMD_END_ORELSE) {
@@ -291,7 +430,7 @@ public class SemanticParser implements ParseState, ContextView {
             if (state == State.COMMAND_FAILED) {
                 // keep track of matched parens that we've skipped; only send ')' to match '(' for commands that were executed
                 if (parenCounter == 0) {
-                    return actionFactory.closeParen(this);
+                    return ActionType.CLOSE_PAREN;
                 }
                 parenCounter--;
             } else if (state == State.COMMAND_SKIP) {
@@ -308,103 +447,11 @@ public class SemanticParser implements ParseState, ContextView {
         if (state == State.COMMAND_COMPLETE) {
             hasSentStatus = false;
             state = State.COMMAND_INCOMPLETE;
-            return actionFactory.runCommand(this, marker);
+            return ActionType.RUN_COMMAND;
         }
 
         // this happens when we're skipping cmds
-        return actionFactory.goAround(this);
-    }
-
-    /**
-     * Checks the buffer's flags and makes sure we've identified the next marker and the next sequence marker, if available.
-     *
-     * Makes sure the buffer flag's readerBlocked status is up-to-date.
-     */
-    private void dealWithTokenBufferFlags() {
-        final ZcodeTokenBufferFlags flags = reader.getFlags();
-
-        if (state != State.COMMAND_INCOMPLETE && state != State.COMMAND_NEEDS_ACTION && flags.getAndClearSeqMarkerWritten()) {
-            if (!haveSeqEndMarker) {
-                seekMarker(true, false);
-            }
-        }
-        if (flags.getAndClearMarkerWritten()) {
-            if (!haveNextMarker) {
-                seekMarker(false, false);
-            }
-        }
-
-        if (haveNextMarker) {
-            flags.clearReaderBlocked();
-        } else {
-            flags.setReaderBlocked();
-        }
-    }
-
-    /**
-     * Sets <i>seqEndMarker</i>, <i>haveSeqEndMarker</i>, and (if not normal end) <i>error</i> appropriately.
-     *
-     * @param newSeqEndMarker the new end-marker to assign
-     */
-    private void assignSeqEndMarker(byte newSeqEndMarker) {
-        seqEndMarker = newSeqEndMarker;
-        haveSeqEndMarker = true;
-        if (newSeqEndMarker != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
-            state = State.ERROR_TOKENIZER;
-        }
-    }
-
-    /**
-     * Scans the reader for the next Marker (or sequence-end Marker). If {@code flush} is set, then all tokens prior to the one returned are flushed.
-     *
-     * Also, in all circumstances, it ensures that the Marker cache values {@link #haveSeqEndMarker}/{@link #seqEndMarker} and {@link #haveNextMarker}/{@link #nextMarker} are all
-     * correct and up-to-date.
-     *
-     * If buffer's reader is pointing at a matching Marker already, it just returns that Marker (flush has no effect).
-     *
-     * @param seekSeqEnd if true, seeks the sequence-end marker, otherwise just seeks any marker
-     * @param flush      enables flushing of tokens (up to, but not including the Marker), otherwise buffer is unchanged
-     *
-     * @return the Marker token that was found, or empty if none
-     */
-    private Optional<ReadToken> seekMarker(final boolean seekSeqEnd, final boolean flush) {
-        final TokenBufferIterator it = reader.iterator();
-        Optional<ReadToken>       token;
-
-        Predicate<ReadToken> p = seekSeqEnd ? ReadToken::isSequenceEndMarker : ReadToken::isMarker;
-
-        boolean first = true;
-        for (token = it.next(); token.filter(p.negate()).isPresent(); token = it.next()) {
-            if (flush) {
-                it.flushBuffer();
-            } else if (first && seekSeqEnd && token.get().isMarker()) {
-                first = false;
-                nextMarker = token.get().getKey();
-                haveNextMarker = true;
-            }
-        }
-
-        if (seekSeqEnd) {
-            if (token.isPresent()) {
-                assignSeqEndMarker(token.get().getKey());// Literally only this case can happen mid command to cause an error...
-            } else {
-                haveSeqEndMarker = false;
-            }
-            if (flush || first) {
-                haveNextMarker = haveSeqEndMarker;
-                nextMarker = seqEndMarker;
-            }
-        } else {
-            haveNextMarker = token.isPresent();
-            if (token.isPresent()) {
-                nextMarker = token.get().getKey();
-                if (ZcodeTokenBuffer.isSequenceEndMarker(nextMarker)) {
-                    assignSeqEndMarker(nextMarker);
-                }
-            }
-        }
-
-        return token;
+        return ActionType.GO_AROUND;
     }
 
     /**
@@ -460,7 +507,7 @@ public class SemanticParser implements ParseState, ContextView {
         }
 
         if (first.getKey() == Zchars.Z_COMMENT) {
-            if (nextMarker != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
+            if (markerCache.nextMarker != ZcodeTokenizer.NORMAL_SEQUENCE_END) {
                 state = State.ERROR_TOKENIZER;
                 return;
             }
@@ -482,6 +529,11 @@ public class SemanticParser implements ParseState, ContextView {
 
     ////////////////////////////////
     // Sequence Start state: locks and echo. Defined in {@link ParseState}.
+
+    @Override
+    public byte takeCurrentMarker() {
+        return markerCache.takeCurrentMarker();
+    }
 
     @Override
     public byte getErrorStatus() {

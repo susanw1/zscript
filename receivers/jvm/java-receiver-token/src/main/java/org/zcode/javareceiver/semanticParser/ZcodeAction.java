@@ -11,6 +11,7 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class ZcodeAction {
     enum ActionType {
+        INVALID,
         GO_AROUND,
         WAIT_FOR_TOKENS,
         WAIT_FOR_ASYNC,
@@ -24,14 +25,12 @@ public class ZcodeAction {
         CLOSE_PAREN
     }
 
-    private final ActionType type;
     private final ParseState parseState;
-    private final byte       info;
+    private final ActionType type;
 
-    ZcodeAction(ActionType type, ParseState parser, byte info) {
+    ZcodeAction(ActionType type, ParseState parser) {
         this.parseState = parser;
         this.type = type;
-        this.info = info;
     }
 
     public boolean isEmptyAction() {
@@ -67,7 +66,9 @@ public class ZcodeAction {
             startResponse(out, (byte) 0);
             // fall though
         case RUN_COMMAND:
-            sendNormalMarkerPrefix(out, info);
+            if (type == ActionType.RUN_COMMAND) {
+                sendNormalMarkerPrefix(out);
+            }
             ZcodeCommandContext cmdCtx = new ZcodeCommandContext((ContextView) parseState, out);
             if (cmdCtx.verify()) {
                 ZcodeCommandFinder.execute(cmdCtx);
@@ -97,6 +98,8 @@ public class ZcodeAction {
         case WAIT_FOR_TOKENS:
         case WAIT_FOR_ASYNC:
             break;
+        case INVALID:
+            throw new IllegalStateException();
         }
     }
 
@@ -110,17 +113,18 @@ public class ZcodeAction {
         }
     }
 
-    private static void sendNormalMarkerPrefix(ZcodeOutStream out, byte info) {
-        if (info != 0) {
-            if (info == ZcodeTokenizer.CMD_END_ANDTHEN) {
+    private void sendNormalMarkerPrefix(ZcodeOutStream out) {
+        byte marker = parseState.takeCurrentMarker();
+        if (marker != 0) {
+            if (marker == ZcodeTokenizer.CMD_END_ANDTHEN) {
                 out.writeAndThen();
-            } else if (info == ZcodeTokenizer.CMD_END_ORELSE) {
+            } else if (marker == ZcodeTokenizer.CMD_END_ORELSE) {
                 out.writeOrElse();
-            } else if (info == ZcodeTokenizer.CMD_END_OPEN_PAREN) {
+            } else if (marker == ZcodeTokenizer.CMD_END_OPEN_PAREN) {
                 out.writeOpenParen();
-            } else if (info == ZcodeTokenizer.CMD_END_CLOSE_PAREN) {
+            } else if (marker == ZcodeTokenizer.CMD_END_CLOSE_PAREN) {
                 out.writeCloseParen();
-            } else if (info == ZcodeTokenizer.NORMAL_SEQUENCE_END) {
+            } else if (marker == ZcodeTokenizer.NORMAL_SEQUENCE_END) {
             } else {
                 throw new IllegalStateException("Unknown marker");
             }
@@ -129,7 +133,7 @@ public class ZcodeAction {
 
     @Override
     public String toString() {
-        return "ActionType(" + type + ", info=" + Byte.toUnsignedInt(info) + ")";
+        return "ActionType(" + type + ")";
     }
 
     public boolean canLock(Zcode zcode) {
@@ -146,7 +150,7 @@ public class ZcodeAction {
     }
 
     // visible for testing
-    byte getInfo() {
-        return info;
-    }
+//    byte getInfo() {
+//        return info;
+//    }
 }

@@ -11,6 +11,8 @@ public interface ParseState {
 
     void actionPerformed(ActionType type);
 
+    byte takeCurrentMarker();
+
     boolean hasSentStatus();
 
     boolean hasEcho();
