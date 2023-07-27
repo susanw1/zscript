@@ -42,12 +42,10 @@ public class ZcodeAction {
         parseState.actionPerformed(type);
     }
 
-    // TODO: response type
-    // TODO: close out stream
     protected void performActionImpl(Zcode zcode, ZcodeOutStream out) {
         switch (type) {
         case ERROR:
-            startResponse(out, (byte) 0x10);
+            startResponse(out, (byte) 0x10); // TODO: debate
             out.writeField('S', parseState.getErrorStatus());
             out.endSequence();
             out.close();

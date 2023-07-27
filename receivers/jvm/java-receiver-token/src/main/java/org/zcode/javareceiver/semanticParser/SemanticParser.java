@@ -266,10 +266,12 @@ public class SemanticParser implements ParseState, ContextView {
             if (state == State.PRESEQUENCE) {
                 // expecting buffer to be pointing at first token after lock/echo preamble.
                 if (reader.getFirstReadToken().getKey() == Zchars.Z_ADDRESSING) {
-                    return setStateAndAction(State.ADDRESSING_INCOMPLETE, ActionType.INVOKE_ADDRESSING);
+                    state = State.COMMAND_INCOMPLETE;
+                    return ActionType.INVOKE_ADDRESSING;
                 }
                 // Until first command is run (and starts presuming it will complete), assert that the command state is INcomplete
-                return setStateAndAction(State.COMMAND_INCOMPLETE, ActionType.RUN_FIRST_COMMAND);
+                state = State.COMMAND_INCOMPLETE;
+                return ActionType.RUN_FIRST_COMMAND;
             }
             // force iteration to handle ERROR / SEQUENCE_SKIP
             return ActionType.GO_AROUND;
@@ -282,11 +284,7 @@ public class SemanticParser implements ParseState, ContextView {
             return ActionType.ADDRESSING_MOVEALONG;
 
         case ADDRESSING_COMPLETE:
-            if (markerCache.skipSequence()) {
-                resetToSequence();
-            } else {
-                state = State.SEQUENCE_SKIP;
-            }
+            state = State.SEQUENCE_SKIP;
             return ActionType.END_SEQUENCE;
 
         case COMMAND_INCOMPLETE:
@@ -303,7 +301,8 @@ public class SemanticParser implements ParseState, ContextView {
             // record the marker we know is at the end of the last command (and, def not an error), then move past it
             ActionType action = flowControl(markerCache.skipToAndGetNextMarker());
             if (state == State.COMMAND_INCOMPLETE && !seekSecondMarker()) {
-                return setStateAndAction(State.COMMAND_COMPLETE_NEEDS_TOKENS, ActionType.WAIT_FOR_TOKENS);
+                state = State.COMMAND_COMPLETE_NEEDS_TOKENS;
+                return ActionType.WAIT_FOR_TOKENS;
             } else {
                 if (action != ActionType.RUN_COMMAND) {
                     markerCache.flushMarkerAndSeekNext();
@@ -335,19 +334,11 @@ public class SemanticParser implements ParseState, ContextView {
         }
     }
 
-    private ActionType setStateAndAction(State state, ActionType a) {
-        this.state = State.COMMAND_INCOMPLETE;
-        return a;
-    }
-
     @Override
     public void actionPerformed(ActionType type) {
         currentAction = ActionType.INVALID;
 
         switch (type) {
-        case INVOKE_ADDRESSING:
-        case ADDRESSING_MOVEALONG:
-            break;
         case END_SEQUENCE:
             resetToSequence();
 //            seekMarker(true, false); // Might not be necessary?
@@ -358,6 +349,9 @@ public class SemanticParser implements ParseState, ContextView {
             } else {
                 state = State.SEQUENCE_SKIP;
             }
+            break;
+        case INVOKE_ADDRESSING:
+        case ADDRESSING_MOVEALONG:
             break;
         case CLOSE_PAREN:
         case RUN_FIRST_COMMAND:
