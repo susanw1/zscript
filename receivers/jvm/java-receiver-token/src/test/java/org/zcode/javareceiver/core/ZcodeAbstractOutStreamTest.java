@@ -5,78 +5,51 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
 public class ZcodeAbstractOutStreamTest {
-    private class ZcodeStringOut extends ZcodeAbstractOutStream {
-        StringBuilder str = new StringBuilder();
-
-        @Override
-        public void open() {
-        }
-
-        @Override
-        public void close() {
-        }
-
-        @Override
-        public boolean isOpen() {
-            return false;
-        }
-
-        @Override
-        public void writeByte(byte b) {
-            str.append((char) b);
-        }
-
-        public String getString() {
-            return str.toString();
-        }
-    }
-
     private char toHexChar(byte v) {
         if (v < 10) {
             return (char) ('0' + v);
-        } else {
-            return (char) ('a' + v - 10);
         }
+        return (char) ('a' + v - 10);
     }
 
     @Test
     void shouldWriteCloseParen() {
-        ZcodeStringOut stOut = new ZcodeStringOut();
+        StringBuilderOutStream stOut = new StringBuilderOutStream();
         stOut.writeCloseParen();
         assertThat(stOut.getString()).isEqualTo(")");
     }
 
     @Test
     void shouldWriteOpenParen() {
-        ZcodeStringOut stOut = new ZcodeStringOut();
+        StringBuilderOutStream stOut = new StringBuilderOutStream();
         stOut.writeOpenParen();
         assertThat(stOut.getString()).isEqualTo("(");
     }
 
     @Test
     void shouldWriteAnd() {
-        ZcodeStringOut stOut = new ZcodeStringOut();
+        StringBuilderOutStream stOut = new StringBuilderOutStream();
         stOut.writeAndThen();
         assertThat(stOut.getString()).isEqualTo("&");
     }
 
     @Test
     void shouldWriteOr() {
-        ZcodeStringOut stOut = new ZcodeStringOut();
+        StringBuilderOutStream stOut = new StringBuilderOutStream();
         stOut.writeOrElse();
         assertThat(stOut.getString()).isEqualTo("|");
     }
 
     @Test
     void shouldWriteEndOfSeq() {
-        ZcodeStringOut stOut = new ZcodeStringOut();
+        StringBuilderOutStream stOut = new StringBuilderOutStream();
         stOut.endSequence();
         assertThat(stOut.getString()).isEqualTo("\n");
     }
 
     @Test
     void shouldWriteAnyLengthField() {
-        ZcodeStringOut stOut = new ZcodeStringOut();
+        StringBuilderOutStream stOut = new StringBuilderOutStream();
         stOut.writeField('A', 0);
         stOut.writeField('B', 0x1);
         stOut.writeField('C', 0x10);
@@ -87,7 +60,7 @@ public class ZcodeAbstractOutStreamTest {
 
     @Test
     void shouldWriteBigField() {
-        ZcodeStringOut stOut    = new ZcodeStringOut();
+        StringBuilderOutStream stOut    = new StringBuilderOutStream();
         byte[]         data     = new byte[256];
         StringBuilder  expected = new StringBuilder();
         expected.append('+');
@@ -104,7 +77,7 @@ public class ZcodeAbstractOutStreamTest {
 
     @Test
     void shouldWriteStringField() {
-        ZcodeStringOut stOut    = new ZcodeStringOut();
+        StringBuilderOutStream stOut    = new StringBuilderOutStream();
         byte[]         data     = new byte[256];
         StringBuilder  expected = new StringBuilder();
         expected.append('"');
@@ -129,7 +102,7 @@ public class ZcodeAbstractOutStreamTest {
 
     @Test
     void shouldWriteStringFieldAsString() {
-        ZcodeStringOut stOut = new ZcodeStringOut();
+        StringBuilderOutStream stOut = new StringBuilderOutStream();
         stOut.writeString("Hello World");
         assertThat(stOut.getString()).isEqualTo("\"Hello World\"");
     }

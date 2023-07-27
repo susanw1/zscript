@@ -1,45 +1,28 @@
 package org.zcode.javareceiver.semanticParser;
 
-import org.zcode.javareceiver.core.ZcodeLockSet;
-import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader;
+import org.zcode.javareceiver.core.Zcode;
+import org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType;
 
 /**
- * Defines methods accessed by ZcodeActions and Command/Address contexts.
+ * Defines methods accessed by ZcodeActions.
  */
 public interface ParseState {
-    TokenReader getReader();
+    byte getErrorStatus();
 
-    void clearFirstCommand();
+    void actionPerformed(ActionType type);
 
-    void softFail();
+    byte takeCurrentMarker();
 
-    void error();
-
-    void errorSent();
-
-    void activate();
-
-    boolean isActivated();
-
-    void setComplete(boolean b);
-
-    boolean isComplete();
-
-    void setStarted();
+    boolean hasSentStatus();
 
     boolean hasEcho();
 
     int getEcho();
 
-    void seqEndSent();
+    boolean canLock(Zcode zcode);
 
-    ZcodeLockSet getLocks();
+    boolean lock(Zcode zcode);
 
-    void setLocked(boolean b);
+    void unlock(Zcode zcode);
 
-    boolean isLocked();
-
-    void closeParenSent();
-
-    byte getSeqEndMarker();
 }

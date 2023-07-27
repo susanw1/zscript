@@ -7,6 +7,9 @@ import org.zcode.javareceiver.modules.ZcodeModule;
 import org.zcode.javareceiver.tokenizer.BlockIterator;
 
 public class ZcodeCoreModule implements ZcodeModule {
+    ZcodeCapabilitiesCommand capabilitiesCmd = new ZcodeCapabilitiesCommand();
+    ZcodeGuidCommand         guidCmd         = new ZcodeGuidCommand();
+    ZcodeRandomCodeCommand   codeCmd         = new ZcodeRandomCodeCommand();
 
     public static int getCommands() {
         return 0x3007;
@@ -21,7 +24,7 @@ public class ZcodeCoreModule implements ZcodeModule {
     public void execute(ZcodeCommandContext ctx, int command) {
         switch (command) {
         case 0x0:
-            ZcodeCapabilitiesCommand.execute(ctx);
+            capabilitiesCmd.execute(ctx);
             break;
         case 0x1:
             ZcodeEchoCommand.execute(ctx);
@@ -30,16 +33,16 @@ public class ZcodeCoreModule implements ZcodeModule {
             ZcodeActivateCommand.execute(ctx);
             break;
         case 0x4:
-            ZcodeGuidCommand.fetch(ctx);
+            guidCmd.fetch(ctx);
             break;
         case 0x8:
             ZcodeChannelInfoCommand.execute(ctx);
             break;
         case 0xc:
-            ZcodeRandomCodeCommand.make(ctx);
+            codeCmd.make(ctx);
             break;
         case 0xd:
-            ZcodeRandomCodeCommand.match(ctx);
+            codeCmd.match(ctx);
             break;
         default:
             ctx.status(ZcodeStatus.COMMAND_NOT_FOUND);
@@ -56,10 +59,22 @@ public class ZcodeCoreModule implements ZcodeModule {
             byte b = iterator.next();
             System.out.print((char) b);
         }
-
     }
 
     @Override
     public void addressMoveAlong(ZcodeAddressingContext ctx) {
     }
+
+    public ZcodeCapabilitiesCommand getCapabilitiesCmd() {
+        return capabilitiesCmd;
+    }
+
+    public ZcodeRandomCodeCommand getCodeCmd() {
+        return codeCmd;
+    }
+
+    public ZcodeGuidCommand getGuidCmd() {
+        return guidCmd;
+    }
+
 }

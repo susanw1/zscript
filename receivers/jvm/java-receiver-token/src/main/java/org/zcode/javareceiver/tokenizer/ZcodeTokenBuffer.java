@@ -1,5 +1,7 @@
 package org.zcode.javareceiver.tokenizer;
 
+import java.util.NoSuchElementException;
+
 public interface ZcodeTokenBuffer {
     /**
      * Special token key to indicate that this segment is a continuation of the previous token due to its data size hitting maximum.
@@ -16,6 +18,12 @@ public interface ZcodeTokenBuffer {
         return (key & 0xe0) == 0xe0;
     }
 
+    /**
+     * Determines whether the supplied byte is a sequence-end "marker" key (newline, fatal error.
+     *
+     * @param key any byte
+     * @return true if it's a sequence-end marker; false otherwise
+     */
     static boolean isSequenceEndMarker(byte key) {
         return (key & 0xf0) == 0xf0;
     }
@@ -51,10 +59,15 @@ public interface ZcodeTokenBuffer {
     TokenReader getTokenReader();
 
     public interface TokenReader {
+        /**
+         * Access the writer<->reader control flags.
+         *
+         * @return the buffer's flags
+         */
         ZcodeTokenBufferFlags getFlags();
 
         /**
-         * Creates an iterator over the readable tokens.
+         * Creates an iterator over all the readable tokens.
          *
          * @return an iterator over ReadTokens available.
          */
@@ -63,19 +76,30 @@ public interface ZcodeTokenBuffer {
         /**
          * Checks whether any tokens can be read.
          *
-         * @return true iff a token is available for reading.
+         * @return true iff a token is available for reading; false otherwise.
          */
         boolean hasReadToken();
 
         /**
          * Creates a ReadToken representing the current first readable token.
          *
-         * @return a ReadToken representing the current first readable token, or throws an exception if no token is available.
+         * @return a ReadToken representing the current first readable token
+         * @exception NoSuchElementException if no token is available, see {@link #hasReadToken()}.
          */
         ReadToken getFirstReadToken();
 
         /**
-         * Removes the first token from the readable space
+         * Handy method equivalent to {@code getFirstReadToken().getKey()}
+         *
+         * @return the key of the first readable token
+         * @exception NoSuchElementException if no token is available, see {@link #hasReadToken()}.
+         */
+        default byte getFirstKey() {
+            return getFirstReadToken().getKey();
+        }
+
+        /**
+         * Removes the first token from the readable space and moves to the next one. Has no effect if no token is available.
          */
         void flushFirstReadToken();
 
@@ -101,8 +125,24 @@ public interface ZcodeTokenBuffer {
              */
             int getDataSize();
 
+            /**
+             * Handy method equivalent to using {@link ZcodeTokenBuffer#isMarker(byte)} on this ReadToken.
+             *
+             * @return true if this is a marker token; false otherwise
+             *
+             */
             default boolean isMarker() {
                 return ZcodeTokenBuffer.isMarker(getKey());
+            }
+
+            /**
+             * Handy method equivalent to using {@link ZcodeTokenBuffer#isSequenceEndMarker(byte)} on this ReadToken.
+             *
+             * @return true if this is a sequence-marker token; false otherwise
+             *
+             */
+            default boolean isSequenceEndMarker() {
+                return ZcodeTokenBuffer.isSequenceEndMarker(getKey());
             }
 
             /**

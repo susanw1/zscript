@@ -4,216 +4,144 @@ import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeAddressingContext;
-import org.zcode.javareceiver.execution.ZcodeAddressingSystem;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
-import org.zcode.javareceiver.modules.ZcodeCommandFinder;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class ZcodeAction {
     enum ActionType {
-        NO_ACTION,
+        INVALID,
+        GO_AROUND,
+        WAIT_FOR_TOKENS,
+        WAIT_FOR_ASYNC,
         ERROR,
-        ADDRESSING,
+        INVOKE_ADDRESSING,
         ADDRESSING_MOVEALONG,
-        FIRST_COMMAND,
-        COMMAND,
+        RUN_FIRST_COMMAND,
+        RUN_COMMAND,
         COMMAND_MOVEALONG,
         END_SEQUENCE,
         CLOSE_PAREN
     }
 
-    private final ParseState parser;
+    private final ParseState parseState;
     private final ActionType type;
-    private final byte       info;
 
-    public static ZcodeAction noAction(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.NO_ACTION, semanticParser, (byte) 0);
-    }
-
-    public static ZcodeAction error(SemanticParser semanticParser, byte error) {
-        return new ZcodeAction(ActionType.ERROR, semanticParser, error);
-    }
-
-    public static ZcodeAction addressing(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.ADDRESSING, semanticParser, (byte) 0);
-    }
-
-    public static ZcodeAction addressingMoveAlong(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.ADDRESSING_MOVEALONG, semanticParser, (byte) 0);
-    }
-
-    public static ZcodeAction commandMoveAlong(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.COMMAND_MOVEALONG, semanticParser, (byte) 0);
-    }
-
-    public static ZcodeAction firstCommand(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.FIRST_COMMAND, semanticParser, (byte) 0);
-    }
-
-    public static ZcodeAction runCommand(SemanticParser semanticParser, byte info) {
-        return new ZcodeAction(ActionType.COMMAND, semanticParser, info);
-    }
-
-    public static ZcodeAction endSequence(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.END_SEQUENCE, semanticParser, (byte) 0);
-    }
-
-    public static ZcodeAction closeParen(SemanticParser semanticParser) {
-        return new ZcodeAction(ActionType.CLOSE_PAREN, semanticParser, (byte) 0);
-    }
-
-    private ZcodeAction(ActionType type, ParseState parser, byte info) {
-        this.parser = parser;
+    ZcodeAction(ActionType type, ParseState parser) {
+        this.parseState = parser;
         this.type = type;
-        this.info = info;
     }
 
-    public boolean needsPerforming() {
-        return type != ActionType.NO_ACTION;
+    public boolean isEmptyAction() {
+        return type == ActionType.GO_AROUND || type == ActionType.WAIT_FOR_TOKENS || type == ActionType.WAIT_FOR_ASYNC;
     }
 
-    // TODO: response type
-    // TODO: close out stream
-    public void performAction(Zcode z, ZcodeOutStream out) {
+    public void performAction(Zcode zcode, ZcodeOutStream out) {
+        performActionImpl(zcode, out);
+        parseState.actionPerformed(type);
+    }
+
+    protected void performActionImpl(Zcode zcode, ZcodeOutStream out) {
         switch (type) {
         case ERROR:
-            sendError(out);
-            parser.errorSent();
+            startResponse(out, (byte) 0x10); // TODO: debate
+            out.writeField('S', parseState.getErrorStatus());
+            out.endSequence();
+            out.close();
+            parseState.unlock(zcode);
             break;
-        case ADDRESSING:
-            parser.setStarted();
-            ZcodeAddressingContext addrCtx = new ZcodeAddressingContext(parser, out);
+        case INVOKE_ADDRESSING:
+            ZcodeAddressingContext addrCtx = new ZcodeAddressingContext((ContextView) parseState);
             if (addrCtx.verify()) {
-                ZcodeAddressingSystem.execute(addrCtx);
+                zcode.getModuleRegistry().execute(addrCtx);
             }
             break;
         case ADDRESSING_MOVEALONG:
-            ZcodeAddressingSystem.moveAlong(new ZcodeAddressingContext(parser, out));
+            zcode.getModuleRegistry().moveAlong(new ZcodeAddressingContext((ContextView) parseState));
             break;
-        case FIRST_COMMAND:
-            out.open();
-            out.writeField('!', 0);
-            if (parser.hasEcho()) {
-                out.writeField('_', parser.getEcho());
+        case RUN_FIRST_COMMAND:
+            startResponse(out, (byte) 0);
+            // fall though
+        case RUN_COMMAND:
+            if (type == ActionType.RUN_COMMAND) {
+                sendNormalMarkerPrefix(out);
             }
-            parser.clearFirstCommand();
-        case COMMAND:
-            if (info != 0) {
-                if (info == ZcodeTokenizer.CMD_END_ANDTHEN) {
-                    out.writeAndThen();
-                } else if (info == ZcodeTokenizer.CMD_END_ORELSE) {
-                    out.writeOrElse();
-                } else if (info == ZcodeTokenizer.CMD_END_OPEN_PAREN) {
-                    out.writeOpenParen();
-                } else if (info == ZcodeTokenizer.CMD_END_CLOSE_PAREN) {
-                    out.writeCloseParen();
-                } else if (info == ZcodeTokenizer.NORMAL_SEQUENCE_END) {
-                } else {
-                    throw new IllegalStateException("Unknown marker");
-                }
-            }
-            parser.setStarted();
-            ZcodeCommandContext cmdCtx = new ZcodeCommandContext(parser, out);
+            ZcodeCommandContext cmdCtx = new ZcodeCommandContext(zcode, (ContextView) parseState, out);
             if (cmdCtx.verify()) {
-                ZcodeCommandFinder.execute(cmdCtx);
+                zcode.getModuleRegistry().execute(cmdCtx);
+            }
+            if (cmdCtx.isCommandComplete() && !parseState.hasSentStatus()) {
+                cmdCtx.status(ZcodeStatus.SUCCESS);
             }
             break;
         case COMMAND_MOVEALONG:
-            ZcodeCommandFinder.moveAlong(new ZcodeCommandContext(parser, out));
+            ZcodeCommandContext cmdCtx1 = new ZcodeCommandContext(zcode, (ContextView) parseState, out);
+            zcode.getModuleRegistry().moveAlong(cmdCtx1);
+            if (cmdCtx1.isCommandComplete() && !parseState.hasSentStatus()) {
+                cmdCtx1.status(ZcodeStatus.SUCCESS);
+            }
             break;
         case END_SEQUENCE:
-            parser.seqEndSent();
-            out.endSequence();
-            out.close();
-            z.unlock(parser.getLocks());
-            parser.setLocked(false);
+            if (out.isOpen()) {
+                out.endSequence();
+                out.close();
+            }
+            parseState.unlock(zcode);
             break;
         case CLOSE_PAREN:
-            parser.closeParenSent();
             out.writeCloseParen();
             break;
-        case NO_ACTION:
+        case GO_AROUND:
+        case WAIT_FOR_TOKENS:
+        case WAIT_FOR_ASYNC:
             break;
+        case INVALID:
+            throw new IllegalStateException();
         }
     }
 
-    private void sendError(ZcodeOutStream out) {
+    private void startResponse(ZcodeOutStream out, byte respType) {
         if (!out.isOpen()) {
             out.open();
         }
-
-        parser.errorSent();
-
-        switch (info) {
-        case SemanticParser.NO_ERROR:
-            throw new IllegalStateException();
-        case SemanticParser.INTERNAL_ERROR:
-            out.writeField('S', ZcodeStatus.INTERNAL_ERROR);
-            break;
-        case SemanticParser.MARKER_ERROR:
-            if (parser.getSeqEndMarker() == ZcodeTokenizer.ERROR_BUFFER_OVERRUN) {
-                out.writeField('S', ZcodeStatus.BUFFER_OVR_ERROR);
-            } else if (parser.getSeqEndMarker() == ZcodeTokenizer.ERROR_CODE_FIELD_TOO_LONG) {
-                out.writeField('S', ZcodeStatus.FIELD_TOO_LONG);
-            } else if (parser.getSeqEndMarker() == ZcodeTokenizer.ERROR_CODE_ILLEGAL_TOKEN) {
-                out.writeField('S', ZcodeStatus.ILLEGAL_KEY);
-            } else if (parser.getSeqEndMarker() == ZcodeTokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH) {
-                out.writeField('S', ZcodeStatus.ODD_LENGTH);
-            } else if (parser.getSeqEndMarker() == ZcodeTokenizer.ERROR_CODE_STRING_ESCAPING) {
-                out.writeField('S', ZcodeStatus.ESCAPING_ERROR);
-            } else if (parser.getSeqEndMarker() == ZcodeTokenizer.ERROR_CODE_STRING_NOT_TERMINATED) {
-                out.writeField('S', ZcodeStatus.UNTERMINATED_STRING);
-            } else {
-                out.writeField('S', ZcodeStatus.INTERNAL_ERROR);
-            }
-            break;
-        case SemanticParser.COMMENT_WITH_STUFF_ERROR:
-            out.writeField('S', ZcodeStatus.INVALID_COMMENT);
-            break;
-        case SemanticParser.LOCKS_ERROR:
-            out.writeField('S', ZcodeStatus.INVALID_LOCKS);
-            break;
-        case SemanticParser.MULTIPLE_ECHO_ERROR:
-            out.writeField('S', ZcodeStatus.INVALID_ECHO);
-            break;
-        default:
-            out.writeField('S', ZcodeStatus.INTERNAL_ERROR);
-            break;
+        out.writeField('!', respType);
+        if (parseState.hasEcho()) {
+            out.writeField('_', parseState.getEcho());
         }
+    }
 
-        out.endSequence();
-        out.close();
+    private void sendNormalMarkerPrefix(ZcodeOutStream out) {
+        byte marker = parseState.takeCurrentMarker();
+        if (marker != 0) {
+            if (marker == ZcodeTokenizer.CMD_END_ANDTHEN) {
+                out.writeAndThen();
+            } else if (marker == ZcodeTokenizer.CMD_END_ORELSE) {
+                out.writeOrElse();
+            } else if (marker == ZcodeTokenizer.CMD_END_OPEN_PAREN) {
+                out.writeOpenParen();
+            } else if (marker == ZcodeTokenizer.CMD_END_CLOSE_PAREN) {
+                out.writeCloseParen();
+            } else if (marker == ZcodeTokenizer.NORMAL_SEQUENCE_END) {
+            } else {
+                throw new IllegalStateException("Unknown marker");
+            }
+        }
     }
 
     @Override
     public String toString() {
-        return type.name();
+        return "ActionType(" + type + ")";
     }
 
-    public boolean canLock(Zcode z) {
-        return parser.isLocked() || z.canLock(parser.getLocks());
-    }
-
-    public boolean isLocked() {
-        return parser.isLocked();
+    public boolean canLock(Zcode zcode) {
+        return parseState.canLock(zcode);
     }
 
     public boolean lock(Zcode zcode) {
-        if (parser.isLocked()) {
-            return true;
-        }
-        boolean l = zcode.lock(parser.getLocks());
-        parser.setLocked(l);
-        return l;
+        return parseState.lock(zcode);
     }
 
     // visible for testing
     ActionType getType() {
         return type;
-    }
-
-    // visible for testing
-    byte getInfo() {
-        return info;
     }
 }

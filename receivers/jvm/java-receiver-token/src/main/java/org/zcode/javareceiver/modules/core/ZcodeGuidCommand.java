@@ -8,9 +8,9 @@ import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
 
 public class ZcodeGuidCommand {
-    private static UUID uuid = null;
+    private UUID uuid = null;
 
-    public static void fetch(ZcodeCommandContext ctx) {
+    public void fetch(ZcodeCommandContext ctx) {
         if (uuid == null) {
             ctx.status(ZcodeStatus.COMMAND_FAIL);
         } else {
@@ -22,7 +22,7 @@ public class ZcodeGuidCommand {
         }
     }
 
-    public static void set(ZcodeCommandContext ctx) {
+    public void set(ZcodeCommandContext ctx) {
         if (ctx.getBigFieldSize() != 16) {
             ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
         } else {

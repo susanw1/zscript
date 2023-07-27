@@ -2,9 +2,8 @@ package org.zcode.javareceiver.execution;
 
 import java.util.Optional;
 
-import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.semanticParser.ParseState;
+import org.zcode.javareceiver.semanticParser.ContextView;
 import org.zcode.javareceiver.tokenizer.BlockIterator;
 import org.zcode.javareceiver.tokenizer.OptIterator;
 import org.zcode.javareceiver.tokenizer.Zchars;
@@ -12,16 +11,14 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class ZcodeAddressingContext {
-    private final ParseState     parser;
-    private final ZcodeOutStream out;
+    private final ContextView contextView;
 
-    public ZcodeAddressingContext(ParseState parser, ZcodeOutStream out) {
-        this.parser = parser;
-        this.out = out;
+    public ZcodeAddressingContext(ContextView contextView) {
+        this.contextView = contextView;
     }
 
     public BlockIterator getAddressedData() {
-        OptIterator<ReadToken> iterator = parser.getReader().iterator();
+        OptIterator<ReadToken> iterator = contextView.getReader().iterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ReadToken token = opt.get();
             if (token.getKey() == ZcodeTokenizer.ADDRESSING_FIELD_KEY) {
@@ -33,7 +30,7 @@ public class ZcodeAddressingContext {
 
     public OptIterator<Integer> getAddressSegments() {
         return new OptIterator<Integer>() {
-            OptIterator<ReadToken> internal = parser.getReader().iterator();
+            OptIterator<ReadToken> internal = contextView.getReader().iterator();
 
             @Override
             public Optional<Integer> next() {
@@ -43,26 +40,27 @@ public class ZcodeAddressingContext {
     }
 
     public void status(byte status) {
-        if (!ZcodeStatus.isSuccess(status)) {
-            if (ZcodeStatus.isError(status)) {
-                parser.error();
-            } else {
-                parser.softFail();
-            }
-            if (!out.isOpen()) {
-                out.open();
-            }
-            out.writeField('S', status);
-            out.endSequence();
-            out.close();
-        }
+        contextView.setStatus(status);
+//        if (!ZcodeStatus.isSuccess(status)) {
+//            if (ZcodeStatus.isError(status)) {
+//                parser.error();
+//            } else {
+//                parser.softFail();
+//            }
+//            if (!out.isOpen()) {
+//                out.open();
+//            }
+//            out.writeField('S', status);
+//            out.endSequence();
+//            out.close();
+//        }
     }
 
     public boolean verify() {
         boolean hasReachedData = false;
         int     i              = 0;
 
-        OptIterator<ReadToken> iterator = parser.getReader().iterator();
+        OptIterator<ReadToken> iterator = contextView.getReader().iterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ReadToken token = opt.get();
             i++;
@@ -90,20 +88,19 @@ public class ZcodeAddressingContext {
         return false;
     }
 
-    public void setComplete() {
-        parser.setComplete(true);
+    public void setCommandComplete() {
+        contextView.setCommandComplete(true);
     }
 
-    public void clearComplete() {
-        parser.setComplete(false);
+    public void clearCommandComplete() {
+        contextView.setCommandComplete(false);
+    }
+
+    public boolean commandComplete() {
+        return contextView.isCommandComplete();
     }
 
     public boolean isActivated() {
-        return parser.isActivated();
+        return contextView.isActivated();
     }
-
-    public boolean isComplete() {
-        return parser.isComplete();
-    }
-
 }

@@ -187,14 +187,15 @@ public abstract class ZcodeTokenArrayBuffer implements ZcodeTokenBuffer {
             if (!ZcodeTokenBuffer.isMarker(key)) {
                 throw new IllegalArgumentException("invalid marker [key=0x" + Integer.toHexString(key) + "]");
             }
-            if (ZcodeTokenBuffer.isSequenceEndMarker(key)) {
-                flags.setSeqMarkerWritten();
-            }
-            flags.setMarkerWritten();
             endToken();
             data[writeCursor] = key;
             moveCursor();
             endToken();
+
+            if (ZcodeTokenBuffer.isSequenceEndMarker(key)) {
+                flags.setSeqMarkerWritten();
+            }
+            flags.setMarkerWritten();
         }
 
         private void writeNewTokenStart(final byte key) {
@@ -282,24 +283,35 @@ public abstract class ZcodeTokenArrayBuffer implements ZcodeTokenBuffer {
             public void flushBuffer() {
                 readStart = index;
             }
-
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public ZcodeTokenBufferFlags getFlags() {
             return flags;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public TokenBufferIterator iterator() {
             return new ArrayBufferTokenIterator(readStart);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public boolean hasReadToken() {
             return readStart != writeStart;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public ReadToken getFirstReadToken() {
             if (readStart == writeStart) {
@@ -308,6 +320,9 @@ public abstract class ZcodeTokenArrayBuffer implements ZcodeTokenBuffer {
             return new ArrayBufferToken(readStart);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void flushFirstReadToken() {
             final TokenBufferIterator it = iterator();
@@ -477,6 +492,13 @@ public abstract class ZcodeTokenArrayBuffer implements ZcodeTokenBuffer {
                 return ZcodeTokenBuffer.isMarker(data[index]) ? 0 : Byte.toUnsignedInt(data[offset(index, 1)]);
             }
 
+            @Override
+            public String toString() {
+                if (ZcodeTokenBuffer.isMarker(data[index])) {
+                    return "Token(Marker:0x" + Integer.toHexString(Byte.toUnsignedInt(data[index])) + ")";
+                }
+                return "Token(key='" + (char) getKey() + "', len=" + getDataSize() + ")";
+            }
         }
 
     }

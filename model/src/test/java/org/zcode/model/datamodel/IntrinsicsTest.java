@@ -33,6 +33,6 @@ public class IntrinsicsTest {
 
         assertThat(model.getIntrinsics().getRequestParams()).hasSize(2);
         assertThat(model.getIntrinsics().getResponseParams()).hasSize(2);
-        assertThat(model.getIntrinsics().getStatus()).hasSize(13);
+        assertThat(model.getIntrinsics().getStatus()).hasSize(32);
     }
 }
