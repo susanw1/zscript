@@ -401,6 +401,7 @@ public class SemanticParser implements ParseState, ContextView {
         }
 
         if (state == State.COMMAND_COMPLETE_NEEDS_TOKENS) {
+            state = State.COMMAND_INCOMPLETE;
             return ActionType.RUN_COMMAND;
         }
 
