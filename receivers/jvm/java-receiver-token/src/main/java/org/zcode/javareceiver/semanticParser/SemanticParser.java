@@ -77,7 +77,13 @@ public class SemanticParser implements ParseState, ContextView {
         this.state = State.PRESEQUENCE;
     }
 
+    // VisibleForTesting
+    State getState() {
+        return state;
+    }
+
     /**
+     * Determines the next action to be performed.
      *
      * @return
      */

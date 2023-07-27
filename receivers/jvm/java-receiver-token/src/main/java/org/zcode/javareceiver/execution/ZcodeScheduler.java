@@ -10,8 +10,8 @@ public class ZcodeScheduler {
     int decide(Zcode zcode, List<ZcodeAction> possibilities) {
         // TODO: a better one
         for (int i = 0; i < possibilities.size(); i++) {
-            ZcodeAction r = possibilities.get(i);
-            if (!possibilities.get(i).isEmptyAction() && possibilities.get(i).canLock(zcode)) {
+            ZcodeAction action = possibilities.get(i);
+            if (!action.isEmptyAction() && action.canLock(zcode)) {
                 return i;
             }
         }
