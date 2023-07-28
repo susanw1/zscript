@@ -518,6 +518,7 @@ public class SemanticParser implements ParseState, ContextView {
     private void resetToSequence() {
         locks = ZcodeLockSet.allLocked();
         state = State.PRESEQUENCE;
+        hasSentStatus = false;
         hasLocks = false;
         hasEcho = false;
         parenCounter = 0;
