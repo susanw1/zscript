@@ -1,40 +1,63 @@
 package org.zcode.javareceiver.notifications;
 
 import org.zcode.javareceiver.core.Zcode;
+import org.zcode.javareceiver.core.ZcodeLockSet;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.execution.ZcodeAction;
 
 public class ZcodeNotificationAction implements ZcodeAction {
-    enum NotificationType {
-        NO_ACTION,
-        RESET_NOTIFICATION,
-        PERIPHERAL_NOTIFICATION,
-        SCRIPT_SPACE_NOTIFICATION
-    }
+    private final ZcodeNotificationSource source;
 
-    private final NotificationType type;
+    public ZcodeNotificationAction(ZcodeNotificationSource source) {
+        this.source = source;
+    }
 
     @Override
     public boolean isEmptyAction() {
-        return type == NotificationType.NO_ACTION;
+        return source.getNotificationID() == 0;
     }
 
     @Override
     public void performAction(Zcode z, ZcodeOutStream out) {
-        // TODO Auto-generated method stub
+        if (source.getNotificationID() == 0) {
+            return;
+        }
+        startResponse(out);
+        if (z.getModuleRegistry().notification(out, source.getNotificationID())) {
+            out.endSequence();
+            out.close();
+            ZcodeLockSet ls = source.getLocks();
+            if (ls == null) {
+                ls = ZcodeLockSet.allLocked();
+            }
+            z.unlock(ls);
+        }
+        source.actionExecuted();
+    }
 
+    private void startResponse(ZcodeOutStream out) {
+        if (!out.isOpen()) {
+            out.open();
+        }
+        out.writeField('!', (source.getNotificationID() >> 4));
     }
 
     @Override
     public boolean canLock(Zcode z) {
-        // TODO
-        return false;
+        ZcodeLockSet ls = source.getLocks();
+        if (ls == null) {
+            ls = ZcodeLockSet.allLocked();
+        }
+        return z.canLock(ls);
     }
 
     @Override
     public boolean lock(Zcode z) {
-        // TODO
-        return false;
+        ZcodeLockSet ls = source.getLocks();
+        if (ls == null) {
+            ls = ZcodeLockSet.allLocked();
+        }
+        return z.lock(ls);
     }
 
 }

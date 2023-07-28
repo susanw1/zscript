@@ -1,10 +1,10 @@
 package org.zcode.javareceiver.execution;
 
+import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
-import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction;
 
 public interface ActionSource {
-    ZcodeSemanticAction getAction();
+    ZcodeAction getAction();
 
-    ZcodeOutStream getOutStream();
+    ZcodeOutStream getOutStream(Zcode zcode);
 }

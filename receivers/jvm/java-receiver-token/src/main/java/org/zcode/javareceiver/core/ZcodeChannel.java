@@ -25,7 +25,7 @@ public abstract class ZcodeChannel implements ActionSource {
     }
 
     @Override
-    public ZcodeOutStream getOutStream() {
+    public ZcodeOutStream getOutStream(Zcode zcode) {
         return out;
     }
 

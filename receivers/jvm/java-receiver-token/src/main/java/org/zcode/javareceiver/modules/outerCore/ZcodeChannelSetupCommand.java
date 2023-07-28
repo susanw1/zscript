@@ -11,14 +11,8 @@ public class ZcodeChannelSetupCommand {
     public static void execute(ZcodeCommandContext ctx) {
         List<ZcodeChannel> chs = ctx.getZcode().getChannels();
 
-        int current = 0;
-        for (ZcodeChannel ch : chs) {
-            if (ch.getOutStream() == ctx.getOutStream()) {
-                break;
-            }
-            current++;
-        }
-        int target = ctx.getField((byte) 'C', current);
+        int current = ctx.getChannelIndex();
+        int target  = ctx.getField((byte) 'C', current);
         if (target >= chs.size()) {
             ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
             return;

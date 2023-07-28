@@ -7,9 +7,9 @@ import org.zcode.javareceiver.modules.ZcodeModule;
 import org.zcode.javareceiver.tokenizer.BlockIterator;
 
 public class ZcodeCoreModule implements ZcodeModule {
-    ZcodeCapabilitiesCommand capabilitiesCmd = new ZcodeCapabilitiesCommand();
-    ZcodeGuidCommand         guidCmd         = new ZcodeGuidCommand();
-    ZcodeRandomCodeCommand   codeCmd         = new ZcodeRandomCodeCommand();
+    private final ZcodeCapabilitiesCommand capabilitiesCmd = new ZcodeCapabilitiesCommand();
+    private final ZcodeGuidCommand         guidCmd         = new ZcodeGuidCommand();
+    private final ZcodeRandomCodeCommand   codeCmd         = new ZcodeRandomCodeCommand();
 
     public static int getCommands() {
         return 0x3007;
@@ -50,19 +50,11 @@ public class ZcodeCoreModule implements ZcodeModule {
     }
 
     @Override
-    public void moveAlong(ZcodeCommandContext ctx, int command) {
-    }
-
-    @Override
     public void address(ZcodeAddressingContext ctx) {
         for (BlockIterator iterator = ctx.getAddressedData(); iterator.hasNext();) {
             byte b = iterator.next();
             System.out.print((char) b);
         }
-    }
-
-    @Override
-    public void addressMoveAlong(ZcodeAddressingContext ctx) {
     }
 
     public ZcodeCapabilitiesCommand getCapabilitiesCmd() {

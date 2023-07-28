@@ -31,7 +31,7 @@ public class SemanticParser implements ParseState, ContextView {
 
         /**
          * Checks the buffer's flags and makes sure we've identified the next marker and the next sequence marker, if available.
-         *
+         * 
          * Makes sure the buffer flag's readerBlocked status is up-to-date.
          */
         private void dealWithTokenBufferFlags() {
