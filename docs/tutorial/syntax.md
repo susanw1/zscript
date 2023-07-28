@@ -1,9 +1,9 @@
-Zcode Syntax
+Zscript Syntax
 ===
 
 In Brief
 ---
-A Zcode-enabled device can be sent sequences of Zcode commands, and will return corresponding sequences of Zcode responses to provide status and other information. Command sequences and response sequences follow essentially the same syntax, to make them easy to figure out and parse (though response sequences always begin with a `'!'` char so you can distinguish them).
+A Zscript-enabled device can be sent sequences of Zscript commands, and will return corresponding sequences of Zscript responses to provide status and other information. Command sequences and response sequences follow essentially the same syntax, to make them easy to figure out and parse (though response sequences always begin with a `'!'` char so you can distinguish them).
 
 Commands and responses consist of key-value pairs, where the keys are upper-case letters, and the values are numbers made of some (lower-case) hexadecimal digits. Everything is in hex. There is special syntax for sending a single larger field per command/response, either as a string of bytes like this: `"hello"`, or as hex like this `+a68656c6c6f`, depending on what is most convenient or expressive.
 
@@ -37,10 +37,10 @@ So in the (hypothetical) command sequence `Z1 & Z2 & Z3 | Z4 & Z5`,
 This mechanism all allows for commands to be executed as a dependency sequence where later commands only run when earlier ones succeeded; it also allows for conditional and alternative flows. The structure of a response sequence, with its `'&'` and `'|'` chars, always mirrors the sequence it executed (minus the parts it didn't) so you can deterministically match responses to commands.
 
 
-Zcode Command Definition
+Zscript Command Definition
 ---
 
-When a host or controlling device wants to communicate with a Zcode device, it sends one or more Zcode commands. A Zcode command consists of a series of key/value fields, which indicate the command that is to be run along with additional parameter data. It's similar to a command with options and arguments, or a function with parameters.
+When a host or controlling device wants to communicate with a Zscript device, it sends one or more Zscript commands. A Zscript command consists of a series of key/value fields, which indicate the command that is to be run along with additional parameter data. It's similar to a command with options and arguments, or a function with parameters.
 
 There are two kinds of field:
 * Numeric fields: An upper-case letter key followed by up to 4 lower-case hex digits, eg A1b4 or D2, meaning that the numbers are 2 bytes long, representing values 0-65535. 
@@ -63,15 +63,15 @@ The order of the fields in a command is _not_ significant, so you can put them i
 * comma (',' - note, actually we're wondering about this)
 * null (asc 0x00, '\0') - always dropped under all circumstances.
 
-This means you can choose to space out your Zcode as you wish to make it readable, or compact it for performance reasons, eg `B4AZ21&Z22"foo"` is same as `Z21 A0 B04 & Z22 "foo"` 
+This means you can choose to space out your Zscript as you wish to make it readable, or compact it for performance reasons, eg `B4AZ21&Z22"foo"` is same as `Z21 A0 B04 & Z22 "foo"` 
 
 Note: Null chars may be used over certain protocols to eg pad out packets.
 
 
-Zcode Response Definition
+Zscript Response Definition
 ---
 
-When a Zcode device needs to send a message back upstream, it sends a Response Sequence. Usually, this would be a (synchronous) status response to a command sequence, but Zcode can also generate asynchronous responses, generally called Notifications, from other sources (see scripting, interrupts, warm boot).
+When a Zscript device needs to send a message back upstream, it sends a Response Sequence. Usually, this would be a (synchronous) status response to a command sequence, but Zscript can also generate asynchronous responses, generally called Notifications, from other sources (see scripting, interrupts, warm boot).
 
 The syntax or a response is identical to that of a command - it's essentially symmetrical - with the follow exceptions:
 * Responses always begin with a `'!'` character. Actually this is really saying `!0`, where `'0'` means "synchronous response". Other numbers would indicate different (usually async) sources, such as an interrupt handler.
@@ -87,7 +87,7 @@ Rcvd> !@7.1 S0
 Sent> @7.1@5.0.61Z32P3V1
 Rcvd> !@7.1@5.0.61S
 ```
-An address is a `'.'`-separated sequence of (2-byte) numbers representing a (hierarchical) address which is passed to an address dispatcher, which maps it to a downstream device and sends the Zcode characters following the address over to it.  When a response comes back, the address is re-inserted and passed back upstream. Addresses can be nested, so sub-sub-devices can be addressed too.
+An address is a `'.'`-separated sequence of (2-byte) numbers representing a (hierarchical) address which is passed to an address dispatcher, which maps it to a downstream device and sends the Zscript characters following the address over to it.  When a response comes back, the address is re-inserted and passed back upstream. Addresses can be nested, so sub-sub-devices can be addressed too.
 
 The default address dispatcher grabs the first part of the address (the `'7'` in the example above) and talks to module '007' (serial comms), which provides a dispatcher that treats the next part as the port number (#1). The second example shows a nested address talking to module '005' (I2C) and its dispatcher uses I2C port 0, address 0x61.
 
@@ -97,7 +97,7 @@ If the first non-blank character on a line is `'#'`, then the remainder of the l
 
 Locking
 ---
-If a command sequence starts with a `'%'` sign (eg `%1a Z52`), it indicates that the sequence must grab specific exclusion locks before executing. On advanced devices, it's possible to run many Zcode executors at once, with Zscript and Interrupt notifications, and in principle the hardware devices could end up under contention. The locks are represented by a (normally 2 byte) bit-set of flags, and by default (without a `'%'`) a command sequence will only run if all locks are available (ie default is effectively a highly defensive and exclusive `%ffff`). 
+If a command sequence starts with a `'%'` sign (eg `%1a Z52`), it indicates that the sequence must grab specific exclusion locks before executing. On advanced devices, it's possible to run many Zscript executors at once, with Zscript and Interrupt notifications, and in principle the hardware devices could end up under contention. The locks are represented by a (normally 2 byte) bit-set of flags, and by default (without a `'%'`) a command sequence will only run if all locks are available (ie default is effectively a highly defensive and exclusive `%ffff`). 
 
 By specifying locks, you can say "actually I only care about these locks", which might allow four polling activities on four I2C buses to run concurrently with occasional incoming I2C commands too. The specified lock bits must be clear for the commands to run, and will be set for the duration of execution. If you don't care about concurrent execution, then you can ignore locking; everything should just run sequentially. If you do care, then you choose a bit to represent your device, and specify it consistently in all commands that touch it.
 

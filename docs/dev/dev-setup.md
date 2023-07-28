@@ -1,7 +1,7 @@
 Setting up Dev Environments and IDEs
 ====================================
 
-These instructions should be helpful for any reasonable dev environment. Zcode was developed on PCs running Ubuntu 18.04-20.04. Other envs may be
+These instructions should be helpful for any reasonable dev environment. Zscript was developed on PCs running Ubuntu 18.04->22.04. Other envs may be
 supported more directly in future.
 
 The project has components that build using a number of languages and tools, including some embedded compilers. However, to get a simple build working
@@ -17,7 +17,7 @@ Git should Just Work. I'm using the default version on Ubuntu 20.04:
 $ git --version
 git version 2.25.1
 ```
-And I cloned this project under `~/ZcodeProject`, so examples below generally reference `~/ZcodeProject/zcode` - adjust to taste. 
+And I cloned this project under `~/ZscriptProject`, so examples below generally reference `~/ZscriptProject/zscript` - adjust to taste. 
 
 
 ### Java
@@ -57,12 +57,12 @@ $ gcc --version
 gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 ```
 
-This is used for building the native Zcode core libs and running tests on it. The core code is a template header library, so dependent sub-projects
+This is used for building the native Zscript core libs and running tests on it. The core code is a template header library, so dependent sub-projects
 pull in the sources.
 
 ### Eclipse (Optional)
 
-I use Eclipse for Zcode development. This is how it's set up:
+I use Eclipse for Zscript development. This is how it's set up:
 
 ```
 Eclipse IDE for Java Developers (includes Incubating components)
@@ -79,19 +79,19 @@ Including, for the record:
 
 Later versions of everything are probably fine. Earlier ones are at your own risk...
 
-To set up, follow these steps (or equivalent) - they assume that you've cloned the project to `~/ZcodeProject/zcode`, and that `mvn install` works when run from that directory. In Eclipse:
-1. Create new workspace, eg in `~/ZcodeProject/zcode-workspace`
-1. From Project Explorer context menu (ie right-click it), choose "Import...", choose "Maven" > "Existing Maven Projects", and pick `~/ZcodeProject/zcode` as the Root Directory. 
-1. It should show `zcode-all` - select it and all sub-projects. Finish the Import - the projects should all appear.
+To set up, follow these steps (or equivalent) - they assume that you've cloned the project to `~/ZscriptProject/zscript`, and that `mvn install` works when run from that directory. In Eclipse:
+1. Create new workspace, eg in `~/ZscriptProject/zscript-workspace`
+1. From Project Explorer context menu (ie right-click it), choose "Import...", choose "Maven" > "Existing Maven Projects", and pick `~/ZscriptProject/zscript` as the Root Directory. 
+1. It should show `zscript-all` - select it and all sub-projects. Finish the Import - the projects should all appear.
 1. Additional step for C++ sub-projects (eg `generic-receiver-core`): 
     1. In Project Explorer, select the `generic-receiver-core` project item, right-click it and select "New" > "Other..." > "Convert to C/C++ Project (Adds C/C++ Nature)".
     1. Ensure that (Project Explorer, right-click on `generic-receiver-core`) Build Project and Clean Project both work - they should invoke the Makefile, which in turn runs Maven.
     1. Repeat this for any other C/C++ projects
 1. Before making code changes, install the project formatters and tools, located in `misc/eclipse-profiles`:
     1.  Choose Window  > Preferences > Java > Code Style
-    1.  For each of  _Formatter_ ,  _Clean Up_  and  _Import Order_ , "Import" the corresponding Zcode XML file, and Apply.
+    1.  For each of  _Formatter_ ,  _Clean Up_  and  _Import Order_ , "Import" the corresponding Zscript XML file, and Apply.
     1.  Choose Window  > Preferences > C/C++ > Code Style
-    1.  Import the Zcode_cpp_format.xml settings file.
+    1.  Import the Zscript_cpp_format.xml settings file.
     
 
 Target-Specific Toolchains
