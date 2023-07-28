@@ -1,17 +1,18 @@
 package org.zcode.javareceiver.semanticParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.END_SEQUENCE;
-import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.ERROR;
-import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.INVOKE_ADDRESSING;
-import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.WAIT_FOR_TOKENS;
+import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.END_SEQUENCE;
+import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.ERROR;
+import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.INVOKE_ADDRESSING;
+import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.WAIT_FOR_TOKENS;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.zcode.javareceiver.core.StringBuilderOutStream;
 import org.zcode.javareceiver.core.Zcode;
-import org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType;
+import org.zcode.javareceiver.execution.ZcodeAction;
+import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenRingBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
@@ -38,7 +39,7 @@ public class SemanticParserAddressingTest {
             ZcodeAction a1 = parser.getAction();
 
             System.out.println("  Received action: actionType=" + a1 + "; state=" + parser.getState());
-            assertThat(a1.getType()).isEqualTo(t);
+            assertThat(((ZcodeSemanticAction) a1).getType()).isEqualTo(t);
             a1.performAction(zcode, outStream);
 
             System.out.println("   - After execute action: outStream=" + outStream.getString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());

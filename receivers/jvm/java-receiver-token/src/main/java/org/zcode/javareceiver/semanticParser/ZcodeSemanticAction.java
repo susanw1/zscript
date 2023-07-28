@@ -3,11 +3,12 @@ package org.zcode.javareceiver.semanticParser;
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
+import org.zcode.javareceiver.execution.ZcodeAction;
 import org.zcode.javareceiver.execution.ZcodeAddressingContext;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
-public class ZcodeAction {
+public class ZcodeSemanticAction implements ZcodeAction {
     enum ActionType {
         INVALID,
         GO_AROUND,
@@ -26,15 +27,17 @@ public class ZcodeAction {
     private final ParseState parseState;
     private final ActionType type;
 
-    ZcodeAction(ActionType type, ParseState parser) {
+    ZcodeSemanticAction(ActionType type, ParseState parser) {
         this.parseState = parser;
         this.type = type;
     }
 
+    @Override
     public boolean isEmptyAction() {
         return type == ActionType.GO_AROUND || type == ActionType.WAIT_FOR_TOKENS || type == ActionType.WAIT_FOR_ASYNC;
     }
 
+    @Override
     public void performAction(Zcode zcode, ZcodeOutStream out) {
         performActionImpl(zcode, out);
         parseState.actionPerformed(type);
@@ -132,10 +135,12 @@ public class ZcodeAction {
         return "ActionType(" + type + ")";
     }
 
+    @Override
     public boolean canLock(Zcode zcode) {
         return parseState.canLock(zcode);
     }
 
+    @Override
     public boolean lock(Zcode zcode) {
         return parseState.lock(zcode);
     }

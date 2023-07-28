@@ -7,7 +7,7 @@ import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeLockSet;
 import org.zcode.javareceiver.core.ZcodeLocks;
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType;
+import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
 import org.zcode.javareceiver.tokenizer.TokenBufferIterator;
 import org.zcode.javareceiver.tokenizer.Zchars;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
@@ -247,7 +247,7 @@ public class SemanticParser implements ParseState, ContextView {
      *
      * @return
      */
-    public ZcodeAction getAction() {
+    public ZcodeSemanticAction getAction() {
         // currentAction is always nulled after action execution
         while (currentAction == ActionType.INVALID || currentAction == ActionType.GO_AROUND) {
             if (markerCache.checkNeedsTokens() == ActionType.WAIT_FOR_TOKENS) {

@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.zcode.javareceiver.core.Zcode;
-import org.zcode.javareceiver.core.ZcodeChannel;
-import org.zcode.javareceiver.semanticParser.ZcodeAction;
+import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction;
 
 public class ZcodeExecutor {
     private final Zcode zcode;
@@ -16,11 +15,11 @@ public class ZcodeExecutor {
         this.zcode = zcode;
     }
 
-    public void progress(List<ZcodeChannel> channels) {
+    public void progress(List<? extends ActionSource> sources) {
         List<ZcodeAction> possibleActions = new ArrayList<>();
 
-        for (ZcodeChannel ch : channels) {
-            ZcodeAction action = ch.getParser().getAction();
+        for (ActionSource source : sources) {
+            ZcodeSemanticAction action = source.getAction();
             if (action.isEmptyAction()) {
                 action.performAction(zcode, null);
             }
@@ -31,7 +30,7 @@ public class ZcodeExecutor {
         ZcodeAction action      = possibleActions.get(indexToExec);
 
         if (!action.isEmptyAction() && action.lock(zcode)) {
-            action.performAction(zcode, channels.get(indexToExec).getOutStream());
+            action.performAction(zcode, sources.get(indexToExec).getOutStream());
         }
     }
 
