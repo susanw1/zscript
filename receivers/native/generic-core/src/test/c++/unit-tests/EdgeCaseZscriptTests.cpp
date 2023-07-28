@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "ZcodeTestingSystem.hpp"
+#include "ZscriptTestingSystem.hpp"
 
 int main(void) {
     std::cout << "=========================\nRunning edge case tests\n=========================" << std::endl;

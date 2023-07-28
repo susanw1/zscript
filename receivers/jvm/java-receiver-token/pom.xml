@@ -2,13 +2,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-jvm</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-jvm</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>java-receiver-token</artifactId>
-    <name>Zcode Receiver Using Token Buffer in Java</name>
+    <name>Zscript Receiver Using Token Buffer in Java</name>
 
     <dependencies>
         <dependency>

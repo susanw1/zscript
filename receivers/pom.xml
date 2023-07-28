@@ -6,14 +6,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-all</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-all</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers</artifactId>
+    <artifactId>zscript-receivers</artifactId>
     <packaging>pom</packaging>
-    <name>Zcode Receivers</name>
+    <name>Zscript Receivers</name>
 
     <properties></properties>
 

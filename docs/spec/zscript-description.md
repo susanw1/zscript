@@ -1,17 +1,17 @@
-ZCODE
+ZSCRIPT
 ===
 
 Note: needs much updating and breaking up a bit.
 
 ### General
 
-Zcode is a simple command-response system, designed to allow the control of Microcontrollers (MCUs) over many possible communication protocols, by either computer or human generated commands, with easily parsed responses.
+Zscript is a simple command-response system, designed to allow the control of Microcontrollers (MCUs) over many possible communication protocols, by either computer or human generated commands, with easily parsed responses.
 It is composed of Commands, separated by `&`s built into command sequences, separated by new lines (`\n`) or packet ends. 
 
-Zcode is designed to be flexible to the capabilities of the receiver, allowing very simple, or very capable end-points to work within their capabilities. 
+Zscript is designed to be flexible to the capabilities of the receiver, allowing very simple, or very capable end-points to work within their capabilities. 
 It is designed to allow accurate peripheral control, such as reads and writes to GPIO pins, SPI, I2C, or other peripherals, 
 	to allow simple expansion, and other features, such as programmable background code execution, or interrupt handlers.
-Zcode is provided to the MCU over some form of 'command channel'; this might be UDP, TCP, serial lines, USB, or any other protocol.
+Zscript is provided to the MCU over some form of 'command channel'; this might be UDP, TCP, serial lines, USB, or any other protocol.
 
 ### Communication
 
@@ -27,7 +27,7 @@ To allow use of USB connections, the MCU can either implement a USB interface, w
 Due to its simplicity, UDP is the recommended network command channel for normal communication, however to allow easier debugging, TCP can also be used. 
 	This is particularly recommended for the default debug channel, in the absence of serial/USB, as a telnet connection can then be used.
 
-An Zcode receiver is allowed to implement routing. This is where an `@` is placed at the beginning of a command sequence - the rest of the command is skipped by the parser and ignored. 
+An Zscript receiver is allowed to implement routing. This is where an `@` is placed at the beginning of a command sequence - the rest of the command is skipped by the parser and ignored. 
 No specification is given for the operation of such a command sequence, but it must not involve a newline (otherwise the next command sequence will be considered to have begun) and the `@` must be the first non-whitespace in the sequence. 
 The encouraged method of operation is that the beginning of the routed command sequence has a dot separated series of addresses, and the command is send with the first of these stripped off.
 An example:
@@ -38,7 +38,7 @@ The receiver of this then sends `* Z1A2` along the communication path correspond
 Any response to the sent communication should put the address back on the beginning, so in the above example, 
 when the second receiver is given the response `*SA2`, it sends `@1c*SA2` back, and the original receiver takes this, and sends `@9.1c*SA2` back to where the message comes from.
 
-Note that the contents of a routing command need not be Zcode, although that is the general intention if newlines are needed inside the message, any encoding can be chosen (again this is more of an external capability to Zcode).
+Note that the contents of a routing command need not be Zscript, although that is the general intention if newlines are needed inside the message, any encoding can be chosen (again this is more of an external capability to Zscript).
 
 
 ### Command Structure
@@ -167,7 +167,7 @@ The following status responses are defined:
 The receiver can create a block of memory which it can use to store commands. This is called the Script space, and should be run, if active, 
 	whenever no other commands are available, although other commands should get priority.
 	When an Script space command sequence has been begun, it must be completed before other commands can be executed, unless the commands are able to be run in parallel.
-	This space must be managed by the sender, although to simplify management the `begin execution` Zcode may be used to jump to an address in this block of memory.
+	This space must be managed by the sender, although to simplify management the `begin execution` Zscript may be used to jump to an address in this block of memory.
 	This command must be implemented so as to jump immediately, without executing any later commands, and be treated as an immediate new line, 
 	starting at the new address as it would at a new command sequence.  
 
@@ -256,7 +256,7 @@ An example of an I2C bus 2 interrupt, from a device with address 0x44, and handl
   2.  "Z1 I2 T S& B2 A44 S"
   3.  "Z1 I2 T S& B2 A44 S& A44 I T1 S& +22 S"
 
-The form 3 allows fast responses to interrupts, even when the Zcode is sent over a protocol with high latency.
+The form 3 allows fast responses to interrupts, even when the Zscript is sent over a protocol with high latency.
 The form 3 can deal with the interrupt entirely, or simply collect data for the sender to deal with, depending on how predictable the required response is, 
 	it can also be used to perform some immediate remedial action, until the sender deals with it properly.
 	In form 3 interrupt handlers, execution will continue until a new line is hit, if an execution command is hit, it sets the location for the normal execution, but does not execute a 'jump'.
@@ -285,8 +285,8 @@ The UART system uses notifications to indicate 'buffer full' conditions, and 'ma
 
 ### Debug
 
-The Zcode receiver can also output debug information over any given channel (usually defaulting to something like serial or USB), 
-	this information can be of any form, but must begin every line with a `#`, and be either new line, or packet separated from Zcode data, ideally in its own packet on packet based channels.
+The Zscript receiver can also output debug information over any given channel (usually defaulting to something like serial or USB), 
+	this information can be of any form, but must begin every line with a `#`, and be either new line, or packet separated from Zscript data, ideally in its own packet on packet based channels.
 	The receiver can also support the `debug host set` command, which can also disable debug information, and generally should start with debug disabled if it uses a shared communication protocol, such as UDP, to avoid jamming the channel.
 	The sender can choose either to ignore such data, or log it in some form (including simply printing it, or writing it to a file). 
 
@@ -294,7 +294,7 @@ The Zcode receiver can also output debug information over any given channel (usu
 
 ##### GUID/MAC
 
-The Zcode receiver can also choose to allow storage of a GUID, and must allow storage of a MAC address if networking is enabled. 
+The Zscript receiver can also choose to allow storage of a GUID, and must allow storage of a MAC address if networking is enabled. 
 	These are stored somewhere in the persistent memory, along with a byte before and after, which must sum to 0xff, 
 	this is to ensure that on first boot, the values are ignored, and considered invalid.
 	The first check byte is also incremented every time a write is performed, before the write (wrapping so as to not include 0x00 or 0xff), 
@@ -302,7 +302,7 @@ The Zcode receiver can also choose to allow storage of a GUID, and must allow st
 
 ##### I2C
 
-The Zcode receiver, if it supports I2C, must do its best to avoid bus locking (where the slave misses one or more clock signals during a read, and jams the bus), but in the event it occurs:
+The Zscript receiver, if it supports I2C, must do its best to avoid bus locking (where the slave misses one or more clock signals during a read, and jams the bus), but in the event it occurs:
 	Should attempt, if possible to recover, by clocking SCL until SDA is released, the sending a stop bit (releasing SDA while SCL floats high)
 	Or if this is not possible (e.g. uncooperative Arduino libraries), must reset using watchdog, and recognise the SDA low, SCL high condition on startup, and, as above, release the bus.
 	The first approach is preferable, but the number of attempts taken must be reported back, with the second approach, no such reporting is necessary, as the sender must recognise the reset notification, or send a retry.
@@ -316,9 +316,9 @@ The I2C bus system works both for systems with multiple I2C ports, and those wit
 ### Commands
 
 Each command must contain a command code (except empty commands), indicated by the 'Z' field, otherwise a `UNKNOWN_CMD` error must be given. If this is less than 0x10, then it is a system command.
-Upon startup, an Zcode receiver must be in a `not activated` state, and respond to any non-system command with an `NOT_ACTIVATED` error.
+Upon startup, an Zscript receiver must be in a `not activated` state, and respond to any non-system command with an `NOT_ACTIVATED` error.
 
-Any command which is addressed as a broadcast, and is intended to find Zcode receivers which have not already been discovered, 
+Any command which is addressed as a broadcast, and is intended to find Zscript receivers which have not already been discovered, 
 	must begin with a `*` symbol, as must the response to such a command, this is to allow these commands to occur out of synch with other commands, and be identified separately.
 
 Every command code must be unique, and cannot contain the response fields `S`, `Z` or `E`, or the parameter field `E` (Echo command is an exception)
@@ -355,7 +355,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	*		|	**?		|	the same as parameters, with same values (including E, Z)  
 |				|	Resp		|	S		|	**?		|	the same as given S, if present, otherwise 00 (the primary use of this is testing error responses)  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Capabilities	|				|			|			|	Responds with the capabilities of the Zcode receiver  
+|Capabilities	|				|			|			|	Responds with the capabilities of the Zscript receiver  
 |				|	Command		|	Z		|	02		|  
 |				|	Param		|	P		|	*?		|	'page number' selects which set of supported commands/capabilities to look at. The total set is the union of all the pages,   
 |				|				|			|			|		with the big fields combined (this means the non-big fields can also change with page, provided all needed are present on some page), defaults to 0.  
@@ -366,7 +366,7 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	U		|	*		|	Field Unit size, minimum number of bytes given to a field.  
 |				|	Resp		|	P		|	**?		|	Size of persistent memory, if not present, not supported. If =0, then only have GUID, MAC  
 |				|	Resp		|	M		|	*		|	Number of pages  
-|				|	Resp		|	big		|	**		|	list, in binary, of supported Zcodes, e.g. +0001020304, supports Ident, Echo, Capabilities, Activate, and Soft reset  
+|				|	Resp		|	big		|	**		|	list, in binary, of supported Zscripts, e.g. +0001020304, supports Ident, Echo, Capabilities, Activate, and Soft reset  
 |				|				|			|			|		From this list it must be possible to infer what capabilities are supported in terms of peripherals, as peripherals which appear must be supported.  
 |				|				|			|			|		1 byte commands must come first, then 2, then 3, etc. Before any n > 1 byte commands are sent, n `00`s must be sent.
 |				|	Resp		|	S		|	00,06	|	gives BAD_PARAM if page number exceeds last page  
@@ -429,12 +429,12 @@ Key for Values column (xx means a particular number):
 |				|	Resp		|	big		|	**		|	Data read  
 |				|	Resp		|	S		|	00,06	|	Gives BAD_PARAM if too much data requested  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Set MAC address|				|			|			|	Stores the given MAC address at the location specified internally by the Zcode receiver, so that on startup, the right MAC address will be chosen  
+|Set MAC address|				|			|			|	Stores the given MAC address at the location specified internally by the Zscript receiver, so that on startup, the right MAC address will be chosen  
 |				|	Command		|	Z		|	12		|		Also adds the two 'check bytes' on the start and end, and performs the increment.  
 |				|	Param		|	big		|	**		|	MAC address. Must be exactly 6 bytes  
 |				|	Resp		|	S		|	00,06	|	Gives BAD_PARAM if wrong length big field given  
 |---------------|---------------|-----------|-----------|---------------------------------------------------------------------  
-|Set GUID		|				|			|			|	Stores the given GUID at the location specified internally by the Zcode receiver, so that on startup, the right Fetch GUID command will work  
+|Set GUID		|				|			|			|	Stores the given GUID at the location specified internally by the Zscript receiver, so that on startup, the right Fetch GUID command will work  
 |				|	Command		|	Z		|	13		|  
 |				|	Param		|	big		|	*		|	GUID to store, must be exactly 16 bytes.  
 |				|	Resp		|	S		|	00,06	|	Gives BAD_PARAM if wrong length big field given  
@@ -787,7 +787,7 @@ The level of abstraction in a command should reflect the level of complexity of 
 The command's requirements on fields should also reflect the level of complexity of the system, as devices with more complex subsystems are likely to be more capable generally - hence pin commands are very simple to implement, whereas USB-C PD commands are not.
 
 The interface a set of commands provide must be abstract enough to work cross-device, so that it can be implemented on a different device later on. 
-Also if Zcode is being used to control a system with a specific purpose, then commands should be made to fit the purpose, 
+Also if Zscript is being used to control a system with a specific purpose, then commands should be made to fit the purpose, 
 as this reduces the risk of accidentally breaking a system - this may include limiting the pins available for pin commands to those not used anywhere else, or even not providing low level interfaces on a production system. 
 This avoids some of the risks surrounding a malicious (or simply incompetent) device, connected to the same network, from causing any damage to the receiver. 
 It is reasonable to expect the device to know the circuit surrounding it, and have its programming reflect this, although it is encouraged that such customisations are well parameterised where possible, to allow changes to the circuit without a total re-design.

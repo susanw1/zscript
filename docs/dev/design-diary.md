@@ -3,6 +3,14 @@ LOG OF IDEAS AND DEVELOPMENT
 
 Realizing we're making lots of design decisions without writing them down!
 
+2023-07
+---
+Semantic parser (Java version) is done, and we've ported the tokenizer to C++. Interesting decisions along the way include:
+* changing response status meanings (the 'S' field). So far, we've had 0 (success), 0x1-0xf (hard error, stop execution), and 0x10 onwards (command failures, skip to ORELSE ('|') commands). But actually, we have lots of detectable hard error conditions, like syntax errors (eg missing close-quote), resource issues (eg command too long), and command errors (eg required field missing). And yet we've only ever needed a single command-fail value. *Decision*: we've reworked it: 0x1-0xf are command-fails, and 0x10+ are errors. Better.
+
+* We realized that it might be bad not to be able to distinguish command sequences from responses - they both have the same general syntax and structure. *Decision*:  _All_ response-sequences MUST begin with `'!'`. Up to now, only notification (async) responses had them, to identify their source (eg script-space, or interrupt notification). Now, `'!'` really means `'!0'`, implying source `0`, which is the synchronous response source.
+
+
 2023-06
 ---
 Lots of progress with Java RingBuffer pilot. Much simplified tokenizing, but still got the complicated sequence-level semantic analyzer to go.

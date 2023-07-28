@@ -4,17 +4,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-	    <groupId>org.zcode</groupId>
-	    <artifactId>zcode-receivers</artifactId>
+	    <groupId>net.zscript</groupId>
+	    <artifactId>zscript-receivers</artifactId>
 	    <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>network-receiver-acceptance-tests</artifactId>
-    <name>Zcode Acceptance Tests over Network Connection</name>
+    <name>Zscript Acceptance Tests over Network Connection</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.zcode</groupId>
+            <groupId>net.zscript</groupId>
             <artifactId>acceptance-tests</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
