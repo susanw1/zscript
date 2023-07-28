@@ -2,18 +2,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-clients</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-clients</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-java-client</artifactId>
+    <artifactId>zscript-java-client</artifactId>
     <name>Java Client</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.zcode</groupId>
-            <artifactId>zcode-model</artifactId>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-model</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

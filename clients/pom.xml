@@ -2,13 +2,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-all</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-all</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-clients</artifactId>
-    <name>Zcode Clients</name>
+    <artifactId>zscript-clients</artifactId>
+    <name>Zscript Clients</name>
     <packaging>pom</packaging>
 
     <modules>

@@ -2,14 +2,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.zcode</groupId>
-		<artifactId>zcode-receivers</artifactId>
+		<groupId>net.zscript</groupId>
+		<artifactId>zscript-receivers</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>zcode-receivers-native</artifactId>
+	<artifactId>zscript-receivers-native</artifactId>
 	<packaging>pom</packaging>
-	<name>Zcode Native Receivers</name>
+	<name>Zscript Native Receivers</name>
 
 	<modules>
 		<module>generic-core</module>

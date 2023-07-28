@@ -2,18 +2,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
+        <groupId>net.zscript</groupId>
         <artifactId>arm-no-os</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>arm-no-os-stm32g4</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode STM32G4 Bare Metal (no OS) Receiver</name>
+    <name>Zscript STM32G4 Bare Metal (no OS) Receiver</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.zcode</groupId>
+            <groupId>net.zscript</groupId>
             <artifactId>arm-no-os-stm32</artifactId>
             <version>${project.version}</version>
             <type>nar</type>

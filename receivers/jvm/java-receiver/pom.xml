@@ -2,13 +2,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-jvm</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-jvm</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>java-receiver</artifactId>
-    <name>Zcode Receiver in Java</name>
+    <name>Zscript Receiver in Java</name>
 
     <dependencies>
         <dependency>
