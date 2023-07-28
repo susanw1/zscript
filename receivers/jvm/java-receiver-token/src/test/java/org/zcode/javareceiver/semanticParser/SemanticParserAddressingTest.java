@@ -13,8 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.zcode.javareceiver.core.StringWriterOutStream;
 import org.zcode.javareceiver.core.Zcode;
-import org.zcode.javareceiver.execution.ZcodeAction;
-import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
+import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenRingBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
@@ -28,13 +27,14 @@ public class SemanticParserAddressingTest {
     private final Zcode zcode = new Zcode();
 
     private StringWriterOutStream outStream;
+    private ParserActionTester    parserActionTester;
 
     @BeforeEach
     void setup() throws IOException {
+        zcode.addModule(new ZcodeCoreModule());
         outStream = new StringWriterOutStream();
+        parserActionTester = new ParserActionTester(zcode, buffer, tokenizer, parser, outStream);
     }
-
-    ParserActionTester parserActionTester = new ParserActionTester(zcode, buffer, tokenizer, parser, outStream);
 
     @Test
     void shouldProduceActionForBasicAddressing() {

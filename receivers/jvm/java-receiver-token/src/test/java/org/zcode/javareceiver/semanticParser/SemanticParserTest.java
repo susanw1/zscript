@@ -8,6 +8,7 @@ import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionTy
 import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.RUN_FIRST_COMMAND;
 import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.WAIT_FOR_TOKENS;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -20,7 +21,6 @@ import org.zcode.javareceiver.core.StringWriterOutStream;
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.execution.ZcodeAction;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
-import org.zcode.javareceiver.modules.outerCore.ZcodeOuterCoreModule;
 import org.zcode.javareceiver.semanticParser.SemanticParser.State;
 import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
@@ -36,14 +36,13 @@ class SemanticParserTest {
     private final Zcode zcode = new Zcode();
 
     private StringWriterOutStream outStream;
-
-    ParserActionTester parserActionTester = new ParserActionTester(zcode, buffer, tokenizer, parser, outStream);
+    private ParserActionTester    parserActionTester;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setup() throws IOException {
         zcode.addModule(new ZcodeCoreModule());
-        zcode.addModule(new ZcodeOuterCoreModule());
         outStream = new StringWriterOutStream();
+        parserActionTester = new ParserActionTester(zcode, buffer, tokenizer, parser, outStream);
     }
 
     @Test
@@ -63,7 +62,7 @@ class SemanticParserTest {
         final ZcodeSemanticAction a1 = parser.getAction();
         assertThat(a1.getType()).isEqualTo(RUN_FIRST_COMMAND);
         a1.performAction(zcode, outStream);
-        assertThat(outStream.getStringAndReset()).isEqualTo("!V1C3007M3S");
+        assertThat(outStream.getStringAndReset()).isEqualTo("!V1C3007M1S");
         assertThat(parser.getState()).isEqualTo(State.COMMAND_COMPLETE);
 
         final ZcodeSemanticAction a2 = parser.getAction();
@@ -141,7 +140,7 @@ class SemanticParserTest {
 
     private static Stream<Arguments> shouldProduceActionsForSingleCommands() {
         return Stream.of(
-                of("Z0\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!V1C3007M3S\n"),
+                of("Z0\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!V1C3007M1S\n"),
                 of("Z1A\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS\n"),
                 of("Z1A S1\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS1\n"),
                 of("Z1A S10\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS10\n"));

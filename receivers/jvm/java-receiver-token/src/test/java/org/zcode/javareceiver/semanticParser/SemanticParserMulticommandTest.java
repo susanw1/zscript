@@ -8,6 +8,7 @@ import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionTy
 import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.RUN_FIRST_COMMAND;
 import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.WAIT_FOR_TOKENS;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -16,12 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.zcode.javareceiver.core.StringBuilderOutStream;
+import org.zcode.javareceiver.core.StringWriterOutStream;
 import org.zcode.javareceiver.core.Zcode;
-import org.zcode.javareceiver.execution.ZcodeAction;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
-import org.zcode.javareceiver.modules.outerCore.ZcodeOuterCoreModule;
-import org.zcode.javareceiver.semanticParser.SemanticParser.State;
 import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenRingBuffer;
@@ -35,23 +33,37 @@ class SemanticParserMulticommandTest {
 
     private final Zcode zcode = new Zcode();
 
-    private final StringBuilderOutStream outStream = new StringBuilderOutStream();
-
-    ParserActionTester parserActionTester = new ParserActionTester(zcode, buffer, tokenizer, parser, outStream);
+    private StringWriterOutStream outStream;
+    private ParserActionTester    parserActionTester;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setup() throws IOException {
         zcode.addModule(new ZcodeCoreModule());
-        zcode.addModule(new ZcodeOuterCoreModule());
+        outStream = new StringWriterOutStream();
+        parserActionTester = new ParserActionTester(zcode, buffer, tokenizer, parser, outStream);
     }
 
     @Test
-    void shouldStartNoActionWithEmptyTokens() {
-        assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
-        final ZcodeAction a = parser.getAction();
-        assertThat(((ZcodeSemanticAction) a).getType()).isEqualTo(WAIT_FOR_TOKENS);
-        assertThat(outStream.getString()).isEqualTo("");
-        assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
+    public void shouldHandleTwoEmptyCommands() {
+        parserActionTester.parseSnippet("\n \n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS));
+        assertThat(outStream.getString()).isEqualTo("!\n!\n");
+        assertThat(outStream.isOpen()).isFalse();
+    }
+
+    @Test
+    public void shouldHandleSeveralEmptyCommands() {
+        parserActionTester.parseSnippet("\n\n \n\n",
+                List.of(RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS));
+        assertThat(outStream.getString()).isEqualTo("!\n!\n!\n!\n");
+        assertThat(outStream.isOpen()).isFalse();
+    }
+
+    @Test
+    public void shouldHandleSeveralBasicCommands() {
+        parserActionTester.parseSnippet("Z1A\nZ1B\n Z1C\nZ1D\n",
+                List.of(RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS));
+        assertThat(outStream.getString()).isEqualTo("!AS\n!BS\n!CS\n!DS\n");
+        assertThat(outStream.isOpen()).isFalse();
     }
 
     @ParameterizedTest
@@ -62,6 +74,7 @@ class SemanticParserMulticommandTest {
         assertThat(outStream.isOpen()).isFalse();
     }
 
+    // not used yet!
     private static Stream<Arguments> shouldProduceActionsForNestedParenthesizedLogicalCommandSeries() {
         return Stream.of(
                 of("((Z1A)) \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!((AS))\n"),
