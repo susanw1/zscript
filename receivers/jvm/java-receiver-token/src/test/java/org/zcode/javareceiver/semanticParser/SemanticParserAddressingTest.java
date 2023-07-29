@@ -6,10 +6,12 @@ import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionTy
 import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.INVOKE_ADDRESSING;
 import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.WAIT_FOR_TOKENS;
 
+import java.io.IOException;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.zcode.javareceiver.core.StringBuilderOutStream;
+import org.zcode.javareceiver.core.StringWriterOutStream;
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.execution.ZcodeAction;
 import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
@@ -25,7 +27,12 @@ public class SemanticParserAddressingTest {
 
     private final Zcode zcode = new Zcode();
 
-    private final StringBuilderOutStream outStream = new StringBuilderOutStream();
+    private StringWriterOutStream outStream;
+
+    @BeforeEach
+    void setup() throws IOException {
+        outStream = new StringWriterOutStream();
+    }
 
     void shouldProduceActions(final String text, final List<ActionType> actionTypes, final String finalOutput) {
         // feed all chars into tokens/buffer

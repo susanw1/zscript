@@ -1,6 +1,7 @@
 package org.zcode.javareceiver.semanticParser;
 
 import org.zcode.javareceiver.core.Zcode;
+import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeAction;
@@ -47,7 +48,7 @@ public class ZcodeSemanticAction implements ZcodeAction {
         switch (type) {
         case ERROR:
             startResponse(out, (byte) 0x10); // TODO: debate
-            out.writeField('S', parseState.getErrorStatus());
+            out.asCommandOutStream().writeField('S', parseState.getErrorStatus());
             out.endSequence();
             out.close();
             parseState.unlock(zcode);
@@ -106,9 +107,10 @@ public class ZcodeSemanticAction implements ZcodeAction {
         if (!out.isOpen()) {
             out.open();
         }
-        out.writeField('!', respType);
+        ZcodeCommandOutStream commandOutput = out.asCommandOutStream();
+        commandOutput.writeField('!', respType);
         if (parseState.hasEcho()) {
-            out.writeField('_', parseState.getEcho());
+            commandOutput.writeField('_', parseState.getEcho());
         }
     }
 

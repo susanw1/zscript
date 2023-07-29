@@ -7,8 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
+import org.zcode.javareceiver.core.OutputStreamOutStream;
 import org.zcode.javareceiver.core.Zcode;
-import org.zcode.javareceiver.core.ZcodeAbstractOutStream;
 import org.zcode.javareceiver.core.ZcodeChannel;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
@@ -47,28 +47,12 @@ public class LocalZcodeConnection implements ZcodeConnection {
         zcode.addModule(new ZcodeOuterCoreModule());
 
         ZcodeTokenRingBuffer rbuff = ZcodeTokenRingBuffer.createBufferWithCapacity(100);
-        zcode.addChannel(new ZcodeChannel(rbuff, new ZcodeAbstractOutStream() {
-            private ByteArrayOutputStream stream = null;
-
-            @Override
-            public void writeByte(byte c) {
-                stream.write(c);
-            }
-
-            @Override
-            public void open() {
-                stream = new ByteArrayOutputStream();
-            }
-
-            @Override
-            public boolean isOpen() {
-                return stream != null;
-            }
+        zcode.addChannel(new ZcodeChannel(rbuff, new OutputStreamOutStream<>(new ByteArrayOutputStream()) {
 
             @Override
             public void close() {
-                handler.accept(stream.toByteArray());
-                stream = null;
+                handler.accept(getOutputStream().toByteArray());
+                getOutputStream().reset();
             }
         }) {
             ZcodeTokenizer in = new ZcodeTokenizer(rbuff.getTokenWriter(), 2);
@@ -81,10 +65,9 @@ public class LocalZcodeConnection implements ZcodeConnection {
                 if (current == null) {
                     if (dataIn.isEmpty()) {
                         return;
-                    } else {
-                        current = dataIn.poll();
-                        pos = 0;
                     }
+                    current = dataIn.poll();
+                    pos = 0;
                 }
                 while (pos < current.length && in.offer(current[pos])) {
                     pos++;
@@ -96,7 +79,7 @@ public class LocalZcodeConnection implements ZcodeConnection {
 
             @Override
             public void channelInfo(ZcodeCommandContext view) {
-                view.getOutStream().writeString("Basic text channel");
+                view.getOutStream().writeQuotedString("Basic text channel");
             }
 
             @Override
