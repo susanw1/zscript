@@ -24,7 +24,7 @@ public interface ZcodeModule {
     }
 
     default boolean notification(ZcodeOutStream out, int i, boolean isAddressed) {
-        out.writeField('S', ZcodeStatus.INTERNAL_ERROR);
+        out.asCommandOutStream().writeField('S', ZcodeStatus.INTERNAL_ERROR);
         return true;
     }
 

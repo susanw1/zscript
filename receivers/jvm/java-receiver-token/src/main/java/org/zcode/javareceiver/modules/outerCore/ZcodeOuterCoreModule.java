@@ -9,7 +9,7 @@ import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
 import org.zcode.javareceiver.notifications.ZcodeNotificationSource;
 
 public class ZcodeOuterCoreModule implements ZcodeModule {
-    private ZcodeNotificationSource source = new ZcodeNotificationSource();
+    private final ZcodeNotificationSource source = new ZcodeNotificationSource();
 
     public ZcodeOuterCoreModule() {
         source.setNotification(ZcodeLockSet.allLocked(), 0x10);
@@ -47,7 +47,7 @@ public class ZcodeOuterCoreModule implements ZcodeModule {
 
     @Override
     public boolean notification(ZcodeOutStream out, int i, boolean isAddressed) {
-        out.writeString("System has reset");
+        out.asCommandOutStream().writeQuotedString("System has reset");
         return true;
     }
 
