@@ -44,31 +44,31 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>net.wouterdanes</groupId>
-				<artifactId>mustache-maven-plugin</artifactId>
-				<version>1.1</version>
-				<executions>
-					<execution>
-						<id>run-mustache-template</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>mustache</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<encoding>UTF-8</encoding>
-					<context>file:${project.basedir}/local/server-configuration.yml</context>
-					<templates>
-						<template>
-							<templateFile>${project.basedir}/common/src/main/conf/context.xml.mustache</templateFile>
-							<outputPath>${generated.context.xml.location}</outputPath>
-						</template>
-					</templates>
-				</configuration>
-			</plugin>
-		</plugins>
+<!--		<plugins>-->
+<!--			<plugin>-->
+<!--				<groupId>net.wouterdanes</groupId>-->
+<!--				<artifactId>mustache-maven-plugin</artifactId>-->
+<!--				<version>1.1</version>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<id>run-mustache-template</id>-->
+<!--						<phase>generate-sources</phase>-->
+<!--						<goals>-->
+<!--							<goal>mustache</goal>-->
+<!--						</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--				<configuration>-->
+<!--					<encoding>UTF-8</encoding>-->
+<!--					<context>file:${project.basedir}/local/server-configuration.yml</context>-->
+<!--					<templates>-->
+<!--						<template>-->
+<!--							<templateFile>${project.basedir}/common/src/main/conf/context.xml.mustache</templateFile>-->
+<!--							<outputPath>${generated.context.xml.location}</outputPath>-->
+<!--						</template>-->
+<!--					</templates>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
+<!--		</plugins>-->
 	</build>
 </project>

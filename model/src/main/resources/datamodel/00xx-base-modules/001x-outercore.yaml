@@ -9,28 +9,28 @@ modules:
         command: 0
         description: Additional device module and command info
         operation: get
-        requestParams:
-        -   label: M
+        requestFields:
+        -   key: M
             name: moduleBankRequest
             description: top nibble (0-f) of module bank to get enabled lower nibble module info in 'L'
             typeDefinition:
                 '@type': number
             required: yes
-        responseParams:
-        -   label: C
+        responseFields:
+        -   key: C
             name: commandsSet
             description: which commands are enabled in the outer core module
             typeDefinition:
                 '@type': commands
                 bitFields: []
             required: yes
-        -   label: L
+        -   key: L
             name: moduleBanksLower
             description: which module banks (bottom nibble of bank address) are configured with any modules on this device, for region specified by moduleBankRequest 
             typeDefinition:
                 '@type': bitset
             required: no
-        -   label: M
+        -   key: M
             name: moduleBanksUpper
             description: which module banks (top nibble of bank address) are configured with any modules on this device
             typeDefinition:
@@ -43,14 +43,14 @@ modules:
         command: 4
         description: writes a specified GUID to persistent storage
         operation: put
-        requestParams:
-        -   label: +
+        requestFields:
+        -   key: +
             name: guid
             description: the GUID to write, exactly 16 bytes
             typeDefinition:
                 '@type': bytes
             required: yes
-        responseParams: []
+        responseFields: []
         status:
         -   code: BAD_PARAM
             meaning: GUID must be 16 bytes
@@ -60,26 +60,26 @@ modules:
         command: 8
         description: Sets up the specified channel 
         operation: put
-        requestParams:
-        -   label: C
+        requestFields:
+        -   key: C
             name: channel
             description: "which channel to configure (default: this channel)" 
             typeDefinition:
                 '@type': number
             required: no
-        -   label: D
+        -   key: D
             name: assignDebug
             description: assigns  debug to specified channel
             typeDefinition:
                 '@type': flag
             required: no
-        -   label: N
+        -   key: N
             name: assignNotification
             description: assigns notifications to specified channel
             typeDefinition:
                 '@type': flag
             required: no
-        responseParams: []
+        responseFields: []
         extension: channel
         status:
         -   code: BAD_PARAM
@@ -89,6 +89,6 @@ modules:
         command: 15
         description: Command kept free for user-defined non-core command
         operation: unknown
-        requestParams: []
-        responseParams: []
+        requestFields: []
+        responseFields: []
         status: []

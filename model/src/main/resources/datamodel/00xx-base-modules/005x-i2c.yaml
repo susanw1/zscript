@@ -60,7 +60,6 @@ modules:
                   description: whether the device supports freeing from a bus lockup (due to a missed SCL pulse)
                 - name: smBusAddressResolution
                   description: whether the device supports resolving I2C addresses associated with alerts
-                - 
             required: yes
         status: []
 
