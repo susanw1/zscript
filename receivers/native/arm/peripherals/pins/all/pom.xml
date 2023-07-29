@@ -2,31 +2,31 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-pins</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-pins</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-pins-all</artifactId>
+    <artifactId>zscript-receivers-pins-all</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode full peripheral set</name>
+    <name>Zscript full peripheral set</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.zcode</groupId>
-            <artifactId>zcode-receivers-pins-core</artifactId>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-receivers-pins-core</artifactId>
             <version>${project.version}</version>
             <type>nar</type>
         </dependency>
         <dependency>
-            <groupId>org.zcode</groupId>
-            <artifactId>zcode-receivers-pins-ll</artifactId>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-receivers-pins-ll</artifactId>
             <version>${project.version}</version>
             <type>nar</type>
         </dependency>
         <dependency>
-            <groupId>org.zcode</groupId>
-            <artifactId>zcode-receivers-pins-ll-stm32</artifactId>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-receivers-pins-ll-stm32</artifactId>
             <version>${project.version}</version>
             <type>nar</type>
         </dependency>

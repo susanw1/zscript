@@ -2,18 +2,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-i2c</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-i2c</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-i2c-ll-stm32-2-1-1</artifactId>
+    <artifactId>zscript-receivers-i2c-ll-stm32-2-1-1</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode ll I2C 2 v1.1 for STM32</name>
+    <name>Zscript ll I2C 2 v1.1 for STM32</name>
     <dependencies>
         <dependency>
-            <groupId>org.zcode</groupId>
-            <artifactId>zcode-receivers-i2c-ll</artifactId>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-receivers-i2c-ll</artifactId>
             <version>${project.version}</version>
             <type>nar</type>
         </dependency>

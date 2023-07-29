@@ -2,14 +2,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-peripherals</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-peripherals</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-uart</artifactId>
+    <artifactId>zscript-receivers-uart</artifactId>
     <packaging>pom</packaging>
-    <name>Zcode UART</name>
+    <name>Zscript UART</name>
     <modules>
         <module>all</module>
         <module>uart-core</module>

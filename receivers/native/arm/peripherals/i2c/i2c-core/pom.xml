@@ -2,12 +2,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-i2c</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-i2c</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-i2c-core</artifactId>
+    <artifactId>zscript-receivers-i2c-core</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode I2C Core</name>
+    <name>Zscript I2C Core</name>
 </project>

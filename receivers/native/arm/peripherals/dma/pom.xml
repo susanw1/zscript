@@ -2,14 +2,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-peripherals</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-peripherals</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-dma</artifactId>
+    <artifactId>zscript-receivers-dma</artifactId>
     <packaging>pom</packaging>
-    <name>Zcode DMA</name>
+    <name>Zscript DMA</name>
     <modules>
         <module>all</module>
         <module>dma-ll</module>

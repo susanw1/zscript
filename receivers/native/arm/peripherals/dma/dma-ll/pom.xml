@@ -2,12 +2,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-dma</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-dma</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-dma-ll</artifactId>
+    <artifactId>zscript-receivers-dma-ll</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode ll DMA</name>
+    <name>Zscript ll DMA</name>
 </project>

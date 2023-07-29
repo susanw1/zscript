@@ -2,14 +2,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-arm</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-arm</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-examples</artifactId>
+    <artifactId>zscript-receivers-examples</artifactId>
     <packaging>pom</packaging>
-    <name>Zcode ARM Examples</name>
+    <name>Zscript ARM Examples</name>
 
     <modules>
         <module>stm32g484re</module>

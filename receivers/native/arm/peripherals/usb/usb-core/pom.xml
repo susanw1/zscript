@@ -2,12 +2,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-usb</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-usb</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-usb-core</artifactId>
+    <artifactId>zscript-receivers-usb-core</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode USB Core</name>
+    <name>Zscript USB Core</name>
 </project>

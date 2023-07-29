@@ -2,31 +2,31 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-examples</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-examples</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-stm32g484re-minimal</artifactId>
+    <artifactId>zscript-receivers-stm32g484re-minimal</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode STM32G484 Bare Metal (no OS) Receiver Minimal</name>
+    <name>Zscript STM32G484 Bare Metal (no OS) Receiver Minimal</name>
 
 
     <dependencies>
         <dependency>
-            <groupId>org.zcode</groupId>
+            <groupId>net.zscript</groupId>
             <artifactId>generic-receiver-core</artifactId>
             <version>${project.version}</version>
             <type>nar</type>
         </dependency>
         <dependency>
-            <groupId>org.zcode</groupId>
+            <groupId>net.zscript</groupId>
             <artifactId>arm-no-os-stm32g4</artifactId>
             <version>${project.version}</version>
             <type>nar</type>
         </dependency>
         <dependency>
-            <groupId>org.zcode</groupId>
+            <groupId>net.zscript</groupId>
             <artifactId>arm-no-os-stm32</artifactId>
             <version>${project.version}</version>
             <type>nar</type>

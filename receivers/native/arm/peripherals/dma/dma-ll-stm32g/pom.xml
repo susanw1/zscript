@@ -2,18 +2,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-dma</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-dma</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-dma-ll-stm32g</artifactId>
+    <artifactId>zscript-receivers-dma-ll-stm32g</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode ll DMA for STM32G</name>
+    <name>Zscript ll DMA for STM32G</name>
     <dependencies>
         <dependency>
-            <groupId>org.zcode</groupId>
-            <artifactId>zcode-receivers-dma-ll</artifactId>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-receivers-dma-ll</artifactId>
             <version>${project.version}</version>
             <type>nar</type>
         </dependency>

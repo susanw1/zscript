@@ -2,14 +2,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-peripherals</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-peripherals</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-usbc-pd</artifactId>
+    <artifactId>zscript-receivers-usbc-pd</artifactId>
     <packaging>pom</packaging>
-    <name>Zcode USB C Power Delivery</name>
+    <name>Zscript USB C Power Delivery</name>
     <modules>
         <module>all</module>
         <module>usbc-pd-core</module>

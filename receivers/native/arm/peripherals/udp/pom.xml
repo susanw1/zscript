@@ -2,14 +2,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-peripherals</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-peripherals</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-udp</artifactId>
+    <artifactId>zscript-receivers-udp</artifactId>
     <packaging>pom</packaging>
-    <name>Zcode UDP</name>
+    <name>Zscript UDP</name>
     <modules>
         <module>all</module>
         <module>udp-core</module>

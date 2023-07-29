@@ -2,18 +2,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.zcode</groupId>
-        <artifactId>zcode-receivers-usbc-pd</artifactId>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-usbc-pd</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zcode-receivers-usbc-pd-ll-stm32g</artifactId>
+    <artifactId>zscript-receivers-usbc-pd-ll-stm32g</artifactId>
     <packaging>nar</packaging>
-    <name>Zcode ll USB C Power Delivery for STM32G</name>
+    <name>Zscript ll USB C Power Delivery for STM32G</name>
     <dependencies>
         <dependency>
-            <groupId>org.zcode</groupId>
-            <artifactId>zcode-receivers-usbc-pd-ll</artifactId>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-receivers-usbc-pd-ll</artifactId>
             <version>${project.version}</version>
             <type>nar</type>
         </dependency>
