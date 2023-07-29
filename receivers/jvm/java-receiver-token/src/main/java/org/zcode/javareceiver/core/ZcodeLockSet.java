@@ -15,6 +15,14 @@ public class ZcodeLockSet {
         return new ZcodeLockSet(locks);
     }
 
+    public static ZcodeLockSet empty() {
+        byte[] locks = new byte[ZcodeLocks.LOCK_BYTENUM];
+        for (int i = 0; i < locks.length; i++) {
+            locks[i] = (byte) 0;
+        }
+        return new ZcodeLockSet(locks);
+    }
+
     public static ZcodeLockSet allLocked() {
         byte[] locks = new byte[ZcodeLocks.LOCK_BYTENUM];
         for (int i = 0; i < locks.length; i++) {
@@ -30,4 +38,5 @@ public class ZcodeLockSet {
     byte[] getLocks() {
         return locks;
     }
+
 }

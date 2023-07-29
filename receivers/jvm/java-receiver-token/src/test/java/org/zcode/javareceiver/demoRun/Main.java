@@ -2,6 +2,7 @@ package org.zcode.javareceiver.demoRun;
 
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeChannel;
+import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
 import org.zcode.javareceiver.modules.outerCore.ZcodeOuterCoreModule;
@@ -10,13 +11,16 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class Main {
     public static void main(String[] args) {
-        Zcode zcode = new Zcode();
+        Zcode                zcode = new Zcode();
+        ZcodeOuterCoreModule oCore = new ZcodeOuterCoreModule();
+        zcode.addNotificationSource(oCore.getNotificationSource());
+        zcode.addModule(oCore);
         zcode.addModule(new ZcodeCoreModule());
-        zcode.addModule(new ZcodeOuterCoreModule());
         byte[] code = "Z2(Z1S1)Z1&Z1|Z1\n".getBytes();
 
         ZcodeTokenRingBuffer rbuff = ZcodeTokenRingBuffer.createBufferWithCapacity(100);
-        zcode.addChannel(new ZcodeChannel(rbuff, new ZcodePrintingOutStream()) {
+        ZcodeOutStream       out   = new ZcodePrintingOutStream();
+        zcode.addChannel(new ZcodeChannel(rbuff, out) {
             ZcodeTokenizer in = new ZcodeTokenizer(rbuff.getTokenWriter(), 2);
             private int    i  = 0;
 
@@ -36,6 +40,7 @@ public class Main {
             public void channelSetup(ZcodeCommandContext ctx) {
             }
         });
+        zcode.setNotificationOutStream(out);
         for (int i = 0; i < 10000; i++) {
             zcode.progress();
         }

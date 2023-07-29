@@ -1,12 +1,23 @@
 package org.zcode.javareceiver.modules.outerCore;
 
+import org.zcode.javareceiver.core.ZcodeLockSet;
+import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
-import org.zcode.javareceiver.execution.ZcodeAddressingContext;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.modules.ZcodeModule;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
+import org.zcode.javareceiver.notifications.ZcodeNotificationSource;
 
 public class ZcodeOuterCoreModule implements ZcodeModule {
+    private ZcodeNotificationSource source = new ZcodeNotificationSource();
+
+    public ZcodeOuterCoreModule() {
+        source.setNotification(ZcodeLockSet.allLocked(), 0x10);
+    }
+
+    public ZcodeNotificationSource getNotificationSource() {
+        return source;
+    }
 
     public static int getCommands() {
         return 0x0011;
@@ -35,14 +46,9 @@ public class ZcodeOuterCoreModule implements ZcodeModule {
     }
 
     @Override
-    public void moveAlong(ZcodeCommandContext ctx, int command) {
+    public boolean notification(ZcodeOutStream out, int i, boolean isAddressed) {
+        out.writeString("System has reset");
+        return true;
     }
 
-    @Override
-    public void address(ZcodeAddressingContext ctx) {
-    }
-
-    @Override
-    public void addressMoveAlong(ZcodeAddressingContext ctx) {
-    }
 }

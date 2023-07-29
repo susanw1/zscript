@@ -2,11 +2,11 @@ package org.zcode.javareceiver.semanticParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.of;
-import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.CLOSE_PAREN;
-import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.END_SEQUENCE;
-import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.RUN_COMMAND;
-import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.RUN_FIRST_COMMAND;
-import static org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType.WAIT_FOR_TOKENS;
+import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.CLOSE_PAREN;
+import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.END_SEQUENCE;
+import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.RUN_COMMAND;
+import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.RUN_FIRST_COMMAND;
+import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.WAIT_FOR_TOKENS;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -18,10 +18,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.zcode.javareceiver.core.StringBuilderOutStream;
 import org.zcode.javareceiver.core.Zcode;
+import org.zcode.javareceiver.execution.ZcodeAction;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
 import org.zcode.javareceiver.modules.outerCore.ZcodeOuterCoreModule;
 import org.zcode.javareceiver.semanticParser.SemanticParser.State;
-import org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType;
+import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenRingBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
@@ -45,7 +46,7 @@ class SemanticParserTest {
     @Test
     void shouldStartNoActionWithEmptyTokens() {
         assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
-        final ZcodeAction a = parser.getAction();
+        final ZcodeSemanticAction a = parser.getAction();
         assertThat(a.getType()).isEqualTo(WAIT_FOR_TOKENS);
         assertThat(outStream.getString()).isEqualTo("");
         assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
@@ -56,19 +57,19 @@ class SemanticParserTest {
         "Z0\n".chars().forEachOrdered(c -> tokenizer.accept((byte) c));
 
         assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
-        final ZcodeAction a1 = parser.getAction();
+        final ZcodeSemanticAction a1 = parser.getAction();
         assertThat(a1.getType()).isEqualTo(RUN_FIRST_COMMAND);
         a1.performAction(zcode, outStream);
         assertThat(outStream.getStringAndReset()).isEqualTo("!V1C3007M3S");
         assertThat(parser.getState()).isEqualTo(State.COMMAND_COMPLETE);
 
-        final ZcodeAction a2 = parser.getAction();
+        final ZcodeSemanticAction a2 = parser.getAction();
         assertThat(a2.getType()).isEqualTo(END_SEQUENCE);
         a2.performAction(zcode, outStream);
         assertThat(outStream.getStringAndReset()).isEqualTo("\n");
         assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
 
-        final ZcodeAction a3 = parser.getAction();
+        final ZcodeSemanticAction a3 = parser.getAction();
         assertThat(a3.getType()).isEqualTo(WAIT_FOR_TOKENS);
         assertThat(outStream.getString()).isEqualTo("");
         assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
@@ -81,26 +82,26 @@ class SemanticParserTest {
         "Z1A & Z1B\n".chars().forEachOrdered(c -> tokenizer.accept((byte) c));
 
         assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
-        final ZcodeAction a1 = parser.getAction();
+        final ZcodeSemanticAction a1 = parser.getAction();
         assertThat(a1.getType()).isEqualTo(RUN_FIRST_COMMAND);
         a1.performAction(zcode, outStream);
         assertThat(outStream.getStringAndReset()).isEqualTo("!AS");
         assertThat(parser.getState()).isEqualTo(State.COMMAND_COMPLETE);
 
-        final ZcodeAction a2 = parser.getAction();
+        final ZcodeSemanticAction a2 = parser.getAction();
         assertThat(a2.getType()).isEqualTo(RUN_COMMAND);
 //        assertThat(a2.getInfo()).isEqualTo(ZcodeTokenizer.CMD_END_ANDTHEN);
         a2.performAction(zcode, outStream);
         assertThat(outStream.getStringAndReset()).isEqualTo("&BS");
         assertThat(parser.getState()).isEqualTo(State.COMMAND_COMPLETE);
 
-        final ZcodeAction a3 = parser.getAction();
+        final ZcodeSemanticAction a3 = parser.getAction();
         assertThat(a3.getType()).isEqualTo(END_SEQUENCE);
         a3.performAction(zcode, outStream);
         assertThat(outStream.getStringAndReset()).isEqualTo("\n");
         assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
 
-        final ZcodeAction a4 = parser.getAction();
+        final ZcodeSemanticAction a4 = parser.getAction();
         assertThat(a4.getType()).isEqualTo(WAIT_FOR_TOKENS);
         assertThat(outStream.getString()).isEqualTo("");
         assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
@@ -120,7 +121,7 @@ class SemanticParserTest {
             ZcodeAction a1 = parser.getAction();
 
             System.out.println("  Received action: actionType=" + a1 + "; state=" + parser.getState());
-            assertThat(a1.getType()).isEqualTo(t);
+            assertThat(((ZcodeSemanticAction) a1).getType()).isEqualTo(t);
             a1.performAction(zcode, outStream);
 
             System.out.println("   - After execute action: outStream=" + outStream.getString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());

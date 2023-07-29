@@ -2,6 +2,7 @@ package org.zcode.javareceiver.modules;
 
 import java.util.OptionalInt;
 
+import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeAddressingContext;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
@@ -72,6 +73,14 @@ public class ZcodeModuleRegistry {
     public void moveAlong(ZcodeAddressingContext ctx) {
         int addr = ctx.getAddressSegments().next().get();
         modules[addr].addressMoveAlong(ctx);
+    }
+
+    public boolean notification(ZcodeOutStream out, int type, boolean isAddressed) {
+        if (modules[type >> 4] == null) {
+            out.writeField('S', ZcodeStatus.INTERNAL_ERROR);
+            return true;
+        }
+        return modules[type >> 4].notification(out, type & 0xF, isAddressed);
     }
 
     public int getCommandSwitchExistsBottom(int top) {

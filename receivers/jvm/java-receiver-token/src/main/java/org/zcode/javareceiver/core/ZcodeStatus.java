@@ -25,6 +25,8 @@ public class ZcodeStatus {
     public static final byte NOT_ACTIVATED         = 0x12;
     /** command error in order to control the program flow */
     public static final byte COMMAND_ERROR_CONTROL = 0x13;
+    /** Response too long */
+    public static final byte RESPONSE_TOO_LONG     = 0x14;
 
     /** numeric field too long */
     public static final byte FIELD_TOO_LONG      = 0x20;

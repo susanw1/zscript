@@ -1,7 +1,7 @@
 package org.zcode.javareceiver.semanticParser;
 
 import org.zcode.javareceiver.core.Zcode;
-import org.zcode.javareceiver.semanticParser.ZcodeAction.ActionType;
+import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
 
 /**
  * Defines methods accessed by ZcodeActions.
