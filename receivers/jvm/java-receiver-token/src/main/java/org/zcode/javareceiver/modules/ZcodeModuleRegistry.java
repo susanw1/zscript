@@ -75,8 +75,12 @@ public class ZcodeModuleRegistry {
         modules[addr].addressMoveAlong(ctx);
     }
 
-    public boolean notification(ZcodeOutStream out, int type) {
-        return modules[type >> 4].notification(out, type & 0xF);
+    public boolean notification(ZcodeOutStream out, int type, boolean isAddressed) {
+        if (modules[type >> 4] == null) {
+            out.writeField('S', ZcodeStatus.INTERNAL_ERROR);
+            return true;
+        }
+        return modules[type >> 4].notification(out, type & 0xF, isAddressed);
     }
 
     public int getCommandSwitchExistsBottom(int top) {

@@ -46,7 +46,7 @@ public class ZcodeOuterCoreModule implements ZcodeModule {
     }
 
     @Override
-    public boolean notification(ZcodeOutStream out, int i) {
+    public boolean notification(ZcodeOutStream out, int i, boolean isAddressed) {
         out.writeString("System has reset");
         return true;
     }

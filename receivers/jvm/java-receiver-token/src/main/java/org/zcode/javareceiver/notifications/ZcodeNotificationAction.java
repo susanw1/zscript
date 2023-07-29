@@ -4,6 +4,7 @@ import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeLockSet;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.execution.ZcodeAction;
+import org.zcode.javareceiver.tokenizer.Zchars;
 
 public class ZcodeNotificationAction implements ZcodeAction {
     private final ZcodeNotificationSource source;
@@ -14,16 +15,16 @@ public class ZcodeNotificationAction implements ZcodeAction {
 
     @Override
     public boolean isEmptyAction() {
-        return source.getNotificationID() == 0;
+        return source.getID() == 0;
     }
 
     @Override
     public void performAction(Zcode z, ZcodeOutStream out) {
-        if (source.getNotificationID() == 0) {
+        if (source.getID() == 0) {
             return;
         }
         startResponse(out);
-        if (z.getModuleRegistry().notification(out, source.getNotificationID())) {
+        if (z.getModuleRegistry().notification(out, source.getID(), source.isAddressing())) {
             out.endSequence();
             out.close();
             ZcodeLockSet ls = source.getLocks();
@@ -39,7 +40,12 @@ public class ZcodeNotificationAction implements ZcodeAction {
         if (!out.isOpen()) {
             out.open();
         }
-        out.writeField('!', (source.getNotificationID() >> 4));
+        if (source.isAddressing()) {
+            out.writeField('!', 0);
+            out.writeField(Zchars.Z_ADDRESSING, (source.getID() >> 4));
+        } else {
+            out.writeField('!', (source.getID() >> 4));
+        }
     }
 
     @Override

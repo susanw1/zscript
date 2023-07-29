@@ -23,7 +23,7 @@ public interface ZcodeModule {
         ctx.status(ZcodeStatus.INTERNAL_ERROR);
     }
 
-    default boolean notification(ZcodeOutStream out, int i) {
+    default boolean notification(ZcodeOutStream out, int i, boolean isAddressed) {
         out.writeField('S', ZcodeStatus.INTERNAL_ERROR);
         return true;
     }
