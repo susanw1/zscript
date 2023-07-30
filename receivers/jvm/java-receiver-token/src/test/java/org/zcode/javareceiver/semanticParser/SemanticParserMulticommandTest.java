@@ -2,9 +2,7 @@ package org.zcode.javareceiver.semanticParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.of;
-import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.CLOSE_PAREN;
 import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.END_SEQUENCE;
-import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.RUN_COMMAND;
 import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.RUN_FIRST_COMMAND;
 import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.WAIT_FOR_TOKENS;
 
@@ -20,7 +18,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.zcode.javareceiver.core.StringWriterOutStream;
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
-import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenRingBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
@@ -68,24 +65,59 @@ class SemanticParserMulticommandTest {
 
     @ParameterizedTest
     @MethodSource
-    public void shouldProduceActionsForNestedParenthesizedLogicalCommandSeries(final String text, final List<ActionType> actionTypes, String finalOutput) {
-        parserActionTester.parseSnippet(text, actionTypes);
-        assertThat(outStream.getString()).isEqualTo(finalOutput);
+    public void shouldProduceMultipleResponses(final String text, String finalOutput) {
+        parserActionTester.parseSnippet(text, finalOutput);
         assertThat(outStream.isOpen()).isFalse();
     }
 
-    // not used yet!
-    private static Stream<Arguments> shouldProduceActionsForNestedParenthesizedLogicalCommandSeries() {
+    private static Stream<Arguments> shouldProduceMultipleResponses() {
         return Stream.of(
-                of("((Z1A)) \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!((AS))\n"),
-                of("((Z1A)Z1B) \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!((AS)BS)\n"),
-                of("(Z1A S1)Z1B \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, CLOSE_PAREN, END_SEQUENCE, WAIT_FOR_TOKENS), "!(AS1)\n"),
-                of("(Z1A(Z1B)) \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!(AS(BS))\n"),
-                of("(Z1A S1(Z1B)) \n", List.of(RUN_FIRST_COMMAND, RUN_COMMAND, CLOSE_PAREN, END_SEQUENCE, WAIT_FOR_TOKENS), "!(AS1)\n"),
+                of("Z1 A2 +1234\n Z1 A3B3 +5678\n", "!A2+1234S\n!A3B3+5678S\n"),
+                of("Z1A S1 \n Z1B\n", "!AS1\n!BS\n"),
+                of("Z1A S1 | Z1B S1 \n Z1C\n", "!AS1|BS1\n!CS\n"),
+                of("Z1A S13 \n Z1B\n", "!AS13\n!BS\n"),
+                of("Z1A S13 | Z1B S1 \n Z1C\n", "!AS13\n!CS\n"));
+    }
 
-                of("Z1A & ((Z1B & Z1C)) & Z1D \n",
-                        List.of(RUN_FIRST_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, RUN_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS),
-                        "!AS&((BS&CS))&DS\n"));
+    @ParameterizedTest
+    @MethodSource
+    public void shouldProduceMultipleResponsesWithComments(final String text, String finalOutput) {
+        parserActionTester.parseSnippet(text, finalOutput);
+        assertThat(outStream.isOpen()).isFalse();
+    }
+
+    private static Stream<Arguments> shouldProduceMultipleResponsesWithComments() {
+        return Stream.of(
+                of("Z1 A \n#hi\n", "!AS\n"),
+                of("Z1 A \n#hi\n#abc\nZ1B\n", "!AS\n!BS\n"));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void shouldProduceMultipleResponsesWithAddressing(final String text, String finalOutput) {
+        parserActionTester.parseSnippet(text, finalOutput);
+        assertThat(outStream.isOpen()).isFalse();
+    }
+
+    private static Stream<Arguments> shouldProduceMultipleResponsesWithAddressing() {
+        // Addressing actions are passed on downstream, not acknowledged - they should not appear in the response.
+        return Stream.of(
+                of("Z1 A \n@1 Z1B\n", "!AS\n"),
+                of("Z1 A \n@1.2 Z1B\n@2.2 Z1C\n Z1D\n", "!AS\n!DS\n"));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    public void shouldProduceMultipleResponsesWithAddressing1(final String text, String finalOutput) {
+        parserActionTester.parseSnippet(text, finalOutput);
+        assertThat(outStream.isOpen()).isFalse();
+    }
+
+    private static Stream<Arguments> shouldProduceMultipleResponsesWithAddressing1() {
+        // Addressing actions are passed on downstream, not acknowledged - they should not appear in the response.
+        return Stream.of(
+                of("Z1 A \n@1 Z1B\n", "!AS\n"),
+                of("Z1 A \n@1.2 Z1B\n@2.2 Z1C\n Z1D\n", "!AS\n!DS\n"));
     }
 
 }

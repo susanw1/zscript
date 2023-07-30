@@ -19,7 +19,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.zcode.javareceiver.core.StringWriterOutStream;
 import org.zcode.javareceiver.core.Zcode;
-import org.zcode.javareceiver.execution.ZcodeAction;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
 import org.zcode.javareceiver.semanticParser.SemanticParser.State;
 import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
@@ -111,23 +110,17 @@ class SemanticParserTest {
         assertThat(outStream.isOpen()).isFalse();
     }
 
-    private void parseSnippet(final String text, final List<ActionType> actionTypes) {
-        // feed all chars into tokens/buffer
-        text.chars().forEachOrdered(c -> tokenizer.accept((byte) c));
+    @Test
+    void shouldProduceActionForComment() {
+        "#a\n".chars().forEachOrdered(c -> tokenizer.accept((byte) c));
 
-        buffer.getTokenReader().iterator().forEach(t -> System.out.print(t + " "));
-        System.out.println();
-
-        actionTypes.forEach(t -> {
-            System.out.println("Expecting actionType=" + t);
-            ZcodeAction a1 = parser.getAction();
-
-            System.out.println("  Received action: actionType=" + a1 + "; state=" + parser.getState());
-            assertThat(((ZcodeSemanticAction) a1).getType()).isEqualTo(t);
-            a1.performAction(zcode, outStream);
-
-            System.out.println("   - After execute action: outStream=" + outStream.getString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());
-        });
+        assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
+        final ZcodeSemanticAction a1 = parser.getAction();
+        assertThat(a1.getType()).isEqualTo(WAIT_FOR_TOKENS);
+        a1.performAction(zcode, outStream);
+        assertThat(outStream.getStringAndReset()).isEqualTo("");
+        assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
+        assertThat(outStream.isOpen()).isFalse();
     }
 
     @ParameterizedTest

@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeOutStream;
-import org.zcode.javareceiver.execution.ZcodeAction;
 import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
@@ -38,13 +37,29 @@ class ParserActionTester {
 
         actionTypes.forEach(t -> {
             System.out.println("Expecting actionType=" + t);
-            ZcodeAction a1 = parser.getAction();
+            ZcodeSemanticAction action = parser.getAction();
 
-            System.out.println("  Received action: actionType=" + a1 + "; state=" + parser.getState());
-            assertThat(((ZcodeSemanticAction) a1).getType()).isEqualTo(t);
-            a1.performAction(zcode, outStream);
+            System.out.println("  Received action: actionType=" + action + "; state=" + parser.getState());
+            assertThat(action.getType()).isEqualTo(t);
+            action.performAction(zcode, outStream);
 
             System.out.println("   - After execute action: outStream=" + outStream.toString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());
         });
+    }
+
+    void parseSnippet(final String text, String output) {
+        // feed all chars into tokens/buffer
+        text.chars().forEachOrdered(c -> tokenizer.accept((byte) c));
+
+        buffer.getTokenReader().iterator().forEach(t -> System.out.print(t + " "));
+        System.out.println();
+
+        ZcodeSemanticAction a1;
+        while ((a1 = parser.getAction()).getType() != ActionType.WAIT_FOR_TOKENS) {
+            System.out.println("  Received action: actionType=" + a1 + "; state=" + parser.getState());
+            a1.performAction(zcode, outStream);
+            System.out.println("   - After execute action: outStream=" + outStream.toString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());
+        }
+        assertThat(outStream.toString()).isEqualTo(output);
     }
 }
