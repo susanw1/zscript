@@ -226,6 +226,21 @@ class ZcodeTokenRingBufferWriterTest {
     }
 
     @Test
+    void shouldTokenizeContinuedBigField() {
+        ZcodeTokenRingBuffer bigBuffer = ZcodeTokenRingBuffer.createBufferWithCapacity(300);
+        TokenWriter          writer    = bigBuffer.getTokenWriter();
+
+        writer.startToken((byte) '+', false);
+        for (int i = 0; i < 258; i++) {
+            writer.continueTokenNibble((byte) 4);
+            writer.continueTokenNibble((byte) (i & 0xf));
+        }
+        writer.endToken();
+
+        assertThat(bigBuffer.getInternalData()).startsWith('+', 255, 64, 65).containsSequence(77, 78, 129, 3, 79, 64, 65, 0);
+    }
+
+    @Test
     void shouldWriteBufferOverflowOnTokenKey() {
         insertByteToken(5);
         writer.endToken();

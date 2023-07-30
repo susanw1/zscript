@@ -158,7 +158,7 @@ class ZcodeTokenizerTest {
 
     /**
      * Simple way to test lots of possibilities: bufferActions is a little 2-char language describing, for each input char, the (op, arg) on the buffer.
-     * 
+     *
      * @param zcode         some zcode text to tokenize, but where 'n' is replaced by '\n'
      * @param bufferActions a pair of chars for each zcode char, so express expected method calls
      */
@@ -212,7 +212,7 @@ class ZcodeTokenizerTest {
         }
     }
 
-    @Test 
+    @Test
     public void shouldAcceptSingleKeyAtTokenStart() {
         when(writer.isTokenComplete()).thenReturn(true);
         validateZcodeActions("Z\n", "tZm" + END);

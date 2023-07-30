@@ -13,8 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.zcode.javareceiver.core.StringWriterOutStream;
 import org.zcode.javareceiver.core.Zcode;
-import org.zcode.javareceiver.execution.ZcodeAction;
-import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
+import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenRingBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
@@ -28,50 +27,41 @@ public class SemanticParserAddressingTest {
     private final Zcode zcode = new Zcode();
 
     private StringWriterOutStream outStream;
+    private ParserActionTester    parserActionTester;
 
     @BeforeEach
     void setup() throws IOException {
+        zcode.addModule(new ZcodeCoreModule());
         outStream = new StringWriterOutStream();
-    }
-
-    void shouldProduceActions(final String text, final List<ActionType> actionTypes, final String finalOutput) {
-        // feed all chars into tokens/buffer
-        text.chars().forEachOrdered(c -> tokenizer.accept((byte) c));
-
-        buffer.getTokenReader().iterator().forEach(t -> System.out.print(t + " "));
-        System.out.println();
-
-        actionTypes.forEach(t -> {
-            System.out.println("Expecting actionType=" + t);
-            ZcodeAction a1 = parser.getAction();
-
-            System.out.println("  Received action: actionType=" + a1 + "; state=" + parser.getState());
-            assertThat(((ZcodeSemanticAction) a1).getType()).isEqualTo(t);
-            a1.performAction(zcode, outStream);
-
-            System.out.println("   - After execute action: outStream=" + outStream.getString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());
-        });
-        assertThat(outStream.getString()).isEqualTo(finalOutput);
+        parserActionTester = new ParserActionTester(zcode, buffer, tokenizer, parser, outStream);
     }
 
     @Test
     void shouldProduceActionForBasicAddressing() {
-        shouldProduceActions("@2Z1\n", List.of(INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS), "");
+        parserActionTester.parseSnippet("@2Z1\n", List.of(INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS));
+        assertThat(outStream.getString()).isEqualTo("");
+        assertThat(outStream.isOpen()).isFalse();
     }
 
     @Test
     void shouldAcceptAddressingWithEchoAndLocks() {
-        shouldProduceActions("_2%233@2Z1\n", List.of(INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS), "");
+        parserActionTester.parseSnippet("_2%233@2Z1\n", List.of(INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS));
+        assertThat(outStream.getString()).isEqualTo("");
+        assertThat(outStream.isOpen()).isFalse();
     }
 
     @Test
     void shouldFailInvalidAddressing() {
-        shouldProduceActions("@99999Z1\n", List.of(ERROR, WAIT_FOR_TOKENS), "!10S20\n");
+        parserActionTester.parseSnippet("@99999Z1\n", List.of(ERROR, WAIT_FOR_TOKENS));
+        assertThat(outStream.getString()).isEqualTo("!10S20\n");
+        assertThat(outStream.isOpen()).isFalse();
     }
 
     @Test
     void shouldAcceptMultPartAddressing() {
-        shouldProduceActions("@1.2.3.4.5.6.7.8.9.0.1.2.3.4.5.6.7.8.9.0Z1\n", List.of(INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS), "");
+        parserActionTester.parseSnippet("@1.2.3.4.5.6.7.8.9.0.1.2.3.4.5.6.7.8.9.0Z1\n", List.of(INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS));
+        assertThat(outStream.getString()).isEqualTo("");
+        assertThat(outStream.isOpen()).isFalse();
     }
 
 }

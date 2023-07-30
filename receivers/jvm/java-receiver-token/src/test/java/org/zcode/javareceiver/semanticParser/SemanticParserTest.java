@@ -8,6 +8,7 @@ import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionTy
 import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.RUN_FIRST_COMMAND;
 import static org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.WAIT_FOR_TOKENS;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -18,9 +19,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.zcode.javareceiver.core.StringWriterOutStream;
 import org.zcode.javareceiver.core.Zcode;
-import org.zcode.javareceiver.execution.ZcodeAction;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
-import org.zcode.javareceiver.modules.outerCore.ZcodeOuterCoreModule;
 import org.zcode.javareceiver.semanticParser.SemanticParser.State;
 import org.zcode.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer;
@@ -36,12 +35,13 @@ class SemanticParserTest {
     private final Zcode zcode = new Zcode();
 
     private StringWriterOutStream outStream;
+    private ParserActionTester    parserActionTester;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setup() throws IOException {
         zcode.addModule(new ZcodeCoreModule());
-        zcode.addModule(new ZcodeOuterCoreModule());
         outStream = new StringWriterOutStream();
+        parserActionTester = new ParserActionTester(zcode, buffer, tokenizer, parser, outStream);
     }
 
     @Test
@@ -61,7 +61,7 @@ class SemanticParserTest {
         final ZcodeSemanticAction a1 = parser.getAction();
         assertThat(a1.getType()).isEqualTo(RUN_FIRST_COMMAND);
         a1.performAction(zcode, outStream);
-        assertThat(outStream.getStringAndReset()).isEqualTo("!V1C3007M3S");
+        assertThat(outStream.getStringAndReset()).isEqualTo("!V1C3007M1S");
         assertThat(parser.getState()).isEqualTo(State.COMMAND_COMPLETE);
 
         final ZcodeSemanticAction a2 = parser.getAction();
@@ -110,36 +110,30 @@ class SemanticParserTest {
         assertThat(outStream.isOpen()).isFalse();
     }
 
-    private void parseSnippet(final String text, final List<ActionType> actionTypes) {
-        // feed all chars into tokens/buffer
-        text.chars().forEachOrdered(c -> tokenizer.accept((byte) c));
+    @Test
+    void shouldProduceActionForComment() {
+        "#a\n".chars().forEachOrdered(c -> tokenizer.accept((byte) c));
 
-        buffer.getTokenReader().iterator().forEach(t -> System.out.print(t + " "));
-        System.out.println();
-
-        actionTypes.forEach(t -> {
-            System.out.println("Expecting actionType=" + t);
-            ZcodeAction a1 = parser.getAction();
-
-            System.out.println("  Received action: actionType=" + a1 + "; state=" + parser.getState());
-            assertThat(((ZcodeSemanticAction) a1).getType()).isEqualTo(t);
-            a1.performAction(zcode, outStream);
-
-            System.out.println("   - After execute action: outStream=" + outStream.getString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());
-        });
+        assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
+        final ZcodeSemanticAction a1 = parser.getAction();
+        assertThat(a1.getType()).isEqualTo(WAIT_FOR_TOKENS);
+        a1.performAction(zcode, outStream);
+        assertThat(outStream.getStringAndReset()).isEqualTo("");
+        assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
+        assertThat(outStream.isOpen()).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource
     public void shouldProduceActionsForSingleCommands(final String text, final List<ActionType> actionTypes, String finalOutput) {
-        parseSnippet(text, actionTypes);
+        parserActionTester.parseSnippet(text, actionTypes);
         assertThat(outStream.getString()).isEqualTo(finalOutput);
         assertThat(outStream.isOpen()).isFalse();
     }
 
     private static Stream<Arguments> shouldProduceActionsForSingleCommands() {
         return Stream.of(
-                of("Z0\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!V1C3007M3S\n"),
+                of("Z0\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!V1C3007M1S\n"),
                 of("Z1A\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS\n"),
                 of("Z1A S1\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS1\n"),
                 of("Z1A S10\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS10\n"));
@@ -148,7 +142,7 @@ class SemanticParserTest {
     @ParameterizedTest
     @MethodSource
     public void shouldProduceActionsForLogicalCommandSeries(final String text, final List<ActionType> actionTypes, String finalOutput) {
-        parseSnippet(text, actionTypes);
+        parserActionTester.parseSnippet(text, actionTypes);
         assertThat(outStream.getString()).isEqualTo(finalOutput);
         assertThat(outStream.isOpen()).isFalse();
     }
@@ -166,7 +160,7 @@ class SemanticParserTest {
     @ParameterizedTest
     @MethodSource
     public void shouldProduceActionsForLogicalCommandSeriesWithFailures(final String text, final List<ActionType> actionTypes, String finalOutput) {
-        parseSnippet(text, actionTypes);
+        parserActionTester.parseSnippet(text, actionTypes);
         assertThat(outStream.getString()).isEqualTo(finalOutput);
         assertThat(outStream.isOpen()).isFalse();
     }
@@ -203,7 +197,7 @@ class SemanticParserTest {
     @ParameterizedTest
     @MethodSource
     public void shouldProduceActionsForLogicalCommandSeriesWithErrors(final String text, final List<ActionType> actionTypes, String finalOutput) {
-        parseSnippet(text, actionTypes);
+        parserActionTester.parseSnippet(text, actionTypes);
         assertThat(outStream.getString()).isEqualTo(finalOutput);
         assertThat(outStream.isOpen()).isFalse();
     }
@@ -253,7 +247,7 @@ class SemanticParserTest {
     @ParameterizedTest
     @MethodSource
     public void shouldProduceActionsForParenthesizedLogicalCommandSeries(final String text, final List<ActionType> actionTypes, String finalOutput) {
-        parseSnippet(text, actionTypes);
+        parserActionTester.parseSnippet(text, actionTypes);
         assertThat(outStream.getString()).isEqualTo(finalOutput);
         assertThat(outStream.isOpen()).isFalse();
     }
@@ -292,7 +286,7 @@ class SemanticParserTest {
     @ParameterizedTest
     @MethodSource
     public void shouldProduceActionsForNestedParenthesizedLogicalCommandSeries(final String text, final List<ActionType> actionTypes, String finalOutput) {
-        parseSnippet(text, actionTypes);
+        parserActionTester.parseSnippet(text, actionTypes);
         assertThat(outStream.getString()).isEqualTo(finalOutput);
         assertThat(outStream.isOpen()).isFalse();
     }
