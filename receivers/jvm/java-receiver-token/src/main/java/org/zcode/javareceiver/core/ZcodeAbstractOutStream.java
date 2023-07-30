@@ -3,6 +3,7 @@ package org.zcode.javareceiver.core;
 import java.nio.charset.StandardCharsets;
 
 import org.zcode.javareceiver.execution.ZcodeField;
+import org.zcode.javareceiver.tokenizer.BlockIterator;
 import org.zcode.javareceiver.tokenizer.Zchars;
 
 public abstract class ZcodeAbstractOutStream implements ZcodeOutStream, ZcodeCommandOutStream {
@@ -92,14 +93,16 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream, ZcodeCom
         if (field.isBigField()) {
             if (field.getKey() == Zchars.Z_BIGFIELD_QUOTED) {
                 writeCharAsByte('"');
+                // note, could use BlockIterator, but need to split and extract escaped chars
                 for (byte b : field) {
                     writeStringByte(b);
                 }
                 writeCharAsByte('"');
             } else {
                 writeCharAsByte('+');
-                for (byte b : field) {
-                    writeBytes(null, b, isOpen());
+                for (BlockIterator iterator = field.iterator(); iterator.hasNext();) {
+                    byte[] bytes = iterator.nextContiguous();
+                    writeBytes(bytes, bytes.length, true);
                 }
             }
         } else {

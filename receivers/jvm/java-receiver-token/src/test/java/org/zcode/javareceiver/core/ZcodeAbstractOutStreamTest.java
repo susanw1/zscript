@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.zcode.javareceiver.execution.ZcodeField;
 
 public class ZcodeAbstractOutStreamTest {
     StringWriterOutStream stOut;
@@ -124,4 +125,11 @@ public class ZcodeAbstractOutStreamTest {
         stOut.writeQuotedString("Hello World");
         assertThat(stOut.getString()).isEqualTo("\"Hello World\"");
     }
+
+    
+    @Test
+    void shouldWriteZcodeField() {
+        // This is really hard/annoying to test, and it's only used in the echo command. But we want to test it - we just had a stupid bug in it. Let's just write comprehensive parser tests around this.
+    }
+
 }
