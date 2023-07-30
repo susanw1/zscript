@@ -1,6 +1,6 @@
 package org.zcode.javasimulator.zcode.i2c;
 
-import java.util.Optional;
+import java.util.OptionalInt;
 
 import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
@@ -18,9 +18,9 @@ public class ZcodeI2cReadCommand {
     public static void execute(ZcodeCommandContext ctx, I2cModule module) {
         Entity entity = module.getEntity();
         ZcodeCommandOutStream out = ctx.getOutStream();
-        Optional<Integer> addrOpt = ctx.getField((byte) 'A');
-        Optional<Integer> portOpt = ctx.getField((byte) 'P');
-        Optional<Integer> lengthOpt = ctx.getField((byte) 'L');
+        OptionalInt addrOpt = ctx.getField((byte) 'A');
+        OptionalInt portOpt = ctx.getField((byte) 'P');
+        OptionalInt lengthOpt = ctx.getField((byte) 'L');
 
         if (addrOpt.isEmpty()) {
             ctx.status(ZcodeStatus.MISSING_KEY);
@@ -34,9 +34,9 @@ public class ZcodeI2cReadCommand {
             ctx.status(ZcodeStatus.MISSING_KEY);
             return;
         }
-        int addr = addrOpt.get();
-        int port = portOpt.get();
-        int length = lengthOpt.get();
+        int addr = addrOpt.getAsInt();
+        int port = portOpt.getAsInt();
+        int length = lengthOpt.getAsInt();
         int attempts = ctx.getField((byte) 'T', 1);
         boolean tenBit = ctx.hasField((byte) 'N');
         if (port >= entity.countConnection(I2cProtocolCategory.class)) {
@@ -49,10 +49,10 @@ public class ZcodeI2cReadCommand {
         }
 
         Connection<I2cProtocolCategory> connection = entity.getConnection(I2cProtocolCategory.class, port);
-        I2cResponse resp = (I2cResponse) connection.sendMessage(entity, new I2cReceivePacket(new I2cAddress(tenBit, addr), module.getBaud(port), false, length));
+        I2cResponse resp = (I2cResponse) connection.sendMessage(entity, new I2cReceivePacket(new I2cAddress(tenBit, addr), module.getBaud(port), true, length));
         int i = 1;
         while (resp.addressNack() && i < attempts) {
-            resp = (I2cResponse) connection.sendMessage(entity, new I2cReceivePacket(new I2cAddress(tenBit, addr), module.getBaud(port), false, length));
+            resp = (I2cResponse) connection.sendMessage(entity, new I2cReceivePacket(new I2cAddress(tenBit, addr), module.getBaud(port), true, length));
             i++;
         }
         out.writeField('T', i);

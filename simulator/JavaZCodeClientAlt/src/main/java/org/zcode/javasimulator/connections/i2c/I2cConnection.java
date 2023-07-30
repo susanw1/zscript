@@ -48,6 +48,7 @@ public final class I2cConnection extends ProtocolConnection<I2cProtocolCategory,
         if (target == null) {
             resp = new I2cAddressNackResponse();
         } else {
+
             resp = target.receive(connection, packet);
         }
         return resp;

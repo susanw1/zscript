@@ -31,6 +31,7 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
     private final I2cAddress addr;
     private final ZcodeTokenizer in;
     private final Queue<byte[]> outQueue;
+    private int cachePos = 0;
 
     public static I2cChannel build(Entity e, I2cAddress addr, int index, int size) {
         Queue<byte[]> outQueue = new ArrayDeque<>();
@@ -46,8 +47,8 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
             @Override
             public void close() {
                 outQueue.add(stream.toByteArray());
-                e.getConnection(I2cProtocolCategory.class, index).sendMessage(e, new SmBusAlertPacket());
                 e.getConnection(I2cProtocolCategory.class, index).getProtocol(I2cConnection.class).connect(SmBusAlertConnection.ALERT_ADDRESS, e);
+                e.getConnection(I2cProtocolCategory.class, index).sendMessage(e, new SmBusAlertPacket(true));
                 stream = null;
             }
 
@@ -103,15 +104,17 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
                 cache = outQueue.peek();
             }
             while (!outQueue.isEmpty() && dataIndex < data.length) {
-                if (index == cache.length) {
+                if (cachePos == cache.length) {
                     outQueue.poll();
                     cache = outQueue.peek();
-                    index = 0;
+                    cachePos = 0;
+                    break;
                 } else {
-                    data[dataIndex++] = cache[index++];
+                    data[dataIndex++] = cache[cachePos++];
                 }
             }
             if (outQueue.isEmpty()) {
+                e.getConnection(I2cProtocolCategory.class, index).sendMessage(e, new SmBusAlertPacket(false));
                 e.getConnection(I2cProtocolCategory.class, index).getProtocol(I2cConnection.class).disconnect(SmBusAlertConnection.ALERT_ADDRESS, e);
             }
             return (CommunicationResponse<T>) new I2cReceiveResponse(data);
@@ -122,7 +125,7 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
 
     @Override
     public Class<? extends ProtocolConnection<I2cProtocolCategory, ?>>[] getConnections() {
-        return new Class[] { I2cConnection.class, SmBusAlertConnection.class };
+        return new Class[] { I2cConnection.class };
     }
 
     @Override

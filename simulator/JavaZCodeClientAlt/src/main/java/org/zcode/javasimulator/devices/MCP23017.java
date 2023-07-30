@@ -101,6 +101,7 @@ public class MCP23017 extends EntityController {
             regs[INTF] = 0;
         }
         if (index == GPIO) {
+            outCon.sendMessage(entity, new SmBusAlertPacket(false));
             readPins(regs, regs == regsA ? iosA : iosB);
             return regs[index];
         } else if (index == IOCON) {
@@ -157,7 +158,7 @@ public class MCP23017 extends EntityController {
                 regs[INTF] |= mask;
                 if (!isInterrupt) {
                     isInterrupt = true;
-                    outCon.sendMessage(entity, new SmBusAlertPacket());
+                    outCon.sendMessage(entity, new SmBusAlertPacket(true));
                 }
             }
         }

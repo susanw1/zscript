@@ -45,16 +45,20 @@ public class Main2 {
 
         zcode.getEntity().connect(I2cProtocolCategory.class, 1, io.getEntity(), 0);
         Connection<I2cProtocolCategory> I2C = zcode.getEntity().getConnection(I2cProtocolCategory.class, 0);
-        I2C.sendMessage(io.getEntity(), new I2cSendPacket(new I2cAddress(0x10), "Z2&Z50&Z52P1A22+00f8&Z52P1A22+14ffff&Z52P1A22+140000\n".getBytes(StandardCharsets.UTF_8))); // set
-                                                                                                                                                                             // IODIR
+        I2C.sendMessage(io.getEntity(), new I2cSendPacket(new I2cAddress(0x10), "Z2&Z50&Z52P1A22+00f8&Z52P1A22+14ffff&Z52P1A22+140000\nZ0\n".getBytes(StandardCharsets.UTF_8))); // set
+        // IODIR
         try {
-            Thread.sleep(1000);
+            while (zcode.hasActivity())
+                Thread.sleep(10);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         System.out.println(StandardCharsets.UTF_8
-                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 32))).getData())).toString()); // set IODIR
+                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 64))).getData())).toString()); // set IODIR
+        System.out.println(StandardCharsets.UTF_8
+                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 64))).getData())).toString()); // set IODIR
 
+        zcode.stop();
     }
 
 }

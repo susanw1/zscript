@@ -2,19 +2,19 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-		<groupId>org.zcode</groupId>
-		<artifactId>zcode-simulators</artifactId>
+		<groupId>net.zscript</groupId>
+		<artifactId>zscript-simulators</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>JavaZCodeSimulator</artifactId>
-    <name>Zcode Simulator</name>
+    <name>Zscript Simulator</name>
     
     <dependencies>
         <dependency>
-            <groupId>org.zcode</groupId>
+            <groupId>net.zscript</groupId>
             <artifactId>java-receiver-token</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
         </dependency>
-    </dependencies>
+    </dependencies> 
 </project>

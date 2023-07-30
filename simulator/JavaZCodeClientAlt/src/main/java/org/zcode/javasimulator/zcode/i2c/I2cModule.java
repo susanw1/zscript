@@ -3,19 +3,30 @@ package org.zcode.javasimulator.zcode.i2c;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeAddressingContext;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.modules.ZcodeModule;
+import org.zcode.javareceiver.notifications.ZcodeNotificationSource;
 import org.zcode.javasimulator.Entity;
 import org.zcode.javasimulator.connections.i2c.I2cProtocolCategory;
 
 public class I2cModule implements ZcodeModule {
     private final Entity entity;
+    private final I2cNotificationHandler notificationHandler = new I2cNotificationHandler();
     private List<Long> bauds = new ArrayList<>();
 
     public I2cModule(Entity entity) {
         this.entity = entity;
+    }
+
+    public ZcodeNotificationSource getNotificationSource() {
+        return notificationHandler.getNotificationSource();
+    }
+
+    public I2cNotificationHandler getNotificationHandler() {
+        return notificationHandler;
     }
 
     @Override
@@ -46,20 +57,13 @@ public class I2cModule implements ZcodeModule {
     }
 
     @Override
-    public void moveAlong(ZcodeCommandContext ctx, int command) {
-        throw new IllegalStateException("No I2C commands are async");
-    }
-
-    @Override
     public void address(ZcodeAddressingContext ctx) {
-        // TODO Auto-generated method stub
-
+        ZcodeI2cAddressAction.execute(ctx, this);
     }
 
     @Override
-    public void addressMoveAlong(ZcodeAddressingContext ctx) {
-        // TODO Auto-generated method stub
-
+    public boolean notification(ZcodeOutStream out, int i, boolean isAddressed) {
+        return notificationHandler.notification(entity, out, i, isAddressed);
     }
 
     public Entity getEntity() {
