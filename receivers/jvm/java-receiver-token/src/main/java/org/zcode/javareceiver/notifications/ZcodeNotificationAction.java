@@ -1,6 +1,7 @@
 package org.zcode.javareceiver.notifications;
 
 import org.zcode.javareceiver.core.Zcode;
+import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeLockSet;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.execution.ZcodeAction;
@@ -40,11 +41,12 @@ public class ZcodeNotificationAction implements ZcodeAction {
         if (!out.isOpen()) {
             out.open();
         }
+        ZcodeCommandOutStream commandStream = out.asCommandOutStream();
         if (source.isAddressing()) {
-            out.writeField('!', 0);
-            out.writeField(Zchars.Z_ADDRESSING, (source.getID() >> 4));
+            commandStream.writeField('!', 0);
+            commandStream.writeField(Zchars.Z_ADDRESSING, (source.getID() >> 4));
         } else {
-            out.writeField('!', (source.getID() >> 4));
+            commandStream.writeField('!', (source.getID() >> 4));
         }
     }
 

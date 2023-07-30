@@ -77,7 +77,7 @@ public class ZcodeModuleRegistry {
 
     public boolean notification(ZcodeOutStream out, int type, boolean isAddressed) {
         if (modules[type >> 4] == null) {
-            out.writeField('S', ZcodeStatus.INTERNAL_ERROR);
+            out.asCommandOutStream().writeField('S', ZcodeStatus.INTERNAL_ERROR);
             return true;
         }
         return modules[type >> 4].notification(out, type & 0xF, isAddressed);

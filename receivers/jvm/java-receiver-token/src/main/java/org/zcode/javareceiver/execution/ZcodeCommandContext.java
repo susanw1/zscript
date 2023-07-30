@@ -27,7 +27,7 @@ public class ZcodeCommandContext {
     }
 
     public ZcodeCommandOutStream getOutStream() {
-        return out;
+        return out.asCommandOutStream();
     }
 
     public OptionalInt getField(final byte f) {
@@ -125,7 +125,7 @@ public class ZcodeCommandContext {
 
     public void status(final byte status) {
         contextView.setStatus(status);
-        out.writeField('S', status);
+        out.asCommandOutStream().writeField('S', status);
     }
 
     private OptIterator<ReadToken> iteratorToMarker() {

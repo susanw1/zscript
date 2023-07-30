@@ -1,5 +1,7 @@
 package org.zcode.javareceiver.demoRun;
 
+import java.io.IOException;
+
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.core.ZcodeChannel;
 import org.zcode.javareceiver.core.ZcodeOutStream;
@@ -10,7 +12,7 @@ import org.zcode.javareceiver.tokenizer.ZcodeTokenRingBuffer;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Zcode                zcode = new Zcode();
         ZcodeOuterCoreModule oCore = new ZcodeOuterCoreModule();
         zcode.addNotificationSource(oCore.getNotificationSource());
@@ -33,7 +35,7 @@ public class Main {
 
             @Override
             public void channelInfo(ZcodeCommandContext ctx) {
-                ctx.getOutStream().writeString("Basic text channel");
+                ctx.getOutStream().writeQuotedString("Basic text channel");
             }
 
             @Override

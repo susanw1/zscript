@@ -62,7 +62,7 @@ public class ZcodeCapabilitiesCommand {
         if (str != null) {
             out.writeField('V', ver);
             if (str.length() > 0) {
-                out.writeString(str);
+                out.writeQuotedString(str);
             }
         } else {
             ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);

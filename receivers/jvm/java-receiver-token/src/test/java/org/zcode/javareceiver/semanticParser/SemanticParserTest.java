@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.zcode.javareceiver.core.StringBuilderOutStream;
+import org.zcode.javareceiver.core.StringWriterOutStream;
 import org.zcode.javareceiver.core.Zcode;
 import org.zcode.javareceiver.execution.ZcodeAction;
 import org.zcode.javareceiver.modules.core.ZcodeCoreModule;
@@ -35,12 +35,13 @@ class SemanticParserTest {
 
     private final Zcode zcode = new Zcode();
 
-    private final StringBuilderOutStream outStream = new StringBuilderOutStream();
+    private StringWriterOutStream outStream;
 
     @BeforeEach
     void setUp() throws Exception {
         zcode.addModule(new ZcodeCoreModule());
         zcode.addModule(new ZcodeOuterCoreModule());
+        outStream = new StringWriterOutStream();
     }
 
     @Test

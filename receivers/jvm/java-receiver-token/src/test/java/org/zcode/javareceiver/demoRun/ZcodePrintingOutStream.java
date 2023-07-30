@@ -1,8 +1,15 @@
 package org.zcode.javareceiver.demoRun;
 
-import org.zcode.javareceiver.core.ZcodeAbstractOutStream;
+import java.io.IOException;
+import java.io.PrintStream;
 
-public class ZcodePrintingOutStream extends ZcodeAbstractOutStream {
+import org.zcode.javareceiver.core.OutputStreamOutStream;
+
+public class ZcodePrintingOutStream extends OutputStreamOutStream<PrintStream> {
+    public ZcodePrintingOutStream() throws IOException {
+        super(System.out);
+    }
+
     private boolean open = false;
 
     @Override
@@ -19,13 +26,4 @@ public class ZcodePrintingOutStream extends ZcodeAbstractOutStream {
     public boolean isOpen() {
         return open;
     }
-
-    @Override
-    public void writeByte(final byte b) {
-        if (!isOpen()) {
-            throw new IllegalStateException("outstream not open");
-        }
-        System.out.print((char) b);
-    }
-
 }
