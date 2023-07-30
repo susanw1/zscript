@@ -5,7 +5,6 @@ import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeLockSet;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.execution.ZcodeAction;
-import org.zcode.javareceiver.tokenizer.Zchars;
 
 public class ZcodeNotificationAction implements ZcodeAction {
     private final ZcodeNotificationSource source;
@@ -16,12 +15,12 @@ public class ZcodeNotificationAction implements ZcodeAction {
 
     @Override
     public boolean isEmptyAction() {
-        return source.getID() == 0;
+        return !source.hasNotification();
     }
 
     @Override
     public void performAction(Zcode z, ZcodeOutStream out) {
-        if (source.getID() == 0) {
+        if (!source.hasNotification()) {
             return;
         }
         startResponse(out);
@@ -44,7 +43,7 @@ public class ZcodeNotificationAction implements ZcodeAction {
         ZcodeCommandOutStream commandStream = out.asCommandOutStream();
         if (source.isAddressing()) {
             commandStream.writeField('!', 0);
-            commandStream.writeField(Zchars.Z_ADDRESSING, (source.getID() >> 4));
+//            commandStream.writeField(Zchars.Z_ADDRESSING, (source.getID() >> 4));
         } else {
             commandStream.writeField('!', (source.getID() >> 4));
         }

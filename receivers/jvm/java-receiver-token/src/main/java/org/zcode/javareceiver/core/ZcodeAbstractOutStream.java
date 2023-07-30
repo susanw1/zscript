@@ -74,6 +74,13 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream, ZcodeCom
     }
 
     @Override
+    public void writeBytes(byte[] c) {
+        for (byte b : c) {
+            writeByte(b);
+        }
+    }
+
+    @Override
     public void writeField(byte field, int value) {
         byte[] bytes = new byte[5];
         bytes[0] = field;

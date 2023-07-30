@@ -56,6 +56,15 @@ public class ZcodeNotificationSource implements ActionSource {
     public void setAddressing(int addressingID) {
         this.id = addressingID;
         this.isAddressing = false;
+    }
 
+    public void set(ZcodeLockSet locks, int notificationID, boolean isAddressing) {
+        this.locks = locks;
+        this.id = notificationID;
+        this.isAddressing = isAddressing;
+    }
+
+    public boolean hasNotification() {
+        return id != 0;
     }
 }

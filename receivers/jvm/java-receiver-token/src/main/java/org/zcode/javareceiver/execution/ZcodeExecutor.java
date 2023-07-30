@@ -14,16 +14,19 @@ public class ZcodeExecutor {
         this.zcode = zcode;
     }
 
-    public void progress(List<? extends ActionSource> sources) {
+    public boolean progress(List<? extends ActionSource> sources) {
         if (sources.isEmpty()) {
-            return;
+            return false;
         }
         List<ZcodeAction> possibleActions = new ArrayList<>();
 
+        boolean hasNonWait = false;
         for (ActionSource source : sources) {
             ZcodeAction action = source.getAction();
             if (action.isEmptyAction()) {
                 action.performAction(zcode, null);
+            } else {
+                hasNonWait = true;
             }
             possibleActions.add(action);
         }
@@ -34,6 +37,7 @@ public class ZcodeExecutor {
         if (!action.isEmptyAction() && action.lock(zcode)) {
             action.performAction(zcode, sources.get(indexToExec).getOutStream(zcode));
         }
+        return hasNonWait;
     }
 
 }

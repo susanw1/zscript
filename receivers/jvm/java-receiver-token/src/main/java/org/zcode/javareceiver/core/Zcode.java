@@ -70,11 +70,11 @@ public class Zcode {
         locks.unlock(l);
     }
 
-    public void progress() {
+    public boolean progress() {
         for (ZcodeChannel channel : channels) {
             channel.moveAlong();
         }
-        executor.progress(sources);
+        return executor.progress(sources);
     }
 
     public List<ZcodeChannel> getChannels() {

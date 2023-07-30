@@ -141,7 +141,7 @@ public class ZcodeCommandContext {
         return data;
     }
 
-    public Optional<Integer> getField(char c) {
+    public OptionalInt getField(char c) {
         return getField((byte) c);
     }
 

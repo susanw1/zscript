@@ -18,6 +18,9 @@ public class ZcodeChannelSetupCommand {
             return;
         }
         chs.get(target).channelSetup(ctx);
+        if (ctx.hasField((byte) 'N')) {
+            ctx.getZcode().setNotificationOutStream(ctx.getZcode().getChannels().get(target).getOutStream(ctx.getZcode()));
+        }
     }
 
 }
