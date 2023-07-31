@@ -124,14 +124,6 @@ public class ZcodeCommandContext {
         return size;
     }
 
-    public String getBigFieldString() {
-        StringBuilder str = new StringBuilder();
-        for (Iterator<Byte> iterator = getBigField(); iterator.hasNext();) {
-            str.append((char) (byte) iterator.next());
-        }
-        return str.toString();
-    }
-
     public byte[] getBigFieldData() {
         byte[] data = new byte[getBigFieldSize()];
         int    i    = 0;
