@@ -10,11 +10,9 @@ import org.zcode.javareceiver.tokenizer.Zchars;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
-public class ZcodeAddressingContext {
-    private final ContextView contextView;
-
-    public ZcodeAddressingContext(ContextView contextView) {
-        this.contextView = contextView;
+public class ZcodeAddressingContext extends AbstractContext {
+    public ZcodeAddressingContext(final ContextView contextView) {
+        super(contextView);
     }
 
     public BlockIterator getAddressedData() {
@@ -50,23 +48,6 @@ public class ZcodeAddressingContext {
         return 0;
     }
 
-    public void status(byte status) {
-        contextView.setStatus(status);
-//        if (!ZcodeStatus.isSuccess(status)) {
-//            if (ZcodeStatus.isError(status)) {
-//                parser.error();
-//            } else {
-//                parser.softFail();
-//            }
-//            if (!out.isOpen()) {
-//                out.open();
-//            }
-//            out.writeField('S', status);
-//            out.endSequence();
-//            out.close();
-//        }
-    }
-
     public boolean verify() {
         boolean hasReachedData = false;
         int     i              = 0;
@@ -99,19 +80,4 @@ public class ZcodeAddressingContext {
         return false;
     }
 
-    public void setCommandComplete() {
-        contextView.setCommandComplete(true);
-    }
-
-    public void clearCommandComplete() {
-        contextView.setCommandComplete(false);
-    }
-
-    public boolean commandComplete() {
-        return contextView.isCommandComplete();
-    }
-
-    public boolean isActivated() {
-        return contextView.isActivated();
-    }
 }
