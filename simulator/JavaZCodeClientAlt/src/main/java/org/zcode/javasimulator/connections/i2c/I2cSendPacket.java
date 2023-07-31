@@ -28,7 +28,7 @@ public class I2cSendPacket extends I2cPacket {
 
         sb.append("\tData: ");
         for (int i = 0; i < data.length; i++) {
-            sb.append(Utility.toFixedLengthHex(data[i], 2));
+            sb.append(Utility.toFixedLengthHex(Byte.toUnsignedInt(data[i]), 2));
             if (i < data.length - 1) {
                 sb.append(" ");
             }

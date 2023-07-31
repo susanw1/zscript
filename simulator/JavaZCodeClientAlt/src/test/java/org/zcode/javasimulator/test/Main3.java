@@ -66,7 +66,7 @@ public class Main3 {
 
         device.getEntity().connect(I2cProtocolCategory.class, 1, device2.getEntity(), 0);
         device2.getEntity().connect(I2cProtocolCategory.class, 0, io.getEntity(), 0);
-//        device2.getEntity().getConnection(I2cProtocolCategory.class, 0).tapConnection(new PrintingConnectionTap());
+        device2.getEntity().getConnection(I2cProtocolCategory.class, 0).tapConnection(new PrintingConnectionTap());
         Connection<I2cProtocolCategory> I2C = device.getEntity().getConnection(I2cProtocolCategory.class, 0);
         try {
             Thread.sleep(100);
@@ -82,9 +82,9 @@ public class Main3 {
             e.printStackTrace();
         }
         System.out.println(StandardCharsets.UTF_8
-                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 64))).getData())).toString()); // set IODIR
+                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 32))).getData())).toString()); // set IODIR
         System.out.println(StandardCharsets.UTF_8
-                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 64))).getData())).toString()); // set IODIR
+                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 32))).getData())).toString()); // set IODIR
 
         I2C.sendMessage(io.getEntity(), new I2cSendPacket(new I2cAddress(0x10), "@5.1.12Z2&Z52P0A22+00f8&Z52P0A22+14ffff&Z52P0A22+140000\n".getBytes(StandardCharsets.UTF_8))); // set
         try {
@@ -95,11 +95,11 @@ public class Main3 {
             e.printStackTrace();
         }
         System.out.println(StandardCharsets.UTF_8
-                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 64))).getData())).toString()); // set IODIR
+                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 32))).getData())).toString()); // set IODIR
         System.out.println(StandardCharsets.UTF_8
-                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 64))).getData())).toString()); // set IODIR
+                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 32))).getData())).toString()); // set IODIR
         System.out.println(StandardCharsets.UTF_8
-                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 64))).getData())).toString()); // set IODIR
+                .decode(ByteBuffer.wrap(((I2cReceiveResponse) I2C.sendMessage(io.getEntity(), new I2cReceivePacket(new I2cAddress(0x10), 32))).getData())).toString()); // set IODIR
         device.stop();
         device2.stop();
     }
