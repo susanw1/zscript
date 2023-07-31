@@ -16,14 +16,13 @@ import org.zcode.javareceiver.tokenizer.OptIterator;
 import org.zcode.javareceiver.tokenizer.Zchars;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenBuffer.TokenReader.ReadToken;
 
-public class ZcodeCommandContext {
+public class ZcodeCommandContext extends AbstractContext {
     private final Zcode          zcode;
-    private final ContextView    contextView;
     private final ZcodeOutStream out;
 
     public ZcodeCommandContext(final Zcode zcode, final ContextView contextView, final ZcodeOutStream out) {
+        super(contextView);
         this.zcode = zcode;
-        this.contextView = contextView;
         this.out = out;
     }
 
@@ -31,23 +30,23 @@ public class ZcodeCommandContext {
         return out.asCommandOutStream();
     }
 
-    public OptionalInt getField(final byte f) {
+    public OptionalInt getField(final byte key) {
         final OptIterator<ReadToken> it = iteratorToMarker();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             final ReadToken token = opt.get();
-            if (token.getKey() == f) {
+            if (token.getKey() == key) {
                 return OptionalInt.of(token.getData16());
             }
         }
         return OptionalInt.empty();
     }
 
-    public boolean hasField(final byte f) {
-        return getField(f).isPresent();
+    public boolean hasField(final byte key) {
+        return getField(key).isPresent();
     }
 
-    public int getField(final byte f, final int def) {
-        return getField(f).orElse(def);
+    public int getField(final byte key, final int def) {
+        return getField(key).orElse(def);
     }
 
     public int getFieldCount() {
@@ -137,9 +136,10 @@ public class ZcodeCommandContext {
         return getField((byte) c);
     }
 
+    @Override
     public void status(final byte status) {
-        contextView.setStatus(status);
-        out.asCommandOutStream().writeField('S', status);
+        super.status(status);
+        out.asCommandOutStream().writeField(Zchars.Z_STATUS, status);
     }
 
     private OptIterator<ReadToken> iteratorToMarker() {
@@ -194,22 +194,6 @@ public class ZcodeCommandContext {
             }
         }
         return true;
-    }
-
-    public void commandComplete() {
-        contextView.setCommandComplete(true);
-    }
-
-    public void commandNotComplete() {
-        contextView.setCommandComplete(false);
-    }
-
-    public boolean isCommandComplete() {
-        return contextView.isCommandComplete();
-    }
-
-    public boolean isActivated() {
-        return contextView.isActivated();
     }
 
     public void activate() {

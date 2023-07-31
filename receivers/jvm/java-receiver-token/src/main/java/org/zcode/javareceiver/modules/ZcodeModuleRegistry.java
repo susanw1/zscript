@@ -55,6 +55,7 @@ public class ZcodeModuleRegistry {
     }
 
     public void execute(ZcodeAddressingContext ctx) {
+        ctx.commandComplete();
         if (!ctx.isActivated()) {
             ctx.status(ZcodeStatus.NOT_ACTIVATED);
             return;
@@ -66,18 +67,18 @@ public class ZcodeModuleRegistry {
             ctx.status(ZcodeStatus.ADDRESS_NOT_FOUND);
             return;
         }
-        ctx.setCommandComplete();
         module.address(ctx);
     }
 
     public void moveAlong(ZcodeAddressingContext ctx) {
+        ctx.commandComplete();
         int addr = ctx.getAddressSegments().next().get();
         modules[addr].addressMoveAlong(ctx);
     }
 
     public boolean notification(ZcodeOutStream out, int type, boolean isAddressed) {
         if (modules[type >> 4] == null) {
-            out.asCommandOutStream().writeField('S', ZcodeStatus.INTERNAL_ERROR);
+            out.asCommandOutStream().writeField(Zchars.Z_STATUS, ZcodeStatus.INTERNAL_ERROR);
             return true;
         }
         return modules[type >> 4].notification(out, type & 0xF, isAddressed);

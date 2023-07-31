@@ -31,7 +31,7 @@ public class SemanticParser implements ParseState, ContextView {
 
         /**
          * Checks the buffer's flags and makes sure we've identified the next marker and the next sequence marker, if available.
-         * 
+         *
          * Makes sure the buffer flag's readerBlocked status is up-to-date.
          */
         private void dealWithTokenBufferFlags() {
@@ -267,7 +267,7 @@ public class SemanticParser implements ParseState, ContextView {
             if (state == State.PRESEQUENCE) {
                 // expecting buffer to be pointing at first token after lock/echo preamble.
                 if (reader.getFirstReadToken().getKey() == Zchars.Z_ADDRESSING) {
-                    state = State.COMMAND_INCOMPLETE;
+                    state = State.ADDRESSING_INCOMPLETE;
                     return ActionType.INVOKE_ADDRESSING;
                 }
                 // Until first command is run (and starts presuming it will complete), assert that the command state is INcomplete
@@ -285,6 +285,9 @@ public class SemanticParser implements ParseState, ContextView {
             return ActionType.ADDRESSING_MOVEALONG;
 
         case ADDRESSING_COMPLETE:
+            if (!markerCache.skipSequence()) {
+                throw new IllegalStateException();
+            }
             state = State.SEQUENCE_SKIP;
             return ActionType.END_SEQUENCE;
 
@@ -677,19 +680,24 @@ public class SemanticParser implements ParseState, ContextView {
     }
 
     @Override
-    public void notifyNeedsAction() {
-        switch (state) {
-        case ADDRESSING_INCOMPLETE:
-        case ADDRESSING_NEEDS_ACTION:
-            state = State.ADDRESSING_NEEDS_ACTION;
-            break;
-        case COMMAND_INCOMPLETE:
-        case COMMAND_NEEDS_ACTION:
-            state = State.COMMAND_NEEDS_ACTION;
-            break;
-        default:
-            throw new IllegalStateException("Invalid state transition");
-        }
+    public AsyncActionNotifier getAsyncActionNotifier() {
+        return new AsyncActionNotifier() {
+            @Override
+            public void notifyNeedsAction() {
+                switch (state) {
+                case ADDRESSING_INCOMPLETE:
+                case ADDRESSING_NEEDS_ACTION:
+                    state = State.ADDRESSING_NEEDS_ACTION;
+                    break;
+                case COMMAND_INCOMPLETE:
+                case COMMAND_NEEDS_ACTION:
+                    state = State.COMMAND_NEEDS_ACTION;
+                    break;
+                default:
+                    throw new IllegalStateException("Invalid state transition");
+                }
+            }
+        };
     }
 
     @Override

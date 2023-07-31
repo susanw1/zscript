@@ -6,6 +6,7 @@ import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
 import org.zcode.javareceiver.execution.ZcodeField;
 import org.zcode.javareceiver.tokenizer.OptIterator;
+import org.zcode.javareceiver.tokenizer.Zchars;
 
 public class ZcodeEchoCommand {
 
@@ -14,12 +15,12 @@ public class ZcodeEchoCommand {
         OptIterator<ZcodeField> iterator = ctx.fieldIterator();
         for (Optional<ZcodeField> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ZcodeField field = opt.get();
-            if (field.getKey() == 'S') {
+            if (field.getKey() == Zchars.Z_STATUS) {
                 int status = field.getValue();
                 ctx.status((byte) status);
                 continue;
             }
-            if (field.getKey() != 'Z') {
+            if (field.getKey() != Zchars.Z_CMD) {
                 out.writeField(field);
             }
         }

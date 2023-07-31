@@ -4,6 +4,7 @@ import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeAddressingContext;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
+import org.zcode.javareceiver.tokenizer.Zchars;
 
 public interface ZcodeModule {
 
@@ -24,7 +25,7 @@ public interface ZcodeModule {
     }
 
     default boolean notification(ZcodeOutStream out, int i, boolean isAddressed) {
-        out.asCommandOutStream().writeField('S', ZcodeStatus.INTERNAL_ERROR);
+        out.asCommandOutStream().writeField(Zchars.Z_STATUS, ZcodeStatus.INTERNAL_ERROR);
         return true;
     }
 

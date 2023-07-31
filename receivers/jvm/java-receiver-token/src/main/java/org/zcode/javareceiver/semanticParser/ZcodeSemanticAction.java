@@ -7,6 +7,7 @@ import org.zcode.javareceiver.core.ZcodeStatus;
 import org.zcode.javareceiver.execution.ZcodeAction;
 import org.zcode.javareceiver.execution.ZcodeAddressingContext;
 import org.zcode.javareceiver.execution.ZcodeCommandContext;
+import org.zcode.javareceiver.tokenizer.Zchars;
 import org.zcode.javareceiver.tokenizer.ZcodeTokenizer;
 
 public class ZcodeSemanticAction implements ZcodeAction {
@@ -48,7 +49,7 @@ public class ZcodeSemanticAction implements ZcodeAction {
         switch (type) {
         case ERROR:
             startResponse(out, (byte) 0x10); // TODO: debate
-            out.asCommandOutStream().writeField('S', parseState.getErrorStatus());
+            out.asCommandOutStream().writeField(Zchars.Z_STATUS, parseState.getErrorStatus());
             out.endSequence();
             out.close();
             parseState.unlock(zcode);
