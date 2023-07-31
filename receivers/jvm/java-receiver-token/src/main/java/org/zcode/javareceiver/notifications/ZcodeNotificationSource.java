@@ -6,9 +6,9 @@ import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.execution.ActionSource;
 
 public class ZcodeNotificationSource implements ActionSource {
-    private ZcodeLockSet locks        = null;
-    private int          id           = 0;
-    private boolean      isAddressing = false;
+    private volatile ZcodeLockSet locks        = null;
+    private volatile int          id           = 0;
+    private volatile boolean      isAddressing = false;
 
     @Override
     public ZcodeNotificationAction getAction() {
@@ -38,30 +38,30 @@ public class ZcodeNotificationSource implements ActionSource {
 
     public void setNotification(ZcodeLockSet locks, int notificationID) {
         this.locks = locks;
-        this.id = notificationID;
         this.isAddressing = false;
+        this.id = notificationID;
     }
 
     public void setNotification(int notificationID) {
-        this.id = notificationID;
         this.isAddressing = false;
+        this.id = notificationID;
     }
 
     public void setAddressing(ZcodeLockSet locks, int addressingID) {
         this.locks = locks;
-        this.id = addressingID;
         this.isAddressing = false;
+        this.id = addressingID;
     }
 
     public void setAddressing(int addressingID) {
-        this.id = addressingID;
         this.isAddressing = false;
+        this.id = addressingID;
     }
 
     public void set(ZcodeLockSet locks, int notificationID, boolean isAddressing) {
         this.locks = locks;
-        this.id = notificationID;
         this.isAddressing = isAddressing;
+        this.id = notificationID;
     }
 
     public boolean hasNotification() {
