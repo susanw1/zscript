@@ -1,9 +1,10 @@
 /*
- * ZscriptTokenizerTest.cpp
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
- *  Created on: 19 Jul 2023
- *      Author: alicia
+ * SPDX-License-Identifier: MIT
  */
+
 #include "../../../../main/c++/zscript/ZscriptTokenizer.hpp"
 
 #include <iostream>

@@ -1,8 +1,8 @@
 /*
- * TokenRingBuffer.hpp
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
- *  Created on: 18 Jul 2023
- *      Author: alicia
+ * SPDX-License-Identifier: MIT
  */
 
 #ifndef SRC_MAIN_C___ZSCRIPT_TOKENRINGBUFFER_HPP_
