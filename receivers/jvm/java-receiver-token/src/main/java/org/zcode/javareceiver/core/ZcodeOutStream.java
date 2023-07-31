@@ -34,6 +34,8 @@ public interface ZcodeOutStream {
 
     void endSequence();
 
+    void writeBytes(byte[] c);
+
     /**
      * Accesses the command interface to allow command-response activity.
      *

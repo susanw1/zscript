@@ -39,6 +39,17 @@ public class ZcodeAddressingContext {
         };
     }
 
+    public int getAddressedDataSize() {
+        final OptIterator<ReadToken> it = contextView.getReader().iterator();
+        for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
+            ReadToken token = opt.get();
+            if (token.getKey() == ZcodeTokenizer.ADDRESSING_FIELD_KEY) {
+                return token.getDataSize();
+            }
+        }
+        return 0;
+    }
+
     public void status(byte status) {
         contextView.setStatus(status);
 //        if (!ZcodeStatus.isSuccess(status)) {

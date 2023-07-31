@@ -39,6 +39,7 @@
         <module>receivers</module>
         <module>clients</module>
         <module>acceptance-tests</module>
+        <module>simulator</module>
     </modules>
 
     <dependencyManagement>
