@@ -141,10 +141,10 @@ public class I2cNotificationHandler implements ZcodeSimulatorConsumer<I2cProtoco
             for (nonNlLen = 0; nonNlLen < data.length && data[nonNlLen] != '\n'; nonNlLen++)
                 ;
             if (nonNlLen < data.length) {
-                commandOut.writeBytes(Arrays.copyOf(data, nonNlLen));
+                out.writeBytes(Arrays.copyOf(data, nonNlLen));
                 break;
             } else {
-                commandOut.writeBytes(data);
+                out.writeBytes(data);
             }
         }
         generateNotification();

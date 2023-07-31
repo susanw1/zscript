@@ -7,8 +7,6 @@ import org.zcode.javareceiver.execution.ZcodeField;
  */
 public interface ZcodeCommandOutStream {
 
-    void writeBytes(byte[] c);
-
     void writeField(byte field, int value);
 
     default void writeField(char field, int value) {
