@@ -74,10 +74,6 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
                 }
             }
 
-            @Override
-            public void writeByte(byte c) {
-                stream.write(c);
-            }
         });
         e.getConnection(I2cProtocolCategory.class, index).getProtocol(I2cConnection.class).connect(addr, e);
         return channel;

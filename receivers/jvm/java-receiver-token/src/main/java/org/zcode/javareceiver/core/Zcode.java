@@ -38,6 +38,7 @@ public class Zcode {
         @Override
         protected void writeBytes(byte[] bytes, int count, boolean hexMode) {
         }
+
     };
 
     public Zcode() {

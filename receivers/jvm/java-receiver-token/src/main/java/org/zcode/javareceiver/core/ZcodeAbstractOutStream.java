@@ -74,10 +74,8 @@ public abstract class ZcodeAbstractOutStream implements ZcodeOutStream, ZcodeCom
     }
 
     @Override
-    public void writeBytes(byte[] c) {
-        for (byte b : c) {
-            writeByte(b);
-        }
+    public void writeBytes(byte[] bytes) {
+        writeBytes(bytes, bytes.length, false);
     }
 
     @Override
