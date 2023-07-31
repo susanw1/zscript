@@ -20,7 +20,7 @@ public class ZcodeNotificationAction implements ZcodeAction {
 
     @Override
     public void performAction(Zcode z, ZcodeOutStream out) {
-        if (!source.hasNotification()) {
+        if (!source.hasNotification() || out == null) {
             return;
         }
         startResponse(out);
