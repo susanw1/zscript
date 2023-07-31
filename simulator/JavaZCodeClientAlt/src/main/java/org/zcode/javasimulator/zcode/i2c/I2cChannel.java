@@ -1,8 +1,8 @@
 package org.zcode.javasimulator.zcode.i2c;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.zcode.javareceiver.core.ZcodeAbstractOutStream;
 import org.zcode.javareceiver.core.ZcodeChannel;
@@ -34,8 +34,7 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
     private int cachePos = 0;
 
     public static I2cChannel build(Entity e, I2cAddress addr, int index, int size) {
-        Queue<byte[]> outQueue = new ArrayDeque<>();
-
+        Queue<byte[]> outQueue = new ConcurrentLinkedQueue<>();
         I2cChannel channel = new I2cChannel(e, addr, ZcodeTokenRingBuffer.createBufferWithCapacity(size), outQueue, new ZcodeAbstractOutStream() {
             private ByteArrayOutputStream stream;
 
@@ -79,6 +78,7 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
         if (packet.getClass() == I2cSendPacket.class) {
             byte[] data = ((I2cSendPacket) packet).getData();
             for (byte b : data) {
+//                System.out.print(b + "  " + (char) b + "  ");
                 in.accept(b);
             }
             return (CommunicationResponse<T>) I2cSendResponse.Success();
@@ -103,7 +103,7 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
             if (!outQueue.isEmpty()) {
                 cache = outQueue.peek();
             }
-            while (!outQueue.isEmpty() && dataIndex < data.length) {
+            while (!outQueue.isEmpty() && dataIndex < length) {
                 if (cachePos == cache.length) {
                     outQueue.poll();
                     cache = outQueue.peek();
@@ -112,6 +112,11 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
                 } else {
                     data[dataIndex++] = cache[cachePos++];
                 }
+            }
+            if (cache != null && cachePos == cache.length) {
+                outQueue.poll();
+                cache = outQueue.peek();
+                cachePos = 0;
             }
             if (outQueue.isEmpty()) {
                 e.getConnection(I2cProtocolCategory.class, index).sendMessage(e, new SmBusAlertPacket(false));

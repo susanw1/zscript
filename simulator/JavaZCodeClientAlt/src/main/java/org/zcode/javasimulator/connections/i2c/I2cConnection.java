@@ -33,14 +33,7 @@ public final class I2cConnection extends ProtocolConnection<I2cProtocolCategory,
 
     @Override
     public CommunicationResponse<I2cConnection> sendMessage(Entity source, CommunicationPacket<I2cConnection> packet) {
-        I2cAddress address;
-        if (packet.getClass() == I2cSendPacket.class) {
-            address = ((I2cSendPacket) packet).getAddress();
-        } else if (packet.getClass() == I2cReceivePacket.class) {
-            address = ((I2cReceivePacket) packet).getAddress();
-        } else {
-            throw new IllegalArgumentException("Unknown packet type for I2C protocol connection: " + packet.getClass().getName());
-        }
+        I2cAddress address = ((I2cPacket) packet).getAddress();
 
         List<Entity> tlist = entities.get(address);
         Entity target = tlist == null || tlist.isEmpty() ? null : tlist.get(0);

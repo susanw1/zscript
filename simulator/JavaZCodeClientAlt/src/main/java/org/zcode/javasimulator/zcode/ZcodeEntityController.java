@@ -23,21 +23,31 @@ import org.zcode.javasimulator.ProtocolConnection;
 
 public class ZcodeEntityController extends EntityController {
     private final Map<Class<? extends ProtocolConnection<?, ?>>, List<ZcodeSimulatorConsumer<? extends ProtocolCategory>>> modules = new HashMap<>();
+    private final ExecutorService mainExec = Executors.newSingleThreadExecutor();
+    private final ExecutorService interruptExec = Executors.newSingleThreadExecutor();
+    private final Thread mainCurrent = findCurrentMain();
+    private final Thread interruptCurrent = findCurrentInterrupt();
     private final Zcode zcode = new Zcode();
-    private final ExecutorService exec = Executors.newSingleThreadExecutor();
-    private final Thread current = findCurrent();
     private volatile boolean hasNonWait = false;
 
-    private Thread findCurrent() {
+    private Thread findCurrentMain() {
         try {
-            return exec.submit(() -> Thread.currentThread()).get();
+            return mainExec.submit(() -> Thread.currentThread()).get();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private <U> U switchToThread(Callable<U> task) {
-        if (Thread.currentThread() == current) {
+    private Thread findCurrentInterrupt() {
+        try {
+            return interruptExec.submit(() -> Thread.currentThread()).get();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private <U> U switchToInterruptThread(Callable<U> task) {
+        if (Thread.currentThread() == interruptCurrent) {
             try {
                 return task.call();
             } catch (Exception e) {
@@ -45,22 +55,58 @@ public class ZcodeEntityController extends EntityController {
             }
         } else {
             try {
-                return exec.submit(task).get();
+                return interruptExec.submit(task).get();
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    private void switchToThread(Runnable task) {
-        if (Thread.currentThread() == current) {
+    private void switchToInterruptThread(Runnable task) {
+        if (Thread.currentThread() == interruptCurrent) {
             try {
                 task.run();
-            } catch (Throwable t) {
-                throw new RuntimeException(t);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         } else {
-            exec.submit(task);
+            try {
+                interruptExec.submit(task);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private <U> U switchToMainThread(Callable<U> task) {
+        if (Thread.currentThread() == mainCurrent) {
+            try {
+                return task.call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try {
+                return mainExec.submit(task).get();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void switchToMainThread(Runnable task) {
+        if (Thread.currentThread() == mainCurrent) {
+            try {
+                task.run();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try {
+                mainExec.submit(task);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -74,27 +120,28 @@ public class ZcodeEntityController extends EntityController {
                 hasNonWait = false;
                 e.printStackTrace();
             }
-            exec.submit(new ProgressForever());
+            mainExec.submit(new ProgressForever());
         }
 
     }
 
     public void stop() {
-        exec.shutdown();
+        mainExec.shutdown();
+        interruptExec.shutdown();
     }
 
     public boolean hasActivity() {
-        return switchToThread(() -> hasNonWait);
+        return switchToMainThread(() -> hasNonWait);
     }
 
     public ZcodeEntityController() {
         addModule(new ZcodeCoreModule());
         addModule(new ZcodeOuterCoreModule());
-        exec.submit(new ProgressForever());
+        mainExec.submit(new ProgressForever());
     }
 
     public <U extends ProtocolCategory> void add(ZcodeSimulatorConsumer<U> consumer, int index) {
-        switchToThread(() -> {
+        switchToInterruptThread(() -> {
             for (Class<? extends ProtocolConnection<U, ?>> connection : consumer.getConnections()) {
                 modules.putIfAbsent(connection, new ArrayList<>());
                 List<ZcodeSimulatorConsumer<? extends ProtocolCategory>> list = modules.get(connection);
@@ -107,28 +154,23 @@ public class ZcodeEntityController extends EntityController {
     }
 
     public void addChannel(ZcodeChannel channel) {
-        switchToThread(() -> zcode.addChannel(channel));
+        switchToMainThread(() -> zcode.addChannel(channel));
     }
 
     public void addModule(ZcodeModule module) {
-        switchToThread(() -> zcode.addModule(module));
+        switchToMainThread(() -> zcode.addModule(module));
     }
 
-    public <U extends ProtocolCategory, T extends ProtocolConnection<U, T>> ZcodeSimulatorConsumer<U> getModule(Class<T> type, int index) {
-        try {
-            return switchToThread(() -> {
-                hasNonWait = true;
-                return (ZcodeSimulatorConsumer<U>) modules.get(type).get(index);
-            });
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    @SuppressWarnings("unchecked")
+    private <U extends ProtocolCategory, T extends ProtocolConnection<U, T>> ZcodeSimulatorConsumer<U> getModule(Class<T> type, int index) {
+        hasNonWait = true;
+        return (ZcodeSimulatorConsumer<U>) modules.get(type).get(index);
     }
 
     @Override
     public <U extends ProtocolCategory, T extends ProtocolConnection<U, T>> CommunicationResponse<T> acceptIncoming(Class<U> type, int index, CommunicationPacket<T> packet) {
         try {
-            return switchToThread(() -> {
+            return switchToInterruptThread(() -> {
                 ZcodeSimulatorConsumer<U> consumer = getModule(packet.getProtocolConnectionType(), index);
 
                 if (consumer == null) {
@@ -143,6 +185,6 @@ public class ZcodeEntityController extends EntityController {
     }
 
     public void add(ZcodeNotificationSource notificationSource) {
-        switchToThread(() -> zcode.addNotificationSource(notificationSource));
+        switchToMainThread(() -> zcode.addNotificationSource(notificationSource));
     }
 }

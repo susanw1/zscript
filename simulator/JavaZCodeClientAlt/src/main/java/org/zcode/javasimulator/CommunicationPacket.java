@@ -1,8 +1,12 @@
 package org.zcode.javasimulator;
 
 public interface CommunicationPacket<T extends ProtocolConnection<?, T>> {
+    interface ResponseInfo {
+    }
 
-	Class<T> getProtocolConnectionType();
+    Class<T> getProtocolConnectionType();
 
-	String prettyPrint();
+    String prettyPrint();
+
+    CommunicationResponse<T> generateResponse(ResponseInfo info);
 }

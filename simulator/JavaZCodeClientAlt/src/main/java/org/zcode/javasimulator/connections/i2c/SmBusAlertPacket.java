@@ -1,5 +1,6 @@
 package org.zcode.javasimulator.connections.i2c;
 
+import org.zcode.javasimulator.BlankCommunicationResponse;
 import org.zcode.javasimulator.CommunicationPacket;
 import org.zcode.javasimulator.CommunicationResponse;
 
@@ -22,6 +23,11 @@ public class SmBusAlertPacket implements CommunicationPacket<SmBusAlertConnectio
     @Override
     public String prettyPrint() {
         return "SmBusAlert: " + alert;
+    }
+
+    @Override
+    public CommunicationResponse<SmBusAlertConnection> generateResponse(ResponseInfo info) {
+        return new BlankCommunicationResponse<>(SmBusAlertConnection.class);
     }
 
 }

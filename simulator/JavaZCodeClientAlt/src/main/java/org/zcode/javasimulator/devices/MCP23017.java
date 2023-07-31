@@ -16,7 +16,6 @@ import org.zcode.javasimulator.connections.i2c.I2cProtocolCategory;
 import org.zcode.javasimulator.connections.i2c.I2cReceivePacket;
 import org.zcode.javasimulator.connections.i2c.I2cReceiveResponse;
 import org.zcode.javasimulator.connections.i2c.I2cSendPacket;
-import org.zcode.javasimulator.connections.i2c.I2cSendResponse;
 import org.zcode.javasimulator.connections.i2c.SmBusAlertConnection;
 import org.zcode.javasimulator.connections.i2c.SmBusAlertPacket;
 import org.zcode.javasimulator.connections.pin.PinConnection;
@@ -225,21 +224,19 @@ public class MCP23017 extends EntityController {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <U extends ProtocolCategory, T extends ProtocolConnection<U, T>> CommunicationResponse<T> acceptIncoming(Class<U> type, int index,
             CommunicationPacket<T> packet) {
         if (type == I2cProtocolCategory.class) {
             if (packet.getClass() == I2cSendPacket.class) {
                 writeAll(((I2cSendPacket) packet).getData());
-                return (CommunicationResponse<T>) I2cSendResponse.Success();
-
+                return packet.generateResponse(((I2cSendPacket) packet).success());
             } else if (packet.getClass() == I2cReceivePacket.class) {
-                return (CommunicationResponse<T>) new I2cReceiveResponse(readAll(((I2cReceivePacket) packet).getLength()));
+                return packet.generateResponse(((I2cReceivePacket) packet).success(readAll(((I2cReceivePacket) packet).getLength())));
             } else {
                 throw new IllegalArgumentException("Invalid I2C Message for MCP23017: " + packet.getClass().getName());
             }
-        } else if (type == PinProtocolCategory.class) {
+        } else if (packet.getClass() == PinStatePacket.class) {
             if (index < 8) {
                 checkInterrupt(regsA, index, ((PinStatePacket) packet).getState());
             } else if (index < 16) {
@@ -247,7 +244,7 @@ public class MCP23017 extends EntityController {
             } else {
                 throw new IllegalArgumentException("Invalid pin index for MCP23017: " + index);
             }
-            return (CommunicationResponse<T>) new BlankCommunicationResponse<PinConnection>(PinConnection.class);
+            return new BlankCommunicationResponse<T>(packet.getProtocolConnectionType());
         } else {
             throw new IllegalArgumentException("Invalid communication for MCP23017: " + packet.getProtocolConnectionType().getName());
         }

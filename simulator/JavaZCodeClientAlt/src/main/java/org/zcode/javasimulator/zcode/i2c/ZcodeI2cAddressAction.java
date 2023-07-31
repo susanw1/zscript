@@ -45,14 +45,14 @@ public class ZcodeI2cAddressAction {
             return;
         }
 
-        byte[] data = new byte[ctx.getAddressedDataSize()];
+        byte[] data = new byte[ctx.getAddressedDataSize() + 1];
         int i = 0;
         for (Iterator<Byte> iterator = ctx.getAddressedData(); iterator.hasNext();) {
             data[i++] = iterator.next();
         }
-
+        data[i++] = '\n';
         Connection<I2cProtocolCategory> connection = entity.getConnection(I2cProtocolCategory.class, port);
-        I2cResponse resp = (I2cResponse) connection.sendMessage(entity, new I2cSendPacket(new I2cAddress(tenBit, addr), module.getBaud(port), false, data));
+        I2cResponse resp = (I2cResponse) connection.sendMessage(entity, new I2cSendPacket(new I2cAddress(tenBit, addr), module.getBaud(port), true, data));
         if (!resp.worked()) {
             ctx.status(ZcodeStatus.ADDRESS_NOT_FOUND);
             return;

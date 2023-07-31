@@ -122,7 +122,7 @@ public class I2cNotificationHandler implements ZcodeSimulatorConsumer<I2cProtoco
             return true;
         }
         out.writeField(Zchars.Z_ADDRESSING, 0x5);
-        out.writeField(Zchars.Z_ADDRESSING_CONTINUE, (source.getID() >> 4));
+        out.writeField(Zchars.Z_ADDRESSING_CONTINUE, (source.getID() & 0xF));
         out.writeField(Zchars.Z_ADDRESSING_CONTINUE, addr | (tenBit ? 0x8000 : 0));
         byte[] data;
         while (true) {
@@ -135,11 +135,11 @@ public class I2cNotificationHandler implements ZcodeSimulatorConsumer<I2cProtoco
                 break;
             }
             data = ((I2cReceiveResponse) respTmp).getData();
-            int nonNullLen;
-            for (nonNullLen = 0; nonNullLen < data.length && data[nonNullLen] != 0; nonNullLen++)
+            int nonNlLen;
+            for (nonNlLen = 0; nonNlLen < data.length && data[nonNlLen] != '\n'; nonNlLen++)
                 ;
-            if (nonNullLen < data.length) {
-                out.writeBytes(Arrays.copyOf(data, nonNullLen));
+            if (nonNlLen < data.length) {
+                out.writeBytes(Arrays.copyOf(data, nonNlLen));
                 break;
             } else {
                 out.writeBytes(data);
