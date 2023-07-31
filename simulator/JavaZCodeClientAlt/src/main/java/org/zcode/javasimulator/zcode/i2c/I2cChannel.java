@@ -1,6 +1,8 @@
 package org.zcode.javasimulator.zcode.i2c;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -54,6 +56,22 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
             @Override
             public boolean isOpen() {
                 return stream != null;
+            }
+
+            @Override
+            protected void writeBytes(byte[] bytes, int count, boolean hexMode) {
+                if (hexMode) {
+                    for (byte b : bytes) {
+                        stream.write(toHexChar(b >>> 4));
+                        stream.write(toHexChar(b & 0xf));
+                    }
+                } else {
+                    try {
+                        stream.write(Arrays.copyOf(bytes, count));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             @Override

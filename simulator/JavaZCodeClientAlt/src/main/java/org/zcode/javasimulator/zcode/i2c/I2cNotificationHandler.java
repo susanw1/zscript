@@ -2,6 +2,7 @@ package org.zcode.javasimulator.zcode.i2c;
 
 import java.util.Arrays;
 
+import org.zcode.javareceiver.core.ZcodeCommandOutStream;
 import org.zcode.javareceiver.core.ZcodeLockSet;
 import org.zcode.javareceiver.core.ZcodeOutStream;
 import org.zcode.javareceiver.core.ZcodeStatus;
@@ -92,13 +93,14 @@ public class I2cNotificationHandler implements ZcodeSimulatorConsumer<I2cProtoco
     }
 
     public boolean notification(Entity entity, ZcodeOutStream out, int i, boolean isAddressed) {
+        ZcodeCommandOutStream commandOut = out.asCommandOutStream();
         bitSet &= ~(1 << i);
         I2cResponse addrRespTmp = (I2cResponse) entity.getConnection(I2cProtocolCategory.class, i).sendMessage(entity, new I2cReceivePacket(SmBusAlertConnection.ALERT_ADDRESS, 2));
         if (!addrRespTmp.worked()) {
             if (isAddressed) {
-                out.writeField('S', ZcodeStatus.ADDRESS_NOT_FOUND);
+                commandOut.writeField('S', ZcodeStatus.ADDRESS_NOT_FOUND);
             } else {
-                out.writeField('P', i);
+                commandOut.writeField('P', i);
             }
             generateNotification();
             return true;
@@ -113,25 +115,25 @@ public class I2cNotificationHandler implements ZcodeSimulatorConsumer<I2cProtoco
             addr = addrData[0];
         }
         if (!isAddressed) {
-            out.writeField('P', i);
-            out.writeField('A', addr);
+            commandOut.writeField('P', i);
+            commandOut.writeField('A', addr);
             if (tenBit) {
-                out.writeField('N', 0);
+                commandOut.writeField('N', 0);
             }
             generateNotification();
             return true;
         }
-        out.writeField(Zchars.Z_ADDRESSING, 0x5);
-        out.writeField(Zchars.Z_ADDRESSING_CONTINUE, (source.getID() & 0xF));
-        out.writeField(Zchars.Z_ADDRESSING_CONTINUE, addr | (tenBit ? 0x8000 : 0));
+        commandOut.writeField(Zchars.Z_ADDRESSING, 0x5);
+        commandOut.writeField(Zchars.Z_ADDRESSING_CONTINUE, (source.getID() & 0xF));
+        commandOut.writeField(Zchars.Z_ADDRESSING_CONTINUE, addr | (tenBit ? 0x8000 : 0));
         byte[] data;
         while (true) {
             I2cResponse respTmp = (I2cResponse) entity.getConnection(I2cProtocolCategory.class, i).sendMessage(entity,
                     new I2cReceivePacket(new I2cAddress(addr), CHUNK_LENGTH));
             if (!respTmp.worked()) {
                 out.endSequence();
-                out.writeField('!', 0x50);
-                out.writeField('S', ZcodeStatus.ADDRESS_NOT_FOUND);
+                commandOut.writeField('!', 0x50);
+                commandOut.writeField('S', ZcodeStatus.ADDRESS_NOT_FOUND);
                 break;
             }
             data = ((I2cReceiveResponse) respTmp).getData();
@@ -139,10 +141,10 @@ public class I2cNotificationHandler implements ZcodeSimulatorConsumer<I2cProtoco
             for (nonNlLen = 0; nonNlLen < data.length && data[nonNlLen] != '\n'; nonNlLen++)
                 ;
             if (nonNlLen < data.length) {
-                out.writeBytes(Arrays.copyOf(data, nonNlLen));
+                commandOut.writeBytes(Arrays.copyOf(data, nonNlLen));
                 break;
             } else {
-                out.writeBytes(data);
+                commandOut.writeBytes(data);
             }
         }
         generateNotification();
