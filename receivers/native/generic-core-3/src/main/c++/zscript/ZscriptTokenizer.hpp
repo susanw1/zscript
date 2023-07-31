@@ -61,7 +61,7 @@ private:
     }
 
     void acceptText(uint8_t b) {
-        if (b == Zchars::EOL_SYMBOL) {
+        if (b == GenericCore::Zchars::EOL_SYMBOL) {
             if (isNormalString) {
                 buffer->W_fail(ERROR_CODE_STRING_NOT_TERMINATED);
             } else {
@@ -70,18 +70,18 @@ private:
             // we've written some marker, so reset as per the newline:
             resetFlags();
         } else if (escapingCount > 0) {
-            uint8_t hex = ZcharsUtils<ZP>::parseHex(b);
-            if (hex == ZcharsUtils<ZP>::PARSE_NOT_HEX_0X10) {
+            uint8_t hex = GenericCore::ZcharsUtils<ZP>::parseHex(b);
+            if (hex == GenericCore::ZcharsUtils<ZP>::PARSE_NOT_HEX_0X10) {
                 buffer->W_fail(ERROR_CODE_STRING_ESCAPING);
                 tokenizerError = true;
             } else {
                 buffer->W_continueTokenNibble(hex);
                 escapingCount--;
             }
-        } else if (isNormalString && b == Zchars::BIGFIELD_QUOTE_MARKER) {
+        } else if (isNormalString && b == GenericCore::Zchars::BIGFIELD_QUOTE_MARKER) {
             buffer->W_endToken();
             isText = false;
-        } else if (isNormalString && b == Zchars::STRING_ESCAPE_SYMBOL) {
+        } else if (isNormalString && b == GenericCore::Zchars::STRING_ESCAPE_SYMBOL) {
             escapingCount = 2;
         } else {
             buffer->W_continueTokenByte(b);
@@ -89,13 +89,13 @@ private:
     }
 
     void startNewToken(uint8_t b) {
-        if (b == Zchars::EOL_SYMBOL) {
+        if (b == GenericCore::Zchars::EOL_SYMBOL) {
             buffer->W_writeMarker(NORMAL_SEQUENCE_END);
             resetFlags();
             return;
         }
 
-        if (addressing && b != Zchars::ADDRESS_SEPARATOR) {
+        if (addressing && b != GenericCore::Zchars::ADDRESS_SEPARATOR) {
             buffer->W_startToken(ADDRESSING_FIELD_KEY, false);
             buffer->W_continueTokenByte(b);
             addressing = false;
@@ -105,19 +105,19 @@ private:
             return;
         }
 
-        if (ZcharsUtils<ZP>::isSeparator(b)) {
+        if (GenericCore::ZcharsUtils<ZP>::isSeparator(b)) {
             uint8_t marker = 0;
             switch (b) {
-            case Zchars::ANDTHEN_SYMBOL:
+            case GenericCore::Zchars::ANDTHEN_SYMBOL:
                 marker = CMD_END_ANDTHEN;
                 break;
-            case Zchars::ORELSE_SYMBOL:
+            case GenericCore::Zchars::ORELSE_SYMBOL:
                 marker = CMD_END_ORELSE;
                 break;
-            case Zchars::OPEN_PAREN_SYMBOL:
+            case GenericCore::Zchars::OPEN_PAREN_SYMBOL:
                 marker = CMD_END_OPEN_PAREN;
                 break;
-            case Zchars::CLOSE_PAREN_SYMBOL:
+            case GenericCore::Zchars::CLOSE_PAREN_SYMBOL:
                 marker = CMD_END_CLOSE_PAREN;
                 break;
                 // more for other constructs? '(', ')'
@@ -129,21 +129,21 @@ private:
             //TODO: die
         }
 
-        if (b == Zchars::ADDRESS_PREFIX) {
+        if (b == GenericCore::Zchars::ADDRESS_PREFIX) {
             addressing = true;
         }
 
-        if (!ZcharsUtils<ZP>::isAllowableKey(b)) {
+        if (!GenericCore::ZcharsUtils<ZP>::isAllowableKey(b)) {
             buffer->W_fail(ERROR_CODE_ILLEGAL_TOKEN);
             tokenizerError = true;
             return;
         }
 
-        numeric = !ZcharsUtils<ZP>::isNonNumerical(b);
+        numeric = !GenericCore::ZcharsUtils<ZP>::isNonNumerical(b);
         isText = false;
         buffer->W_startToken(b, numeric);
 
-        if (b == Zchars::COMMENT_PREFIX) {
+        if (b == GenericCore::Zchars::COMMENT_PREFIX) {
             if (DROP_COMMENTS) {
                 skipToNL = true;
             } else {
@@ -153,7 +153,7 @@ private:
             }
             return;
         }
-        if (b == Zchars::BIGFIELD_QUOTE_MARKER) {
+        if (b == GenericCore::Zchars::BIGFIELD_QUOTE_MARKER) {
             isText = true;
             isNormalString = true;
             escapingCount = 0;
@@ -184,12 +184,12 @@ public:
         return false;
     }
     void accept(uint8_t b) {
-        if ((!isText && ZcharsUtils<ZP>::shouldIgnore(b)) || ZcharsUtils<ZP>::alwaysIgnore(b)) {
+        if ((!isText && GenericCore::ZcharsUtils<ZP>::shouldIgnore(b)) || GenericCore::ZcharsUtils<ZP>::alwaysIgnore(b)) {
             return;
         }
 
         if (bufferOvr || tokenizerError || skipToNL) {
-            if (b == Zchars::EOL_SYMBOL) {
+            if (b == GenericCore::Zchars::EOL_SYMBOL) {
                 if (skipToNL) {
                     if (!checkCapacity()) {
                         dataLost();
@@ -225,8 +225,8 @@ public:
             return;
         }
 
-        uint8_t hex = ZcharsUtils<ZP>::parseHex(b);
-        if (hex != ZcharsUtils<ZP>::PARSE_NOT_HEX_0X10) {
+        uint8_t hex = GenericCore::ZcharsUtils<ZP>::parseHex(b);
+        if (hex != GenericCore::ZcharsUtils<ZP>::PARSE_NOT_HEX_0X10) {
             if (numeric) {
                 // Check field length
                 int currentLength = buffer->W_getCurrentWriteTokenLength();
@@ -245,10 +245,10 @@ public:
         }
 
         // Check big field odd length
-        if (!numeric && buffer->W_getCurrentWriteTokenKey() == Zchars::BIGFIELD_PREFIX_MARKER && buffer->W_isInNibble()) {
+        if (!numeric && buffer->W_getCurrentWriteTokenKey() == GenericCore::Zchars::BIGFIELD_PREFIX_MARKER && buffer->W_isInNibble()) {
             buffer->W_fail(ERROR_CODE_ODD_BIGFIELD_LENGTH);
             tokenizerError = true;
-            if (b == Zchars::EOL_SYMBOL) {
+            if (b == GenericCore::Zchars::EOL_SYMBOL) {
                 // interesting case: the error above could be caused by b==Z_NEWLINE, but we've written an error marker, so just reset and return
                 resetFlags();
             }
