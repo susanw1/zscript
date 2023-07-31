@@ -4,8 +4,10 @@
  *  Created on: 19 Jul 2023
  *      Author: alicia
  */
-#include <zcode/ZcodeTokenizer.hpp>
+#include "../../../../main/c++/zscript/ZscriptTokenizer.hpp"
+
 #include <iostream>
+
 class zp {
 
 };

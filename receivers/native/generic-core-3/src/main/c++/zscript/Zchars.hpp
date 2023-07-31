@@ -1,12 +1,15 @@
 /*
- * Zcode Library - Command System for Microcontrollers)
- * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
  * SPDX-License-Identifier: MIT
  */
-#ifndef SRC_MAIN_C___ZCODE_ZCHARS_HPP_
-#define SRC_MAIN_C___ZCODE_ZCHARS_HPP_
-#include "ZcodeIncludes.hpp"
+#ifndef SRC_MAIN_C___ZSCRIPT_ZCHARS_HPP_
+#define SRC_MAIN_C___ZSCRIPT_ZCHARS_HPP_
+#include "ZscriptIncludes.hpp"
+
+namespace Zscript {
+namespace GenericCore {
 
 enum Zchars {
     CMD_PARAM = 'Z',
@@ -78,4 +81,6 @@ public:
     }
 };
 
-#endif /* SRC_MAIN_C___ZCODE_ZCHARS_HPP_ */
+}
+}
+#endif /* SRC_MAIN_C___ZSCRIPT_ZCHARS_HPP_ */

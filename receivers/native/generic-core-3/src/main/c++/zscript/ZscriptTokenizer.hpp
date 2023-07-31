@@ -1,19 +1,22 @@
 /*
- * ZcodeTokenizer.hpp
+ * ZscriptTokenizer.hpp
  *
  *  Created on: 18 Jul 2023
  *      Author: alicia
  */
 
-#ifndef SRC_MAIN_C___ZCODE_ZCODETOKENIZER_HPP_
-#define SRC_MAIN_C___ZCODE_ZCODETOKENIZER_HPP_
-
-#include "ZcodeIncludes.hpp"
-#include "ZcodeTokenRingBuffer.hpp"
+#ifndef SRC_MAIN_C___ZSCRIPT_ZSCRIPTTOKENIZER_HPP_
+#define SRC_MAIN_C___ZSCRIPT_ZSCRIPTTOKENIZER_HPP_
 
 #include <iostream>
+
+#include "ZscriptIncludes.hpp"
+#include "TokenRingBuffer.hpp"
+
+namespace Zscript {
+
 template<class ZP>
-class ZcodeTokenizer {
+class ZscriptTokenizer {
 public:
     static const uint8_t ADDRESSING_FIELD_KEY = 0x80;
 
@@ -33,7 +36,7 @@ public:
 private:
     static const bool DROP_COMMENTS = false;
 
-    ZcodeTokenRingBuffer<ZP> *buffer;
+    GenericCore::TokenRingBuffer<ZP> *buffer;
     const uint8_t maxNumericBytes;
 
     bool skipToNL = false;
@@ -160,7 +163,7 @@ private:
 
 public:
 
-    ZcodeTokenizer(ZcodeTokenRingBuffer<ZP> *buffer, uint8_t maxNumericBytes) :
+    ZscriptTokenizer(GenericCore::TokenRingBuffer<ZP> *buffer, uint8_t maxNumericBytes) :
             buffer(buffer), maxNumericBytes(maxNumericBytes) {
     }
     void dataLost() {
@@ -257,4 +260,6 @@ public:
 
 };
 
-#endif /* SRC_MAIN_C___ZCODE_ZCODETOKENIZER_HPP_ */
+}
+
+#endif /* SRC_MAIN_C___ZSCRIPT_ZSCRIPTTOKENIZER_HPP_ */

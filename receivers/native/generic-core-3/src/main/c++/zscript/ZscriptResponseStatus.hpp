@@ -1,16 +1,17 @@
 /*
- * Zcode Library - Command System for Microcontrollers)
- * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_
-#define SRC_MAIN_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_
+#ifndef SRC_MAIN_CPP_ZSCRIPT_ZSCRIPTRESPONSESTATUS_HPP_
+#define SRC_MAIN_CPP_ZSCRIPT_ZSCRIPTRESPONSESTATUS_HPP_
 
-#include "ZcodeIncludes.hpp"
+#include "ZscriptIncludes.hpp"
 
-enum ZcodeResponseStatus {
+namespace Zscript {
+enum ResponseStatus {
     /** command success */
     SUCCESS = 0x0,
 
@@ -84,16 +85,23 @@ enum ZcodeResponseStatus {
     /** a peripheral required for the command has sustained permanent damage (and may require replacement) */
     PERIPHERAL_BROKEN = 0x94
 };
-bool zcodeResponseStatusIsSuccess(uint8_t code) {
-    return code == SUCCESS;
+
+template<class ZP>
+class ResponseStatusUtils {
+public:
+    static bool responseStatusIsSuccess(uint8_t code) {
+        return code == SUCCESS;
+    }
+
+    static bool responseStatusIsError(uint8_t code) {
+        return (code & ~0xf) != 0;
+    }
+
+    static bool responseStatusIsFailure(uint8_t code) {
+        return (code & ~0xf) == 0 && code != SUCCESS;
+    }
+};
+
 }
 
-bool zcodeResponseStatusIsError(uint8_t code) {
-    return (code & ~0xf) != 0;
-}
-
-bool zcodeResponseStatusIsFailure(uint8_t code) {
-    return (code & ~0xf) == 0 && code != SUCCESS;
-}
-
-#endif /* SRC_MAIN_CPP_ZCODE_ZCODERESPONSESTATUS_HPP_ */
+#endif /* SRC_MAIN_CPP_ZSCRIPT_ZSCRIPTRESPONSESTATUS_HPP_ */

@@ -1,20 +1,23 @@
 /*
- * ZcodeTokenRingBuffer.hpp
+ * TokenRingBuffer.hpp
  *
  *  Created on: 18 Jul 2023
  *      Author: alicia
  */
 
-#ifndef SRC_MAIN_C___ZCODE_ZCODETOKENRINGBUFFER_HPP_
-#define SRC_MAIN_C___ZCODE_ZCODETOKENRINGBUFFER_HPP_
+#ifndef SRC_MAIN_C___ZSCRIPT_TOKENRINGBUFFER_HPP_
+#define SRC_MAIN_C___ZSCRIPT_TOKENRINGBUFFER_HPP_
 
-#include "ZcodeIncludes.hpp"
+#include "ZscriptIncludes.hpp"
+
+namespace Zscript {
+namespace GenericCore {
 
 template<class ZP>
 class RingBufferToken;
 
 template<class ZP>
-class ZcodeTokenRingBuffer {
+class TokenRingBuffer {
 public:
     /**
      * Special token key to indicate that this segment is a continuation of the previous token due to its data size hitting maximum.
@@ -69,7 +72,7 @@ private:
     }
 
 public:
-    ZcodeTokenRingBuffer(uint8_t *data, uint16_t data_length) :
+    TokenRingBuffer(uint8_t *data, uint16_t data_length) :
             data(data), data_length(data_length) {
     }
 
@@ -179,7 +182,7 @@ public:
             itIndex(itIndex), segRemaining(segRemaining) {
     }
 
-    uint8_t next(ZcodeTokenRingBuffer<ZP> token) {
+    uint8_t next(TokenRingBuffer<ZP> token) {
         if (!hasNext(token)) {
 //TODO: die
         }
@@ -189,23 +192,23 @@ public:
         return res;
     }
 
-    bool hasNext(ZcodeTokenRingBuffer<ZP> token) {
+    bool hasNext(TokenRingBuffer<ZP> token) {
         // Copes with empty tokens which still have extensions... probably not a valid thing anyway, but still, it didn't cost anything.
         while (segRemaining == 0) {
-            if ((itIndex == token->writeStart) || (token->data[itIndex] != ZcodeTokenRingBuffer<ZP>::TOKEN_EXTENSION)) {
+            if ((itIndex == token->writeStart) || (token->data[itIndex] != TokenRingBuffer<ZP>::TOKEN_EXTENSION)) {
                 return false;
             }
-            segRemaining = token->data[ZcodeTokenRingBuffer<ZP>::offset(itIndex, 1)];
-            itIndex = ZcodeTokenRingBuffer<ZP>::offset(itIndex, 2);
+            segRemaining = token->data[TokenRingBuffer<ZP>::offset(itIndex, 1)];
+            itIndex = TokenRingBuffer<ZP>::offset(itIndex, 2);
         }
         return true;
     }
 
-    DataArrayWLeng16 nextContiguous(ZcodeTokenRingBuffer<ZP> token) {
+    DataArrayWLeng16 nextContiguous(TokenRingBuffer<ZP> token) {
         return nextContiguous(token, 0xffff);
     }
 
-    DataArrayWLeng16 nextContiguous(ZcodeTokenRingBuffer<ZP> token, uint16_t maxLength) {
+    DataArrayWLeng16 nextContiguous(TokenRingBuffer<ZP> token, uint16_t maxLength) {
         if (maxLength < 0) {
             //TODO: die
         }
@@ -221,7 +224,7 @@ public:
         }
         uint8_t *dataArray = token->data + itIndex;
 
-        itIndex = ZcodeTokenRingBuffer<ZP>::offset(itIndex, length);
+        itIndex = TokenRingBuffer<ZP>::offset(itIndex, length);
         segRemaining -= length;
         return {dataArray, length};
     }
@@ -237,25 +240,25 @@ public:
             index(index) {
     }
 
-    OptionalRingBufferToken<ZP> next(ZcodeTokenRingBuffer<ZP> *buffer) {
+    OptionalRingBufferToken<ZP> next(TokenRingBuffer<ZP> *buffer) {
         if (index == buffer->writeStart) {
             return {RingBufferToken<ZP>(0), false};
         }
 
         int initialIndex = index;
-        if (ZcodeTokenRingBuffer<ZP>::isMarker(buffer->data[index])) {
-            index = ZcodeTokenRingBuffer<ZP>::offset(index, 1);
+        if (TokenRingBuffer<ZP>::isMarker(buffer->data[index])) {
+            index = TokenRingBuffer<ZP>::offset(index, 1);
         } else {
             do {
-                int tokenDataLength = buffer->data[ZcodeTokenRingBuffer<ZP>::offset(index, 1)];
-                index = ZcodeTokenRingBuffer<ZP>::offset(index, tokenDataLength + 2);
-            } while (buffer->data[index] == ZcodeTokenRingBuffer<ZP>::TOKEN_EXTENSION);
+                int tokenDataLength = buffer->data[TokenRingBuffer<ZP>::offset(index, 1)];
+                index = TokenRingBuffer<ZP>::offset(index, tokenDataLength + 2);
+            } while (buffer->data[index] == TokenRingBuffer<ZP>::TOKEN_EXTENSION);
         }
 
         return {RingBufferToken<ZP>(initialIndex), true};
     }
 
-    void flushBuffer(ZcodeTokenRingBuffer<ZP> *buffer) {
+    void flushBuffer(TokenRingBuffer<ZP> *buffer) {
         buffer->readStart = index;
     }
 };
@@ -269,8 +272,8 @@ private:
             index(index) {
     }
 
-    uint8_t getSegmentDataSize(ZcodeTokenRingBuffer<ZP> *buffer) {
-        return ZcodeTokenRingBuffer<ZP>::isMarker(buffer->data[index]) ? 0 : buffer->data[ZcodeTokenRingBuffer<ZP>::offset(index, 1)];
+    uint8_t getSegmentDataSize(TokenRingBuffer<ZP> *buffer) {
+        return TokenRingBuffer<ZP>::isMarker(buffer->data[index]) ? 0 : buffer->data[TokenRingBuffer<ZP>::offset(index, 1)];
     }
 
 public:
@@ -278,25 +281,25 @@ public:
         return RingBufferTokenIterator<ZP>(index);
     }
 
-    RawTokenBlockIterator<ZP> blockIterator(ZcodeTokenRingBuffer<ZP> *buffer) {
-        return RawTokenBlockIterator<ZP>(index, buffer->data[ZcodeTokenRingBuffer<ZP>::offset(index, 1)]);
+    RawTokenBlockIterator<ZP> blockIterator(TokenRingBuffer<ZP> *buffer) {
+        return RawTokenBlockIterator<ZP>(index, buffer->data[TokenRingBuffer<ZP>::offset(index, 1)]);
     }
 
-    uint16_t getData16(ZcodeTokenRingBuffer<ZP> *buffer) {
+    uint16_t getData16(TokenRingBuffer<ZP> *buffer) {
         uint16_t value = 0;
         for (int i = 0; i < getSegmentDataSize(buffer); i++) {
             // Check before we left shift. Avoids overflowing data type.
             value <<= 8;
-            value += buffer->data[ZcodeTokenRingBuffer<ZP>::offset(index, i + 2)];
+            value += buffer->data[TokenRingBuffer<ZP>::offset(index, i + 2)];
         }
         return value;
     }
 
-    uint8_t getKey(ZcodeTokenRingBuffer<ZP> *buffer) {
+    uint8_t getKey(TokenRingBuffer<ZP> *buffer) {
         return buffer->data[index];
     }
 
-    uint16_t getDataSize(ZcodeTokenRingBuffer<ZP> *buffer) {
+    uint16_t getDataSize(TokenRingBuffer<ZP> *buffer) {
         if (isMarker(buffer)) {
             return 0;
         }
@@ -304,16 +307,18 @@ public:
         uint16_t index = this->index;
 
         do {
-            uint8_t segSz = buffer->data[ZcodeTokenRingBuffer<ZP>::offset(index, 1)];
+            uint8_t segSz = buffer->data[TokenRingBuffer<ZP>::offset(index, 1)];
             totalSz += segSz;
-            index = ZcodeTokenRingBuffer<ZP>::offset(index, segSz + 2);
-        } while (index != buffer->writeStart && buffer->data[index] == ZcodeTokenRingBuffer<ZP>::TOKEN_EXTENSION);
+            index = TokenRingBuffer<ZP>::offset(index, segSz + 2);
+        } while (index != buffer->writeStart && buffer->data[index] == TokenRingBuffer<ZP>::TOKEN_EXTENSION);
 
         return totalSz;
     }
-    bool isMarker(ZcodeTokenRingBuffer<ZP> *buffer) {
-        return ZcodeTokenRingBuffer<ZP>::isMarker(getKey(buffer));
+    bool isMarker(TokenRingBuffer<ZP> *buffer) {
+        return TokenRingBuffer<ZP>::isMarker(getKey(buffer));
     }
-
 };
-#endif /* SRC_MAIN_C___ZCODE_ZCODETOKENRINGBUFFER_HPP_ */
+
+}
+}
+#endif /* SRC_MAIN_C___ZSCRIPT_TOKENRINGBUFFER_HPP_ */
