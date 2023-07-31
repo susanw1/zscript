@@ -25,12 +25,12 @@ enum Zchars {
     BIGFIELD_PREFIX_MARKER = '+',
     BIGFIELD_QUOTE_MARKER = '"',
 
-    ECHO_PREFIX = '_',
-    LOCKING_PREFIX = '%',
-    COMMENT_PREFIX = '#',
+    Z_ECHO = '_',
+    Z_LOCKS = '%',
+    Z_COMMENT = '#',
     NOTIFY_PREFIX = '!',
-    ADDRESS_PREFIX = '@',
-    ADDRESS_SEPARATOR = '.'
+    Z_ADDRESSING = '@',
+    Z_ADDRESSING_CONTINUE = '.'
 };
 template<class ZP>
 class ZcharsUtils {
@@ -60,7 +60,7 @@ public:
     }
 
     static bool isNonNumerical(uint8_t b) {
-        return b == LOCKING_PREFIX || b == BIGFIELD_PREFIX_MARKER || b == BIGFIELD_QUOTE_MARKER || b == COMMENT_PREFIX;
+        return b == Z_LOCKS || b == BIGFIELD_PREFIX_MARKER || b == BIGFIELD_QUOTE_MARKER || b == Z_COMMENT;
     }
 
     static bool isBigField(uint8_t b) {

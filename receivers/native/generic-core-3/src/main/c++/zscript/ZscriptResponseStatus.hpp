@@ -89,15 +89,15 @@ enum ResponseStatus {
 template<class ZP>
 class ResponseStatusUtils {
 public:
-    static bool responseStatusIsSuccess(uint8_t code) {
+    static bool isSuccess(uint8_t code) {
         return code == SUCCESS;
     }
 
-    static bool responseStatusIsError(uint8_t code) {
+    static bool isError(uint8_t code) {
         return (code & ~0xf) != 0;
     }
 
-    static bool responseStatusIsFailure(uint8_t code) {
+    static bool isFailure(uint8_t code) {
         return (code & ~0xf) == 0 && code != SUCCESS;
     }
 };

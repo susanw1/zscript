@@ -95,7 +95,7 @@ private:
             return;
         }
 
-        if (addressing && b != GenericCore::Zchars::ADDRESS_SEPARATOR) {
+        if (addressing && b != GenericCore::Zchars::Z_ADDRESSING_CONTINUE) {
             buffer->W_startToken(ADDRESSING_FIELD_KEY, false);
             buffer->W_continueTokenByte(b);
             addressing = false;
@@ -129,7 +129,7 @@ private:
             //TODO: die
         }
 
-        if (b == GenericCore::Zchars::ADDRESS_PREFIX) {
+        if (b == GenericCore::Zchars::Z_ADDRESSING) {
             addressing = true;
         }
 
@@ -143,7 +143,7 @@ private:
         isText = false;
         buffer->W_startToken(b, numeric);
 
-        if (b == GenericCore::Zchars::COMMENT_PREFIX) {
+        if (b == GenericCore::Zchars::Z_COMMENT) {
             if (DROP_COMMENTS) {
                 skipToNL = true;
             } else {
@@ -177,7 +177,7 @@ public:
         return buffer->W_checkAvailableCapacity(3);
     }
     bool offer(uint8_t b) {
-        if (checkCapacity() /*|| buffer->getFlags().isReaderBlocked()*/) {
+        if (checkCapacity() || buffer->getFlags()->isReaderBlocked()) {
             accept(b);
             return true;
         }
