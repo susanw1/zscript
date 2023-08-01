@@ -4,27 +4,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import net.zscript.javareceiver.core.Zcode;
-import net.zscript.javareceiver.core.ZcodeOutStream;
+import net.zscript.javareceiver.core.Zscript;
+import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.semanticParser.SemanticParser;
-import net.zscript.javareceiver.semanticParser.ZcodeSemanticAction;
+import net.zscript.javareceiver.semanticParser.SemanticAction;
 import net.zscript.javareceiver.semanticParser.SemanticParser.State;
-import net.zscript.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenBuffer;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenizer;
+import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
+import net.zscript.javareceiver.tokenizer.TokenBuffer;
+import net.zscript.javareceiver.tokenizer.Tokenizer;
 
 /**
  * Testing utility methods.
  */
 class ParserActionTester {
-    private final Zcode            zcode;
-    private final ZcodeTokenBuffer buffer;
-    private final ZcodeTokenizer   tokenizer;
+    private final Zscript            zscript;
+    private final TokenBuffer buffer;
+    private final Tokenizer   tokenizer;
     private final SemanticParser   parser;
-    private final ZcodeOutStream   outStream;
+    private final OutStream   outStream;
 
-    public ParserActionTester(Zcode zcode, ZcodeTokenBuffer buffer, ZcodeTokenizer tokenizer, SemanticParser parser, ZcodeOutStream outStream) {
-        this.zcode = zcode;
+    public ParserActionTester(Zscript zscript, TokenBuffer buffer, Tokenizer tokenizer, SemanticParser parser, OutStream outStream) {
+        this.zscript = zscript;
         this.buffer = buffer;
         this.tokenizer = tokenizer;
         this.parser = parser;
@@ -40,11 +40,11 @@ class ParserActionTester {
 
         actionTypes.forEach(t -> {
             System.out.println("Expecting actionType=" + t);
-            ZcodeSemanticAction action = parser.getAction();
+            SemanticAction action = parser.getAction();
 
             System.out.println("  Received action: actionType=" + action + "; state=" + parser.getState());
             assertThat(action.getType()).isEqualTo(t);
-            action.performAction(zcode, outStream);
+            action.performAction(zscript, outStream);
 
             System.out.println("   - After execute action: outStream=" + outStream.toString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());
         });
@@ -57,10 +57,10 @@ class ParserActionTester {
         buffer.getTokenReader().iterator().forEach(t -> System.out.print(t + " "));
         System.out.println();
 
-        ZcodeSemanticAction a1;
+        SemanticAction a1;
         while ((a1 = parser.getAction()).getType() != ActionType.WAIT_FOR_TOKENS) {
             System.out.println("  Received action: actionType=" + a1 + "; state=" + parser.getState());
-            a1.performAction(zcode, outStream);
+            a1.performAction(zscript, outStream);
             System.out.println("   - After execute action: outStream=" + outStream.toString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());
         }
         assertThat(outStream.toString()).isEqualTo(output);
@@ -73,13 +73,13 @@ class ParserActionTester {
         buffer.getTokenReader().iterator().forEach(t -> System.out.print(t + " "));
         System.out.println();
 
-        ZcodeSemanticAction action = parser.getAction();
+        SemanticAction action = parser.getAction();
         System.out.println("  Received action: actionType=" + action + " (expected=" + expectedActionType + "); state=" + parser.getState());
         if (expectedActionType != null) {
             assertThat(action.getType()).isEqualTo(expectedActionType);
         }
 
-        action.performAction(zcode, outStream);
+        action.performAction(zscript, outStream);
         System.out.println("   - After execute action: outStream=" + outStream.toString().replaceAll("\\n", "\\\\n") + "; state=" + parser.getState());
 
         if (endState != null) {

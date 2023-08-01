@@ -1,8 +1,8 @@
 package net.zscript.javareceiver.semanticParser;
 
-import static net.zscript.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.END_SEQUENCE;
-import static net.zscript.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.RUN_FIRST_COMMAND;
-import static net.zscript.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.WAIT_FOR_TOKENS;
+import static net.zscript.javareceiver.semanticParser.SemanticAction.ActionType.END_SEQUENCE;
+import static net.zscript.javareceiver.semanticParser.SemanticAction.ActionType.RUN_FIRST_COMMAND;
+import static net.zscript.javareceiver.semanticParser.SemanticAction.ActionType.WAIT_FOR_TOKENS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.of;
 
@@ -17,30 +17,30 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import net.zscript.javareceiver.core.StringWriterOutStream;
-import net.zscript.javareceiver.core.Zcode;
-import net.zscript.javareceiver.modules.core.ZcodeCoreModule;
+import net.zscript.javareceiver.core.Zscript;
+import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
 import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
 import net.zscript.javareceiver.semanticParser.SemanticParser;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenBuffer;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenRingBuffer;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenizer;
+import net.zscript.javareceiver.tokenizer.TokenBuffer;
+import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
+import net.zscript.javareceiver.tokenizer.Tokenizer;
 
 class SemanticParserMulticommandTest {
-    private final ZcodeTokenBuffer buffer    = ZcodeTokenRingBuffer.createBufferWithCapacity(256);
-    private final ZcodeTokenizer   tokenizer = new ZcodeTokenizer(buffer.getTokenWriter(), 2);
+    private final TokenBuffer buffer    = TokenRingBuffer.createBufferWithCapacity(256);
+    private final Tokenizer   tokenizer = new Tokenizer(buffer.getTokenWriter(), 2);
 
     private final SemanticParser parser = new SemanticParser(buffer.getTokenReader(), new ExecutionActionFactory());
 
-    private final Zcode zcode = new Zcode();
+    private final Zscript zscript = new Zscript();
 
     private StringWriterOutStream outStream;
     private ParserActionTester    parserActionTester;
 
     @BeforeEach
     void setup() throws IOException {
-        zcode.addModule(new ZcodeCoreModule());
+        zscript.addModule(new ZscriptCoreModule());
         outStream = new StringWriterOutStream();
-        parserActionTester = new ParserActionTester(zcode, buffer, tokenizer, parser, outStream);
+        parserActionTester = new ParserActionTester(zscript, buffer, tokenizer, parser, outStream);
     }
 
     @Test

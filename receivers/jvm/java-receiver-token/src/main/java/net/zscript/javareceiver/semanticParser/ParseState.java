@@ -1,7 +1,7 @@
 package net.zscript.javareceiver.semanticParser;
 
-import net.zscript.javareceiver.core.Zcode;
-import net.zscript.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
+import net.zscript.javareceiver.core.Zscript;
+import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
 
 /**
  * Defines methods accessed by ZcodeActions.
@@ -19,11 +19,11 @@ public interface ParseState {
 
     int getEcho();
 
-    boolean canLock(Zcode zcode);
+    boolean canLock(Zscript zscript);
 
-    boolean lock(Zcode zcode);
+    boolean lock(Zscript zscript);
 
-    void unlock(Zcode zcode);
+    void unlock(Zscript zscript);
 
     boolean isEmpty();
 }

@@ -11,7 +11,7 @@ import net.zscript.javareceiver.commands.ZcodeActivateCommand;
 import net.zscript.javareceiver.commands.ZcodeCapabilitiesCommand;
 import net.zscript.javareceiver.commands.ZcodeEchoCommand;
 import net.zscript.javareceiver.parsing.ZcodeCommandChannel;
-import net.zscript.zscript_acceptance_tests.ZcodeAcceptanceTestConnectionManager;
+import net.zscript.zscript_acceptance_tests.AcceptanceTestConnectionManager;
 
 public class JavaReceiverCucumberStartup {
     private static boolean         hasStarted = false;
@@ -32,7 +32,7 @@ public class JavaReceiverCucumberStartup {
                     .registerCommand(new ZcodeCapabilitiesCommand(params, z))
                     .registerCommand(new ZcodeActivateCommand());
 
-            ZcodeAcceptanceTestConnectionManager.registerConnection(con);
+            AcceptanceTestConnectionManager.registerConnection(con);
             execs = Executors.newSingleThreadExecutor();
             execs.submit(() -> {
                 try {

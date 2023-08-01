@@ -1,12 +1,12 @@
 package net.zscript.javaclient.zcodeApiAttempt;
 
-import net.zscript.javaclient.zcodeApi.ZcodeCommandBuilder;
-import net.zscript.javaclient.zcodeApi.ZcodeResponse;
-import net.zscript.javaclient.zcodeApi.ZcodeUnparsedCommandResponse;
+import net.zscript.javaclient.zcodeApi.ZscriptCommandBuilder;
+import net.zscript.javaclient.zcodeApi.ZscriptResponse;
+import net.zscript.javaclient.zcodeApi.ZscriptUnparsedCommandResponse;
 import net.zscript.javaclient.zcodeApiAttempt.DemoActivateCommandBuilder.DemoActivateCommandResponse;
 
-public class DemoActivateCommandBuilder extends ZcodeCommandBuilder<DemoActivateCommandResponse> {
-    public class DemoActivateCommandResponse implements ZcodeResponse {
+public class DemoActivateCommandBuilder extends ZscriptCommandBuilder<DemoActivateCommandResponse> {
+    public class DemoActivateCommandResponse implements ZscriptResponse {
         private final boolean alreadyActivated;
 
         public DemoActivateCommandResponse(boolean alreadyActivated) {
@@ -23,7 +23,7 @@ public class DemoActivateCommandBuilder extends ZcodeCommandBuilder<DemoActivate
     }
 
     @Override
-    protected DemoActivateCommandResponse parseResponse(ZcodeUnparsedCommandResponse resp) {
+    protected DemoActivateCommandResponse parseResponse(ZscriptUnparsedCommandResponse resp) {
         return new DemoActivateCommandResponse(resp.getField('A').get() == 1 ? true : false);
     }
 

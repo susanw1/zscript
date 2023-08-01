@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 
-import net.zscript.javareceiver.core.ZcodeAbstractOutStream;
+import net.zscript.javareceiver.core.AbstractOutStream;
 
 /**
  * Utility class for helping tests: ZcodeAbstractOutStream implementation that collects bytes
  */
-public class OutputStreamOutStream<Z extends OutputStream> extends ZcodeAbstractOutStream {
+public class OutputStreamOutStream<Z extends OutputStream> extends AbstractOutStream {
     private final Z output;
     boolean         open = false;
 

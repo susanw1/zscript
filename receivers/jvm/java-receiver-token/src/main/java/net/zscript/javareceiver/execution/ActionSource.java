@@ -1,10 +1,10 @@
 package net.zscript.javareceiver.execution;
 
-import net.zscript.javareceiver.core.Zcode;
-import net.zscript.javareceiver.core.ZcodeOutStream;
+import net.zscript.javareceiver.core.Zscript;
+import net.zscript.javareceiver.core.OutStream;
 
 public interface ActionSource {
-    ZcodeAction getAction();
+    ZscriptAction getAction();
 
-    ZcodeOutStream getOutStream(Zcode zcode);
+    OutStream getOutStream(Zscript zscript);
 }

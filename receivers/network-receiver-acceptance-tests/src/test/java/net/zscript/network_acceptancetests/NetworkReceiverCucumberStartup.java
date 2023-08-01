@@ -16,7 +16,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.AssumptionViolatedException;
 
 import io.cucumber.java.en.Given;
-import net.zscript.zscript_acceptance_tests.ZcodeAcceptanceTestConnectionManager;
+import net.zscript.zscript_acceptance_tests.AcceptanceTestConnectionManager;
 
 public class NetworkReceiverCucumberStartup {
 
@@ -54,7 +54,7 @@ public class NetworkReceiverCucumberStartup {
 
                 connection.clearListeners();
                 connection.setTarget(target);
-                ZcodeAcceptanceTestConnectionManager.registerConnection(connection);
+                AcceptanceTestConnectionManager.registerConnection(connection);
             } catch (InterruptedException e) {
                 System.err.println("interrupted");
             } catch (SocketException e) {

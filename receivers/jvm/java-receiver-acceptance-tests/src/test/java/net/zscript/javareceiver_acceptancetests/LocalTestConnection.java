@@ -13,9 +13,9 @@ import net.zscript.javareceiver.ZcodeParameters;
 import net.zscript.javareceiver.instreams.ZcodeChannelInStream;
 import net.zscript.javareceiver.parsing.ZcodeCommandChannel;
 import net.zscript.javareceiver.parsing.ZcodeCommandSequence;
-import net.zscript.zscript_acceptance_tests.acceptancetest_asserts.ZcodeAcceptanceTestConnection;
+import net.zscript.zscript_acceptance_tests.acceptancetest_asserts.AcceptanceTestConnection;
 
-public class LocalTestConnection implements ZcodeAcceptanceTestConnection, ZcodeCommandChannel {
+public class LocalTestConnection implements AcceptanceTestConnection, ZcodeCommandChannel {
     private final List<Consumer<byte[]>> handlers = new ArrayList<>();
     private final ZcodeQueueSequenceInStream queueIn = new ZcodeQueueSequenceInStream();
     private final ZcodeCommandSequence seq;

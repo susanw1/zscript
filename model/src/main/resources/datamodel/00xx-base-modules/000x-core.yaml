@@ -15,7 +15,7 @@ modules:
             description: selects which ident/version info to return
             typeDefinition:
                 '@type': enum
-                allowedValues: [UserFirmware, UserHardware, PlatformFirmware, PlatformHardware, CoreZcodeLanguage]
+                allowedValues: [UserFirmware, UserHardware, PlatformFirmware, PlatformHardware, CoreZscriptLanguage]
             required: no
         responseParams:
         -   label: C
@@ -85,7 +85,7 @@ modules:
 
     -   name: activate
         command: 2
-        description: Activates zcode system, allowing commands 0x10 onwards to be executed
+        description: Activates zscript system, allowing commands 0x10 onwards to be executed
         operation: put
         requestParams:
         -   label: K

@@ -8,29 +8,29 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.javareceiver.core.StringWriterOutStream;
-import net.zscript.javareceiver.core.Zcode;
-import net.zscript.javareceiver.core.ZcodeCommandOutStream;
-import net.zscript.javareceiver.execution.ZcodeAddressingContext;
-import net.zscript.javareceiver.execution.ZcodeCommandContext;
-import net.zscript.javareceiver.modules.ZcodeModule;
-import net.zscript.javareceiver.modules.core.ZcodeCoreModule;
+import net.zscript.javareceiver.core.Zscript;
+import net.zscript.javareceiver.core.ZscriptCommandOutStream;
+import net.zscript.javareceiver.execution.AddressingContext;
+import net.zscript.javareceiver.execution.CommandContext;
+import net.zscript.javareceiver.modules.ZscriptModule;
+import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
 import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
 import net.zscript.javareceiver.semanticParser.SemanticParser;
 import net.zscript.javareceiver.semanticParser.ContextView.AsyncActionNotifier;
 import net.zscript.javareceiver.semanticParser.SemanticParser.State;
-import net.zscript.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
+import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
 import net.zscript.javareceiver.tokenizer.OptIterator;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenBuffer;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenRingBuffer;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenizer;
+import net.zscript.javareceiver.tokenizer.TokenBuffer;
+import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
+import net.zscript.javareceiver.tokenizer.Tokenizer;
 
 class SemanticParserAsyncCommandTest {
-    private final ZcodeTokenBuffer buffer    = ZcodeTokenRingBuffer.createBufferWithCapacity(256);
-    private final ZcodeTokenizer   tokenizer = new ZcodeTokenizer(buffer.getTokenWriter(), 2);
+    private final TokenBuffer buffer    = TokenRingBuffer.createBufferWithCapacity(256);
+    private final Tokenizer   tokenizer = new Tokenizer(buffer.getTokenWriter(), 2);
 
     private final SemanticParser parser = new SemanticParser(buffer.getTokenReader(), new ExecutionActionFactory());
 
-    private final Zcode zcode = new Zcode();
+    private final Zscript zscript = new Zscript();
 
     private StringWriterOutStream outStream;
     private ParserActionTester    parserActionTester;
@@ -38,16 +38,16 @@ class SemanticParserAsyncCommandTest {
 
     @BeforeEach
     void setup() throws IOException {
-        zcode.addModule(new ZcodeCoreModule());
+        zscript.addModule(new ZscriptCoreModule());
 
         newModule = new AsyncTestModule();
-        zcode.addModule(newModule);
+        zscript.addModule(newModule);
 
         outStream = new StringWriterOutStream();
-        parserActionTester = new ParserActionTester(zcode, buffer, tokenizer, parser, outStream);
+        parserActionTester = new ParserActionTester(zscript, buffer, tokenizer, parser, outStream);
     }
 
-    static class AsyncTestModule implements ZcodeModule {
+    static class AsyncTestModule implements ZscriptModule {
         private final AsyncCommand c2        = new AsyncCommand();
         private volatile int       someValue = 0;
 
@@ -59,7 +59,7 @@ class SemanticParserAsyncCommandTest {
         }
 
         @Override
-        public void execute(ZcodeCommandContext ctx, int command) {
+        public void execute(CommandContext ctx, int command) {
             switch (command) {
             case 2:
                 // picked 2 at random. this is command 0xf2
@@ -68,7 +68,7 @@ class SemanticParserAsyncCommandTest {
         }
 
         @Override
-        public void moveAlong(ZcodeCommandContext ctx, int command) {
+        public void moveAlong(CommandContext ctx, int command) {
             switch (command) {
             case 2:
                 c2.moveAlong(ctx);
@@ -79,7 +79,7 @@ class SemanticParserAsyncCommandTest {
          * For testing, use 2nd part of address to match someValue if it's <10. Otherwise, don't go async at all.
          */
         @Override
-        public void address(ZcodeAddressingContext ctx) {
+        public void address(AddressingContext ctx) {
             OptIterator<Integer> s = ctx.getAddressSegments();
             s.next(); // throw away module-lookup key
             if (s.next().get() < 10) {
@@ -89,7 +89,7 @@ class SemanticParserAsyncCommandTest {
         }
 
         @Override
-        public void addressMoveAlong(ZcodeAddressingContext ctx) {
+        public void addressMoveAlong(AddressingContext ctx) {
             OptIterator<Integer> s = ctx.getAddressSegments();
             s.next(); // throw away module-lookup key
             if (s.next().get() != someValue) {
@@ -108,8 +108,8 @@ class SemanticParserAsyncCommandTest {
          */
         class AsyncCommand {
 
-            public void execute(ZcodeCommandContext ctx) {
-                ZcodeCommandOutStream out = ctx.getOutStream();
+            public void execute(CommandContext ctx) {
+                ZscriptCommandOutStream out = ctx.getOutStream();
                 out.writeField('A', 0xff);
 
                 int endOnValue = ctx.getField((byte) 'E', 1);
@@ -121,7 +121,7 @@ class SemanticParserAsyncCommandTest {
                 }
             }
 
-            public void moveAlong(ZcodeCommandContext ctx) {
+            public void moveAlong(CommandContext ctx) {
                 int endOnValue = ctx.getField((byte) 'E', 1);
 
                 if (someValue < endOnValue) {

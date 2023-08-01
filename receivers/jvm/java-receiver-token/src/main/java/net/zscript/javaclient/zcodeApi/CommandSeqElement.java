@@ -36,33 +36,33 @@ public abstract class CommandSeqElement {
     }
 
     public CommandSeqElement andThen(CommandSeqElement next) {
-        return new ZcodeAndSeqElement(this, next);
+        return new AndSeqElement(this, next);
     }
 
     public CommandSeqElement dropFailureCondition() {
         if (canFail()) {
-            return onFail(new ZcodeBlankCommand());
+            return onFail(new BlankCommand());
         }
         return this;
     }
 
     public CommandSeqElement thenFail() {
-        return andThen(new ZcodeFailureCommand());
+        return andThen(new FailureCommand());
     }
 
     public CommandSeqElement thenAbort() {
-        return andThen(new ZcodeAbortCommand());
+        return andThen(new AbortCommand());
     }
 
     public CommandSeqElement onFail(CommandSeqElement next) {
         if (canFail()) {
-            return new ZcodeOrSeqElement(this, next);
+            return new OrSeqElement(this, next);
         }
         return this;
     }
 
     public CommandSeqElement abortOnFail() {
-        return onFail(new ZcodeAbortCommand());
+        return onFail(new AbortCommand());
     }
 
     public SuccessConditional ifSucceeds() {

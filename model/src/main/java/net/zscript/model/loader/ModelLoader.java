@@ -16,18 +16,18 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 
 import net.zscript.model.datamodel.DefinitionResources;
-import net.zscript.model.datamodel.IntrinsicsDataModel;
-import net.zscript.model.datamodel.ZcodeDataModel;
 import net.zscript.model.datamodel.DefinitionResources.ModuleBankDef;
-import net.zscript.model.datamodel.ZcodeDataModel.CommandModel;
-import net.zscript.model.datamodel.ZcodeDataModel.GenericParam;
-import net.zscript.model.datamodel.ZcodeDataModel.ModuleModel;
+import net.zscript.model.datamodel.IntrinsicsDataModel;
+import net.zscript.model.datamodel.ZscriptDataModel;
+import net.zscript.model.datamodel.ZscriptDataModel.CommandModel;
+import net.zscript.model.datamodel.ZscriptDataModel.GenericParam;
+import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
 
 public class ModelLoader {
-    private JsonMapper          jsonMapper;
+    private final JsonMapper    jsonMapper;
     private IntrinsicsDataModel intrinsicsDataModel;
 
-    private Map<String, ModuleBank> moduleBanks = new HashMap<>();
+    private final Map<String, ModuleBank> moduleBanks = new HashMap<>();
 
     public static ModelLoader rawModel() {
         return new ModelLoader();
@@ -67,10 +67,10 @@ public class ModelLoader {
             ModuleBank moduleBank = moduleBanks.computeIfAbsent(mb.getName(), n -> new ModuleBank(mb));
 
             for (String moduleDefinitionLocation : mb.getModuleDefinitions()) {
-                URL            moduleDefinition = new URL(moduleListRoot, moduleDefinitionLocation);
-                ZcodeDataModel model;
+                URL              moduleDefinition = new URL(moduleListRoot, moduleDefinitionLocation);
+                ZscriptDataModel model;
                 try (final InputStream openStream = moduleDefinition.openStream()) {
-                    model = jsonMapper.readValue(openStream, ZcodeDataModel.class);
+                    model = jsonMapper.readValue(openStream, ZscriptDataModel.class);
                 }
                 for (ModuleModel mm : model.getModules()) {
                     mm.setModuleBank(moduleBank);
