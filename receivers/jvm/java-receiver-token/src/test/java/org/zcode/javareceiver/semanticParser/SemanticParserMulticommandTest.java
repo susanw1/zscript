@@ -105,19 +105,4 @@ class SemanticParserMulticommandTest {
                 of("Z1 A \n@1 Z1B\n", "!AS\n"),
                 of("Z1 A \n@1.2 Z1B\n@2.2 Z1C\n Z1D\n", "!AS\n!DS\n"));
     }
-
-    @ParameterizedTest
-    @MethodSource
-    public void shouldProduceMultipleResponsesWithAddressing1(final String text, String finalOutput) {
-        parserActionTester.parseSnippet(text, finalOutput);
-        assertThat(outStream.isOpen()).isFalse();
-    }
-
-    private static Stream<Arguments> shouldProduceMultipleResponsesWithAddressing1() {
-        // Addressing actions are passed on downstream, not acknowledged - they should not appear in the response.
-        return Stream.of(
-                of("Z1 A \n@1 Z1B\n", "!AS\n"),
-                of("Z1 A \n@1.2 Z1B\n@2.2 Z1C\n Z1D\n", "!AS\n!DS\n"));
-    }
-
 }
