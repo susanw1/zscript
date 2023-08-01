@@ -1,6 +1,6 @@
 package net.zscript.zscript_acceptance_tests;
 
-public class ZcodeAcceptanceTestCapabilityResult {
+public class AcceptanceTestCapabilityResult {
     private static byte[]  supportedCodes       = null;
     private static int     generalCapabilities  = -1;
     private static int     maxBigFieldLength    = -1;
@@ -12,46 +12,46 @@ public class ZcodeAcceptanceTestCapabilityResult {
     private static boolean hasBeenRead          = false;
 
     public static void addSupportedCodes(byte[] supportedCodes) {
-        if (ZcodeAcceptanceTestCapabilityResult.supportedCodes == null) {
-            ZcodeAcceptanceTestCapabilityResult.supportedCodes = supportedCodes;
+        if (AcceptanceTestCapabilityResult.supportedCodes == null) {
+            AcceptanceTestCapabilityResult.supportedCodes = supportedCodes;
         } else {
-            byte[] tmp = ZcodeAcceptanceTestCapabilityResult.supportedCodes;
-            ZcodeAcceptanceTestCapabilityResult.supportedCodes = new byte[tmp.length + supportedCodes.length];
-            System.arraycopy(tmp, 0, ZcodeAcceptanceTestCapabilityResult.supportedCodes, 0, tmp.length);
-            System.arraycopy(supportedCodes, 0, ZcodeAcceptanceTestCapabilityResult.supportedCodes, tmp.length, supportedCodes.length);
+            byte[] tmp = AcceptanceTestCapabilityResult.supportedCodes;
+            AcceptanceTestCapabilityResult.supportedCodes = new byte[tmp.length + supportedCodes.length];
+            System.arraycopy(tmp, 0, AcceptanceTestCapabilityResult.supportedCodes, 0, tmp.length);
+            System.arraycopy(supportedCodes, 0, AcceptanceTestCapabilityResult.supportedCodes, tmp.length, supportedCodes.length);
         }
     }
 
     public static void setGeneralCapabilities(int generalCapabilities) {
-        ZcodeAcceptanceTestCapabilityResult.generalCapabilities = generalCapabilities;
+        AcceptanceTestCapabilityResult.generalCapabilities = generalCapabilities;
     }
 
     public static void setMaxBigFieldLength(int maxBigFieldLength) {
-        ZcodeAcceptanceTestCapabilityResult.maxBigFieldLength = maxBigFieldLength;
+        AcceptanceTestCapabilityResult.maxBigFieldLength = maxBigFieldLength;
     }
 
     public static void setMaxFieldNum(int maxFieldNum) {
-        ZcodeAcceptanceTestCapabilityResult.maxFieldNum = maxFieldNum;
+        AcceptanceTestCapabilityResult.maxFieldNum = maxFieldNum;
     }
 
     public static void setMaxFieldSize(int maxFieldSize) {
-        ZcodeAcceptanceTestCapabilityResult.maxFieldSize = maxFieldSize;
+        AcceptanceTestCapabilityResult.maxFieldSize = maxFieldSize;
     }
 
     public static void setFieldSizeUnit(int fieldSizeUnit) {
-        ZcodeAcceptanceTestCapabilityResult.fieldSizeUnit = fieldSizeUnit;
+        AcceptanceTestCapabilityResult.fieldSizeUnit = fieldSizeUnit;
     }
 
     public static void setMaxPageNum(int maxPageNum) {
-        ZcodeAcceptanceTestCapabilityResult.maxPageNum = maxPageNum;
+        AcceptanceTestCapabilityResult.maxPageNum = maxPageNum;
     }
 
     public static void setPersistentMemorySize(long persistentMemorySize) {
-        ZcodeAcceptanceTestCapabilityResult.persistentMemorySize = persistentMemorySize;
+        AcceptanceTestCapabilityResult.persistentMemorySize = persistentMemorySize;
     }
 
     public static void setHasBeenRead() {
-        ZcodeAcceptanceTestCapabilityResult.hasBeenRead = true;
+        AcceptanceTestCapabilityResult.hasBeenRead = true;
     }
 
     public static byte[] getSupportedCodes() {

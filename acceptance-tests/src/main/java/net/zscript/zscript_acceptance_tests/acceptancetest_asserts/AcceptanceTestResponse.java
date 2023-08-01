@@ -3,21 +3,21 @@ package net.zscript.zscript_acceptance_tests.acceptancetest_asserts;
 import java.io.IOException;
 import java.io.PushbackInputStream;
 
-public class ZcodeAcceptanceTestResponse {
-    private final ZcodeAcceptanceTestFieldMap map = new ZcodeAcceptanceTestFieldMap();
-    private final ZcodeAcceptanceTestBigField big = new ZcodeAcceptanceTestBigField();
-    private ZcodeAcceptanceTestResponseStatus status = ZcodeAcceptanceTestResponseStatus.OK;
+public class AcceptanceTestResponse {
+    private final AcceptanceTestFieldMap map = new AcceptanceTestFieldMap();
+    private final AcceptanceTestBigField big = new AcceptanceTestBigField();
+    private AcceptanceTestResponseStatus status = AcceptanceTestResponseStatus.OK;
     private char end;
 
-    public ZcodeAcceptanceTestFieldMap getFields() {
+    public AcceptanceTestFieldMap getFields() {
         return map;
     }
 
-    public ZcodeAcceptanceTestBigField getBigField() {
+    public AcceptanceTestBigField getBigField() {
         return big;
     }
 
-    public ZcodeAcceptanceTestResponseStatus getStatus() {
+    public AcceptanceTestResponseStatus getStatus() {
         return status;
     }
 
@@ -57,7 +57,7 @@ public class ZcodeAcceptanceTestResponse {
         return current;
     }
 
-    public String parseCommand(PushbackInputStream in, ZcodeAcceptanceTestResponseSequence sequence, String current) {
+    public String parseCommand(PushbackInputStream in, AcceptanceTestResponseSequence sequence, String current) {
         try {
             int c = in.read();
             while (c == ' ' || c == '\t' || c == '\r') {
@@ -65,7 +65,7 @@ public class ZcodeAcceptanceTestResponse {
             }
             if (c == '#') {
                 if (sequence.isEmpty()) {
-                    status = ZcodeAcceptanceTestResponseStatus.SKIP_COMMAND;
+                    status = AcceptanceTestResponseStatus.SKIP_COMMAND;
                     while (c != -1 && c != '\n') {
                         c = in.read();
                     }

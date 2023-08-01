@@ -3,21 +3,21 @@ package net.zscript.javaclient.builders;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.zscript.model.datamodel.ZcodeDataModel.CommandModel;
-import net.zscript.model.datamodel.ZcodeDataModel.ModuleModel;
+import net.zscript.model.datamodel.ZscriptDataModel.CommandModel;
+import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
 import net.zscript.model.loader.ModelLoader;
 import net.zscript.model.loader.ModuleBank;
 
-public class Zcode {
+public class Zscript {
 
     private Map<String, ModuleBank> moduleBanks;
 
-    private Zcode(ModelLoader modelLoader) {
+    private Zscript(ModelLoader modelLoader) {
         moduleBanks = modelLoader.getModuleBanks();
     }
 
-    public static Zcode forModel(ModelLoader modelLoader) {
-        return new Zcode(modelLoader);
+    public static Zscript forModel(ModelLoader modelLoader) {
+        return new Zscript(modelLoader);
     }
 
     public ModuleCommandFinder forModule(String moduleBankName, String moduleName) {

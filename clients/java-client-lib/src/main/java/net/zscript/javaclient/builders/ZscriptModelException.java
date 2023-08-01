@@ -1,9 +1,9 @@
 package net.zscript.javaclient.builders;
 
-public class ZcodeModelException extends RuntimeException {
+public class ZscriptModelException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public ZcodeModelException(String msg, Throwable cause) {
+    public ZscriptModelException(String msg, Throwable cause) {
         super(msg, cause);
     }
 

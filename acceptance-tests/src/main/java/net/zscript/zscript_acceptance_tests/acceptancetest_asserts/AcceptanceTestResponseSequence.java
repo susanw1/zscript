@@ -3,8 +3,8 @@ package net.zscript.zscript_acceptance_tests.acceptancetest_asserts;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class ZcodeAcceptanceTestResponseSequence {
-    private final Queue<ZcodeAcceptanceTestResponse> resps = new LinkedList<>();
+public class AcceptanceTestResponseSequence {
+    private final Queue<AcceptanceTestResponse> resps = new LinkedList<>();
     private boolean isBroadcast = false;
     private boolean isNotification = false;
 
@@ -16,19 +16,19 @@ public class ZcodeAcceptanceTestResponseSequence {
         return resps.isEmpty();
     }
 
-    public void addResponse(ZcodeAcceptanceTestResponse resp) {
+    public void addResponse(AcceptanceTestResponse resp) {
         resps.add(resp);
     }
 
-    public ZcodeAcceptanceTestResponse peekFirst() {
+    public AcceptanceTestResponse peekFirst() {
         return resps.peek();
     }
 
-    public ZcodeAcceptanceTestResponse pollFirst() {
+    public AcceptanceTestResponse pollFirst() {
         return resps.poll();
     }
 
-    public Queue<ZcodeAcceptanceTestResponse> getResps() {
+    public Queue<AcceptanceTestResponse> getResps() {
         return resps;
     }
 

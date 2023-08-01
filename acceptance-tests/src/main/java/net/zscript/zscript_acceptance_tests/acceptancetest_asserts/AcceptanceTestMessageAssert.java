@@ -8,16 +8,16 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
-public abstract class ZcodeAcceptanceTestMessageAssert {
-    final List<ZcodeAcceptanceTestCondition> conditions = new ArrayList<>();
+public abstract class AcceptanceTestMessageAssert {
+    final List<AcceptanceTestCondition> conditions = new ArrayList<>();
 
-    public ZcodeAcceptanceTestMessageAssert worked() {
-        return hasStatus(ZcodeAcceptanceTestResponseStatus.OK);
+    public AcceptanceTestMessageAssert worked() {
+        return hasStatus(AcceptanceTestResponseStatus.OK);
     }
 
-    public ZcodeAcceptanceTestMessageAssert printSequence() {
+    public AcceptanceTestMessageAssert printSequence() {
         conditions.add((seq, prev) -> {
-            for (ZcodeAcceptanceTestResponse resp : seq.getResps()) {
+            for (AcceptanceTestResponse resp : seq.getResps()) {
                 System.out.println(resp.getFields().asString() + resp.getBigField().asString());
             }
             System.out.println();
@@ -25,33 +25,33 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert printCommand() {
+    public AcceptanceTestMessageAssert printCommand() {
         conditions.add((seq, prev) -> {
             System.out.println(seq.peekFirst().getFields().asString() + seq.peekFirst().getBigField().asString());
         });
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert anyOf(Consumer<ZcodeAcceptanceTestAssertIntermediateOr> options) {
-        ZcodeAcceptanceTestAssertIntermediateOr or = new ZcodeAcceptanceTestAssertIntermediateOr(this);
+    public AcceptanceTestMessageAssert anyOf(Consumer<AcceptanceTestAssertIntermediateOr> options) {
+        AcceptanceTestAssertIntermediateOr or = new AcceptanceTestAssertIntermediateOr(this);
         options.accept(or);
         conditions.add(or.getAsCondition());
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert eachOf(Consumer<ZcodeAcceptanceTestAssertIntermediateEach> options) {
-        ZcodeAcceptanceTestAssertIntermediateEach and = new ZcodeAcceptanceTestAssertIntermediateEach(this);
+    public AcceptanceTestMessageAssert eachOf(Consumer<AcceptanceTestAssertIntermediateEach> options) {
+        AcceptanceTestAssertIntermediateEach and = new AcceptanceTestAssertIntermediateEach(this);
         options.accept(and);
         conditions.add(and.getAsCondition());
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasStatus(ZcodeAcceptanceTestResponseStatus r) {
+    public AcceptanceTestMessageAssert hasStatus(AcceptanceTestResponseStatus r) {
         conditions.add((seq, prev) -> {
             prev.add('S');
             
-            ZcodeAcceptanceTestFieldMap fields = seq.peekFirst().getFields();
-            ZcodeAcceptanceTestBigField bigField = seq.peekFirst().getBigField();
+            AcceptanceTestFieldMap fields = seq.peekFirst().getFields();
+            AcceptanceTestBigField bigField = seq.peekFirst().getBigField();
 
             if (fields.getFieldLength('S') != 1) {
                 if (fields.getFieldLength('S') < 1) {
@@ -67,8 +67,8 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
             byte b = fields.getField('S')[0];
             if (b != r.getValue()) {
                 String str = fields.asString() + bigField.asString();
-                ZcodeAcceptanceTestResponseStatus actual = null;
-                for (ZcodeAcceptanceTestResponseStatus v : ZcodeAcceptanceTestResponseStatus.values()) {
+                AcceptanceTestResponseStatus actual = null;
+                for (AcceptanceTestResponseStatus v : AcceptanceTestResponseStatus.values()) {
                     if (v.getValue() == b) {
                         actual = v;
                         break;
@@ -85,7 +85,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert isNotification() {
+    public AcceptanceTestMessageAssert isNotification() {
         conditions.add((seq, prev) -> {
             if (!seq.isNotification()) {
                 String str = seq.peekFirst().getFields().asString() + seq.peekFirst().getBigField().asString();
@@ -95,7 +95,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert isBroadcast() {
+    public AcceptanceTestMessageAssert isBroadcast() {
         conditions.add((seq, prev) -> {
             if (!seq.isBroadcast()) {
                 String str = seq.peekFirst().getFields().asString() + seq.peekFirst().getBigField().asString();
@@ -105,7 +105,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert isNotNotification() {
+    public AcceptanceTestMessageAssert isNotNotification() {
         conditions.add((seq, prev) -> {
             if (seq.isNotification()) {
                 String str = seq.peekFirst().getFields().asString() + seq.peekFirst().getBigField().asString();
@@ -115,7 +115,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert isNotBroadcast() {
+    public AcceptanceTestMessageAssert isNotBroadcast() {
         conditions.add((seq, prev) -> {
             if (seq.isBroadcast()) {
                 String str = seq.peekFirst().getFields().asString() + seq.peekFirst().getBigField().asString();
@@ -125,7 +125,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasField(char f) {
+    public AcceptanceTestMessageAssert hasField(char f) {
         conditions.add((seq, prev) -> {
             prev.add(f);
             if (seq.peekFirst().getFields().getFieldLength(f) == 0) {
@@ -136,7 +136,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert getField(char f, Consumer<byte[]> target) {
+    public AcceptanceTestMessageAssert getField(char f, Consumer<byte[]> target) {
         conditions.add((seq, prev) -> {
             prev.add(f);
             if (seq.peekFirst().getFields().getFieldLength(f) != 0) {
@@ -146,7 +146,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasField(char f, int value) {
+    public AcceptanceTestMessageAssert hasField(char f, int value) {
         conditions.add((seq, prev) -> {
             prev.add(f);
             if (seq.peekFirst().getFields().getFieldLength(f) != 1) {
@@ -170,7 +170,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasField(char f, byte[] value) {
+    public AcceptanceTestMessageAssert hasField(char f, byte[] value) {
         conditions.add((seq, prev) -> {
             prev.add(f);
             if (seq.peekFirst().getFields().getFieldLength(f) == 0) {
@@ -181,7 +181,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
             if (!Arrays.equals(value, actual)) {
                 String str = seq.peekFirst().getFields().asString() + seq.peekFirst().getBigField().asString();
                 String str1 = seq.peekFirst().getFields().asString(f);
-                ZcodeAcceptanceTestFieldMap map = new ZcodeAcceptanceTestFieldMap();
+                AcceptanceTestFieldMap map = new AcceptanceTestFieldMap();
                 for (byte b : value) {
                     map.addField(f, b);
                 }
@@ -191,7 +191,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasField(char f, String value) {
+    public AcceptanceTestMessageAssert hasField(char f, String value) {
         int startOffset = 0;
         while (startOffset < value.length() && value.charAt(startOffset) == '0')
             startOffset++;
@@ -223,7 +223,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return hasField(f, data);
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasBigField() {
+    public AcceptanceTestMessageAssert hasBigField() {
         conditions.add((seq, prev) -> {
             if (seq.peekFirst().getBigField().getField().isEmpty()) {
                 throw new AssertionError(
@@ -238,7 +238,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert getBigField(Consumer<byte[]> target) {
+    public AcceptanceTestMessageAssert getBigField(Consumer<byte[]> target) {
         conditions.add((seq, prev) -> {
             if (seq.peekFirst().getBigField().getField().size() != 0) {
                 byte[] array = new byte[seq.peekFirst().getBigField().getField().size()];
@@ -257,7 +257,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasBigField(byte[] value) {
+    public AcceptanceTestMessageAssert hasBigField(byte[] value) {
         conditions.add((seq, prev) -> {
             if (seq.peekFirst().getBigField().isString()) {
                 prev.add('"');
@@ -269,7 +269,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasBigDataField() {
+    public AcceptanceTestMessageAssert hasBigDataField() {
         conditions.add((seq, prev) -> {
             if (seq.peekFirst().getBigField().getField().isEmpty()) {
                 throw new AssertionError(
@@ -284,7 +284,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasBigDataField(String value) {
+    public AcceptanceTestMessageAssert hasBigDataField(String value) {
         if (value.length() % 2 != 0) {
             throw new IllegalArgumentException("Big data fields must have even lengths");
         }
@@ -312,7 +312,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasBigDataField(byte[] value) {
+    public AcceptanceTestMessageAssert hasBigDataField(byte[] value) {
         conditions.add((seq, prev) -> {
             if (seq.peekFirst().getBigField().isString() && !seq.peekFirst().getBigField().getField().isEmpty()) {
                 String failStr = "";
@@ -332,7 +332,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasBigStringField() {
+    public AcceptanceTestMessageAssert hasBigStringField() {
         conditions.add((seq, prev) -> {
             if (seq.peekFirst().getBigField().getField().isEmpty()) {
                 throw new AssertionError(
@@ -347,7 +347,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasBigStringField(String value) {
+    public AcceptanceTestMessageAssert hasBigStringField(String value) {
         byte[] data = value.getBytes(StandardCharsets.UTF_8);
         conditions.add((seq, prev) -> {
             if (!seq.peekFirst().getBigField().isString() && !seq.peekFirst().getBigField().getField().isEmpty()) {
@@ -360,7 +360,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasBigStringField(byte[] value) {
+    public AcceptanceTestMessageAssert hasBigStringField(byte[] value) {
         conditions.add((seq, prev) -> {
             if (!seq.peekFirst().getBigField().isString() && !seq.peekFirst().getBigField().getField().isEmpty()) {
                 String str = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(value)).toString();
@@ -373,10 +373,10 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    private ZcodeAcceptanceTestCondition getBigFieldCondition(byte[] value) {
+    private AcceptanceTestCondition getBigFieldCondition(byte[] value) {
         return (seq, prev) -> {
             if (seq.peekFirst().getBigField().getField().isEmpty()) {
-                ZcodeAcceptanceTestBigField expectedField = new ZcodeAcceptanceTestBigField();
+                AcceptanceTestBigField expectedField = new AcceptanceTestBigField();
                 for (byte b : value) {
                     expectedField.addByte(b);
                 }
@@ -386,7 +386,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
             }
             List<Byte> dataReceived = seq.peekFirst().getBigField().getField();
             if (dataReceived.size() != value.length) {
-                ZcodeAcceptanceTestBigField expectedField = new ZcodeAcceptanceTestBigField();
+                AcceptanceTestBigField expectedField = new AcceptanceTestBigField();
                 for (byte b : value) {
                     expectedField.addByte(b);
                 }
@@ -411,7 +411,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
                 }
             }
             if (!matches) {
-                ZcodeAcceptanceTestBigField expectedField = new ZcodeAcceptanceTestBigField();
+                AcceptanceTestBigField expectedField = new AcceptanceTestBigField();
                 for (byte b : value) {
                     expectedField.addByte(b);
                 }
@@ -422,7 +422,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         };
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasNoBigField() {
+    public AcceptanceTestMessageAssert hasNoBigField() {
         conditions.add((seq, prev) -> {
             if (!seq.peekFirst().getBigField().getField().isEmpty()) {
                 throw new AssertionError("\nResponse received contained big field, when none should have been present.\nBig Field:\n" + seq.peekFirst().getBigField().asString()
@@ -432,7 +432,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert isLastInSequence() {
+    public AcceptanceTestMessageAssert isLastInSequence() {
         conditions.add((seq, prev) -> {
             if (seq.peekFirst().getEnd() != '\n') {
                 throw new AssertionError("\nResponse received was terminated with" + seq.peekFirst().getEnd() + "when \\n expected.\nReceived:\n"
@@ -442,7 +442,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert sequenceContinues() {
+    public AcceptanceTestMessageAssert sequenceContinues() {
         conditions.add((seq, prev) -> {
             if (seq.peekFirst().getEnd() == '\n') {
                 throw new AssertionError("\nResponse received was terminated with \\n when & expected.");
@@ -453,7 +453,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert sequenceHasError() {
+    public AcceptanceTestMessageAssert sequenceHasError() {
         conditions.add((seq, prev) -> {
             if (seq.peekFirst().getEnd() != '|') {
                 if (seq.peekFirst().getEnd() == '\n') {
@@ -468,7 +468,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert next() {
+    public AcceptanceTestMessageAssert next() {
         conditions.add((seq, prev) -> {
             prev.clear();
             seq.pollFirst();
@@ -479,7 +479,7 @@ public abstract class ZcodeAcceptanceTestMessageAssert {
         return this;
     }
 
-    public ZcodeAcceptanceTestMessageAssert hasNoOtherFields() {
+    public AcceptanceTestMessageAssert hasNoOtherFields() {
         conditions.add((seq, prev) -> {
             for (char i = 'A'; i <= 'Z'; i++) {
                 if (seq.peekFirst().getFields().hasField(i) && !prev.contains(i)) {

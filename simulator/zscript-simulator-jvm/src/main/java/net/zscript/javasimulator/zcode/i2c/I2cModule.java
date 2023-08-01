@@ -38,16 +38,16 @@ public class I2cModule implements ZscriptModule {
     public void execute(CommandContext ctx, int command) {
         switch (command) {
         case 0:
-            ZcodeI2cCapabilitiesCommand.execute(ctx, entity);
+            I2cCapabilitiesCommand.execute(ctx, entity);
             break;
         case 1:
-            ZcodeI2cSetupCommand.execute(ctx, this);
+            I2cSetupCommand.execute(ctx, this);
             break;
         case 2:
-            ZcodeI2cSendCommand.execute(ctx, this);
+            I2cSendCommand.execute(ctx, this);
             break;
         case 3:
-            ZcodeI2cReadCommand.execute(ctx, this);
+            I2cReadCommand.execute(ctx, this);
             break;
 
         default:
@@ -58,7 +58,7 @@ public class I2cModule implements ZscriptModule {
 
     @Override
     public void address(AddressingContext ctx) {
-        ZcodeI2cAddressAction.execute(ctx, this);
+        I2cAddressAction.execute(ctx, this);
     }
 
     @Override

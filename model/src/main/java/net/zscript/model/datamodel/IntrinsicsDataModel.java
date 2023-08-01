@@ -2,9 +2,9 @@ package net.zscript.model.datamodel;
 
 import java.util.List;
 
-import net.zscript.model.datamodel.ZcodeDataModel.RequestParamModel;
-import net.zscript.model.datamodel.ZcodeDataModel.ResponseParamModel;
-import net.zscript.model.datamodel.ZcodeDataModel.StatusModel;
+import net.zscript.model.datamodel.ZscriptDataModel.RequestParamModel;
+import net.zscript.model.datamodel.ZscriptDataModel.ResponseParamModel;
+import net.zscript.model.datamodel.ZscriptDataModel.StatusModel;
 
 public interface IntrinsicsDataModel {
     Intrinsics getIntrinsics();

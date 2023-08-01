@@ -1,4 +1,4 @@
-ZCODE
+ZSCRIPT
 ===
 
 ##### What Is It?

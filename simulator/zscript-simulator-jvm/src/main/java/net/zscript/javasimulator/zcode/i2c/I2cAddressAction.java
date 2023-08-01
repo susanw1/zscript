@@ -13,7 +13,7 @@ import net.zscript.javasimulator.connections.i2c.I2cProtocolCategory;
 import net.zscript.javasimulator.connections.i2c.I2cResponse;
 import net.zscript.javasimulator.connections.i2c.I2cSendPacket;
 
-public class ZcodeI2cAddressAction {
+public class I2cAddressAction {
     public static void execute(AddressingContext ctx, I2cModule module) {
         Entity               entity = module.getEntity();
         OptIterator<Integer> it     = ctx.getAddressSegments();

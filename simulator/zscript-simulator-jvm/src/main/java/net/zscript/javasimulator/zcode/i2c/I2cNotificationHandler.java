@@ -20,9 +20,9 @@ import net.zscript.javasimulator.connections.i2c.I2cReceiveResponse;
 import net.zscript.javasimulator.connections.i2c.I2cResponse;
 import net.zscript.javasimulator.connections.i2c.SmBusAlertConnection;
 import net.zscript.javasimulator.connections.i2c.SmBusAlertPacket;
-import net.zscript.javasimulator.zcode.ZcodeSimulatorConsumer;
+import net.zscript.javasimulator.zcode.SimulatorConsumer;
 
-public class I2cNotificationHandler implements ZcodeSimulatorConsumer<I2cProtocolCategory> {
+public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCategory> {
     private static final int              CHUNK_LENGTH    = 8;
     private final ZscriptNotificationSource source          = new ZscriptNotificationSource();
     private int                           notificationSet = 0;

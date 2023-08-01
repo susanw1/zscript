@@ -21,8 +21,8 @@ import net.zscript.javasimulator.EntityController;
 import net.zscript.javasimulator.ProtocolCategory;
 import net.zscript.javasimulator.ProtocolConnection;
 
-public class ZcodeEntityController extends EntityController {
-    private final Map<Class<? extends ProtocolConnection<?, ?>>, List<ZcodeSimulatorConsumer<? extends ProtocolCategory>>> modules          = new HashMap<>();
+public class ZscriptEntityController extends EntityController {
+    private final Map<Class<? extends ProtocolConnection<?, ?>>, List<SimulatorConsumer<? extends ProtocolCategory>>> modules          = new HashMap<>();
     private final ExecutorService                                                                                          mainExec         = Executors.newSingleThreadExecutor();
     private final ExecutorService                                                                                          interruptExec    = Executors.newSingleThreadExecutor();
     private final Thread                                                                                                   mainCurrent      = findCurrentMain();
@@ -132,17 +132,17 @@ public class ZcodeEntityController extends EntityController {
         return switchToMainThread(() -> hasNonWait);
     }
 
-    public ZcodeEntityController() {
+    public ZscriptEntityController() {
         addModule(new ZscriptCoreModule());
         addModule(new ZscriptOuterCoreModule());
         mainExec.submit(new ProgressForever());
     }
 
-    public <U extends ProtocolCategory> void add(ZcodeSimulatorConsumer<U> consumer, int index) {
+    public <U extends ProtocolCategory> void add(SimulatorConsumer<U> consumer, int index) {
         switchToInterruptThread(() -> {
             for (Class<? extends ProtocolConnection<U, ?>> connection : consumer.getConnections()) {
                 modules.putIfAbsent(connection, new ArrayList<>());
-                List<ZcodeSimulatorConsumer<? extends ProtocolCategory>> list = modules.get(connection);
+                List<SimulatorConsumer<? extends ProtocolCategory>> list = modules.get(connection);
                 while (list.size() <= index) {
                     list.add(null);
                 }
@@ -160,16 +160,16 @@ public class ZcodeEntityController extends EntityController {
     }
 
     @SuppressWarnings("unchecked")
-    private <U extends ProtocolCategory, T extends ProtocolConnection<U, T>> ZcodeSimulatorConsumer<U> getModule(Class<T> type, int index) {
+    private <U extends ProtocolCategory, T extends ProtocolConnection<U, T>> SimulatorConsumer<U> getModule(Class<T> type, int index) {
         hasNonWait = true;
-        return (ZcodeSimulatorConsumer<U>) modules.get(type).get(index);
+        return (SimulatorConsumer<U>) modules.get(type).get(index);
     }
 
     @Override
     public <U extends ProtocolCategory, T extends ProtocolConnection<U, T>> CommunicationResponse<T> acceptIncoming(Class<U> type, int index, CommunicationPacket<T> packet) {
         try {
             return switchToInterruptThread(() -> {
-                ZcodeSimulatorConsumer<U> consumer = getModule(packet.getProtocolConnectionType(), index);
+                SimulatorConsumer<U> consumer = getModule(packet.getProtocolConnectionType(), index);
 
                 if (consumer == null) {
                     return new BlankCommunicationResponse<>(packet.getProtocolConnectionType());

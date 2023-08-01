@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class ZcodeAcceptanceTestFieldMap {
+public class AcceptanceTestFieldMap {
     private final Map<Character, byte[]> fields = new HashMap<>();
 
     public void addField(char c, byte b) {

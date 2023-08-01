@@ -5,7 +5,7 @@ import net.zscript.javasimulator.CommunicationResponse;
 import net.zscript.javasimulator.ProtocolCategory;
 import net.zscript.javasimulator.ProtocolConnection;
 
-public interface ZcodeSimulatorConsumer<U extends ProtocolCategory> {
+public interface SimulatorConsumer<U extends ProtocolCategory> {
 
     <T extends ProtocolConnection<U, T>> CommunicationResponse<T> acceptPacket(int index, CommunicationPacket<T> packet);
 

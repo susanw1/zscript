@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 
 import net.zscript.javaclient.builders.Command;
 import net.zscript.javaclient.builders.Response;
-import net.zscript.javaclient.builders.Zcode;
+import net.zscript.javaclient.builders.Zscript;
 import net.zscript.model.loader.ModelLoader;
 
-class ZcodeTest {
+class ZscriptTest {
 
     @BeforeEach
     void setUp() throws Exception {
@@ -23,14 +23,14 @@ class ZcodeTest {
     @Test
     void shouldMakeCommandUsingNames() {
         final ModelLoader modelLoader = ModelLoader.standardModel();
-        final Zcode       zcode       = Zcode.forModel(modelLoader);
+        final Zscript       zscript       = Zscript.forModel(modelLoader);
 
-        final Command c = zcode.forModule("Base", "Core")
+        final Command c = zscript.forModule("Base", "Core")
                 .makeCommand("activate")
                 .setField("key", 123)
                 .build();
 
-        final Response r = zcode.parseResponse(c, "SA1");
+        final Response r = zscript.parseResponse(c, "SA1");
 
         assertThat(r.getResponseParamByKey('A', Optional.class)).hasValue(1);
     }

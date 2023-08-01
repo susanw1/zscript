@@ -7,7 +7,7 @@ import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javasimulator.connections.i2c.I2cProtocolCategory;
 
-public class ZcodeI2cSetupCommand {
+public class I2cSetupCommand {
 
     public static void execute(CommandContext ctx, I2cModule module) {
         ZscriptCommandOutStream out     = ctx.getOutStream();

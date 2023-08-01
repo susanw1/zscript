@@ -7,8 +7,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.zscript.javareceiver.core.AbstractOutStream;
-import net.zscript.javareceiver.core.ZscriptChannel;
 import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.core.ZscriptChannel;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
@@ -26,14 +26,14 @@ import net.zscript.javasimulator.connections.i2c.I2cSendPacket;
 import net.zscript.javasimulator.connections.i2c.I2cSendResponse;
 import net.zscript.javasimulator.connections.i2c.SmBusAlertConnection;
 import net.zscript.javasimulator.connections.i2c.SmBusAlertPacket;
-import net.zscript.javasimulator.zcode.ZcodeSimulatorConsumer;
+import net.zscript.javasimulator.zcode.SimulatorConsumer;
 
-public class I2cChannel extends ZscriptChannel implements ZcodeSimulatorConsumer<I2cProtocolCategory> {
-    private final Entity         e;
-    private final I2cAddress     addr;
-    private final Tokenizer in;
-    private final Queue<byte[]>  outQueue;
-    private int                  cachePos = 0;
+public class I2cChannel extends ZscriptChannel implements SimulatorConsumer<I2cProtocolCategory> {
+    private final Entity        e;
+    private final I2cAddress    addr;
+    private final Tokenizer     in;
+    private final Queue<byte[]> outQueue;
+    private int                 cachePos = 0;
 
     public static I2cChannel build(Entity e, I2cAddress addr, int index, int size) {
         Queue<byte[]> outQueue = new ConcurrentLinkedQueue<>();
@@ -126,9 +126,8 @@ public class I2cChannel extends ZscriptChannel implements ZcodeSimulatorConsumer
                 cache = outQueue.peek();
                 cachePos = 0;
                 break;
-            } else {
-                data[dataIndex++] = cache[cachePos++];
             }
+            data[dataIndex++] = cache[cachePos++];
         }
         if (cache != null && cachePos == cache.length) {
             outQueue.poll();

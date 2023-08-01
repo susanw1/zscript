@@ -15,7 +15,7 @@ import net.zscript.javasimulator.connections.pin.PinProtocolCategory;
 import net.zscript.javasimulator.devices.Button;
 import net.zscript.javasimulator.devices.LED;
 import net.zscript.javasimulator.devices.MCP23017;
-import net.zscript.javasimulator.zcode.ZcodeEntityController;
+import net.zscript.javasimulator.zcode.ZscriptEntityController;
 import net.zscript.javasimulator.zcode.i2c.I2cChannel;
 import net.zscript.javasimulator.zcode.i2c.I2cModule;
 
@@ -23,7 +23,7 @@ public class Main2 {
 
     public static void main(String[] args) {
         MCP23017 io = new MCP23017((byte) 0x2);
-        ZcodeEntityController zcode = new ZcodeEntityController();
+        ZscriptEntityController zcode = new ZscriptEntityController();
         zcode.getEntity().connectNew(I2cProtocolCategory.class);
         zcode.getEntity().getConnection(I2cProtocolCategory.class, 0).addProtocol(new I2cConnection(zcode.getEntity().getConnection(I2cProtocolCategory.class, 0)));
         zcode.getEntity().getConnection(I2cProtocolCategory.class, 0).addProtocol(new SmBusAlertConnection(zcode.getEntity().getConnection(I2cProtocolCategory.class, 0)));

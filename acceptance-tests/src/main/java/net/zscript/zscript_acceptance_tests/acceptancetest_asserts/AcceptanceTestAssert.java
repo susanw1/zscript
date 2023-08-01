@@ -12,24 +12,24 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ZcodeAcceptanceTestAssert extends ZcodeAcceptanceTestMessageAssert {
-    private final ZcodeAcceptanceTestConnection connection;
+public class AcceptanceTestAssert extends AcceptanceTestMessageAssert {
+    private final AcceptanceTestConnection connection;
     private final byte[] toSend;
     private final AcceptanceFuture future = new AcceptanceFuture();
     private int otherMessagesInFlight;
 
-    public ZcodeAcceptanceTestAssert(ZcodeAcceptanceTestConnection connection, byte[] toSend, int otherMessagesInFlight) {
+    public AcceptanceTestAssert(AcceptanceTestConnection connection, byte[] toSend, int otherMessagesInFlight) {
         this.connection = connection;
         this.otherMessagesInFlight = otherMessagesInFlight;
         this.toSend = toSend;
     }
 
-    public static ZcodeAcceptanceTestAssert assertThatCommand(ZcodeAcceptanceTestConnection connection, byte[] toSend, int otherMessagesInFlight) {
-        return new ZcodeAcceptanceTestAssert(connection, toSend, otherMessagesInFlight);
+    public static AcceptanceTestAssert assertThatCommand(AcceptanceTestConnection connection, byte[] toSend, int otherMessagesInFlight) {
+        return new AcceptanceTestAssert(connection, toSend, otherMessagesInFlight);
     }
 
-    public static ZcodeAcceptanceTestAssert assertThatCommand(ZcodeAcceptanceTestConnection connection, String toSend) {
-        return new ZcodeAcceptanceTestAssert(connection, toSend.getBytes(StandardCharsets.UTF_8), 0);
+    public static AcceptanceTestAssert assertThatCommand(AcceptanceTestConnection connection, String toSend) {
+        return new AcceptanceTestAssert(connection, toSend.getBytes(StandardCharsets.UTF_8), 0);
     }
 
     @Override
@@ -42,20 +42,20 @@ public class ZcodeAcceptanceTestAssert extends ZcodeAcceptanceTestMessageAssert 
     private void acceptResponse(byte[] resp) {
         try {
             PushbackInputStream in = new PushbackInputStream(new ByteArrayInputStream(resp));
-            ZcodeAcceptanceTestResponseSequence seq = new ZcodeAcceptanceTestResponseSequence();
+            AcceptanceTestResponseSequence seq = new AcceptanceTestResponseSequence();
             int c = in.read();
             String current = "";
             while (c != -1) {
                 in.unread(c);
-                ZcodeAcceptanceTestResponse parsedResp = new ZcodeAcceptanceTestResponse();
+                AcceptanceTestResponse parsedResp = new AcceptanceTestResponse();
                 current = parsedResp.parseCommand(in, seq, current);
-                if (parsedResp.getStatus() != ZcodeAcceptanceTestResponseStatus.SKIP_COMMAND) {
+                if (parsedResp.getStatus() != AcceptanceTestResponseStatus.SKIP_COMMAND) {
                     seq.addResponse(parsedResp);
                 }
                 c = in.read();
             }
             List<Character> charsDone = new ArrayList<>();
-            for (ZcodeAcceptanceTestCondition condition : conditions) {
+            for (AcceptanceTestCondition condition : conditions) {
                 condition.test(seq, charsDone);
             }
             future.complete();

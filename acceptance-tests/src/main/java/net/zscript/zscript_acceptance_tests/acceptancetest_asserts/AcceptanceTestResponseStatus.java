@@ -1,6 +1,6 @@
 package net.zscript.zscript_acceptance_tests.acceptancetest_asserts;
 
-public enum ZcodeAcceptanceTestResponseStatus {
+public enum AcceptanceTestResponseStatus {
     OK(0),
     RESP_TOO_LONG(1),
     UNKNOWN_ERROR(2),
@@ -16,7 +16,7 @@ public enum ZcodeAcceptanceTestResponseStatus {
 
     private final int value;
 
-    private ZcodeAcceptanceTestResponseStatus(int value) {
+    private AcceptanceTestResponseStatus(int value) {
         this.value = value;
     }
 

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.zscript.model.datamodel.DefinitionResources.ModuleBankDef;
-import net.zscript.model.datamodel.ZcodeDataModel.ModuleModel;
+import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
 
 public class ModuleBank {
     final ModuleBankDef mbDef;

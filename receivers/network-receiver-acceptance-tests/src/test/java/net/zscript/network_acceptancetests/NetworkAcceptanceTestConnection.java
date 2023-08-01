@@ -19,9 +19,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
-import net.zscript.zscript_acceptance_tests.acceptancetest_asserts.ZcodeAcceptanceTestConnection;
+import net.zscript.zscript_acceptance_tests.acceptancetest_asserts.AcceptanceTestConnection;
 
-public class NetworkAcceptanceTestConnection implements ZcodeAcceptanceTestConnection {
+public class NetworkAcceptanceTestConnection implements AcceptanceTestConnection {
     private final Lock lock = new ReentrantLock();
 
     private final List<Consumer<byte[]>>         handlers          = new ArrayList<>();

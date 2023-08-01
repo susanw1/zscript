@@ -5,10 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Future;
 
-public class ZcodeAcceptanceTestAssertIntermediateOr extends ZcodeAcceptanceTestMessageAssert {
-    private final ZcodeAcceptanceTestMessageAssert parent;
+public class AcceptanceTestAssertIntermediateOr extends AcceptanceTestMessageAssert {
+    private final AcceptanceTestMessageAssert parent;
 
-    public ZcodeAcceptanceTestAssertIntermediateOr(ZcodeAcceptanceTestMessageAssert parent) {
+    public AcceptanceTestAssertIntermediateOr(AcceptanceTestMessageAssert parent) {
         this.parent = parent;
     }
 
@@ -17,14 +17,14 @@ public class ZcodeAcceptanceTestAssertIntermediateOr extends ZcodeAcceptanceTest
         return parent.send();
     }
 
-    public ZcodeAcceptanceTestCondition getAsCondition() {
+    public AcceptanceTestCondition getAsCondition() {
         return (seq, prev) -> {
             List<AssertionError> errors = new ArrayList<>();
             boolean worked = false;
-            for (ZcodeAcceptanceTestCondition condition : conditions) {
-                ZcodeAcceptanceTestResponseSequence seqclone = new ZcodeAcceptanceTestResponseSequence();
-                for (ZcodeAcceptanceTestResponse resp : seq.getResps()) {
-                    ZcodeAcceptanceTestResponse respClone = new ZcodeAcceptanceTestResponse();
+            for (AcceptanceTestCondition condition : conditions) {
+                AcceptanceTestResponseSequence seqclone = new AcceptanceTestResponseSequence();
+                for (AcceptanceTestResponse resp : seq.getResps()) {
+                    AcceptanceTestResponse respClone = new AcceptanceTestResponse();
                     List<Byte> data = resp.getBigField().getField();
                     for (byte b : data) {
                         respClone.getBigField().addByte(b);

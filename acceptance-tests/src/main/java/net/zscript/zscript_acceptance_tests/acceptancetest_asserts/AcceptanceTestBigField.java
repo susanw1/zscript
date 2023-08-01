@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ZcodeAcceptanceTestBigField {
+public class AcceptanceTestBigField {
     private final List<Byte> field = new ArrayList<>();
     private boolean isString = false;
 
