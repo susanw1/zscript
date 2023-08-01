@@ -18,20 +18,6 @@
 
 namespace Zscript {
 namespace GenericCore {
-enum ActionType {
-    INVALID,
-    GO_AROUND,
-    WAIT_FOR_TOKENS,
-    WAIT_FOR_ASYNC,
-    ERROR,
-    INVOKE_ADDRESSING,
-    ADDRESSING_MOVEALONG,
-    RUN_FIRST_COMMAND,
-    RUN_COMMAND,
-    COMMAND_MOVEALONG,
-    END_SEQUENCE,
-    CLOSE_PAREN
-};
 enum State {
     PRESEQUENCE,
     ADDRESSING_INCOMPLETE,
@@ -102,19 +88,19 @@ class SemanticParser {
         OptionalRingBufferToken<ZP> token;
 
         bool first = true;
-        for (token = it.next(); token.isPresent() && (token.get().isSequenceEndMarker() || (!seekSeqEnd && token.get().isMarker())); token = it.next()) {
+        for (token = it.next(buffer); token.isPresent && (token.token.isSequenceEndMarker(buffer) || (!seekSeqEnd && token.token.isMarker(buffer))); token = it.next(buffer)) {
             if (flush) {
-                it.flushBuffer();
-            } else if (first && seekSeqEnd && token.get().isMarker()) {
+                it.flushBuffer(buffer);
+            } else if (first && seekSeqEnd && token.token.isMarker(buffer)) {
                 first = false;
-                nextMarker = token.get().getKey();
+                nextMarker = token.token.getKey(buffer);
                 haveNextMarker = true;
             }
         }
 
         if (seekSeqEnd) {
-            if (token.isPresent()) {
-                assignSeqEndMarker(token.get().getKey());    // Literally only this case can happen mid command to cause an error...
+            if (token.isPresent) {
+                assignSeqEndMarker(token.token.getKey(buffer));    // Literally only this case can happen mid command to cause an error...
             } else {
                 haveSeqEndMarker = false;
             }
@@ -123,15 +109,14 @@ class SemanticParser {
                 nextMarker = seqEndMarker;
             }
         } else {
-            haveNextMarker = token.isPresent();
-            if (token.isPresent()) {
-                nextMarker = token.get().getKey();
+            haveNextMarker = token.isPresent;
+            if (token.isPresent) {
+                nextMarker = token.token.getKey(buffer);
                 if (TokenRingBuffer<ZP>::isSequenceEndMarker(nextMarker)) {
                     assignSeqEndMarker(nextMarker);
                 }
             }
         }
-
         return token;
     }
 
@@ -152,7 +137,7 @@ class SemanticParser {
      * Used when reader is pointing at a marker: flush the marker and immediately seek the next marker to update cached marker state.
      */
     void flushMarkerAndSeekNext() {
-        bool isSeq = buffer->R_getFirstReadToken().isSequenceEndMarker();
+        bool isSeq = buffer->R_getFirstReadToken().isSequenceEndMarker(buffer);
         buffer->R_flushFirstReadToken(); // unsafe
         seekMarker(isSeq, false); // safe - cached marker state updated
     }
@@ -249,11 +234,12 @@ public:
             break;
         case INVALID:
             // unreachable hopefully
+            break;
         }
     }
 
     SemanticParser(TokenRingBuffer<ZP> *buffer) :
-            buffer(buffer), currentAction(INVALID), state(INVALID) {
+            buffer(buffer), currentAction(INVALID), state(PRESEQUENCE) {
     }
 
     // VisibleForTesting
@@ -271,24 +257,25 @@ public:
         // currentAction is always nulled after action execution
         while (currentAction == INVALID || currentAction == GO_AROUND) {
             if (checkNeedsTokens() == WAIT_FOR_TOKENS) {
-                return SemanticParserAction<ZP>(this, WAIT_FOR_TOKENS);
+                return SemanticParserAction<ZP>(WAIT_FOR_TOKENS, this);
             }
             // We now haveNextMarker (or we returned to wait for tokens).
             currentAction = findNextAction();
         }
-        return SemanticParserAction<ZP>(this, currentAction);
+        return SemanticParserAction<ZP>(currentAction, this);
     }
 
 private:
 
     ActionType findNextAction() {
+        ActionType action;
         switch (state) {
         case PRESEQUENCE:
             // expecting buffer to be pointing at start of sequence.
             parseSequenceLevel();
             if (state == PRESEQUENCE) {
                 // expecting buffer to be pointing at first token after lock/echo preamble.
-                if (buffer->R_getFirstReadToken().getKey() == Zchars::Z_ADDRESSING) {
+                if (buffer->R_getFirstReadToken().getKey(buffer) == Zchars::Z_ADDRESSING) {
                     state = COMMAND_INCOMPLETE;
                     return INVOKE_ADDRESSING;
                 }
@@ -322,7 +309,7 @@ private:
             case COMMAND_FAILED:
             case COMMAND_SKIP:
             // record the marker we know is at the end of the last command (and, def not an error), then move past it
-            ActionType action = flowControl(skipToAndGetNextMarker());
+            action = flowControl(skipToAndGetNextMarker());
             if (state == COMMAND_INCOMPLETE && !seekSecondMarker()) {
                 state = COMMAND_COMPLETE_NEEDS_TOKENS;
                 return WAIT_FOR_TOKENS;
@@ -451,10 +438,10 @@ private:
         RingBufferTokenIterator<ZP> it = buffer->R_iterator();
 
         // skip the current (Marker) token, and then
-        it.next();
+        it.next(buffer);
 
-        for (OptionalRingBufferToken<ZP> token = it.next(); token.isPresent(); token = it.next()) {
-            if (token.get().isMarker()) {
+        for (OptionalRingBufferToken<ZP> token = it.next(buffer); token.isPresent; token = it.next(buffer)) {
+            if (token.token.isMarker(buffer)) {
                 return true;
             }
         }
@@ -471,28 +458,28 @@ private:
      * Leaves the parser in: ERROR_*, SEQUENCE_SKIP (for comments), or PRESEQUENCE (implying no error, normal sequence)
      */
     void parseSequenceLevel() {
-        RingBufferToken<ZP> first = buffer->getFirstReadToken();
-        while (first.getKey() == Zchars::Z_ECHO || first.getKey() == Zchars::Z_LOCKS) {
-            if (first.getKey() == Zchars::Z_ECHO) {
+        RingBufferToken<ZP> first = buffer->R_getFirstReadToken();
+        while (first.getKey(buffer) == Zchars::Z_ECHO || first.getKey(buffer) == Zchars::Z_LOCKS) {
+            if (first.getKey(buffer) == Zchars::Z_ECHO) {
                 if (hasEchoB) {
                     state = ERROR_MULTIPLE_ECHO;
                     return;
                 }
-                echo = first.getData16();
+                echo = first.getData16(buffer);
                 hasEchoB = true;
-            } else if (first.getKey() == Zchars::Z_LOCKS) {
-                if (hasLocks || first.getDataSize() > ZP::lockByteCount) {
+            } else if (first.getKey(buffer) == Zchars::Z_LOCKS) {
+                if (hasLocks || first.getDataSize(buffer) > ZP::lockByteCount) {
                     state = ERROR_LOCKS;
                     return;
                 }
-                locks = LockSet<ZP>::from(first.blockIterator(), buffer);
+                locks = LockSet<ZP>::from(first.blockIterator(buffer), buffer);
                 hasLocks = true;
             }
             buffer->R_flushFirstReadToken(); // safe as key is checked, not a Marker
             first = buffer->R_getFirstReadToken();
         }
 
-        if (first.getKey() == Zchars::Z_COMMENT) {
+        if (first.getKey(buffer) == Zchars::Z_COMMENT) {
             if (nextMarker != ZscriptTokenizer<ZP>::NORMAL_SEQUENCE_END) {
                 state = ERROR_TOKENIZER;
                 return;
@@ -535,6 +522,8 @@ public:
     }
 
     uint8_t getErrorStatus() {
+        uint8_t tokenizerError;
+        uint8_t statusValue;
         switch (state) {
         case ERROR_COMMENT_WITH_SEQ_FIELDS:
             return INVALID_COMMENT;
@@ -543,8 +532,7 @@ public:
         case ERROR_MULTIPLE_ECHO:
             return INVALID_ECHO;
         case ERROR_TOKENIZER:
-            uint8_t tokenizerError = buffer->R_getFirstKey();
-            uint8_t statusValue;
+            tokenizerError = buffer->R_getFirstReadToken().getKey(buffer);
 
             if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_BUFFER_OVERRUN) {
                 statusValue = BUFFER_OVR_ERROR;
@@ -562,8 +550,9 @@ public:
                 statusValue = (INTERNAL_ERROR);
             }
             return statusValue;
+        default:
+            return INTERNAL_ERROR;    // should be unreachable
         }
-        return INTERNAL_ERROR;    // should be unreachable
     }
 
     bool canLock(Zscript<ZP> *z) {
@@ -591,7 +580,7 @@ public:
         return hasEchoB;
     }
 
-    int getEcho() {
+    uint16_t getEcho() {
         return echo;
     }
 

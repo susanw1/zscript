@@ -1,8 +1,8 @@
 /*
- * LockSet.hpp
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
- *  Created on: 31 Jul 2023
- *      Author: alicia
+ * SPDX-License-Identifier: MIT
  */
 
 #ifndef SRC_MAIN_C___ZSCRIPT_LOCKSET_HPP_
@@ -14,7 +14,7 @@ namespace GenericCore {
 template<class ZP>
 class LockSet {
 private:
-    uint8_t locks[ZP::lockSize];
+    uint8_t locks[ZP::lockByteCount];
 
     LockSet(RawTokenBlockIterator<ZP> iterator, TokenRingBuffer<ZP> *buffer) {
         for (uint8_t i = 0; i < ZP::lockByteCount; ++i) {
@@ -29,20 +29,11 @@ private:
 
     LockSet(uint8_t lock) {
         for (uint8_t i = 0; i < ZP::lockByteCount; ++i) {
-            this->locks[i] = locks;
+            this->locks[i] = lock;
         }
     }
 
 public:
-    //    static ZcodeLockSet from() {
-//        byte[] locks = new byte[ZcodeLocks.LOCK_BYTENUM];
-//
-//        int i = 0;
-//        for (Iterator < Byte > iterator = data; i < ZcodeLocks.LOCK_BYTENUM && iterator.hasNext();) {
-//            locks[i++] = iterator.next();
-//        }
-//        return new ZcodeLockSet(locks);
-//    }
 
     static LockSet empty() {
         return LockSet(0x00);

@@ -35,6 +35,9 @@
 
                             <option>-Wextra</option>
                         </options>
+                        <testOptions>
+                            <testOption>-fexceptions</testOption>
+                        </testOptions>
                     </cpp>
                     <libraries>
                         <library>
@@ -54,6 +57,11 @@
                         </test>
                         <test>
                             <name>ZscriptTokenBufferReaderTest</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
+                        <test>
+                            <name>SemanticParserTest</name>
                             <link>static</link>
                             <run>true</run>
                         </test>

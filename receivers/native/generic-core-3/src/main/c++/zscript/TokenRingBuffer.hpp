@@ -201,6 +201,12 @@ template<class ZP>
 struct OptionalRingBufferToken {
     RingBufferToken<ZP> token;
     bool isPresent;
+    OptionalRingBufferToken() :
+            token(0), isPresent(false) {
+    }
+    OptionalRingBufferToken(RingBufferToken<ZP> token) :
+            token(token), isPresent(true) {
+    }
 };
 
 template<class ZP>
@@ -271,7 +277,7 @@ public:
 
     OptionalRingBufferToken<ZP> next(TokenRingBuffer<ZP> *buffer) {
         if (index == buffer->writeStart) {
-            return {RingBufferToken<ZP>(0), false};
+            return OptionalRingBufferToken<ZP>();
         }
 
         uint16_t initialIndex = index;
@@ -284,7 +290,7 @@ public:
             } while (buffer->data[index] == TokenRingBuffer<ZP>::TOKEN_EXTENSION);
         }
 
-        return {RingBufferToken<ZP>(initialIndex), true};
+        return OptionalRingBufferToken<ZP>(RingBufferToken<ZP>(initialIndex));
     }
 
     void flushBuffer(TokenRingBuffer<ZP> *buffer) {
@@ -296,6 +302,7 @@ template<class ZP>
 class RingBufferToken {
     friend class TokenRingBuffer<ZP> ;
     friend class RingBufferTokenIterator<ZP> ;
+    friend class OptionalRingBufferToken<ZP> ;
 
 private:
     uint16_t index;

@@ -8,11 +8,32 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_SEMANTICPARSER_SEMANTICPARSERACTION_HPP_
 #define SRC_MAIN_C___ZSCRIPT_SEMANTICPARSER_SEMANTICPARSERACTION_HPP_
 #include "../ZscriptIncludes.hpp"
-#include "../ZscriptAbstractOutStream.hpp"
+#include "../AbstractOutStream.hpp"
 #include "../TokenRingBuffer.hpp"
+#include "../execution/ZscriptAddressingContext.hpp"
+#include "../execution/ZscriptCommandContext.hpp"
+#include "../ZscriptResponseStatus.hpp"
 
 namespace Zscript {
 namespace GenericCore {
+
+template<class ZP>
+class SemanticParser;
+
+enum ActionType {
+    INVALID,
+    GO_AROUND,
+    WAIT_FOR_TOKENS,
+    WAIT_FOR_ASYNC,
+    ERROR,
+    INVOKE_ADDRESSING,
+    ADDRESSING_MOVEALONG,
+    RUN_FIRST_COMMAND,
+    RUN_COMMAND,
+    COMMAND_MOVEALONG,
+    END_SEQUENCE,
+    CLOSE_PAREN
+};
 
 template<class ZP>
 class SemanticParserAction {
@@ -21,22 +42,24 @@ private:
     ActionType type;
 
     void performActionImpl(Zscript<ZP> *z, AbstractOutStream<ZP> *out) {
+        ZscriptCommandContext<ZP> cmdCtx;
+        ZscriptAddressingContext<ZP> addrCtx;
         switch (type) {
         case ERROR:
             startResponse(out, (uint8_t) 0x10);
-            out->asCommandOutStream().writeField('S', parseState->getErrorStatus());
+            out->writeField('S', parseState->getErrorStatus());
             out->endSequence();
             out->close();
             parseState->unlock(z);
             break;
         case INVOKE_ADDRESSING:
-            ZscriptAddressingContext<ZP> addrCtx(parseState);
+            addrCtx(parseState);
             if (addrCtx.verify()) {
                 z->getModuleRegistry()->execute(addrCtx);
             }
             break;
         case ADDRESSING_MOVEALONG:
-            ZscriptAddressingContext<ZP> addrCtx(parseState);
+            addrCtx(parseState);
             z->getModuleRegistry()->moveAlong(addrCtx);
             break;
         case RUN_FIRST_COMMAND:
@@ -46,19 +69,19 @@ private:
             if (type == ActionType::RUN_COMMAND) {
                 sendNormalMarkerPrefix(out);
             }
-            ZscriptCommandContext<ZP> cmdCtx(z, parseState, out);
+            cmdCtx(z, parseState, out);
             if (cmdCtx.verify()) {
                 z->getModuleRegistry()->execute(cmdCtx);
             }
             if (cmdCtx.isCommandComplete() && !parseState->hasSentStatus()) {
-                cmdCtx.status(ZcodeResponseStatus::SUCCESS);
+                cmdCtx.status(ResponseStatus::SUCCESS);
             }
             break;
         case COMMAND_MOVEALONG:
-            ZscriptCommandContext<ZP> cmdCtx1(z, parseState, out);
-            z->getModuleRegistry()->moveAlong(cmdCtx1);
-            if (cmdCtx1.isCommandComplete() && !parseState->hasSentStatus()) {
-                cmdCtx1.status(ZcodeResponseStatus::SUCCESS);
+            cmdCtx(z, parseState, out);
+            z->getModuleRegistry()->moveAlong(cmdCtx);
+            if (cmdCtx.isCommandComplete() && !parseState->hasSentStatus()) {
+                cmdCtx.status(ResponseStatus::SUCCESS);
             }
             break;
         case END_SEQUENCE:
@@ -77,6 +100,7 @@ private:
             break;
         case INVALID:
             //Unreachable
+            break;
         }
     }
     void startResponse(AbstractOutStream<ZP> *out, uint8_t respType) {
@@ -108,7 +132,7 @@ private:
 
 public:
     SemanticParserAction(ActionType type, SemanticParser<ZP> *parseState) :
-            type(type), parseState(parseState) {
+            parseState(parseState), type(type) {
     }
 
     bool isEmptyAction() {
@@ -128,6 +152,9 @@ public:
         return parseState->lock(z);
     }
 
+    ActionType getType() {
+        return type;
+    }
 };
 }
 }
