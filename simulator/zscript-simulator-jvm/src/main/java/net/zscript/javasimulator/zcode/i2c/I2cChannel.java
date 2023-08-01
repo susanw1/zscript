@@ -97,50 +97,49 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
             }
             return (CommunicationResponse<T>) I2cSendResponse.Success();
         }
-        if (packet.getClass() == I2cReceivePacket.class) {
-            if (((I2cReceivePacket) packet).getAddress().equals(SmBusAlertConnection.ALERT_ADDRESS)) {
-                byte[] data = new byte[((I2cReceivePacket) packet).getLength()];
-                if (addr.isTenBit()) {
-                    int i = addr.getAddress();
-                    if (data.length > 1) {
-                        data[1] = (byte) i;
-                    }
-                    data[0] = (byte) (0x78 | (i >> 8));
-                } else {
-                    data[0] = (byte) addr.getAddress();
+        if (packet.getClass() != I2cReceivePacket.class) {
+            throw new IllegalArgumentException("Unknown packet type: " + packet);
+        }
+        if (((I2cReceivePacket) packet).getAddress().equals(SmBusAlertConnection.ALERT_ADDRESS)) {
+            byte[] data = new byte[((I2cReceivePacket) packet).getLength()];
+            if (addr.isTenBit()) {
+                int i = addr.getAddress();
+                if (data.length > 1) {
+                    data[1] = (byte) i;
                 }
-                return (CommunicationResponse<T>) new I2cReceiveResponse(data);
+                data[0] = (byte) (0x78 | (i >> 8));
+            } else {
+                data[0] = (byte) addr.getAddress();
             }
-            int    length    = ((I2cReceivePacket) packet).getLength();
-            byte[] data      = new byte[length];
-            int    dataIndex = 0;
-            byte[] cache     = null;
-            if (!outQueue.isEmpty()) {
-                cache = outQueue.peek();
-            }
-            while (!outQueue.isEmpty() && dataIndex < length) {
-                if (cachePos == cache.length) {
-                    outQueue.poll();
-                    cache = outQueue.peek();
-                    cachePos = 0;
-                    break;
-                } else {
-                    data[dataIndex++] = cache[cachePos++];
-                }
-            }
-            if (cache != null && cachePos == cache.length) {
+            return (CommunicationResponse<T>) new I2cReceiveResponse(data);
+        }
+        int    length    = ((I2cReceivePacket) packet).getLength();
+        byte[] data      = new byte[length];
+        int    dataIndex = 0;
+        byte[] cache     = null;
+        if (!outQueue.isEmpty()) {
+            cache = outQueue.peek();
+        }
+        while (!outQueue.isEmpty() && dataIndex < length) {
+            if (cachePos == cache.length) {
                 outQueue.poll();
                 cache = outQueue.peek();
                 cachePos = 0;
+                break;
+            } else {
+                data[dataIndex++] = cache[cachePos++];
             }
-            if (outQueue.isEmpty()) {
-                e.getConnection(I2cProtocolCategory.class, index).sendMessage(e, new SmBusAlertPacket(false));
-                e.getConnection(I2cProtocolCategory.class, index).getProtocol(I2cConnection.class).disconnect(SmBusAlertConnection.ALERT_ADDRESS, e);
-            }
-            return (CommunicationResponse<T>) new I2cReceiveResponse(data);
-        } else {
-            throw new IllegalArgumentException("Unknown packet type: " + packet);
         }
+        if (cache != null && cachePos == cache.length) {
+            outQueue.poll();
+            cache = outQueue.peek();
+            cachePos = 0;
+        }
+        if (outQueue.isEmpty()) {
+            e.getConnection(I2cProtocolCategory.class, index).sendMessage(e, new SmBusAlertPacket(false));
+            e.getConnection(I2cProtocolCategory.class, index).getProtocol(I2cConnection.class).disconnect(SmBusAlertConnection.ALERT_ADDRESS, e);
+        }
+        return (CommunicationResponse<T>) new I2cReceiveResponse(data);
     }
 
     @Override
