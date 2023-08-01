@@ -8,10 +8,17 @@ abstract class AbstractContext {
 
     protected AbstractContext(final ContextView contextView) {
         this.contextView = contextView;
+        commandComplete();
     }
 
-    public void status(byte status) {
-        contextView.setStatus(status);
+    /**
+     * Updates the status of the current command (and sends the 'S' field), if it hasn't already been updated.
+     *
+     * @param status the status to set
+     * @return true if changed/sent, false otherwise
+     */
+    public boolean status(byte status) {
+        return contextView.requestStatusChange(status);
     }
 
     public void commandComplete() {

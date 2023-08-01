@@ -137,9 +137,12 @@ public class ZcodeCommandContext extends AbstractContext {
     }
 
     @Override
-    public void status(final byte status) {
-        super.status(status);
-        out.asCommandOutStream().writeField(Zchars.Z_STATUS, status);
+    public boolean status(final byte status) {
+        if (super.status(status)) {
+            out.asCommandOutStream().writeField(Zchars.Z_STATUS, status);
+            return true;
+        }
+        return false;
     }
 
     private OptIterator<ReadToken> iteratorToMarker() {
@@ -163,10 +166,6 @@ public class ZcodeCommandContext extends AbstractContext {
                 return iter.next().map(r -> new ZcodeField(r));
             }
         };
-    }
-
-    public boolean isEmpty() {
-        return contextView.getReader().getFirstReadToken().isMarker();
     }
 
     public boolean verify() {
@@ -198,10 +197,6 @@ public class ZcodeCommandContext extends AbstractContext {
 
     public void activate() {
         contextView.activate();
-    }
-
-    public void silentSucceed() {
-        contextView.silentSucceed();
     }
 
     public Zcode getZcode() {

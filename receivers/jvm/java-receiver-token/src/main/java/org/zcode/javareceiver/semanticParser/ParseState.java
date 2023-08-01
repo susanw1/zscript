@@ -25,4 +25,5 @@ public interface ParseState {
 
     void unlock(Zcode zcode);
 
+    boolean isEmpty();
 }

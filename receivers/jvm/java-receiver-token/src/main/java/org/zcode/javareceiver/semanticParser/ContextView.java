@@ -16,13 +16,24 @@ public interface ContextView {
      */
     void setCommandComplete(boolean b);
 
+    /**
+     * Indicates whether the command is in its {@complete state, or whether there is async work yet to do. Note that command code when executed defaults to complete
+     *
+     * @return true if complete, false otherwise
+     */
     boolean isCommandComplete();
 
     void activate();
 
     boolean isActivated();
 
-    void setStatus(byte status);
+    /**
+     * Updates the status of the current command if it hasn't already been updated.
+     *
+     * @param status the status to set
+     * @return true if changed, false otherwise
+     */
+    boolean requestStatusChange(byte status);
 
     /**
      * Allows a background/async command component to signal that the command's code needs scheduling to move it along.
@@ -35,8 +46,6 @@ public interface ContextView {
     }
 
     AsyncActionNotifier getAsyncActionNotifier();
-
-    void silentSucceed();
 
     int getChannelIndex();
 }
