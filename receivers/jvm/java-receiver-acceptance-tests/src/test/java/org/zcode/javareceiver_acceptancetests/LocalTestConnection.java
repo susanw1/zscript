@@ -6,14 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.zcode.javareceiver.AbstractZcodeOutStream;
-import org.zcode.javareceiver.Zcode;
-import org.zcode.javareceiver.ZcodeOutStream;
-import org.zcode.javareceiver.ZcodeParameters;
-import org.zcode.javareceiver.instreams.ZcodeChannelInStream;
-import org.zcode.javareceiver.parsing.ZcodeCommandChannel;
-import org.zcode.javareceiver.parsing.ZcodeCommandSequence;
 import org.zcode.zcode_acceptance_tests.acceptancetest_asserts.ZcodeAcceptanceTestConnection;
+
+import net.zscript.javareceiver.AbstractZcodeOutStream;
+import net.zscript.javareceiver.Zcode;
+import net.zscript.javareceiver.ZcodeOutStream;
+import net.zscript.javareceiver.ZcodeParameters;
+import net.zscript.javareceiver.instreams.ZcodeChannelInStream;
+import net.zscript.javareceiver.parsing.ZcodeCommandChannel;
+import net.zscript.javareceiver.parsing.ZcodeCommandSequence;
 
 public class LocalTestConnection implements ZcodeAcceptanceTestConnection, ZcodeCommandChannel {
     private final List<Consumer<byte[]>> handlers = new ArrayList<>();

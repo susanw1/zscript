@@ -3,9 +3,9 @@ package org.zcode.javareceiver_acceptancetests;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.zcode.javareceiver.instreams.ZcodeChannelInStream;
-import org.zcode.javareceiver.instreams.ZcodeLookaheadStream;
-import org.zcode.javareceiver.instreams.ZcodeSequenceInStream;
+import net.zscript.javareceiver.instreams.ZcodeChannelInStream;
+import net.zscript.javareceiver.instreams.ZcodeLookaheadStream;
+import net.zscript.javareceiver.instreams.ZcodeSequenceInStream;
 
 public class ZcodeQueueSequenceInStream implements ZcodeChannelInStream {
     private final Queue<byte[]> messages = new LinkedList<>();

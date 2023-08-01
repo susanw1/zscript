@@ -1,0 +1,70 @@
+package net.zscript.javareceiver.semanticParser;
+
+import static net.zscript.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.END_SEQUENCE;
+import static net.zscript.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.ERROR;
+import static net.zscript.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.INVOKE_ADDRESSING;
+import static net.zscript.javareceiver.semanticParser.ZcodeSemanticAction.ActionType.WAIT_FOR_TOKENS;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import net.zscript.javareceiver.core.StringWriterOutStream;
+import net.zscript.javareceiver.core.Zcode;
+import net.zscript.javareceiver.modules.core.ZcodeCoreModule;
+import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
+import net.zscript.javareceiver.semanticParser.SemanticParser;
+import net.zscript.javareceiver.tokenizer.ZcodeTokenBuffer;
+import net.zscript.javareceiver.tokenizer.ZcodeTokenRingBuffer;
+import net.zscript.javareceiver.tokenizer.ZcodeTokenizer;
+
+public class SemanticParserAddressingTest {
+    private final ZcodeTokenBuffer buffer    = ZcodeTokenRingBuffer.createBufferWithCapacity(256);
+    private final ZcodeTokenizer   tokenizer = new ZcodeTokenizer(buffer.getTokenWriter(), 2);
+
+    private final SemanticParser parser = new SemanticParser(buffer.getTokenReader(), new ExecutionActionFactory());
+
+    private final Zcode zcode = new Zcode();
+
+    private StringWriterOutStream outStream;
+    private ParserActionTester    parserActionTester;
+
+    @BeforeEach
+    void setup() throws IOException {
+        zcode.addModule(new ZcodeCoreModule());
+        outStream = new StringWriterOutStream();
+        parserActionTester = new ParserActionTester(zcode, buffer, tokenizer, parser, outStream);
+    }
+
+    @Test
+    void shouldProduceActionForBasicAddressing() {
+        parserActionTester.parseSnippet("@2Z1\n", List.of(INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS));
+        assertThat(outStream.getString()).isEqualTo("");
+        assertThat(outStream.isOpen()).isFalse();
+    }
+
+    @Test
+    void shouldAcceptAddressingWithEchoAndLocks() {
+        parserActionTester.parseSnippet("_2%233@2Z1\n", List.of(INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS));
+        assertThat(outStream.getString()).isEqualTo("");
+        assertThat(outStream.isOpen()).isFalse();
+    }
+
+    @Test
+    void shouldFailInvalidAddressing() {
+        parserActionTester.parseSnippet("@99999Z1\n", List.of(ERROR, WAIT_FOR_TOKENS));
+        assertThat(outStream.getString()).isEqualTo("!10S20\n");
+        assertThat(outStream.isOpen()).isFalse();
+    }
+
+    @Test
+    void shouldAcceptMultPartAddressing() {
+        parserActionTester.parseSnippet("@1.2.3.4.5.6.7.8.9.0.1.2.3.4.5.6.7.8.9.0Z1\n", List.of(INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS));
+        assertThat(outStream.getString()).isEqualTo("");
+        assertThat(outStream.isOpen()).isFalse();
+    }
+
+}

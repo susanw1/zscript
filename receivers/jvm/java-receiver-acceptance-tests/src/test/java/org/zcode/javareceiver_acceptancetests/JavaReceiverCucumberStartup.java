@@ -3,16 +3,16 @@ package org.zcode.javareceiver_acceptancetests;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.zcode.javareceiver.Zcode;
-import org.zcode.javareceiver.ZcodeBusInterruptSource;
-import org.zcode.javareceiver.ZcodeParameters;
-import org.zcode.javareceiver.commands.ZcodeActivateCommand;
-import org.zcode.javareceiver.commands.ZcodeCapabilitiesCommand;
-import org.zcode.javareceiver.commands.ZcodeEchoCommand;
-import org.zcode.javareceiver.parsing.ZcodeCommandChannel;
 import org.zcode.zcode_acceptance_tests.ZcodeAcceptanceTestConnectionManager;
 
 import io.cucumber.java.en.Given;
+import net.zscript.javareceiver.Zcode;
+import net.zscript.javareceiver.ZcodeBusInterruptSource;
+import net.zscript.javareceiver.ZcodeParameters;
+import net.zscript.javareceiver.commands.ZcodeActivateCommand;
+import net.zscript.javareceiver.commands.ZcodeCapabilitiesCommand;
+import net.zscript.javareceiver.commands.ZcodeEchoCommand;
+import net.zscript.javareceiver.parsing.ZcodeCommandChannel;
 
 public class JavaReceiverCucumberStartup {
     private static boolean         hasStarted = false;

@@ -1,4 +1,4 @@
-package org.zcode.javareceiver_acceptancetests;
+package net.zscript.javareceiver.util;
 
 import net.zscript.javareceiver.ZcodeLockSet;
 import net.zscript.javareceiver.ZcodeOutStream;
@@ -10,21 +10,21 @@ import net.zscript.javareceiver.parsing.ZcodeCommandSlot;
 public class ZcodeIdentifyCommand implements ZcodeCommand {
 
     @Override
-    public void execute(ZcodeCommandSlot slot, ZcodeCommandSequence sequence, ZcodeOutStream out) {
-        out.writeField('V', (byte) 0);
-        out.continueField((byte) 0);
-        out.continueField((byte) 1);
-        out.writeBigStringField("Java/AcceptanceTests");
-        out.writeStatus(ZcodeResponseStatus.OK);
+    public void execute(final ZcodeCommandSlot slot, final ZcodeCommandSequence sequence, final ZcodeOutStream out) {
+        out.writeField('V', (byte) 0)
+                .continueField((byte) 0)
+                .continueField((byte) 1)
+                .writeBigStringField("Java/Test")
+                .writeStatus(ZcodeResponseStatus.OK);
         slot.setComplete(true);
     }
 
     @Override
-    public void finish(ZcodeCommandSlot slot, ZcodeOutStream out) {
+    public void finish(final ZcodeCommandSlot slot, final ZcodeOutStream out) {
     }
 
     @Override
-    public void setLocks(ZcodeLockSet locks) {
+    public void setLocks(final ZcodeLockSet locks) {
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ZcodeIdentifyCommand implements ZcodeCommand {
     }
 
     @Override
-    public boolean matchesCode(byte[] code) {
+    public boolean matchesCode(final byte[] code) {
         return code.length == 1 && code[0] == getCode();
     }
 
