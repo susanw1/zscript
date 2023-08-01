@@ -3,16 +3,16 @@ package net.zscript.javasimulator.zcode.i2c;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.zscript.javareceiver.core.ZcodeOutStream;
-import net.zscript.javareceiver.core.ZcodeStatus;
-import net.zscript.javareceiver.execution.ZcodeAddressingContext;
-import net.zscript.javareceiver.execution.ZcodeCommandContext;
-import net.zscript.javareceiver.modules.ZcodeModule;
-import net.zscript.javareceiver.notifications.ZcodeNotificationSource;
+import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.core.ZscriptStatus;
+import net.zscript.javareceiver.execution.AddressingContext;
+import net.zscript.javareceiver.execution.CommandContext;
+import net.zscript.javareceiver.modules.ZscriptModule;
+import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
 import net.zscript.javasimulator.Entity;
 import net.zscript.javasimulator.connections.i2c.I2cProtocolCategory;
 
-public class I2cModule implements ZcodeModule {
+public class I2cModule implements ZscriptModule {
     private final Entity                 entity;
     private final I2cNotificationHandler notificationHandler = new I2cNotificationHandler();
     private final List<Long>             bauds               = new ArrayList<>();
@@ -21,7 +21,7 @@ public class I2cModule implements ZcodeModule {
         this.entity = entity;
     }
 
-    public ZcodeNotificationSource getNotificationSource() {
+    public ZscriptNotificationSource getNotificationSource() {
         return notificationHandler.getNotificationSource();
     }
 
@@ -35,7 +35,7 @@ public class I2cModule implements ZcodeModule {
     }
 
     @Override
-    public void execute(ZcodeCommandContext ctx, int command) {
+    public void execute(CommandContext ctx, int command) {
         switch (command) {
         case 0:
             ZcodeI2cCapabilitiesCommand.execute(ctx, entity);
@@ -51,18 +51,18 @@ public class I2cModule implements ZcodeModule {
             break;
 
         default:
-            ctx.status(ZcodeStatus.COMMAND_NOT_FOUND);
+            ctx.status(ZscriptStatus.COMMAND_NOT_FOUND);
             break;
         }
     }
 
     @Override
-    public void address(ZcodeAddressingContext ctx) {
+    public void address(AddressingContext ctx) {
         ZcodeI2cAddressAction.execute(ctx, this);
     }
 
     @Override
-    public boolean notification(ZcodeOutStream out, int i, boolean isAddressed) {
+    public boolean notification(OutStream out, int i, boolean isAddressed) {
         return notificationHandler.notification(entity, out, i, isAddressed);
     }
 

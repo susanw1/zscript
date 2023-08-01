@@ -8,12 +8,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import net.zscript.javareceiver.core.Zcode;
-import net.zscript.javareceiver.core.ZcodeChannel;
-import net.zscript.javareceiver.modules.ZcodeModule;
-import net.zscript.javareceiver.modules.core.ZcodeCoreModule;
-import net.zscript.javareceiver.modules.outerCore.ZcodeOuterCoreModule;
-import net.zscript.javareceiver.notifications.ZcodeNotificationSource;
+import net.zscript.javareceiver.core.Zscript;
+import net.zscript.javareceiver.core.ZscriptChannel;
+import net.zscript.javareceiver.modules.ZscriptModule;
+import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
+import net.zscript.javareceiver.modules.outerCore.ZscriptOuterCoreModule;
+import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
 import net.zscript.javasimulator.BlankCommunicationResponse;
 import net.zscript.javasimulator.CommunicationPacket;
 import net.zscript.javasimulator.CommunicationResponse;
@@ -27,7 +27,7 @@ public class ZcodeEntityController extends EntityController {
     private final ExecutorService                                                                                          interruptExec    = Executors.newSingleThreadExecutor();
     private final Thread                                                                                                   mainCurrent      = findCurrentMain();
     private final Thread                                                                                                   interruptCurrent = findCurrentInterrupt();
-    private final Zcode                                                                                                    zcode            = new Zcode();
+    private final Zscript                                                                                                    zscript            = new Zscript();
     private volatile boolean                                                                                               hasNonWait       = false;
 
     private Thread findCurrentMain() {
@@ -113,7 +113,7 @@ public class ZcodeEntityController extends EntityController {
         @Override
         public void run() {
             try {
-                hasNonWait = zcode.progress();
+                hasNonWait = zscript.progress();
             } catch (Exception e) {
                 hasNonWait = false;
                 e.printStackTrace();
@@ -133,8 +133,8 @@ public class ZcodeEntityController extends EntityController {
     }
 
     public ZcodeEntityController() {
-        addModule(new ZcodeCoreModule());
-        addModule(new ZcodeOuterCoreModule());
+        addModule(new ZscriptCoreModule());
+        addModule(new ZscriptOuterCoreModule());
         mainExec.submit(new ProgressForever());
     }
 
@@ -151,12 +151,12 @@ public class ZcodeEntityController extends EntityController {
         });
     }
 
-    public void addChannel(ZcodeChannel channel) {
-        switchToMainThread(() -> zcode.addChannel(channel));
+    public void addChannel(ZscriptChannel channel) {
+        switchToMainThread(() -> zscript.addChannel(channel));
     }
 
-    public void addModule(ZcodeModule module) {
-        switchToMainThread(() -> zcode.addModule(module));
+    public void addModule(ZscriptModule module) {
+        switchToMainThread(() -> zscript.addModule(module));
     }
 
     @SuppressWarnings("unchecked")
@@ -181,7 +181,7 @@ public class ZcodeEntityController extends EntityController {
         }
     }
 
-    public void add(ZcodeNotificationSource notificationSource) {
-        switchToMainThread(() -> zcode.addNotificationSource(notificationSource));
+    public void add(ZscriptNotificationSource notificationSource) {
+        switchToMainThread(() -> zscript.addNotificationSource(notificationSource));
     }
 }

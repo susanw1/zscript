@@ -2,9 +2,9 @@ package net.zscript.javasimulator.zcode.i2c;
 
 import java.util.OptionalInt;
 
-import net.zscript.javareceiver.core.ZcodeCommandOutStream;
-import net.zscript.javareceiver.core.ZcodeStatus;
-import net.zscript.javareceiver.execution.ZcodeCommandContext;
+import net.zscript.javareceiver.core.ZscriptCommandOutStream;
+import net.zscript.javareceiver.core.ZscriptStatus;
+import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javasimulator.Connection;
 import net.zscript.javasimulator.Entity;
 import net.zscript.javasimulator.connections.i2c.I2cAddress;
@@ -15,23 +15,23 @@ import net.zscript.javasimulator.connections.i2c.I2cResponse;
 
 public class ZcodeI2cReadCommand {
 
-    public static void execute(ZcodeCommandContext ctx, I2cModule module) {
+    public static void execute(CommandContext ctx, I2cModule module) {
         Entity                entity    = module.getEntity();
-        ZcodeCommandOutStream out       = ctx.getOutStream();
+        ZscriptCommandOutStream out       = ctx.getOutStream();
         OptionalInt           addrOpt   = ctx.getField((byte) 'A');
         OptionalInt           portOpt   = ctx.getField((byte) 'P');
         OptionalInt           lengthOpt = ctx.getField((byte) 'L');
 
         if (addrOpt.isEmpty()) {
-            ctx.status(ZcodeStatus.MISSING_KEY);
+            ctx.status(ZscriptStatus.MISSING_KEY);
             return;
         }
         if (portOpt.isEmpty()) {
-            ctx.status(ZcodeStatus.MISSING_KEY);
+            ctx.status(ZscriptStatus.MISSING_KEY);
             return;
         }
         if (lengthOpt.isEmpty()) {
-            ctx.status(ZcodeStatus.MISSING_KEY);
+            ctx.status(ZscriptStatus.MISSING_KEY);
             return;
         }
         int     addr     = addrOpt.getAsInt();
@@ -40,11 +40,11 @@ public class ZcodeI2cReadCommand {
         int     attempts = ctx.getField((byte) 'T', 1);
         boolean tenBit   = ctx.hasField((byte) 'N');
         if (port >= entity.countConnection(I2cProtocolCategory.class)) {
-            ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
+            ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
             return;
         }
         if (!tenBit && addr >= 128 || addr >= 1024) {
-            ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
+            ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
             return;
         }
 
@@ -59,7 +59,7 @@ public class ZcodeI2cReadCommand {
         out.writeField('T', i);
         if (resp.addressNack()) {
             out.writeField('I', 2);
-            ctx.status(ZcodeStatus.COMMAND_NO_TARGET);
+            ctx.status(ZscriptStatus.COMMAND_NO_TARGET);
         } else {
             out.writeField('I', 0);
             I2cReceiveResponse recResp = (I2cReceiveResponse) resp;

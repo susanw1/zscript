@@ -1,11 +1,11 @@
 package net.zscript.javaclient.zcodeApiAttempt;
 
-import net.zscript.javaclient.zcodeApi.ZcodeCommandBuilder;
-import net.zscript.javaclient.zcodeApi.ZcodeResponse;
-import net.zscript.javaclient.zcodeApi.ZcodeUnparsedCommandResponse;
+import net.zscript.javaclient.zcodeApi.ZscriptCommandBuilder;
+import net.zscript.javaclient.zcodeApi.ZscriptResponse;
+import net.zscript.javaclient.zcodeApi.ZscriptUnparsedCommandResponse;
 import net.zscript.javaclient.zcodeApiAttempt.DemoCapabilitiesCommandBuilder.DemoCapabilitiesCommandResponse;
 
-public class DemoCapabilitiesCommandBuilder extends ZcodeCommandBuilder<DemoCapabilitiesCommandResponse> {
+public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> {
     public static final int USER_FIRMWARE     = 0;
     public static final int USER_HARDWARE     = 1;
     public static final int PLATFORM_FIRMWARE = 2;
@@ -14,7 +14,7 @@ public class DemoCapabilitiesCommandBuilder extends ZcodeCommandBuilder<DemoCapa
 
     private int infoType = USER_FIRMWARE;
 
-    public class DemoCapabilitiesCommandResponse implements ZcodeResponse {
+    public class DemoCapabilitiesCommandResponse implements ZscriptResponse {
         private final int    version;
         private final String name;
 
@@ -47,7 +47,7 @@ public class DemoCapabilitiesCommandBuilder extends ZcodeCommandBuilder<DemoCapa
     }
 
     @Override
-    protected DemoCapabilitiesCommandResponse parseResponse(ZcodeUnparsedCommandResponse resp) {
+    protected DemoCapabilitiesCommandResponse parseResponse(ZscriptUnparsedCommandResponse resp) {
         return new DemoCapabilitiesCommandResponse(resp.getField('V').get(), resp.getBigFieldString());
     }
 

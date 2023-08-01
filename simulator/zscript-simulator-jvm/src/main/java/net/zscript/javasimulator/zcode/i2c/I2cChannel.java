@@ -6,13 +6,13 @@ import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import net.zscript.javareceiver.core.ZcodeAbstractOutStream;
-import net.zscript.javareceiver.core.ZcodeChannel;
-import net.zscript.javareceiver.core.ZcodeOutStream;
-import net.zscript.javareceiver.execution.ZcodeCommandContext;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenBuffer;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenRingBuffer;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenizer;
+import net.zscript.javareceiver.core.AbstractOutStream;
+import net.zscript.javareceiver.core.ZscriptChannel;
+import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.execution.CommandContext;
+import net.zscript.javareceiver.tokenizer.TokenBuffer;
+import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
+import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.javasimulator.CommunicationPacket;
 import net.zscript.javasimulator.CommunicationResponse;
 import net.zscript.javasimulator.Entity;
@@ -28,16 +28,16 @@ import net.zscript.javasimulator.connections.i2c.SmBusAlertConnection;
 import net.zscript.javasimulator.connections.i2c.SmBusAlertPacket;
 import net.zscript.javasimulator.zcode.ZcodeSimulatorConsumer;
 
-public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I2cProtocolCategory> {
+public class I2cChannel extends ZscriptChannel implements ZcodeSimulatorConsumer<I2cProtocolCategory> {
     private final Entity         e;
     private final I2cAddress     addr;
-    private final ZcodeTokenizer in;
+    private final Tokenizer in;
     private final Queue<byte[]>  outQueue;
     private int                  cachePos = 0;
 
     public static I2cChannel build(Entity e, I2cAddress addr, int index, int size) {
         Queue<byte[]> outQueue = new ConcurrentLinkedQueue<>();
-        I2cChannel    channel  = new I2cChannel(e, addr, ZcodeTokenRingBuffer.createBufferWithCapacity(size), outQueue, new ZcodeAbstractOutStream() {
+        I2cChannel    channel  = new I2cChannel(e, addr, TokenRingBuffer.createBufferWithCapacity(size), outQueue, new AbstractOutStream() {
                                    private ByteArrayOutputStream stream;
 
                                    @Override
@@ -79,11 +79,11 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
         return channel;
     }
 
-    private I2cChannel(Entity e, I2cAddress addr, ZcodeTokenBuffer buffer, Queue<byte[]> outQueue, ZcodeOutStream out) {
+    private I2cChannel(Entity e, I2cAddress addr, TokenBuffer buffer, Queue<byte[]> outQueue, OutStream out) {
         super(buffer, out);
         this.e = e;
         this.addr = addr;
-        this.in = new ZcodeTokenizer(buffer.getTokenWriter(), 2);
+        this.in = new Tokenizer(buffer.getTokenWriter(), 2);
         this.outQueue = outQueue;
     }
 
@@ -148,13 +148,13 @@ public class I2cChannel extends ZcodeChannel implements ZcodeSimulatorConsumer<I
     }
 
     @Override
-    public void channelInfo(ZcodeCommandContext ctx) {
+    public void channelInfo(CommandContext ctx) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void channelSetup(ZcodeCommandContext ctx) {
+    public void channelSetup(CommandContext ctx) {
         // TODO Auto-generated method stub
 
     }

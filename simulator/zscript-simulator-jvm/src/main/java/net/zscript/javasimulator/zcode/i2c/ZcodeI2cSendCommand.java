@@ -2,9 +2,9 @@ package net.zscript.javasimulator.zcode.i2c;
 
 import java.util.OptionalInt;
 
-import net.zscript.javareceiver.core.ZcodeCommandOutStream;
-import net.zscript.javareceiver.core.ZcodeStatus;
-import net.zscript.javareceiver.execution.ZcodeCommandContext;
+import net.zscript.javareceiver.core.ZscriptCommandOutStream;
+import net.zscript.javareceiver.core.ZscriptStatus;
+import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javasimulator.Connection;
 import net.zscript.javasimulator.Entity;
 import net.zscript.javasimulator.connections.i2c.I2cAddress;
@@ -14,18 +14,18 @@ import net.zscript.javasimulator.connections.i2c.I2cSendPacket;
 
 public class ZcodeI2cSendCommand {
 
-    public static void execute(ZcodeCommandContext ctx, I2cModule module) {
+    public static void execute(CommandContext ctx, I2cModule module) {
         Entity                entity  = module.getEntity();
-        ZcodeCommandOutStream out     = ctx.getOutStream();
+        ZscriptCommandOutStream out     = ctx.getOutStream();
         OptionalInt           addrOpt = ctx.getField((byte) 'A');
         OptionalInt           portOpt = ctx.getField((byte) 'P');
 
         if (addrOpt.isEmpty()) {
-            ctx.status(ZcodeStatus.MISSING_KEY);
+            ctx.status(ZscriptStatus.MISSING_KEY);
             return;
         }
         if (portOpt.isEmpty()) {
-            ctx.status(ZcodeStatus.MISSING_KEY);
+            ctx.status(ZscriptStatus.MISSING_KEY);
             return;
         }
         int     addr     = addrOpt.getAsInt();
@@ -34,11 +34,11 @@ public class ZcodeI2cSendCommand {
         boolean tenBit   = ctx.hasField((byte) 'N');
         byte[]  data     = ctx.getBigFieldData();
         if (port >= entity.countConnection(I2cProtocolCategory.class)) {
-            ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
+            ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
             return;
         }
         if (!tenBit && addr >= 128 || addr >= 1024) {
-            ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
+            ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
             return;
         }
         Connection<I2cProtocolCategory> connection = entity.getConnection(I2cProtocolCategory.class, port);
@@ -52,12 +52,12 @@ public class ZcodeI2cSendCommand {
         out.writeField('T', i);
         if (resp.addressNack()) {
             out.writeField('I', 2);
-            ctx.status(ZcodeStatus.COMMAND_NO_TARGET);
+            ctx.status(ZscriptStatus.COMMAND_NO_TARGET);
             return;
         }
         if (!resp.worked()) {
             out.writeField('I', 1);
-            ctx.status(ZcodeStatus.COMMAND_DATA_NOT_TRANSMITTED);
+            ctx.status(ZscriptStatus.COMMAND_DATA_NOT_TRANSMITTED);
             return;
         } else {
             out.writeField('I', 0);

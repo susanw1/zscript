@@ -1,17 +1,16 @@
 package net.zscript.javareceiver.semanticParser;
 
-import net.zscript.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
+import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
 
-public class ExecutionActionFactory implements ZcodeActionFactory {
+public class ExecutionActionFactory implements ActionFactory {
 
     @Override
-    public ZcodeSemanticAction waitForTokens(ParseState parseState) {
-        return new ZcodeSemanticAction(ActionType.WAIT_FOR_TOKENS, parseState);
+    public SemanticAction waitForTokens(ParseState parseState) {
+        return new SemanticAction(ActionType.WAIT_FOR_TOKENS, parseState);
     }
 
     @Override
-    public ZcodeSemanticAction ofType(ParseState parseState, ActionType type) {
-        return new ZcodeSemanticAction(type, parseState);
+    public SemanticAction ofType(ParseState parseState, ActionType type) {
+        return new SemanticAction(type, parseState);
     }
-
 }

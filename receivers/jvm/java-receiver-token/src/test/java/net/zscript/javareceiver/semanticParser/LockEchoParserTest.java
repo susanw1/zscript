@@ -14,34 +14,34 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import net.zscript.javareceiver.core.StringWriterOutStream;
-import net.zscript.javareceiver.core.Zcode;
-import net.zscript.javareceiver.core.ZcodeLockSet;
-import net.zscript.javareceiver.modules.core.ZcodeCoreModule;
+import net.zscript.javareceiver.core.Zscript;
+import net.zscript.javareceiver.core.LockSet;
+import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
 import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
 import net.zscript.javareceiver.semanticParser.SemanticParser;
-import net.zscript.javareceiver.semanticParser.ZcodeSemanticAction;
+import net.zscript.javareceiver.semanticParser.SemanticAction;
 import net.zscript.javareceiver.semanticParser.SemanticParser.State;
-import net.zscript.javareceiver.semanticParser.ZcodeSemanticAction.ActionType;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenBuffer;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenRingBuffer;
-import net.zscript.javareceiver.tokenizer.ZcodeTokenizer;
+import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
+import net.zscript.javareceiver.tokenizer.TokenBuffer;
+import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
+import net.zscript.javareceiver.tokenizer.Tokenizer;
 
 class LockEchoParserTest {
-    private final ZcodeTokenBuffer buffer    = ZcodeTokenRingBuffer.createBufferWithCapacity(256);
-    private final ZcodeTokenizer   tokenizer = new ZcodeTokenizer(buffer.getTokenWriter(), 2);
+    private final TokenBuffer buffer    = TokenRingBuffer.createBufferWithCapacity(256);
+    private final Tokenizer   tokenizer = new Tokenizer(buffer.getTokenWriter(), 2);
 
     private final SemanticParser parser = new SemanticParser(buffer.getTokenReader(), new ExecutionActionFactory());
 
-    private final Zcode zcode = new Zcode();
+    private final Zscript zscript = new Zscript();
 
     private StringWriterOutStream outStream;
     private ParserActionTester    parserActionTester;
 
     @BeforeEach
     void setup() throws IOException {
-        zcode.addModule(new ZcodeCoreModule());
+        zscript.addModule(new ZscriptCoreModule());
         outStream = new StringWriterOutStream();
-        parserActionTester = new ParserActionTester(zcode, buffer, tokenizer, parser, outStream);
+        parserActionTester = new ParserActionTester(zscript, buffer, tokenizer, parser, outStream);
     }
 
     @Test
@@ -87,31 +87,31 @@ class LockEchoParserTest {
     @Test
     public void shouldApplyLocks() {
         "%16 Z1A &".chars().forEachOrdered(c -> tokenizer.accept((byte) c));
-        ZcodeSemanticAction action = parser.getAction();
+        SemanticAction action = parser.getAction();
         assertThat(action.getType()).isEqualTo(ActionType.RUN_FIRST_COMMAND);
 
-        assertThat(zcode.canLock(ZcodeLockSet.allLocked())).isTrue();
-        action.lock(zcode);
-        assertThat(zcode.canLock(ZcodeLockSet.allLocked())).isFalse();
-        assertThat(zcode.canLock(ZcodeLockSet.from(List.of((byte) 0x1).iterator()))).isTrue();
-        assertThat(zcode.canLock(ZcodeLockSet.from(List.of((byte) 0x2).iterator()))).isFalse();
-        assertThat(zcode.canLock(ZcodeLockSet.from(List.of((byte) 0x4).iterator()))).isFalse();
-        assertThat(zcode.canLock(ZcodeLockSet.from(List.of((byte) 0x8).iterator()))).isTrue();
-        assertThat(zcode.canLock(ZcodeLockSet.from(List.of((byte) 0x10).iterator()))).isFalse();
-        assertThat(zcode.canLock(ZcodeLockSet.from(List.of((byte) 0x20).iterator()))).isTrue();
+        assertThat(zscript.canLock(LockSet.allLocked())).isTrue();
+        action.lock(zscript);
+        assertThat(zscript.canLock(LockSet.allLocked())).isFalse();
+        assertThat(zscript.canLock(LockSet.from(List.of((byte) 0x1).iterator()))).isTrue();
+        assertThat(zscript.canLock(LockSet.from(List.of((byte) 0x2).iterator()))).isFalse();
+        assertThat(zscript.canLock(LockSet.from(List.of((byte) 0x4).iterator()))).isFalse();
+        assertThat(zscript.canLock(LockSet.from(List.of((byte) 0x8).iterator()))).isTrue();
+        assertThat(zscript.canLock(LockSet.from(List.of((byte) 0x10).iterator()))).isFalse();
+        assertThat(zscript.canLock(LockSet.from(List.of((byte) 0x20).iterator()))).isTrue();
 
-        action.performAction(zcode, outStream);
+        action.performAction(zscript, outStream);
         assertThat(outStream.toString()).isEqualTo("!AS");
 
         parserActionTester.parseSnippet("Z1B", ActionType.WAIT_FOR_TOKENS, State.COMMAND_COMPLETE_NEEDS_TOKENS, "!AS");
 
-        assertThat(zcode.canLock(ZcodeLockSet.from(List.of((byte) 0x2).iterator()))).isFalse();
+        assertThat(zscript.canLock(LockSet.from(List.of((byte) 0x2).iterator()))).isFalse();
 
         parserActionTester.parseSnippet("\n", ActionType.RUN_COMMAND, State.COMMAND_COMPLETE, "!AS&BS");
-        assertThat(zcode.canLock(ZcodeLockSet.from(List.of((byte) 0x2).iterator()))).isFalse();
+        assertThat(zscript.canLock(LockSet.from(List.of((byte) 0x2).iterator()))).isFalse();
 
         parserActionTester.parseSnippet("", ActionType.END_SEQUENCE, State.PRESEQUENCE, "!AS&BS\n");
-        assertThat(zcode.canLock(ZcodeLockSet.allLocked())).isTrue();
+        assertThat(zscript.canLock(LockSet.allLocked())).isTrue();
         parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!AS&BS\n");
     }
 

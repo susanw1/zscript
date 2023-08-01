@@ -3,8 +3,8 @@ package net.zscript.javasimulator.zcode.i2c;
 import java.util.Iterator;
 import java.util.Optional;
 
-import net.zscript.javareceiver.core.ZcodeStatus;
-import net.zscript.javareceiver.execution.ZcodeAddressingContext;
+import net.zscript.javareceiver.core.ZscriptStatus;
+import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.tokenizer.OptIterator;
 import net.zscript.javasimulator.Connection;
 import net.zscript.javasimulator.Entity;
@@ -14,34 +14,34 @@ import net.zscript.javasimulator.connections.i2c.I2cResponse;
 import net.zscript.javasimulator.connections.i2c.I2cSendPacket;
 
 public class ZcodeI2cAddressAction {
-    public static void execute(ZcodeAddressingContext ctx, I2cModule module) {
+    public static void execute(AddressingContext ctx, I2cModule module) {
         Entity               entity = module.getEntity();
         OptIterator<Integer> it     = ctx.getAddressSegments();
         if (!it.next().isPresent()) {
-            ctx.status(ZcodeStatus.INTERNAL_ERROR);
+            ctx.status(ZscriptStatus.INTERNAL_ERROR);
             return;
         }
         Optional<Integer> oint = it.next();
         if (!oint.isPresent()) {
-            ctx.status(ZcodeStatus.INTERNAL_ERROR);
+            ctx.status(ZscriptStatus.INTERNAL_ERROR);
             return;
         }
 
         int port = oint.get();
         oint = it.next();
         if (!oint.isPresent()) {
-            ctx.status(ZcodeStatus.INTERNAL_ERROR);
+            ctx.status(ZscriptStatus.INTERNAL_ERROR);
             return;
         }
         boolean tenBit = (port & 0x8000) != 0;
         port &= ~0x8000;
         int addr = oint.get();
         if (port >= entity.countConnection(I2cProtocolCategory.class)) {
-            ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
+            ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
             return;
         }
         if (!tenBit && addr >= 128 || addr >= 1024) {
-            ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
+            ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
             return;
         }
 
@@ -55,7 +55,7 @@ public class ZcodeI2cAddressAction {
         I2cResponse                     resp       = (I2cResponse) connection.sendMessage(entity,
                 new I2cSendPacket(new I2cAddress(tenBit, addr), module.getBaud(port), true, data));
         if (!resp.worked()) {
-            ctx.status(ZcodeStatus.ADDRESS_NOT_FOUND);
+            ctx.status(ZscriptStatus.ADDRESS_NOT_FOUND);
             return;
         }
     }

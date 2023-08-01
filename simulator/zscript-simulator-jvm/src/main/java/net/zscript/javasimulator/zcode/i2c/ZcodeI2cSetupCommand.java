@@ -2,18 +2,18 @@ package net.zscript.javasimulator.zcode.i2c;
 
 import java.util.OptionalInt;
 
-import net.zscript.javareceiver.core.ZcodeCommandOutStream;
-import net.zscript.javareceiver.core.ZcodeStatus;
-import net.zscript.javareceiver.execution.ZcodeCommandContext;
+import net.zscript.javareceiver.core.ZscriptCommandOutStream;
+import net.zscript.javareceiver.core.ZscriptStatus;
+import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javasimulator.connections.i2c.I2cProtocolCategory;
 
 public class ZcodeI2cSetupCommand {
 
-    public static void execute(ZcodeCommandContext ctx, I2cModule module) {
-        ZcodeCommandOutStream out     = ctx.getOutStream();
+    public static void execute(CommandContext ctx, I2cModule module) {
+        ZscriptCommandOutStream out     = ctx.getOutStream();
         OptionalInt           portOpt = ctx.getField((byte) 'P');
         if (portOpt.isPresent() && portOpt.getAsInt() >= module.getEntity().countConnection(I2cProtocolCategory.class)) {
-            ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
+            ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
             return;
         }
         if (portOpt.isPresent()) {
@@ -24,7 +24,7 @@ public class ZcodeI2cSetupCommand {
         OptionalInt freqOpt = ctx.getField((byte) 'F');
         if (freqOpt.isPresent()) {
             if (freqOpt.getAsInt() > 3) {
-                ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
+                ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
                 return;
             }
             int  freq = freqOpt.getAsInt();
@@ -38,7 +38,7 @@ public class ZcodeI2cSetupCommand {
             } else if (freq == 3) {
                 baud = 1000_000;
             } else {
-                ctx.status(ZcodeStatus.VALUE_OUT_OF_RANGE);
+                ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
                 return;
             }
             if (portOpt.isPresent()) {
