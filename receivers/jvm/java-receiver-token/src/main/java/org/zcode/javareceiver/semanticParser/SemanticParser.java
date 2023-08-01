@@ -189,8 +189,8 @@ public class SemanticParser implements ParseState, ContextView {
     // Marker status
     private final MarkerCache markerCache = new MarkerCache();
 
-    private int     parenCounter  = 0;    // 8 bit
-    private boolean hasSentStatus = false;
+    private int     parenCounter = 0;    // 8 bit
+    private boolean hasSetStatus = false;
 
     // Sequence-start info - note, booleans are only usefully "true" during PRESEQUENCE - merge into state?
     private ZcodeLockSet locks    = ZcodeLockSet.allLocked();
@@ -444,7 +444,7 @@ public class SemanticParser implements ParseState, ContextView {
 
         // handles AND, '(' and some ')' cases
         if (state == State.COMMAND_COMPLETE) {
-            hasSentStatus = false;
+            hasSetStatus = false;
             state = State.COMMAND_INCOMPLETE;
             return ActionType.RUN_COMMAND;
         }
@@ -521,7 +521,7 @@ public class SemanticParser implements ParseState, ContextView {
     private void resetToSequence() {
         locks = ZcodeLockSet.allLocked();
         state = State.PRESEQUENCE;
-        hasSentStatus = false;
+        hasSetStatus = false;
         hasLocks = false;
         hasEcho = false;
         parenCounter = 0;
@@ -593,7 +593,7 @@ public class SemanticParser implements ParseState, ContextView {
 
     @Override
     public boolean hasSentStatus() {
-        return hasSentStatus;
+        return hasSetStatus;
     }
 
     @Override
@@ -610,6 +610,11 @@ public class SemanticParser implements ParseState, ContextView {
     @Override
     public int getEcho() {
         return echo;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return reader.getFirstReadToken().isMarker();
     }
 
     ////////////////////////////////
@@ -654,29 +659,44 @@ public class SemanticParser implements ParseState, ContextView {
         activated = true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void setStatus(byte status) {
-        hasSentStatus = true;
+    public boolean requestStatusChange(byte status) {
+        if (hasSetStatus) {
+            return false;
+        }
+        hasSetStatus = true;
+
+        if (ZcodeStatus.isSuccess(status)) {
+            return true;
+        }
+
         if (ZcodeStatus.isError(status)) {
             state = State.ERROR_STATUS;
-        } else if (ZcodeStatus.isFailure(status)) {
+            return true;
+        }
+
+        if (ZcodeStatus.isFailure(status)) {
             switch (state) {
             case COMMAND_COMPLETE:
             case COMMAND_INCOMPLETE:
                 state = State.COMMAND_FAILED;
                 parenCounter = 0;
-                break;
+                return true;
             case ERROR_COMMENT_WITH_SEQ_FIELDS:
             case ERROR_LOCKS:
             case ERROR_MULTIPLE_ECHO:
             case ERROR_STATUS:
             case ERROR_TOKENIZER:
                 // ignore: command cannot report failure after an ERROR.
-                break;
+                return false;
             default:
                 throw new IllegalStateException("Invalid state transition");
             }
         }
+        return false;
     }
 
     @Override
@@ -698,11 +718,6 @@ public class SemanticParser implements ParseState, ContextView {
                 }
             }
         };
-    }
-
-    @Override
-    public void silentSucceed() {
-        hasSentStatus = true;
     }
 
     @Override

@@ -72,16 +72,18 @@ public class ZcodeSemanticAction implements ZcodeAction {
             }
             ZcodeCommandContext cmdCtx = new ZcodeCommandContext(zcode, (ContextView) parseState, out);
             if (cmdCtx.verify()) {
-                zcode.getModuleRegistry().execute(cmdCtx);
-            }
-            if (cmdCtx.isCommandComplete() && !parseState.hasSentStatus()) {
-                cmdCtx.status(ZcodeStatus.SUCCESS);
+                if (!parseState.isEmpty()) {
+                    zcode.getModuleRegistry().execute(cmdCtx);
+                    if (cmdCtx.isCommandComplete()) {
+                        cmdCtx.status(ZcodeStatus.SUCCESS);
+                    }
+                }
             }
             break;
         case COMMAND_MOVEALONG:
             ZcodeCommandContext cmdCtx1 = new ZcodeCommandContext(zcode, (ContextView) parseState, out);
             zcode.getModuleRegistry().moveAlong(cmdCtx1);
-            if (cmdCtx1.isCommandComplete() && !parseState.hasSentStatus()) {
+            if (cmdCtx1.isCommandComplete()) {
                 cmdCtx1.status(ZcodeStatus.SUCCESS);
             }
             break;
@@ -102,6 +104,7 @@ public class ZcodeSemanticAction implements ZcodeAction {
         case INVALID:
             throw new IllegalStateException();
         }
+
     }
 
     private void startResponse(ZcodeOutStream out, byte respType) {

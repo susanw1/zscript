@@ -22,10 +22,6 @@ public class ZcodeModuleRegistry {
     public void execute(ZcodeCommandContext ctx) {
         // commands are completable unless explicitly marked otherwise by a command
         ctx.commandComplete();
-        if (ctx.isEmpty()) {
-            ctx.silentSucceed();
-            return;
-        }
         OptionalInt value = ctx.getField(Zchars.Z_CMD);
         if (value.isEmpty()) {
             ctx.status(ZcodeStatus.COMMAND_NOT_FOUND);
