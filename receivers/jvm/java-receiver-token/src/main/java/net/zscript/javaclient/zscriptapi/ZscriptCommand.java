@@ -1,19 +1,19 @@
-package net.zscript.javaclient.zcodeApi;
+package net.zscript.javaclient.zscriptapi;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ZscriptCommand extends CommandSeqElement {
-    public static class ZcodeSequencePath {
+    public static class ZscriptSequencePath {
         private final List<Byte>   markers;
         private final ZscriptCommand next;
 
-        public ZcodeSequencePath(List<Byte> markers, ZscriptCommand next) {
+        public ZscriptSequencePath(List<Byte> markers, ZscriptCommand next) {
             this.markers = markers;
             this.next = next;
         }
 
-        public ZcodeSequencePath(List<Byte> markers, ZcodeSequencePath rest) {
+        public ZscriptSequencePath(List<Byte> markers, ZscriptSequencePath rest) {
             this.markers = new ArrayList<>(markers);
             this.markers.addAll(rest.markers);
             this.next = rest.next;
@@ -32,7 +32,7 @@ public abstract class ZscriptCommand extends CommandSeqElement {
 
     public abstract void response(ZscriptUnparsedCommandResponse resp);
 
-    public static ZcodeSequencePath findFirstCommand(final CommandSeqElement start) {
+    public static ZscriptSequencePath findFirstCommand(final CommandSeqElement start) {
         CommandSeqElement current = start;
         CommandSeqElement prev    = null;
         List<Byte>        markers = new ArrayList<>();
@@ -50,10 +50,10 @@ public abstract class ZscriptCommand extends CommandSeqElement {
                 markers.add((byte) '(');
             }
         }
-        return new ZcodeSequencePath(markers, (ZscriptCommand) current);
+        return new ZscriptSequencePath(markers, (ZscriptCommand) current);
     }
 
-    public ZcodeSequencePath findNext() {
+    public ZscriptSequencePath findNext() {
         CommandSeqElement current = parent;
         CommandSeqElement prev    = this;
         List<Byte>        markers = new ArrayList<>();
@@ -63,7 +63,7 @@ public abstract class ZscriptCommand extends CommandSeqElement {
                 OrSeqElement orAncestor = (OrSeqElement) current;
                 if (prev == orAncestor.before) {
                     markers.add((byte) '|');
-                    return new ZcodeSequencePath(markers, findFirstCommand(orAncestor.after));
+                    return new ZscriptSequencePath(markers, findFirstCommand(orAncestor.after));
                 }
             } else if (current.getClass() == AndSeqElement.class) {
                 AndSeqElement andAncestor = (AndSeqElement) current;
@@ -72,7 +72,7 @@ public abstract class ZscriptCommand extends CommandSeqElement {
                     if (prev.getClass() != OrSeqElement.class && next.getClass() != OrSeqElement.class) {
                         markers.add((byte) '&');
                     }
-                    return new ZcodeSequencePath(markers, findFirstCommand(next));
+                    return new ZscriptSequencePath(markers, findFirstCommand(next));
                 }
             }
             if (current.getClass() == OrSeqElement.class && current.getParent() != null && current.getParent().getClass() != OrSeqElement.class) {
@@ -84,7 +84,7 @@ public abstract class ZscriptCommand extends CommandSeqElement {
         return null;
     }
 
-    public ZcodeSequencePath findFailPath() {
+    public ZscriptSequencePath findFailPath() {
         CommandSeqElement current = parent;
         CommandSeqElement prev    = this;
         List<Byte>        markers = new ArrayList<>();
@@ -94,7 +94,7 @@ public abstract class ZscriptCommand extends CommandSeqElement {
                 OrSeqElement orAncestor = (OrSeqElement) current;
                 if (prev == orAncestor.before) {
                     markers.add((byte) '|');
-                    return new ZcodeSequencePath(markers, findFirstCommand(orAncestor.after));
+                    return new ZscriptSequencePath(markers, findFirstCommand(orAncestor.after));
                 }
             }
             if (current.getClass() == OrSeqElement.class && current.getParent() != null && current.getParent().getClass() != OrSeqElement.class) {
@@ -106,7 +106,7 @@ public abstract class ZscriptCommand extends CommandSeqElement {
         return null;
     }
 
-    public ZcodeSequencePath findSuccessPath() {
+    public ZscriptSequencePath findSuccessPath() {
         CommandSeqElement current = parent;
         CommandSeqElement prev    = this;
         List<Byte>        markers = new ArrayList<>();
@@ -119,7 +119,7 @@ public abstract class ZscriptCommand extends CommandSeqElement {
                     if (prev.getClass() != OrSeqElement.class && next.getClass() != OrSeqElement.class) {
                         markers.add((byte) '&');
                     }
-                    return new ZcodeSequencePath(markers, findFirstCommand(next));
+                    return new ZscriptSequencePath(markers, findFirstCommand(next));
                 }
             }
             if (current.getClass() == OrSeqElement.class && current.getParent() != null && current.getParent().getClass() != OrSeqElement.class) {

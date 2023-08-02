@@ -9,7 +9,7 @@ import net.zscript.javareceiver.execution.CommandContext;
 public class ZscriptChannelInfoCommand {
 
     public static void execute(CommandContext ctx) {
-        List<ZscriptChannel> chs = ctx.getZcode().getChannels();
+        List<ZscriptChannel> chs = ctx.getZscript().getChannels();
 
         int current = ctx.getChannelIndex();
 

@@ -1,8 +1,8 @@
-package net.zscript.javaclient.zcodeApi;
+package net.zscript.javaclient.zscriptapi;
 
 import java.nio.charset.StandardCharsets;
 
-public class FailureCommand extends ZscriptCommand {
+public class AbortCommand extends ZscriptCommand {
 
     @Override
     public CommandSeqElement thenFail() {
@@ -21,37 +21,32 @@ public class FailureCommand extends ZscriptCommand {
 
     @Override
     public CommandSeqElement dropFailureCondition() {
-        return new BlankCommand();
+        return this;
     }
 
     @Override
     public CommandSeqElement abortOnFail() {
-        return new AbortCommand();
+        return this;
     }
 
     @Override
     public SuccessConditional ifSucceeds() {
-        return success -> failure -> failure;
+        return a -> b -> this;
     }
 
     @Override
     public FailureConditional ifFails() {
-        return failure -> success -> failure;
+        return a -> b -> this;
     }
 
     @Override
     public CommandSeqElement onFail(CommandSeqElement next) {
-        return next;
+        return this;
     }
 
     @Override
     public boolean canFail() {
-        return true;
-    }
-
-    @Override
-    public boolean isCommand() {
-        return true;
+        return false;
     }
 
     @Override
@@ -61,7 +56,12 @@ public class FailureCommand extends ZscriptCommand {
 
     @Override
     public byte[] compile(boolean includeParens) {
-        return "Z1S2".getBytes(StandardCharsets.UTF_8);
+        return "Z1S13".getBytes(StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public boolean isCommand() {
+        return true;
     }
 
     @Override

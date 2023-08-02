@@ -1,9 +1,9 @@
-package net.zscript.javaclient.zcodeApiAttempt;
+package net.zscript.javaclient.zscriptapiattempt;
 
-import net.zscript.javaclient.zcodeApi.ZscriptCommandBuilder;
-import net.zscript.javaclient.zcodeApi.ZscriptResponse;
-import net.zscript.javaclient.zcodeApi.ZscriptUnparsedCommandResponse;
-import net.zscript.javaclient.zcodeApiAttempt.DemoActivateCommandBuilder.DemoActivateCommandResponse;
+import net.zscript.javaclient.zscriptapi.ZscriptCommandBuilder;
+import net.zscript.javaclient.zscriptapi.ZscriptResponse;
+import net.zscript.javaclient.zscriptapi.ZscriptUnparsedCommandResponse;
+import net.zscript.javaclient.zscriptapiattempt.DemoActivateCommandBuilder.DemoActivateCommandResponse;
 
 public class DemoActivateCommandBuilder extends ZscriptCommandBuilder<DemoActivateCommandResponse> {
     public class DemoActivateCommandResponse implements ZscriptResponse {

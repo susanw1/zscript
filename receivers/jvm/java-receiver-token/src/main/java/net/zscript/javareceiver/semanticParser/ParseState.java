@@ -4,7 +4,7 @@ import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
 
 /**
- * Defines methods accessed by ZcodeActions.
+ * Defines methods accessed by ZscriptActions.
  */
 public interface ParseState {
     byte getErrorStatus();

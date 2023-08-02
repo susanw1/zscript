@@ -27,8 +27,8 @@ public class ZscriptCapabilitiesCommand {
     public String platformFirmwareStr     = "Java JRE " + System.getProperty("java.runtime.version");
     public int    platformHardwareVersion = 0;
     public String platformHardwareStr     = System.getProperty("os.arch") + " " + System.getProperty("os.name");
-    public int    coreZcodeVersion        = 0;
-    public String coreZcodeStr            = "Prototype parsing/running system for JVM";
+    public int    coreZscriptVersion      = 0;
+    public String coreZscriptStr            = "Prototype parsing/running system for JVM";
 
     public void execute(CommandContext ctx) {
         ZscriptCommandOutStream out = ctx.getOutStream();
@@ -55,8 +55,8 @@ public class ZscriptCapabilitiesCommand {
             ver = platformHardwareVersion;
             break;
         case 4:
-            str = coreZcodeStr;
-            ver = coreZcodeVersion;
+            str = coreZscriptStr;
+            ver = coreZscriptVersion;
             break;
         }
         if (str != null) {
@@ -68,7 +68,7 @@ public class ZscriptCapabilitiesCommand {
             ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
         }
         out.writeField('C', ZscriptCoreModule.getCommands());
-        out.writeField('M', ctx.getZcode().getModuleRegistry().getCommandSwitchExistsBottom(0));
+        out.writeField('M', ctx.getZscript().getModuleRegistry().getCommandSwitchExistsBottom(0));
     }
 
 }

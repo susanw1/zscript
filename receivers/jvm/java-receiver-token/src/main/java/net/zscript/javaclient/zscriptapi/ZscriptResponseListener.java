@@ -1,4 +1,4 @@
-package net.zscript.javaclient.zcodeApi;
+package net.zscript.javaclient.zscriptapi;
 
 public interface ZscriptResponseListener<T extends ZscriptResponse> {
     void accept(T resp);

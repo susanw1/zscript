@@ -3,7 +3,7 @@ package net.zscript.javareceiver.tokenizer;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
 
 /**
- * General Tokenizer for handling a stream of incoming Zcode bytes. Responsibilities:
+ * General Tokenizer for handling a stream of incoming Zscript bytes. Responsibilities:
  * <ol>
  * <li>recording input into a Token Buffer</li>
  * <li>maintaining state at a Token level (eg are we in a string? hex nibbles? etc)</li>
@@ -15,8 +15,8 @@ import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
  * <h3>Token Buffer Overrun</h3>
  *
  * If incoming characters arrive faster than they can be processed, or command-sequences are so long that they threaten to overrun the token buffer storage, then the execution side
- * is alerted by writing error tokens. There are two approaches to processing a byte of zcode input with respect to token buffer capacity, depending on whether the source of bytes
- * is unbuffered or buffered.
+ * is alerted by writing error tokens. There are two approaches to processing a byte of zscript input with respect to token buffer capacity, depending on whether the source of
+ * bytes is unbuffered or buffered.
  *
  * <h4>Unbuffered Channels</h4>
  *
@@ -37,7 +37,7 @@ import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
  *
  * If an incoming single command is too long for the buffer, then it will become OVERRUN no matter what.
  *
- * @param b the new byte of zcode input
+ * @param b the new byte of zscript input
  */
 public class Tokenizer {
     public static final byte ADDRESSING_FIELD_KEY = (byte) 0x80;
@@ -124,9 +124,9 @@ public class Tokenizer {
     // TODO: Discuss dataLost changes.
 
     /**
-     * Process a byte of Zcode input into the parser.
+     * Process a byte of Zscript input into the parser.
      *
-     * @param b the new byte of zcode input
+     * @param b the new byte of zscript input
      */
     public void accept(final byte b) {
         if (!isText && Zchars.shouldIgnore(b) || Zchars.alwaysIgnore(b)) {

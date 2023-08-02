@@ -1,4 +1,4 @@
-package net.zscript.javaclient.responseParser;
+package net.zscript.javaclient.responseparser;
 
 import java.util.HashMap;
 import java.util.Map;

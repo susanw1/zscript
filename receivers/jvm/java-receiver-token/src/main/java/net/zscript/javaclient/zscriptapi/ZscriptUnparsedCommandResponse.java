@@ -1,4 +1,4 @@
-package net.zscript.javaclient.zcodeApi;
+package net.zscript.javaclient.zscriptapi;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

@@ -1,4 +1,4 @@
-package net.zscript.javaclient.zcodeApi;
+package net.zscript.javaclient.zscriptapi;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,10 +10,10 @@ import java.util.Map;
 
 public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     private final List<ZscriptResponseListener<T>> listeners = new ArrayList<>();
-    private final List<BigField>                 bigFields = new ArrayList<>();
-    private final Map<Byte, Integer>             fields    = new HashMap<>();
+    private final List<BigField>                   bigFields = new ArrayList<>();
+    private final Map<Byte, Integer>               fields    = new HashMap<>();
 
-    public class ZcodeBuiltCommand extends ZscriptCommand {
+    public class ZscriptBuiltCommand extends ZscriptCommand {
 
         @Override
         public CommandSeqElement reEvaluate() {
@@ -112,9 +112,8 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     private static byte toHex(int nibble) {
         if (nibble < 10) {
             return (byte) (nibble + '0');
-        } else {
-            return (byte) (nibble + 'a' - 10);
         }
+        return (byte) (nibble + 'a' - 10);
     }
 
     public static byte[] writeField(byte f, int value) {
@@ -123,9 +122,11 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
         if (value == 0) {
             return new byte[] { f };
-        } else if (value < 0x10) {
+        }
+        if (value < 0x10) {
             return new byte[] { f, toHex(value) };
-        } else if (value < 0x100) {
+        }
+        if (value < 0x100) {
             return new byte[] { f, toHex(value >> 4), toHex(value & 0xF) };
         } else if (value < 0x1000) {
             return new byte[] { f, toHex(value >> 8), toHex((value >> 4) & 0xF), toHex(value & 0xF) };
@@ -140,7 +141,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
 
     protected ZscriptCommandBuilder<T> setField(byte key, int value) {
         if ((key & 0x80) != 0) {
-            throw new IllegalArgumentException("Key not a valid Zcode Command key");
+            throw new IllegalArgumentException("Key not a valid Zscript Command key");
         }
         fields.put(key, value);
         return this;
@@ -178,6 +179,6 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     }
 
     public CommandSeqElement build() {
-        return new ZcodeBuiltCommand();
+        return new ZscriptBuiltCommand();
     }
 }

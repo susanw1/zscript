@@ -35,7 +35,7 @@ public class ZscriptOuterCoreModule implements ZscriptModule {
             ZscriptExtendedCapabilitiesCommand.execute(ctx);
             break;
         case 0x4:
-            ((ZscriptCoreModule) ctx.getZcode().getModuleRegistry().getModule(0)).getGuidCmd().set(ctx);
+            ((ZscriptCoreModule) ctx.getZscript().getModuleRegistry().getModule(0)).getGuidCmd().set(ctx);
             break;
         case 0x8:
             ZscriptChannelSetupCommand.execute(ctx);

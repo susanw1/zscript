@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.output.WriterOutputStream;
 
 /**
- * Utility class for helping tests: ZcodeAbstractOutStream implementation that collects bytes
+ * Utility class for helping tests: AbstractOutStream implementation that collects bytes
  */
 public class StringWriterOutStream extends OutputStreamOutStream<WriterOutputStream> {
     private final StringWriter stringWriter;

@@ -21,10 +21,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import net.zscript.javareceiver.tokenizer.Zchars;
-import net.zscript.javareceiver.tokenizer.TokenBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
-
 @ExtendWith(MockitoExtension.class)
 class TokenizerTest {
     @Mock
@@ -63,8 +59,8 @@ class TokenizerTest {
 
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource
-    public void shouldHandleSimpleNumericFields(String desc, String zcode, String bufferActions) {
-        validateZcodeActions(zcode, bufferActions);
+    public void shouldHandleSimpleNumericFields(String desc, String zscript, String bufferActions) {
+        validateZscriptActions(zscript, bufferActions);
     }
 
     private static Stream<Arguments> shouldHandleSimpleNumericFields() {
@@ -83,9 +79,9 @@ class TokenizerTest {
 
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource
-    public void shouldRejectInvalidKeys(String desc, String zcode, String bufferActions) {
+    public void shouldRejectInvalidKeys(String desc, String zscript, String bufferActions) {
         when(writer.isTokenComplete()).thenReturn(true, false, true, false, true);
-        validateZcodeActions(zcode, bufferActions);
+        validateZscriptActions(zscript, bufferActions);
     }
 
     private static Stream<Arguments> shouldRejectInvalidKeys() {
@@ -102,8 +98,8 @@ class TokenizerTest {
 
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource
-    public void shouldHandleLogicalSequencesOfNumericFields(String desc, String zcode, String bufferActions) {
-        validateZcodeActions(zcode, bufferActions);
+    public void shouldHandleLogicalSequencesOfNumericFields(String desc, String zscript, String bufferActions) {
+        validateZscriptActions(zscript, bufferActions);
     }
 
     private static Stream<Arguments> shouldHandleLogicalSequencesOfNumericFields() {
@@ -118,8 +114,8 @@ class TokenizerTest {
 
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource
-    public void shouldHandleBigFields(String desc, String zcode, String bufferActions) {
-        validateZcodeActions(zcode, bufferActions);
+    public void shouldHandleBigFields(String desc, String zscript, String bufferActions) {
+        validateZscriptActions(zscript, bufferActions);
     }
 
     private static Stream<Arguments> shouldHandleBigFields() {
@@ -135,8 +131,8 @@ class TokenizerTest {
 
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource
-    public void shouldHandleComment(String desc, String zcode, String bufferActions) {
-        validateZcodeActions(zcode, bufferActions);
+    public void shouldHandleComment(String desc, String zscript, String bufferActions) {
+        validateZscriptActions(zscript, bufferActions);
     }
 
     private static Stream<Arguments> shouldHandleComment() {
@@ -147,8 +143,8 @@ class TokenizerTest {
 
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource
-    public void shouldHandleAddressing(String desc, String zcode, String bufferActions) {
-        validateZcodeActions(zcode, bufferActions);
+    public void shouldHandleAddressing(String desc, String zscript, String bufferActions) {
+        validateZscriptActions(zscript, bufferActions);
     }
 
     private static Stream<Arguments> shouldHandleAddressing() {
@@ -163,15 +159,15 @@ class TokenizerTest {
     /**
      * Simple way to test lots of possibilities: bufferActions is a little 2-char language describing, for each input char, the (op, arg) on the buffer.
      *
-     * @param zcode         some zcode text to tokenize, but where 'n' is replaced by '\n'
-     * @param bufferActions a pair of chars for each zcode char, so express expected method calls
+     * @param zscript       some zscript text to tokenize, but where 'n' is replaced by '\n'
+     * @param bufferActions a pair of chars for each zscript char, so express expected method calls
      */
-    private void validateZcodeActions(String zcode, String bufferActions) {
-        if (zcode.length() * 2 > bufferActions.length()) {
-            fail("bufferActions length is too short (trimmed?) + zcode='" + zcode + "', actions='" + bufferActions + "'");
+    private void validateZscriptActions(String zscript, String bufferActions) {
+        if (zscript.length() * 2 > bufferActions.length()) {
+            fail("bufferActions length is too short (trimmed?) + zscript='" + zscript + "', actions='" + bufferActions + "'");
         }
         int index = 0;
-        for (byte c : zcode.getBytes()) {
+        for (byte c : zscript.getBytes()) {
             tokenizer.accept(c);
 //            System.out.println("c = " + c);
             char action = bufferActions.charAt(index * 2);
@@ -219,7 +215,7 @@ class TokenizerTest {
     @Test
     public void shouldAcceptSingleKeyAtTokenStart() {
         when(writer.isTokenComplete()).thenReturn(true);
-        validateZcodeActions("Z\n", "tZm" + END);
+        validateZscriptActions("Z\n", "tZm" + END);
     }
 
     // Expected pattern of length/inNibble for successive nibbles
@@ -233,21 +229,21 @@ class TokenizerTest {
     public void shouldFailOnLongNumber() {
         when(writer.getCurrentWriteTokenLength()).thenReturn(0).thenReturn(1).thenReturn(1).thenReturn(2).thenReturn(2).thenThrow(RuntimeException.class);
         when(writer.isInNibble()).thenReturn(true).thenReturn(false).thenThrow(RuntimeException.class);
-        validateZcodeActions("Z12345\n\n", "tZn1n2n3n4f" + (char) Tokenizer.ERROR_CODE_FIELD_TOO_LONG + "--m"+END + "--");
+        validateZscriptActions("Z12345\n\n", "tZn1n2n3n4f" + (char) Tokenizer.ERROR_CODE_FIELD_TOO_LONG + "--m"+END + "--");
     }
 
     @Test
     public void shouldFailOnOddHexString() {
         when(writer.getCurrentWriteTokenKey()).thenReturn(Zchars.Z_BIGFIELD_HEX);
         when(writer.isInNibble()).thenReturn(false) .thenReturn(true).thenReturn(false).thenReturn(true).thenThrow(RuntimeException.class);
-        validateZcodeActions("+123A\nB\n", "s+n1n2n3f" + (char) Tokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH + "--tBm" + END + "--");
+        validateZscriptActions("+123A\nB\n", "s+n1n2n3f" + (char) Tokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH + "--tBm" + END + "--");
     }
 
     @Test
     public void shouldFailOnOddHexStringTerminatedByNL() {
         when(writer.getCurrentWriteTokenKey()).thenReturn(Zchars.Z_BIGFIELD_HEX);
         when(writer.isInNibble()).thenReturn(false) .thenReturn(true).thenReturn(false).thenReturn(true).thenThrow(RuntimeException.class);
-        validateZcodeActions("+12abc\nA\n", "s+n1n2nanbncf" + (char) Tokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH + "tAm" + END + "--");
+        validateZscriptActions("+12abc\nA\n", "s+n1n2nanbncf" + (char) Tokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH + "tAm" + END + "--");
     }
 
 }

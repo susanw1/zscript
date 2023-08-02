@@ -11,7 +11,7 @@ public class ZscriptExtendedCapabilitiesCommand {
     public static void execute(CommandContext ctx) {
         ZscriptCommandOutStream out = ctx.getOutStream();
         out.writeField('C', ZscriptOuterCoreModule.getCommands());
-        out.writeField('M', ctx.getZcode().getModuleRegistry().getCommandSwitchExistsBroad());
+        out.writeField('M', ctx.getZscript().getModuleRegistry().getCommandSwitchExistsBroad());
         OptionalInt targetOpt = ctx.getField((byte) 'M');
 
         if (targetOpt.isPresent()) {
@@ -20,7 +20,7 @@ public class ZscriptExtendedCapabilitiesCommand {
                 ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
                 return;
             }
-            int result = ctx.getZcode().getModuleRegistry().getCommandSwitchExistsTop(target);
+            int result = ctx.getZscript().getModuleRegistry().getCommandSwitchExistsTop(target);
             out.writeField('L', result);
         }
     }

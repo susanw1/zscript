@@ -5,7 +5,7 @@ import static java.text.MessageFormat.format;
 /**
  * Ring-buffer implementation of a Token Buffer - a specific implementation of the ArrayBuffer. Additional rules are:
  * <ol>
- * <li>Maximum size is 64k bytes - Zcode isn't expected to work on huge datasets.</li>
+ * <li>Maximum size is 64k bytes - Zscript isn't expected to work on huge datasets.</li>
  * <li>All indices are incremented modulo the length of the underlying byte array.</li>
  * <li></li>
  * </ol>
@@ -13,7 +13,7 @@ import static java.text.MessageFormat.format;
  */
 public class TokenRingBuffer extends TokenArrayBuffer {
     /**
-     * Zcode shouldn't need huge buffers, so 64K is our extreme limit. It should be addressable by uint16 indexes. Note that *exact* 64K size implies that data.length cannot be
+     * Zscript shouldn't need huge buffers, so 64K is our extreme limit. It should be addressable by uint16 indexes. Note that *exact* 64K size implies that data.length cannot be
      * held in a uint16, so careful code required if porting!
      */
     private static final int MAX_RING_BUFFER_SIZE = 0x1_0000;

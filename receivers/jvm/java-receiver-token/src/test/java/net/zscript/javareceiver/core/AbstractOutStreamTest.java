@@ -129,7 +129,7 @@ public class AbstractOutStreamTest {
 
     
     @Test
-    void shouldWriteZcodeField() {
+    void shouldWriteZscriptField() {
         // This is really hard/annoying to test, and it's only used in the echo command. But we want to test it - we just had a stupid bug in it. Let's just write comprehensive parser tests around this.
     }
 
