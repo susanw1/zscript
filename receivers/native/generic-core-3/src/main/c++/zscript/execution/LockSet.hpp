@@ -7,7 +7,7 @@
 
 #ifndef SRC_MAIN_C___ZSCRIPT_LOCKSET_HPP_
 #define SRC_MAIN_C___ZSCRIPT_LOCKSET_HPP_
-#include "ZscriptIncludes.hpp"
+#include "../ZscriptIncludes.hpp"
 
 namespace Zscript {
 namespace GenericCore {

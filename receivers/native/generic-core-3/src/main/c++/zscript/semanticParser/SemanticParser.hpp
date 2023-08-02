@@ -9,10 +9,10 @@
 #define SRC_MAIN_C___ZSCRIPT_SEMANTICPARSER_SEMANTICPARSER_HPP_
 
 #include "../ZscriptIncludes.hpp"
-#include "../TokenRingBuffer.hpp"
-#include "../ZscriptTokenizer.hpp"
+#include "../tokenizer/TokenRingBuffer.hpp"
+#include "../tokenizer/ZscriptTokenizer.hpp"
 #include "../Zscript.hpp"
-#include "../LockSet.hpp"
+#include "../execution/LockSet.hpp"
 
 #include "SemanticParserAction.hpp"
 
@@ -88,7 +88,7 @@ class SemanticParser {
         OptionalRingBufferToken<ZP> token;
 
         bool first = true;
-        for (token = it.next(buffer); token.isPresent && (token.token.isSequenceEndMarker(buffer) || (!seekSeqEnd && token.token.isMarker(buffer))); token = it.next(buffer)) {
+        for (token = it.next(buffer); token.isPresent && !(token.token.isSequenceEndMarker(buffer) || (!seekSeqEnd && token.token.isMarker(buffer))); token = it.next(buffer)) {
             if (flush) {
                 it.flushBuffer(buffer);
             } else if (first && seekSeqEnd && token.token.isMarker(buffer)) {
@@ -505,6 +505,9 @@ public:
     void setChannelIndex(uint8_t channelIndex) {
         this->channelIndex = channelIndex;
     }
+    TokenRingBuffer<ZP>* getBuffer() {
+        return buffer;
+    }
 
     ////////////////////////////////
     // Sequence Start state: locks and echo. Defined in {@link ParseState}.
@@ -513,7 +516,7 @@ public:
      * Operates on the first token on the  If it is a marker, returns and discards it, otherwise returns 0 and does nothing.
      */
     uint8_t takeCurrentMarker() {
-        uint8_t marker = buffer->R_getFirstKey();
+        uint8_t marker = buffer->R_getFirstReadToken().getKey(buffer);
         if (!TokenRingBuffer<ZP>::isMarker(marker)) {
             return 0;
         }
@@ -597,6 +600,9 @@ public:
             case COMMAND_INCOMPLETE:
             state = b ? COMMAND_COMPLETE : COMMAND_INCOMPLETE;
             break;
+        default:
+            //Unreachable
+            break;
         }
     }
 
@@ -630,6 +636,9 @@ public:
                 case ERROR_TOKENIZER:
                 // ignore: command cannot report failure after an ERROR.
                 break;
+            default:
+                //Unreachable
+                break;
             }
         }
     }
@@ -643,6 +652,9 @@ public:
         case COMMAND_INCOMPLETE:
             case COMMAND_NEEDS_ACTION:
             state = COMMAND_NEEDS_ACTION;
+            break;
+        default:
+            //Unreachable
             break;
         }
     }

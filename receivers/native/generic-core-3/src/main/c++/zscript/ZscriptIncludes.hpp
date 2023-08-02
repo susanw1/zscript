@@ -32,6 +32,10 @@ struct DataArrayWLeng32 {
     uint8_t *data;
     uint32_t length;
 };
+struct OptInt16 {
+    uint16_t value;
+    bool isPresent;
+};
 
 }
 #endif /* SRC_MAIN_C___ZSCRIPT_ZSCRIPTINCLUDES_HPP_ */

@@ -9,11 +9,10 @@
 #include "ZscriptIncludes.hpp"
 
 namespace Zscript {
-namespace GenericCore {
 
 enum Zchars {
     CMD_PARAM = 'Z',
-    STATUS_RESP_PARAM = 'S',
+    Z_STATUS = 'S',
 
     ANDTHEN_SYMBOL = '&',
     ORELSE_SYMBOL = '|',
@@ -81,6 +80,5 @@ public:
     }
 };
 
-}
 }
 #endif /* SRC_MAIN_C___ZSCRIPT_ZCHARS_HPP_ */

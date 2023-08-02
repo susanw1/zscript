@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "../../../../main/c++/zscript/ZscriptTokenizer.hpp"
+#include "../../../../main/c++/zscript/tokenizer/ZscriptTokenizer.hpp"
 
 #include <iostream>
 

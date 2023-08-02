@@ -7,7 +7,7 @@
 
 #ifndef SRC_MAIN_C___ZSCRIPT_LOCKSYSTEM_HPP_
 #define SRC_MAIN_C___ZSCRIPT_LOCKSYSTEM_HPP_
-#include "ZscriptIncludes.hpp"
+#include "../ZscriptIncludes.hpp"
 #include "LockSet.hpp"
 
 namespace Zscript {

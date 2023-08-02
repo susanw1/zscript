@@ -20,7 +20,6 @@
                 <configuration>
                     <cpp>
                         <name>gcc</name>
-                        <exceptions>false</exceptions>
                         <debug>true</debug>
                         <includePaths>
                             <includePath>
@@ -32,7 +31,7 @@
                             <option>-flto</option>
                             <option>-g</option>
                             <option>-Wall</option>
-
+                            <testOption>-fno-exceptions</testOption>
                             <option>-Wextra</option>
                         </options>
                         <testOptions>

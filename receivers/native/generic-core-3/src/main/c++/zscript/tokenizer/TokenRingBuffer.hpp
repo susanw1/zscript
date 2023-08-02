@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_TOKENRINGBUFFER_HPP_
 #define SRC_MAIN_C___ZSCRIPT_TOKENRINGBUFFER_HPP_
 
-#include "ZscriptIncludes.hpp"
+#include "../ZscriptIncludes.hpp"
 #include "TokenBufferFlags.hpp"
 
 namespace Zscript {
@@ -264,7 +264,6 @@ public:
         return {dataArray, length};
     }
 };
-
 template<class ZP>
 class RingBufferTokenIterator {
     uint16_t index;
@@ -367,5 +366,32 @@ void TokenRingBuffer<ZP>::R_flushFirstReadToken() {
     it.flushBuffer(this);
 }
 }
+template<class ZP>
+class CombinedTokenBlockIterator {
+    GenericCore::TokenRingBuffer<ZP> *buffer;
+    GenericCore::RawTokenBlockIterator<ZP> iterator;
+
+public:
+    CombinedTokenBlockIterator(GenericCore::TokenRingBuffer<ZP> *buffer, GenericCore::RawTokenBlockIterator<ZP> iterator) :
+            buffer(buffer), iterator(iterator) {
+    }
+
+    uint8_t next() {
+        return iterator.next(buffer);
+    }
+
+    bool hasNext() {
+        return iterator.hasNext(buffer);
+    }
+
+    DataArrayWLeng16 nextContiguous() {
+        return iterator.nextContiguous(buffer);
+    }
+
+    DataArrayWLeng16 nextContiguous(uint8_t maxLength) {
+        return iterator.nextContiguous(buffer, maxLength);
+    }
+
+};
 }
 #endif /* SRC_MAIN_C___ZSCRIPT_TOKENRINGBUFFER_HPP_ */

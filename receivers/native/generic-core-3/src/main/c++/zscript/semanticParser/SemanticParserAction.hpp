@@ -9,10 +9,11 @@
 #define SRC_MAIN_C___ZSCRIPT_SEMANTICPARSER_SEMANTICPARSERACTION_HPP_
 #include "../ZscriptIncludes.hpp"
 #include "../AbstractOutStream.hpp"
-#include "../TokenRingBuffer.hpp"
+#include "../tokenizer/TokenRingBuffer.hpp"
 #include "../execution/ZscriptAddressingContext.hpp"
 #include "../execution/ZscriptCommandContext.hpp"
 #include "../ZscriptResponseStatus.hpp"
+#include "../modules/ModuleRegistry.hpp"
 
 namespace Zscript {
 namespace GenericCore {
@@ -53,33 +54,33 @@ private:
             parseState->unlock(z);
             break;
         case INVOKE_ADDRESSING:
-            addrCtx(parseState);
+            addrCtx = ZscriptAddressingContext<ZP>(parseState);
             if (addrCtx.verify()) {
-                z->getModuleRegistry()->execute(addrCtx);
+                ModuleRegistry<ZP>::execute(addrCtx);
             }
             break;
         case ADDRESSING_MOVEALONG:
-            addrCtx(parseState);
-            z->getModuleRegistry()->moveAlong(addrCtx);
+            addrCtx = ZscriptAddressingContext<ZP>(parseState);
+            ModuleRegistry<ZP>::moveAlong(addrCtx);
             break;
         case RUN_FIRST_COMMAND:
             startResponse(out, (uint8_t) 0);
-            // fall though
+            // falls through
         case RUN_COMMAND:
             if (type == ActionType::RUN_COMMAND) {
                 sendNormalMarkerPrefix(out);
             }
-            cmdCtx(z, parseState, out);
+            cmdCtx = ZscriptCommandContext<ZP>(z, parseState, out);
             if (cmdCtx.verify()) {
-                z->getModuleRegistry()->execute(cmdCtx);
+                ModuleRegistry<ZP>::execute(cmdCtx);
             }
             if (cmdCtx.isCommandComplete() && !parseState->hasSentStatus()) {
                 cmdCtx.status(ResponseStatus::SUCCESS);
             }
             break;
         case COMMAND_MOVEALONG:
-            cmdCtx(z, parseState, out);
-            z->getModuleRegistry()->moveAlong(cmdCtx);
+            cmdCtx = ZscriptCommandContext<ZP>(z, parseState, out);
+            ModuleRegistry<ZP>::moveAlong(cmdCtx);
             if (cmdCtx.isCommandComplete() && !parseState->hasSentStatus()) {
                 cmdCtx.status(ResponseStatus::SUCCESS);
             }

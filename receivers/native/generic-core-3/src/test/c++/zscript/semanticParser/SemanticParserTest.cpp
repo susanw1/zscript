@@ -7,7 +7,8 @@
 
 #include <iostream>
 #include "../../../../main/c++/zscript/semanticParser/SemanticParser.hpp"
-#include "../../../../main/c++/zscript/ZscriptTokenizer.hpp"
+#include "../../../../main/c++/zscript/tokenizer/ZscriptTokenizer.hpp"
+#include "../../../../main/c++/zscript/Zscript.hpp"
 #include "BufferOutStream.hpp"
 namespace Zscript {
 namespace GenericCore {
@@ -70,7 +71,7 @@ class SemanticParserTest {
 
     void checkActionType(SemanticParserAction<zp> a, ActionType t) {
         if (a.getType() != t) {
-            std::cerr << "Bad action type\n";
+            std::cerr << "Bad action type: \nExpected: " << t << "\nActual: " << a.getType() << "\n";
             throw 0;
         }
     }

@@ -8,7 +8,7 @@
 #ifndef SRC_TEST_C___ZSCRIPT_SEMANTICPARSER_PARSERACTIONTESTER_HPP_
 #define SRC_TEST_C___ZSCRIPT_SEMANTICPARSER_PARSERACTIONTESTER_HPP_
 #include <iostream>
-#include "../../../../main/c++/zscript/ZscriptTokenizer.hpp"
+#include "../../../../main/c++/zscript/tokenizer/ZscriptTokenizer.hpp"
 #include "../../../../main/c++/zscript/Zscript.hpp"
 #include "../../../../main/c++/zscript/semanticParser/SemanticParser.hpp"
 #include "BufferOutStream.hpp"

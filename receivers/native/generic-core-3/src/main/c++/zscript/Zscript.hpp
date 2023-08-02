@@ -9,8 +9,8 @@
 #define SRC_MAIN_C___ZSCRIPT_ZSCRIPT_HPP_
 
 #include "ZscriptIncludes.hpp"
-#include "LockSet.hpp"
-#include "LockSystem.hpp"
+#include "execution/LockSet.hpp"
+#include "execution/LockSystem.hpp"
 
 namespace Zscript {
 
