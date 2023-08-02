@@ -100,7 +100,7 @@ public:
         }
 
         SemanticParserAction<ZP> action = parser->getAction();
-        std::cout << "  Received action: actionType=" << action << " (expected=" << expectedActionType << "); state=" << parser->getState() << "\n";
+//        std::cout << "  Received action: actionType=" << action.getType() << " (expected=" << expectedActionType << "); state=" << parser->getState() << "\n";
         if (expectedActionType != INVALID) {
             if (action.getType() != expectedActionType) {
                 std::cerr << "Action type does not match\nExpected: " << expectedActionType << "\nActual: " << action.getType() << "\n";
@@ -109,7 +109,7 @@ public:
         }
 
         action.performAction(zscript, outStream);
-        std::cout << "   - After execute action: state=" << parser->getState() << "\n";
+//        std::cout << "   - After execute action: state=" << parser->getState() << "\n";
         if (parser->getState() != endState) {
             std::cerr << "End state does not match\nExpected: " << endState << "\nActual: " << parser->getState() << "\n";
             return false;
