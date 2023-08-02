@@ -68,11 +68,11 @@ public interface ZscriptDataModel {
 
         @JsonManagedReference
         @JsonProperty(required = true)
-        List<RequestParamModel> getRequestParams();
+        List<RequestFieldModel> getRequestFields();
 
         @JsonManagedReference
         @JsonProperty(required = true)
-        List<ResponseParamModel> getResponseParams();
+        List<ResponseFieldModel> getResponseFields();
 
         @JsonManagedReference
         List<StatusModel> getStatus();
@@ -82,7 +82,7 @@ public interface ZscriptDataModel {
         }
     }
 
-    enum ParamType {
+    enum FieldType {
         bitset,
         number,
         flag,
@@ -134,11 +134,11 @@ public interface ZscriptDataModel {
     interface CustomTypeDefinition extends TypeDefinition {
     }
 
-    interface GenericParam {
+    interface GenericField {
         @JsonBackReference
         CommandModel getCommand();
 
-        char getLabel();
+        char getKey();
 
         String getName();
 
@@ -149,10 +149,10 @@ public interface ZscriptDataModel {
         boolean isRequired();
     }
 
-    interface RequestParamModel extends GenericParam {
+    interface RequestFieldModel extends GenericField {
     }
 
-    interface ResponseParamModel extends GenericParam {
+    interface ResponseFieldModel extends GenericField {
     }
 
     interface StatusModel {

@@ -56,10 +56,12 @@ Semantic parser (Java version) is done, and we've ported the tokenizer to C++. I
 
 2023-07-14
 ---
-Decided to distinguish three types of boolean-like values: `flags` `booleans` and `tri-states`. 
+Working on what _required_ and _not required_ means for boolean fields. Decided to distinguish three types of boolean-like values: `flags`, `booleans` and `tri-states`. 
 - A `flag` is either not present or present. 
 - A `boolean` is either zero (false) or non-zero (true)
-- A `tri-state` is not present, zero, or non-zero
+- A `tri-state` is not present, zero, or non-zero (so, like an optional boolean).
+
+This is annoying, because if fields `A`,`B`,`C` are flag,boolean,tri-state respectively, then these are all false: `BC` and these are all true: `AB1C1` - that is, a _flag_ when set looks like a _boolean_ false.
 
 2023-07
 ---

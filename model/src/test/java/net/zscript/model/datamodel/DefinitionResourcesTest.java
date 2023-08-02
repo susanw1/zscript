@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 
-import net.zscript.model.datamodel.DefinitionResources;
 import net.zscript.model.datamodel.DefinitionResources.ModuleBankDef;
 
 public class DefinitionResourcesTest {

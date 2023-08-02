@@ -14,8 +14,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 
-import net.zscript.model.datamodel.IntrinsicsDataModel;
-
 public class IntrinsicsTest {
     private JsonMapper jsonMapper;
 
@@ -33,8 +31,8 @@ public class IntrinsicsTest {
         final InputStream   resourceStream = requireNonNull(getClass().getResourceAsStream("/intrinsics.yaml"), "resourceStream");
         IntrinsicsDataModel model          = jsonMapper.readValue(resourceStream, IntrinsicsDataModel.class);
 
-        assertThat(model.getIntrinsics().getRequestParams()).hasSize(2);
-        assertThat(model.getIntrinsics().getResponseParams()).hasSize(2);
+        assertThat(model.getIntrinsics().getRequestFields()).hasSize(1);
+        assertThat(model.getIntrinsics().getResponseFields()).hasSize(1);
         assertThat(model.getIntrinsics().getStatus()).hasSize(32);
     }
 }

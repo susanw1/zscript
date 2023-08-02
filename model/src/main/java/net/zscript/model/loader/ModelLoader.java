@@ -20,7 +20,7 @@ import net.zscript.model.datamodel.DefinitionResources.ModuleBankDef;
 import net.zscript.model.datamodel.IntrinsicsDataModel;
 import net.zscript.model.datamodel.ZscriptDataModel;
 import net.zscript.model.datamodel.ZscriptDataModel.CommandModel;
-import net.zscript.model.datamodel.ZscriptDataModel.GenericParam;
+import net.zscript.model.datamodel.ZscriptDataModel.GenericField;
 import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
 
 public class ModelLoader {
@@ -77,10 +77,10 @@ public class ModelLoader {
                     moduleBank.add(mm);
 
                     for (CommandModel c : mm.getCommands()) {
-                        addIntrinsicIfRequired(requireNonNull(c.getRequestParams(), () -> c.getName() + ": requestParams null"),
-                                intrinsicsDataModel.getIntrinsics().getRequestParams());
-                        addIntrinsicIfRequired(requireNonNull(c.getResponseParams(), () -> c.getName() + ": responseParams null"),
-                                intrinsicsDataModel.getIntrinsics().getResponseParams());
+                        addIntrinsicIfRequired(requireNonNull(c.getRequestFields(), () -> c.getName() + ": requestFields null"),
+                                intrinsicsDataModel.getIntrinsics().getRequestFields());
+                        addIntrinsicIfRequired(requireNonNull(c.getResponseFields(), () -> c.getName() + ": responseFields null"),
+                                intrinsicsDataModel.getIntrinsics().getResponseFields());
                     }
                 }
             }
@@ -90,14 +90,14 @@ public class ModelLoader {
         return this;
     }
 
-    private <P extends GenericParam> void addIntrinsicIfRequired(List<P> commandParams, List<P> intrinsics) {
-        for (P intrinsicParam : intrinsics) {
-            for (P p : commandParams) {
-                if (intrinsicParam.getLabel() == p.getLabel()) {
+    private <P extends GenericField> void addIntrinsicIfRequired(List<P> commandFields, List<P> intrinsics) {
+        for (P intrinsicField : intrinsics) {
+            for (P p : commandFields) {
+                if (intrinsicField.getKey() == p.getKey()) {
                     return;
                 }
             }
-            commandParams.add(intrinsicParam);
+            commandFields.add(intrinsicField);
         }
     }
 

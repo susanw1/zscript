@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 
-import net.zscript.model.datamodel.ZscriptDataModel;
-
 public class ModuleTest {
     private JsonMapper jsonMapper;
 
@@ -35,7 +33,7 @@ public class ModuleTest {
             "005x-i2c.yaml,         I2C"
     })
     public void shouldLoad_000x(String module, String expectedName) throws IOException {
-        InputStream    resourceStream = requireNonNull(getClass().getResourceAsStream("/datamodel/00xx-base-modules/" + module), "resourceStream");
+        InputStream      resourceStream = requireNonNull(getClass().getResourceAsStream("/datamodel/00xx-base-modules/" + module), "resourceStream");
         ZscriptDataModel model          = jsonMapper.readValue(resourceStream, ZscriptDataModel.class);
 
         assertThat(model.getModules().get(0).getName()).isEqualTo(expectedName);
