@@ -69,9 +69,9 @@ public:
 
         SemanticParserAction<ZP> a1;
         while ((a1 = parser->getAction()).getType() != ActionType::WAIT_FOR_TOKENS) {
-            std::cout << "  Received action: actionType=" << a1 << "; state=" << parser->getState() << "\n";
+//            std::cout << "  Received action: actionType=" << a1.getType() << "; state=" << parser->getState() << "\n";
             a1.performAction(zscript, outStream);
-            std::cout << "   - After execute action: state=" << parser->getState() << "\n";
+//            std::cout << "   - After execute action: state=" << parser->getState() << "\n";
         }
         DataArrayWLeng16 result = outStream->getData();
 

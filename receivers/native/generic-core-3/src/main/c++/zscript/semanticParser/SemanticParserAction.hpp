@@ -137,6 +137,9 @@ public:
     SemanticParserAction(ActionType type, SemanticParser<ZP> *parseState) :
             parseState(parseState), type(type) {
     }
+    SemanticParserAction() :
+            parseState(NULL), type(INVALID) {
+    }
 
     bool isEmptyAction() {
         return type == ActionType::GO_AROUND || type == ActionType::WAIT_FOR_TOKENS || type == ActionType::WAIT_FOR_ASYNC;
