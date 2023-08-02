@@ -31,6 +31,7 @@ class ZscriptAddressingContext {
 public:
     ZscriptAddressingContext(GenericCore::SemanticParser<ZP> *parseState) :
             parseState(parseState) {
+        commandComplete();
     }
     ZscriptAddressingContext() :
             parseState(NULL) {

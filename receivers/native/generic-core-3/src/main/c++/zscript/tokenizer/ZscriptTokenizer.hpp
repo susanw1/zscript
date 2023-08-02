@@ -76,10 +76,10 @@ private:
                 buffer->W_continueTokenNibble(hex);
                 escapingCount--;
             }
-        } else if (isNormalString && b == Zchars::BIGFIELD_QUOTE_MARKER) {
+        } else if (isNormalString && b == Zchars::Z_BIGFIELD_QUOTED) {
             buffer->W_endToken();
             isText = false;
-        } else if (isNormalString && b == Zchars::STRING_ESCAPE_SYMBOL) {
+        } else if (isNormalString && b == Zchars::Z_STRING_ESCAPE) {
             escapingCount = 2;
         } else {
             buffer->W_continueTokenByte(b);
@@ -151,7 +151,7 @@ private:
             }
             return;
         }
-        if (b == Zchars::BIGFIELD_QUOTE_MARKER) {
+        if (b == Zchars::Z_BIGFIELD_QUOTED) {
             isText = true;
             isNormalString = true;
             escapingCount = 0;
@@ -243,7 +243,7 @@ public:
         }
 
         // Check big field odd length
-        if (!numeric && buffer->W_getCurrentWriteTokenKey() == Zchars::BIGFIELD_PREFIX_MARKER && buffer->W_isInNibble()) {
+        if (!numeric && buffer->W_getCurrentWriteTokenKey() == Zchars::Z_BIGFIELD_HEX && buffer->W_isInNibble()) {
             buffer->W_fail(ERROR_CODE_ODD_BIGFIELD_LENGTH);
             tokenizerError = true;
             if (b == Zchars::EOL_SYMBOL) {

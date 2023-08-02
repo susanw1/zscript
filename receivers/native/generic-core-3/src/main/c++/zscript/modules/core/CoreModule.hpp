@@ -12,6 +12,9 @@
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../ZscriptModule.hpp"
 
+#include "ActivateCommand.hpp"
+#include "EchoCommand.hpp"
+
 #define MODULE_EXISTS_000 EXISTENCE_MARKER_UTIL
 #define MODULE_SWITCH_000 MODULE_SWITCH_UTIL(ZcodeCoreModule<ZP>::execute)
 
@@ -29,6 +32,12 @@ public:
         switch (bottomBits) {
         case 0x0:
             CapabilitiesCommand<ZP>::execute(ctx);
+            break;
+        case 0x1:
+            EchoCommand<ZP>::execute(ctx);
+            break;
+        case 0x2:
+            ActivateCommand<ZP>::execute(ctx);
             break;
         default:
             ctx.status(ResponseStatus::COMMAND_NOT_FOUND);

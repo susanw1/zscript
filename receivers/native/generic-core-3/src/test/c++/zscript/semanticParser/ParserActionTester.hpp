@@ -18,19 +18,19 @@ namespace GenericCore {
 
 template<class ZP>
 class ParserActionTester {
-    Zscript<ZP> *zcode;
+    Zscript<ZP> *zscript;
     TokenRingBuffer<ZP> *buffer;
     ZscriptTokenizer<ZP> *tokenizer;
     SemanticParser<ZP> *parser;
     BufferOutStream<ZP> *outStream;
 
 public:
-    ParserActionTester(Zscript<ZP> *zcode,
+    ParserActionTester(Zscript<ZP> *zscript,
             TokenRingBuffer<ZP> *buffer,
             ZscriptTokenizer<ZP> *tokenizer,
             SemanticParser<ZP> *parser,
             BufferOutStream<ZP> *outStream) :
-            zcode(zcode), buffer(buffer), tokenizer(tokenizer), parser(parser), outStream(outStream) {
+            zscript(zscript), buffer(buffer), tokenizer(tokenizer), parser(parser), outStream(outStream) {
     }
 
     bool parseSnippet(const char *text, ActionType *actionTypes, uint16_t actionTypeCount) {
@@ -40,17 +40,17 @@ public:
         }
         for (uint16_t i = 0; i < actionTypeCount; ++i) {
             ActionType t = actionTypes[i];
-            std::cout << "Expecting actionType=" << t << "\n";
+//            std::cout << "Expecting actionType=" << t << "\n";
             SemanticParserAction<ZP> action = parser->getAction();
 
-            std::cout << "  Received action: actionType=" << action.getType() << "; state=" << parser->getState();
+//            std::cout << "  Received action: actionType=" << action.getType() << "; state=" << parser->getState();
             if (action.getType() != t) {
                 std::cerr << "Action type does not match\nExpected: " << t << "\nActual: " << action.getType() << "\n";
                 return false;
             }
-            action.performAction(zcode, outStream);
+            action.performAction(zscript, outStream);
 
-            std::cout << "   - After execute action: state=" + parser->getState() << "\n";
+//            std::cout << "   - After execute action: state=" + parser->getState() << "\n";
         }
         return true;
 
@@ -70,7 +70,7 @@ public:
         SemanticParserAction<ZP> a1;
         while ((a1 = parser->getAction()).getType() != ActionType::WAIT_FOR_TOKENS) {
             std::cout << "  Received action: actionType=" << a1 << "; state=" << parser->getState() << "\n";
-            a1.performAction(zcode, outStream);
+            a1.performAction(zscript, outStream);
             std::cout << "   - After execute action: state=" << parser->getState() << "\n";
         }
         DataArrayWLeng16 result = outStream->getData();
@@ -108,7 +108,7 @@ public:
             }
         }
 
-        action.performAction(zcode, outStream);
+        action.performAction(zscript, outStream);
         std::cout << "   - After execute action: state=" << parser->getState() << "\n";
         if (parser->getState() != endState) {
             std::cerr << "End state does not match\nExpected: " << endState << "\nActual: " << parser->getState() << "\n";

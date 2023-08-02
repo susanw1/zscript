@@ -667,6 +667,10 @@ public:
         return channelIndex;
     }
 
+    bool isEmpty() {
+        return buffer->R_getFirstReadToken().isMarker(buffer);
+    }
+
 };
 
 }

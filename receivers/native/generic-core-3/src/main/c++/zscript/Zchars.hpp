@@ -19,10 +19,10 @@ enum Zchars {
     OPEN_PAREN_SYMBOL = '(',
     CLOSE_PAREN_SYMBOL = ')',
     EOL_SYMBOL = '\n',
-    STRING_ESCAPE_SYMBOL = '=',
+    Z_STRING_ESCAPE = '=',
 
-    BIGFIELD_PREFIX_MARKER = '+',
-    BIGFIELD_QUOTE_MARKER = '"',
+    Z_BIGFIELD_HEX = '+',
+    Z_BIGFIELD_QUOTED = '"',
 
     Z_ECHO = '_',
     Z_LOCKS = '%',
@@ -54,16 +54,20 @@ public:
         return b == ' ' || b == '\r' || b == '\t' || b == ',' || b == '\0';
     }
 
+    static bool needsStringEscape(uint8_t b) {
+        return b == EOL_SYMBOL || b == Z_BIGFIELD_QUOTED || b == Z_STRING_ESCAPE || b == '\0';
+    }
+
     static bool isSeparator(uint8_t b) {
         return b == EOL_SYMBOL || b == ANDTHEN_SYMBOL || b == ORELSE_SYMBOL || b == OPEN_PAREN_SYMBOL || b == CLOSE_PAREN_SYMBOL;
     }
 
     static bool isNonNumerical(uint8_t b) {
-        return b == Z_LOCKS || b == BIGFIELD_PREFIX_MARKER || b == BIGFIELD_QUOTE_MARKER || b == Z_COMMENT;
+        return b == Z_LOCKS || b == Z_BIGFIELD_HEX || b == Z_BIGFIELD_QUOTED || b == Z_COMMENT;
     }
 
     static bool isBigField(uint8_t b) {
-        return b == BIGFIELD_PREFIX_MARKER || b == BIGFIELD_QUOTE_MARKER;
+        return b == Z_BIGFIELD_HEX || b == Z_BIGFIELD_QUOTED;
     }
 
     static bool isNumericKey(uint8_t b) {

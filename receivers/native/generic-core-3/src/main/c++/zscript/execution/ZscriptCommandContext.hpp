@@ -87,9 +87,14 @@ public:
     }
 
 };
-
+namespace GenericCore {
+template<class ZP>
+class EchoCommand;
+}
 template<class ZP>
 class ZscriptCommandContext {
+    friend class GenericCore::EchoCommand<ZP>;
+
     Zscript<ZP> *zscript;
     GenericCore::SemanticParser<ZP> *parseState;
     AbstractOutStream<ZP> *out;
@@ -101,6 +106,7 @@ class ZscriptCommandContext {
 public:
     ZscriptCommandContext(Zscript<ZP> *zscript, GenericCore::SemanticParser<ZP> *parseState, AbstractOutStream<ZP> *out) :
             zscript(zscript), parseState(parseState), out(out) {
+        commandComplete();
     }
     ZscriptCommandContext() :
             zscript(NULL), parseState(NULL), out(NULL) {
@@ -137,7 +143,7 @@ public:
         GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getBuffer();
         CommandTokenIterator<ZP> iterator = iteratorToMarker();
         for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
-            if (ZcharsUtils<ZP>::isNumericKey(opt.get().getKey())) {
+            if (ZcharsUtils<ZP>::isNumericKey(opt.token.getKey())) {
                 count++;
             }
         }
@@ -162,8 +168,12 @@ public:
         return size;
     }
 
-    void status(uint8_t status) {
-        parseState->setStatus(status);
+    void status(uint16_t status) {
+        if (status > 0xff) {
+            parseState->setStatus(0xff);
+        } else {
+            parseState->setStatus((uint8_t) status);
+        }
         out->writeField(Zchars::Z_STATUS, status);
     }
 

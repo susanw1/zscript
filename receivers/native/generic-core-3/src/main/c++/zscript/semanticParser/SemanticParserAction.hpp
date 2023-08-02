@@ -72,10 +72,12 @@ private:
             }
             cmdCtx = ZscriptCommandContext<ZP>(z, parseState, out);
             if (cmdCtx.verify()) {
-                ModuleRegistry<ZP>::execute(cmdCtx);
-            }
-            if (cmdCtx.isCommandComplete() && !parseState->hasSentStatus()) {
-                cmdCtx.status(ResponseStatus::SUCCESS);
+                if (!parseState->isEmpty()) {
+                    ModuleRegistry<ZP>::execute(cmdCtx);
+                    if (cmdCtx.isCommandComplete()) {
+                        cmdCtx.status(ResponseStatus::SUCCESS);
+                    }
+                }
             }
             break;
         case COMMAND_MOVEALONG:
@@ -153,10 +155,13 @@ public:
         return parseState->lock(z);
     }
 
-    ActionType getType() {
+    ActionType
+    getType()
+    {
         return type;
     }
-};
+}
+;
 }
 }
 
