@@ -118,15 +118,15 @@ private:
     void sendNormalMarkerPrefix(AbstractOutStream<ZP> *out) {
         uint8_t marker = parseState->takeCurrentMarker();
         if (marker != 0) {
-            if (marker == ZscriptTokenizer < ZP > ::CMD_END_ANDTHEN) {
+            if (marker == ZscriptTokenizer<ZP>::CMD_END_ANDTHEN) {
                 out->writeAndThen();
-            } else if (marker == ZscriptTokenizer < ZP > ::CMD_END_ORELSE) {
+            } else if (marker == ZscriptTokenizer<ZP>::CMD_END_ORELSE) {
                 out->writeOrElse();
-            } else if (marker == ZscriptTokenizer < ZP > ::CMD_END_OPEN_PAREN) {
+            } else if (marker == ZscriptTokenizer<ZP>::CMD_END_OPEN_PAREN) {
                 out->writeOpenParen();
-            } else if (marker == ZscriptTokenizer < ZP > ::CMD_END_CLOSE_PAREN) {
+            } else if (marker == ZscriptTokenizer<ZP>::CMD_END_CLOSE_PAREN) {
                 out->writeCloseParen();
-            } else if (marker == ZscriptTokenizer < ZP > ::NORMAL_SEQUENCE_END) {
+            } else if (marker == ZscriptTokenizer<ZP>::NORMAL_SEQUENCE_END) {
             } else {
                 //unreachable
             }

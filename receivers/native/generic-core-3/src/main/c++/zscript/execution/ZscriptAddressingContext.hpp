@@ -12,6 +12,7 @@
 #include "../AbstractOutStream.hpp"
 #include "../Zchars.hpp"
 #include "../tokenizer/TokenRingBuffer.hpp"
+#include "../tokenizer/ZscriptTokenizer.hpp"
 
 namespace Zscript {
 template<class ZP>
@@ -23,6 +24,30 @@ namespace GenericCore {
 template<class ZP>
 class SemanticParser;
 }
+
+template<class ZP>
+class AddressOptIterator {
+    GenericCore::TokenRingBuffer<ZP> *buffer;
+    GenericCore::RingBufferTokenIterator<ZP> iterator;
+
+public:
+    AddressOptIterator(GenericCore::TokenRingBuffer<ZP> *buffer) :
+            buffer(buffer), iterator(buffer->R_iterator()) {
+
+    }
+
+    OptInt16 next() {
+        GenericCore::OptionalRingBufferToken<ZP> rbt = iterator.next(buffer);
+        if (!rbt.isPresent) {
+            return {0, false};
+        }
+        uint8_t key = rbt.token.getKey(buffer);
+        if (key != Zchars::Z_ADDRESSING && key != Zchars::Z_ADDRESSING_CONTINUE) {
+            return {0, false};
+        }
+        return {rbt.token.getData16(buffer), true};
+    }
+};
 
 template<class ZP>
 class ZscriptAddressingContext {
@@ -42,36 +67,14 @@ public:
         GenericCore::RingBufferTokenIterator<ZP> iterator = buffer->R_iterator();
         for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
             GenericCore::RingBufferToken<ZP> token = opt.token;
-            if (token.getKey(buffer) == ZscriptTokenizer < ZP > ::ADDRESSING_FIELD_KEY) {
+            if (token.getKey(buffer) == ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
                 return CombinedTokenBlockIterator<ZP>(buffer, token.blockIterator(buffer));
             }
         }
     }
 
-    class AddressOptIterator {
-        GenericCore::TokenRingBuffer<ZP> *buffer;
-        GenericCore::RingBufferTokenIterator<ZP> iterator;
-
-    public:
-        AddressOptIterator(GenericCore::TokenRingBuffer<ZP> *buffer) :
-                buffer(buffer), iterator(buffer->R_iterator()) {
-
-        }
-
-        OptInt16 next() {
-            GenericCore::OptionalRingBufferToken<ZP> rbt = iterator.next(buffer);
-            if (!rbt.isPresent) {
-                return {0, false};
-            }
-            uint8_t key = rbt.token.getKey(buffer);
-            if (key == Zchars::Z_ADDRESSING || key == Zchars::Z_ADDRESSING_CONTINUE) {
-                return {0, false};
-            }
-            return {rbt.token.getData16(buffer), true};
-        }
-    };
-    AddressOptIterator getAddressSegments() {
-        return AddressOptIterator(parseState->getBuffer());
+    AddressOptIterator<ZP> getAddressSegments() {
+        return AddressOptIterator<ZP>(parseState->getBuffer());
     }
 
     uint16_t getAddressedDataSize() {
@@ -79,7 +82,7 @@ public:
         GenericCore::RingBufferTokenIterator<ZP> iterator = buffer->R_iterator();
         for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
             GenericCore::RingBufferToken<ZP> token = opt.token;
-            if (token.getKey(buffer) == ZscriptTokenizer < ZP > ::ADDRESSING_FIELD_KEY) {
+            if (token.getKey(buffer) == ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
                 return token.getDataSize(buffer);
             }
         }
@@ -105,7 +108,7 @@ public:
             if (token.getKey(buffer) == Zchars::Z_ADDRESSING || token.getKey(buffer) == Zchars::Z_ADDRESSING_CONTINUE) {
                 continue;
             }
-            if (token.getKey(buffer) != ZscriptTokenizer < ZP > ::ADDRESSING_FIELD_KEY) {
+            if (token.getKey(buffer) != ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
                 status(ResponseStatus::INVALID_KEY);
                 return false;
             }
@@ -137,6 +140,10 @@ public:
 
     bool isActivated() {
         return parseState->isActivated();
+    }
+
+    AsyncActionNotifier<ZP> getAsyncActionNotifier() {
+        return parseState->getAsyncActionNotifier();
     }
 };
 }

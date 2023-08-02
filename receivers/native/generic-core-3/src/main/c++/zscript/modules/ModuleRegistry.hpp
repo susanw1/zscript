@@ -86,6 +86,7 @@ public:
             return;
         }
         uint16_t addr = ctx.getAddressSegments().next().value;
+
         bool moveAlong = false;
         (void) moveAlong;
         (void) addr;

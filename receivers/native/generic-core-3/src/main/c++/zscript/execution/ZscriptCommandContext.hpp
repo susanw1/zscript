@@ -19,6 +19,22 @@ template<class ZP>
 class SemanticParser;
 }
 template<class ZP>
+class AsyncActionNotifier {
+    GenericCore::SemanticParser<ZP> *parser;
+
+public:
+    AsyncActionNotifier(GenericCore::SemanticParser<ZP> *parser) :
+            parser(parser) {
+    }
+    AsyncActionNotifier() :
+            parser(NULL) {
+    }
+
+    void notifyNeedsAction() {
+        parser->notifyNeedsAction();
+    }
+};
+template<class ZP>
 class Zscript;
 template<class ZP>
 class AbstractOutStream;
@@ -243,6 +259,11 @@ public:
     bool isActivated() {
         return parseState->isActivated();
     }
+
+    AsyncActionNotifier<ZP> getAsyncActionNotifier() {
+        return parseState->getAsyncActionNotifier();
+    }
+
 };
 }
 #endif /* SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTCOMMANDCONTEXT_HPP_ */

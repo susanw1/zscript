@@ -18,6 +18,7 @@
 
 namespace Zscript {
 namespace GenericCore {
+
 enum State {
     PRESEQUENCE,
     ADDRESSING_INCOMPLETE,
@@ -276,7 +277,7 @@ private:
             if (state == PRESEQUENCE) {
                 // expecting buffer to be pointing at first token after lock/echo preamble.
                 if (buffer->R_getFirstReadToken().getKey(buffer) == Zchars::Z_ADDRESSING) {
-                    state = COMMAND_INCOMPLETE;
+                    state = ADDRESSING_INCOMPLETE;
                     return INVOKE_ADDRESSING;
                 }
                 // Until first command is run (and starts presuming it will complete), assert that the command state is INcomplete
@@ -295,6 +296,7 @@ private:
 
         case ADDRESSING_COMPLETE:
             state = SEQUENCE_SKIP;
+            skipSequence();
             return END_SEQUENCE;
 
         case COMMAND_INCOMPLETE:
@@ -670,7 +672,9 @@ public:
     bool isEmpty() {
         return buffer->R_getFirstReadToken().isMarker(buffer);
     }
-
+    AsyncActionNotifier<ZP> getAsyncActionNotifier() {
+        return AsyncActionNotifier<ZP>(this);
+    }
 };
 
 }

@@ -79,6 +79,11 @@
                             <link>static</link>
                             <run>true</run>
                         </test>
+                        <test>
+                            <name>SemanticParserAsyncCommandTest</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
                     </tests>
                 </configuration>
             </plugin>
