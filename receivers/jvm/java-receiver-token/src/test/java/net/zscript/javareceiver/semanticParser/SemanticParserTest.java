@@ -21,11 +21,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import net.zscript.javareceiver.core.StringWriterOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
-import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
-import net.zscript.javareceiver.semanticParser.SemanticParser;
-import net.zscript.javareceiver.semanticParser.SemanticAction;
-import net.zscript.javareceiver.semanticParser.SemanticParser.State;
 import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
+import net.zscript.javareceiver.semanticParser.SemanticParser.State;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
@@ -95,7 +92,7 @@ class SemanticParserTest {
 
         final SemanticAction a2 = parser.getAction();
         assertThat(a2.getType()).isEqualTo(RUN_COMMAND);
-//        assertThat(a2.getInfo()).isEqualTo(ZcodeTokenizer.CMD_END_ANDTHEN);
+//        assertThat(a2.getInfo()).isEqualTo(ZscriptTokenizer.CMD_END_ANDTHEN);
         a2.performAction(zscript, outStream);
         assertThat(outStream.getStringAndReset()).isEqualTo("&BS");
         assertThat(parser.getState()).isEqualTo(State.COMMAND_COMPLETE);

@@ -1,4 +1,4 @@
-package net.zscript.javaclient.zcodeApiAttempt;
+package net.zscript.javaclient.zscriptapiattempt;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;

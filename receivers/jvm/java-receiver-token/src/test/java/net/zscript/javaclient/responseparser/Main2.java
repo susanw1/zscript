@@ -1,15 +1,12 @@
-package net.zscript.javaclient.responseParser;
+package net.zscript.javaclient.responseparser;
 
-import net.zscript.javaclient.responseParser.ZscriptAddress;
-import net.zscript.javaclient.responseParser.CommandResponseQueue;
-import net.zscript.javaclient.responseParser.CommandResponseSystem;
-import net.zscript.javaclient.zcodeApiAttempt.DemoActivateCommandBuilder;
-import net.zscript.javaclient.zcodeApiAttempt.DemoCapabilitiesCommandBuilder;
+import net.zscript.javaclient.zscriptapiattempt.DemoActivateCommandBuilder;
+import net.zscript.javaclient.zscriptapiattempt.DemoCapabilitiesCommandBuilder;
 
 public class Main2 {
     public static void main(String[] args) {
-        CommandResponseSystem zcodeOut = new CommandResponseQueue(new LocalZscriptConnection());
-        zcodeOut.send(new DemoCapabilitiesCommandBuilder()
+        CommandResponseSystem zscriptOut = new CommandResponseQueue(new LocalZscriptConnection());
+        zscriptOut.send(new DemoCapabilitiesCommandBuilder()
                 .setVersionType(DemoCapabilitiesCommandBuilder.PLATFORM_FIRMWARE)
                 .addResponseListener(r -> System.out.println(r.getName()))
                 .build()
@@ -19,9 +16,9 @@ public class Main2 {
                 .andThen(new DemoActivateCommandBuilder()
                         .addResponseListener(r -> System.out.println(r.alreadyActivated()))
                         .build()));
-        CommandResponseSystem zcodeOutAddr = new CommandResponseQueue(
-                zcodeOut.getResponseAddressingSystem().getAddressConnection(ZscriptAddress.from(0x50, 0x0, 0x1)));
-        zcodeOutAddr.send(new DemoCapabilitiesCommandBuilder()
+        CommandResponseSystem zscriptOutAddr = new CommandResponseQueue(
+                zscriptOut.getResponseAddressingSystem().getAddressConnection(ZscriptAddress.from(0x50, 0x0, 0x1)));
+        zscriptOutAddr.send(new DemoCapabilitiesCommandBuilder()
                 .setVersionType(DemoCapabilitiesCommandBuilder.PLATFORM_FIRMWARE)
                 .addResponseListener(r -> System.out.println(r.getName()))
                 .build());

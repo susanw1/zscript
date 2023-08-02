@@ -1,4 +1,4 @@
-package net.zscript.javaclient.zcodeApi;
+package net.zscript.javaclient.zscriptapi;
 
 public abstract class CommandSeqElement {
     protected CommandSeqElement parent = null;

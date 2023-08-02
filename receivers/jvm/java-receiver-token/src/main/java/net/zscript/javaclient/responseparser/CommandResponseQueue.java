@@ -1,4 +1,4 @@
-package net.zscript.javaclient.responseParser;
+package net.zscript.javaclient.responseparser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -8,9 +8,9 @@ import java.util.Iterator;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.responseParser.ResponseParser.ResponseHeader;
-import net.zscript.javaclient.zcodeApi.CommandSeqElement;
-import net.zscript.javaclient.zcodeApi.ZscriptCommandBuilder;
+import net.zscript.javaclient.responseparser.ResponseParser.ResponseHeader;
+import net.zscript.javaclient.zscriptapi.CommandSeqElement;
+import net.zscript.javaclient.zscriptapi.ZscriptCommandBuilder;
 
 public class CommandResponseQueue implements CommandResponseSystem {
     private static final int MAX_SENT = 10;
@@ -166,14 +166,14 @@ public class CommandResponseQueue implements CommandResponseSystem {
     }
 
     @Override
-    public void send(final byte[] zcode, final Consumer<byte[]> callback) {
+    public void send(final byte[] zscript, final Consumer<byte[]> callback) {
         if (sent.size() == 0) {
-            ByteArrEntry el = new ByteArrEntry(callback, zcode);
+            ByteArrEntry el = new ByteArrEntry(callback, zscript);
             sent.add(el);
             connection.send(el.compile());
             canPipeline = false;
         } else {
-            toSend.add(new ByteArrEntry(callback, zcode));
+            toSend.add(new ByteArrEntry(callback, zscript));
         }
     }
 

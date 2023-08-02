@@ -9,7 +9,7 @@ import net.zscript.javareceiver.execution.CommandContext;
 public class ZscriptChannelSetupCommand {
 
     public static void execute(CommandContext ctx) {
-        List<ZscriptChannel> chs = ctx.getZcode().getChannels();
+        List<ZscriptChannel> chs = ctx.getZscript().getChannels();
 
         int current = ctx.getChannelIndex();
         int target  = ctx.getField((byte) 'C', current);
@@ -19,7 +19,7 @@ public class ZscriptChannelSetupCommand {
         }
         chs.get(target).channelSetup(ctx);
         if (ctx.hasField((byte) 'N')) {
-            ctx.getZcode().setNotificationOutStream(ctx.getZcode().getChannels().get(target).getOutStream(ctx.getZcode()));
+            ctx.getZscript().setNotificationOutStream(ctx.getZscript().getChannels().get(target).getOutStream(ctx.getZscript()));
         }
     }
 

@@ -3,7 +3,7 @@ package net.zscript.javareceiver.core;
 import net.zscript.javareceiver.execution.ZscriptField;
 
 /**
- * Defines the operations on the response OutStream available to a command via the ZcodeCommandContext.
+ * Defines the operations on the response OutStream available to a command via the CommandContext.
  */
 public interface ZscriptCommandOutStream {
 

@@ -1,4 +1,4 @@
-package net.zscript.javaclient.responseParser;
+package net.zscript.javaclient.responseparser;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import net.zscript.javaclient.zcodeApi.CommandSeqElement;
-import net.zscript.javaclient.zcodeApi.ZscriptCommand;
-import net.zscript.javaclient.zcodeApi.ZscriptUnparsedCommandResponse;
-import net.zscript.javaclient.zcodeApi.ZscriptCommand.ZcodeSequencePath;
+import net.zscript.javaclient.zscriptapi.CommandSeqElement;
+import net.zscript.javaclient.zscriptapi.ZscriptCommand;
+import net.zscript.javaclient.zscriptapi.ZscriptUnparsedCommandResponse;
+import net.zscript.javaclient.zscriptapi.ZscriptCommand.ZscriptSequencePath;
 import net.zscript.javareceiver.tokenizer.OptIterator;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
@@ -147,8 +147,8 @@ public class ResponseParser {
 
     private static void matchMarkers(final CommandSeqElement command, final List<Byte> markers, final List<ReadToken> tokenAfterMarkers) {
         ZscriptCommand      current       = null;
-        ZcodeSequencePath successPath   = ZscriptCommand.findFirstCommand(command);
-        ZcodeSequencePath failPath      = ZscriptCommand.findFirstCommand(command);
+        ZscriptSequencePath successPath   = ZscriptCommand.findFirstCommand(command);
+        ZscriptSequencePath failPath      = ZscriptCommand.findFirstCommand(command);
         Set<ZscriptCommand> sentResponses = new HashSet<>();
 
         int offset = 0;
@@ -199,7 +199,7 @@ public class ResponseParser {
             current.response(new ZscriptUnparsedCommandResponse(tokenAfterMarkers.get(offset)));
             sentResponses.add(current);
         }
-        for (ZcodeSequencePath path = ZscriptCommand.findFirstCommand(command); path != null; path = path.getNext().findNext()) {
+        for (ZscriptSequencePath path = ZscriptCommand.findFirstCommand(command); path != null; path = path.getNext().findNext()) {
             ZscriptCommand cmd = path.getNext();
             if (!sentResponses.contains(cmd)) {
                 cmd.notExecuted();

@@ -199,7 +199,7 @@ public class CommandContext extends AbstractContext {
         contextView.activate();
     }
 
-    public Zscript getZcode() {
+    public Zscript getZscript() {
         return zscript;
     }
 

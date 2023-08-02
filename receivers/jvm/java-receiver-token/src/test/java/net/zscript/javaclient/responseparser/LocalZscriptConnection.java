@@ -1,4 +1,4 @@
-package net.zscript.javaclient.responseParser;
+package net.zscript.javaclient.responseparser;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayDeque;
@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.responseParser.ZscriptConnection;
+import net.zscript.javaclient.responseparser.ZscriptConnection;
 import net.zscript.javareceiver.core.OutputStreamOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptChannel;

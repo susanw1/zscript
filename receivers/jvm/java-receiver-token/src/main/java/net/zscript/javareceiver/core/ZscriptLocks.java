@@ -2,7 +2,7 @@ package net.zscript.javareceiver.core;
 
 public class ZscriptLocks {
     public static final int LOCK_BYTENUM = 32;
-    private final byte[]    locks      = new byte[LOCK_BYTENUM];
+    private final byte[]    locks        = new byte[LOCK_BYTENUM];
 
     public boolean lock(LockSet l) {
         if (!canLock(l)) {
