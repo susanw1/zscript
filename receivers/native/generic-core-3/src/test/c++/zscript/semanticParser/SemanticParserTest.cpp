@@ -5,7 +5,13 @@
  * SPDX-License-Identifier: MIT
  */
 
+#define COMMAND_EXISTS_0001 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_0002 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_000C EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_000D EXISTENCE_MARKER_UTIL
+
 #include <iostream>
+#include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
 #include "../../../../main/c++/zscript/semanticParser/SemanticParser.hpp"
 #include "../../../../main/c++/zscript/tokenizer/ZscriptTokenizer.hpp"
 #include "../../../../main/c++/zscript/Zscript.hpp"
@@ -41,12 +47,12 @@ class SemanticParserTest {
         }
         bool worked = true;
         if (textLen != data.length) {
-            std::cerr << "Out length doesn't match expected\n";
+            std::cerr << "Out length doesn't match expected (Exp Len: " << textLen << ", actual: " << data.length << ")\n";
             worked = false;
         } else {
             for (uint16_t i = 0; text[i] != 0; ++i) {
                 if (data.data[i] != text[i]) {
-                    std::cerr << "Out value doesn't match expected\n";
+                    std::cerr << "Out value doesn't match expected\n ";
                     worked = false;
                 }
             }
@@ -108,6 +114,7 @@ public:
 
         a2.performAction(&zscript, &outStream);
         checkAgainstOut("\n");
+        outStream.reset();
         checkParserState(PRESEQUENCE);
 
         SemanticParserAction<zp> a3 = parser.getAction();

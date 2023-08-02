@@ -10,6 +10,7 @@
 
 #include "../ZscriptIncludes.hpp"
 #include "../AbstractOutStream.hpp"
+#include "../tokenizer/TokenRingBuffer.hpp"
 
 namespace Zscript {
 
@@ -111,7 +112,7 @@ public:
         for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
             GenericCore::RingBufferToken<ZP> token = opt.token;
             if (token.getKey(buffer) == key) {
-                return {token.getData16(), true};
+                return {token.getData16(buffer), true};
             }
         }
         return {0, false};
@@ -168,6 +169,9 @@ public:
 
     bool isEmpty() {
         return parseState->getBuffer()->R_getFirstReadToken().isMarker(parseState->getBuffer());
+    }
+    AbstractOutStream<ZP>* getOutStream() {
+        return out;
     }
 
     bool verify() {

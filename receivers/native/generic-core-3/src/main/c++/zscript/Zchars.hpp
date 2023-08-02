@@ -11,7 +11,7 @@
 namespace Zscript {
 
 enum Zchars {
-    CMD_PARAM = 'Z',
+    Z_CMD = 'Z',
     Z_STATUS = 'S',
 
     ANDTHEN_SYMBOL = '&',
