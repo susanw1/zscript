@@ -8,9 +8,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.zscript.language.model.ZscriptLexer;
-import org.zscript.language.model.ZscriptParser;
-import org.zscript.language.model.ZscriptParser.SequenceContext;
+
+import net.zscript.language.model.ZscriptParser.SequenceContext;
 
 class ZscriptTest {
 
