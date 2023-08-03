@@ -11,6 +11,7 @@
 #include <iostream>
 #include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
 #include "../../../../main/c++/zscript/semanticParser/SemanticParser.hpp"
+#include "../../../../main/c++/zscript/notifications/ZscriptNotificationSource.hpp"
 #include "../../../../main/c++/zscript/tokenizer/ZscriptTokenizer.hpp"
 #include "../../../../main/c++/zscript/Zscript.hpp"
 #include "BufferOutStream.hpp"
@@ -23,6 +24,13 @@ public:
 };
 
 class SemanticParserTest {
+    static const SemanticActionType INVALID = SemanticActionType::INVALID;
+    static const SemanticActionType RUN_COMMAND = SemanticActionType::RUN_COMMAND;
+    static const SemanticActionType RUN_FIRST_COMMAND = SemanticActionType::RUN_FIRST_COMMAND;
+    static const SemanticActionType WAIT_FOR_TOKENS = SemanticActionType::WAIT_FOR_TOKENS;
+    static const SemanticActionType END_SEQUENCE = SemanticActionType::END_SEQUENCE;
+    static const SemanticActionType CLOSE_PAREN = SemanticActionType::CLOSE_PAREN;
+    static const SemanticActionType ERROR = SemanticActionType::ERROR;
     uint8_t data[256];
     TokenRingBuffer<zp> buffer;
 
@@ -74,9 +82,9 @@ class SemanticParserTest {
         }
     }
 
-    void checkActionType(SemanticParserAction<zp> a, ActionType t) {
-        if (a.getType() != t) {
-            std::cerr << "Bad action type: \nExpected: " << t << "\nActual: " << a.getType() << "\n";
+    void checkActionType(ZscriptAction<zp> a, SemanticActionType t) {
+        if ((SemanticActionType) a.getType() != t) {
+            std::cerr << "Bad action type: \nExpected: " << (uint8_t) t << "\nActual: " << (uint8_t) a.getType() << "\n";
             throw 0;
         }
     }
@@ -97,7 +105,7 @@ public:
     }
     void shouldHandleTwoEmptyCommands() {
         ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
-        ActionType types[] = { RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS };
+        SemanticActionType types[] = { RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS };
 
         parserActionTester.parseSnippet("\n \n", types, 5);
         checkAgainstOut("!\n!\n");
@@ -109,7 +117,8 @@ public:
 
     void shouldHandleSeveralEmptyCommands() {
         ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
-        ActionType types[] = { RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS };
+        SemanticActionType types[] = { RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE,
+                WAIT_FOR_TOKENS };
 
         parserActionTester.parseSnippet("\n\n \n\n", types, 9);
         checkAgainstOut("!\n!\n!\n!\n");
@@ -121,7 +130,8 @@ public:
 
     void shouldHandleSeveralBasicCommands() {
         ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
-        ActionType types[] = { RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS };
+        SemanticActionType types[] = { RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE,
+                WAIT_FOR_TOKENS };
 
         parserActionTester.parseSnippet("Z1A\nZ1B\n Z1C\nZ1D\n", types, 9);
         checkAgainstOut("!AS\n!BS\n!CS\n!DS\n");

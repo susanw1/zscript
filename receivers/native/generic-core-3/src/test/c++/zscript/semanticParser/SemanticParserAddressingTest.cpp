@@ -11,6 +11,7 @@
 #include <iostream>
 #include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
 #include "../../../../main/c++/zscript/semanticParser/SemanticParser.hpp"
+#include "../../../../main/c++/zscript/notifications/ZscriptNotificationSource.hpp"
 #include "../../../../main/c++/zscript/tokenizer/ZscriptTokenizer.hpp"
 #include "../../../../main/c++/zscript/Zscript.hpp"
 #include "BufferOutStream.hpp"
@@ -23,6 +24,15 @@ public:
 };
 
 class SemanticParserTest {
+    static const SemanticActionType INVALID = SemanticActionType::INVALID;
+    static const SemanticActionType RUN_COMMAND = SemanticActionType::RUN_COMMAND;
+    static const SemanticActionType RUN_FIRST_COMMAND = SemanticActionType::RUN_FIRST_COMMAND;
+    static const SemanticActionType WAIT_FOR_TOKENS = SemanticActionType::WAIT_FOR_TOKENS;
+    static const SemanticActionType END_SEQUENCE = SemanticActionType::END_SEQUENCE;
+    static const SemanticActionType CLOSE_PAREN = SemanticActionType::CLOSE_PAREN;
+    static const SemanticActionType ERROR = SemanticActionType::ERROR;
+    static const SemanticActionType INVOKE_ADDRESSING = SemanticActionType::INVOKE_ADDRESSING;
+
     uint8_t data[256];
     TokenRingBuffer<zp> buffer;
 
@@ -74,9 +84,9 @@ class SemanticParserTest {
         }
     }
 
-    void checkActionType(SemanticParserAction<zp> a, ActionType t) {
-        if (a.getType() != t) {
-            std::cerr << "Bad action type: \nExpected: " << t << "\nActual: " << a.getType() << "\n";
+    void checkActionType(ZscriptAction<zp> a, SemanticActionType t) {
+        if ((SemanticActionType) a.getType() != t) {
+            std::cerr << "Bad action type: \nExpected: " << (uint8_t) t << "\nActual: " << (uint8_t) a.getType() << "\n";
             throw 0;
         }
     }
@@ -87,7 +97,7 @@ public:
     }
     void shouldProduceActionForBasicAddressing() {
         ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
-        ActionType types[] = { INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS };
+        SemanticActionType types[] = { INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS };
         parserActionTester.parseSnippet("@2Z1\n", types, 3);
         checkAgainstOut("");
         if (outStream.isOpen()) {
@@ -98,7 +108,7 @@ public:
 
     void shouldAcceptAddressingWithEchoAndLocks() {
         ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
-        ActionType types[] = { INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS };
+        SemanticActionType types[] = { INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS };
         parserActionTester.parseSnippet("_2%233@2Z1\n", types, 3);
         checkAgainstOut("");
         if (outStream.isOpen()) {
@@ -109,7 +119,7 @@ public:
 
     void shouldFailInvalidAddressing() {
         ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
-        ActionType types[] = { ERROR, WAIT_FOR_TOKENS };
+        SemanticActionType types[] = { ERROR, WAIT_FOR_TOKENS };
         parserActionTester.parseSnippet("@99999Z1\n", types, 2);
         checkAgainstOut("!10S20\n");
         if (outStream.isOpen()) {
@@ -120,7 +130,7 @@ public:
 
     void shouldAcceptMultPartAddressing() {
         ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
-        ActionType types[] = { INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS };
+        SemanticActionType types[] = { INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS };
         parserActionTester.parseSnippet("@1.2.3.4.5.6.7.8.9.0.1.2.3.4.5.6.7.8.9.0Z1\n", types, 3);
         checkAgainstOut("");
         if (outStream.isOpen()) {

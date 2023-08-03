@@ -10,8 +10,8 @@
 #include "../ZscriptIncludes.hpp"
 #include "../AbstractOutStream.hpp"
 #include "../tokenizer/TokenRingBuffer.hpp"
-#include "../execution/ZscriptAddressingContext.hpp"
-#include "../execution/ZscriptCommandContext.hpp"
+#include "ZscriptAddressingContext.hpp"
+#include "ZscriptCommandContext.hpp"
 #include "../ZscriptResponseStatus.hpp"
 #include "../modules/ModuleRegistry.hpp"
 
@@ -20,8 +20,10 @@ namespace GenericCore {
 
 template<class ZP>
 class SemanticParser;
+template<class ZP>
+class ZscriptNotificationSource;
 
-enum ActionType {
+enum class SemanticActionType : uint8_t {
     INVALID,
     GO_AROUND,
     WAIT_FOR_TOKENS,
@@ -36,38 +38,50 @@ enum ActionType {
     CLOSE_PAREN
 };
 
-template<class ZP>
-class SemanticParserAction {
-private:
-    SemanticParser<ZP> *parseState;
-    ActionType type;
+enum class NotificationActionType : uint8_t {
+    INVALID,
+    WAIT_FOR_NOTIFICATION,
+    WAIT_FOR_ASYNC,
+    NOTIFICATION_BEGIN,
+    NOTIFICATION_MOVE_ALONG,
+    NOTIFICATION_END
+};
 
-    void performActionImpl(Zscript<ZP> *z, AbstractOutStream<ZP> *out) {
+template<class ZP>
+class ZscriptAction {
+private:
+    void *source;
+    uint8_t typeStored;
+    bool isSemantic;
+
+    void performActionSemantic(Zscript<ZP> *z, AbstractOutStream<ZP> *out) {
+        SemanticParser<ZP> *parseState = ((SemanticParser<ZP>*) source);
         ZscriptCommandContext<ZP> cmdCtx;
         ZscriptAddressingContext<ZP> addrCtx;
+        SemanticActionType type = (SemanticActionType) typeStored;
         switch (type) {
-        case ERROR:
+        case SemanticActionType::ERROR:
             startResponse(out, (uint8_t) 0x10);
             out->writeField('S', parseState->getErrorStatus());
             out->endSequence();
             out->close();
             parseState->unlock(z);
             break;
-        case INVOKE_ADDRESSING:
+        case SemanticActionType::INVOKE_ADDRESSING:
             addrCtx = ZscriptAddressingContext<ZP>(parseState);
             if (addrCtx.verify()) {
                 ModuleRegistry<ZP>::execute(addrCtx);
             }
             break;
-        case ADDRESSING_MOVEALONG:
+        case SemanticActionType::ADDRESSING_MOVEALONG:
             addrCtx = ZscriptAddressingContext<ZP>(parseState);
             ModuleRegistry<ZP>::moveAlong(addrCtx);
             break;
-        case RUN_FIRST_COMMAND:
+        case SemanticActionType::RUN_FIRST_COMMAND:
             startResponse(out, (uint8_t) 0);
             // falls through
-        case RUN_COMMAND:
-            if (type == ActionType::RUN_COMMAND) {
+        case SemanticActionType::RUN_COMMAND:
+            if (typeStored == (uint8_t) SemanticActionType::RUN_COMMAND) {
                 sendNormalMarkerPrefix(out);
             }
             cmdCtx = ZscriptCommandContext<ZP>(z, parseState, out);
@@ -80,28 +94,28 @@ private:
                 }
             }
             break;
-        case COMMAND_MOVEALONG:
+        case SemanticActionType::COMMAND_MOVEALONG:
             cmdCtx = ZscriptCommandContext<ZP>(z, parseState, out);
             ModuleRegistry<ZP>::moveAlong(cmdCtx);
             if (cmdCtx.isCommandComplete() && !parseState->hasSentStatus()) {
                 cmdCtx.status(ResponseStatus::SUCCESS);
             }
             break;
-        case END_SEQUENCE:
+        case SemanticActionType::END_SEQUENCE:
             if (out->isOpen()) {
                 out->endSequence();
                 out->close();
             }
             parseState->unlock(z);
             break;
-        case CLOSE_PAREN:
+        case SemanticActionType::CLOSE_PAREN:
             out->writeCloseParen();
             break;
-        case GO_AROUND:
-            case WAIT_FOR_TOKENS:
-            case WAIT_FOR_ASYNC:
+        case SemanticActionType::GO_AROUND:
+            case SemanticActionType::WAIT_FOR_TOKENS:
+            case SemanticActionType::WAIT_FOR_ASYNC:
             break;
-        case INVALID:
+        case SemanticActionType::INVALID:
             //Unreachable
             break;
         }
@@ -111,12 +125,12 @@ private:
             out->open();
         }
         out->writeField('!', respType);
-        if (parseState->hasEcho()) {
-            out->writeField('_', parseState->getEcho());
+        if (((SemanticParser<ZP>*) source)->hasEcho()) {
+            out->writeField('_', ((SemanticParser<ZP>*) source)->getEcho());
         }
     }
     void sendNormalMarkerPrefix(AbstractOutStream<ZP> *out) {
-        uint8_t marker = parseState->takeCurrentMarker();
+        uint8_t marker = ((SemanticParser<ZP>*) source)->takeCurrentMarker();
         if (marker != 0) {
             if (marker == ZscriptTokenizer<ZP>::CMD_END_ANDTHEN) {
                 out->writeAndThen();
@@ -133,38 +147,61 @@ private:
         }
     }
 
-public:
-    SemanticParserAction(ActionType type, SemanticParser<ZP> *parseState) :
-            parseState(parseState), type(type) {
+    void performActionNotification() {
+        //TODO
     }
-    SemanticParserAction() :
-            parseState(NULL), type(INVALID) {
+
+public:
+    ZscriptAction(SemanticParser<ZP> *source, SemanticActionType type) :
+            source(source), typeStored((uint8_t) type), isSemantic(true) {
+    }
+    ZscriptAction(ZscriptNotificationSource<ZP> *source, NotificationActionType type) :
+            source(source), typeStored((uint8_t) type), isSemantic(false) {
+    }
+    ZscriptAction() :
+            source(NULL), typeStored(0), isSemantic(true) {
     }
 
     bool isEmptyAction() {
-        return type == ActionType::GO_AROUND || type == ActionType::WAIT_FOR_TOKENS || type == ActionType::WAIT_FOR_ASYNC;
+        if (isSemantic) {
+            SemanticActionType type = (SemanticActionType) typeStored;
+            return type == SemanticActionType::GO_AROUND || type == SemanticActionType::WAIT_FOR_TOKENS || type == SemanticActionType::WAIT_FOR_ASYNC;
+        } else {
+            NotificationActionType type = (NotificationActionType) typeStored;
+            return type == NotificationActionType::WAIT_FOR_NOTIFICATION || type == NotificationActionType::WAIT_FOR_ASYNC;
+        }
     }
 
     void performAction(Zscript<ZP> *z, AbstractOutStream<ZP> *out) {
-        performActionImpl(z, out);
-        parseState->actionPerformed(type);
+        if (isSemantic) {
+            performActionSemantic(z, out);
+            ((SemanticParser<ZP>*) source)->actionPerformed((SemanticActionType) typeStored);
+        } else {
+            performActionNotification();
+            ((ZscriptNotificationSource<ZP>*) source)->actionPerformed((NotificationActionType) typeStored);
+        }
     }
 
     bool canLock(Zscript<ZP> *z) {
-        return parseState->canLock(z);
+        if (isSemantic) {
+            return ((SemanticParser<ZP>*) source)->canLock(z);
+        } else {
+            return ((ZscriptNotificationSource<ZP>*) source)->canLock(z);
+        }
     }
 
     bool lock(Zscript<ZP> *z) {
-        return parseState->lock(z);
+        if (isSemantic) {
+            return ((SemanticParser<ZP>*) source)->canLock(z);
+        } else {
+            return ((ZscriptNotificationSource<ZP>*) source)->getLocks();
+        }
     }
 
-    ActionType
-    getType()
-    {
-        return type;
+    uint8_t getType() {
+        return typeStored;
     }
-}
-;
+};
 }
 }
 

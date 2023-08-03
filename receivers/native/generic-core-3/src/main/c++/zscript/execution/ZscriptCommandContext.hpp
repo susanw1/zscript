@@ -17,21 +17,32 @@ namespace Zscript {
 namespace GenericCore {
 template<class ZP>
 class SemanticParser;
+template<class ZP>
+class ZscriptNotificationSource;
 }
+
 template<class ZP>
 class AsyncActionNotifier {
-    GenericCore::SemanticParser<ZP> *parser;
+    void *source;
+    bool isSemantic;
 
 public:
     AsyncActionNotifier(GenericCore::SemanticParser<ZP> *parser) :
-            parser(parser) {
+            source(parser), isSemantic(true) {
+    }
+    AsyncActionNotifier(GenericCore::ZscriptNotificationSource<ZP> *notification) :
+            source(notification), isSemantic(true) {
     }
     AsyncActionNotifier() :
-            parser(NULL) {
+            source(NULL), isSemantic(true) {
     }
 
     void notifyNeedsAction() {
-        parser->notifyNeedsAction();
+        if (isSemantic) {
+            ((GenericCore::SemanticParser<ZP>*) source)->notifyNeedsAction();
+        } else {
+            ((GenericCore::ZscriptNotificationSource<ZP>*) source)->notifyNeedsAction();
+        }
     }
 };
 template<class ZP>

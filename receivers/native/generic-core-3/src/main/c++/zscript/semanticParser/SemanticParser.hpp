@@ -14,7 +14,7 @@
 #include "../Zscript.hpp"
 #include "../execution/LockSet.hpp"
 
-#include "SemanticParserAction.hpp"
+#include "../execution/ZscriptAction.hpp"
 
 namespace Zscript {
 namespace GenericCore {
@@ -45,6 +45,24 @@ class SemanticParser {
     uint8_t seqEndMarker = 0;    // 4 bits really
     bool haveSeqEndMarker = false;
 
+    TokenRingBuffer<ZP> *const buffer;
+    uint8_t channelIndex = 0;
+    uint8_t parenCounter = 0;    // 8 bit
+    bool hasSentStatusB = false;
+
+    // Sequence-start info - note, bools are only usefully "true" during PRESEQUENCE - merge into state?
+    LockSet<ZP> locks = LockSet<ZP>::allLocked();
+    bool hasLocks = false;
+    uint16_t echo = 0;                       // 16 bit
+    bool hasEchoB = false;
+
+    // Execution state
+    bool activated = false;
+    bool locked = false;
+
+    SemanticActionType currentAction; // 4 bits
+
+    State state; // 5 bit
     /**
      * Checks the buffer's flags and makes sure we've identified the next marker and the next sequence marker, if available.
      *
@@ -146,14 +164,14 @@ class SemanticParser {
     /**
      * Checks whether the reader has a marker, and returns WAIT_FOR_TOKENS if not
      */
-    ActionType checkNeedsTokens() {
+    SemanticActionType checkNeedsTokens() {
         if (!haveNextMarker || !haveSeqEndMarker) {
             dealWithTokenBufferFlags();
             if (!haveNextMarker) {
-                return ActionType::WAIT_FOR_TOKENS;
+                return SemanticActionType::WAIT_FOR_TOKENS;
             }
         }
-        return ActionType::INVALID;
+        return SemanticActionType::INVALID;
     }
 
     /**
@@ -183,64 +201,33 @@ class SemanticParser {
         return nextMarker;
     }
 
-    TokenRingBuffer<ZP> *const buffer;
-    uint8_t channelIndex = 0;
-    uint8_t parenCounter = 0;    // 8 bit
-    bool hasSentStatusB = false;
-
-    // Sequence-start info - note, bools are only usefully "true" during PRESEQUENCE - merge into state?
-    LockSet<ZP> locks = LockSet<ZP>::allLocked();
-    bool hasLocks = false;
-    uint16_t echo = 0;                       // 16 bit
-    bool hasEchoB = false;
-
-    // Execution state
-    bool activated = false;
-    bool locked = false;
-
-    ActionType currentAction; // 4 bits
-
-    State state; // 5 bit
     bool isInErrorState() {
         return state == ERROR_TOKENIZER || state == ERROR_MULTIPLE_ECHO || state == ERROR_LOCKS || state == ERROR_COMMENT_WITH_SEQ_FIELDS
                 || state == ERROR_STATUS;
     }
 public:
-    void actionPerformed(ActionType type) {
-        currentAction = INVALID;
+    void actionPerformed(SemanticActionType type) {
+        currentAction = SemanticActionType::INVALID;
 
         switch (type) {
-        case END_SEQUENCE:
+        case SemanticActionType::END_SEQUENCE:
             resetToSequence();
             //            seekMarker(true, false); // Might not be necessary?
             break;
-        case ERROR:
+        case SemanticActionType::ERROR:
             if (skipSequence()) {
                 resetToSequence();
             } else {
                 state = SEQUENCE_SKIP;
             }
             break;
-        case INVOKE_ADDRESSING:
-            case ADDRESSING_MOVEALONG:
-            break;
-        case CLOSE_PAREN:
-            case RUN_FIRST_COMMAND:
-            case RUN_COMMAND:
-            case COMMAND_MOVEALONG:
-            break;
-        case WAIT_FOR_TOKENS:
-            case WAIT_FOR_ASYNC:
-            case GO_AROUND:
-            break;
-        case INVALID:
-            // unreachable hopefully
+        default:
             break;
         }
     }
 
     SemanticParser(TokenRingBuffer<ZP> *buffer) :
-            buffer(buffer), currentAction(INVALID), state(PRESEQUENCE) {
+            buffer(buffer), currentAction(SemanticActionType::INVALID), state(PRESEQUENCE) {
     }
 
     // VisibleForTesting
@@ -254,22 +241,22 @@ public:
      * @return
      */
 
-    SemanticParserAction<ZP> getAction() {
+    ZscriptAction<ZP> getAction() {
         // currentAction is always nulled after action execution
-        while (currentAction == INVALID || currentAction == GO_AROUND) {
-            if (checkNeedsTokens() == WAIT_FOR_TOKENS) {
-                return SemanticParserAction<ZP>(WAIT_FOR_TOKENS, this);
+        while (currentAction == SemanticActionType::INVALID || currentAction == SemanticActionType::GO_AROUND) {
+            if (checkNeedsTokens() == SemanticActionType::WAIT_FOR_TOKENS) {
+                return ZscriptAction<ZP>(this, SemanticActionType::WAIT_FOR_TOKENS);
             }
             // We now haveNextMarker (or we returned to wait for tokens).
             currentAction = findNextAction();
         }
-        return SemanticParserAction<ZP>(currentAction, this);
+        return ZscriptAction<ZP>(this, currentAction);
     }
 
 private:
 
-    ActionType findNextAction() {
-        ActionType action;
+    SemanticActionType findNextAction() {
+        SemanticActionType action;
         switch (state) {
         case PRESEQUENCE:
             // expecting buffer to be pointing at start of sequence.
@@ -278,33 +265,33 @@ private:
                 // expecting buffer to be pointing at first token after lock/echo preamble.
                 if (buffer->R_getFirstReadToken().getKey(buffer) == Zchars::Z_ADDRESSING) {
                     state = ADDRESSING_INCOMPLETE;
-                    return INVOKE_ADDRESSING;
+                    return SemanticActionType::INVOKE_ADDRESSING;
                 }
                 // Until first command is run (and starts presuming it will complete), assert that the command state is INcomplete
                 state = COMMAND_INCOMPLETE;
-                return RUN_FIRST_COMMAND;
+                return SemanticActionType::RUN_FIRST_COMMAND;
             }
             // force iteration to handle ERROR / SEQUENCE_SKIP
-            return GO_AROUND;
+            return SemanticActionType::GO_AROUND;
 
         case ADDRESSING_INCOMPLETE:
-            return WAIT_FOR_ASYNC;
+            return SemanticActionType::WAIT_FOR_ASYNC;
 
         case ADDRESSING_NEEDS_ACTION:
             state = ADDRESSING_INCOMPLETE;
-            return ADDRESSING_MOVEALONG;
+            return SemanticActionType::ADDRESSING_MOVEALONG;
 
         case ADDRESSING_COMPLETE:
             state = SEQUENCE_SKIP;
             skipSequence();
-            return END_SEQUENCE;
+            return SemanticActionType::END_SEQUENCE;
 
         case COMMAND_INCOMPLETE:
-            return WAIT_FOR_ASYNC;
+            return SemanticActionType::WAIT_FOR_ASYNC;
 
         case COMMAND_NEEDS_ACTION:
             state = COMMAND_INCOMPLETE;
-            return COMMAND_MOVEALONG;
+            return SemanticActionType::COMMAND_MOVEALONG;
 
         case COMMAND_COMPLETE_NEEDS_TOKENS:
             case COMMAND_COMPLETE:
@@ -314,9 +301,9 @@ private:
             action = flowControl(skipToAndGetNextMarker());
             if (state == COMMAND_INCOMPLETE && !seekSecondMarker()) {
                 state = COMMAND_COMPLETE_NEEDS_TOKENS;
-                return WAIT_FOR_TOKENS;
+                return SemanticActionType::WAIT_FOR_TOKENS;
             } else {
-                if (action != RUN_COMMAND) {
+                if (action != SemanticActionType::RUN_COMMAND) {
                     flushMarkerAndSeekNext();
                 }
                 return action;
@@ -324,25 +311,25 @@ private:
 
         case SEQUENCE_SKIP:
             if (!skipSequence()) {
-                return WAIT_FOR_TOKENS;
+                return SemanticActionType::WAIT_FOR_TOKENS;
             }
             resetToSequence();
-            return GO_AROUND;
+            return SemanticActionType::GO_AROUND;
 
         case ERROR_COMMENT_WITH_SEQ_FIELDS:
             case ERROR_LOCKS:
             case ERROR_MULTIPLE_ECHO:
             case ERROR_TOKENIZER:
             discardSequenceToEnd();
-            return ERROR;
+            return SemanticActionType::ERROR;
         case ERROR_STATUS:
             if (skipSequence()) {
-                return END_SEQUENCE;
+                return SemanticActionType::END_SEQUENCE;
             } else {
-                return WAIT_FOR_TOKENS;
+                return SemanticActionType::WAIT_FOR_TOKENS;
             }
         default:
-            return ERROR; //unreachable hopefully
+            return SemanticActionType::ERROR; //unreachable hopefully
         }
     }
 
@@ -370,19 +357,19 @@ private:
      * @param marker the logical operator ending the previous command
      * @return an appropriate action: END_SEQUENCE, RUN_COMMAND, CLOSE_PAREN, GO_AROUND
      */
-    ActionType flowControl(uint8_t marker) {
+    SemanticActionType flowControl(uint8_t marker) {
         if (isInErrorState()) {
-            return GO_AROUND;
+            return SemanticActionType::GO_AROUND;
         }
 
         if (TokenRingBuffer<ZP>::isSequenceEndMarker(marker)) {
             // only expects \n here - other error tokens are handled elsewhere in ERROR state
-            return END_SEQUENCE;
+            return SemanticActionType::END_SEQUENCE;
         }
 
         if (state == COMMAND_COMPLETE_NEEDS_TOKENS) {
             state = COMMAND_INCOMPLETE;
-            return RUN_COMMAND;
+            return SemanticActionType::RUN_COMMAND;
         }
 
         if (marker == ZscriptTokenizer<ZP>::CMD_END_ORELSE) {
@@ -405,7 +392,7 @@ private:
             if (state == COMMAND_FAILED) {
                 // keep track of matched parens that we've skipped; only send ')' to match '(' for commands that were executed
                 if (parenCounter == 0) {
-                    return CLOSE_PAREN;
+                    return SemanticActionType::CLOSE_PAREN;
                 }
                 parenCounter--;
             } else if (state == COMMAND_SKIP) {
@@ -422,11 +409,11 @@ private:
         if (state == COMMAND_COMPLETE) {
             hasSentStatusB = false;
             state = COMMAND_INCOMPLETE;
-            return RUN_COMMAND;
+            return SemanticActionType::RUN_COMMAND;
         }
 
         // this happens when we're skipping cmds
-        return GO_AROUND;
+        return SemanticActionType::GO_AROUND;
     }
 
     /**
