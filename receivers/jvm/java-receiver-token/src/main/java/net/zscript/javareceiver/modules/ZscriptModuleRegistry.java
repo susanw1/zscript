@@ -2,14 +2,14 @@ package net.zscript.javareceiver.modules;
 
 import java.util.OptionalInt;
 
-import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
+import net.zscript.javareceiver.execution.NotificationContext;
 import net.zscript.javareceiver.tokenizer.Zchars;
 
 public class ZscriptModuleRegistry {
-    private static final int    MAX_SYSTEM_CMD = 0xF;
+    private static final int      MAX_SYSTEM_CMD = 0xF;
     private final ZscriptModule[] modules        = new ZscriptModule[0x1000];
 
     public void addModule(ZscriptModule m) {
@@ -72,12 +72,12 @@ public class ZscriptModuleRegistry {
         modules[addr].addressMoveAlong(ctx);
     }
 
-    public boolean notification(OutStream out, int type, boolean isAddressed) {
-        if (modules[type >> 4] == null) {
-            out.asCommandOutStream().writeField(Zchars.Z_STATUS, ZscriptStatus.INTERNAL_ERROR);
-            return true;
+    public void notification(NotificationContext ctx, boolean moveAlong) {
+        if (modules[ctx.getID() >> 4] == null) {
+            ctx.getOutStream().asCommandOutStream().writeField(Zchars.Z_STATUS, ZscriptStatus.INTERNAL_ERROR);
+            return;
         }
-        return modules[type >> 4].notification(out, type & 0xF, isAddressed);
+        modules[ctx.getID() >> 4].notification(ctx, moveAlong);
     }
 
     public int getCommandSwitchExistsBottom(int top) {

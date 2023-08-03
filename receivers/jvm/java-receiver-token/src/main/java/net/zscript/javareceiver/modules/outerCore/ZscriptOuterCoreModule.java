@@ -1,9 +1,9 @@
 package net.zscript.javareceiver.modules.outerCore;
 
 import net.zscript.javareceiver.core.LockSet;
-import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
+import net.zscript.javareceiver.execution.NotificationContext;
 import net.zscript.javareceiver.modules.ZscriptModule;
 import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
 import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
@@ -46,9 +46,8 @@ public class ZscriptOuterCoreModule implements ZscriptModule {
     }
 
     @Override
-    public boolean notification(OutStream out, int i, boolean isAddressed) {
-        out.asCommandOutStream().writeQuotedString("System has reset");
-        return true;
+    public void notification(NotificationContext ctx, boolean moveAlong) {
+        ctx.getOutStream().asCommandOutStream().writeQuotedString("System has reset");
     }
 
 }

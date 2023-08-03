@@ -7,6 +7,7 @@ import net.zscript.javareceiver.core.LockSet;
 import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
+import net.zscript.javareceiver.execution.NotificationContext;
 import net.zscript.javareceiver.tokenizer.Zchars;
 import net.zscript.javasimulator.BlankCommunicationResponse;
 import net.zscript.javasimulator.CommunicationPacket;
@@ -91,7 +92,10 @@ public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCate
         return new Class[] { SmBusAlertConnection.class };
     }
 
-    public boolean notification(Entity entity, OutStream out, int i, boolean isAddressed) {
+    public void notification(Entity entity, NotificationContext ctx) {
+        OutStream out = ctx.getOutStream();
+        int i = ctx.getID() & 0xF;
+        boolean isAddressed = ctx.isAddressing();
         ZscriptCommandOutStream commandOut = out.asCommandOutStream();
         bitSet &= ~(1 << i);
         I2cResponse addrRespTmp = (I2cResponse) entity.getConnection(I2cProtocolCategory.class, i).sendMessage(entity, new I2cReceivePacket(SmBusAlertConnection.ALERT_ADDRESS, 2));
@@ -102,7 +106,7 @@ public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCate
                 commandOut.writeField('P', i);
             }
             generateNotification();
-            return true;
+            return;
         }
         I2cReceiveResponse addrResp = (I2cReceiveResponse) addrRespTmp;
         byte[]             addrData = addrResp.getData();
@@ -120,7 +124,7 @@ public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCate
                 commandOut.writeField('N', 0);
             }
             generateNotification();
-            return true;
+            return;
         }
         commandOut.writeField(Zchars.Z_ADDRESSING, 0x5);
         commandOut.writeField(Zchars.Z_ADDRESSING_CONTINUE, (source.getID() & 0xF));
@@ -147,7 +151,6 @@ public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCate
             out.writeBytes(data);
         }
         generateNotification();
-        return true;
     }
 
 }

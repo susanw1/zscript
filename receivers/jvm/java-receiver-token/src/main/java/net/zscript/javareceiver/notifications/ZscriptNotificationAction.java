@@ -1,16 +1,27 @@
 package net.zscript.javareceiver.notifications;
 
+import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.LockSet;
-import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.execution.NotificationContext;
 import net.zscript.javareceiver.execution.ZscriptAction;
 
 public class ZscriptNotificationAction implements ZscriptAction {
-    private final ZscriptNotificationSource source;
+    enum NotificationActionType {
+        INVALID,
+        WAIT_FOR_NOTIFICATION,
+        WAIT_FOR_ASYNC,
+        NOTIFICATION_BEGIN,
+        NOTIFICATION_MOVE_ALONG,
+        NOTIFICATION_END
+    }
 
-    public ZscriptNotificationAction(ZscriptNotificationSource source) {
+    private final ZscriptNotificationSource source;
+    private final NotificationActionType    type;
+
+    public ZscriptNotificationAction(ZscriptNotificationSource source, NotificationActionType type) {
         this.source = source;
+        this.type = type;
     }
 
     @Override
@@ -20,18 +31,24 @@ public class ZscriptNotificationAction implements ZscriptAction {
 
     @Override
     public void performAction(Zscript z, OutStream out) {
-        if (!source.hasNotification() || out == null) {
-            return;
-        }
-        startResponse(out);
-        if (z.getModuleRegistry().notification(out, source.getID(), source.isAddressing())) {
+        switch (type) {
+        case NOTIFICATION_BEGIN:
+            startResponse(out);
+            z.getModuleRegistry().notification(new NotificationContext(source, z), false);
+            break;
+        case NOTIFICATION_END:
             out.endSequence();
             out.close();
-            LockSet ls = source.getLocks();
-            if (ls == null) {
-                ls = LockSet.allLocked();
-            }
-            z.unlock(ls);
+            unlock(z);
+            break;
+        case NOTIFICATION_MOVE_ALONG:
+            z.getModuleRegistry().notification(new NotificationContext(source, z), true);
+            break;
+        case WAIT_FOR_ASYNC:
+        case WAIT_FOR_NOTIFICATION:
+            break;
+        case INVALID:
+            throw new IllegalStateException();
         }
         source.actionExecuted();
     }
@@ -49,22 +66,18 @@ public class ZscriptNotificationAction implements ZscriptAction {
         }
     }
 
+    public void unlock(Zscript z) {
+        source.unlock(z);
+    }
+
     @Override
     public boolean canLock(Zscript z) {
-        LockSet ls = source.getLocks();
-        if (ls == null) {
-            ls = LockSet.allLocked();
-        }
-        return z.canLock(ls);
+        return source.canLock(z);
     }
 
     @Override
     public boolean lock(Zscript z) {
-        LockSet ls = source.getLocks();
-        if (ls == null) {
-            ls = LockSet.allLocked();
-        }
-        return z.lock(ls);
+        return source.lock(z);
     }
 
 }
