@@ -7,6 +7,7 @@ import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
+import net.zscript.javareceiver.execution.NotificationContext;
 import net.zscript.javareceiver.modules.ZscriptModule;
 import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
 import net.zscript.javasimulator.Entity;
@@ -61,9 +62,9 @@ public class I2cModule implements ZscriptModule {
         I2cAddressAction.execute(ctx, this);
     }
 
-    @Override
-    public boolean notification(OutStream out, int i, boolean isAddressed) {
-        return notificationHandler.notification(entity, out, i, isAddressed);
+   
+    public void notification(NotificationContext ctx, boolean moveAlong) {
+        notificationHandler.notification(entity, ctx);
     }
 
     public Entity getEntity() {
