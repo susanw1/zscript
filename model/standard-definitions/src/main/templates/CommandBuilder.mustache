@@ -1,10 +1,10 @@
-package org.zcode.javaclient.generatedCommands;
+package net.zscript.javaclient.generatedCommands;
 
-import org.zcode.javaclient.zcodeApi.ZcodeCommandBuilder;
-import org.zcode.javaclient.zcodeApi.ZcodeResponse;
-import org.zcode.javaclient.zcodeApi.ZcodeUnparsedCommandResponse;
+import net.zscript.javaclient.zcodeApi.ZscriptCommandBuilder;
+import net.zscript.javaclient.zcodeApi.ZscriptResponse;
+import net.zscript.javaclient.zcodeApi.ZscriptUnparsedCommandResponse;
 
-public class {{CmdName}}CommandBuilder extends ZcodeCommandBuilder<{{CmdName}}CommandResponse> {
+public class {{CmdName}}CommandBuilder extends ZscriptCommandBuilder<{{CmdName}}CommandResponse> {
 {{#requestParams}}
 {{#allowedValues}}
     public static final int {{Name}}_{{valueName}} = {{index}}
@@ -22,10 +22,10 @@ public class {{CmdName}}CommandBuilder extends ZcodeCommandBuilder<{{CmdName}}Co
         setField('Z', (byte) 0x{{moduleID}}{{command}});
     }
     
-    public class {{CmdName}}CommandResponse implements ZcodeResponse {
-        private final ZcodeUnparsedCommandResponse resp;
+    public class {{CmdName}}CommandResponse implements ZscriptResponse {
+        private final ZscriptUnparsedCommandResponse resp;
         
-        public {{CmdName}}CommandResponse(ZcodeUnparsedCommandResponse resp) {
+        public {{CmdName}}CommandResponse(ZscriptUnparsedCommandResponse resp) {
             this.resp = resp;
         }
 

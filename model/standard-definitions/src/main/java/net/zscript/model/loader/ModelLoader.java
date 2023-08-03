@@ -47,7 +47,7 @@ public class ModelLoader {
                 .addModule(new MrBeanModule())
                 .build();
 
-        final InputStream resourceStream = requireNonNull(getClass().getResourceAsStream("/intrinsics.yaml"), "intrinsics not found");
+        final InputStream resourceStream = requireNonNull(getClass().getResourceAsStream("/datamodel/intrinsics.yaml"), "intrinsics not found");
         try {
             intrinsicsDataModel = jsonMapper.readValue(resourceStream, IntrinsicsDataModel.class);
         } catch (IOException e) {
@@ -84,16 +84,15 @@ public class ModelLoader {
                     }
                 }
             }
-
         }
 
         return this;
     }
 
-    private <P extends GenericField> void addIntrinsicIfRequired(List<P> commandFields, List<P> intrinsics) {
-        for (P intrinsicField : intrinsics) {
-            for (P p : commandFields) {
-                if (intrinsicField.getKey() == p.getKey()) {
+    private <F extends GenericField> void addIntrinsicIfRequired(List<F> commandFields, List<F> intrinsics) {
+        for (F intrinsicField : intrinsics) {
+            for (F f : commandFields) {
+                if (intrinsicField.getKey() == f.getKey()) {
                     return;
                 }
             }
@@ -104,5 +103,4 @@ public class ModelLoader {
     public Map<String, ModuleBank> getModuleBanks() {
         return moduleBanks;
     }
-
 }

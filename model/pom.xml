@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -8,67 +10,12 @@
     </parent>
 
     <artifactId>zscript-model</artifactId>
+    <packaging>pom</packaging>
     <name>Zscript Model</name>
 
-    <properties>
-    </properties>
-	<dependencies>
-		<dependency>
-			<groupId>com.github.spullara.mustache.java</groupId>
-			<artifactId>compiler</artifactId>
-			<version>0.9.10</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.module</groupId>
-			<artifactId>jackson-module-mrbean</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.dataformat</groupId>
-			<artifactId>jackson-dataformat-yaml</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.vintage</groupId>
-			<artifactId>junit-vintage-engine</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-core</artifactId>
-		</dependency>
-	</dependencies>
-	<build>
-<!--		<plugins>-->
-<!--			<plugin>-->
-<!--				<groupId>net.wouterdanes</groupId>-->
-<!--				<artifactId>mustache-maven-plugin</artifactId>-->
-<!--				<version>1.1</version>-->
-<!--				<executions>-->
-<!--					<execution>-->
-<!--						<id>run-mustache-template</id>-->
-<!--						<phase>generate-sources</phase>-->
-<!--						<goals>-->
-<!--							<goal>mustache</goal>-->
-<!--						</goals>-->
-<!--					</execution>-->
-<!--				</executions>-->
-<!--				<configuration>-->
-<!--					<encoding>UTF-8</encoding>-->
-<!--					<context>file:${project.basedir}/local/server-configuration.yml</context>-->
-<!--					<templates>-->
-<!--						<template>-->
-<!--							<templateFile>${project.basedir}/common/src/main/conf/context.xml.mustache</templateFile>-->
-<!--							<outputPath>${generated.context.xml.location}</outputPath>-->
-<!--						</template>-->
-<!--					</templates>-->
-<!--				</configuration>-->
-<!--			</plugin>-->
-<!--		</plugins>-->
-	</build>
+    <modules>
+        <module>transformer-maven-plugin</module>
+        <module>standard-definitions</module>
+    </modules> 
+
 </project>

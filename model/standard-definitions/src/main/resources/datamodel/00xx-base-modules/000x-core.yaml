@@ -1,0 +1,232 @@
+modules:
+-   name: Core
+    id: 0
+    version: 0.0.1
+    description: Provides core system commands which can be executed without device activation
+
+    commands:
+    -   name: capabilities
+        command: 0
+        description: Top level identification, for hardware, software, modules, versions
+        operation: get
+        requestFields: 
+        -   key: V
+            name: versionType
+            description: selects which ident/version info to return
+            typeDefinition:
+                '@type': enum
+                allowedValues: [UserFirmware, UserHardware, PlatformFirmware, PlatformHardware, CoreZscriptLanguage]
+            required: no
+        responseFields:
+        -   key: C
+            name: commandsSet
+            description: which commands are enabled in this module
+            typeDefinition:
+                '@type': commands
+                bitFields: []
+            required: yes
+        -   key: M
+            name: modulesBankSet
+            description: which modules present in this bank (ie 00xx)
+            typeDefinition:
+                '@type': commands
+                bitFields: []
+            required: yes
+        -   key: V
+            name: version
+            description: 2-byte version number relating to requested versionType
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: +
+            name: ident
+            description: identification string relating to requested versionType
+            typeDefinition:
+                '@type': string
+            required: yes
+        status: []
+
+
+    -   name: echo
+        command: 1
+        description: Echoes all request params to the response, for testing purposes
+        operation: get
+        requestFields:
+        -   key: S
+            name: status
+            description: determines the returned Status param - can be any status
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: +
+            name: bigField
+            description: any supplied value will be returned
+            typeDefinition:
+                '@type': bytes
+            required: no
+        -   name: any
+            description: any supplied value will be returned
+            typeDefinition:
+                '@type': number
+            required: no
+        responseFields:
+        -   name: any
+            description: any supplied value will be returned
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: S
+            name: status
+            description: 'the supplied Status param - can be any status; default: OK'
+            typeDefinition:
+                '@type': number
+            required: yes
+
+
+    -   name: activate
+        command: 2
+        description: Activates zscript channel, allowing commands 0x10 onwards to be executed
+        operation: put
+        requestFields:
+        -   key: K
+            name: challenge
+            description: allows authentication (though in a user defined way)
+            typeDefinition:
+                '@type': number
+            required: no
+        responseFields:
+        -   key: A
+            name: previousActivationState
+            description: true if already activated; absent otherwise
+            typeDefinition:
+                '@type': flag
+            required: no
+        -   key: K
+            name: challenge
+            description: allows the receiver to give a challenge to the client
+            typeDefinition:
+                '@type': number
+            required: no
+        status:
+        -   code: CMD_FAIL
+            meaning: challenge failure
+
+
+    -   name: reset
+        command: 3
+        description: Resets the device(!) or channels. Device reset and *this channel* reset produces no response at all
+        operation: put
+        requestFields:
+        -   key: C
+            name: channel
+            description: specifies channel to be reset
+            typeDefinition:
+                '@type': number
+            required: no
+        responseFields: []
+        status:
+        -   code: CMD_FAIL
+            meaning: reset failed
+
+
+    -   name: readGuid
+        command: 4
+        description: Retrieves the system GUID, if set
+        operation: get
+        requestFields: []
+        responseFields:
+        -   key: +
+            name: guid
+            description: the previously set system GUID
+            typeDefinition:
+                '@type': bytes
+            required: yes
+        status:
+        -   code: CMD_FAIL
+            meaning: no valid GUID set
+
+
+    -   name: channelInfo
+        command: 8
+        description: Retrieves channel info
+        operation: get
+        requestFields:
+        -   key: C
+            name: channel
+            description: 'which channel to configure (default: this channel)'
+            typeDefinition:
+                '@type': number
+            required: no
+        -   key: K
+            name: challenge
+            description: allows the client to challenge the identity of the receiver
+            typeDefinition:
+                '@type': number
+            required: no
+        responseFields:
+        -   key: B
+            name: bufferLength
+            description: the total length of this channels token ring buffer
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: M
+            name: associatedModule
+            description: the module associated with this channel
+            typeDefinition:
+                '@type': number
+            required: yes
+        -   key: +
+            name: name
+            description: channel descriptor
+            typeDefinition:
+                '@type': text
+            required: yes
+        -   key: K
+            name: challenge
+            description: the answer to the identity challenge
+            typeDefinition:
+                '@type': number
+            required: no
+        extension: channel
+        status: []
+
+
+    -   name: makeCode
+        command: 12
+        description: Generates a random match-code
+        operation: post
+        requestFields: []
+        responseFields:
+        -   key: C
+            name: matchCode
+            description: newly generated random match-code
+            typeDefinition:
+                '@type': number
+            required: yes
+
+
+    -   name: matchCode
+        command: 13
+        description: Returns OK only if supplied code matches the previously generated match-code
+        operation: get
+        requestFields:
+        -   key: C
+            name: matchCode
+            description: a match-code to confirm against previously generated one
+            typeDefinition:
+                '@type': number
+            required: yes
+        responseFields: []
+        status:
+        -   code: CMD_FAIL
+            meaning: supplied code didn't match
+
+
+    -   name: user-defined
+        command: 15
+        description: Command kept free for user-defined system command
+        operation: unknown
+        requestFields: []
+        responseFields: []
+        status: []

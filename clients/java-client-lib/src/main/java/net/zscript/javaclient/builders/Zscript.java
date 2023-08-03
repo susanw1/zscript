@@ -10,7 +10,7 @@ import net.zscript.model.loader.ModuleBank;
 
 public class Zscript {
 
-    private Map<String, ModuleBank> moduleBanks;
+    private final Map<String, ModuleBank> moduleBanks;
 
     private Zscript(ModelLoader modelLoader) {
         moduleBanks = modelLoader.getModuleBanks();

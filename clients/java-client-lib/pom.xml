@@ -13,7 +13,7 @@
     <dependencies>
         <dependency>
             <groupId>net.zscript</groupId>
-            <artifactId>zscript-model</artifactId>
+            <artifactId>zscript-model-standard-definitions</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

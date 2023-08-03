@@ -28,7 +28,7 @@ public class IntrinsicsTest {
     @Test
     public void shouldLoadIntrinsics() throws IOException {
 
-        final InputStream   resourceStream = requireNonNull(getClass().getResourceAsStream("/intrinsics.yaml"), "resourceStream");
+        final InputStream   resourceStream = requireNonNull(getClass().getResourceAsStream("/datamodel/intrinsics.yaml"), "resourceStream");
         IntrinsicsDataModel model          = jsonMapper.readValue(resourceStream, IntrinsicsDataModel.class);
 
         assertThat(model.getIntrinsics().getRequestFields()).hasSize(1);
