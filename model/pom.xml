@@ -14,6 +14,7 @@
     <name>Zscript Model</name>
 
     <modules>
+        <module>transformer-maven-plugin-adapter</module>
         <module>transformer-maven-plugin</module>
         <module>schema</module>
         <module>standard-definitions</module>

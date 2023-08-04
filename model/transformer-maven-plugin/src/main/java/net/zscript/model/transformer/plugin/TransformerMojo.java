@@ -27,6 +27,9 @@ import org.yaml.snakeyaml.Yaml;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 
+import net.zscript.model.transformer.adapter.LoadableEntity;
+import net.zscript.model.transformer.adapter.LoadedEntityContent;
+
 /**
  * The entry class for the maven plugin
  */
@@ -61,6 +64,10 @@ public class TransformerMojo extends AbstractMojo {
     @Parameter(defaultValue = OUTPUT_DEFAULT_DIR)
     private File outputDirectory;
 
+    @Parameter(defaultValue = "net.zscript.model.transformer.adapter.YamlTransformerPluginMapper")
+    private String transformMapperClass;
+
+//    TransformerPluginMapper m;
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
     private String encoding;
 
@@ -98,14 +105,14 @@ public class TransformerMojo extends AbstractMojo {
         getLog().info("getDefaultGoal: " + project.getDefaultGoal());
 
         final FileSet    templateFileSet    = initFileSet(templates, TEMPLATE_DEFAULT_DIR);
-        List<FileEntity> templateEntityList = extractFileList(templateFileSet, "Template");
+        List<LoadableEntity> templateEntityList = extractFileList(templateFileSet, "Template");
         final FileSet    contextFileSet     = initFileSet(contexts, CONTEXT_DEFAULT_DIR);
-        List<FileEntity> contextEntityList  = extractFileList(contextFileSet, "Context");
+        List<LoadableEntity> contextEntityList  = extractFileList(contextFileSet, "Context");
 
         // read in context files as YAML. Read in templates using Mustache.
 
-        List<FileEntityContent<Object>>   loadedContexts  = loadContexts(contextEntityList, "Context");
-        List<FileEntityContent<Mustache>> loadedTemplates = loadTemplates(templateEntityList, "Template");
+        List<LoadedEntityContent<Object>>   loadedContexts  = loadContexts(contextEntityList, "Context");
+        List<LoadedEntityContent<Mustache>> loadedTemplates = loadTemplates(templateEntityList, "Template");
 
         Path outputPath = outputDirectory.toPath();
         if (!Files.isDirectory(outputPath)) {
@@ -116,61 +123,37 @@ public class TransformerMojo extends AbstractMojo {
             }
         }
 
-        for (FileEntityContent<Mustache> template : loadedTemplates) {
-            for (FileEntityContent<Object> context : loadedContexts) {
-                getLog().info("Applying context " + context.relativePath + " with template " + template.relativePath);
+        for (LoadedEntityContent<Mustache> template : loadedTemplates) {
+            for (LoadedEntityContent<Object> context : loadedContexts) {
+                getLog().info("Applying context " + context.getRelativePath() + " with template " + template.getRelativePath());
+
             }
         }
 
         getLog().info("8=8=8=8=8=8=8=8=8=8=8=8=8 TransformerMojo ENDED 8=8=8=8=8=8=8=8=8=8=8=8=8");
     }
 
-    private List<FileEntityContent<Mustache>> loadTemplates(List<FileEntity> templateEntityList, String name) throws MojoFailureException {
+    private List<LoadedEntityContent<Mustache>> loadTemplates(List<LoadableEntity> templateEntityList, String name) throws MojoFailureException {
         DefaultMustacheFactory mf = new DefaultMustacheFactory();
-        return load(templateEntityList, name, (e, reader) -> mf.compile(reader, e.relativePath.toString()));
+        return load(templateEntityList, name, (e, reader) -> mf.compile(reader, e.getRelativePath().toString()));
     }
 
-    private List<FileEntityContent<Object>> loadContexts(List<FileEntity> contextEntityList, String name) throws MojoFailureException {
+    private List<LoadedEntityContent<Object>> loadContexts(List<LoadableEntity> contextEntityList, String name) throws MojoFailureException {
         Yaml yaml = new Yaml();
         return load(contextEntityList, name, (e, reader) -> yaml.load(reader));
     }
 
-    private <T> List<FileEntityContent<T>> load(List<FileEntity> entityList, String name, BiFunction<FileEntity, Reader, T> loader) throws MojoFailureException {
-        List<FileEntityContent<T>> entityContents = new ArrayList<>();
-        for (FileEntity entity : entityList) {
-            try (Reader reader = Files.newBufferedReader(entity.fullPath)) {
+    private <T> List<LoadedEntityContent<T>> load(List<LoadableEntity> entityList, String name, BiFunction<LoadableEntity, Reader, T> loader) throws MojoFailureException {
+        List<LoadedEntityContent<T>> entityContents = new ArrayList<>();
+        for (LoadableEntity entity : entityList) {
+            try (Reader reader = Files.newBufferedReader(entity.getFullPath())) {
                 T contextObject = loader.apply(entity, reader);
                 entityContents.add(entity.withContent(contextObject));
             } catch (IOException e) {
-                throw new MojoFailureException("Cannot open " + name + ": " + entity.fullPath, e);
+                throw new MojoFailureException("Cannot open " + name + ": " + entity.getFullPath(), e);
             }
         }
         return entityContents;
-    }
-
-    class FileEntity {
-        String name;
-        Path   fullPath;
-        Path   relativePath;
-
-        public FileEntity(String name, Path fullPath, Path relativePath) {
-            this.name = name;
-            this.fullPath = fullPath;
-            this.relativePath = relativePath;
-        }
-
-        public <T> FileEntityContent<T> withContent(T content) {
-            return new FileEntityContent<T>(name, fullPath, relativePath, content);
-        }
-    }
-
-    class FileEntityContent<T> extends FileEntity {
-        T content;
-
-        public FileEntityContent(String name, Path fullPath, Path relativePath, T content) {
-            super(name, fullPath, relativePath);
-            this.content = content;
-        }
     }
 
     private FileSet initFileSet(final FileSet fs, final String defaultDir) {
@@ -186,7 +169,7 @@ public class TransformerMojo extends AbstractMojo {
         return fileSet;
     }
 
-    private List<FileEntity> extractFileList(final FileSet fileSet, String name) throws MojoFailureException {
+    private List<LoadableEntity> extractFileList(final FileSet fileSet, String name) throws MojoFailureException {
         final Path rootPath = Path.of(fileSet.getDirectory());
         if (!Files.isDirectory(rootPath)) {
             throw new MojoFailureException(name + " directory not found: " + rootPath);
@@ -207,7 +190,7 @@ public class TransformerMojo extends AbstractMojo {
         getLog().info("#files = " + files.length);
         stream(files).forEach(f -> getLog().info(f));
 
-        return stream(files).map(n -> new FileEntity(name, rootPath.resolve(n), Path.of(n))).collect(toList());
+        return stream(files).map(n -> new LoadableEntity(name, rootPath.resolve(n), Path.of(n))).collect(toList());
     }
 
     void addSourceRoot(File outputDir) {

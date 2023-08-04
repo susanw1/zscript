@@ -48,63 +48,22 @@
                     <encoding>UTF-8</encoding>
 
                     <templates>
-                        <includes>**/Test*</includes>
+                        <includes>**/Test*.mustache</includes>
                     </templates>
                     <contexts>
                         <directory>${project.resources[0].directory}/datamodel</directory>
                         <includes>*/**/*.yaml</includes>
                     </contexts>
-
-                    <!--                    <outputPath>
-                        ${project.build.outputDirectory}/generated-sources</outputPath>
-                        
-                    <templates/>
-                    
-                    <contexts>
-                        <directory>
-                            ${project.resources[0].directory}/../mustache/Test.mustache</directory>
-                    </contexts>
-
--->
                 </configuration>
                 <executions>
                     <execution>
                         <id>run-template-transformer</id>
-                        <phase>generate-sources</phase>
                         <goals>
                             <goal>transform</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
-
-            <!--            <plugin>
-                <groupId>net.zscript</groupId>
-                <artifactId>zscript-model-clientcodegen</artifactId>
-                <version>${project.version}</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <context>
-            file:${project.resources[0].directory}/datamodel/00xx-base-modules/000x-core.yaml</context>
-                    <templates>
-                        <template>
-                            <templateFile>
-                                ${project.resources[0].directory}/../mustache/Test.mustache</templateFile>
-                            <outputPath>${project.build.outputDirectory}/generated-sources</outputPath>
-                        </template>
-                    </templates>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>run-mustache-template</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>mustache</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
--->
         </plugins>
     </build>
 </project>
