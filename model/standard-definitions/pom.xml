@@ -57,6 +57,7 @@
                     <templates>
                         <includes>**/Test*</includes>
                     </templates>
+                    <contexts/>
 
                     <!--                    <outputPath>
                         ${project.build.outputDirectory}/generated-sources</outputPath>

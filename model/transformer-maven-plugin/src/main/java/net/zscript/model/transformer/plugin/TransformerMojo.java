@@ -3,6 +3,10 @@ package net.zscript.model.transformer.plugin;
 import static java.util.Arrays.stream;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +22,9 @@ import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
 import org.yaml.snakeyaml.Yaml;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+
 /**
  * The entry class for the maven plugin
  */
@@ -25,7 +32,7 @@ import org.yaml.snakeyaml.Yaml;
 public class TransformerMojo extends AbstractMojo {
 
     private static final String TEMPLATE_DEFAULT_DIR = "src/main/templates";
-    private static final String CONTEXT_DEFAULT_DIR  = "${basedir}/src/main/contexts";
+    private static final String CONTEXT_DEFAULT_DIR  = "src/main/contexts";
     private static final String OUTPUT_DEFAULT_DIR   = "${project.build.directory}/generated-sources/zscript";
 
     @Parameter(required = false)
@@ -43,7 +50,7 @@ public class TransformerMojo extends AbstractMojo {
     @Parameter(required = false)
     private File context;
 
-    @Parameter(required = false, defaultValue = CONTEXT_DEFAULT_DIR)
+    @Parameter(required = false)
     private File contextDirectory;
 
     /**
@@ -88,11 +95,12 @@ public class TransformerMojo extends AbstractMojo {
         List<File> templateFileList = extractFileList(templates, TEMPLATE_DEFAULT_DIR);
         List<File> contextFileList  = extractFileList(contexts, CONTEXT_DEFAULT_DIR);
 
+        // read in context files as YAML. Read in templates using Mustache.
         Yaml yaml = new Yaml();
 
         for (File template : templateFileList) {
             for (File context : contextFileList) {
-
+                getLog().info("Combining context " + context + " with template " + template);
             }
         }
 
@@ -138,6 +146,7 @@ public class TransformerMojo extends AbstractMojo {
             project.addCompileSourceRoot(outputDir.getPath());
         }
     }
+
 //    private void runTemplateConfiguration(Object globalContext, TemplateRunConfiguration configuration, Charset charset)
 //            throws MojoFailureException, MojoExecutionException {
 //        Object templateContext = createContext(configuration.getContext(), charset);
@@ -208,16 +217,16 @@ public class TransformerMojo extends AbstractMojo {
 //                "include a complete yaml document, prefied with '---\\n");
 //    }
 //
-//    private static Mustache createTemplate(File template, Charset charset) throws MojoFailureException {
-//        DefaultMustacheFactory mf = new DefaultMustacheFactory();
-//        Mustache               mustache;
-//        try (Reader reader = new InputStreamReader(new FileInputStream(template), charset)) {
-//            mustache = mf.compile(reader, "template");
-//        } catch (IOException e) {
-//            throw new MojoFailureException(e, "Cannot open template", "Cannot open template");
-//        }
-//        return mustache;
-//    }
+    private static Mustache createTemplate(File template, Charset charset) throws MojoFailureException {
+        DefaultMustacheFactory mf = new DefaultMustacheFactory();
+        Mustache               mustache;
+        try (Reader reader = new InputStreamReader(new FileInputStream(template), charset)) {
+            mustache = mf.compile(reader, "template");
+        } catch (IOException e) {
+            throw new MojoFailureException(e, "Cannot open template", "Cannot open template");
+        }
+        return mustache;
+    }
 
 //    public void setContext(String context) {
 //        this.context = context;
