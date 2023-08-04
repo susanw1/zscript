@@ -10,6 +10,7 @@
 #include "../ZscriptIncludes.hpp"
 #include "../execution/ZscriptAddressingContext.hpp"
 #include "../execution/ZscriptCommandContext.hpp"
+#include "../execution/ZscriptNotificationContext.hpp"
 #include "ZscriptModule.hpp"
 
 #define MODULE_SWITCH_CHECK(x, y) MODULE_EXISTS_##x##y
@@ -114,17 +115,15 @@ public:
         break;
         }
     }
-    static bool notification(AbstractOutStream<ZP> *out, uint16_t type, bool isAddressed) {
-        uint8_t typeBits = type & 0xF;
+    static void notification(ZscriptNotificationContext<ZP> ctx, bool moveAlong) {
+        uint8_t typeBits = ctx.getID() & 0xF;
         (void) typeBits;
-        (void) out;
-        (void) isAddressed;
-        switch (type >> 4) {
+        (void) moveAlong;
+        switch (ctx.getID() >> 4) {
         NOTIFICATION_SWITCH()
 
     default:
-        out->writeField(Zchars::Z_STATUS, ResponseStatus::INTERNAL_ERROR);
-        return true;
+        ctx.getOutStream()->writeField(Zchars::Z_STATUS, ResponseStatus::INTERNAL_ERROR);
         }
 
     }

@@ -31,7 +31,7 @@ public:
             source(parser), isSemantic(true) {
     }
     AsyncActionNotifier(GenericCore::ZscriptNotificationSource<ZP> *notification) :
-            source(notification), isSemantic(true) {
+            source(notification), isSemantic(false) {
     }
     AsyncActionNotifier() :
             source(NULL), isSemantic(true) {

@@ -1,8 +1,8 @@
 /*
- * Zscript<ZP>*NotificationSource.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2023 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 3 Aug 2023
- *      Author: alicia
+ * SPDX-License-Identifier: MIT
  */
 
 #ifndef SRC_MAIN_C___ZSCRIPT_NOTIFICATIONS_ZSCRIPTNOTIFICATIONSOURCE_HPP_
@@ -23,11 +23,11 @@ enum NotificationSourceState {
 template<class ZP>
 class ZscriptNotificationSource {
 private:
-    volatile LockSet<ZP> *locks = NULL;
-    volatile int id = 0;
+    LockSet<ZP> *volatile locks = NULL;
+    volatile uint16_t id = 0;
     volatile NotificationSourceState state = NO_NOTIFICATION;
     volatile bool isAddressingB = false;
-    NotificationActionType currentAction = SemanticActionType::INVALID;
+    NotificationActionType currentAction = NotificationActionType::INVALID;
     bool locked = false;
 
     NotificationActionType getActionType() {
@@ -56,10 +56,10 @@ public:
         while (currentAction == NotificationActionType::INVALID) {
             currentAction = getActionType();
         }
-        return new ZscriptAction<ZP>(this, currentAction);
+        return ZscriptAction<ZP>(this, currentAction);
     }
 
-    int getID() {
+    uint16_t getID() {
         return id;
     }
 
@@ -68,59 +68,59 @@ public:
     }
 
     bool isAddressing() {
-        return isAddressing;
+        return isAddressingB;
     }
 
-    bool setNotification(LockSet<ZP> *locks, int notificationID) {
+    bool setNotification(LockSet<ZP> *locks, uint16_t notificationID) {
         if (state != NotificationSourceState::NO_NOTIFICATION) {
             return false;
         }
         this->locks = locks;
-        this->isAddressing = false;
+        this->isAddressingB = false;
         this->id = notificationID;
         state = NotificationSourceState::NOTIFICATION_READY;
         return true;
     }
 
-    bool setNotification(int notificationID) {
+    bool setNotification(uint16_t notificationID) {
         if (state != NotificationSourceState::NO_NOTIFICATION) {
             return false;
         }
         this->locks = NULL;
-        this->isAddressing = false;
+        this->isAddressingB = false;
         this->id = notificationID;
         state = NotificationSourceState::NOTIFICATION_READY;
         return true;
     }
 
-    bool setAddressing(LockSet<ZP> *locks, int addressingID) {
+    bool setAddressing(LockSet<ZP> *locks, uint16_t addressingID) {
         if (state != NotificationSourceState::NO_NOTIFICATION) {
             return false;
         }
         this->locks = locks;
-        this->isAddressing = false;
+        this->isAddressingB = false;
         this->id = addressingID;
         state = NotificationSourceState::NOTIFICATION_READY;
         return true;
     }
 
-    bool setAddressing(int addressingID) {
+    bool setAddressing(uint16_t addressingID) {
         if (state != NotificationSourceState::NO_NOTIFICATION) {
             return false;
         }
         this->locks = NULL;
-        this->isAddressing = false;
+        this->isAddressingB = false;
         this->id = addressingID;
         state = NotificationSourceState::NOTIFICATION_READY;
         return true;
     }
 
-    bool set(LockSet<ZP> *locks, int notificationID, bool isAddressing) {
+    bool set(LockSet<ZP> *locks, uint16_t notificationID, bool isAddressingB) {
         if (state != NotificationSourceState::NO_NOTIFICATION) {
             return false;
         }
         this->locks = locks;
-        this->isAddressing = isAddressing;
+        this->isAddressingB = isAddressingB;
         this->id = notificationID;
         state = NotificationSourceState::NOTIFICATION_READY;
         return true;

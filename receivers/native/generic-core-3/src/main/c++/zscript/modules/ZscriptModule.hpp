@@ -21,7 +21,7 @@
 #define MODULE_SWITCH_UTIL_WITH_ASYNC(func) func(ctx, commandBottomBits, moveAlong);
 #define ADDRESS_SWITCH_UTIL(func) func(ctx);
 #define ADDRESS_SWITCH_UTIL_WITH_ASYNC(func) func(ctx, moveAlong);
-#define NOTIFICATION_SWITCH_UTIL(func) func(out, typeBits, isAddressed);
+#define NOTIFICATION_SWITCH_UTIL(func) func(ctx, moveAlong);
 
 #define EXISTENCE_MARKER_UTIL 0,
 

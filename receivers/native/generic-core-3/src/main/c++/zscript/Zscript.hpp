@@ -11,6 +11,8 @@
 #include "ZscriptIncludes.hpp"
 #include "execution/LockSet.hpp"
 #include "execution/LockSystem.hpp"
+#include "execution/ZscriptExecutor.hpp"
+#include "ZscriptChannel.hpp"
 
 namespace Zscript {
 
@@ -19,8 +21,12 @@ class Zscript {
 private:
     //    ZcodeModuleRegistry moduleRegistry = new ZcodeModuleRegistry();
     GenericCore::LockSystem<ZP> locks;
-    //    List<ZcodeChannel> channels = new ArrayList<>();
-//    List<ActionSource> sources = new ArrayList<>();
+    ZscriptChannel<ZP> **channels = NULL;
+    GenericCore::ZscriptNotificationSource<ZP> **notifSources = NULL;
+    uint8_t channelCount = 0;
+    uint8_t notifSrcCount = 0;
+    AbstractOutStream<ZP> *notificationOutStream = NULL;
+
 //    ZcodeExecutor executor;
 
 public:
@@ -32,15 +38,15 @@ public:
 //        moduleRegistry.addModule(m);
 //    }
 //
-//    void addChannel(ZcodeChannel ch) {
-//        ch.setChannelIndex((byte) channels.size());
-//        channels.add(ch);
-//        sources.add(ch);
-//    }
-//
-//    void addNotificationSource(ZcodeNotificationSource s) {
-//        sources.add(s);
-//    }
+    void setChannels(ZscriptChannel<ZP> **channels, uint8_t channelCount) {
+        this->channels = channels;
+        this->channelCount = channelCount;
+    }
+
+    void setNotificationSources(GenericCore::ZscriptNotificationSource<ZP> **notifSources, uint8_t notifSrcCount) {
+        this->notifSources = notifSources;
+        this->notifSrcCount = notifSrcCount;
+    }
 
     bool lock(GenericCore::LockSet<ZP> *l) {
         return locks.lock(l);
@@ -54,12 +60,12 @@ public:
         locks.unlock(l);
     }
 
-//    bool progress() {
-//        for (ZcodeChannel channel : channels) {
-//            channel.moveAlong();
-//        }
-//        return executor.progress(sources);
-//    }
+    bool progress() {
+        for (uint8_t i = 0; i < channelCount; ++i) {
+            channels[i]->moveAlong();
+        }
+        return GenericCore::ZscriptExecutor<ZP>::progress(this, channels, notifSources, channelCount, notifSrcCount);
+    }
 //
 //    List<ZcodeChannel> getChannels() {
 //        return channels;
@@ -69,13 +75,13 @@ public:
 //        return moduleRegistry;
 //    }
 
-//    ZcodeOutStream getNotificationOutStream() {
-//        return notificationOutStream;
-//    }
+    AbstractOutStream<ZP>* getNotificationOutStream() {
+        return notificationOutStream;
+    }
 //
-//    void setNotificationOutStream(ZcodeOutStream out) {
-//        this.notificationOutStream = out;
-//    }
+    void setNotificationOutStream(AbstractOutStream<ZP> *out) {
+        this->notificationOutStream = out;
+    }
 
 };
 }

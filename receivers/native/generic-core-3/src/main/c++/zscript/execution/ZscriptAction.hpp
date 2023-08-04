@@ -61,7 +61,7 @@ private:
         SemanticActionType type = (SemanticActionType) typeStored;
         switch (type) {
         case SemanticActionType::ERROR:
-            startResponse(out, (uint8_t) 0x10);
+            startResponseSem(out, (uint8_t) 0x10);
             out->writeField('S', parseState->getErrorStatus());
             out->endSequence();
             out->close();
@@ -78,7 +78,7 @@ private:
             ModuleRegistry<ZP>::moveAlong(addrCtx);
             break;
         case SemanticActionType::RUN_FIRST_COMMAND:
-            startResponse(out, (uint8_t) 0);
+            startResponseSem(out, (uint8_t) 0);
             // falls through
         case SemanticActionType::RUN_COMMAND:
             if (typeStored == (uint8_t) SemanticActionType::RUN_COMMAND) {
@@ -120,7 +120,7 @@ private:
             break;
         }
     }
-    void startResponse(AbstractOutStream<ZP> *out, uint8_t respType) {
+    void startResponseSem(AbstractOutStream<ZP> *out, uint8_t respType) {
         if (!out->isOpen()) {
             out->open();
         }
@@ -147,8 +147,42 @@ private:
         }
     }
 
-    void performActionNotification() {
-        //TODO
+    void performActionNotification(Zscript<ZP> *z, AbstractOutStream<ZP> *out) {
+        ZscriptNotificationSource<ZP> *notifSrc = ((ZscriptNotificationSource<ZP>*) source);
+        NotificationActionType type = (NotificationActionType) typeStored;
+        switch (type) {
+        case NotificationActionType::NOTIFICATION_BEGIN:
+            startResponseNotif(out);
+            ModuleRegistry<ZP>::notification(ZscriptNotificationContext<ZP>(notifSrc, z), false);
+            break;
+        case NotificationActionType::NOTIFICATION_END:
+            out->endSequence();
+            out->close();
+            notifSrc->unlock(z);
+            break;
+        case NotificationActionType::NOTIFICATION_MOVE_ALONG:
+            ModuleRegistry<ZP>::notification(ZscriptNotificationContext<ZP>(notifSrc, z), true);
+            break;
+        case NotificationActionType::WAIT_FOR_ASYNC:
+            case NotificationActionType::WAIT_FOR_NOTIFICATION:
+            break;
+        case NotificationActionType::INVALID:
+            //unreachable...
+            break;
+        }
+        notifSrc->actionPerformed(type);
+    }
+    void startResponseNotif(AbstractOutStream<ZP> *out) {
+        ZscriptNotificationSource<ZP> *notifSrc = ((ZscriptNotificationSource<ZP>*) source);
+        if (!out->isOpen()) {
+            out->open();
+        }
+        if (notifSrc->isAddressing()) {
+            out->writeField('!', 0);
+            //            commandStream.writeField(Zchars.Z_ADDRESSING, (source.getID() >> 4));
+        } else {
+            out->writeField('!', (notifSrc->getID() >> 4));
+        }
     }
 
 public:
@@ -177,7 +211,7 @@ public:
             performActionSemantic(z, out);
             ((SemanticParser<ZP>*) source)->actionPerformed((SemanticActionType) typeStored);
         } else {
-            performActionNotification();
+            performActionNotification(z, out);
             ((ZscriptNotificationSource<ZP>*) source)->actionPerformed((NotificationActionType) typeStored);
         }
     }

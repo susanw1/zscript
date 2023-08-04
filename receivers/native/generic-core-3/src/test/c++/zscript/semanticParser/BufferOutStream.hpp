@@ -1,8 +1,8 @@
 /*
- * BufferOutStream.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2023 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 1 Aug 2023
- *      Author: alicia
+ * SPDX-License-Identifier: MIT
  */
 
 #ifndef SRC_TEST_C___ZSCRIPT_SEMANTICPARSER_BUFFEROUTSTREAM_HPP_
@@ -40,7 +40,7 @@ public:
         index = 0;
     }
 
-    void writeBytes(uint8_t *bytes, uint16_t count, bool hexMode) {
+    void writeBytes(const uint8_t *bytes, uint16_t count, bool hexMode) {
         if (hexMode) {
             for (uint16_t i = 0; i < count; i++) {
                 data[index++] = AbstractOutStream<ZP>::toHexChar(bytes[i] >> 4);

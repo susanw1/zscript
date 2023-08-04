@@ -34,7 +34,7 @@ protected:
         return 0;
     }
 
-    virtual void writeBytes(uint8_t *bytes, uint16_t count, bool hexMode) = 0;
+    virtual void writeBytes(const uint8_t *bytes, uint16_t count, bool hexMode) = 0;
 
     void escapeStrChar(uint8_t c) {
         uint8_t bytes[3];
@@ -95,6 +95,9 @@ public:
                 escapeStrChar(data.data[i]);
             }
         }
+        if (segStart != data.length) {
+            writeBytes(data.data + segStart, data.length - segStart, false);
+        }
     }
     void continueBigString(DataArrayWLeng16 data) {
         uint16_t segStart = 0;
@@ -107,8 +110,11 @@ public:
                 escapeStrChar(data.data[i]);
             }
         }
+        if (segStart != data.length) {
+            writeBytes(data.data + segStart, data.length - segStart, false);
+        }
     }
-    void continueBigString(uint8_t *data, uint16_t length) {
+    void continueBigString(const uint8_t *data, uint16_t length) {
         uint16_t segStart = 0;
         for (uint16_t i = 0; i < length; ++i) {
             if (ZcharsUtils<ZP>::needsStringEscape(data[i])) {
@@ -119,6 +125,18 @@ public:
                 escapeStrChar(data[i]);
             }
         }
+        if (segStart != length) {
+            writeBytes(data + segStart, length - segStart, false);
+        }
+    }
+
+    void writeQuotedString(const char *text) {
+        beginBigString();
+        uint16_t length;
+        for (length = 0; text[length] != 0; ++length) {
+        }
+        continueBigString((const uint8_t*) text, length);
+        endBigString();
     }
 
     void endBigString() {

@@ -1,8 +1,8 @@
 /*
- * CoreModule.hpp
+ * Zcode Library - Command System for Microcontrollers)
+ * Copyright (c) 2023 Zcode team (Susan Witts, Alicia Witts)
  *
- *  Created on: 2 Aug 2023
- *      Author: alicia
+ * SPDX-License-Identifier: MIT
  */
 
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_CORE_COREMODULE_HPP_
