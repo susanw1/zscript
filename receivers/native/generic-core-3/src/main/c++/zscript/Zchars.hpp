@@ -1,33 +1,35 @@
 /*
- * Zcode Library - Command System for Microcontrollers)
- * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
  * SPDX-License-Identifier: MIT
  */
-#ifndef SRC_MAIN_C___ZCODE_ZCHARS_HPP_
-#define SRC_MAIN_C___ZCODE_ZCHARS_HPP_
-#include "ZcodeIncludes.hpp"
+#ifndef SRC_MAIN_C___ZSCRIPT_ZCHARS_HPP_
+#define SRC_MAIN_C___ZSCRIPT_ZCHARS_HPP_
+#include "ZscriptIncludes.hpp"
+
+namespace Zscript {
 
 enum Zchars {
-    CMD_PARAM = 'Z',
-    STATUS_RESP_PARAM = 'S',
+    Z_CMD = 'Z',
+    Z_STATUS = 'S',
 
     ANDTHEN_SYMBOL = '&',
     ORELSE_SYMBOL = '|',
     OPEN_PAREN_SYMBOL = '(',
     CLOSE_PAREN_SYMBOL = ')',
     EOL_SYMBOL = '\n',
-    STRING_ESCAPE_SYMBOL = '=',
+    Z_STRING_ESCAPE = '=',
 
-    BIGFIELD_PREFIX_MARKER = '+',
-    BIGFIELD_QUOTE_MARKER = '"',
+    Z_BIGFIELD_HEX = '+',
+    Z_BIGFIELD_QUOTED = '"',
 
-    ECHO_PREFIX = '_',
-    LOCKING_PREFIX = '%',
-    COMMENT_PREFIX = '#',
+    Z_ECHO = '_',
+    Z_LOCKS = '%',
+    Z_COMMENT = '#',
     NOTIFY_PREFIX = '!',
-    ADDRESS_PREFIX = '@',
-    ADDRESS_SEPARATOR = '.'
+    Z_ADDRESSING = '@',
+    Z_ADDRESSING_CONTINUE = '.'
 };
 template<class ZP>
 class ZcharsUtils {
@@ -52,16 +54,20 @@ public:
         return b == ' ' || b == '\r' || b == '\t' || b == ',' || b == '\0';
     }
 
+    static bool needsStringEscape(uint8_t b) {
+        return b == EOL_SYMBOL || b == Z_BIGFIELD_QUOTED || b == Z_STRING_ESCAPE || b == '\0';
+    }
+
     static bool isSeparator(uint8_t b) {
         return b == EOL_SYMBOL || b == ANDTHEN_SYMBOL || b == ORELSE_SYMBOL || b == OPEN_PAREN_SYMBOL || b == CLOSE_PAREN_SYMBOL;
     }
 
     static bool isNonNumerical(uint8_t b) {
-        return b == LOCKING_PREFIX || b == BIGFIELD_PREFIX_MARKER || b == BIGFIELD_QUOTE_MARKER || b == COMMENT_PREFIX;
+        return b == Z_LOCKS || b == Z_BIGFIELD_HEX || b == Z_BIGFIELD_QUOTED || b == Z_COMMENT;
     }
 
     static bool isBigField(uint8_t b) {
-        return b == BIGFIELD_PREFIX_MARKER || b == BIGFIELD_QUOTE_MARKER;
+        return b == Z_BIGFIELD_HEX || b == Z_BIGFIELD_QUOTED;
     }
 
     static bool isNumericKey(uint8_t b) {
@@ -78,4 +84,5 @@ public:
     }
 };
 
-#endif /* SRC_MAIN_C___ZCODE_ZCHARS_HPP_ */
+}
+#endif /* SRC_MAIN_C___ZSCRIPT_ZCHARS_HPP_ */

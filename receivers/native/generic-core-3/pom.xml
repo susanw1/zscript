@@ -20,7 +20,6 @@
                 <configuration>
                     <cpp>
                         <name>gcc</name>
-                        <exceptions>false</exceptions>
                         <debug>true</debug>
                         <includePaths>
                             <includePath>
@@ -32,9 +31,12 @@
                             <option>-flto</option>
                             <option>-g</option>
                             <option>-Wall</option>
-
+                            <testOption>-fno-exceptions</testOption>
                             <option>-Wextra</option>
                         </options>
+                        <testOptions>
+                            <testOption>-fexceptions</testOption>
+                        </testOptions>
                     </cpp>
                     <libraries>
                         <library>
@@ -49,6 +51,41 @@
 <!--                        </test>-->
                         <test>
                             <name>ZscriptTokenizerTest</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
+                        <test>
+                            <name>ZscriptTokenBufferReaderTest</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
+                        <test>
+                            <name>SemanticParserTest</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
+                        <test>
+                            <name>SemanticParserMulticommandTest</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
+                        <test>
+                            <name>SemanticParserAddressingTest</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
+                        <test>
+                            <name>SemanticParserTokenWaitTest</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
+                        <test>
+                            <name>SemanticParserAsyncCommandTest</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
+                        <test>
+                            <name>NotificationTest</name>
                             <link>static</link>
                             <run>true</run>
                         </test>

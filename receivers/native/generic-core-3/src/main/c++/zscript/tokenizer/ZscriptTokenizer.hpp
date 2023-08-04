@@ -1,19 +1,20 @@
 /*
- * ZcodeTokenizer.hpp
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
- *  Created on: 18 Jul 2023
- *      Author: alicia
+ * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ZCODE_ZCODETOKENIZER_HPP_
-#define SRC_MAIN_C___ZCODE_ZCODETOKENIZER_HPP_
+#ifndef SRC_MAIN_C___ZSCRIPT_ZSCRIPTTOKENIZER_HPP_
+#define SRC_MAIN_C___ZSCRIPT_ZSCRIPTTOKENIZER_HPP_
 
-#include "ZcodeIncludes.hpp"
-#include "ZcodeTokenRingBuffer.hpp"
+#include "../ZscriptIncludes.hpp"
+#include "TokenRingBuffer.hpp"
 
-#include <iostream>
+namespace Zscript {
+
 template<class ZP>
-class ZcodeTokenizer {
+class ZscriptTokenizer {
 public:
     static const uint8_t ADDRESSING_FIELD_KEY = 0x80;
 
@@ -33,7 +34,7 @@ public:
 private:
     static const bool DROP_COMMENTS = false;
 
-    ZcodeTokenRingBuffer<ZP> *buffer;
+    GenericCore::TokenRingBuffer<ZP> *buffer;
     const uint8_t maxNumericBytes;
 
     bool skipToNL = false;
@@ -75,10 +76,10 @@ private:
                 buffer->W_continueTokenNibble(hex);
                 escapingCount--;
             }
-        } else if (isNormalString && b == Zchars::BIGFIELD_QUOTE_MARKER) {
+        } else if (isNormalString && b == Zchars::Z_BIGFIELD_QUOTED) {
             buffer->W_endToken();
             isText = false;
-        } else if (isNormalString && b == Zchars::STRING_ESCAPE_SYMBOL) {
+        } else if (isNormalString && b == Zchars::Z_STRING_ESCAPE) {
             escapingCount = 2;
         } else {
             buffer->W_continueTokenByte(b);
@@ -92,7 +93,7 @@ private:
             return;
         }
 
-        if (addressing && b != Zchars::ADDRESS_SEPARATOR) {
+        if (addressing && b != Zchars::Z_ADDRESSING_CONTINUE) {
             buffer->W_startToken(ADDRESSING_FIELD_KEY, false);
             buffer->W_continueTokenByte(b);
             addressing = false;
@@ -126,7 +127,7 @@ private:
             //TODO: die
         }
 
-        if (b == Zchars::ADDRESS_PREFIX) {
+        if (b == Zchars::Z_ADDRESSING) {
             addressing = true;
         }
 
@@ -140,7 +141,7 @@ private:
         isText = false;
         buffer->W_startToken(b, numeric);
 
-        if (b == Zchars::COMMENT_PREFIX) {
+        if (b == Zchars::Z_COMMENT) {
             if (DROP_COMMENTS) {
                 skipToNL = true;
             } else {
@@ -150,7 +151,7 @@ private:
             }
             return;
         }
-        if (b == Zchars::BIGFIELD_QUOTE_MARKER) {
+        if (b == Zchars::Z_BIGFIELD_QUOTED) {
             isText = true;
             isNormalString = true;
             escapingCount = 0;
@@ -160,7 +161,7 @@ private:
 
 public:
 
-    ZcodeTokenizer(ZcodeTokenRingBuffer<ZP> *buffer, uint8_t maxNumericBytes) :
+    ZscriptTokenizer(GenericCore::TokenRingBuffer<ZP> *buffer, uint8_t maxNumericBytes) :
             buffer(buffer), maxNumericBytes(maxNumericBytes) {
     }
     void dataLost() {
@@ -174,7 +175,7 @@ public:
         return buffer->W_checkAvailableCapacity(3);
     }
     bool offer(uint8_t b) {
-        if (checkCapacity() /*|| buffer->getFlags().isReaderBlocked()*/) {
+        if (checkCapacity() || buffer->getFlags()->isReaderBlocked()) {
             accept(b);
             return true;
         }
@@ -242,7 +243,7 @@ public:
         }
 
         // Check big field odd length
-        if (!numeric && buffer->W_getCurrentWriteTokenKey() == Zchars::BIGFIELD_PREFIX_MARKER && buffer->W_isInNibble()) {
+        if (!numeric && buffer->W_getCurrentWriteTokenKey() == Zchars::Z_BIGFIELD_HEX && buffer->W_isInNibble()) {
             buffer->W_fail(ERROR_CODE_ODD_BIGFIELD_LENGTH);
             tokenizerError = true;
             if (b == Zchars::EOL_SYMBOL) {
@@ -257,4 +258,6 @@ public:
 
 };
 
-#endif /* SRC_MAIN_C___ZCODE_ZCODETOKENIZER_HPP_ */
+}
+
+#endif /* SRC_MAIN_C___ZSCRIPT_ZSCRIPTTOKENIZER_HPP_ */
