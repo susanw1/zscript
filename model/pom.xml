@@ -15,6 +15,7 @@
 
     <modules>
         <module>transformer-maven-plugin</module>
+        <module>schema</module>
         <module>standard-definitions</module>
     </modules> 
 

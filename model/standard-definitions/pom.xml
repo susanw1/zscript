@@ -16,21 +16,14 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-model-schema</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.spullara.mustache.java</groupId>
             <artifactId>compiler</artifactId>
             <version>0.9.10</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-mrbean</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -57,7 +50,10 @@
                     <templates>
                         <includes>**/Test*</includes>
                     </templates>
-                    <contexts/>
+                    <contexts>
+                        <directory>${project.resources[0].directory}/datamodel</directory>
+                        <includes>*/**/*.yaml</includes>
+                    </contexts>
 
                     <!--                    <outputPath>
                         ${project.build.outputDirectory}/generated-sources</outputPath>
