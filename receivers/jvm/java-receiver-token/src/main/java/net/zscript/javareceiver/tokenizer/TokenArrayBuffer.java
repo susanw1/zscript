@@ -43,6 +43,15 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
         flags = new TokenBufferFlags();
     }
 
+    // construct via static factories
+    protected TokenArrayBuffer(final byte[] preloaded) {
+        data = preloaded;
+        writeStart = preloaded.length + 2;
+        tokenWriter = new TokenArrayBufferWriter();
+        tokenReader = new TokenArrayBufferReader();
+        flags = new TokenBufferFlags();
+    }
+
     // Visible for testing only!
     byte[] getInternalData() {
         return data.clone();

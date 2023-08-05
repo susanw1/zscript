@@ -31,9 +31,8 @@ public class ZscriptExecutor {
             possibleActions.add(action);
         }
 
-        int         indexToExec = scheduler.decide(zscript, possibleActions);
+        int           indexToExec = scheduler.decide(zscript, possibleActions);
         ZscriptAction action      = possibleActions.get(indexToExec);
-
         if (!action.isEmptyAction() && action.lock(zscript)) {
             action.performAction(zscript, sources.get(indexToExec).getOutStream(zscript));
         }

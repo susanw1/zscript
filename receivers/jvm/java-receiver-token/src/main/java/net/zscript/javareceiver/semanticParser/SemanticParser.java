@@ -3,18 +3,18 @@ package net.zscript.javareceiver.semanticParser;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.LockSet;
+import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptLocks;
 import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
-import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
-import net.zscript.javareceiver.tokenizer.Zchars;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
-import net.zscript.javareceiver.tokenizer.TokenBufferFlags;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.javareceiver.tokenizer.TokenBufferFlags;
+import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
+import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.javareceiver.tokenizer.Zchars;
 
 public class SemanticParser implements ParseState, ContextView {
     // 6 bytes + 1 pointer
@@ -194,9 +194,9 @@ public class SemanticParser implements ParseState, ContextView {
 
     // Sequence-start info - note, booleans are only usefully "true" during PRESEQUENCE - merge into state?
     private LockSet locks    = LockSet.allLocked();
-    private boolean      hasLocks = false;
-    private int          echo     = 0;                       // 16 bit
-    private boolean      hasEcho  = false;
+    private boolean hasLocks = false;
+    private int     echo     = 0;                  // 16 bit
+    private boolean hasEcho  = false;
 
     // Execution state
     private boolean activated = false;
@@ -222,10 +222,12 @@ public class SemanticParser implements ParseState, ContextView {
         ERROR_MULTIPLE_ECHO,
         ERROR_LOCKS,
         ERROR_COMMENT_WITH_SEQ_FIELDS,
-        ERROR_STATUS
+        ERROR_STATUS,
+        STOPPING,
+        STOPPED
     }
 
-    private boolean isInErrorState() {
+    public boolean isInErrorState() {
         return state == State.ERROR_TOKENIZER || state == State.ERROR_MULTIPLE_ECHO || state == State.ERROR_LOCKS || state == State.ERROR_COMMENT_WITH_SEQ_FIELDS
                 || state == State.ERROR_STATUS;
     }
@@ -235,6 +237,7 @@ public class SemanticParser implements ParseState, ContextView {
         this.actionFactory = actionFactory;
         this.currentAction = ActionType.INVALID;
         this.state = State.PRESEQUENCE;
+        markerCache.seekMarker(true, false);
     }
 
     // VisibleForTesting
@@ -333,6 +336,14 @@ public class SemanticParser implements ParseState, ContextView {
             } else {
                 return ActionType.WAIT_FOR_TOKENS;
             }
+        case STOPPING:
+            if (!markerCache.skipSequence()) {
+                return ActionType.WAIT_FOR_TOKENS;
+            }
+            state = State.STOPPED;
+            return ActionType.END_SEQUENCE;
+        case STOPPED:
+            return ActionType.STOPPED;
         default:
             throw new IllegalStateException();
         }
@@ -365,6 +376,7 @@ public class SemanticParser implements ParseState, ContextView {
         case WAIT_FOR_TOKENS:
         case WAIT_FOR_ASYNC:
         case GO_AROUND:
+        case STOPPED:
             break;
         case INVALID:
             throw new IllegalStateException();
@@ -520,7 +532,9 @@ public class SemanticParser implements ParseState, ContextView {
 
     private void resetToSequence() {
         locks = LockSet.allLocked();
-        state = State.PRESEQUENCE;
+        if (state != State.STOPPED && state != State.STOPPING) {
+            state = State.PRESEQUENCE;
+        }
         hasSetStatus = false;
         hasLocks = false;
         hasEcho = false;
@@ -668,7 +682,9 @@ public class SemanticParser implements ParseState, ContextView {
             return false;
         }
         hasSetStatus = true;
-
+        if (state == State.STOPPED || state == State.STOPPING) {
+            return true;
+        }
         if (ZscriptStatus.isSuccess(status)) {
             return true;
         }
@@ -724,4 +740,25 @@ public class SemanticParser implements ParseState, ContextView {
     public int getChannelIndex() {
         return Byte.toUnsignedInt(channelIndex);
     }
+
+    public boolean isFailed() {
+        return state == State.COMMAND_FAILED;
+    }
+
+    public void stop() {
+        if (state == State.PRESEQUENCE || state == State.STOPPED) {
+            state = State.STOPPED;
+        } else {
+            state = State.STOPPING;
+        }
+    }
+
+    public void resume() {
+        if (state == State.STOPPED) {
+            state = State.PRESEQUENCE;
+        } else {
+            throw new IllegalStateException("Invalid state transition, previous: " + state);
+        }
+    }
+
 }
