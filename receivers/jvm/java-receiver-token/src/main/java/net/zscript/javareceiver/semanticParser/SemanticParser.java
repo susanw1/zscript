@@ -761,4 +761,8 @@ public class SemanticParser implements ParseState, ContextView {
         }
     }
 
+    public boolean isRunning() {
+        return state != State.STOPPED && state != State.STOPPING;
+    }
+
 }

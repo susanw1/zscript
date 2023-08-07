@@ -14,7 +14,9 @@ import net.zscript.javareceiver.tokenizer.Tokenizer;
 
 public class ScriptSpace implements ActionSource {
     private final ScriptSpaceOutStream outStream;
+    private final ScriptSpaceBuffer    buffer;
     private final SemanticParser       parser;
+    private final boolean              canBeWrittenTo;
 
     public static ScriptSpace from(Zscript z, String str) {
         ScriptSpaceBuffer       buffer = new ScriptSpaceBuffer();
@@ -24,12 +26,19 @@ public class ScriptSpace implements ActionSource {
             tok.accept(b);
         }
         writer.commitChanges();
-        return new ScriptSpace(z, buffer);
+        return new ScriptSpace(z, buffer, false);
     }
 
-    public ScriptSpace(Zscript z, ScriptSpaceBuffer buffer) {
+    public static ScriptSpace blank(Zscript z) {
+        ScriptSpaceBuffer buffer = new ScriptSpaceBuffer();
+        return new ScriptSpace(z, buffer, true);
+    }
+
+    public ScriptSpace(Zscript z, ScriptSpaceBuffer buffer, boolean canBeWrittenTo) {
+        this.buffer = buffer;
         this.parser = new SemanticParser(buffer.getTokenReader(), new ExecutionActionFactory());
         this.outStream = new ScriptSpaceOutStream(z, parser, new byte[32]);
+        this.canBeWrittenTo = canBeWrittenTo;
     }
 
     @Override
@@ -41,6 +50,42 @@ public class ScriptSpace implements ActionSource {
     @Override
     public OutStream getOutStream(Zscript zscript) {
         return outStream;
+    }
+
+    public boolean canBeWrittenTo() {
+        return canBeWrittenTo;
+    }
+
+    public ScriptSpaceWriterBuffer append() {
+        if (canBeWrittenTo) {
+            return buffer.append();
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public ScriptSpaceWriterBuffer overwrite() {
+        if (canBeWrittenTo) {
+            return buffer.fromStart();
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public int getCurrentLength() {
+        return buffer.getCurrentLength();
+    }
+
+    public boolean isRunning() {
+        return parser.isRunning();
+    }
+
+    public void run() {
+        parser.resume();
+    }
+
+    public void stop() {
+        parser.stop();
     }
 
 }

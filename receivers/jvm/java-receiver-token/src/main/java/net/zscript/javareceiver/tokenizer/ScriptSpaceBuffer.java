@@ -75,4 +75,8 @@ public class ScriptSpaceBuffer extends TokenArrayBuffer {
         return writer;
     }
 
+    public int getCurrentLength() {
+        return data.length;
+    }
+
 }
