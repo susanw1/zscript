@@ -37,6 +37,7 @@ public class ScriptSpaceWriteCommand {
         for (Iterator<Byte> iterator = ctx.getBigField(); iterator.hasNext();) {
             tok.accept(iterator.next());
         }
+        writer.commitChanges();
         out.writeField('L', 0xFFFF);
     }
 

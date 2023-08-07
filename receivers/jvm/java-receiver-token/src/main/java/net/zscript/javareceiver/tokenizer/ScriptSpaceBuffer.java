@@ -8,7 +8,7 @@ public class ScriptSpaceBuffer extends TokenArrayBuffer {
 
     public ScriptSpaceBuffer() {
         super(new byte[0]);
-        writeStart = 2;
+        writeStart = 0;
     }
 
     private int getAvailableWrite(int writeCursor) {
@@ -39,6 +39,7 @@ public class ScriptSpaceBuffer extends TokenArrayBuffer {
         private ScriptSpaceWriterBuffer(ScriptSpaceBuffer parent, byte[] data) {
             super(data);
             this.parent = parent;
+            offset(data.length, 1);
         }
 
         @Override

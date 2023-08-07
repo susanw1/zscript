@@ -31,7 +31,9 @@ public class ScriptSpace implements ActionSource {
 
     public static ScriptSpace blank(Zscript z) {
         ScriptSpaceBuffer buffer = new ScriptSpaceBuffer();
-        return new ScriptSpace(z, buffer, true);
+        ScriptSpace       space  = new ScriptSpace(z, buffer, true);
+        space.stop();
+        return space;
     }
 
     public ScriptSpace(Zscript z, ScriptSpaceBuffer buffer, boolean canBeWrittenTo) {
@@ -43,8 +45,7 @@ public class ScriptSpace implements ActionSource {
 
     @Override
     public ZscriptAction getAction() {
-        ZscriptAction a = parser.getAction();
-        return a;
+        return parser.getAction();
     }
 
     @Override

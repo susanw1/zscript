@@ -642,6 +642,8 @@ public class SemanticParser implements ParseState, ContextView {
     @Override
     public void setCommandComplete(final boolean b) {
         switch (state) {
+        case STOPPING:
+            break;
         case ADDRESSING_COMPLETE:
         case ADDRESSING_INCOMPLETE:
             state = b ? State.ADDRESSING_COMPLETE : State.ADDRESSING_INCOMPLETE;
@@ -755,6 +757,7 @@ public class SemanticParser implements ParseState, ContextView {
 
     public void resume() {
         if (state == State.STOPPED) {
+            markerCache.seekMarker(true, false);
             state = State.PRESEQUENCE;
         } else {
             throw new IllegalStateException("Invalid state transition, previous: " + state);
