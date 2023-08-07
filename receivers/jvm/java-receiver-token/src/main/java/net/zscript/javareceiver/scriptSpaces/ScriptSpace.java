@@ -9,6 +9,7 @@ import net.zscript.javareceiver.execution.ZscriptAction;
 import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
 import net.zscript.javareceiver.semanticParser.SemanticParser;
 import net.zscript.javareceiver.tokenizer.ScriptSpaceBuffer;
+import net.zscript.javareceiver.tokenizer.ScriptSpaceBuffer.ScriptSpaceWriterBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 
 public class ScriptSpace implements ActionSource {
@@ -16,16 +17,18 @@ public class ScriptSpace implements ActionSource {
     private final SemanticParser       parser;
 
     public static ScriptSpace from(Zscript z, String str) {
-        ScriptSpaceBuffer buffer = new ScriptSpaceBuffer();
-        Tokenizer         tok    = new Tokenizer(buffer.getTokenWriter(), 2);
+        ScriptSpaceBuffer       buffer = new ScriptSpaceBuffer();
+        ScriptSpaceWriterBuffer writer = buffer.fromStart();
+        Tokenizer               tok    = new Tokenizer(writer.getTokenWriter(), 2);
         for (byte b : str.getBytes(StandardCharsets.UTF_8)) {
             tok.accept(b);
         }
+        writer.commitChanges();
         return new ScriptSpace(z, buffer);
     }
 
     public ScriptSpace(Zscript z, ScriptSpaceBuffer buffer) {
-        this.parser = new SemanticParser(buffer.getReadOnlyView().getTokenReader(), new ExecutionActionFactory());
+        this.parser = new SemanticParser(buffer.getTokenReader(), new ExecutionActionFactory());
         this.outStream = new ScriptSpaceOutStream(z, parser, new byte[32]);
     }
 

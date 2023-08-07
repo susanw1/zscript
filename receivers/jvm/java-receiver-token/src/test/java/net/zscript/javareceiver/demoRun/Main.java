@@ -16,7 +16,7 @@ public class Main {
         zscript.addModule(oCore);
         zscript.addModule(new ZscriptCoreModule());
 //        byte[] code = "Z2(Z1S1)Z1&Z1|Z1\n".getBytes();
-        zscript.addActionSource(ScriptSpace.from(zscript, "Z0&Z1S1\nZ2\nZ1S10\n"));
+        zscript.addActionSource(ScriptSpace.from(zscript, "Z0&Z1S1\nZ2&Z1S1|Z1\nZ1S10\nZ1S1\n"));
 
 //        TokenRingBuffer rbuff = TokenRingBuffer.createBufferWithCapacity(100);
         OutStream out = new ZscriptPrintingOutStream();

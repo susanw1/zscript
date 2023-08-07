@@ -63,9 +63,10 @@ public class ScriptSpaceOutStream extends AbstractOutStream {
         if (parser.isInErrorState()) {
             isFailed = true;
             isError = true;
-            parser.stop();
         } else if (parser.isFailed()) {
             isFailed = true;
+        } else {
+            isFailed = false;
         }
     }
 }
