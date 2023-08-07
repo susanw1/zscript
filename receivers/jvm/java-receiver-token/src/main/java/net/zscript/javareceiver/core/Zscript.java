@@ -13,7 +13,7 @@ public class Zscript {
     private final ZscriptModuleRegistry moduleRegistry = new ZscriptModuleRegistry();
     private final ZscriptLocks          locks          = new ZscriptLocks();
     private final List<ZscriptChannel>  channels       = new ArrayList<>();
-    private final List<ActionSource>  sources        = new ArrayList<>();
+    private final List<ActionSource>    sources        = new ArrayList<>();
     private final ZscriptExecutor       executor;
 
     private OutStream notificationOutStream = new AbstractOutStream() {
@@ -53,6 +53,10 @@ public class Zscript {
         ch.setChannelIndex((byte) channels.size());
         channels.add(ch);
         sources.add(ch);
+    }
+
+    public void addActionSource(ActionSource src) {
+        sources.add(src);
     }
 
     public void addNotificationSource(ZscriptNotificationSource s) {

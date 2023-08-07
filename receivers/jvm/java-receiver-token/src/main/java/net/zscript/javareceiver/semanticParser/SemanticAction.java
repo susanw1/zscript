@@ -1,14 +1,14 @@
 package net.zscript.javareceiver.semanticParser;
 
+import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.ZscriptStatus;
-import net.zscript.javareceiver.execution.ZscriptAction;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
-import net.zscript.javareceiver.tokenizer.Zchars;
+import net.zscript.javareceiver.execution.ZscriptAction;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.javareceiver.tokenizer.Zchars;
 
 public class SemanticAction implements ZscriptAction {
     enum ActionType {
@@ -23,7 +23,8 @@ public class SemanticAction implements ZscriptAction {
         RUN_COMMAND,
         COMMAND_MOVEALONG,
         END_SEQUENCE,
-        CLOSE_PAREN
+        CLOSE_PAREN,
+        STOPPED
     }
 
     private final ParseState parseState;
@@ -36,7 +37,7 @@ public class SemanticAction implements ZscriptAction {
 
     @Override
     public boolean isEmptyAction() {
-        return type == ActionType.GO_AROUND || type == ActionType.WAIT_FOR_TOKENS || type == ActionType.WAIT_FOR_ASYNC;
+        return type == ActionType.GO_AROUND || type == ActionType.WAIT_FOR_TOKENS || type == ActionType.WAIT_FOR_ASYNC || type == ActionType.STOPPED;
     }
 
     @Override
@@ -100,9 +101,11 @@ public class SemanticAction implements ZscriptAction {
         case GO_AROUND:
         case WAIT_FOR_TOKENS:
         case WAIT_FOR_ASYNC:
+        case STOPPED:
             break;
         case INVALID:
             throw new IllegalStateException();
+
         }
 
     }
