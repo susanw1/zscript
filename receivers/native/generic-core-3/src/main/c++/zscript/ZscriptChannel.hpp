@@ -16,6 +16,7 @@ namespace Zscript {
 
 template<class ZP>
 class ZscriptChannel {
+protected:
     GenericCore::SemanticParser<ZP> parser;
     AbstractOutStream<ZP> *out;
 

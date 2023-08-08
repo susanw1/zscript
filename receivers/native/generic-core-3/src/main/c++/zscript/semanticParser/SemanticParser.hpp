@@ -11,12 +11,14 @@
 #include "../ZscriptIncludes.hpp"
 #include "../tokenizer/TokenRingBuffer.hpp"
 #include "../tokenizer/ZscriptTokenizer.hpp"
-#include "../Zscript.hpp"
 #include "../execution/LockSet.hpp"
 
 #include "../execution/ZscriptAction.hpp"
 
 namespace Zscript {
+
+template<class ZP>
+class Zscript;
 namespace GenericCore {
 
 enum State {
@@ -35,7 +37,9 @@ enum State {
     ERROR_MULTIPLE_ECHO,
     ERROR_LOCKS,
     ERROR_COMMENT_WITH_SEQ_FIELDS,
-    ERROR_STATUS
+    ERROR_STATUS,
+    STOPPING,
+    STOPPED
 };
 
 template<class ZP>
@@ -200,12 +204,8 @@ class SemanticParser {
         seekMarker(false, true);
         return nextMarker;
     }
-
-    bool isInErrorState() {
-        return state == ERROR_TOKENIZER || state == ERROR_MULTIPLE_ECHO || state == ERROR_LOCKS || state == ERROR_COMMENT_WITH_SEQ_FIELDS
-                || state == ERROR_STATUS;
-    }
 public:
+
     void actionPerformed(SemanticActionType type) {
         currentAction = SemanticActionType::INVALID;
 
@@ -328,6 +328,15 @@ private:
             } else {
                 return SemanticActionType::WAIT_FOR_TOKENS;
             }
+        case STOPPING:
+            if (!skipSequence()) {
+                return SemanticActionType::WAIT_FOR_TOKENS;
+            }
+            state = State::STOPPED;
+            return SemanticActionType::END_SEQUENCE;
+
+        case STOPPED:
+            return SemanticActionType::STOPPED;
         default:
             return SemanticActionType::ERROR; //unreachable hopefully
         }
@@ -483,7 +492,9 @@ private:
 
     void resetToSequence() {
         locks = LockSet<ZP>::allLocked();
-        state = PRESEQUENCE;
+        if (state != State::STOPPED && state != State::STOPPING) {
+            state = State::PRESEQUENCE;
+        }
         hasSentStatusB = false;
         hasLocks = false;
         hasEchoB = false;
@@ -581,6 +592,8 @@ public:
 
     void setCommandComplete(bool b) {
         switch (state) {
+        case STOPPING:
+            break;
         case ADDRESSING_COMPLETE:
             case ADDRESSING_INCOMPLETE:
             state = b ? ADDRESSING_COMPLETE : ADDRESSING_INCOMPLETE;
@@ -631,6 +644,44 @@ public:
             }
         }
     }
+    bool requestStatusChange(uint8_t status) {
+        if (hasSentStatusB) {
+            return false;
+        }
+        hasSentStatusB = true;
+        if (state == State::STOPPED || state == State::STOPPING) {
+            return true;
+        }
+        if (ResponseStatusUtils<ZP>::isSuccess(status)) {
+            return true;
+        }
+
+        if (ResponseStatusUtils<ZP>::isError(status)) {
+            state = State::ERROR_STATUS;
+            return true;
+        }
+
+        if (ResponseStatusUtils<ZP>::isFailure(status)) {
+            switch (state) {
+            case COMMAND_COMPLETE:
+                case COMMAND_INCOMPLETE:
+                state = State::COMMAND_FAILED;
+                parenCounter = 0;
+                return true;
+            case ERROR_COMMENT_WITH_SEQ_FIELDS:
+                case ERROR_LOCKS:
+                case ERROR_MULTIPLE_ECHO:
+                case ERROR_STATUS:
+                case ERROR_TOKENIZER:
+                // ignore: command cannot report failure after an ERROR.
+                return false;
+            default:
+                //unreachable...
+                break;
+            }
+        }
+        return false;
+    }
 
     void notifyNeedsAction() {
         switch (state) {
@@ -648,6 +699,27 @@ public:
         }
     }
 
+    void stop() {
+        if (state == State::PRESEQUENCE || state == State::STOPPED) {
+            state = State::STOPPED;
+        } else {
+            state = State::STOPPING;
+        }
+    }
+
+    void resume() {
+        if (state == State::STOPPED) {
+            seekMarker(true, false);
+            state = State::PRESEQUENCE;
+        } else {
+            //unreachable...
+        }
+    }
+
+    bool isRunning() {
+        return state != State::STOPPED && state != State::STOPPING;
+    }
+
     void silentSucceed() {
         hasSentStatusB = true;
     }
@@ -661,6 +733,15 @@ public:
     }
     AsyncActionNotifier<ZP> getAsyncActionNotifier() {
         return AsyncActionNotifier<ZP>(this);
+    }
+
+    bool isInErrorState() {
+        return state == ERROR_TOKENIZER || state == ERROR_MULTIPLE_ECHO || state == ERROR_LOCKS || state == ERROR_COMMENT_WITH_SEQ_FIELDS
+                || state == ERROR_STATUS;
+    }
+
+    bool isFailed() {
+        return state == COMMAND_FAILED;
     }
 };
 
