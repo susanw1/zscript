@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include "../../../../main/c++/zscript/modules/scriptSpace/ScriptSpaceModule.hpp"
 #include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
 #include "../../../../main/c++/zscript/semanticParser/SemanticParser.hpp"
 #include "../../../../main/c++/zscript/notifications/ZscriptNotificationSource.hpp"

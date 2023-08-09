@@ -59,6 +59,15 @@ public:
     void commitChanges(GenericCore::TokenRingBuffer<ZP> *newSource) {
         buffer.commitChanges(newSource);
     }
+    uint16_t getCurrentLength() {
+        return this->buffer.getReadBuffer()->getLength();
+    }
+    uint16_t getRemainingLength() {
+        return this->buffer.getRemainingLength();
+    }
+    uint16_t getMaxLength() {
+        return this->buffer.getMaxLength();
+    }
 
     bool isRunning() {
         return this->parser.isRunning();

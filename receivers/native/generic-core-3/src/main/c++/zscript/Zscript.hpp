@@ -13,6 +13,7 @@
 #include "execution/LockSystem.hpp"
 #include "execution/ZscriptExecutor.hpp"
 #include "ZscriptChannel.hpp"
+#include "scriptSpace/ScriptSpace.hpp"
 
 namespace Zscript {
 
@@ -23,8 +24,10 @@ private:
     GenericCore::LockSystem<ZP> locks;
     ZscriptChannel<ZP> **channels = NULL;
     GenericCore::ZscriptNotificationSource<ZP> **notifSources = NULL;
+    ScriptSpace<ZP> **scriptSpaces = NULL;
     uint8_t channelCount = 0;
     uint8_t notifSrcCount = 0;
+    uint8_t scriptSpaceCount = 0;
     AbstractOutStream<ZP> *notificationOutStream = NULL;
 
 //    ZcodeExecutor executor;
@@ -46,6 +49,11 @@ public:
     void setNotificationSources(GenericCore::ZscriptNotificationSource<ZP> **notifSources, uint8_t notifSrcCount) {
         this->notifSources = notifSources;
         this->notifSrcCount = notifSrcCount;
+    }
+
+    void setScriptSpaces(ScriptSpace<ZP> **scriptSpaces, uint8_t scriptSpaceCount) {
+        this->scriptSpaces = scriptSpaces;
+        this->scriptSpaceCount = scriptSpaceCount;
     }
 
     bool lock(GenericCore::LockSet<ZP> *l) {
@@ -81,6 +89,12 @@ public:
 //
     void setNotificationOutStream(AbstractOutStream<ZP> *out) {
         this->notificationOutStream = out;
+    }
+    ScriptSpace<ZP>** getScriptSpaces() {
+        return scriptSpaces;
+    }
+    uint8_t getScriptSpaceCount() {
+        return scriptSpaceCount;
     }
 
 };

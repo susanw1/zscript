@@ -83,7 +83,7 @@ public:
     }
 
     bool hasNext() {
-        if (hasInternal && internal.hasNext()) {
+        if (hasInternal && internal.hasNext(buffer)) {
             return true;
         }
         for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
@@ -100,17 +100,17 @@ public:
 
     uint8_t next() {
         hasNext();
-        return internal.next();
+        return internal.next(buffer);
     }
 
     DataArrayWLeng16 nextContiguous() {
         hasNext();
-        return internal.nextContiguous();
+        return internal.nextContiguous(buffer);
     }
 
     DataArrayWLeng16 nextContiguous(uint8_t maxLength) {
         hasNext();
-        return internal.nextContiguous(maxLength);
+        return internal.nextContiguous(buffer, maxLength);
     }
 
 };
@@ -149,6 +149,18 @@ public:
             }
         }
         return {0, false};
+    }
+    bool getField(uint8_t key, uint16_t *dest) {
+        GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getBuffer();
+        CommandTokenIterator<ZP> iterator = iteratorToMarker();
+        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
+            GenericCore::RingBufferToken<ZP> token = opt.token;
+            if (token.getKey(buffer) == key) {
+                *dest = token.getData16(buffer);
+                return true;
+            }
+        }
+        return false;
     }
 
     bool hasField(uint8_t key) {

@@ -237,6 +237,10 @@ public:
             itIndex(itIndex), segRemaining(segRemaining) {
     }
 
+    RawTokenBlockIterator() :
+            itIndex(0xFFFF), segRemaining(0) {
+    }
+
     uint8_t next(TokenRingBuffer<ZP> *buffer) {
         if (!hasNext(buffer)) {
 //TODO: die

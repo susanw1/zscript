@@ -5,39 +5,36 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_C___ZSCRIPT_MODULES_CORE_COREMODULE_HPP_
-#define SRC_MAIN_C___ZSCRIPT_MODULES_CORE_COREMODULE_HPP_
+#ifndef SRC_MAIN_C___ZSCRIPT_MODULES_SCRIPTSPACE_SCRIPTSPACEMODULE_HPP_
+#define SRC_MAIN_C___ZSCRIPT_MODULES_SCRIPTSPACE_SCRIPTSPACEMODULE_HPP_
 
 #include "../../ZscriptIncludes.hpp"
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../ZscriptModule.hpp"
 
-#include "ActivateCommand.hpp"
-#include "EchoCommand.hpp"
-
-#define MODULE_EXISTS_000 EXISTENCE_MARKER_UTIL
-#define MODULE_SWITCH_000 MODULE_SWITCH_UTIL(ZscriptCoreModule<ZP>::execute)
-
-#include "CapabilitiesCommand.hpp"
+#define MODULE_EXISTS_002 EXISTENCE_MARKER_UTIL
+#define MODULE_SWITCH_002 MODULE_SWITCH_UTIL(ScriptSpaceModule<ZP>::execute)
+#include "ScriptSpaceSetupCommand.hpp"
+#include "ScriptSpaceWriteCommand.hpp"
+#include "ScriptSpaceCapabilitiesCommand.hpp"
 
 namespace Zscript {
 namespace GenericCore {
 template<class ZP>
-class ZscriptCoreModule: public ZscriptModule<ZP> {
+class ScriptSpaceModule: public ZscriptModule<ZP> {
 
 public:
 
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
-
         switch (bottomBits) {
         case 0x0:
-            CapabilitiesCommand<ZP>::execute(ctx);
+            ScriptSpaceCapabilitiesCommand<ZP>::execute(ctx);
             break;
         case 0x1:
-            EchoCommand<ZP>::execute(ctx);
+            ScriptSpaceSetupCommand<ZP>::execute(ctx);
             break;
         case 0x2:
-            ActivateCommand<ZP>::execute(ctx);
+            ScriptSpaceWriteCommand<ZP>::execute(ctx);
             break;
         default:
             ctx.status(ResponseStatus::COMMAND_NOT_FOUND);
@@ -49,4 +46,4 @@ public:
 }
 }
 
-#endif /* SRC_MAIN_C___ZSCRIPT_MODULES_CORE_COREMODULE_HPP_ */
+#endif /* SRC_MAIN_C___ZSCRIPT_MODULES_SCRIPTSPACE_SCRIPTSPACEMODULE_HPP_ */
