@@ -96,6 +96,12 @@ public:
     uint8_t getScriptSpaceCount() {
         return scriptSpaceCount;
     }
+    uint8_t getChannelCount() {
+        return channelCount;
+    }
+    ZscriptChannel<ZP>** getChannels() {
+        return channels;
+    }
 
 };
 }

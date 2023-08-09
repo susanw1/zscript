@@ -12,7 +12,7 @@ public class ZscriptCoreModule implements ZscriptModule {
     private final ZscriptRandomCodeCommand   codeCmd         = new ZscriptRandomCodeCommand();
 
     public static int getCommands() {
-        return 0x3007;
+        return 0x3117;
     }
 
     @Override
