@@ -52,7 +52,7 @@
                     </templates>
                     <contexts>
                         <directory>${project.resources[0].directory}/datamodel</directory>
-                        <includes>*/**/*.yaml</includes>
+                        <includes>*/**/000x*.yaml</includes>
                     </contexts>
                 </configuration>
                 <executions>

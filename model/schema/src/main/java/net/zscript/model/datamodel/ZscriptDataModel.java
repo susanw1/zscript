@@ -7,10 +7,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import net.zscript.model.loader.ModuleBank;
-
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 public interface ZscriptDataModel {
     List<ModuleModel> getModules();
@@ -27,6 +26,8 @@ public interface ZscriptDataModel {
         String getVersion();
 
         String getDescription();
+
+        List<String> getPackage();
 
         @JsonManagedReference
         List<CommandModel> getCommands();

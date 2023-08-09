@@ -151,7 +151,7 @@ public class TransformerMojo extends AbstractMojo {
     private void createDirIfRequired(Path outputDirectoryPath) throws MojoExecutionException {
         if (!Files.isDirectory(outputDirectoryPath)) {
             try {
-                getLog().info("Creating output directory: " + outputDirectoryPath);
+                getLog().debug("Creating output directory: " + outputDirectoryPath);
                 Files.createDirectories(outputDirectoryPath);
             } catch (IOException e) {
                 throw new MojoExecutionException("Cannot create output directory: " + outputDirectoryPath, e);
@@ -166,7 +166,6 @@ public class TransformerMojo extends AbstractMojo {
         if (fileSet.getDirectory() == null) {
             dirToSet = project.getBasedir().toPath().resolve(defaultDir);
             fileSet.setDirectory(dirToSet.toString());
-            getLog().info("project.getBasedir: " + project.getBasedir());
             getLog().info("fileSet.getDirectory: " + fileSet.getDirectory());
         }
         return fileSet;
@@ -181,7 +180,7 @@ public class TransformerMojo extends AbstractMojo {
             throw new MojoExecutionException(description + " directory not readable: " + rootPath);
         }
 
-        getLog().info("fileSet.getDirectory: " + rootPath);
+        getLog().debug("    " + description + ": fileSet.getDirectory: " + rootPath);
 
         FileSetManager fileSetManager = new FileSetManager();
         List<Path>     files          = stream(fileSetManager.getIncludedFiles(fileSet)).map(f -> Path.of(f)).collect(Collectors.toList());
@@ -190,7 +189,7 @@ public class TransformerMojo extends AbstractMojo {
             throw new MojoExecutionException("No matching " + description + " files found in: " + rootPath);
         }
 
-        getLog().info("#files = " + files.size());
+        getLog().debug("    #files = " + files.size());
         files.forEach(f -> getLog().info(f.toString()));
 
         return new LoadableEntities(description, rootPath, files, fileTypeSuffix);

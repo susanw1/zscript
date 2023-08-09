@@ -3,19 +3,28 @@ modules:
     id: 0
     version: 0.0.1
     description: Provides core system commands which can be executed without device activation
-
+    package:
+    - net
+    - zscript
+    - client
+    - modules
     commands:
     -   name: capabilities
         command: 0
         description: Top level identification, for hardware, software, modules, versions
         operation: get
-        requestFields: 
+        requestFields:
         -   key: V
             name: versionType
             description: selects which ident/version info to return
             typeDefinition:
                 '@type': enum
-                allowedValues: [UserFirmware, UserHardware, PlatformFirmware, PlatformHardware, CoreZscriptLanguage]
+                allowedValues:
+                - UserFirmware
+                - UserHardware
+                - PlatformFirmware
+                - PlatformHardware
+                - CoreZscriptLanguage
             required: no
         responseFields:
         -   key: C
@@ -36,6 +45,8 @@ modules:
             name: version
             description: 2-byte version number relating to requested versionType
             typeDefinition:
+
+
                 '@type': number
             required: yes
         -   key: +
@@ -45,8 +56,6 @@ modules:
                 '@type': string
             required: yes
         status: []
-
-
     -   name: echo
         command: 1
         description: Echoes all request params to the response, for testing purposes
@@ -72,6 +81,8 @@ modules:
         responseFields:
         -   name: any
             description: any supplied value will be returned
+
+
             typeDefinition:
                 '@type': number
             required: no
@@ -81,8 +92,6 @@ modules:
             typeDefinition:
                 '@type': number
             required: yes
-
-
     -   name: activate
         command: 2
         description: Activates zscript channel, allowing commands 0x10 onwards to be executed
@@ -101,6 +110,8 @@ modules:
             typeDefinition:
                 '@type': flag
             required: no
+
+
         -   key: K
             name: challenge
             description: allows the receiver to give a challenge to the client
@@ -110,14 +121,14 @@ modules:
         status:
         -   code: CMD_FAIL
             meaning: challenge failure
-
-
     -   name: reset
         command: 3
         description: Resets the device(!) or channels. Device reset and *this channel* reset produces no response at all
         operation: put
         requestFields:
         -   key: C
+
+
             name: channel
             description: specifies channel to be reset
             typeDefinition:
@@ -127,14 +138,14 @@ modules:
         status:
         -   code: CMD_FAIL
             meaning: reset failed
-
-
     -   name: readGuid
         command: 4
         description: Retrieves the system GUID, if set
         operation: get
         requestFields: []
         responseFields:
+
+
         -   key: +
             name: guid
             description: the previously set system GUID
@@ -144,8 +155,6 @@ modules:
         status:
         -   code: CMD_FAIL
             meaning: no valid GUID set
-
-
     -   name: channelInfo
         command: 8
         description: Retrieves channel info
@@ -181,6 +190,8 @@ modules:
             description: channel descriptor
             typeDefinition:
                 '@type': text
+
+
             required: yes
         -   key: K
             name: challenge
@@ -190,11 +201,11 @@ modules:
             required: no
         extension: channel
         status: []
-
-
     -   name: makeCode
         command: 12
         description: Generates a random match-code
+
+
         operation: post
         requestFields: []
         responseFields:
@@ -204,14 +215,14 @@ modules:
             typeDefinition:
                 '@type': number
             required: yes
-
-
     -   name: matchCode
         command: 13
         description: Returns OK only if supplied code matches the previously generated match-code
         operation: get
         requestFields:
         -   key: C
+
+
             name: matchCode
             description: a match-code to confirm against previously generated one
             typeDefinition:
@@ -221,8 +232,6 @@ modules:
         status:
         -   code: CMD_FAIL
             meaning: supplied code didn't match
-
-
     -   name: user-defined
         command: 15
         description: Command kept free for user-defined system command

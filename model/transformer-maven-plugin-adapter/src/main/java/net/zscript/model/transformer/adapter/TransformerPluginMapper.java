@@ -18,6 +18,13 @@ public interface TransformerPluginMapper {
      */
     <T> List<LoadedEntityContent<T>> loadAndMap(final LoadableEntities entities);
 
+    /**
+     * Utility method for converting a relative path with a dot-suffixed filename into the same path with a different suffix.
+     *
+     * @param relativePathToSource the path to convert
+     * @param suffix               the suffix to add
+     * @return the output path
+     */
     default Path findRelativePathToOutput(final Path relativePathToSource, String suffix) {
         final String lastPart    = relativePathToSource.getFileName().toString();
         final int    index       = lastPart.lastIndexOf('.');
