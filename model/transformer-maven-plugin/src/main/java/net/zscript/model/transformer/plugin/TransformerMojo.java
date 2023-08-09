@@ -37,44 +37,50 @@ public class TransformerMojo extends AbstractMojo {
 
     private static final String TEMPLATE_DEFAULT_DIR = "src/main/templates";
     private static final String CONTEXT_DEFAULT_DIR  = "src/main/contexts";
-    private static final String OUTPUT_DEFAULT_DIR   = "${project.build.directory}/generated-sources/zscript";
+    private static final String OUTPUT_DEFAULT_DIR   = "${project.build.directory}/generated-sources/java";
 
     private static final String FILE_TYPE_SUFFIX_DEFAULT = "java";
 
+    /**
+     * A fileset describing a set of templates (ie mustache files) to apply for each context file.
+     */
     @Parameter(required = false)
     private FileSet templates;
 
-//    @Parameter(required = false)
-//    private File template;
-//
-//    @Parameter(required = false, defaultValue = TEMPLATE_DEFAULT_DIR)
-//    private File templateDirectory;
-
+    /**
+     * A fileset describing a set of context files (ie JSON/YAML files for the default transformer).
+     */
     @Parameter(required = false)
     private FileSet contexts;
 
-//    @Parameter(required = false)
-//    private File context;
-//
-//    @Parameter(required = false)
-//    private File contextDirectory;
-
     /**
-     * Specify output directory where the Java files are generated.
+     * Specify output directory where the transformed output files are placed. This is added to the Maven Compile Source Root list if the {@code fileTypeSuffix} is "java".
      */
     @Parameter(defaultValue = OUTPUT_DEFAULT_DIR)
     private File outputDirectory;
 
+    /**
+     * The fully-qualified classmame of a TransformerPluginMapper to use for loading and mapping the files described by the {@code contexts}. Changing this allows you to perform
+     * arbitrary transformations from any file-type you can read.
+     */
     @Parameter(defaultValue = "net.zscript.model.transformer.adapter.YamlTransformerPluginMapper")
     private String transformMapperClass;
 
-//    TransformerPluginMapper m;
+    /**
+     * Not used.
+     */
     @Parameter(defaultValue = "${project.build.sourceEncoding}")
     private String encoding;
 
+    /**
+     * If true, then an empty template/context fileset is considered an error.
+     */
     @Parameter(defaultValue = "true")
     private boolean failIfNoFiles;
 
+    /**
+     * The file suffix to add to output files. If "java", then the output directory is added to the compile/test scope.
+     */
     @Parameter(defaultValue = FILE_TYPE_SUFFIX_DEFAULT)
     private String fileTypeSuffix;
 
