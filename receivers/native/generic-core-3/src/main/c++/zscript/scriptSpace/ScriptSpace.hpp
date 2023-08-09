@@ -29,11 +29,13 @@ public:
                     canWrite) {
     }
     void channelInfo(ZscriptCommandContext<ZP> ctx) {
-
+        (void) ctx;
+        //TODO
     }
 
     void channelSetup(ZscriptCommandContext<ZP> ctx) {
-
+        (void) ctx;
+        //TODO
     }
 
     bool canBeWrittenTo() {
@@ -41,19 +43,17 @@ public:
     }
 
     GenericCore::TokenRingBuffer<ZP> append() {
-        if (canBeWrittenToB) {
-            return buffer.append();
-        } else {
+        if (!canBeWrittenToB) {
             //unreachable
         }
+        return buffer.append();
     }
 
     GenericCore::TokenRingBuffer<ZP> overwrite() {
-        if (canBeWrittenToB) {
-            return buffer.fromStart();
-        } else {
+        if (!canBeWrittenToB) {
             //unreachable
         }
+        return buffer.fromStart();
     }
 
     void commitChanges(GenericCore::TokenRingBuffer<ZP> *newSource) {

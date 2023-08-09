@@ -41,11 +41,11 @@ public:
     }
 
     virtual void channelInfo(ZscriptCommandContext<ZP> ctx) {
-
+        (void) ctx;
     }
 
     virtual void channelSetup(ZscriptCommandContext<ZP> ctx) {
-
+        (void) ctx;
     }
 
 };

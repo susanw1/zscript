@@ -229,9 +229,9 @@ public:
 
     bool lock(Zscript<ZP> *z) {
         if (isSemantic) {
-            return ((SemanticParser<ZP>*) source)->canLock(z);
+            return ((SemanticParser<ZP>*) source)->lock(z);
         } else {
-            return ((ZscriptNotificationSource<ZP>*) source)->getLocks();
+            return ((ZscriptNotificationSource<ZP>*) source)->lock(z);
         }
     }
 
