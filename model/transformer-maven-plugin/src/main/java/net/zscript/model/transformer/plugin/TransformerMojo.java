@@ -95,8 +95,6 @@ public class TransformerMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoExecutionException {
-        getLog().info("8=8=8=8=8=8=8=8=8=8=8=8=8 TransformerMojo STARTED 8=8=8=8=8=8=8=8=8=8=8=8=8");
-
         final Charset charset;
         if (encoding == null || encoding.trim().length() == 0) {
             getLog().warn("File encoding has not been set, using platform encoding " + Charset.defaultCharset()
@@ -116,44 +114,44 @@ public class TransformerMojo extends AbstractMojo {
         final LoadableEntities contextEntities  = extractFileList("Context", contextFileSet);
 
         // read in context files as YAML and perform any field mapping as required. Read in templates ready to use Mustache.
-
         final List<LoadedEntityContent<Object>>   loadedMappedContexts = loadMappedContexts(contextEntities);
         final List<LoadedEntityContent<Mustache>> loadedTemplates      = loadTemplates(templateEntities);
 
         final Path outputDirectoryPath = outputDirectory.toPath();
-
         createDirIfRequired(outputDirectoryPath);
 
         for (LoadedEntityContent<Mustache> template : loadedTemplates) {
             for (LoadedEntityContent<Object> context : loadedMappedContexts) {
                 try {
                     final Path outputFileFullPath = outputDirectoryPath.resolve(context.getRelativeOutputFilename());
-                    Path       parentDir          = outputFileFullPath.getParent();
+                    final Path parentDir          = outputFileFullPath.getParent();
                     createDirIfRequired(parentDir);
 
                     getLog().info("Applying context " + context.getRelativePath() + " with template " + template.getRelativePath() + " to " + outputFileFullPath);
-                    try (Writer out = Files.newBufferedWriter(outputFileFullPath)) {
+                    try (final Writer out = Files.newBufferedWriter(outputFileFullPath)) {
                         template.getContent().execute(out, context.getContent());
                     }
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     throw new MojoExecutionException("Cannot write output file: " + outputDirectoryPath, e);
                 }
             }
         }
 
         if (fileTypeSuffix.equals(FILE_TYPE_SUFFIX_DEFAULT)) {
-//            addSourceRoot(outputDirectoryPath);
+            if (generateTestSources) {
+                project.addTestCompileSourceRoot(outputDirectoryPath.toString());
+            } else {
+//                project.addCompileSourceRoot(outputDirectoryPath.toString());
+            }
         }
-
-        getLog().info("8=8=8=8=8=8=8=8=8=8=8=8=8 TransformerMojo ENDED 8=8=8=8=8=8=8=8=8=8=8=8=8");
     }
 
-    private void createDirIfRequired(Path outputDirectoryPath) throws MojoExecutionException {
+    private void createDirIfRequired(final Path outputDirectoryPath) throws MojoExecutionException {
         if (!Files.isDirectory(outputDirectoryPath)) {
             try {
                 getLog().debug("Creating output directory: " + outputDirectoryPath);
                 Files.createDirectories(outputDirectoryPath);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new MojoExecutionException("Cannot create output directory: " + outputDirectoryPath, e);
             }
         }
@@ -162,11 +160,10 @@ public class TransformerMojo extends AbstractMojo {
     private FileSet initFileSet(final FileSet fs, final String defaultDir) {
         final FileSet fileSet = fs != null ? fs : new FileSet();
 
-        Path dirToSet;
+        final Path dirToSet;
         if (fileSet.getDirectory() == null) {
             dirToSet = project.getBasedir().toPath().resolve(defaultDir);
             fileSet.setDirectory(dirToSet.toString());
-            getLog().info("fileSet.getDirectory: " + fileSet.getDirectory());
         }
         return fileSet;
     }
@@ -182,48 +179,40 @@ public class TransformerMojo extends AbstractMojo {
 
         getLog().debug("    " + description + ": fileSet.getDirectory: " + rootPath);
 
-        FileSetManager fileSetManager = new FileSetManager();
-        List<Path>     files          = stream(fileSetManager.getIncludedFiles(fileSet)).map(f -> Path.of(f)).collect(Collectors.toList());
+        final FileSetManager fileSetManager = new FileSetManager();
+        final List<Path>     files          = stream(fileSetManager.getIncludedFiles(fileSet)).map(f -> Path.of(f)).collect(Collectors.toList());
 
         if (failIfNoFiles && files.size() == 0) {
             throw new MojoExecutionException("No matching " + description + " files found in: " + rootPath);
         }
 
         getLog().debug("    #files = " + files.size());
-        files.forEach(f -> getLog().info(f.toString()));
+        files.forEach(f -> getLog().debug("    " + f.toString()));
 
         return new LoadableEntities(description, rootPath, files, fileTypeSuffix);
     }
 
     private List<LoadedEntityContent<Object>> loadMappedContexts(LoadableEntities contextEntities) throws MojoExecutionException {
-        TransformerPluginMapper mapper;
+        final TransformerPluginMapper mapper;
         try {
             mapper = (TransformerPluginMapper) Class.forName(transformMapperClass).getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new MojoExecutionException("Cannot load class '" + transformMapperClass + "'");
         }
         return mapper.loadAndMap(contextEntities);
     }
 
     private <T> List<LoadedEntityContent<Mustache>> loadTemplates(LoadableEntities entities) {
-        DefaultMustacheFactory mf = new DefaultMustacheFactory();
+        final DefaultMustacheFactory mf = new DefaultMustacheFactory();
 
         return entities.loadEntities(entity -> {
             final Path fullPath = entity.getRootPath().resolve(entity.getRelativePath());
             try (final Reader reader = Files.newBufferedReader(fullPath)) {
                 final Mustache template = mf.compile(reader, entity.getRelativePath().toString());
                 return entity.withContent(template, null);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new UncheckedIOException("Cannot open " + entity.getDescription() + ": " + entity.getRelativePath(), e);
             }
         });
-    }
-
-    private void addSourceRoot(Path outputDir) {
-        if (generateTestSources) {
-            project.addTestCompileSourceRoot(outputDir.toString());
-        } else {
-            project.addCompileSourceRoot(outputDir.toString());
-        }
     }
 }

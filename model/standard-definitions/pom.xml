@@ -54,10 +54,11 @@
                         <directory>${project.resources[0].directory}/datamodel</directory>
                         <includes>*/**/000x*.yaml</includes>
                     </contexts>
+                    <outputDirectory>${project.build.directory}/generated-sources/zscript</outputDirectory>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>run-template-transformer</id>
+                        <id>transformer-default</id>
                         <goals>
                             <goal>transform</goal>
                         </goals>
