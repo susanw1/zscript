@@ -27,7 +27,7 @@ public class YamlTransformerPluginMapper implements TransformerPluginMapper {
             final String relativePathToSource = entity.getRelativePath();
             final Path   fullPathToSource     = Path.of(entity.getRootPathName()).resolve(relativePathToSource);
 
-            Path relativePathToOutput = findRelativePathToOutput(relativePathToSource, "java");
+            Path relativePathToOutput = findRelativePathToOutput(relativePathToSource, entity.getFileTypeSuffix());
 
             final Map<?, ?> value = jsonMapper.reader().readValue(fullPathToSource.toFile(), Map.class);
             return entity.withContent(value, relativePathToOutput.toString());

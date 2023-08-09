@@ -38,6 +38,8 @@ public class TransformerMojo extends AbstractMojo {
     private static final String CONTEXT_DEFAULT_DIR  = "src/main/contexts";
     private static final String OUTPUT_DEFAULT_DIR   = "${project.build.directory}/generated-sources/zscript";
 
+    private static final String FILE_TYPE_SUFFIX_DEFAULT = "java";
+
     @Parameter(required = false)
     private FileSet templates;
 
@@ -71,6 +73,9 @@ public class TransformerMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "true")
     private boolean failIfNoFiles;
+
+    @Parameter(defaultValue = FILE_TYPE_SUFFIX_DEFAULT)
+    private String fileTypeSuffix;
 
     /**
      * Specifies whether sources are added to the {@code compile} or {@code test} scope.
@@ -107,16 +112,16 @@ public class TransformerMojo extends AbstractMojo {
         final FileSet    contextFileSet   = initFileSet(contexts, CONTEXT_DEFAULT_DIR);
         LoadableEntities contextEntities  = extractFileList("Context", contextFileSet);
 
-        // read in context files as YAML. Read in templates using Mustache.
+        // read in context files as YAML and perform any field mapping as required. Read in templates ready to use Mustache.
 
-        List<LoadedEntityContent<Object>>   loadedContexts  = loadContexts(contextEntities);
-        List<LoadedEntityContent<Mustache>> loadedTemplates = loadTemplates(templateEntities);
+        List<LoadedEntityContent<Object>>   loadedMappedContexts = loadMappedContexts(contextEntities);
+        List<LoadedEntityContent<Mustache>> loadedTemplates      = loadTemplates(templateEntities);
 
         Path outputDirectoryPath = outputDirectory.toPath();
         createDirIfRequired(outputDirectoryPath);
 
         for (LoadedEntityContent<Mustache> template : loadedTemplates) {
-            for (LoadedEntityContent<Object> context : loadedContexts) {
+            for (LoadedEntityContent<Object> context : loadedMappedContexts) {
                 try {
                     final Path outputFileFullPath = outputDirectoryPath.resolve(context.getRelativeOutputFilename());
                     Path       parentDir          = outputFileFullPath.getParent();
@@ -130,6 +135,10 @@ public class TransformerMojo extends AbstractMojo {
                     throw new MojoExecutionException("Cannot write output file: " + outputDirectoryPath, e);
                 }
             }
+        }
+
+        if (fileTypeSuffix.equals(FILE_TYPE_SUFFIX_DEFAULT)) {
+//            addSourceRoot(outputDirectoryPath);
         }
 
         getLog().info("8=8=8=8=8=8=8=8=8=8=8=8=8 TransformerMojo ENDED 8=8=8=8=8=8=8=8=8=8=8=8=8");
@@ -180,10 +189,10 @@ public class TransformerMojo extends AbstractMojo {
         getLog().info("#files = " + files.length);
         stream(files).forEach(f -> getLog().info(f));
 
-        return new LoadableEntities(description, rootPath.toString(), files);
+        return new LoadableEntities(description, rootPath.toString(), files, fileTypeSuffix);
     }
 
-    private List<LoadedEntityContent<Object>> loadContexts(LoadableEntities contextEntities) throws MojoExecutionException {
+    private List<LoadedEntityContent<Object>> loadMappedContexts(LoadableEntities contextEntities) throws MojoExecutionException {
         TransformerPluginMapper mapper;
         try {
             mapper = (TransformerPluginMapper) Class.forName(transformMapperClass).getDeclaredConstructor().newInstance();
@@ -207,11 +216,11 @@ public class TransformerMojo extends AbstractMojo {
         });
     }
 
-    void addSourceRoot(File outputDir) {
+    void addSourceRoot(Path outputDir) {
         if (generateTestSources) {
-            project.addTestCompileSourceRoot(outputDir.getPath());
+            project.addTestCompileSourceRoot(outputDir.toString());
         } else {
-            project.addCompileSourceRoot(outputDir.getPath());
+            project.addCompileSourceRoot(outputDir.toString());
         }
     }
 

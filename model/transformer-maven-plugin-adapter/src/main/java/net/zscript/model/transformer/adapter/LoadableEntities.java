@@ -10,11 +10,14 @@ public class LoadableEntities {
     private final String       entityDescription;
     private final String       rootPathName;
     private final List<String> relativePaths;
+    private final String       fileTypeSuffix;
 
-    public LoadableEntities(String entityDescription, String rootPathName, String[] relativePaths) {
+    public LoadableEntities(String entityDescription, String rootPathName, String[] relativePaths, String fileTypeSuffix) {
         this.entityDescription = entityDescription;
         this.rootPathName = rootPathName;
         this.relativePaths = List.of(relativePaths);
+        this.fileTypeSuffix = fileTypeSuffix;
+
     }
 
     public <T> List<LoadedEntityContent<T>> loadEntities(Function<LoadableEntity, LoadedEntityContent<T>> loader) {
@@ -42,6 +45,10 @@ public class LoadableEntities {
 
         public String getDescription() {
             return entityDescription;
+        }
+
+        public String getFileTypeSuffix() {
+            return fileTypeSuffix;
         }
 
         public <T> LoadedEntityContent<T> withContent(T content, String relativeOutputFilename) {
