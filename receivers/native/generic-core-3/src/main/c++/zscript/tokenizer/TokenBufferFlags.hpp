@@ -13,7 +13,7 @@ namespace Zscript {
 namespace GenericCore {
 
 template<class ZP>
-class ZcodeTokenBufferFlags {
+class TokenBufferFlags {
     volatile bool markerWritten = false;
     volatile bool seqMarkerWritten = false;
     volatile bool readerBlocked = true;

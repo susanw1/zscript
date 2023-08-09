@@ -21,7 +21,7 @@ class EchoCommand {
 public:
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
-        GenericCore::TokenRingBuffer<ZP> *buffer = ctx.parseState->getBuffer();
+        GenericCore::TokenRingBuffer<ZP> *buffer = ctx.parseState->getReader().asBuffer();
 
         AbstractOutStream<ZP> *out = ctx.getOutStream();
         CommandTokenIterator<ZP> it = ctx.iteratorToMarker();
@@ -38,13 +38,13 @@ public:
                 }
             } else if (key == Zchars::Z_BIGFIELD_QUOTED) {
                 out->beginBigString();
-                for (RawTokenBlockIterator<ZP> tbi = token.blockIterator(buffer); tbi.hasNext(buffer);) {
+                for (RawTokenBlockIterator<ZP> tbi = token.rawBlockIterator(buffer); tbi.hasNext(buffer);) {
                     out->continueBigString(tbi.nextContiguous(buffer));
                 }
                 out->endBigString();
             } else if (key == Zchars::Z_BIGFIELD_HEX) {
                 out->beginBigHex();
-                for (RawTokenBlockIterator<ZP> tbi = token.blockIterator(buffer); tbi.hasNext(buffer);) {
+                for (RawTokenBlockIterator<ZP> tbi = token.rawBlockIterator(buffer); tbi.hasNext(buffer);) {
                     out->continueBigHex(tbi.nextContiguous(buffer));
                 }
             }

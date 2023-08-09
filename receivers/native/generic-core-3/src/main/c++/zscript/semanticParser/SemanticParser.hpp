@@ -49,7 +49,7 @@ class SemanticParser {
     uint8_t seqEndMarker = 0;    // 4 bits really
     bool haveSeqEndMarker = false;
 
-    TokenRingBuffer<ZP> *const buffer;
+    TokenRingReader<ZP> reader;
     uint8_t channelIndex = 0;
     uint8_t parenCounter = 0;    // 8 bit
     bool hasSentStatusB = false;
@@ -73,7 +73,7 @@ class SemanticParser {
      * Makes sure the buffer flag's readerBlocked status is up-to-date.
      */
     void dealWithTokenBufferFlags() {
-        ZcodeTokenBufferFlags<ZP> *flags = buffer->getFlags();
+        TokenBufferFlags<ZP> *flags = reader.getFlags();
 
         if (state != State::COMMAND_INCOMPLETE && state != State::COMMAND_NEEDS_ACTION && flags->getAndClearSeqMarkerWritten()) {
             if (!haveSeqEndMarker) {
@@ -107,23 +107,25 @@ class SemanticParser {
      * @return the Marker token that was found, or empty if none
      */
     OptionalRingBufferToken<ZP> seekMarker(bool seekSeqEnd, bool flush) {
-        RingBufferTokenIterator<ZP> it = buffer->R_iterator();
+        RingBufferTokenIterator<ZP> it = reader.rawIterator();
         OptionalRingBufferToken<ZP> token;
 
         bool first = true;
-        for (token = it.next(buffer); token.isPresent && !(token.token.isSequenceEndMarker(buffer) || (!seekSeqEnd && token.token.isMarker(buffer))); token = it.next(buffer)) {
+        for (token = it.next(reader.asBuffer());
+                token.isPresent && !(token.token.isSequenceEndMarker(reader.asBuffer()) || (!seekSeqEnd && token.token.isMarker(reader.asBuffer())));
+                token = it.next(reader.asBuffer())) {
             if (flush) {
-                it.flushBuffer(buffer);
-            } else if (first && seekSeqEnd && token.token.isMarker(buffer)) {
+                it.flushBuffer(reader.asBuffer());
+            } else if (first && seekSeqEnd && token.token.isMarker(reader.asBuffer())) {
                 first = false;
-                nextMarker = token.token.getKey(buffer);
+                nextMarker = token.token.getKey(reader.asBuffer());
                 haveNextMarker = true;
             }
         }
 
         if (seekSeqEnd) {
             if (token.isPresent) {
-                assignSeqEndMarker(token.token.getKey(buffer));    // Literally only this case can happen mid command to cause an error...
+                assignSeqEndMarker(token.token.getKey(reader.asBuffer()));    // Literally only this case can happen mid command to cause an error...
             } else {
                 haveSeqEndMarker = false;
             }
@@ -134,7 +136,7 @@ class SemanticParser {
         } else {
             haveNextMarker = token.isPresent;
             if (token.isPresent) {
-                nextMarker = token.token.getKey(buffer);
+                nextMarker = token.token.getKey(reader.asBuffer());
                 if (TokenRingBuffer<ZP>::isSequenceEndMarker(nextMarker)) {
                     assignSeqEndMarker(nextMarker);
                 }
@@ -160,8 +162,8 @@ class SemanticParser {
      * Used when reader is pointing at a marker: flush the marker and immediately seek the next marker to update cached marker state.
      */
     void flushMarkerAndSeekNext() {
-        bool isSeq = buffer->R_getFirstReadToken().isSequenceEndMarker(buffer);
-        buffer->R_flushFirstReadToken(); // unsafe
+        bool isSeq = reader.getFirstReadToken().isSequenceEndMarker(reader.asBuffer());
+        reader.flushFirstReadToken(); // unsafe
         seekMarker(isSeq, false); // safe - cached marker state updated
     }
 
@@ -227,7 +229,7 @@ public:
     }
 
     SemanticParser(TokenRingBuffer<ZP> *buffer) :
-            buffer(buffer), currentAction(SemanticActionType::INVALID), state(PRESEQUENCE) {
+            reader(buffer->getReader()), currentAction(SemanticActionType::INVALID), state(PRESEQUENCE) {
     }
 
     // VisibleForTesting
@@ -263,7 +265,7 @@ private:
             parseSequenceLevel();
             if (state == PRESEQUENCE) {
                 // expecting buffer to be pointing at first token after lock/echo preamble.
-                if (buffer->R_getFirstReadToken().getKey(buffer) == Zchars::Z_ADDRESSING) {
+                if (reader.getFirstReadToken().getKey(reader.asBuffer()) == Zchars::Z_ADDRESSING) {
                     state = ADDRESSING_INCOMPLETE;
                     return SemanticActionType::INVOKE_ADDRESSING;
                 }
@@ -433,13 +435,13 @@ private:
      */
     bool seekSecondMarker() {
         // starts pointing at a marker - we want to know if there's another one after it, or if we're out of tokens!
-        RingBufferTokenIterator<ZP> it = buffer->R_iterator();
+        RingBufferTokenIterator<ZP> it = reader.rawIterator();
 
         // skip the current (Marker) token, and then
-        it.next(buffer);
+        it.next(reader.asBuffer());
 
-        for (OptionalRingBufferToken<ZP> token = it.next(buffer); token.isPresent; token = it.next(buffer)) {
-            if (token.token.isMarker(buffer)) {
+        for (OptionalRingBufferToken<ZP> token = it.next(reader.asBuffer()); token.isPresent; token = it.next(reader.asBuffer())) {
+            if (token.token.isMarker(reader.asBuffer())) {
                 return true;
             }
         }
@@ -456,28 +458,28 @@ private:
      * Leaves the parser in: ERROR_*, SEQUENCE_SKIP (for comments), or PRESEQUENCE (implying no error, normal sequence)
      */
     void parseSequenceLevel() {
-        RingBufferToken<ZP> first = buffer->R_getFirstReadToken();
-        while (first.getKey(buffer) == Zchars::Z_ECHO || first.getKey(buffer) == Zchars::Z_LOCKS) {
-            if (first.getKey(buffer) == Zchars::Z_ECHO) {
+        RingBufferToken<ZP> first = reader.getFirstReadToken();
+        while (first.getKey(reader.asBuffer()) == Zchars::Z_ECHO || first.getKey(reader.asBuffer()) == Zchars::Z_LOCKS) {
+            if (first.getKey(reader.asBuffer()) == Zchars::Z_ECHO) {
                 if (hasEchoB) {
                     state = ERROR_MULTIPLE_ECHO;
                     return;
                 }
-                echo = first.getData16(buffer);
+                echo = first.getData16(reader.asBuffer());
                 hasEchoB = true;
-            } else if (first.getKey(buffer) == Zchars::Z_LOCKS) {
-                if (hasLocks || first.getDataSize(buffer) > ZP::lockByteCount) {
+            } else if (first.getKey(reader.asBuffer()) == Zchars::Z_LOCKS) {
+                if (hasLocks || first.getDataSize(reader.asBuffer()) > ZP::lockByteCount) {
                     state = ERROR_LOCKS;
                     return;
                 }
-                locks = LockSet<ZP>::from(first.blockIterator(buffer), buffer);
+                locks = LockSet<ZP>::from(first.blockIterator(reader.asBuffer()));
                 hasLocks = true;
             }
-            buffer->R_flushFirstReadToken(); // safe as key is checked, not a Marker
-            first = buffer->R_getFirstReadToken();
+            reader.flushFirstReadToken(); // safe as key is checked, not a Marker
+            first = reader.getFirstReadToken();
         }
 
-        if (first.getKey(buffer) == Zchars::Z_COMMENT) {
+        if (first.getKey(reader.asBuffer()) == Zchars::Z_COMMENT) {
             if (nextMarker != ZscriptTokenizer<ZP>::NORMAL_SEQUENCE_END) {
                 state = ERROR_TOKENIZER;
                 return;
@@ -505,8 +507,8 @@ public:
     void setChannelIndex(uint8_t channelIndex) {
         this->channelIndex = channelIndex;
     }
-    TokenRingBuffer<ZP>* getBuffer() {
-        return buffer;
+    TokenRingReader<ZP> getReader() {
+        return reader;
     }
 
     ////////////////////////////////
@@ -516,7 +518,7 @@ public:
      * Operates on the first token on the  If it is a marker, returns and discards it, otherwise returns 0 and does nothing.
      */
     uint8_t takeCurrentMarker() {
-        uint8_t marker = buffer->R_getFirstReadToken().getKey(buffer);
+        uint8_t marker = reader.getFirstReadToken().getKey(reader.asBuffer());
         if (!TokenRingBuffer<ZP>::isMarker(marker)) {
             return 0;
         }
@@ -535,7 +537,7 @@ public:
         case ERROR_MULTIPLE_ECHO:
             return INVALID_ECHO;
         case ERROR_TOKENIZER:
-            tokenizerError = buffer->R_getFirstReadToken().getKey(buffer);
+            tokenizerError = reader.getFirstReadToken().getKey(reader.asBuffer());
 
             if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_BUFFER_OVERRUN) {
                 statusValue = BUFFER_OVR_ERROR;
@@ -729,7 +731,7 @@ public:
     }
 
     bool isEmpty() {
-        return buffer->R_getFirstReadToken().isMarker(buffer);
+        return reader.getFirstReadToken().isMarker(reader.asBuffer());
     }
     AsyncActionNotifier<ZP> getAsyncActionNotifier() {
         return AsyncActionNotifier<ZP>(this);

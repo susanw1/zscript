@@ -34,7 +34,7 @@ public:
 private:
     static const bool DROP_COMMENTS = false;
 
-    GenericCore::TokenRingBuffer<ZP> *buffer;
+    TokenRingWriter<ZP> writer;
     const uint8_t maxNumericBytes;
 
     bool skipToNL = false;
@@ -61,41 +61,41 @@ private:
     void acceptText(uint8_t b) {
         if (b == Zchars::EOL_SYMBOL) {
             if (isNormalString) {
-                buffer->W_fail(ERROR_CODE_STRING_NOT_TERMINATED);
+                writer.fail(ERROR_CODE_STRING_NOT_TERMINATED);
             } else {
-                buffer->W_writeMarker(NORMAL_SEQUENCE_END);
+                writer.writeMarker(NORMAL_SEQUENCE_END);
             }
             // we've written some marker, so reset as per the newline:
             resetFlags();
         } else if (escapingCount > 0) {
             uint8_t hex = ZcharsUtils<ZP>::parseHex(b);
             if (hex == ZcharsUtils<ZP>::PARSE_NOT_HEX_0X10) {
-                buffer->W_fail(ERROR_CODE_STRING_ESCAPING);
+                writer.fail(ERROR_CODE_STRING_ESCAPING);
                 tokenizerError = true;
             } else {
-                buffer->W_continueTokenNibble(hex);
+                writer.continueTokenNibble(hex);
                 escapingCount--;
             }
         } else if (isNormalString && b == Zchars::Z_BIGFIELD_QUOTED) {
-            buffer->W_endToken();
+            writer.endToken();
             isText = false;
         } else if (isNormalString && b == Zchars::Z_STRING_ESCAPE) {
             escapingCount = 2;
         } else {
-            buffer->W_continueTokenByte(b);
+            writer.continueTokenByte(b);
         }
     }
 
     void startNewToken(uint8_t b) {
         if (b == Zchars::EOL_SYMBOL) {
-            buffer->W_writeMarker(NORMAL_SEQUENCE_END);
+            writer.writeMarker(NORMAL_SEQUENCE_END);
             resetFlags();
             return;
         }
 
         if (addressing && b != Zchars::Z_ADDRESSING_CONTINUE) {
-            buffer->W_startToken(ADDRESSING_FIELD_KEY, false);
-            buffer->W_continueTokenByte(b);
+            writer.startToken(ADDRESSING_FIELD_KEY, false);
+            writer.continueTokenByte(b);
             addressing = false;
             isText = true;
             escapingCount = 0;
@@ -121,7 +121,7 @@ private:
                 // more for other constructs? '(', ')'
             }
             if (marker != 0) {
-                buffer->W_writeMarker(marker);
+                writer.writeMarker(marker);
                 return;
             }
             //TODO: die
@@ -132,14 +132,14 @@ private:
         }
 
         if (!ZcharsUtils<ZP>::isAllowableKey(b)) {
-            buffer->W_fail(ERROR_CODE_ILLEGAL_TOKEN);
+            writer.fail(ERROR_CODE_ILLEGAL_TOKEN);
             tokenizerError = true;
             return;
         }
 
         numeric = !ZcharsUtils<ZP>::isNonNumerical(b);
         isText = false;
-        buffer->W_startToken(b, numeric);
+        writer.startToken(b, numeric);
 
         if (b == Zchars::Z_COMMENT) {
             if (DROP_COMMENTS) {
@@ -162,20 +162,20 @@ private:
 public:
 
     ZscriptTokenizer(GenericCore::TokenRingBuffer<ZP> *buffer, uint8_t maxNumericBytes) :
-            buffer(buffer), maxNumericBytes(maxNumericBytes) {
+            writer(buffer->getWriter()), maxNumericBytes(maxNumericBytes) {
     }
     void dataLost() {
         if (!bufferOvr) {
-            buffer->W_fail(ERROR_BUFFER_OVERRUN);
+            writer.fail(ERROR_BUFFER_OVERRUN);
             bufferOvr = true;
         }
     }
     bool checkCapacity() {
         // worst case is... TODO: review this!
-        return buffer->W_checkAvailableCapacity(3);
+        return writer.checkAvailableCapacity(3);
     }
     bool offer(uint8_t b) {
-        if (checkCapacity() || buffer->getFlags()->isReaderBlocked()) {
+        if (checkCapacity() || writer.getFlags()->isReaderBlocked()) {
             accept(b);
             return true;
         }
@@ -193,7 +193,7 @@ public:
                         dataLost();
                         return;
                     }
-                    buffer->W_writeMarker(NORMAL_SEQUENCE_END);
+                    writer.writeMarker(NORMAL_SEQUENCE_END);
                 }
                 resetFlags();
             }
@@ -206,13 +206,13 @@ public:
 
         // TODO: Hysteresis on bufferOvr - review this approach given we're rewinding current token on failure marker
         //        if (bufferOvr) {
-        //            if (!buffer->W_checkAvailableCapacity(10)) {
+        //            if (!writer.checkAvailableCapacity(10)) {
         //                return;
         //            }
         //            bufferOvr = false;
         //        }
 
-        if (buffer->W_isTokenComplete()) {
+        if (writer.isTokenComplete()) {
             startNewToken(b);
             return;
         }
@@ -227,9 +227,9 @@ public:
         if (hex != ZcharsUtils<ZP>::PARSE_NOT_HEX_0X10) {
             if (numeric) {
                 // Check field length
-                int currentLength = buffer->W_getCurrentWriteTokenLength();
-                if (currentLength == maxNumericBytes && !buffer->W_isInNibble()) {
-                    buffer->W_fail(ERROR_CODE_FIELD_TOO_LONG);
+                int currentLength = writer.getCurrentWriteTokenLength();
+                if (currentLength == maxNumericBytes && !writer.isInNibble()) {
+                    writer.fail(ERROR_CODE_FIELD_TOO_LONG);
                     tokenizerError = true;
                     return;
                 }
@@ -238,13 +238,13 @@ public:
                     return;
                 }
             }
-            buffer->W_continueTokenNibble(hex);
+            writer.continueTokenNibble(hex);
             return;
         }
 
         // Check big field odd length
-        if (!numeric && buffer->W_getCurrentWriteTokenKey() == Zchars::Z_BIGFIELD_HEX && buffer->W_isInNibble()) {
-            buffer->W_fail(ERROR_CODE_ODD_BIGFIELD_LENGTH);
+        if (!numeric && writer.getCurrentWriteTokenKey() == Zchars::Z_BIGFIELD_HEX && writer.isInNibble()) {
+            writer.fail(ERROR_CODE_ODD_BIGFIELD_LENGTH);
             tokenizerError = true;
             if (b == Zchars::EOL_SYMBOL) {
                 // interesting case: the error above could be caused by b==Z_NEWLINE, but we've written an error marker, so just reset and return
