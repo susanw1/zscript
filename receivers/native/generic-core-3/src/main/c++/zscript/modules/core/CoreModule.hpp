@@ -41,6 +41,11 @@ public:
         case 0x2:
             ActivateCommand<ZP>::execute(ctx);
             break;
+#ifdef GUID_FETCH_COMMAND
+        case 0x4:
+            ZP::GuidCommand::fetchGuid(ctx);
+            break;
+#endif
         case 0x8:
             ChannelInfoCommand<ZP>::execute(ctx);
             break;
@@ -50,6 +55,11 @@ public:
         case 0xd:
             MakeMatchCodeCommand<ZP>::matchCode(ctx);
             break;
+#ifdef USER_CUSTOM_CORE_COMMAND
+        case 0x4:
+            ZP::CustomCoreCommand::execute(ctx);
+            break;
+#endif
         default:
             ctx.status(ResponseStatus::COMMAND_NOT_FOUND);
             break;
