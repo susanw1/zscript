@@ -42,10 +42,7 @@ public class ModelLoader {
     }
 
     private ModelLoader() {
-        jsonMapper = JsonMapper.builder(new YAMLFactory())
-                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-                .addModule(new MrBeanModule())
-                .build();
+        jsonMapper = createJsonMapper();
 
         final InputStream resourceStream = requireNonNull(getClass().getResourceAsStream("/datamodel/intrinsics.yaml"), "intrinsics not found");
         try {
@@ -53,6 +50,13 @@ public class ModelLoader {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static JsonMapper createJsonMapper() {
+        return JsonMapper.builder(new YAMLFactory())
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .addModule(new MrBeanModule())
+                .build();
     }
 
     public ModelLoader withModel(URL moduleListRoot) throws IOException {

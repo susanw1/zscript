@@ -15,7 +15,7 @@
     <properties>
     </properties>
     <dependencies>
-<!--
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -28,7 +28,7 @@
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
--->    </dependencies>
+    </dependencies>
     <build>
         <plugins>
 
