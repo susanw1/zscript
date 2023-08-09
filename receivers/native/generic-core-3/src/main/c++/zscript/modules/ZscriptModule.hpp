@@ -127,7 +127,7 @@
 #define MODULE_SWITCHING_GENERIC(check, sw) MODULE_SWITCHING_GENERIC_EACH(check, sw)
 
 template<class ZP>
-class ZcodeModule {
+class ZscriptModule {
 
 public:
 

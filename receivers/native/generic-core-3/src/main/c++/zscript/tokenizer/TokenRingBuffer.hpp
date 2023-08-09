@@ -31,7 +31,8 @@ class TokenRingBuffer {
     friend class RingBufferToken<ZP> ;
     friend class RingBufferTokenIterator<ZP> ;
     friend class RawTokenBlockIterator<ZP> ;
-    public:
+
+public:
     /**
      * Special token key to indicate that this segment is a continuation of the previous token due to its data size hitting maximum.
      */
@@ -89,6 +90,9 @@ public:
 
     TokenRingBuffer(uint8_t *data, uint16_t data_length) :
             data(data), data_length(data_length) {
+    }
+    TokenRingBuffer(uint8_t *data, uint16_t data_length, uint16_t writeStartPos) :
+            data(data), data_length(data_length), writeStart(writeStartPos) {
     }
 
     ZcodeTokenBufferFlags<ZP>* getFlags() {
@@ -195,6 +199,19 @@ public:
         return RingBufferToken<ZP>(readStart);
     }
 
+    uint8_t* getData() {
+        return data;
+    }
+    uint16_t getLength() {
+        return data_length;
+    }
+    uint16_t getWritePos() {
+        return writeStart;
+    }
+    void disableWriteStart() {
+        writeStart = 0xFFFF;
+    }
+
     void R_flushFirstReadToken();
 };
 template<class ZP>
@@ -218,6 +235,10 @@ public:
 
     RawTokenBlockIterator(uint16_t itIndex, uint8_t segRemaining) :
             itIndex(itIndex), segRemaining(segRemaining) {
+    }
+
+    RawTokenBlockIterator() :
+            itIndex(0xFFFF), segRemaining(0) {
     }
 
     uint8_t next(TokenRingBuffer<ZP> *buffer) {

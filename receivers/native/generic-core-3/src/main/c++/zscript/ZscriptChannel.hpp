@@ -16,6 +16,7 @@ namespace Zscript {
 
 template<class ZP>
 class ZscriptChannel {
+protected:
     GenericCore::SemanticParser<ZP> parser;
     AbstractOutStream<ZP> *out;
 
@@ -40,11 +41,11 @@ public:
     }
 
     virtual void channelInfo(ZscriptCommandContext<ZP> ctx) {
-
+        (void) ctx;
     }
 
     virtual void channelSetup(ZscriptCommandContext<ZP> ctx) {
-
+        (void) ctx;
     }
 
 };

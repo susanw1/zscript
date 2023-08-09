@@ -89,6 +89,11 @@
                             <link>static</link>
                             <run>true</run>
                         </test>
+                        <test>
+                            <name>ScriptSpaceTest</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
                     </tests>
                 </configuration>
             </plugin>

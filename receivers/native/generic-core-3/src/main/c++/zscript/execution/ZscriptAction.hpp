@@ -35,7 +35,8 @@ enum class SemanticActionType : uint8_t {
     RUN_COMMAND,
     COMMAND_MOVEALONG,
     END_SEQUENCE,
-    CLOSE_PAREN
+    CLOSE_PAREN,
+    STOPPED
 };
 
 enum class NotificationActionType : uint8_t {
@@ -114,6 +115,7 @@ private:
         case SemanticActionType::GO_AROUND:
             case SemanticActionType::WAIT_FOR_TOKENS:
             case SemanticActionType::WAIT_FOR_ASYNC:
+            case SemanticActionType::STOPPED:
             break;
         case SemanticActionType::INVALID:
             //Unreachable
@@ -199,7 +201,8 @@ public:
     bool isEmptyAction() {
         if (isSemantic) {
             SemanticActionType type = (SemanticActionType) typeStored;
-            return type == SemanticActionType::GO_AROUND || type == SemanticActionType::WAIT_FOR_TOKENS || type == SemanticActionType::WAIT_FOR_ASYNC;
+            return type == SemanticActionType::GO_AROUND || type == SemanticActionType::WAIT_FOR_TOKENS || type == SemanticActionType::WAIT_FOR_ASYNC
+                    || type == SemanticActionType::STOPPED;
         } else {
             NotificationActionType type = (NotificationActionType) typeStored;
             return type == NotificationActionType::WAIT_FOR_NOTIFICATION || type == NotificationActionType::WAIT_FOR_ASYNC;
@@ -226,9 +229,9 @@ public:
 
     bool lock(Zscript<ZP> *z) {
         if (isSemantic) {
-            return ((SemanticParser<ZP>*) source)->canLock(z);
+            return ((SemanticParser<ZP>*) source)->lock(z);
         } else {
-            return ((ZscriptNotificationSource<ZP>*) source)->getLocks();
+            return ((ZscriptNotificationSource<ZP>*) source)->lock(z);
         }
     }
 
