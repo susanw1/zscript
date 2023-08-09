@@ -18,9 +18,18 @@
  */
 namespace Zscript {
 class zp {
+    static uint16_t currentRnd;
+
 public:
     static const uint8_t lockByteCount = 3;
+
+    static uint16_t generateRandom16() {
+        currentRnd++;
+        currentRnd ^= currentRnd * 23;
+        return currentRnd;
+    }
 };
+uint16_t zp::currentRnd = 1249;
 
 int someValue = 0;
 int lastID = 0;

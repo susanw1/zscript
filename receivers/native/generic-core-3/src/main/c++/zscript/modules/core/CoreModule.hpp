@@ -14,6 +14,8 @@
 
 #include "ActivateCommand.hpp"
 #include "EchoCommand.hpp"
+#include "MakeMatchCodeCommand.hpp"
+#include "ChannelInfoCommand.hpp"
 
 #define MODULE_EXISTS_000 EXISTENCE_MARKER_UTIL
 #define MODULE_SWITCH_000 MODULE_SWITCH_UTIL(ZscriptCoreModule<ZP>::execute)
@@ -38,6 +40,15 @@ public:
             break;
         case 0x2:
             ActivateCommand<ZP>::execute(ctx);
+            break;
+        case 0x8:
+            ChannelInfoCommand<ZP>::execute(ctx);
+            break;
+        case 0xc:
+            MakeMatchCodeCommand<ZP>::makeCode(ctx);
+            break;
+        case 0xd:
+            MakeMatchCodeCommand<ZP>::matchCode(ctx);
             break;
         default:
             ctx.status(ResponseStatus::COMMAND_NOT_FOUND);

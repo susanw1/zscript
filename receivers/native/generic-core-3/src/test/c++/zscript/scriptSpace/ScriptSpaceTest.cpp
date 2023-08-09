@@ -16,9 +16,18 @@
 namespace Zscript {
 namespace GenericCore {
 class zp {
+    static uint16_t currentRnd;
+
 public:
     static const uint8_t lockByteCount = 3;
+
+    static uint16_t generateRandom16() {
+        currentRnd++;
+        currentRnd ^= currentRnd * 23;
+        return currentRnd;
+    }
 };
+uint16_t zp::currentRnd = 1249;
 
 class ScriptSpaceTest {
     uint8_t scriptSpace[256];

@@ -5,9 +5,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-#define COMMAND_EXISTS_000C EXISTENCE_MARKER_UTIL
-#define COMMAND_EXISTS_000D EXISTENCE_MARKER_UTIL
-
 #include <iostream>
 #include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
 #include "../../../../main/c++/zscript/semanticParser/SemanticParser.hpp"
@@ -19,9 +16,18 @@
 namespace Zscript {
 namespace GenericCore {
 class zp {
+    static uint16_t currentRnd;
+
 public:
     static const uint8_t lockByteCount = 3;
+
+    static uint16_t generateRandom16() {
+        currentRnd++;
+        currentRnd ^= currentRnd * 23;
+        return currentRnd;
+    }
 };
+uint16_t zp::currentRnd = 1249;
 
 class SemanticParserTest {
     static const SemanticActionType INVALID = SemanticActionType::INVALID;
@@ -127,7 +133,7 @@ public:
         checkActionType(a1, RUN_FIRST_COMMAND);
 
         a1.performAction(&zscript, &outStream);
-        checkAgainstOut("!V1C3007M1S");
+        checkAgainstOut("!V1C3107M1S");
         outStream.reset();
         checkParserState(COMMAND_COMPLETE);
 
@@ -201,7 +207,7 @@ public:
     static void shouldProduceActionsForSingleCommands() {
         SemanticParserTest s1;
         SemanticActionType types1[] = { RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS, INVALID };
-        s1.shouldHandleActionTypesAndIO("Z0\n", types1, "!V1C3007M1S\n");
+        s1.shouldHandleActionTypesAndIO("Z0\n", types1, "!V1C3107M1S\n");
         SemanticParserTest s2;
         SemanticActionType types2[] = { RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS, INVALID };
         s2.shouldHandleActionTypesAndIO("Z1A\n", types2, "!AS\n");

@@ -5,9 +5,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-#define COMMAND_EXISTS_000C EXISTENCE_MARKER_UTIL
-#define COMMAND_EXISTS_000D EXISTENCE_MARKER_UTIL
-
 #include <iostream>
 #include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
 #include "../../../../main/c++/zscript/semanticParser/SemanticParser.hpp"
@@ -19,9 +16,18 @@
 namespace Zscript {
 namespace GenericCore {
 class zp {
+    static uint16_t currentRnd;
+
 public:
     static const uint8_t lockByteCount = 3;
+
+    static uint16_t generateRandom16() {
+        currentRnd++;
+        currentRnd ^= currentRnd * 23;
+        return currentRnd;
+    }
 };
+uint16_t zp::currentRnd = 1249;
 
 class SemanticParserTest {
     static const SemanticActionType INVALID = SemanticActionType::INVALID;

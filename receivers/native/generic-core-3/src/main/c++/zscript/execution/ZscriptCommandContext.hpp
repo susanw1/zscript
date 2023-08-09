@@ -263,7 +263,7 @@ public:
         return zscript;
     }
 
-    int getChannelIndex() {
+    uint8_t getChannelIndex() {
         return parseState->getChannelIndex();
     }
 
