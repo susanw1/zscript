@@ -24,13 +24,13 @@ public class YamlTransformerPluginMapper implements TransformerPluginMapper {
 
     private LoadedEntityContent<Map<?, ?>> load(LoadableEntity entity) {
         try {
-            final String relativePathToSource = entity.getRelativePath();
-            final Path   fullPathToSource     = Path.of(entity.getRootPathName()).resolve(relativePathToSource);
+            final Path relativePathToSource = entity.getRelativePath();
+            final Path fullPathToSource     = entity.getRootPath().resolve(relativePathToSource);
 
             Path relativePathToOutput = findRelativePathToOutput(relativePathToSource, entity.getFileTypeSuffix());
 
             final Map<?, ?> value = jsonMapper.reader().readValue(fullPathToSource.toFile(), Map.class);
-            return entity.withContent(value, relativePathToOutput.toString());
+            return entity.withContent(value, relativePathToOutput);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }

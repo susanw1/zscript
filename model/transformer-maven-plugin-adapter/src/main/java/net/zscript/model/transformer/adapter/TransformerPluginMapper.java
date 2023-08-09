@@ -18,10 +18,10 @@ public interface TransformerPluginMapper {
      */
     <T> List<LoadedEntityContent<T>> loadAndMap(final LoadableEntities entities);
 
-    default Path findRelativePathToOutput(final String relativePathToSource, String suffix) {
-        final String lastPart    = Path.of(relativePathToSource).getFileName().toString();
+    default Path findRelativePathToOutput(final Path relativePathToSource, String suffix) {
+        final String lastPart    = relativePathToSource.getFileName().toString();
         final int    index       = lastPart.lastIndexOf('.');
         final String newLastPart = (index != -1 ? lastPart.substring(0, index) : lastPart) + "." + suffix;
-        return Path.of(relativePathToSource).resolveSibling(newLastPart);
+        return relativePathToSource.resolveSibling(newLastPart);
     }
 }

@@ -2,20 +2,21 @@ package net.zscript.model.transformer.adapter;
 
 import static java.util.stream.Collectors.toList;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
 public class LoadableEntities {
-    private final String       entityDescription;
-    private final String       rootPathName;
-    private final List<String> relativePaths;
-    private final String       fileTypeSuffix;
+    private final String     entityDescription;
+    private final Path       rootPath;
+    private final List<Path> relativePaths;
+    private final String     fileTypeSuffix;
 
-    public LoadableEntities(String entityDescription, String rootPathName, String[] relativePaths, String fileTypeSuffix) {
+    public LoadableEntities(String entityDescription, Path rootPath, List<Path> relativePaths, String fileTypeSuffix) {
         this.entityDescription = entityDescription;
-        this.rootPathName = rootPathName;
-        this.relativePaths = List.of(relativePaths);
+        this.rootPath = rootPath;
+        this.relativePaths = relativePaths;
         this.fileTypeSuffix = fileTypeSuffix;
 
     }
@@ -29,18 +30,18 @@ public class LoadableEntities {
     }
 
     public class LoadableEntity {
-        private final String relativePath;
+        private final Path relativePath;
 
-        public LoadableEntity(String relativePath) {
+        public LoadableEntity(Path relativePath) {
             this.relativePath = relativePath;
         }
 
-        public String getRelativePath() {
+        public Path getRelativePath() {
             return relativePath;
         }
 
-        public String getRootPathName() {
-            return rootPathName;
+        public Path getRootPath() {
+            return rootPath;
         }
 
         public String getDescription() {
@@ -51,16 +52,16 @@ public class LoadableEntities {
             return fileTypeSuffix;
         }
 
-        public <T> LoadedEntityContent<T> withContent(T content, String relativeOutputFilename) {
+        public <T> LoadedEntityContent<T> withContent(T content, Path relativeOutputFilename) {
             return new LoadedEntityContent<>(relativePath, content, relativeOutputFilename);
         }
     }
 
     public class LoadedEntityContent<T> extends LoadableEntity {
-        private final T      content;
-        private final String relativeOutputFilename;
+        private final T    content;
+        private final Path relativeOutputFilename;
 
-        public LoadedEntityContent(String relativePath, T content, String relativeOutputPath) {
+        public LoadedEntityContent(Path relativePath, T content, Path relativeOutputPath) {
             super(relativePath);
             this.content = content;
             this.relativeOutputFilename = relativeOutputPath;
@@ -70,7 +71,7 @@ public class LoadableEntities {
             return content;
         }
 
-        public String getRelativeOutputFilename() {
+        public Path getRelativeOutputFilename() {
             return relativeOutputFilename;
         }
     }

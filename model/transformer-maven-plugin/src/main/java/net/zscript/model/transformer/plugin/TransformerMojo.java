@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -90,7 +91,7 @@ public class TransformerMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoExecutionException {
         getLog().info("8=8=8=8=8=8=8=8=8=8=8=8=8 TransformerMojo STARTED 8=8=8=8=8=8=8=8=8=8=8=8=8");
 
-        Charset charset;
+        final Charset charset;
         if (encoding == null || encoding.trim().length() == 0) {
             getLog().warn("File encoding has not been set, using platform encoding " + Charset.defaultCharset()
                     + ", i.e. build is platform dependent!");
@@ -103,21 +104,18 @@ public class TransformerMojo extends AbstractMojo {
 
         getLog().info("outputDirectory: " + outputDirectory);
 
-        getLog().info("getCompileSourceRoots:\n" + project.getCompileSourceRoots());
-        getLog().info("getPackaging: " + project.getPackaging());
-        getLog().info("getDefaultGoal: " + project.getDefaultGoal());
-
-        final FileSet    templateFileSet  = initFileSet(templates, TEMPLATE_DEFAULT_DIR);
-        LoadableEntities templateEntities = extractFileList("Template", templateFileSet);
-        final FileSet    contextFileSet   = initFileSet(contexts, CONTEXT_DEFAULT_DIR);
-        LoadableEntities contextEntities  = extractFileList("Context", contextFileSet);
+        final FileSet          templateFileSet  = initFileSet(templates, TEMPLATE_DEFAULT_DIR);
+        final LoadableEntities templateEntities = extractFileList("Template", templateFileSet);
+        final FileSet          contextFileSet   = initFileSet(contexts, CONTEXT_DEFAULT_DIR);
+        final LoadableEntities contextEntities  = extractFileList("Context", contextFileSet);
 
         // read in context files as YAML and perform any field mapping as required. Read in templates ready to use Mustache.
 
-        List<LoadedEntityContent<Object>>   loadedMappedContexts = loadMappedContexts(contextEntities);
-        List<LoadedEntityContent<Mustache>> loadedTemplates      = loadTemplates(templateEntities);
+        final List<LoadedEntityContent<Object>>   loadedMappedContexts = loadMappedContexts(contextEntities);
+        final List<LoadedEntityContent<Mustache>> loadedTemplates      = loadTemplates(templateEntities);
 
-        Path outputDirectoryPath = outputDirectory.toPath();
+        final Path outputDirectoryPath = outputDirectory.toPath();
+
         createDirIfRequired(outputDirectoryPath);
 
         for (LoadedEntityContent<Mustache> template : loadedTemplates) {
@@ -177,19 +175,19 @@ public class TransformerMojo extends AbstractMojo {
             throw new MojoExecutionException(description + " directory not readable: " + rootPath);
         }
 
-        getLog().info("fileSet.getDirectory:\n" + rootPath);
+        getLog().info("fileSet.getDirectory: " + rootPath);
 
         FileSetManager fileSetManager = new FileSetManager();
-        String[]       files          = fileSetManager.getIncludedFiles(fileSet);
+        List<Path>     files          = stream(fileSetManager.getIncludedFiles(fileSet)).map(f -> Path.of(f)).collect(Collectors.toList());
 
-        if (failIfNoFiles && files.length == 0) {
+        if (failIfNoFiles && files.size() == 0) {
             throw new MojoExecutionException("No matching " + description + " files found in: " + rootPath);
         }
 
-        getLog().info("#files = " + files.length);
-        stream(files).forEach(f -> getLog().info(f));
+        getLog().info("#files = " + files.size());
+        files.forEach(f -> getLog().info(f.toString()));
 
-        return new LoadableEntities(description, rootPath.toString(), files, fileTypeSuffix);
+        return new LoadableEntities(description, rootPath, files, fileTypeSuffix);
     }
 
     private List<LoadedEntityContent<Object>> loadMappedContexts(LoadableEntities contextEntities) throws MojoExecutionException {
@@ -206,107 +204,21 @@ public class TransformerMojo extends AbstractMojo {
         DefaultMustacheFactory mf = new DefaultMustacheFactory();
 
         return entities.loadEntities(entity -> {
-            final Path fullPath = Path.of(entity.getRootPathName(), entity.getRelativePath());
+            final Path fullPath = entity.getRootPath().resolve(entity.getRelativePath());
             try (final Reader reader = Files.newBufferedReader(fullPath)) {
                 final Mustache template = mf.compile(reader, entity.getRelativePath().toString());
-                return entity.withContent(template, "");
+                return entity.withContent(template, null);
             } catch (IOException e) {
                 throw new UncheckedIOException("Cannot open " + entity.getDescription() + ": " + entity.getRelativePath(), e);
             }
         });
     }
 
-    void addSourceRoot(Path outputDir) {
+    private void addSourceRoot(Path outputDir) {
         if (generateTestSources) {
             project.addTestCompileSourceRoot(outputDir.toString());
         } else {
             project.addCompileSourceRoot(outputDir.toString());
         }
     }
-
-//    private void runTemplateConfiguration(Object globalContext, TemplateRunConfiguration configuration, Charset charset)
-//            throws MojoExecutionException, MojoExecutionException {
-//        Object templateContext = createContext(configuration.getContext(), charset);
-//        if (templateContext == null) {
-//            if (globalContext == null) {
-//                throw new MojoExecutionException("Template has no defined context and plugin context is also empty");
-//            }
-//            templateContext = globalContext;
-//        }
-//
-//        Mustache mustache   = createTemplate(configuration.getTemplateFile(), charset);
-//        File     outputFile = new File(configuration.getOutputPath());
-//        File     parent     = outputFile.getParentFile();
-//        if (!parent.exists() || parent.mkdirs()) {
-//            throw new MojoExecutionException("Output directory cannot be created: " + parent);
-//        }
-//        try (Writer writer = new OutputStreamWriter(new FileOutputStream(outputFile), charset)) {
-//            mustache.execute(writer, templateContext);
-//        } catch (IOException e) {
-//            throw new MojoExecutionException(e, "Cannot open output file", "Cannot open output file: " + e.getMessage());
-//        } catch (MustacheException e) {
-//            throw new MojoExecutionException(e, "Cannot process template", "Cannot process template: " + e.getMessage());
-//        }
-//    }
-//
-//    private Object createContext(String contextConfiguration, Charset charset) throws MojoExecutionException {
-//        if (contextConfiguration == null) {
-//            return null;
-//        }
-//
-//        Yaml yaml = new Yaml();
-//
-//        String      contextSource = obtainContextSource(contextConfiguration, charset);
-//        Matcher     matcher       = PROPERTY_PATTERN.matcher(contextSource);
-//        Set<String> props         = new LinkedHashSet<>(10);
-//        while (matcher.find()) {
-//            props.add(matcher.group(1));
-//        }
-//
-//        for (String prop : props) {
-//            if (project.getProperties().containsKey(prop)) {
-//                contextSource = contextSource.replace(String.format("${%s}", prop), project.getProperties().getProperty(prop));
-//            } else {
-//                getLog().warn(String.format("Property '%s' referenced in context, but doesn't exist in Maven Project...", prop));
-//            }
-//        }
-//
-//        return yaml.load(contextSource);
-//    }
-//
-//    private static String obtainContextSource(String contextConfiguration, Charset charset) throws MojoExecutionException {
-//        if (contextConfiguration.startsWith("---\n")) {
-//            return contextConfiguration;
-//        }
-//
-//        String trimmedContext = contextConfiguration.trim();
-//        if (trimmedContext.startsWith(FILE_PREFIX)) {
-//            String filename = trimmedContext.substring(FILE_PREFIX.length());
-//            try {
-//                byte[] bytes = Files.readAllBytes(Paths.get(filename));
-//                return new String(bytes, charset);
-//            } catch (IOException e) {
-//                throw new MojoExecutionException(e, "Cannot load yaml from file", "Cannot load yaml from file");
-//            }
-//        }
-//
-//        throw new MojoExecutionException("Cannot load context. Either pass a filename in the form 'file:[filename]' or " +
-//                "include a complete yaml document, prefied with '---\\n");
-//    }
-//
-//    public void setContext(String context) {
-//        this.context = context;
-//    }
-//
-//    public void setEncoding(String encoding) {
-//        this.encoding = encoding;
-//    }
-//
-////    public void setTemplates(List<TemplateRunConfiguration> templates) {
-////        this.templates = templates;
-////    }
-//
-//    public void setProject(MavenProject project) {
-//        this.project = project;
-//    }
 }
