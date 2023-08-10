@@ -5,7 +5,6 @@ import static java.util.Arrays.stream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -123,7 +122,7 @@ public class TransformerMojo extends AbstractMojo {
         for (LoadedEntityContent<Mustache> template : loadedTemplates) {
             for (LoadedEntityContent<Object> context : loadedMappedContexts) {
                 try {
-                    final Path outputFileFullPath = outputDirectoryPath.resolve(context.getRelativeOutputFilename());
+                    final Path outputFileFullPath = outputDirectoryPath.resolve(context.getRelativeOutputPath());
                     final Path parentDir          = outputFileFullPath.getParent();
                     createDirIfRequired(parentDir);
 
@@ -202,17 +201,30 @@ public class TransformerMojo extends AbstractMojo {
         return mapper.loadAndMap(contextEntities);
     }
 
-    private <T> List<LoadedEntityContent<Mustache>> loadTemplates(LoadableEntities entities) {
+    private List<LoadedEntityContent<Mustache>> loadTemplates(LoadableEntities entities) {
         final DefaultMustacheFactory mf = new DefaultMustacheFactory();
 
         return entities.loadEntities(entity -> {
+            if (entity.getRelativePath().isAbsolute()) {
+                throw new TransformerMojoFailureException("Cannot load class '" + transformMapperClass + "'");
+            }
             final Path fullPath = entity.getRootPath().resolve(entity.getRelativePath());
             try (final Reader reader = Files.newBufferedReader(fullPath)) {
                 final Mustache template = mf.compile(reader, entity.getRelativePath().toString());
-                return entity.withContent(template, null);
+                return List.of(entity.withContent(template, entity.getRelativePath()));
             } catch (final IOException e) {
-                throw new UncheckedIOException("Cannot open " + entity.getDescription() + ": " + entity.getRelativePath(), e);
+                throw new TransformerMojoFailureException("Cannot open " + entity.getDescription() + ": " + entity.getRelativePath(), e);
             }
         });
+    }
+
+    static class TransformerMojoFailureException extends RuntimeException {
+        public TransformerMojoFailureException(String msg, Exception e) {
+            super(msg, e);
+        }
+
+        public TransformerMojoFailureException(String msg) {
+            super(msg);
+        }
     }
 }

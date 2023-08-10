@@ -1,7 +1,9 @@
 package net.zscript.model.transformer.adapter;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -22,15 +24,13 @@ public class YamlTransformerPluginMapper implements TransformerPluginMapper {
         return entities.loadEntities(e -> load(e));
     }
 
-    private LoadedEntityContent<Map<?, ?>> load(LoadableEntity entity) {
-        try {
-            final Path relativePathToSource = entity.getRelativePath();
-            final Path fullPathToSource     = entity.getRootPath().resolve(relativePathToSource);
+    private List<LoadedEntityContent<Map<?, ?>>> load(LoadableEntity entity) {
+        final Path relativePathToSource = entity.getRelativePath();
+        final Path relativePathToOutput = findRelativePathToOutput(relativePathToSource, entity.getFileTypeSuffix());
 
-            Path relativePathToOutput = findRelativePathToOutput(relativePathToSource, entity.getFileTypeSuffix());
-
-            final Map<?, ?> value = jsonMapper.reader().readValue(fullPathToSource.toFile(), Map.class);
-            return entity.withContent(value, relativePathToOutput);
+        try (final Reader r = Files.newBufferedReader(entity.getFullPath())) {
+            final Map<?, ?> value = jsonMapper.reader().readValue(r, Map.class);
+            return List.of(entity.withContent(value, relativePathToOutput));
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }

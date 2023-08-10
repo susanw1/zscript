@@ -9,25 +9,28 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>transformer-maven-plugin-adapter</artifactId>
-    <name>Maven Transformer Plugin Adapter</name>
+    <artifactId>zscript-client-transformer-adapter</artifactId>
+    <name>Zscript Client Generator Transformer Adapter</name>
 
     <properties>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
+            <groupId>net.zscript</groupId>
+            <artifactId>transformer-maven-plugin-adapter</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-mrbean</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-model-schema</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+
+        </plugins>
+    </build>
 </project>

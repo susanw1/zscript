@@ -1,5 +1,6 @@
 package net.zscript.model.loader;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,5 +30,9 @@ public class ModuleBank {
 
     public ModuleModel getModule(String name) {
         return modules.get(name);
+    }
+
+    public Collection<ModuleModel> modules() {
+        return modules.values();
     }
 }

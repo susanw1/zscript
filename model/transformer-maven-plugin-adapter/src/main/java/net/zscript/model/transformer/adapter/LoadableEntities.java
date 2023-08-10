@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.toList;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 
 public class LoadableEntities {
@@ -18,14 +17,13 @@ public class LoadableEntities {
         this.rootPath = rootPath;
         this.relativePaths = relativePaths;
         this.fileTypeSuffix = fileTypeSuffix;
-
     }
 
-    public <T> List<LoadedEntityContent<T>> loadEntities(Function<LoadableEntity, LoadedEntityContent<T>> loader) {
+    public <T> List<LoadedEntityContent<T>> loadEntities(Function<LoadableEntity, List<LoadedEntityContent<T>>> loader) {
         return relativePaths.stream()
                 .map(LoadableEntity::new)
                 .map(loader::apply)
-                .filter(Objects::nonNull)
+                .flatMap(list -> list.stream())
                 .collect(toList());
     }
 
@@ -33,6 +31,9 @@ public class LoadableEntities {
         private final Path relativePath;
 
         public LoadableEntity(Path relativePath) {
+            if (relativePath.isAbsolute()) {
+                throw new IllegalArgumentException("relativePath is absolute: " + relativePath);
+            }
             this.relativePath = relativePath;
         }
 
@@ -52,27 +53,36 @@ public class LoadableEntities {
             return fileTypeSuffix;
         }
 
-        public <T> LoadedEntityContent<T> withContent(T content, Path relativeOutputFilename) {
+        public Path getFullPath() {
+            return rootPath.resolve(relativePath);
+        }
+
+        public <T> LoadedEntityContent<T> withContent(final T content, final Path relativeOutputFilename) {
             return new LoadedEntityContent<>(relativePath, content, relativeOutputFilename);
         }
     }
 
     public class LoadedEntityContent<T> extends LoadableEntity {
         private final T    content;
-        private final Path relativeOutputFilename;
+        private final Path relativeOutputPath;
 
         public LoadedEntityContent(Path relativePath, T content, Path relativeOutputPath) {
             super(relativePath);
+
             this.content = content;
-            this.relativeOutputFilename = relativeOutputPath;
+
+            if (relativeOutputPath.isAbsolute()) {
+                throw new IllegalArgumentException("relativeOutputPath is absolute: " + relativeOutputPath);
+            }
+            this.relativeOutputPath = relativeOutputPath;
         }
 
         public T getContent() {
             return content;
         }
 
-        public Path getRelativeOutputFilename() {
-            return relativeOutputFilename;
+        public Path getRelativeOutputPath() {
+            return relativeOutputPath;
         }
     }
 }

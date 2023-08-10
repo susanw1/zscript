@@ -5,6 +5,8 @@ import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -35,9 +37,11 @@ public class ModelLoader {
 
     public static ModelLoader standardModel() {
         try {
-            return new ModelLoader().withModel(ModelLoader.class.getResource("/datamodel/"));
+            return new ModelLoader().withModel(ModelLoader.class.getResource("/datamodel/module-list.yaml"));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Resource URL is illegal", e);
         }
     }
 
@@ -59,8 +63,15 @@ public class ModelLoader {
                 .build();
     }
 
-    public ModelLoader withModel(URL moduleListRoot) throws IOException {
-        final URL moduleListLocation = new URL(moduleListRoot, "module-list.yaml");
+    /**
+     *
+     * @param moduleListLocation identifies the module-list inventory file to be opened (usually module-list.yaml).
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public ModelLoader withModel(final URL moduleListLocation) throws IOException, URISyntaxException {
+//        final URL moduleListLocation = new URL(moduleListRoot, "module-list.yaml");
 
         final DefinitionResources d;
         try (final InputStream openStream = moduleListLocation.openStream()) {
@@ -71,9 +82,10 @@ public class ModelLoader {
             ModuleBank moduleBank = moduleBanks.computeIfAbsent(mb.getName(), n -> new ModuleBank(mb));
 
             for (String moduleDefinitionLocation : mb.getModuleDefinitions()) {
-                URL              moduleDefinition = new URL(moduleListRoot, moduleDefinitionLocation);
+                URI moduleDefinition = moduleListLocation.toURI().resolve(moduleDefinitionLocation);
+
                 ZscriptDataModel model;
-                try (final InputStream openStream = moduleDefinition.openStream()) {
+                try (final InputStream openStream = moduleDefinition.toURL().openStream()) {
                     model = jsonMapper.readValue(openStream, ZscriptDataModel.class);
                 }
                 for (ModuleModel mm : model.getModules()) {
