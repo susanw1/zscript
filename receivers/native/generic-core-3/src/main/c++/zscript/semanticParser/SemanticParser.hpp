@@ -560,15 +560,15 @@ public:
         }
     }
 
-    bool canLock(Zscript<ZP> *z) {
-        return locked || z->canLock(&locks);
+    bool canLock() {
+        return locked || Zscript<ZP>::zscript.canLock(&locks);
     }
 
-    bool lock(Zscript<ZP> *z) {
+    bool lock() {
         if (locked) {
             return true;
         }
-        locked = z->lock(&locks);
+        locked = Zscript<ZP>::zscript.lock(&locks);
         return locked;
     }
 
@@ -576,8 +576,8 @@ public:
         return hasSentStatusB;
     }
 
-    void unlock(Zscript<ZP> *z) {
-        z->unlock(&locks);
+    void unlock() {
+        Zscript<ZP>::zscript.unlock(&locks);
         this->locked = false;
     }
 

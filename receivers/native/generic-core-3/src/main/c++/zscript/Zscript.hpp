@@ -23,6 +23,14 @@ public:
     static Zscript<ZP> zscript;
 
 private:
+
+    Zscript<ZP>* operator &() {
+        return this;
+    }
+    Zscript<ZP> operator *() {
+        return this;
+    }
+
     //    ZcodeModuleRegistry moduleRegistry = new ZcodeModuleRegistry();
     GenericCore::LockSystem<ZP> locks;
     ZscriptChannel<ZP> **channels = NULL;
@@ -76,7 +84,7 @@ public:
         for (uint8_t i = 0; i < channelCount; ++i) {
             channels[i]->moveAlong();
         }
-        return GenericCore::ZscriptExecutor<ZP>::progress(this, channels, notifSources, channelCount, notifSrcCount);
+        return GenericCore::ZscriptExecutor<ZP>::progress(channels, notifSources, channelCount, notifSrcCount);
     }
 //
 //    List<ZcodeChannel> getChannels() {

@@ -17,6 +17,10 @@ template<class ZP>
 class QuotedStringFieldWriter {
     AbstractOutStream<ZP> *internal;
 
+    QuotedStringFieldWriter<ZP>* operator &() {
+        return this;
+    }
+
 public:
     QuotedStringFieldWriter(AbstractOutStream<ZP> *internal) :
             internal(internal) {
@@ -41,6 +45,9 @@ public:
 template<class ZP>
 class BigHexFieldWriter {
     AbstractOutStream<ZP> *internal;
+    BigHexFieldWriter<ZP>* operator &() {
+        return this;
+    }
 
 public:
     BigHexFieldWriter(AbstractOutStream<ZP> *internal) :

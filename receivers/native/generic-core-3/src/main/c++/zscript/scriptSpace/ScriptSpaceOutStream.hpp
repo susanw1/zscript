@@ -19,7 +19,6 @@ class SemanticParser;
 
 template<class ZP>
 class ScriptSpaceOutStream: public AbstractOutStream<ZP> {
-    Zscript<ZP> *z;
     SemanticParser<ZP> *parser;
     uint8_t *buffer;
     uint16_t bufferLength;
@@ -30,8 +29,8 @@ class ScriptSpaceOutStream: public AbstractOutStream<ZP> {
 
 public:
 
-    ScriptSpaceOutStream(Zscript<ZP> *z, SemanticParser<ZP> *parser, uint8_t *buffer, uint16_t bufferLength) :
-            z(z), parser(parser), buffer(buffer), bufferLength(bufferLength) {
+    ScriptSpaceOutStream(SemanticParser<ZP> *parser, uint8_t *buffer, uint16_t bufferLength) :
+            parser(parser), buffer(buffer), bufferLength(bufferLength) {
     }
 
     void open() {
@@ -42,9 +41,10 @@ public:
 
     void close() {
         if (isFailed) {
-            z->getNotificationOutStream()->open();
-            z->getNotificationOutStream()->writeBytes(buffer, bufferPos);
-            z->getNotificationOutStream()->close();
+            AbstractOutStream<ZP> *out = Zscript<ZP>::zscript.getNotificationOutStream();
+            out->open();
+            out->writeBytes(buffer, bufferPos);
+            out->close();
         }
         if (isError) {
             parser->stop();

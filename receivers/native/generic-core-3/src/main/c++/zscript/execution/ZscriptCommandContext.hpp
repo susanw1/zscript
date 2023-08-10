@@ -122,7 +122,6 @@ template<class ZP>
 class ZscriptCommandContext {
     friend class GenericCore::EchoCommand<ZP>;
 
-    Zscript<ZP> *zscript;
     GenericCore::SemanticParser<ZP> *parseState;
     AbstractOutStream<ZP> *out;
 
@@ -131,12 +130,12 @@ class ZscriptCommandContext {
     }
 
 public:
-    ZscriptCommandContext(Zscript<ZP> *zscript, GenericCore::SemanticParser<ZP> *parseState, AbstractOutStream<ZP> *out) :
-            zscript(zscript), parseState(parseState), out(out) {
+    ZscriptCommandContext(GenericCore::SemanticParser<ZP> *parseState, AbstractOutStream<ZP> *out) :
+            parseState(parseState), out(out) {
         commandComplete();
     }
     ZscriptCommandContext() :
-            zscript(NULL), parseState(NULL), out(NULL) {
+            parseState(NULL), out(NULL) {
     }
 
     OptInt16 getField(uint8_t key) {
@@ -258,10 +257,6 @@ public:
 
     void silentSucceed() {
         parseState->silentSucceed();
-    }
-
-    Zscript<ZP>* getZscript() {
-        return zscript;
     }
 
     uint8_t getChannelIndex() {

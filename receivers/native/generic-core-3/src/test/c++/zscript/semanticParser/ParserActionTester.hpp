@@ -18,19 +18,17 @@ namespace GenericCore {
 
 template<class ZP>
 class ParserActionTester {
-    Zscript<ZP> *zscript;
     TokenRingBuffer<ZP> *buffer;
     ZscriptTokenizer<ZP> *tokenizer;
     SemanticParser<ZP> *parser;
     BufferOutStream<ZP> *outStream;
 
 public:
-    ParserActionTester(Zscript<ZP> *zscript,
-            TokenRingBuffer<ZP> *buffer,
+    ParserActionTester(TokenRingBuffer<ZP> *buffer,
             ZscriptTokenizer<ZP> *tokenizer,
             SemanticParser<ZP> *parser,
             BufferOutStream<ZP> *outStream) :
-            zscript(zscript), buffer(buffer), tokenizer(tokenizer), parser(parser), outStream(outStream) {
+            buffer(buffer), tokenizer(tokenizer), parser(parser), outStream(outStream) {
     }
 
     bool parseSnippet(const char *text, SemanticActionType *actionTypes, uint16_t actionTypeCount) {
@@ -48,7 +46,7 @@ public:
                 std::cerr << "Action type does not match\nExpected: " << (uint8_t) t << "\nActual: " << (uint8_t) action.getType() << "\n";
                 return false;
             }
-            action.performAction(zscript, outStream);
+            action.performAction(outStream);
 
 //            std::cout << "   - After execute action: state=" + parser->getState() << "\n";
         }
@@ -70,7 +68,7 @@ public:
         ZscriptAction<ZP> a1;
         while ((SemanticActionType) (a1 = parser->getAction()).getType() != SemanticActionType::WAIT_FOR_TOKENS) {
 //            std::cout << "  Received action: actionType=" << (uint8_t)a1.getType() << "; state=" << parser->getState() << "\n";
-            a1.performAction(zscript, outStream);
+            a1.performAction(outStream);
 //            std::cout << "   - After execute action: state=" << parser->getState() << "\n";
         }
         DataArrayWLeng16 result = outStream->getData();
@@ -108,7 +106,7 @@ public:
             }
         }
 
-        action.performAction(zscript, outStream);
+        action.performAction(outStream);
 //        std::cout << "   - After execute action: state=" << parser->getState() << "\n";
         if (parser->getState() != endState) {
             std::cerr << "End state does not match\nExpected: " << (uint8_t) endState << "\nActual: " << (uint8_t) parser->getState() << "\n";

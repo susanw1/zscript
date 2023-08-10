@@ -55,7 +55,7 @@ private:
     uint8_t typeStored;
     bool isSemantic;
 
-    void performActionSemantic(Zscript<ZP> *z, AbstractOutStream<ZP> *out) {
+    void performActionSemantic(AbstractOutStream<ZP> *out) {
         SemanticParser<ZP> *parseState = ((SemanticParser<ZP>*) source);
         ZscriptCommandContext<ZP> cmdCtx;
         ZscriptAddressingContext<ZP> addrCtx;
@@ -66,7 +66,7 @@ private:
             out->writeField('S', parseState->getErrorStatus());
             out->endSequence();
             out->close();
-            parseState->unlock(z);
+            parseState->unlock();
             break;
         case SemanticActionType::INVOKE_ADDRESSING:
             addrCtx = ZscriptAddressingContext<ZP>(parseState);
@@ -85,7 +85,7 @@ private:
             if (typeStored == (uint8_t) SemanticActionType::RUN_COMMAND) {
                 sendNormalMarkerPrefix(out);
             }
-            cmdCtx = ZscriptCommandContext<ZP>(z, parseState, out);
+            cmdCtx = ZscriptCommandContext<ZP>(parseState, out);
             if (cmdCtx.verify()) {
                 if (!parseState->isEmpty()) {
                     ModuleRegistry<ZP>::execute(cmdCtx);
@@ -96,7 +96,7 @@ private:
             }
             break;
         case SemanticActionType::COMMAND_MOVEALONG:
-            cmdCtx = ZscriptCommandContext<ZP>(z, parseState, out);
+            cmdCtx = ZscriptCommandContext<ZP>(parseState, out);
             ModuleRegistry<ZP>::moveAlong(cmdCtx);
             if (cmdCtx.isCommandComplete() && !parseState->hasSentStatus()) {
                 cmdCtx.status(ResponseStatus::SUCCESS);
@@ -107,7 +107,7 @@ private:
                 out->endSequence();
                 out->close();
             }
-            parseState->unlock(z);
+            parseState->unlock();
             break;
         case SemanticActionType::CLOSE_PAREN:
             out->writeCloseParen();
@@ -149,21 +149,21 @@ private:
         }
     }
 
-    void performActionNotification(Zscript<ZP> *z, AbstractOutStream<ZP> *out) {
+    void performActionNotification(AbstractOutStream<ZP> *out) {
         ZscriptNotificationSource<ZP> *notifSrc = ((ZscriptNotificationSource<ZP>*) source);
         NotificationActionType type = (NotificationActionType) typeStored;
         switch (type) {
         case NotificationActionType::NOTIFICATION_BEGIN:
             startResponseNotif(out);
-            ModuleRegistry<ZP>::notification(ZscriptNotificationContext<ZP>(notifSrc, z), false);
+            ModuleRegistry<ZP>::notification(ZscriptNotificationContext<ZP>(notifSrc), false);
             break;
         case NotificationActionType::NOTIFICATION_END:
             out->endSequence();
             out->close();
-            notifSrc->unlock(z);
+            notifSrc->unlock();
             break;
         case NotificationActionType::NOTIFICATION_MOVE_ALONG:
-            ModuleRegistry<ZP>::notification(ZscriptNotificationContext<ZP>(notifSrc, z), true);
+            ModuleRegistry<ZP>::notification(ZscriptNotificationContext<ZP>(notifSrc), true);
             break;
         case NotificationActionType::WAIT_FOR_ASYNC:
             case NotificationActionType::WAIT_FOR_NOTIFICATION:
@@ -209,29 +209,29 @@ public:
         }
     }
 
-    void performAction(Zscript<ZP> *z, AbstractOutStream<ZP> *out) {
+    void performAction(AbstractOutStream<ZP> *out) {
         if (isSemantic) {
-            performActionSemantic(z, out);
+            performActionSemantic(out);
             ((SemanticParser<ZP>*) source)->actionPerformed((SemanticActionType) typeStored);
         } else {
-            performActionNotification(z, out);
+            performActionNotification(out);
             ((ZscriptNotificationSource<ZP>*) source)->actionPerformed((NotificationActionType) typeStored);
         }
     }
 
-    bool canLock(Zscript<ZP> *z) {
+    bool canLock() {
         if (isSemantic) {
-            return ((SemanticParser<ZP>*) source)->canLock(z);
+            return ((SemanticParser<ZP>*) source)->canLock();
         } else {
-            return ((ZscriptNotificationSource<ZP>*) source)->canLock(z);
+            return ((ZscriptNotificationSource<ZP>*) source)->canLock();
         }
     }
 
-    bool lock(Zscript<ZP> *z) {
+    bool lock() {
         if (isSemantic) {
-            return ((SemanticParser<ZP>*) source)->lock(z);
+            return ((SemanticParser<ZP>*) source)->lock();
         } else {
-            return ((ZscriptNotificationSource<ZP>*) source)->lock(z);
+            return ((ZscriptNotificationSource<ZP>*) source)->lock();
         }
     }
 

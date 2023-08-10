@@ -39,12 +39,12 @@ public:
         if (!ctx.getField('P', &spaceIndex)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
-        } else if (spaceIndex >= ctx.getZscript()->getScriptSpaceCount()) {
+        } else if (spaceIndex >= Zscript<ZP>::zscript.getScriptSpaceCount()) {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
         CommandOutStream<ZP> out = ctx.getOutStream();
-        ScriptSpace<ZP> *target = ctx.getZscript()->getScriptSpaces()[spaceIndex];
+        ScriptSpace<ZP> *target = Zscript<ZP>::zscript.getScriptSpaces()[spaceIndex];
         if (target->isRunning()) {
             ctx.status(ResponseStatus::COMMAND_FAIL);
             return;

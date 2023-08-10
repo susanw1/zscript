@@ -95,7 +95,7 @@ class SemanticParserTest {
     }
 
     void shouldHandleActionTypesAndIO(const char *input, const char *output) {
-        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
 
         parserActionTester.parseSnippet(input, output);
         checkAgainstOut(output);
@@ -109,7 +109,7 @@ public:
             buffer(data, 256), parser(&buffer), tokenizer(&buffer, 2) {
     }
     void shouldHandleTwoEmptyCommands() {
-        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
         SemanticActionType types[] = { RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS };
 
         parserActionTester.parseSnippet("\n \n", types, 5);
@@ -121,7 +121,7 @@ public:
     }
 
     void shouldHandleSeveralEmptyCommands() {
-        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
         SemanticActionType types[] = { RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE,
                 WAIT_FOR_TOKENS };
 
@@ -134,7 +134,7 @@ public:
     }
 
     void shouldHandleSeveralBasicCommands() {
-        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
         SemanticActionType types[] = { RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE, RUN_FIRST_COMMAND, END_SEQUENCE,
                 WAIT_FOR_TOKENS };
 

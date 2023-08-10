@@ -27,15 +27,15 @@ public:
         uint8_t current = ctx.getChannelIndex();
 
         uint16_t target = ctx.getField('C', current);
-        if (target >= ctx.getZscript()->getChannelCount()) {
+        if (target >= Zscript<ZP>::zscript.getChannelCount()) {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
-        out.writeField('C', ctx.getZscript()->getChannelCount());
-        if (current <= ctx.getZscript()->getChannelCount()) {
+        out.writeField('C', Zscript<ZP>::zscript.getChannelCount());
+        if (current <= Zscript<ZP>::zscript.getChannelCount()) {
             out.writeField('U', current);
         }
-        ctx.getZscript()->getChannels()[target]->channelInfo(ctx);
+        Zscript<ZP>::zscript.getChannels()[target]->channelInfo(ctx);
     }
 
 };

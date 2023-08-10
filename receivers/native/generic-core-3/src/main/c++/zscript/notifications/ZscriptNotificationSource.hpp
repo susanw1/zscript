@@ -164,41 +164,41 @@ public:
         }
     }
 
-    bool canLock(Zscript<ZP> *zscript) {
+    bool canLock() {
         if (locked) {
             return true;
         }
         if (locks == NULL) {
             LockSet<ZP> ls = LockSet<ZP>::allLocked();
-            return zscript->canLock(&ls);
+            return Zscript<ZP>::zscript.canLock(&ls);
         }
-        return zscript->canLock(locks);
+        return Zscript<ZP>::zscript.canLock(locks);
     }
 
-    bool lock(Zscript<ZP> *zscript) {
+    bool lock() {
         if (locked) {
             return true;
         }
         if (locks == NULL) {
             LockSet<ZP> ls = LockSet<ZP>::allLocked();
-            locked = zscript->lock(&ls);
+            locked = Zscript<ZP>::zscript.lock(&ls);
             return locked;
         }
-        locked = zscript->lock(locks);
+        locked = Zscript<ZP>::zscript.lock(locks);
         return locked;
     }
 
-    void unlock(Zscript<ZP> *zscript) {
+    void unlock() {
         if (!locked) {
             return;
         }
         if (locks == NULL) {
             LockSet<ZP> ls = LockSet<ZP>::allLocked();
-            zscript->unlock(&ls);
+            Zscript<ZP>::zscript.unlock(&ls);
             locked = false;
             return;
         }
-        zscript->unlock(locks);
+        Zscript<ZP>::zscript.unlock(locks);
         locked = false;
         return;
     }

@@ -19,11 +19,10 @@ class ZscriptNotificationSource;
 template<class ZP>
 class ZscriptNotificationContext {
     ZscriptNotificationSource<ZP> *source;
-    Zscript<ZP> *zscript;
 
 public:
-    ZscriptNotificationContext(ZscriptNotificationSource<ZP> *source, Zscript<ZP> *zscript) :
-            source(source), zscript(zscript) {
+    ZscriptNotificationContext(ZscriptNotificationSource<ZP> *source) :
+            source(source) {
         source->setNotificationComplete(true);
     }
 
@@ -47,12 +46,8 @@ public:
         return source->getID();
     }
 
-    Zscript<ZP>* getZscript() {
-        return zscript;
-    }
-
     NotificationOutStream<ZP> getOutStream() {
-        return NotificationOutStream<ZP>(zscript->getNotificationOutStream());
+        return NotificationOutStream<ZP>(Zscript < ZP > ::zscript.getNotificationOutStream());
     }
 
     AsyncActionNotifier<ZP> getAsyncActionNotifier() {

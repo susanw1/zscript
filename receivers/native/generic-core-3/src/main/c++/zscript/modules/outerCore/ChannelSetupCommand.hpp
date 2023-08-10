@@ -26,13 +26,13 @@ public:
         uint8_t current = ctx.getChannelIndex();
 
         uint16_t target = ctx.getField('C', current);
-        if (target >= ctx.getZscript()->getChannelCount()) {
+        if (target >= Zscript<ZP>::zscript.getChannelCount()) {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
-        ctx.getZscript()->getChannels()[target]->channelSetup(ctx);
+        Zscript<ZP>::zscript.getChannels()[target]->channelSetup(ctx);
         if (ctx.hasField('N')) {
-            ctx.getZscript()->setNotificationOutStream(ctx.getZscript()->getChannels()[target]->getOutStream());
+            Zscript<ZP>::zscript.setNotificationOutStream(Zscript<ZP>::zscript.getChannels()[target]->getOutStream());
         }
     }
 
