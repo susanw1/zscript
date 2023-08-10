@@ -22,7 +22,7 @@ template<class ZP>
 class ScriptSpaceWriteCommand {
 
     static void writeToWriter(ZscriptCommandContext<ZP> ctx, ScriptSpace<ZP> *target, TokenRingBuffer<ZP> writer) {
-        ZscriptTokenizer<ZP> tok(&writer, 2);
+        ZscriptTokenizer<ZP> tok(writer.getWriter(), 2);
 
         for (BigFieldBlockIterator<ZP> iter = ctx.getBigField(); iter.hasNext();) {
             DataArrayWLeng16 data = iter.nextContiguous();

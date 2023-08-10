@@ -68,7 +68,7 @@ class ScriptSpaceTest {
     ScriptSpace<zp> spaceFromString(const char *text) {
         ScriptSpace<zp> space(&zscript, scriptSpace, 256, outBuffer, 256);
         TokenRingBuffer<zp> writer = space.overwrite();
-        ZscriptTokenizer<zp> tok(&writer, 2);
+        ZscriptTokenizer<zp> tok(writer.getWriter(), 2);
         for (uint16_t i = 0; text[i] != 0; i++) {
             tok.accept(text[i]);
         }

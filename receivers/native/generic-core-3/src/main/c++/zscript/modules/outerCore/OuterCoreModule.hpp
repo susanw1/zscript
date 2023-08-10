@@ -12,7 +12,7 @@
 #include "../ZscriptModule.hpp"
 
 #define MODULE_EXISTS_001 EXISTENCE_MARKER_UTIL
-#define MODULE_SWITCH_001 MODULE_SWITCH_UTIL(ZscriptCoreModule<ZP>::execute)
+#define MODULE_SWITCH_001 MODULE_SWITCH_UTIL(ZscriptOuterCoreModule<ZP>::execute)
 
 #include "ExtendedCapabilitiesCommand.hpp"
 #include "ChannelSetupCommand.hpp"

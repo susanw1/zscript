@@ -161,8 +161,8 @@ private:
 
 public:
 
-    ZscriptTokenizer(GenericCore::TokenRingBuffer<ZP> *buffer, uint8_t maxNumericBytes) :
-            writer(buffer->getWriter()), maxNumericBytes(maxNumericBytes) {
+    ZscriptTokenizer(TokenRingWriter<ZP> writer, uint8_t maxNumericBytes) :
+            writer(writer), maxNumericBytes(maxNumericBytes) {
     }
     void dataLost() {
         if (!bufferOvr) {

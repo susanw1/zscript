@@ -80,10 +80,10 @@ public:
             default:
                 break;
             }
-            out.writeField16('L', result);
+            out.writeField('L', result);
         }
-        out.writeField16('C', MODULE_CAPABILITIES(001));
-        out.writeField16('M', BROAD_MODULE_EXISTENCE);
+        out.writeField('C', MODULE_CAPABILITIES(001));
+        out.writeField('M', BROAD_MODULE_EXISTENCE);
 
     }
 

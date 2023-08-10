@@ -23,7 +23,6 @@ class ChannelSetupCommand {
 
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
-        CommandOutStream<ZP> out = ctx.getOutStream();
         uint8_t current = ctx.getChannelIndex();
 
         uint16_t target = ctx.getField('C', current);
@@ -31,11 +30,10 @@ public:
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
-        out.writeField('C', ctx.getZscript()->getChannelCount());
-        if (current <= ctx.getZscript()->getChannelCount()) {
-            out.writeField('U', current);
-        }
         ctx.getZscript()->getChannels()[target]->channelSetup(ctx);
+        if (ctx.hasField('N')) {
+            ctx.getZscript()->setNotificationOutStream(ctx.getZscript()->getChannels()[target]->getOutStream());
+        }
     }
 
 };
