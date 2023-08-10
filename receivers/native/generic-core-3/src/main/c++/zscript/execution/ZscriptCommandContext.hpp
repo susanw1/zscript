@@ -9,8 +9,8 @@
 #define SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTCOMMANDCONTEXT_HPP_
 
 #include "../ZscriptIncludes.hpp"
-#include "../AbstractOutStream.hpp"
 #include "../tokenizer/TokenRingBuffer.hpp"
+#include "CommandOutStream.hpp"
 
 namespace Zscript {
 
@@ -219,9 +219,6 @@ public:
     bool isEmpty() {
         return parseState->getReader().getFirstReadToken().isMarker(parseState->getBuffer());
     }
-    AbstractOutStream<ZP>* getOutStream() {
-        return out;
-    }
 
     bool verify() {
         uint32_t foundCommands = 0;
@@ -249,6 +246,10 @@ public:
             }
         }
         return true;
+    }
+
+    CommandOutStream<ZP> getOutStream() {
+        return CommandOutStream<ZP>(out);
     }
 
     void activate() {

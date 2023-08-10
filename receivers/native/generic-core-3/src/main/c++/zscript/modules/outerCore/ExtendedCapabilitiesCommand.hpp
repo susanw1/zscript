@@ -20,7 +20,7 @@ class ExtendedCapabilitiesCommand {
 public:
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
-        AbstractOutStream<ZP> *out = ctx.getOutStream();
+        CommandOutStream<ZP> out = ctx.getOutStream();
         uint16_t target;
         if (ctx.getField('M', &target)) {
             if (target >= 16) {
@@ -80,10 +80,10 @@ public:
             default:
                 break;
             }
-            out->writeField16('L', result);
+            out.writeField16('L', result);
         }
-        out->writeField16('C', MODULE_CAPABILITIES(001));
-        out->writeField16('M', BROAD_MODULE_EXISTENCE);
+        out.writeField16('C', MODULE_CAPABILITIES(001));
+        out.writeField16('M', BROAD_MODULE_EXISTENCE);
 
     }
 

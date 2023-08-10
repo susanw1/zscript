@@ -123,7 +123,7 @@ public:
         NOTIFICATION_SWITCH()
 
     default:
-        ctx.getOutStream()->writeField(Zchars::Z_STATUS, ResponseStatus::INTERNAL_ERROR);
+        ctx.getOutStream().writeField(Zchars::Z_STATUS, ResponseStatus::INTERNAL_ERROR);
         }
 
     }

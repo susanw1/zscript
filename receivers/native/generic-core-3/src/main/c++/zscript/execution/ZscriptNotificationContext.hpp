@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTNOTIFICATIONCONTEXT_HPP_
 #define SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTNOTIFICATIONCONTEXT_HPP_
 #include "../ZscriptIncludes.hpp"
-#include "../AbstractOutStream.hpp"
+#include "CommandOutStream.hpp"
 
 namespace Zscript {
 namespace GenericCore {
@@ -51,8 +51,8 @@ public:
         return zscript;
     }
 
-    AbstractOutStream<ZP>* getOutStream() {
-        return zscript->getNotificationOutStream();
+    NotificationOutStream<ZP> getOutStream() {
+        return NotificationOutStream<ZP>(zscript->getNotificationOutStream());
     }
 
     AsyncActionNotifier<ZP> getAsyncActionNotifier() {

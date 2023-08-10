@@ -58,7 +58,7 @@ public:
             someValue--;
         }
         notifier = ctx.getAsyncActionNotifier();
-        ctx.getOutStream()->writeQuotedString(toWrite);
+        ctx.getOutStream().writeQuotedString(toWrite);
     }
 
     static void increment() {

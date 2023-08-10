@@ -19,9 +19,9 @@ class ScriptSpaceCapabilitiesCommand {
 public:
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
-        AbstractOutStream<ZP> *out = ctx.getOutStream();
-        out->writeField('C', MODULE_CAPABILITIES(002));
-        out->writeField('P', ctx.getZscript()->getScriptSpaceCount());
+        CommandOutStream<ZP> out = ctx.getOutStream();
+        out.writeField('C', MODULE_CAPABILITIES(002));
+        out.writeField('P', ctx.getZscript()->getScriptSpaceCount());
 
     }
 

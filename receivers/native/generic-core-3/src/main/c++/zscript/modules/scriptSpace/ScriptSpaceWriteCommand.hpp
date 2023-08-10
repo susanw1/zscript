@@ -43,7 +43,7 @@ public:
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
-        AbstractOutStream<ZP> *out = ctx.getOutStream();
+        CommandOutStream<ZP> out = ctx.getOutStream();
         ScriptSpace<ZP> *target = ctx.getZscript()->getScriptSpaces()[spaceIndex];
         if (target->isRunning()) {
             ctx.status(ResponseStatus::COMMAND_FAIL);
@@ -54,7 +54,7 @@ public:
         } else {
             writeToWriter(ctx, target, target->append());
         }
-        out->writeField('L', target->getRemainingLength());
+        out.writeField('L', target->getRemainingLength());
     }
 
 };

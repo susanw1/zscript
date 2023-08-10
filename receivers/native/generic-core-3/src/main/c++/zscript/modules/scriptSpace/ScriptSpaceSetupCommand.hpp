@@ -30,16 +30,16 @@ public:
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
-        AbstractOutStream<ZP> *out = ctx.getOutStream();
+        CommandOutStream<ZP> out = ctx.getOutStream();
         ScriptSpace<ZP> *target = ctx.getZscript()->getScriptSpaces()[spaceIndex];
-        out->writeField('P', target->getCurrentLength());
+        out.writeField('P', target->getCurrentLength());
         if (target->isRunning()) {
-            out->writeField('R', 0);
+            out.writeField('R', 0);
         }
         if (target->canBeWrittenTo()) {
-            out->writeField('W', 0);
+            out.writeField('W', 0);
         }
-        out->writeField('L', target->getMaxLength());
+        out.writeField('L', target->getMaxLength());
         uint16_t runOpt = 0;
         if (ctx.getField('R', &runOpt)) {
             if (runOpt != 0) {

@@ -38,12 +38,12 @@ class AsyncCommand {
 public:
 
     static void execute(ZscriptCommandContext<zp> ctx) {
-        AbstractOutStream<zp> *out = ctx.getOutStream();
-        out->writeField('A', 0xff);
+        CommandOutStream<zp> out = ctx.getOutStream();
+        out.writeField('A', 0xff);
 
         uint16_t endOnValue = ctx.getField('E', 1);
         if (endOnValue == 0) {
-            out->writeField('B', 0);
+            out.writeField('B', 0);
         } else {
             notifier = ctx.getAsyncActionNotifier();
             ctx.commandNotComplete();
@@ -57,7 +57,7 @@ public:
             ctx.commandNotComplete();
         } else if (someValue == endOnValue) {
             if (endOnValue % 2 == 0) {
-                ctx.getOutStream()->writeField('C', endOnValue);
+                ctx.getOutStream().writeField('C', endOnValue);
             } else {
                 ctx.status(1);
             }

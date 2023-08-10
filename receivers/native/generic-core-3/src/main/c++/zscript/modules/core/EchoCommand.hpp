@@ -23,29 +23,29 @@ public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         GenericCore::TokenRingBuffer<ZP> *buffer = ctx.parseState->getReader().asBuffer();
 
-        AbstractOutStream<ZP> *out = ctx.getOutStream();
+        CommandOutStream<ZP> out = ctx.getOutStream();
         CommandTokenIterator<ZP> it = ctx.iteratorToMarker();
         for (GenericCore::OptionalRingBufferToken<ZP> opt = it.next(buffer); opt.isPresent; opt = it.next(buffer)) {
             RingBufferToken<ZP> token = opt.token;
             uint8_t key = token.getKey(buffer);
             if (token.isMarker(buffer)) {
-                out->writeBytes(&key, 1);
+                out.writeBytes(&key, 1);
             } else if (ZcharsUtils<ZP>::isNumericKey(key)) {
                 if (key == Zchars::Z_STATUS) {
                     ctx.status(token.getData16(buffer));
                 } else if (key != Zchars::Z_CMD) {
-                    out->writeField(key, token.getData16(buffer));
+                    out.writeField(key, token.getData16(buffer));
                 }
             } else if (key == Zchars::Z_BIGFIELD_QUOTED) {
-                out->beginBigString();
+                QuotedStringFieldWriter<ZP> str = out.beginQuotedString();
                 for (RawTokenBlockIterator<ZP> tbi = token.rawBlockIterator(buffer); tbi.hasNext(buffer);) {
-                    out->continueBigString(tbi.nextContiguous(buffer));
+                    str.continueString(tbi.nextContiguous(buffer));
                 }
-                out->endBigString();
+                str.end();
             } else if (key == Zchars::Z_BIGFIELD_HEX) {
-                out->beginBigHex();
+                BigHexFieldWriter<ZP> big = out.beginBigHex();
                 for (RawTokenBlockIterator<ZP> tbi = token.rawBlockIterator(buffer); tbi.hasNext(buffer);) {
-                    out->continueBigHex(tbi.nextContiguous(buffer));
+                    big.continueBigHex(tbi.nextContiguous(buffer));
                 }
             }
         }
