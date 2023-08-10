@@ -44,7 +44,6 @@ class SemanticParserTest {
 
     ZscriptTokenizer<zp> tokenizer;
 
-    Zscript<zp> zscript;
     BufferOutStream<zp> outStream;
 
     void feedToTokenizer(const char *text) {
@@ -100,7 +99,7 @@ public:
             buffer(data, 256), parser(&buffer), tokenizer(&buffer, 2) {
     }
     void shouldWaitWithAndThen() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         parserActionTester.parseSnippet("Z1A", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
@@ -133,7 +132,7 @@ public:
     }
 
     void shouldWaitWithOrElse() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         parserActionTester.parseSnippet("Z1A", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
@@ -167,7 +166,7 @@ public:
     }
 
     void shouldWaitWithParens() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         // Z1A & (Z1B S1 | Z1C) | Z1D
         parserActionTester.parseSnippet("Z1A", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
         if (outStream.isOpen()) {
@@ -238,7 +237,7 @@ public:
     }
 
     void shouldWaitWithMultipleCommands() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         // Z1A\nZ1B\n - with lots of token-draining, too.
         parserActionTester.parseSnippet("Z1A", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
         if (outStream.isOpen()) {
@@ -297,7 +296,7 @@ public:
     }
 
     void shouldWaitWithErrors() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         // Z1A+a & Z1B\n Z1C\n
         parserActionTester.parseSnippet("Z1A+a", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
         if (outStream.isOpen()) {
@@ -368,7 +367,7 @@ public:
     }
 
     void shouldWaitWithOverrunError() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         // Z1A & Z1B & Z1C *\n Z1D\n (overun shown as '*')
         parserActionTester.parseSnippet("Z1A ", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
         if (outStream.isOpen()) {
@@ -423,7 +422,7 @@ public:
     }
 
     void shouldGiveErrorForFailedComment() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         parserActionTester.parseSnippet("#pq", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
         tokenizer.dataLost();
         parserActionTester.parseSnippet("xyz", SemanticActionType::ERROR, State::PRESEQUENCE, "!10S10\n");

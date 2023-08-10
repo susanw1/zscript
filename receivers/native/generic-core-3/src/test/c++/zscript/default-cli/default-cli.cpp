@@ -99,12 +99,11 @@ int main(int argc, char **argv) {
     (void) argc;
     (void) argv;
 
-    Zscript::Zscript<zp> zscript;
     Zscript::LocalChannel<zp> localChannel;
     Zscript::ZscriptChannel<zp> *localChannelP = &localChannel;
-    zscript.setChannels(&localChannelP, 1);
+    Zscript::Zscript<zp>::zscript.setChannels(&localChannelP, 1);
     while (true) {
-        zscript.progress();
+        Zscript::Zscript<zp>::zscript.progress();
     }
 }
 

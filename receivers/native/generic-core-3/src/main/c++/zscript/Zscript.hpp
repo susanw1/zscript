@@ -19,6 +19,9 @@ namespace Zscript {
 
 template<class ZP>
 class Zscript {
+public:
+    static Zscript<ZP> zscript;
+
 private:
     //    ZcodeModuleRegistry moduleRegistry = new ZcodeModuleRegistry();
     GenericCore::LockSystem<ZP> locks;
@@ -30,12 +33,13 @@ private:
     uint8_t scriptSpaceCount = 0;
     AbstractOutStream<ZP> *notificationOutStream = NULL;
 
-//    ZcodeExecutor executor;
-
-public:
     Zscript() {
 //        executor = new ZcodeExecutor(this);
     }
+
+//    ZcodeExecutor executor;
+
+public:
 
 //    void addModule(ZcodeModule m) {
 //        moduleRegistry.addModule(m);
@@ -104,6 +108,8 @@ public:
     }
 
 };
+template<class ZP>
+Zscript<ZP> Zscript<ZP>::zscript;
 }
 
 #endif /* SRC_MAIN_C___ZSCRIPT_ZSCRIPT_HPP_ */

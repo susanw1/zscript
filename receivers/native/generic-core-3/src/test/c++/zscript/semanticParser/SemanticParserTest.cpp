@@ -46,7 +46,6 @@ class SemanticParserTest {
 
     ZscriptTokenizer<zp> tokenizer;
 
-    Zscript<zp> zscript;
     BufferOutStream<zp> outStream;
 
     void feedToTokenizer(const char *text) {
@@ -98,7 +97,7 @@ class SemanticParserTest {
     }
 
     void shouldHandleActionTypesAndIO(const char *input, SemanticActionType *actions, const char *output) {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
 
         uint16_t actionCount;
         for (actionCount = 0; actions[actionCount] != INVALID; ++actionCount) {
@@ -133,7 +132,7 @@ public:
         ZscriptAction<zp> a1 = parser.getAction();
         checkActionType(a1, RUN_FIRST_COMMAND);
 
-        a1.performAction(&zscript, &outStream);
+        a1.performAction(&Zscript<zp>::zscript, &outStream);
         checkAgainstOut("!V1C3107M3S");
         outStream.reset();
         checkParserState(COMMAND_COMPLETE);
@@ -141,7 +140,7 @@ public:
         ZscriptAction<zp> a2 = parser.getAction();
         checkActionType(a2, END_SEQUENCE);
 
-        a2.performAction(&zscript, &outStream);
+        a2.performAction(&Zscript<zp>::zscript, &outStream);
         checkAgainstOut("\n");
         outStream.reset();
         checkParserState(PRESEQUENCE);
@@ -161,21 +160,21 @@ public:
         checkParserState(PRESEQUENCE);
         ZscriptAction<zp> a1 = parser.getAction();
         checkActionType(a1, RUN_FIRST_COMMAND);
-        a1.performAction(&zscript, &outStream);
+        a1.performAction(&Zscript<zp>::zscript, &outStream);
         checkAgainstOut("!AS");
         outStream.reset();
         checkParserState(COMMAND_COMPLETE);
 
         ZscriptAction<zp> a2 = parser.getAction();
         checkActionType(a2, RUN_COMMAND);
-        a2.performAction(&zscript, &outStream);
+        a2.performAction(&Zscript<zp>::zscript, &outStream);
         checkAgainstOut("&BS");
         outStream.reset();
         checkParserState(COMMAND_COMPLETE);
 
         ZscriptAction<zp> a3 = parser.getAction();
         checkActionType(a3, END_SEQUENCE);
-        a3.performAction(&zscript, &outStream);
+        a3.performAction(&Zscript<zp>::zscript, &outStream);
         checkAgainstOut("\n");
         outStream.reset();
         checkParserState(PRESEQUENCE);
@@ -196,7 +195,7 @@ public:
         checkParserState(PRESEQUENCE);
         ZscriptAction<zp> a1 = parser.getAction();
         checkActionType(a1, WAIT_FOR_TOKENS);
-        a1.performAction(&zscript, &outStream);
+        a1.performAction(&Zscript<zp>::zscript, &outStream);
         checkAgainstOut("");
         outStream.reset();
         checkParserState(PRESEQUENCE);

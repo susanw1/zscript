@@ -137,7 +137,6 @@ class SemanticParserTest {
 
     ZscriptTokenizer<zp> tokenizer;
 
-    Zscript<zp> zscript;
     BufferOutStream<zp> outStream;
 
     void feedToTokenizer(const char *text) {
@@ -193,7 +192,7 @@ public:
             buffer(data, 256), parser(&buffer), tokenizer(&buffer, 2) {
     }
     void shouldRunAsyncCommand() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
@@ -217,7 +216,7 @@ public:
     }
 
     void shouldRunMultiplePasses() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
@@ -247,7 +246,7 @@ public:
     }
 
     void shouldRunMultiplePassesWithErrorMidflight() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
@@ -287,7 +286,7 @@ public:
     }
 
     void shouldRunMultiplePassesInAddressing() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;

@@ -91,7 +91,6 @@ class NotificationTest {
     uint8_t data[256];
     TokenRingBuffer<zp> buffer;
 
-    Zscript<zp> zscript;
     BufferOutStream<zp> outStream;
 
     void checkAgainstOut(const char *text) {
@@ -124,8 +123,8 @@ class NotificationTest {
     }
 
     void setup() {
-        zscript.setNotificationSources(&sourceP, 1);
-        zscript.setNotificationOutStream(&outStream);
+        Zscript<zp>::zscript.setNotificationSources(&sourceP, 1);
+        Zscript<zp>::zscript.setNotificationOutStream(&outStream);
     }
 
 public:
@@ -140,7 +139,7 @@ public:
         source.set(&locks, 0xf0, false);
 
         for (int i = 0; i < 20; i++) {
-            zscript.progress();
+            Zscript<zp>::zscript.progress();
         }
         checkAgainstOut("!f\"data\"\n");
         outStream.reset();
@@ -160,7 +159,7 @@ public:
         source.set(&locks, 0xf0, false);
 
         for (int i = 0; i < 20; i++) {
-            zscript.progress();
+            Zscript<zp>::zscript.progress();
         }
         checkAgainstOut("!f\"data\"");
         outStream.reset();
@@ -181,7 +180,7 @@ public:
         toWrite = "MoreData";
         notifier.notifyNeedsAction();
         for (int i = 0; i < 20; i++) {
-            zscript.progress();
+            Zscript<zp>::zscript.progress();
         }
         checkAgainstOut("\"MoreData\"\n");
         outStream.reset();
@@ -208,7 +207,7 @@ public:
         source.set(&locks, 0xfd, true);
 
         for (int i = 0; i < 20; i++) {
-            zscript.progress();
+            Zscript<zp>::zscript.progress();
         }
         checkAgainstOut("!\"data\"");
         outStream.reset();
@@ -229,7 +228,7 @@ public:
         toWrite = "MoreData";
         notifier.notifyNeedsAction();
         for (int i = 0; i < 20; i++) {
-            zscript.progress();
+            Zscript<zp>::zscript.progress();
         }
         checkAgainstOut("\"MoreData\"");
         outStream.reset();
@@ -250,7 +249,7 @@ public:
         toWrite = "YetMoreData";
         notifier.notifyNeedsAction();
         for (int i = 0; i < 20; i++) {
-            zscript.progress();
+            Zscript<zp>::zscript.progress();
         }
         checkAgainstOut("\"YetMoreData\"\n");
         if (outStream.isOpen()) {

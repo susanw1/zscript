@@ -46,7 +46,6 @@ class SemanticParserTest {
 
     ZscriptTokenizer<zp> tokenizer;
 
-    Zscript<zp> zscript;
     BufferOutStream<zp> outStream;
 
     void feedToTokenizer(const char *text) {
@@ -102,7 +101,7 @@ public:
             buffer(data, 256), parser(&buffer), tokenizer(&buffer, 2) {
     }
     void shouldProduceActionForBasicAddressing() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         SemanticActionType types[] = { INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS };
         parserActionTester.parseSnippet("@2Z1\n", types, 3);
         checkAgainstOut("");
@@ -113,7 +112,7 @@ public:
     }
 
     void shouldAcceptAddressingWithEchoAndLocks() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         SemanticActionType types[] = { INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS };
         parserActionTester.parseSnippet("_2%233@2Z1\n", types, 3);
         checkAgainstOut("");
@@ -124,7 +123,7 @@ public:
     }
 
     void shouldFailInvalidAddressing() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         SemanticActionType types[] = { ERROR, WAIT_FOR_TOKENS };
         parserActionTester.parseSnippet("@99999Z1\n", types, 2);
         checkAgainstOut("!10S20\n");
@@ -135,7 +134,7 @@ public:
     }
 
     void shouldAcceptMultPartAddressing() {
-        ParserActionTester<zp> parserActionTester(&zscript, &buffer, &tokenizer, &parser, &outStream);
+        ParserActionTester<zp> parserActionTester(&Zscript<zp>::zscript, &buffer, &tokenizer, &parser, &outStream);
         SemanticActionType types[] = { INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS };
         parserActionTester.parseSnippet("@1.2.3.4.5.6.7.8.9.0.1.2.3.4.5.6.7.8.9.0Z1\n", types, 3);
         checkAgainstOut("");
