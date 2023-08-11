@@ -196,7 +196,7 @@ public class TransformerMojo extends AbstractMojo {
         try {
             mapper = (TransformerPluginMapper) Class.forName(transformMapperClass).getDeclaredConstructor().newInstance();
         } catch (final Exception e) {
-            throw new MojoExecutionException("Cannot load class '" + transformMapperClass + "'");
+            throw new MojoExecutionException("Cannot load class '" + transformMapperClass + "'", e);
         }
         return mapper.loadAndMap(contextEntities);
     }

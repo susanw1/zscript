@@ -37,7 +37,7 @@ public class ModelLoader {
 
     public static ModelLoader standardModel() {
         try {
-            return new ModelLoader().withModel(ModelLoader.class.getResource("/datamodel/module-list.yaml"));
+            return new ModelLoader().withModel(ModelLoader.class.getResource("/zscript-datamodel/module-list.yaml"));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (URISyntaxException e) {
@@ -48,7 +48,7 @@ public class ModelLoader {
     private ModelLoader() {
         jsonMapper = createJsonMapper();
 
-        final InputStream resourceStream = requireNonNull(getClass().getResourceAsStream("/datamodel/intrinsics.yaml"), "intrinsics not found");
+        final InputStream resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/intrinsics.yaml"), "intrinsics not found");
         try {
             intrinsicsDataModel = jsonMapper.readValue(resourceStream, IntrinsicsDataModel.class);
         } catch (IOException e) {

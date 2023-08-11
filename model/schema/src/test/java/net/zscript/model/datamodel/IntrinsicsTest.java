@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,9 +14,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 
-import net.zscript.model.datamodel.DefinitionResources.ModuleBankDef;
-
-public class DefinitionResourcesTest {
+public class IntrinsicsTest {
     private JsonMapper jsonMapper;
 
     @BeforeEach
@@ -29,12 +26,13 @@ public class DefinitionResourcesTest {
     }
 
     @Test
-    public void shouldLoadDefinitionResources() throws IOException {
-        final InputStream   resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/module-list.yaml"), "resourceStream");
-        DefinitionResources model          = jsonMapper.readValue(resourceStream, DefinitionResources.class);
+    public void shouldLoadIntrinsics() throws IOException {
 
-        final List<ModuleBankDef> moduleBanks = model.getModuleBanks();
-        assertThat(moduleBanks).hasSize(1);
-        assertThat(moduleBanks.get(0).getModuleDefinitions()).hasSize(3);
+        final InputStream   resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/intrinsics.yaml"), "resourceStream is null");
+        IntrinsicsDataModel model          = jsonMapper.readValue(resourceStream, IntrinsicsDataModel.class);
+
+        assertThat(model.getIntrinsics().getRequestFields()).hasSize(1);
+        assertThat(model.getIntrinsics().getResponseFields()).hasSize(1);
+        assertThat(model.getIntrinsics().getStatus()).hasSize(32);
     }
 }

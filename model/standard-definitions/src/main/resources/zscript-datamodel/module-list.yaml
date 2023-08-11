@@ -1,6 +1,12 @@
 moduleBanks:
 -   name: Base
     id: 0
+    defaultPackage:
+    - net
+    - zscript
+    - client
+    - modules
+
     moduleDefinitions:
     - 00xx-base-modules/000x-core.yaml
     - 00xx-base-modules/001x-outercore.yaml

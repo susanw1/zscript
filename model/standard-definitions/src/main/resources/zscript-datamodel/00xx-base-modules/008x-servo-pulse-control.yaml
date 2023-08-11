@@ -61,18 +61,20 @@ modules:
             typeDefinition:
                 '@type': bitset
                 bitFields:
-                - name: adjustableRange
-                  description: whether the device supports changing the pulse length range for each servo
-                - name: adjustableCenter
-                  description: whether the device supports changing the middle pulse length for each servo (is interpolated between this and ends)
-                - name: persistableCalibration
-                  description: whether the device supports persisting the calibrations for the servos
-                - name: slowMove
-                  description: whether the device supports gradual changes for servo position
-                - name: preciseSpeed
-                  description: whether the device supports precise speed setting
+#                - name: adjustableRange
+#                  description: whether the device supports changing the pulse length range for each servo
+#                - name: adjustableCenter
+#                  description: whether the device supports changing the middle pulse length for each servo (is interpolated between this and ends)
+#                - name: persistableCalibration
+#                  description: whether the device supports persisting the calibrations for the servos
+#                - name: slowMove
+#                  description: whether the device supports gradual changes for servo position
+#                - name: preciseSpeed
+#                  description: whether the device supports precise speed setting
             required: yes
         status: []
+        
+        
     -   name: setup
         command: 1
         description: allows reading and writing of setup information about specific servos
@@ -158,6 +160,8 @@ modules:
                 '@type': number
             required: no
         status: []
+        
+        
     -   name: write
         command: 2
         description: moves a servo to a desired position. Changing the destination of a moving servo will immediately change its course
@@ -189,6 +193,8 @@ modules:
             required: no
         responseFields: []
         status: []
+        
+        
     -   name: read
         command: 3
         description: reads dynamic state about a given servo

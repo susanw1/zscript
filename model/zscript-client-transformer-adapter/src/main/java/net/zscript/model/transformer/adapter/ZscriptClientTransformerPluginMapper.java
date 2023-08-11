@@ -1,5 +1,6 @@
 package net.zscript.model.transformer.adapter;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
@@ -36,9 +37,10 @@ public class ZscriptClientTransformerPluginMapper implements TransformerPluginMa
             ModelLoader model = loader.withModel(entity.getFullPath().toUri().toURL());
             for (ModuleBank moduleBank : model.getModuleBanks().values()) {
                 for (ModuleModel module : moduleBank.modules()) {
-                    final List<String> packageElements = module.getPackage();
-                    final String       bankName        = module.getModuleBank().getName();
-                    final String       moduleName      = module.getName();
+
+                    final List<String> packageElements = module.getPackage() != null ? module.getPackage() : moduleBank.getDefaultPackage();
+                    final String       bankName        = requireNonNull(module.getModuleBank().getName(), "moduleBank name not defined");
+                    final String       moduleName      = requireNonNull(module.getName(), "module name not defined");
 
                     final List<String> fqcn = Stream.concat(packageElements.stream(), Stream.of(bankName))
                             .map(p -> p.toLowerCase().replace('-', '_'))

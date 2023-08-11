@@ -35,6 +35,6 @@ public class DefinitionResourcesTest {
 
         final List<ModuleBankDef> moduleBanks = model.getModuleBanks();
         assertThat(moduleBanks).hasSize(1);
-        assertThat(moduleBanks.get(0).getModuleDefinitions()).hasSize(3);
+        assertThat(moduleBanks.get(0).getModuleDefinitions()).hasSize(1);
     }
 }

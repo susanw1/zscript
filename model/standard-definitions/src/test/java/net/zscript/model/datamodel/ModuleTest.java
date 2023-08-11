@@ -28,12 +28,15 @@ public class ModuleTest {
 
     @ParameterizedTest
     @CsvSource({
-            "000x-core.yaml,        Core",
-            "001x-outercore.yaml,   OuterCore",
-            "005x-i2c.yaml,         I2C"
+            "000x-core.yaml,                Core",
+            "001x-outercore.yaml,           OuterCore",
+            "004x-pins.yaml,                Pins",
+            "005x-i2c.yaml,                 I2C",
+            "007x-serial.yaml,              Serial",
+            "008x-servo-pulse-control.yaml, Servo"
     })
     public void shouldLoad_000x(String module, String expectedName) throws IOException {
-        InputStream      resourceStream = requireNonNull(getClass().getResourceAsStream("/datamodel/00xx-base-modules/" + module), "resourceStream");
+        InputStream      resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/00xx-base-modules/" + module), "resourceStream");
         ZscriptDataModel model          = jsonMapper.readValue(resourceStream, ZscriptDataModel.class);
 
         assertThat(model.getModules().get(0).getName()).isEqualTo(expectedName);

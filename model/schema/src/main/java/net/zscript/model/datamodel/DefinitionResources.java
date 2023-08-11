@@ -10,6 +10,8 @@ public interface DefinitionResources {
 
         int getId();
 
+        List<String> getDefaultPackage();
+
         List<String> getModuleDefinitions();
     }
 }

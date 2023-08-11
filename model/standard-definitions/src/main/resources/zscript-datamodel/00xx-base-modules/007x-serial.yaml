@@ -14,7 +14,7 @@ modules:
             name: frequencySelection
             description: 'which frequency option should be investigated (default: maximum)'
             typeDefinition:
-                '@type': number
+                '@type': commands
                 bitFields: []
             required: no
         responseFields:
@@ -55,14 +55,14 @@ modules:
             typeDefinition:
                 '@type': bitset
                 bitFields:
-                - name: parity
-                  description: whether the device supports sending a parity bit
-                - name: singleDoubleStop
-                  description: whether the device supports choosing single or double stop bits
-                - name: autoBaud
-                  description: whether the device supports automatic baudrate detection
-                - name: arbitraryFrequency
-                  description: whether the device supports selecting baudrate as a freely varying number
+#                - name: parity
+#                  description: whether the device supports sending a parity bit
+#                - name: singleDoubleStop
+#                  description: whether the device supports choosing single or double stop bits
+#                - name: autoBaud
+#                  description: whether the device supports automatic baudrate detection
+#                - name: arbitraryFrequency
+#                  description: whether the device supports selecting baudrate as a freely varying number
             required: yes
         -   key: R
             name: rxBufferSize
@@ -83,6 +83,8 @@ modules:
                 '@type': number
             required: yes
         status: []
+        
+        
     -   name: setup
         command: 1
         description: Serial setup
@@ -106,12 +108,12 @@ modules:
             typeDefinition:
                 '@type': bitset
                 bitFields:
-                - name: parity
-                  description: enables sending parity bits
-                - name: singleDoubleStop
-                  description: selects double stop bits rather than single
-                - name: autoBaud
-                  description: enables automatic baud rate detection
+#                - name: parity
+#                  description: enables sending parity bits
+#                - name: singleDoubleStop
+#                  description: selects double stop bits rather than single
+#                - name: autoBaud
+#                  description: enables automatic baud rate detection
             required: no
         -   key: A
             name: addressing
@@ -145,6 +147,8 @@ modules:
                 '@type': number
             required: no
         status: []
+        
+        
     -   name: send
         command: 2
         description: Serial send
@@ -164,6 +168,8 @@ modules:
             required: yes
         responseFields: []
         status: []
+        
+        
     -   name: receive
         command: 3
         description: Serial receive
@@ -196,6 +202,8 @@ modules:
                 '@type': bytes
             required: yes
         status: []
+        
+        
     -   name: skip
         command: 4
         description: Serial skip

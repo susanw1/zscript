@@ -44,6 +44,15 @@
                 <groupId>net.zscript</groupId>
                 <artifactId>transformer-maven-plugin</artifactId>
                 <version>${project.version}</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>net.zscript</groupId>
+                        <artifactId>zscript-client-transformer-adapter</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+
                 <configuration>
                     <encoding>UTF-8</encoding>
 
@@ -51,11 +60,15 @@
                         <includes>**/Test*.mustache</includes>
                     </templates>
                     <contexts>
-                        <directory>${project.resources[0].directory}/datamodel</directory>
-                        <includes>*/**/000x*.yaml</includes>
+                        <directory>${project.resources[0].directory}/zscript-datamodel</directory>
+                        <includes>**/module-list.yaml</includes>
                     </contexts>
-                    <outputDirectory>${project.build.directory}/generated-sources/zscript</outputDirectory>
+                    <outputDirectory>
+                        ${project.build.directory}/generated-sources/zscript</outputDirectory>
+                    <transformMapperClass>
+                        net.zscript.model.transformer.adapter.ZscriptClientTransformerPluginMapper</transformMapperClass>
                 </configuration>
+
                 <executions>
                     <execution>
                         <id>transformer-default</id>

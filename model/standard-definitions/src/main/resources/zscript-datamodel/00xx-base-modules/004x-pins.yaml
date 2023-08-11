@@ -30,12 +30,12 @@ modules:
             typeDefinition:
                 '@type': bitset
                 bitFields:
-                - name: digital
-                  description: whether the device supports digital pin control
-                - name: AtoD
-                  description: whether the device supports AtoDs on the pins
-                - name: DtoA
-                  description: whether the device supports DtoAs on the pins
+#                - name: digital
+#                  description: whether the device supports digital pin control
+#                - name: AtoD
+#                  description: whether the device supports AtoDs on the pins
+#                - name: DtoA
+#                  description: whether the device supports DtoAs on the pins
             required: yes
         status: []
     -   name: digitalSetup

@@ -2,6 +2,7 @@ package net.zscript.model.loader;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.zscript.model.datamodel.DefinitionResources.ModuleBankDef;
@@ -22,6 +23,10 @@ public class ModuleBank {
 
     public String getName() {
         return mbDef.getName();
+    }
+
+    public List<String> getDefaultPackage() {
+        return mbDef.getDefaultPackage();
     }
 
     public int getId() {

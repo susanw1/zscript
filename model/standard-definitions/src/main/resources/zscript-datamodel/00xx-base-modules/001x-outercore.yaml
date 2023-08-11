@@ -85,7 +85,8 @@ modules:
         -   code: BAD_PARAM
             meaning: channel out of range
 
-    -   name: user-defined
+
+    -   name: userDefined
         command: 15
         description: Command kept free for user-defined non-core command
         operation: unknown

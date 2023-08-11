@@ -5,19 +5,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 
-import net.zscript.model.datamodel.DefinitionResources.ModuleBankDef;
-
-public class DefinitionResourcesTest {
+public class ModuleTest {
     private JsonMapper jsonMapper;
 
     @BeforeEach
@@ -28,13 +26,14 @@ public class DefinitionResourcesTest {
                 .build();
     }
 
-    @Test
-    public void shouldLoadDefinitionResources() throws IOException {
-        final InputStream   resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/module-list.yaml"), "resourceStream");
-        DefinitionResources model          = jsonMapper.readValue(resourceStream, DefinitionResources.class);
+    @ParameterizedTest
+    @CsvSource({
+            "my-module.yaml,        Testing"
+    })
+    public void shouldLoad(String module, String expectedName) throws IOException {
+        InputStream      resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/test-modulebank/" + module), "resourceStream");
+        ZscriptDataModel model          = jsonMapper.readValue(resourceStream, ZscriptDataModel.class);
 
-        final List<ModuleBankDef> moduleBanks = model.getModuleBanks();
-        assertThat(moduleBanks).hasSize(1);
-        assertThat(moduleBanks.get(0).getModuleDefinitions()).hasSize(3);
+        assertThat(model.getModules().get(0).getName()).isEqualTo(expectedName);
     }
 }
