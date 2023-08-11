@@ -91,7 +91,7 @@ class SemanticParserTest {
 
     void checkActionType(ZscriptAction<zp> a, SemanticActionType t) {
         if ((SemanticActionType) a.getType() != t) {
-            std::cerr << "Bad action type: \nExpected: " << (uint8_t) t << "\nActual: " << (uint8_t) a.getType() << "\n";
+            std::cerr << "Bad action type: \nExpected: " << (uint16_t) t << "\nActual: " << (uint16_t) a.getType() << "\n";
             throw 0;
         }
     }

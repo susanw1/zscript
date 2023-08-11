@@ -19,15 +19,15 @@ class ZscriptChannel {
 protected:
     AbstractOutStream<ZP> *out;
     GenericCore::SemanticParser<ZP> parser;
-    bool canBeNotifChannelB;
 
 public:
     ZscriptChannel(AbstractOutStream<ZP> *out, GenericCore::TokenRingBuffer<ZP> *buffer, bool canBeNotifChannel) :
-            out(out), parser(buffer), canBeNotifChannelB(canBeNotifChannel) {
+            out(out), parser(buffer) {
+        parser.freeBool = canBeNotifChannel;
     }
 
     bool canBeNotifChannel() {
-        return canBeNotifChannelB;
+        return parser.freeBool;
     }
 
     GenericCore::SemanticParser<ZP>* getParser() {

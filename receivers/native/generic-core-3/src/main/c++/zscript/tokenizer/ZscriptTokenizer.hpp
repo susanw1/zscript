@@ -35,18 +35,26 @@ private:
     static const bool DROP_COMMENTS = false;
 
     TokenRingWriter<ZP> writer;
-    const uint8_t maxNumericBytes;
+    const uint8_t maxNumericBytes :4;
+    bool skipToNL :1;
+    bool bufferOvr :1;
+    bool tokenizerError :1;
+    bool numeric :1;
 
-    bool skipToNL = false;
-    bool bufferOvr = false;
-    bool tokenizerError = false;
-    bool numeric = false;
-    bool addressing = false;
+    bool addressing :1;
+    bool isText :1;
+    bool isNormalString :1;
+    uint8_t escapingCount :2; // 2 bit counter, from 2 to 0
 
-    bool isText = false;
-    bool isNormalString = false;
-    uint8_t escapingCount = 0; // 2 bit counter, from 2 to 0
+public:
 
+    ZscriptTokenizer(TokenRingWriter<ZP> writer, uint8_t maxNumericBytes) :
+            writer(writer),
+                    maxNumericBytes(maxNumericBytes & 0xF), skipToNL(false), bufferOvr(false), tokenizerError(false), numeric(false),
+                    addressing(false), isText(false), isNormalString(false), escapingCount(0) {
+    }
+
+private:
     void resetFlags() {
         skipToNL = false;
         bufferOvr = false;
@@ -161,9 +169,6 @@ private:
 
 public:
 
-    ZscriptTokenizer(TokenRingWriter<ZP> writer, uint8_t maxNumericBytes) :
-            writer(writer), maxNumericBytes(maxNumericBytes) {
-    }
     void dataLost() {
         if (!bufferOvr) {
             writer.fail(ERROR_BUFFER_OVERRUN);

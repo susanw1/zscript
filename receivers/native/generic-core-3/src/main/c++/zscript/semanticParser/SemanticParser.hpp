@@ -45,28 +45,51 @@ enum class SemanticParserState : uint8_t {
 template<class ZP>
 class SemanticParser {
     TokenRingReader<ZP> reader;
-    uint8_t nextMarker = 0;    // 5 bit really
-    bool haveNextMarker = false;
-    uint8_t seqEndMarker = 0;    // 4 bits really
-    bool haveSeqEndMarker = false;
-
+    uint16_t echo = 0;
+    LockSet<ZP> locks = LockSet<ZP>::allLocked();
     uint8_t channelIndex = 0;
     uint8_t parenCounter = 0;    // 8 bit
-    bool hasSentStatusB = false;
+
+    bool haveNextMarker :1;
+    bool haveSeqEndMarker :1;
+    bool hasSentStatusB :1;
+    uint8_t nextMarker :5;    // 5 bit really
+
+    SemanticActionType currentAction :4; // 4 bits
+    uint8_t seqEndMarker :4;    // 4 bits really
+
+    SemanticParserState state :5; // 5 bit
 
     // Sequence-start info - note, bools are only usefully "true" during PRESEQUENCE - merge into state?
-    LockSet<ZP> locks = LockSet<ZP>::allLocked();
-    bool hasLocks = false;
-    uint16_t echo = 0;                       // 16 bit
-    bool hasEchoB = false;
+    bool hasLocks :1;
+    bool hasEchoB :1;
 
     // Execution state
-    bool activated = false;
-    bool locked = false;
+    bool activated :1;
+    bool locked :1;
 
-    SemanticActionType currentAction; // 4 bits
+public:
+    bool freeBool :1;
 
-    SemanticParserState state; // 5 bit
+    SemanticParser(TokenRingBuffer<ZP> *buffer) :
+            reader(buffer->getReader()),
+                    haveNextMarker(false), haveSeqEndMarker(false), hasSentStatusB(false), nextMarker(0),
+                    currentAction(SemanticActionType::INVALID), seqEndMarker(0),
+                    state(SemanticParserState::PRESEQUENCE), hasLocks(false), hasEchoB(false), activated(false),
+                    locked(false), freeBool(false) {
+    }
+private:
+
+    uint8_t fetchNextMarker() {
+        return nextMarker | 0xE0;
+    }
+    uint8_t fetchSeqEndMarker() {
+        return seqEndMarker | 0xF0;
+    }
+    uint8_t seqMarkerToNextMarker() {
+        return seqEndMarker | 0x10;
+    }
+
     /**
      * Checks the buffer's flags and makes sure we've identified the next marker and the next sequence marker, if available.
      *
@@ -118,7 +141,7 @@ class SemanticParser {
                 it.flushBuffer(reader.asBuffer());
             } else if (first && seekSeqEnd && token.token.isMarker(reader.asBuffer())) {
                 first = false;
-                nextMarker = token.token.getKey(reader.asBuffer());
+                nextMarker = (token.token.getKey(reader.asBuffer())) & 0x1F;
                 haveNextMarker = true;
             }
         }
@@ -131,14 +154,14 @@ class SemanticParser {
             }
             if (flush || first) {
                 haveNextMarker = haveSeqEndMarker;
-                nextMarker = seqEndMarker;
+                nextMarker = seqMarkerToNextMarker() & 0x1F;
             }
         } else {
             haveNextMarker = token.isPresent;
             if (token.isPresent) {
-                nextMarker = token.token.getKey(reader.asBuffer());
-                if (TokenRingBuffer<ZP>::isSequenceEndMarker(nextMarker)) {
-                    assignSeqEndMarker(nextMarker);
+                nextMarker = token.token.getKey(reader.asBuffer()) & 0x1F;
+                if (TokenRingBuffer<ZP>::isSequenceEndMarker(fetchNextMarker())) {
+                    assignSeqEndMarker(fetchNextMarker());
                 }
             }
         }
@@ -151,7 +174,7 @@ class SemanticParser {
      * @param newSeqEndMarker the new end-marker to assign
      */
     void assignSeqEndMarker(uint8_t newSeqEndMarker) {
-        seqEndMarker = newSeqEndMarker;
+        seqEndMarker = newSeqEndMarker & 0xF;
         haveSeqEndMarker = true;
         if (newSeqEndMarker != ZscriptTokenizer<ZP>::NORMAL_SEQUENCE_END) {
             state = SemanticParserState::ERROR_TOKENIZER;
@@ -204,7 +227,7 @@ class SemanticParser {
      */
     uint8_t skipToAndGetNextMarker() {
         seekMarker(false, true);
-        return nextMarker;
+        return fetchNextMarker();
     }
 public:
 
@@ -226,10 +249,6 @@ public:
         default:
             break;
         }
-    }
-
-    SemanticParser(TokenRingBuffer<ZP> *buffer) :
-            reader(buffer->getReader()), currentAction(SemanticActionType::INVALID), state(SemanticParserState::PRESEQUENCE) {
     }
 
     // VisibleForTesting
@@ -480,7 +499,7 @@ private:
         }
 
         if (first.getKey(reader.asBuffer()) == Zchars::Z_COMMENT) {
-            if (nextMarker != ZscriptTokenizer<ZP>::NORMAL_SEQUENCE_END) {
+            if (fetchNextMarker() != ZscriptTokenizer<ZP>::NORMAL_SEQUENCE_END) {
                 state = SemanticParserState::ERROR_TOKENIZER;
                 return;
             }
