@@ -19,6 +19,8 @@ class zp {
     static uint16_t currentRnd;
 
 public:
+    typedef uint16_t tokenBufferSize_t;
+
     static const uint8_t lockByteCount = 3;
 
     static uint16_t generateRandom16() {

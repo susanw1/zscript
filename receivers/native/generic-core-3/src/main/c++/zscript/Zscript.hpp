@@ -31,7 +31,6 @@ private:
         return this;
     }
 
-    //    ZcodeModuleRegistry moduleRegistry = new ZcodeModuleRegistry();
     ZscriptChannel<ZP> **channels = NULL;
     GenericCore::ZscriptNotificationSource<ZP> **notifSources = NULL;
     ScriptSpace<ZP> **scriptSpaces = NULL;
@@ -42,16 +41,10 @@ private:
     uint8_t scriptSpaceCount = 0;
 
     Zscript() {
-//        executor = new ZcodeExecutor(this);
     }
-
-//    ZcodeExecutor executor;
 
 public:
 
-//    void addModule(ZcodeModule m) {
-//        moduleRegistry.addModule(m);
-//    }
 //
     void setChannels(ZscriptChannel<ZP> **channels, uint8_t channelCount) {
         this->channels = channels;
@@ -86,14 +79,6 @@ public:
         }
         return GenericCore::ZscriptExecutor<ZP>::progress(channels, notifSources, channelCount, notifSrcCount);
     }
-//
-//    List<ZcodeChannel> getChannels() {
-//        return channels;
-//    }
-
-//    ZcodeModuleRegistry getModuleRegistry() {
-//        return moduleRegistry;
-//    }
 
     AbstractOutStream<ZP>* getNotificationOutStream() {
         return channels[notificationChannelIndex]->getOutStream();

@@ -14,11 +14,15 @@ namespace GenericCore {
 
 template<class ZP>
 class TokenBufferFlags {
-    volatile bool markerWritten = false;
-    volatile bool seqMarkerWritten = false;
-    volatile bool readerBlocked = true;
+    volatile bool markerWritten :1;
+    volatile bool seqMarkerWritten :1;
+    volatile bool readerBlocked :1;
 
 public:
+    TokenBufferFlags() :
+            markerWritten(false), seqMarkerWritten(false), readerBlocked(true) {
+
+    }
     void setMarkerWritten() {
         this->markerWritten = true;
     }

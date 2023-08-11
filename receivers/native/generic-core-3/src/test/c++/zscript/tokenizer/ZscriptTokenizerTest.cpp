@@ -10,7 +10,8 @@
 #include <iostream>
 
 class zp {
-
+public:
+    typedef uint16_t tokenBufferSize_t;
 };
 namespace Zscript {
 

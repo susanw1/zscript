@@ -8,7 +8,8 @@
 #include "../../../../main/c++/zscript/tokenizer/TokenRingBuffer.hpp"
 
 class zp {
-
+public:
+    typedef uint16_t tokenBufferSize_t;
 };
 namespace Zscript {
 const int MAX_TOKEN_COUNT = 1000;

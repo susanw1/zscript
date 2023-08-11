@@ -48,35 +48,33 @@ class SemanticParser {
     uint16_t echo = 0;
     LockSet<ZP> locks = LockSet<ZP>::allLocked();
     uint8_t channelIndex = 0;
-    uint8_t parenCounter = 0;    // 8 bit
+    SemanticActionType currentAction :4; // 4 bits
+    uint8_t parenCounter :4;    // 4 bit
 
     bool haveNextMarker :1;
     bool haveSeqEndMarker :1;
     bool hasSentStatusB :1;
     uint8_t nextMarker :5;    // 5 bit really
 
-    SemanticActionType currentAction :4; // 4 bits
-    uint8_t seqEndMarker :4;    // 4 bits really
+    bool hasEchoB :1;
+    // Execution state
+    bool activated :1;
+
+    bool locked :1;
 
     SemanticParserState state :5; // 5 bit
 
-    // Sequence-start info - note, bools are only usefully "true" during PRESEQUENCE - merge into state?
-    bool hasLocks :1;
-    bool hasEchoB :1;
-
-    // Execution state
-    bool activated :1;
-    bool locked :1;
+    uint8_t seqEndMarker :4;    // 4 bits really
 
 public:
     bool freeBool :1;
 
     SemanticParser(TokenRingBuffer<ZP> *buffer) :
             reader(buffer->getReader()),
+                    currentAction(SemanticActionType::INVALID), parenCounter(0),
                     haveNextMarker(false), haveSeqEndMarker(false), hasSentStatusB(false), nextMarker(0),
-                    currentAction(SemanticActionType::INVALID), seqEndMarker(0),
-                    state(SemanticParserState::PRESEQUENCE), hasLocks(false), hasEchoB(false), activated(false),
-                    locked(false), freeBool(false) {
+                    hasEchoB(false), activated(false), locked(false), state(SemanticParserState::PRESEQUENCE),
+                    seqEndMarker(0), freeBool(false) {
     }
 private:
 
@@ -477,6 +475,7 @@ private:
      * Leaves the parser in: ERROR_*, SemanticParserState::SEQUENCE (for comments), or PRESEQUENCE (implying no error, normal sequence)
      */
     void parseSequenceLevel() {
+        bool hasLocks = false;
         RingBufferToken<ZP> first = reader.getFirstReadToken();
         while (first.getKey(reader.asBuffer()) == Zchars::Z_ECHO || first.getKey(reader.asBuffer()) == Zchars::Z_LOCKS) {
             if (first.getKey(reader.asBuffer()) == Zchars::Z_ECHO) {
@@ -517,7 +516,6 @@ private:
             state = SemanticParserState::PRESEQUENCE;
         }
         hasSentStatusB = false;
-        hasLocks = false;
         hasEchoB = false;
         parenCounter = 0;
     }
