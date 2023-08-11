@@ -57,7 +57,7 @@
                     <encoding>UTF-8</encoding>
 
                     <templates>
-                        <includes>**/Test*.mustache</includes>
+                        <includes>**/Comm*.mustache</includes>
                     </templates>
                     <contexts>
                         <directory>${project.resources[0].directory}/zscript-datamodel</directory>

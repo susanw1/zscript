@@ -1,64 +1,63 @@
-modules:
--   name: Testing
-    id: 0
-    version: 0.0.1
-    description: Just testing
-    package:
-    - net
-    - zscript
-    - client
-    - modules
-    commands:
-    -   name: capabilities
-        command: 0
-        description: Top level identification, for hardware, software, modules, versions
-        operation: get
-        requestFields:
-        -   key: V
-            name: versionType
-            description: selects which ident/version info to return
-            typeDefinition:
-                '@type': enum
-                allowedValues:
-                - UserFirmware
-                - UserHardware
-                - PlatformFirmware
-                - PlatformHardware
-                - CoreZscriptLanguage
-            required: no
-        responseFields:
-        -   key: C
-            name: commandsSet
-            description: which commands are enabled in this module
-            typeDefinition:
-                '@type': commands
-                bitFields: []
-            required: yes
-    -   name: echo
-        command: 1
-        description: Echoes all request params to the response, for testing purposes
-        operation: get
-        requestFields:
-        -   key: S
-            name: status
-            description: determines the returned Status param - can be any status
-            typeDefinition:
-                '@type': number
-            required: no
-        -   name: any
-            description: any supplied value will be returned
-            typeDefinition:
-                '@type': number
-            required: no
-        responseFields:
-        -   name: any
-            description: any supplied value will be returned
-            typeDefinition:
-                '@type': number
-            required: no
-        -   key: S
-            name: status
-            description: 'the supplied Status param - can be any status; default: OK'
-            typeDefinition:
-                '@type': number
-            required: yes
+name: Testing
+id: 0
+version: 0.0.1
+description: Just testing
+package:
+- net
+- zscript
+- client
+- modules
+commands:
+-   name: capabilities
+    command: 0
+    description: Top level identification, for hardware, software, modules, versions
+    operation: get
+    requestFields:
+    -   key: V
+        name: versionType
+        description: selects which ident/version info to return
+        typeDefinition:
+            '@type': enum
+            allowedValues:
+            - UserFirmware
+            - UserHardware
+            - PlatformFirmware
+            - PlatformHardware
+            - CoreZscriptLanguage
+        required: no
+    responseFields:
+    -   key: C
+        name: commandsSet
+        description: which commands are enabled in this module
+        typeDefinition:
+            '@type': commands
+            bitFields: []
+        required: yes
+-   name: echo
+    command: 1
+    description: Echoes all request params to the response, for testing purposes
+    operation: get
+    requestFields:
+    -   key: S
+        name: status
+        description: determines the returned Status param - can be any status
+        typeDefinition:
+            '@type': number
+        required: no
+    -   name: any
+        description: any supplied value will be returned
+        typeDefinition:
+            '@type': number
+        required: no
+    responseFields:
+    -   name: any
+        description: any supplied value will be returned
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: S
+        name: status
+        description: 'the supplied Status param - can be any status; default: OK'
+        typeDefinition:
+            '@type': number
+        required: yes

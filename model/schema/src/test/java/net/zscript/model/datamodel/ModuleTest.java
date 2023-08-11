@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 
+import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
+
 public class ModuleTest {
     private JsonMapper jsonMapper;
 
@@ -31,9 +33,9 @@ public class ModuleTest {
             "my-module.yaml,        Testing"
     })
     public void shouldLoad(String module, String expectedName) throws IOException {
-        InputStream      resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/test-modulebank/" + module), "resourceStream");
-        ZscriptDataModel model          = jsonMapper.readValue(resourceStream, ZscriptDataModel.class);
+        InputStream resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/test-modulebank/" + module), "resourceStream");
+        ModuleModel model          = jsonMapper.readValue(resourceStream, ModuleModel.class);
 
-        assertThat(model.getModules().get(0).getName()).isEqualTo(expectedName);
+        assertThat(model.getName()).isEqualTo(expectedName);
     }
 }

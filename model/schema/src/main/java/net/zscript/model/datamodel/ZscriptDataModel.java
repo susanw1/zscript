@@ -31,7 +31,6 @@ public interface ZscriptDataModel {
 
         @JsonManagedReference
         List<CommandModel> getCommands();
-
     }
 
     /** Characterises commands in quasi-HTTP terms */

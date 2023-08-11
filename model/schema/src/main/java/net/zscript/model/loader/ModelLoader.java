@@ -20,7 +20,6 @@ import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 import net.zscript.model.datamodel.DefinitionResources;
 import net.zscript.model.datamodel.DefinitionResources.ModuleBankDef;
 import net.zscript.model.datamodel.IntrinsicsDataModel;
-import net.zscript.model.datamodel.ZscriptDataModel;
 import net.zscript.model.datamodel.ZscriptDataModel.CommandModel;
 import net.zscript.model.datamodel.ZscriptDataModel.GenericField;
 import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
@@ -84,21 +83,20 @@ public class ModelLoader {
             for (String moduleDefinitionLocation : mb.getModuleDefinitions()) {
                 URI moduleDefinition = moduleListLocation.toURI().resolve(moduleDefinitionLocation);
 
-                ZscriptDataModel model;
+                ModuleModel model;
                 try (final InputStream openStream = moduleDefinition.toURL().openStream()) {
-                    model = jsonMapper.readValue(openStream, ZscriptDataModel.class);
+                    model = jsonMapper.readValue(openStream, ModuleModel.class);
                 }
-                for (ModuleModel mm : model.getModules()) {
-                    mm.setModuleBank(moduleBank);
-                    moduleBank.add(mm);
+                model.setModuleBank(moduleBank);
+                moduleBank.add(model);
 
-                    for (CommandModel c : mm.getCommands()) {
-                        addIntrinsicIfRequired(requireNonNull(c.getRequestFields(), () -> c.getName() + ": requestFields null"),
-                                intrinsicsDataModel.getIntrinsics().getRequestFields());
-                        addIntrinsicIfRequired(requireNonNull(c.getResponseFields(), () -> c.getName() + ": responseFields null"),
-                                intrinsicsDataModel.getIntrinsics().getResponseFields());
-                    }
+                for (CommandModel c : model.getCommands()) {
+                    addIntrinsicIfRequired(requireNonNull(c.getRequestFields(), () -> c.getName() + ": requestFields null"),
+                            intrinsicsDataModel.getIntrinsics().getRequestFields());
+                    addIntrinsicIfRequired(requireNonNull(c.getResponseFields(), () -> c.getName() + ": responseFields null"),
+                            intrinsicsDataModel.getIntrinsics().getResponseFields());
                 }
+
             }
         }
 
