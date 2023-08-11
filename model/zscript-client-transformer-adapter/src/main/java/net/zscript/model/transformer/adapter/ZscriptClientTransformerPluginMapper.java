@@ -25,12 +25,12 @@ import net.zscript.model.transformer.adapter.LoadableEntities.LoadedEntityConten
 public class ZscriptClientTransformerPluginMapper implements TransformerPluginMapper {
 
     @Override
-    public List<LoadedEntityContent<ModuleModel>> loadAndMap(LoadableEntities entities) {
+    public List<LoadedEntityContent> loadAndMap(LoadableEntities entities) {
         return entities.loadEntities(e -> load(e));
     }
 
-    private List<LoadedEntityContent<ModuleModel>> load(LoadableEntity entity) {
-        List<LoadedEntityContent<ModuleModel>> result = new ArrayList<>();
+    private List<LoadedEntityContent> load(LoadableEntity entity) {
+        List<LoadedEntityContent> result = new ArrayList<>();
 
         ModelLoader loader = ModelLoader.rawModel();
         try {
@@ -50,7 +50,8 @@ public class ZscriptClientTransformerPluginMapper implements TransformerPluginMa
                     final String capitalizedModuleName = Character.toUpperCase(moduleName.charAt(0)) + moduleName.substring(1) + "." + entity.getFileTypeSuffix();
                     final Path   moduleClassName       = packagePath.resolve(capitalizedModuleName);
 
-                    result.add(entity.withContent(module, moduleClassName));
+                    final List<Object> contents = List.of(model.getIntrinsics(), module);
+                    result.add(entity.withContents(contents, moduleClassName));
                 }
             }
         } catch (IOException ex) {

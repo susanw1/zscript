@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import net.zscript.model.loader.ModuleBank;
 
 public interface ZscriptDataModel {
-    List<ModuleModel> getModules();
 
     interface ModuleModel {
         ModuleBank getModuleBank();

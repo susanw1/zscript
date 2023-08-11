@@ -96,7 +96,6 @@ public class ModelLoader {
                     addIntrinsicIfRequired(requireNonNull(c.getResponseFields(), () -> c.getName() + ": responseFields null"),
                             intrinsicsDataModel.getIntrinsics().getResponseFields());
                 }
-
             }
         }
 
@@ -112,6 +111,10 @@ public class ModelLoader {
             }
             commandFields.add(intrinsicField);
         }
+    }
+
+    public IntrinsicsDataModel getIntrinsics() {
+        return intrinsicsDataModel;
     }
 
     public Map<String, ModuleBank> getModuleBanks() {

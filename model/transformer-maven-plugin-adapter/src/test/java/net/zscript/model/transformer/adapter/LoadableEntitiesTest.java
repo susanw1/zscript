@@ -29,23 +29,23 @@ class LoadableEntitiesTest {
 
         LoadableEntities le = new LoadableEntities("desc", rootPath, relPaths, suffix);
 
-        final List<LoadedEntityContent<String>> result = le.loadEntities(entity -> {
-            return singletonList(entity.withContent(
-                    "content+" + entity.getRelativePath(),
+        final List<LoadedEntityContent> result = le.loadEntities(entity -> {
+            return singletonList(entity.withContents(
+                    List.of("content+" + entity.getRelativePath()),
                     fs.getPath("a").resolve(entity.getRelativePath())));
         });
 
         assertThat(result)
                 .hasSize(2)
-                .extracting(LoadedEntityContent<String>::getContent,
-                        LoadedEntityContent<String>::getRelativeOutputPath,
-                        LoadedEntityContent<String>::getDescription,
-                        LoadedEntityContent<String>::getRelativePath,
-                        LoadedEntityContent<String>::getRootPath,
-                        LoadedEntityContent<String>::getFullPath)
+                .extracting(LoadedEntityContent::getContents,
+                        LoadedEntityContent::getRelativeOutputPath,
+                        LoadedEntityContent::getDescription,
+                        LoadedEntityContent::getRelativePath,
+                        LoadedEntityContent::getRootPath,
+                        LoadedEntityContent::getFullPath)
                 .containsExactly(
-                        tuple("content+bar", fs.getPath("a/bar"), "desc", fs.getPath("bar"), fs.getPath("/foo"), fs.getPath("/foo/bar")),
-                        tuple("content+baz", fs.getPath("a/baz"), "desc", fs.getPath("baz"), fs.getPath("/foo"), fs.getPath("/foo/baz")));
+                        tuple(List.of("content+bar"), fs.getPath("a/bar"), "desc", fs.getPath("bar"), fs.getPath("/foo"), fs.getPath("/foo/bar")),
+                        tuple(List.of("content+baz"), fs.getPath("a/baz"), "desc", fs.getPath("baz"), fs.getPath("/foo"), fs.getPath("/foo/baz")));
     }
 
     @Test
@@ -59,7 +59,7 @@ class LoadableEntitiesTest {
     void shouldRejectAbsoluteOutputPath() {
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
             new LoadableEntities("desc", fs.getPath("/foo"), List.of(fs.getPath("bar")), "java")
-                    .loadEntities(e -> List.of(e.withContent("", fs.getPath("/baz"))));
+                    .loadEntities(e -> List.of(e.withContents(List.of(""), fs.getPath("/baz"))));
         });
     }
 }

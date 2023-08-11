@@ -1,10 +1,17 @@
-package net.zscript.javaclient.generatedCommands;
+package {{#package}}{{.}} {{^last}}.{{/last}} {{/package}};
 
 import net.zscript.javaclient.zcodeApi.ZscriptCommandBuilder;
 import net.zscript.javaclient.zcodeApi.ZscriptResponse;
 import net.zscript.javaclient.zcodeApi.ZscriptUnparsedCommandResponse;
 
-public class {{CmdName}}CommandBuilder extends ZscriptCommandBuilder<{{CmdName}}CommandResponse> {
+public class {{name}}Module {
+    public static final int MODULE_ID = {{id}};
+    public static final String MODULE_NAME = "{{name}}";
+    public static final String VERSION = "{{version}}";
+    public static final String DESCRIPTION = "{{description}}";
+     
+     
+    public class {{CmdName}}CommandBuilder extends ZscriptCommandBuilder<{{CmdName}}CommandResponse> {
 {{#requestParams}}
 {{#allowedValues}}
     public static final int {{Name}}_{{valueName}} = {{index}}
@@ -12,5 +19,5 @@ public class {{CmdName}}CommandBuilder extends ZscriptCommandBuilder<{{CmdName}}
 {{/requestParams}}
 
 
-
+    }
 }

@@ -20,17 +20,17 @@ public class YamlTransformerPluginMapper implements TransformerPluginMapper {
     private final JsonMapper jsonMapper = createJsonMapper();
 
     @Override
-    public List<LoadedEntityContent<Map<?, ?>>> loadAndMap(LoadableEntities entities) {
+    public List<LoadedEntityContent> loadAndMap(LoadableEntities entities) {
         return entities.loadEntities(e -> load(e));
     }
 
-    private List<LoadedEntityContent<Map<?, ?>>> load(LoadableEntity entity) {
+    private List<LoadedEntityContent> load(LoadableEntity entity) {
         final Path relativePathToSource = entity.getRelativePath();
         final Path relativePathToOutput = findRelativePathToOutput(relativePathToSource, entity.getFileTypeSuffix());
 
         try (final Reader r = Files.newBufferedReader(entity.getFullPath())) {
             final Map<?, ?> value = jsonMapper.reader().readValue(r, Map.class);
-            return List.of(entity.withContent(value, relativePathToOutput));
+            return List.of(entity.withContents(List.of(value), relativePathToOutput));
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }

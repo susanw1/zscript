@@ -37,13 +37,14 @@ class YamlTransformerPluginMapperTest {
             w.write("{a : w1, b: [x,y], c: w3}");
         }
 
-        List<LoadedEntityContent<Map<?, ?>>> loadedEntities = mapper.loadAndMap(le);
+        List<LoadedEntityContent> loadedEntities = mapper.loadAndMap(le);
 
         assertThat(loadedEntities).hasSize(1);
-        final Map<?, ?> content = loadedEntities.get(0).getContent();
-        assertThat(content.get("a")).isEqualTo("w1");
-        assertThat(content.get("b")).isInstanceOf(List.class).isEqualTo(List.of("x", "y"));
-        assertThat(content.get("c")).isEqualTo("w3");
+        final List<Object> content = loadedEntities.get(0).getContents();
+        final Map<?, ?>    context = (Map<?, ?>) content.get(0);
+        assertThat(context.get("a")).isEqualTo("w1");
+        assertThat(context.get("b")).isInstanceOf(List.class).isEqualTo(List.of("x", "y"));
+        assertThat(context.get("c")).isEqualTo("w3");
 
         assertThat(loadedEntities.get(0).getRelativeOutputPath()).isEqualTo(fs.getPath("baz/a.java"));
     }

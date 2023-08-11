@@ -19,7 +19,7 @@ public class LoadableEntities {
         this.fileTypeSuffix = fileTypeSuffix;
     }
 
-    public <T> List<LoadedEntityContent<T>> loadEntities(Function<LoadableEntity, List<LoadedEntityContent<T>>> loader) {
+    public <T> List<LoadedEntityContent> loadEntities(Function<LoadableEntity, List<LoadedEntityContent>> loader) {
         return relativePaths.stream()
                 .map(LoadableEntity::new)
                 .map(loader::apply)
@@ -57,19 +57,19 @@ public class LoadableEntities {
             return rootPath.resolve(relativePath);
         }
 
-        public <T> LoadedEntityContent<T> withContent(final T content, final Path relativeOutputFilename) {
-            return new LoadedEntityContent<>(relativePath, content, relativeOutputFilename);
+        public LoadedEntityContent withContents(final List<Object> contents, final Path relativeOutputFilename) {
+            return new LoadedEntityContent(relativePath, contents, relativeOutputFilename);
         }
     }
 
-    public class LoadedEntityContent<T> extends LoadableEntity {
-        private final T    content;
-        private final Path relativeOutputPath;
+    public class LoadedEntityContent extends LoadableEntity {
+        private final List<Object> contents;
+        private final Path         relativeOutputPath;
 
-        public LoadedEntityContent(Path relativePath, T content, Path relativeOutputPath) {
+        public LoadedEntityContent(Path relativePath, List<Object> contents, Path relativeOutputPath) {
             super(relativePath);
 
-            this.content = content;
+            this.contents = contents;
 
             if (relativeOutputPath.isAbsolute()) {
                 throw new IllegalArgumentException("relativeOutputPath is absolute: " + relativeOutputPath);
@@ -77,8 +77,8 @@ public class LoadableEntities {
             this.relativeOutputPath = relativeOutputPath;
         }
 
-        public T getContent() {
-            return content;
+        public List<Object> getContents() {
+            return contents;
         }
 
         public Path getRelativeOutputPath() {

@@ -113,22 +113,24 @@ public class TransformerMojo extends AbstractMojo {
         final LoadableEntities contextEntities  = extractFileList("Context", contextFileSet);
 
         // read in context files as YAML and perform any field mapping as required. Read in templates ready to use Mustache.
-        final List<LoadedEntityContent<Object>>   loadedMappedContexts = loadMappedContexts(contextEntities);
-        final List<LoadedEntityContent<Mustache>> loadedTemplates      = loadTemplates(templateEntities);
+        final List<LoadedEntityContent> loadedMappedContexts = loadMappedContexts(contextEntities);
+        final List<LoadedEntityContent> loadedTemplates      = loadTemplates(templateEntities);
 
         final Path outputDirectoryPath = outputDirectory.toPath();
         createDirIfRequired(outputDirectoryPath);
 
-        for (LoadedEntityContent<Mustache> template : loadedTemplates) {
-            for (LoadedEntityContent<Object> context : loadedMappedContexts) {
+        for (LoadedEntityContent template : loadedTemplates) {
+            for (LoadedEntityContent context : loadedMappedContexts) {
                 try {
                     final Path outputFileFullPath = outputDirectoryPath.resolve(context.getRelativeOutputPath());
                     final Path parentDir          = outputFileFullPath.getParent();
                     createDirIfRequired(parentDir);
 
+                    final Mustache mustache = (Mustache) template.getContents().get(0);
+
                     getLog().info("Applying context " + context.getRelativePath() + " with template " + template.getRelativePath() + " to " + outputFileFullPath);
                     try (final Writer out = Files.newBufferedWriter(outputFileFullPath)) {
-                        template.getContent().execute(out, context.getContent());
+                        mustache.execute(out, context.getContents());
                     }
                 } catch (final IOException e) {
                     throw new MojoExecutionException("Cannot write output file: " + outputDirectoryPath, e);
@@ -191,7 +193,7 @@ public class TransformerMojo extends AbstractMojo {
         return new LoadableEntities(description, rootPath, files, fileTypeSuffix);
     }
 
-    private List<LoadedEntityContent<Object>> loadMappedContexts(LoadableEntities contextEntities) throws MojoExecutionException {
+    private List<LoadedEntityContent> loadMappedContexts(LoadableEntities contextEntities) throws MojoExecutionException {
         final TransformerPluginMapper mapper;
         try {
             mapper = (TransformerPluginMapper) Class.forName(transformMapperClass).getDeclaredConstructor().newInstance();
@@ -201,7 +203,7 @@ public class TransformerMojo extends AbstractMojo {
         return mapper.loadAndMap(contextEntities);
     }
 
-    private List<LoadedEntityContent<Mustache>> loadTemplates(LoadableEntities entities) {
+    private List<LoadedEntityContent> loadTemplates(LoadableEntities entities) {
         final DefaultMustacheFactory mf = new DefaultMustacheFactory();
 
         return entities.loadEntities(entity -> {
@@ -211,7 +213,7 @@ public class TransformerMojo extends AbstractMojo {
             final Path fullPath = entity.getRootPath().resolve(entity.getRelativePath());
             try (final Reader reader = Files.newBufferedReader(fullPath)) {
                 final Mustache template = mf.compile(reader, entity.getRelativePath().toString());
-                return List.of(entity.withContent(template, entity.getRelativePath()));
+                return List.of(entity.withContents(List.of(template), entity.getRelativePath()));
             } catch (final IOException e) {
                 throw new TransformerMojoFailureException("Cannot open " + entity.getDescription() + ": " + entity.getRelativePath(), e);
             }
