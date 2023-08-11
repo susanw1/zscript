@@ -58,7 +58,13 @@ gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 ```
 
 This is used for building the native Zscript core libs and running tests on it. The core code is a template header library, so dependent sub-projects
-pull in the sources.
+pull in the sources. 
+
+All locally compiled Zscript libraries are compiled in 32 bit mode, so an additional install of `gcc-multilib` and `g++-multilib` is necesary. 
+These installs must be of the same version as the main GCC install (of course), but if the default Ubuntu version is used, then they can be installed with:
+```
+apt install gcc-multilib g++-multilib
+```
 
 ### Eclipse (Optional)
 

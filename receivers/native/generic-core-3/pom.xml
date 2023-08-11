@@ -31,8 +31,9 @@
                             <option>-flto</option>
                             <option>-g</option>
                             <option>-Wall</option>
-                            <testOption>-fno-exceptions</testOption>
-                            <option>-Wextra</option>
+                            <option>-fno-exceptions</option>
+                            <option>-Wextra</option> 
+                            <option>-m32</option>
                         </options>
                         <testOptions>
                             <testOption>-fexceptions</testOption>
