@@ -7,7 +7,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>generic-receiver-core-3</artifactId>
+    <artifactId>generic-receiver-core</artifactId>
     <packaging>nar</packaging>
     <name>Zscript Generic C++ Receiver Core</name>
 
@@ -20,6 +20,7 @@
                 <configuration>
                     <cpp>
                         <name>gcc</name>
+                        <exceptions>false</exceptions>
                         <debug>true</debug>
                         <includePaths>
                             <includePath>
@@ -31,21 +32,10 @@
                             <option>-flto</option>
                             <option>-g</option>
                             <option>-Wall</option>
-                            <option>-fno-exceptions</option>
-                            <option>-Wextra</option> 
-                            <option>-m32</option>
+
+                            <option>-Wextra</option>
                         </options>
-                        <testOptions>
-                            <testOption>-fexceptions</testOption>
-                            <testOption>-m32</testOption>
-                        </testOptions>
                     </cpp>
-                    <linker>
-                        <name>g++</name>
-                        <options>
-                            <option>-m32</option>
-                        </options>
-                    </linker>
                     <libraries>
                         <library>
                             <type>static</type>
@@ -58,47 +48,17 @@
                             <run>false</run>
                         </test>
                         <test>
-                            <name>ZscriptTokenizerTest</name>
+                            <name>BasicZscriptTests</name>
                             <link>static</link>
                             <run>true</run>
                         </test>
                         <test>
-                            <name>ZscriptTokenBufferReaderTest</name>
+                            <name>DebugZscriptTests</name>
                             <link>static</link>
                             <run>true</run>
                         </test>
                         <test>
-                            <name>SemanticParserTest</name>
-                            <link>static</link>
-                            <run>true</run>
-                        </test>
-                        <test>
-                            <name>SemanticParserMulticommandTest</name>
-                            <link>static</link>
-                            <run>true</run>
-                        </test>
-                        <test>
-                            <name>SemanticParserAddressingTest</name>
-                            <link>static</link>
-                            <run>true</run>
-                        </test>
-                        <test>
-                            <name>SemanticParserTokenWaitTest</name>
-                            <link>static</link>
-                            <run>true</run>
-                        </test>
-                        <test>
-                            <name>SemanticParserAsyncCommandTest</name>
-                            <link>static</link>
-                            <run>true</run>
-                        </test>
-                        <test>
-                            <name>NotificationTest</name>
-                            <link>static</link>
-                            <run>true</run>
-                        </test>
-                        <test>
-                            <name>ScriptSpaceTest</name>
+                            <name>EdgeCaseZscriptTests</name>
                             <link>static</link>
                             <run>true</run>
                         </test>
@@ -111,7 +71,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
-<!--                         run with mvn [-pl receivers/native/generic-core] exec:exec@default-cli -->
+                        <!-- run with mvn [-pl receivers/native/generic-core] exec:exec@default-cli -->
                         <id>default-cli</id>
                         <configuration>
                             <executable>${project.build.directory}/test-nar/bin/amd64-Linux-gpp/default-cli</executable>
