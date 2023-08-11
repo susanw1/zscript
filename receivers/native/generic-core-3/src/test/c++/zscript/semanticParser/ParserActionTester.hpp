@@ -86,7 +86,7 @@ public:
         return true;
     }
 
-    bool parseSnippet(const char *text, SemanticActionType expectedSemanticActionType, State endState, const char *output) {
+    bool parseSnippet(const char *text, SemanticActionType expectedSemanticActionType, SemanticParserState endState, const char *output) {
         uint16_t outlength = 0;
         for (uint16_t i = 0; output[i] != 0; ++i) {
             outlength++;

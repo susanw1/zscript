@@ -82,7 +82,7 @@ class SemanticParserTest {
         }
     }
 
-    void checkParserState(State s) {
+    void checkParserState(SemanticParserState s) {
         if (parser.getState() != s) {
             std::cerr << "Bad parser state\n";
             throw 0;
@@ -115,27 +115,27 @@ public:
             buffer(data, 256), parser(&buffer), tokenizer(&buffer, 2) {
     }
     void shouldStartNoActionWithEmptyTokens() {
-        checkParserState(PRESEQUENCE);
+        checkParserState(SemanticParserState::PRESEQUENCE);
         ZscriptAction<zp> a = parser.getAction();
         checkActionType(a, WAIT_FOR_TOKENS);
         if (outStream.getData().length != 0) {
             std::cerr << "Bad output content\n";
             throw 0;
         }
-        checkParserState(PRESEQUENCE);
+        checkParserState(SemanticParserState::PRESEQUENCE);
     }
 
     void shouldProduceActionForCommand() {
         feedToTokenizer("Z0\n");
 
-        checkParserState(PRESEQUENCE);
+        checkParserState(SemanticParserState::PRESEQUENCE);
         ZscriptAction<zp> a1 = parser.getAction();
         checkActionType(a1, RUN_FIRST_COMMAND);
 
         a1.performAction(&outStream);
         checkAgainstOut("!V1C3107M3S");
         outStream.reset();
-        checkParserState(COMMAND_COMPLETE);
+        checkParserState(SemanticParserState::COMMAND_COMPLETE);
 
         ZscriptAction<zp> a2 = parser.getAction();
         checkActionType(a2, END_SEQUENCE);
@@ -143,12 +143,12 @@ public:
         a2.performAction(&outStream);
         checkAgainstOut("\n");
         outStream.reset();
-        checkParserState(PRESEQUENCE);
+        checkParserState(SemanticParserState::PRESEQUENCE);
 
         ZscriptAction<zp> a3 = parser.getAction();
         checkActionType(a3, WAIT_FOR_TOKENS);
         checkAgainstOut("");
-        checkParserState(PRESEQUENCE);
+        checkParserState(SemanticParserState::PRESEQUENCE);
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
@@ -157,32 +157,32 @@ public:
     void shouldProduceActionForTwoCommands() {
         feedToTokenizer("Z1A & Z1B\n");
 
-        checkParserState(PRESEQUENCE);
+        checkParserState(SemanticParserState::PRESEQUENCE);
         ZscriptAction<zp> a1 = parser.getAction();
         checkActionType(a1, RUN_FIRST_COMMAND);
         a1.performAction(&outStream);
         checkAgainstOut("!AS");
         outStream.reset();
-        checkParserState(COMMAND_COMPLETE);
+        checkParserState(SemanticParserState::COMMAND_COMPLETE);
 
         ZscriptAction<zp> a2 = parser.getAction();
         checkActionType(a2, RUN_COMMAND);
         a2.performAction(&outStream);
         checkAgainstOut("&BS");
         outStream.reset();
-        checkParserState(COMMAND_COMPLETE);
+        checkParserState(SemanticParserState::COMMAND_COMPLETE);
 
         ZscriptAction<zp> a3 = parser.getAction();
         checkActionType(a3, END_SEQUENCE);
         a3.performAction(&outStream);
         checkAgainstOut("\n");
         outStream.reset();
-        checkParserState(PRESEQUENCE);
+        checkParserState(SemanticParserState::PRESEQUENCE);
 
         ZscriptAction<zp> a4 = parser.getAction();
         checkActionType(a4, WAIT_FOR_TOKENS);
         checkAgainstOut("");
-        checkParserState(PRESEQUENCE);
+        checkParserState(SemanticParserState::PRESEQUENCE);
 
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
@@ -192,13 +192,13 @@ public:
     void shouldProduceActionForComment() {
         feedToTokenizer("#a\n");
 
-        checkParserState(PRESEQUENCE);
+        checkParserState(SemanticParserState::PRESEQUENCE);
         ZscriptAction<zp> a1 = parser.getAction();
         checkActionType(a1, WAIT_FOR_TOKENS);
         a1.performAction(&outStream);
         checkAgainstOut("");
         outStream.reset();
-        checkParserState(PRESEQUENCE);
+        checkParserState(SemanticParserState::PRESEQUENCE);
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;

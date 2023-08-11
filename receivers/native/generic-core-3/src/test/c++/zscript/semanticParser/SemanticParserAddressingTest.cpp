@@ -82,7 +82,7 @@ class SemanticParserTest {
         }
     }
 
-    void checkParserState(State s) {
+    void checkParserState(SemanticParserState s) {
         if (parser.getState() != s) {
             std::cerr << "Bad parser state\n";
             throw 0;

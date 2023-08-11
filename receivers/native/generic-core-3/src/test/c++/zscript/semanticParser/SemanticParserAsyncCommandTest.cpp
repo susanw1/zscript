@@ -173,7 +173,7 @@ class SemanticParserTest {
         }
     }
 
-    void checkParserState(State s) {
+    void checkParserState(SemanticParserState s) {
         if (parser.getState() != s) {
             std::cerr << "Bad parser state\n";
             throw 0;
@@ -197,22 +197,22 @@ public:
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
-        parserActionTester.parseSnippet("Z2 & Zf2 ", SemanticActionType::RUN_FIRST_COMMAND, State::COMMAND_COMPLETE, "!AS");
+        parserActionTester.parseSnippet("Z2 & Zf2 ", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!AS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::COMMAND_COMPLETE_NEEDS_TOKENS, "!AS");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::COMMAND_COMPLETE_NEEDS_TOKENS, "!AS");
 
-        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_COMMAND, State::COMMAND_INCOMPLETE, "!AS&Aff");
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, State::COMMAND_INCOMPLETE, "!AS&Aff");
+        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_COMMAND, SemanticParserState::COMMAND_INCOMPLETE, "!AS&Aff");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, SemanticParserState::COMMAND_INCOMPLETE, "!AS&Aff");
 
         // simulate async interaction with the command's state
         AsyncTestModule::increment();
 
-        parserActionTester.parseSnippet("", SemanticActionType::COMMAND_MOVEALONG, State::COMMAND_FAILED, "!AS&AffS1");
-        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, State::PRESEQUENCE, "!AS&AffS1\n");
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!AS&AffS1\n");
+        parserActionTester.parseSnippet("", SemanticActionType::COMMAND_MOVEALONG, SemanticParserState::COMMAND_FAILED, "!AS&AffS1");
+        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!AS&AffS1\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!AS&AffS1\n");
     }
 
     void shouldRunMultiplePasses() {
@@ -221,28 +221,28 @@ public:
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
-        parserActionTester.parseSnippet("Z2 & Zf2 E2 ", SemanticActionType::RUN_FIRST_COMMAND, State::COMMAND_COMPLETE, "!AS");
+        parserActionTester.parseSnippet("Z2 & Zf2 E2 ", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!AS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::COMMAND_COMPLETE_NEEDS_TOKENS, "!AS");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::COMMAND_COMPLETE_NEEDS_TOKENS, "!AS");
 
-        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_COMMAND, State::COMMAND_INCOMPLETE, "!AS&Aff");
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, State::COMMAND_INCOMPLETE, "!AS&Aff");
+        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_COMMAND, SemanticParserState::COMMAND_INCOMPLETE, "!AS&Aff");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, SemanticParserState::COMMAND_INCOMPLETE, "!AS&Aff");
 
         // simulate async interaction with the command's state
         AsyncTestModule::increment();
-        checkParserState(State::COMMAND_NEEDS_ACTION);
+        checkParserState(SemanticParserState::COMMAND_NEEDS_ACTION);
 
-        parserActionTester.parseSnippet("", SemanticActionType::COMMAND_MOVEALONG, State::COMMAND_INCOMPLETE, "!AS&Aff");
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, State::COMMAND_INCOMPLETE, "!AS&Aff");
+        parserActionTester.parseSnippet("", SemanticActionType::COMMAND_MOVEALONG, SemanticParserState::COMMAND_INCOMPLETE, "!AS&Aff");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, SemanticParserState::COMMAND_INCOMPLETE, "!AS&Aff");
 
         AsyncTestModule::increment();
 
-        parserActionTester.parseSnippet("", SemanticActionType::COMMAND_MOVEALONG, State::COMMAND_COMPLETE, "!AS&AffC2S");
-        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, State::PRESEQUENCE, "!AS&AffC2S\n");
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!AS&AffC2S\n");
+        parserActionTester.parseSnippet("", SemanticActionType::COMMAND_MOVEALONG, SemanticParserState::COMMAND_COMPLETE, "!AS&AffC2S");
+        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!AS&AffC2S\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!AS&AffC2S\n");
     }
 
     void shouldRunMultiplePassesWithErrorMidflight() {
@@ -252,37 +252,37 @@ public:
             throw 0;
         }
 
-        parserActionTester.parseSnippet("Z2 & Zf2 E2 &", SemanticActionType::RUN_FIRST_COMMAND, State::COMMAND_COMPLETE, "!AS");
+        parserActionTester.parseSnippet("Z2 & Zf2 E2 &", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!AS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
-        parserActionTester.parseSnippet("", SemanticActionType::RUN_COMMAND, State::COMMAND_INCOMPLETE, "!AS&Aff");
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, State::COMMAND_INCOMPLETE, "!AS&Aff");
+        parserActionTester.parseSnippet("", SemanticActionType::RUN_COMMAND, SemanticParserState::COMMAND_INCOMPLETE, "!AS&Aff");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, SemanticParserState::COMMAND_INCOMPLETE, "!AS&Aff");
 
         tokenizer.dataLost();
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, State::COMMAND_INCOMPLETE, "!AS&Aff");
-        parserActionTester.parseSnippet("\n", SemanticActionType::WAIT_FOR_ASYNC, State::COMMAND_INCOMPLETE, "!AS&Aff");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, SemanticParserState::COMMAND_INCOMPLETE, "!AS&Aff");
+        parserActionTester.parseSnippet("\n", SemanticActionType::WAIT_FOR_ASYNC, SemanticParserState::COMMAND_INCOMPLETE, "!AS&Aff");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
         // simulate async interaction with the command's state
         AsyncTestModule::increment();
-        checkParserState(State::COMMAND_NEEDS_ACTION);
+        checkParserState(SemanticParserState::COMMAND_NEEDS_ACTION);
 
-        parserActionTester.parseSnippet("", SemanticActionType::COMMAND_MOVEALONG, State::COMMAND_INCOMPLETE, "!AS&Aff");
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, State::COMMAND_INCOMPLETE, "!AS&Aff");
+        parserActionTester.parseSnippet("", SemanticActionType::COMMAND_MOVEALONG, SemanticParserState::COMMAND_INCOMPLETE, "!AS&Aff");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, SemanticParserState::COMMAND_INCOMPLETE, "!AS&Aff");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
         AsyncTestModule::increment();
 
-        parserActionTester.parseSnippet("", SemanticActionType::COMMAND_MOVEALONG, State::COMMAND_COMPLETE, "!AS&AffC2S");
-        parserActionTester.parseSnippet("", SemanticActionType::ERROR, State::PRESEQUENCE, "!AS&AffC2S!10S10\n");
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!AS&AffC2S!10S10\n");
+        parserActionTester.parseSnippet("", SemanticActionType::COMMAND_MOVEALONG, SemanticParserState::COMMAND_COMPLETE, "!AS&AffC2S");
+        parserActionTester.parseSnippet("", SemanticActionType::ERROR, SemanticParserState::PRESEQUENCE, "!AS&AffC2S!10S10\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!AS&AffC2S!10S10\n");
     }
 
     void shouldRunMultiplePassesInAddressing() {
@@ -293,8 +293,8 @@ public:
         }
 
         parser.activate();
-        parserActionTester.parseSnippet("@f.2 Z1A\n", SemanticActionType::INVOKE_ADDRESSING, State::ADDRESSING_INCOMPLETE, "");
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, State::ADDRESSING_INCOMPLETE, "");
+        parserActionTester.parseSnippet("@f.2 Z1A\n", SemanticActionType::INVOKE_ADDRESSING, SemanticParserState::ADDRESSING_INCOMPLETE, "");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, SemanticParserState::ADDRESSING_INCOMPLETE, "");
 
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
@@ -303,17 +303,17 @@ public:
 
         // simulate async interaction with the command's state
         AsyncTestModule::increment();
-        checkParserState(State::ADDRESSING_NEEDS_ACTION);
+        checkParserState(SemanticParserState::ADDRESSING_NEEDS_ACTION);
 
-        parserActionTester.parseSnippet("", SemanticActionType::ADDRESSING_MOVEALONG, State::ADDRESSING_INCOMPLETE, "");
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, State::ADDRESSING_INCOMPLETE, "");
+        parserActionTester.parseSnippet("", SemanticActionType::ADDRESSING_MOVEALONG, SemanticParserState::ADDRESSING_INCOMPLETE, "");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_ASYNC, SemanticParserState::ADDRESSING_INCOMPLETE, "");
 
         AsyncTestModule::increment();
-        checkParserState(State::ADDRESSING_NEEDS_ACTION);
-        parserActionTester.parseSnippet("", SemanticActionType::ADDRESSING_MOVEALONG, State::ADDRESSING_COMPLETE, "");
-        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, State::PRESEQUENCE, "");
+        checkParserState(SemanticParserState::ADDRESSING_NEEDS_ACTION);
+        parserActionTester.parseSnippet("", SemanticActionType::ADDRESSING_MOVEALONG, SemanticParserState::ADDRESSING_COMPLETE, "");
+        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "");
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "");
     }
 };
 

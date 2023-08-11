@@ -80,7 +80,7 @@ class SemanticParserTest {
         }
     }
 
-    void checkParserState(State s) {
+    void checkParserState(SemanticParserState s) {
         if (parser.getState() != s) {
             std::cerr << "Bad parser state\n";
             throw 0;
@@ -100,31 +100,31 @@ public:
     }
     void shouldWaitWithAndThen() {
         ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
-        parserActionTester.parseSnippet("Z1A", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
+        parserActionTester.parseSnippet("Z1A", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("&", SemanticActionType::RUN_FIRST_COMMAND, State::COMMAND_COMPLETE, "!AS");
+        parserActionTester.parseSnippet("&", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!AS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("Z1B", SemanticActionType::WAIT_FOR_TOKENS, State::COMMAND_COMPLETE_NEEDS_TOKENS, "!AS");
+        parserActionTester.parseSnippet("Z1B", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::COMMAND_COMPLETE_NEEDS_TOKENS, "!AS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_COMMAND, State::COMMAND_COMPLETE, "!AS&BS");
+        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!AS&BS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, State::PRESEQUENCE, "!AS&BS\n");
+        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!AS&BS\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
@@ -133,31 +133,31 @@ public:
 
     void shouldWaitWithOrElse() {
         ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
-        parserActionTester.parseSnippet("Z1A", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
+        parserActionTester.parseSnippet("Z1A", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("|", SemanticActionType::RUN_FIRST_COMMAND, State::COMMAND_COMPLETE, "!AS");
+        parserActionTester.parseSnippet("|", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!AS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("Z1B", SemanticActionType::WAIT_FOR_TOKENS, State::COMMAND_SKIP, "!AS");
+        parserActionTester.parseSnippet("Z1B", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::COMMAND_SKIP, "!AS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("\n", SemanticActionType::END_SEQUENCE, State::PRESEQUENCE, "!AS\n");
+        parserActionTester.parseSnippet("\n", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!AS\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!AS\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!AS\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
@@ -168,67 +168,67 @@ public:
     void shouldWaitWithParens() {
         ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
         // Z1A & (Z1B S1 | Z1C) | Z1D
-        parserActionTester.parseSnippet("Z1A", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
+        parserActionTester.parseSnippet("Z1A", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("&", SemanticActionType::RUN_FIRST_COMMAND, State::COMMAND_COMPLETE, "!AS");
+        parserActionTester.parseSnippet("&", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!AS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("(", SemanticActionType::RUN_COMMAND, State::COMMAND_COMPLETE, "!AS&");
+        parserActionTester.parseSnippet("(", SemanticActionType::RUN_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!AS&");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("Z1B S1", SemanticActionType::WAIT_FOR_TOKENS, State::COMMAND_COMPLETE_NEEDS_TOKENS, "!AS&");
+        parserActionTester.parseSnippet("Z1B S1", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::COMMAND_COMPLETE_NEEDS_TOKENS, "!AS&");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("|", SemanticActionType::RUN_COMMAND, State::COMMAND_FAILED, "!AS&(BS1");
+        parserActionTester.parseSnippet("|", SemanticActionType::RUN_COMMAND, SemanticParserState::COMMAND_FAILED, "!AS&(BS1");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("Z1C", SemanticActionType::WAIT_FOR_TOKENS, State::COMMAND_COMPLETE_NEEDS_TOKENS, "!AS&(BS1");
+        parserActionTester.parseSnippet("Z1C", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::COMMAND_COMPLETE_NEEDS_TOKENS, "!AS&(BS1");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet(")", SemanticActionType::RUN_COMMAND, State::COMMAND_COMPLETE, "!AS&(BS1|CS");
+        parserActionTester.parseSnippet(")", SemanticActionType::RUN_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!AS&(BS1|CS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("|", SemanticActionType::RUN_COMMAND, State::COMMAND_COMPLETE, "!AS&(BS1|CS)");
+        parserActionTester.parseSnippet("|", SemanticActionType::RUN_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!AS&(BS1|CS)");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("Z1D", SemanticActionType::WAIT_FOR_TOKENS, State::COMMAND_SKIP, "!AS&(BS1|CS)");
+        parserActionTester.parseSnippet("Z1D", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::COMMAND_SKIP, "!AS&(BS1|CS)");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("\n", SemanticActionType::END_SEQUENCE, State::PRESEQUENCE, "!AS&(BS1|CS)\n");
+        parserActionTester.parseSnippet("\n", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!AS&(BS1|CS)\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!AS&(BS1|CS)\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!AS&(BS1|CS)\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
@@ -239,55 +239,55 @@ public:
     void shouldWaitWithMultipleCommands() {
         ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
         // Z1A\nZ1B\n - with lots of token-draining, too.
-        parserActionTester.parseSnippet("Z1A", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
+        parserActionTester.parseSnippet("Z1A", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_FIRST_COMMAND, State::COMMAND_COMPLETE, "!AS");
+        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!AS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, State::PRESEQUENCE, "!AS\n");
+        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!AS\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!AS\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!AS\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("Z1B", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!AS\n");
+        parserActionTester.parseSnippet("Z1B", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!AS\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_FIRST_COMMAND, State::COMMAND_COMPLETE, "!AS\n!BS");
+        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!AS\n!BS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, State::PRESEQUENCE, "!AS\n!BS\n");
+        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!AS\n!BS\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!AS\n!BS\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!AS\n!BS\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
@@ -298,67 +298,67 @@ public:
     void shouldWaitWithErrors() {
         ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
         // Z1A+a & Z1B\n Z1C\n
-        parserActionTester.parseSnippet("Z1A+a", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
+        parserActionTester.parseSnippet("Z1A+a", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("&", SemanticActionType::ERROR, State::PRESEQUENCE, "!10S21\n");
+        parserActionTester.parseSnippet("&", SemanticActionType::ERROR, SemanticParserState::PRESEQUENCE, "!10S21\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!10S21\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!10S21\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("Z1B", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!10S21\n");
+        parserActionTester.parseSnippet("Z1B", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!10S21\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!10S21\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!10S21\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("\n", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!10S21\n");
+        parserActionTester.parseSnippet("\n", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!10S21\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("Z1C", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!10S21\n");
+        parserActionTester.parseSnippet("Z1C", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!10S21\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_FIRST_COMMAND, State::COMMAND_COMPLETE, "!10S21\n!CS");
+        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!10S21\n!CS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, State::PRESEQUENCE, "!10S21\n!CS\n");
+        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!10S21\n!CS\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!10S21\n!CS\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!10S21\n!CS\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
@@ -369,13 +369,13 @@ public:
     void shouldWaitWithOverrunError() {
         ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
         // Z1A & Z1B & Z1C *\n Z1D\n (overun shown as '*')
-        parserActionTester.parseSnippet("Z1A ", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
+        parserActionTester.parseSnippet("Z1A ", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
@@ -383,37 +383,37 @@ public:
         feedToTokenizer("& Z1B & Z1C");
         tokenizer.dataLost();
 
-        parserActionTester.parseSnippet("", SemanticActionType::ERROR, State::PRESEQUENCE, "!10S10\n");
+        parserActionTester.parseSnippet("", SemanticActionType::ERROR, SemanticParserState::PRESEQUENCE, "!10S10\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("\n", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!10S10\n");
+        parserActionTester.parseSnippet("\n", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!10S10\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!10S10\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!10S10\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("Z1D\n", SemanticActionType::RUN_FIRST_COMMAND, State::COMMAND_COMPLETE, "!10S10\n!DS");
+        parserActionTester.parseSnippet("Z1D\n", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!10S10\n!DS");
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, State::PRESEQUENCE, "!10S10\n!DS\n");
+        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!10S10\n!DS\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
         }
 
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!10S10\n!DS\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!10S10\n!DS\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
@@ -423,12 +423,12 @@ public:
 
     void shouldGiveErrorForFailedComment() {
         ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
-        parserActionTester.parseSnippet("#pq", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "");
+        parserActionTester.parseSnippet("#pq", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "");
         tokenizer.dataLost();
-        parserActionTester.parseSnippet("xyz", SemanticActionType::ERROR, State::PRESEQUENCE, "!10S10\n");
-        parserActionTester.parseSnippet("\n", SemanticActionType::WAIT_FOR_TOKENS, State::PRESEQUENCE, "!10S10\n");
-        parserActionTester.parseSnippet("Z1\n", SemanticActionType::RUN_FIRST_COMMAND, State::COMMAND_COMPLETE, "!10S10\n!S");
-        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, State::PRESEQUENCE, "!10S10\n!S\n");
+        parserActionTester.parseSnippet("xyz", SemanticActionType::ERROR, SemanticParserState::PRESEQUENCE, "!10S10\n");
+        parserActionTester.parseSnippet("\n", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!10S10\n");
+        parserActionTester.parseSnippet("Z1\n", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!10S10\n!S");
+        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!10S10\n!S\n");
 
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";

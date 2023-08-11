@@ -45,8 +45,8 @@ public:
 };
 template<class ZP>
 class LocalChannel: public ZscriptChannel<ZP> {
-    LocalOutStream<ZP> outStr;
     uint8_t data[1024];
+    LocalOutStream<ZP> outStr;
     GenericCore::TokenRingBuffer<ZP> buffer;
     ZscriptTokenizer<ZP> tokenizer;
     uint16_t waitForTheBlockingInput = 0;
