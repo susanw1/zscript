@@ -34,6 +34,17 @@ class ScriptSpaceTest {
     uint8_t outBuffer[256];
 
     BufferOutStream<zp> outStream;
+    class EmptyChannel: public ZscriptChannel<zp> {
+        TokenRingBuffer<zp> emptyBuffer;
+
+    public:
+        EmptyChannel(BufferOutStream<zp> *outStream) :
+                ZscriptChannel<zp>(outStream, &emptyBuffer, true), emptyBuffer(NULL, 0) {
+        }
+
+    };
+    EmptyChannel empty;
+    ZscriptChannel<zp> *emptyP = &empty;
 
     void checkAgainstOut(const char *text) {
         DataArrayWLeng16 data = outStream.getData();
@@ -76,17 +87,18 @@ class ScriptSpaceTest {
     }
 
 public:
-    ScriptSpaceTest() {
+    ScriptSpaceTest() :
+            empty(&outStream) {
 
     }
 
     void shouldRunScriptSpaceWithFailuresAndErrors() {
-        Zscript<zp>::zscript.setNotificationOutStream(&outStream);
 
         ScriptSpace<zp> space = spaceFromString("Z1&Z0\nZ1ABC&Z1S1\nZ1S1|Z0\nZ1S10\n");
         space.run();
-        ZscriptChannel<zp> *spaceP = &space;
-        Zscript<zp>::zscript.setChannels(&spaceP, 1);
+        ZscriptChannel<zp> *channels[2] = { &space, emptyP };
+        Zscript<zp>::zscript.setChannels(channels, 2);
+        Zscript<zp>::zscript.setNotificationChannelIndex(1);
 
         for (uint16_t i = 0; i < 20; ++i) {
             Zscript<zp>::zscript.progress();
@@ -100,7 +112,6 @@ public:
 
     void scriptSpaceShouldJamZscript() {
         StringChannel<zp> channel(&outStream, "Z1AB\n");
-        Zscript<zp>::zscript.setNotificationOutStream(&outStream);
 
         ScriptSpace<zp> space = spaceFromString("Z1&Z0\n");
         space.run();
@@ -108,6 +119,8 @@ public:
         ZscriptChannel<zp> *channels[2] = { &space, &channel };
 
         Zscript<zp>::zscript.setChannels(channels, 2);
+
+        Zscript<zp>::zscript.setNotificationChannelIndex(1);
         Zscript<zp>::zscript.setScriptSpaces(&spaceP, 1);
         int i = 0;
         while (Zscript<zp>::zscript.progress() && i++ < 1000000) {
@@ -119,13 +132,13 @@ public:
 
     void shouldReadScriptSpaceCapabilities() {
         StringChannel<zp> channel(&outStream, "Z2&Z20\n");
-        Zscript<zp>::zscript.setNotificationOutStream(&outStream);
 
         ScriptSpace<zp> space = spaceFromString("Z1&Z0\n");
         ScriptSpace<zp> *spaceP = &space;
         ZscriptChannel<zp> *channels[2] = { &space, &channel };
 
         Zscript<zp>::zscript.setChannels(channels, 2);
+        Zscript<zp>::zscript.setNotificationChannelIndex(1);
         Zscript<zp>::zscript.setScriptSpaces(&spaceP, 1);
         int i = 0;
         while (Zscript<zp>::zscript.progress() && i++ < 1000000) {
@@ -137,13 +150,13 @@ public:
 
     void shouldReadScriptSpaceSetup() {
         StringChannel<zp> channel(&outStream, "Z2&Z21P0\n");
-        Zscript<zp>::zscript.setNotificationOutStream(&outStream);
 
         ScriptSpace<zp> space = spaceFromString("Z1&Z0\n");
         ScriptSpace<zp> *spaceP = &space;
         ZscriptChannel<zp> *channels[2] = { &space, &channel };
 
         Zscript<zp>::zscript.setChannels(channels, 2);
+        Zscript<zp>::zscript.setNotificationChannelIndex(1);
         Zscript<zp>::zscript.setScriptSpaces(&spaceP, 1);
         int i = 0;
         while (Zscript<zp>::zscript.progress() && i++ < 1000000) {
@@ -155,13 +168,13 @@ public:
 
     void shouldRunScriptSpaceFromSetup() {
         StringChannel<zp> channel(&outStream, "Z2&Z21P0R1\nZ\n");
-        Zscript<zp>::zscript.setNotificationOutStream(&outStream);
 
         ScriptSpace<zp> space = spaceFromString("Z1&Z0\n");
         ScriptSpace<zp> *spaceP = &space;
         ZscriptChannel<zp> *channels[2] = { &space, &channel };
 
         Zscript<zp>::zscript.setChannels(channels, 2);
+        Zscript<zp>::zscript.setNotificationChannelIndex(1);
         Zscript<zp>::zscript.setScriptSpaces(&spaceP, 1);
         int i = 0;
         while (Zscript<zp>::zscript.progress() && i++ < 1000000) {
@@ -173,13 +186,13 @@ public:
 
     void shouldRunAndStopScriptSpaceFromSetup() {
         StringChannel<zp> channel(&outStream, "Z2&Z21P0R1&Z21P&Z21PR&Z21P\nZ1\n");
-        Zscript<zp>::zscript.setNotificationOutStream(&outStream);
 
         ScriptSpace<zp> space = spaceFromString("Z2&Z1S1\n");
         ScriptSpace<zp> *spaceP = &space;
         ZscriptChannel<zp> *channels[2] = { &space, &channel };
 
         Zscript<zp>::zscript.setChannels(channels, 2);
+        Zscript<zp>::zscript.setNotificationChannelIndex(1);
         Zscript<zp>::zscript.setScriptSpaces(&spaceP, 1);
         int i = 0;
         while (Zscript<zp>::zscript.progress() && i++ < 1000000) {
@@ -190,13 +203,13 @@ public:
     }
     void shouldWriteToSpace() {
         StringChannel<zp> channel(&outStream, "Z2&Z21P&Z22P\"Z1S10=0a\"&Z21PR1\n");
-        Zscript<zp>::zscript.setNotificationOutStream(&outStream);
 
         ScriptSpace<zp> space = spaceFromString("");
         ScriptSpace<zp> *spaceP = &space;
         ZscriptChannel<zp> *channels[2] = { &space, &channel };
 
         Zscript<zp>::zscript.setChannels(channels, 2);
+        Zscript<zp>::zscript.setNotificationChannelIndex(1);
         Zscript<zp>::zscript.setScriptSpaces(&spaceP, 1);
         int i = 0;
         while (Zscript<zp>::zscript.progress() && i++ < 1000000) {

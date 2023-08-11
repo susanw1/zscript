@@ -32,7 +32,7 @@ public:
         }
         Zscript<ZP>::zscript.getChannels()[target]->channelSetup(ctx);
         if (ctx.hasField('N')) {
-            Zscript<ZP>::zscript.setNotificationOutStream(Zscript<ZP>::zscript.getChannels()[target]->getOutStream());
+            Zscript<ZP>::zscript.setNotificationChannelIndex((uint8_t) target);
         }
     }
 

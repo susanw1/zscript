@@ -32,14 +32,14 @@ private:
     }
 
     //    ZcodeModuleRegistry moduleRegistry = new ZcodeModuleRegistry();
-    GenericCore::LockSystem<ZP> locks;
     ZscriptChannel<ZP> **channels = NULL;
     GenericCore::ZscriptNotificationSource<ZP> **notifSources = NULL;
     ScriptSpace<ZP> **scriptSpaces = NULL;
+    GenericCore::LockSystem<ZP> locks;
+    uint8_t notificationChannelIndex = 0xFF;
     uint8_t channelCount = 0;
     uint8_t notifSrcCount = 0;
     uint8_t scriptSpaceCount = 0;
-    AbstractOutStream<ZP> *notificationOutStream = NULL;
 
     Zscript() {
 //        executor = new ZcodeExecutor(this);
@@ -96,11 +96,18 @@ public:
 //    }
 
     AbstractOutStream<ZP>* getNotificationOutStream() {
-        return notificationOutStream;
+        return channels[notificationChannelIndex]->getOutStream();
+    }
+    bool hasNotificationOutStream() {
+        return notificationChannelIndex != 0xFF;
     }
 //
-    void setNotificationOutStream(AbstractOutStream<ZP> *out) {
-        this->notificationOutStream = out;
+    void setNotificationChannelIndex(uint8_t index) {
+        if (index < channelCount && channels[index]->canBeNotifChannel()) {
+            notificationChannelIndex = index;
+        } else {
+            notificationChannelIndex = 0xFF;
+        }
     }
     ScriptSpace<ZP>** getScriptSpaces() {
         return scriptSpaces;

@@ -67,6 +67,7 @@ public:
     }
 
 };
+
 }
 
 #include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
@@ -92,6 +93,18 @@ class NotificationTest {
     TokenRingBuffer<zp> buffer;
 
     BufferOutStream<zp> outStream;
+
+    class EmptyChannel: public ZscriptChannel<zp> {
+        TokenRingBuffer<zp> emptyBuffer;
+
+    public:
+        EmptyChannel(BufferOutStream<zp> *outStream) :
+                ZscriptChannel<zp>(outStream, &emptyBuffer, true), emptyBuffer(NULL, 0) {
+        }
+
+    };
+    EmptyChannel empty;
+    ZscriptChannel<zp> *emptyP = &empty;
 
     void checkAgainstOut(const char *text) {
         DataArrayWLeng16 data = outStream.getData();
@@ -123,13 +136,14 @@ class NotificationTest {
     }
 
     void setup() {
+        Zscript<zp>::zscript.setChannels(&emptyP, 1);
         Zscript<zp>::zscript.setNotificationSources(&sourceP, 1);
-        Zscript<zp>::zscript.setNotificationOutStream(&outStream);
+        Zscript<zp>::zscript.setNotificationChannelIndex(0);
     }
 
 public:
     NotificationTest() :
-            buffer(data, 256) {
+            buffer(data, 256), empty(&outStream) {
     }
     void shouldProduceBasicNotification() {
         setup();

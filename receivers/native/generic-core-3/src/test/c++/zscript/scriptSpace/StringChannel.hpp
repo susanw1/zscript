@@ -22,7 +22,7 @@ class StringChannel: public ZscriptChannel<ZP> {
 
 public:
     StringChannel(AbstractOutStream<ZP> *out, const char *text) :
-            ZscriptChannel<ZP>(&buffer, out), buffer(data, 256), tokenizer(&buffer, 2), text(text) {
+            ZscriptChannel<ZP>(out, &buffer, true), buffer(data, 256), tokenizer(&buffer, 2), text(text) {
     }
     void moveAlong() {
         while (text[textInd] != 0 && tokenizer.offer(text[textInd])) {

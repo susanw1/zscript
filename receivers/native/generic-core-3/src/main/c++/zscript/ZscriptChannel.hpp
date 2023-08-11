@@ -17,12 +17,17 @@ namespace Zscript {
 template<class ZP>
 class ZscriptChannel {
 protected:
-    GenericCore::SemanticParser<ZP> parser;
     AbstractOutStream<ZP> *out;
+    GenericCore::SemanticParser<ZP> parser;
+    bool canBeNotifChannelB;
 
 public:
-    ZscriptChannel(GenericCore::TokenRingBuffer<ZP> *buffer, AbstractOutStream<ZP> *out) :
-            parser(buffer), out(out) {
+    ZscriptChannel(AbstractOutStream<ZP> *out, GenericCore::TokenRingBuffer<ZP> *buffer, bool canBeNotifChannel) :
+            out(out), parser(buffer), canBeNotifChannelB(canBeNotifChannel) {
+    }
+
+    bool canBeNotifChannel() {
+        return canBeNotifChannelB;
     }
 
     GenericCore::SemanticParser<ZP>* getParser() {

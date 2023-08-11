@@ -37,8 +37,15 @@
                         </options>
                         <testOptions>
                             <testOption>-fexceptions</testOption>
+                            <testOption>-m32</testOption>
                         </testOptions>
                     </cpp>
+                    <linker>
+                        <name>g++</name>
+                        <options>
+                            <option>-m32</option>
+                        </options>
+                    </linker>
                     <libraries>
                         <library>
                             <type>static</type>

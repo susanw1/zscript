@@ -46,16 +46,16 @@ public:
 template<class ZP>
 class LocalChannel: public ZscriptChannel<ZP> {
     uint8_t data[1024];
-    LocalOutStream<ZP> outStr;
-    GenericCore::TokenRingBuffer<ZP> buffer;
-    ZscriptTokenizer<ZP> tokenizer;
+    LocalOutStream<ZP> outStr;                              // 8 bytes
+    GenericCore::TokenRingBuffer<ZP> buffer;                // 20 bytes
+    ZscriptTokenizer<ZP> tokenizer;                         //16 bytes
     uint16_t waitForTheBlockingInput = 0;
     char tmp = 0;
     bool hasTmp = false;
 
 public:
     LocalChannel() :
-            ZscriptChannel<ZP>(&buffer, &outStr), buffer(data, 1024), tokenizer(buffer.getWriter(), 2) {
+            ZscriptChannel<ZP>(&outStr, &buffer, true), buffer(data, 1024), tokenizer(buffer.getWriter(), 2) {
     }
     void moveAlong() {
         if (waitForTheBlockingInput++ < 10000) {
