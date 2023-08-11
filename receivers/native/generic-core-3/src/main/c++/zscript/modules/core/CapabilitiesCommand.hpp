@@ -24,7 +24,7 @@ public:
     };
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
-        AbstractOutStream<ZP> *out = ctx.getOutStream();
+        CommandOutStream<ZP> out = ctx.getOutStream();
 
         uint16_t versionType = ctx.getField('V', UserFirmware);
         const char *ident = NULL;
@@ -55,12 +55,12 @@ public:
 
         if (ident != NULL) {
 //            out->writeBigStringField(ident);
-            out->writeField('V', version);
+            out.writeField('V', version);
         } else {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
         }
-        out->writeField('C', MODULE_CAPABILITIES(000));
-        out->writeField('M', COMMAND_SWITCH_EXISTS_BOTTOM_BYTE(00));
+        out.writeField('C', MODULE_CAPABILITIES(000));
+        out.writeField('M', COMMAND_SWITCH_EXISTS_BOTTOM_BYTE(00));
     }
 
 };

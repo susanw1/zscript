@@ -10,7 +10,8 @@
 #include <iostream>
 
 class zp {
-
+public:
+    typedef uint16_t tokenBufferSize_t;
 };
 namespace Zscript {
 
@@ -20,7 +21,7 @@ bool testBufferContent(uint8_t *instructions, uint8_t *data, uint16_t instructio
         ringBuffer[i] = 0xAA;
     }
     GenericCore::TokenRingBuffer<zp> buffer = GenericCore::TokenRingBuffer<zp>(ringBuffer, 1000);
-    ZscriptTokenizer<zp> tokenizer = ZscriptTokenizer<zp>(&buffer, 2);
+    ZscriptTokenizer<zp> tokenizer = ZscriptTokenizer<zp>(buffer.getWriter(), 2);
     for (int i = 0; i < instructionsLength; ++i) {
         if (instructions[i] == 'c') {
             if (tokenizer.checkCapacity() != data[i]) {

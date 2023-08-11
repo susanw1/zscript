@@ -21,6 +21,8 @@ class zp {
     static uint16_t currentRnd;
 
 public:
+    typedef uint16_t tokenBufferSize_t;
+
     static const uint8_t lockByteCount = 3;
 
     static uint16_t generateRandom16() {
@@ -58,7 +60,7 @@ public:
             someValue--;
         }
         notifier = ctx.getAsyncActionNotifier();
-        ctx.getOutStream()->writeQuotedString(toWrite);
+        ctx.getOutStream().writeQuotedString(toWrite);
     }
 
     static void increment() {
@@ -67,6 +69,7 @@ public:
     }
 
 };
+
 }
 
 #include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
@@ -91,8 +94,19 @@ class NotificationTest {
     uint8_t data[256];
     TokenRingBuffer<zp> buffer;
 
-    Zscript<zp> zscript;
     BufferOutStream<zp> outStream;
+
+    class EmptyChannel: public ZscriptChannel<zp> {
+        TokenRingBuffer<zp> emptyBuffer;
+
+    public:
+        EmptyChannel(BufferOutStream<zp> *outStream) :
+                ZscriptChannel<zp>(outStream, &emptyBuffer, true), emptyBuffer(NULL, 0) {
+        }
+
+    };
+    EmptyChannel empty;
+    ZscriptChannel<zp> *emptyP = &empty;
 
     void checkAgainstOut(const char *text) {
         DataArrayWLeng16 data = outStream.getData();
@@ -124,13 +138,14 @@ class NotificationTest {
     }
 
     void setup() {
-        zscript.setNotificationSources(&sourceP, 1);
-        zscript.setNotificationOutStream(&outStream);
+        Zscript<zp>::zscript.setChannels(&emptyP, 1);
+        Zscript<zp>::zscript.setNotificationSources(&sourceP, 1);
+        Zscript<zp>::zscript.setNotificationChannelIndex(0);
     }
 
 public:
     NotificationTest() :
-            buffer(data, 256) {
+            buffer(data, 256), empty(&outStream) {
     }
     void shouldProduceBasicNotification() {
         setup();
@@ -140,7 +155,7 @@ public:
         source.set(&locks, 0xf0, false);
 
         for (int i = 0; i < 20; i++) {
-            zscript.progress();
+            Zscript<zp>::zscript.progress();
         }
         checkAgainstOut("!f\"data\"\n");
         outStream.reset();
@@ -160,7 +175,7 @@ public:
         source.set(&locks, 0xf0, false);
 
         for (int i = 0; i < 20; i++) {
-            zscript.progress();
+            Zscript<zp>::zscript.progress();
         }
         checkAgainstOut("!f\"data\"");
         outStream.reset();
@@ -181,7 +196,7 @@ public:
         toWrite = "MoreData";
         notifier.notifyNeedsAction();
         for (int i = 0; i < 20; i++) {
-            zscript.progress();
+            Zscript<zp>::zscript.progress();
         }
         checkAgainstOut("\"MoreData\"\n");
         outStream.reset();
@@ -208,7 +223,7 @@ public:
         source.set(&locks, 0xfd, true);
 
         for (int i = 0; i < 20; i++) {
-            zscript.progress();
+            Zscript<zp>::zscript.progress();
         }
         checkAgainstOut("!\"data\"");
         outStream.reset();
@@ -229,7 +244,7 @@ public:
         toWrite = "MoreData";
         notifier.notifyNeedsAction();
         for (int i = 0; i < 20; i++) {
-            zscript.progress();
+            Zscript<zp>::zscript.progress();
         }
         checkAgainstOut("\"MoreData\"");
         outStream.reset();
@@ -250,7 +265,7 @@ public:
         toWrite = "YetMoreData";
         notifier.notifyNeedsAction();
         for (int i = 0; i < 20; i++) {
-            zscript.progress();
+            Zscript<zp>::zscript.progress();
         }
         checkAgainstOut("\"YetMoreData\"\n");
         if (outStream.isOpen()) {

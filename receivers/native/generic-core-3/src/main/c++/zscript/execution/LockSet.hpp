@@ -16,9 +16,9 @@ class LockSet {
 private:
     uint8_t locks[ZP::lockByteCount];
 
-    LockSet(RawTokenBlockIterator<ZP> iterator, TokenRingBuffer<ZP> *buffer) {
+    LockSet(CombinedTokenBlockIterator<ZP> iterator) {
         for (uint8_t i = 0; i < ZP::lockByteCount; ++i) {
-            this->locks[i] = iterator.next(buffer);
+            this->locks[i] = iterator.next();
         }
     }
     LockSet(uint8_t *locks) {
@@ -42,8 +42,8 @@ public:
     static LockSet allLocked() {
         return LockSet(0xFF);
     }
-    static LockSet from(RawTokenBlockIterator<ZP> iterator, TokenRingBuffer<ZP> *buffer) {
-        return LockSet(iterator, buffer);
+    static LockSet from(CombinedTokenBlockIterator<ZP> iterator) {
+        return LockSet(iterator);
     }
 
     uint8_t* getLocks() {

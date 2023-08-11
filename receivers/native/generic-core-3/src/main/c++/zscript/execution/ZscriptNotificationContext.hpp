@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTNOTIFICATIONCONTEXT_HPP_
 #define SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTNOTIFICATIONCONTEXT_HPP_
 #include "../ZscriptIncludes.hpp"
-#include "../AbstractOutStream.hpp"
+#include "CommandOutStream.hpp"
 
 namespace Zscript {
 namespace GenericCore {
@@ -19,11 +19,10 @@ class ZscriptNotificationSource;
 template<class ZP>
 class ZscriptNotificationContext {
     ZscriptNotificationSource<ZP> *source;
-    Zscript<ZP> *zscript;
 
 public:
-    ZscriptNotificationContext(ZscriptNotificationSource<ZP> *source, Zscript<ZP> *zscript) :
-            source(source), zscript(zscript) {
+    ZscriptNotificationContext(ZscriptNotificationSource<ZP> *source) :
+            source(source) {
         source->setNotificationComplete(true);
     }
 
@@ -47,12 +46,8 @@ public:
         return source->getID();
     }
 
-    Zscript<ZP>* getZscript() {
-        return zscript;
-    }
-
-    AbstractOutStream<ZP>* getOutStream() {
-        return zscript->getNotificationOutStream();
+    NotificationOutStream<ZP> getOutStream() {
+        return NotificationOutStream<ZP>(Zscript < ZP > ::zscript.getNotificationOutStream());
     }
 
     AsyncActionNotifier<ZP> getAsyncActionNotifier() {

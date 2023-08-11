@@ -12,6 +12,124 @@
 #include "TokenBufferFlags.hpp"
 
 namespace Zscript {
+template<class ZP>
+class CombinedTokenIterator;
+template<class ZP>
+class CombinedTokenBlockIterator;
+
+namespace GenericCore {
+template<class ZP>
+class TokenRingBuffer;
+template<class ZP>
+class RingBufferTokenIterator;
+template<class ZP>
+class RingBufferToken;
+template<class ZP>
+class RawTokenBlockIterator;
+}
+
+template<class ZP>
+class TokenRingWriter {
+    typedef typename ZP::tokenBufferSize_t tokenBufferSize_t;
+
+    GenericCore::TokenRingBuffer<ZP> *buffer;
+    TokenRingWriter<ZP>* operator &() {
+        return NULL;
+    }
+public:
+    TokenRingWriter(GenericCore::TokenRingBuffer<ZP> *buffer) :
+            buffer(buffer) {
+    }
+
+    GenericCore::TokenBufferFlags<ZP>* getFlags() {
+        return buffer->getFlags();
+    }
+
+    void startToken(uint8_t key, bool numeric) {
+        buffer->W_startToken(key, numeric);
+    }
+
+    void endToken() {
+        buffer->W_endToken();
+    }
+
+    void continueTokenByte(uint8_t b) {
+        buffer->W_continueTokenByte(b);
+    }
+
+    void continueTokenNibble(uint8_t nibble) {
+        buffer->W_continueTokenNibble(nibble);
+    }
+
+    bool isTokenComplete() {
+        return buffer->W_isTokenComplete();
+    }
+
+    void writeMarker(uint8_t key) {
+        buffer->W_writeMarker(key);
+    }
+
+    void fail(uint8_t errorCode) {
+        buffer->W_fail(errorCode);
+    }
+
+    uint8_t getCurrentWriteTokenKey() {
+        return buffer->W_getCurrentWriteTokenKey();
+    }
+
+    tokenBufferSize_t getCurrentWriteTokenLength() {
+        return buffer->W_getCurrentWriteTokenLength();
+    }
+
+    bool isInNibble() {
+        return buffer->W_isInNibble();
+    }
+
+    bool checkAvailableCapacity(tokenBufferSize_t size) {
+        return buffer->W_checkAvailableCapacity(size);
+    }
+
+};
+template<class ZP>
+class TokenRingReader {
+    GenericCore::TokenRingBuffer<ZP> *buffer;
+    TokenRingReader<ZP>* operator &() {
+        return NULL;
+    }
+
+public:
+    TokenRingReader(GenericCore::TokenRingBuffer<ZP> *buffer) :
+            buffer(buffer) {
+    }
+    GenericCore::TokenRingBuffer<ZP>* asBuffer() {
+        return buffer;
+    }
+
+    GenericCore::TokenBufferFlags<ZP>* getFlags() {
+        return buffer->getFlags();
+    }
+
+    CombinedTokenIterator<ZP> iterator() {
+        return CombinedTokenIterator<ZP>(buffer, buffer->R_iterator());
+    }
+
+    GenericCore::RingBufferTokenIterator<ZP> rawIterator() {
+        return buffer->R_iterator();
+    }
+
+    bool hasReadToken() {
+        return buffer->R_hasReadToken();
+    }
+
+    GenericCore::RingBufferToken<ZP> getFirstReadToken() {
+        return buffer->R_getFirstReadToken();
+    }
+
+    void flushFirstReadToken() {
+        buffer->R_flushFirstReadToken();
+    }
+
+};
 namespace GenericCore {
 
 template<class ZP>
@@ -21,16 +139,17 @@ template<class ZP>
 class RingBufferTokenIterator;
 
 template<class ZP>
-class RingBufferToken;
-
-template<class ZP>
 class RawTokenBlockIterator;
 
 template<class ZP>
 class TokenRingBuffer {
+    typedef typename ZP::tokenBufferSize_t tokenBufferSize_t;
+
     friend class RingBufferToken<ZP> ;
     friend class RingBufferTokenIterator<ZP> ;
     friend class RawTokenBlockIterator<ZP> ;
+    friend class TokenRingReader<ZP> ;
+    friend class TokenRingWriter<ZP> ;
 
 public:
     /**
@@ -55,23 +174,41 @@ private:
     static const uint8_t MAX_TOKEN_DATA_LENGTH = 255;
 
     uint8_t *data;
-    uint16_t data_length;
+    tokenBufferSize_t data_length;
 
-    uint16_t readStart = 0;
-    uint16_t writeStart = 0;
+    tokenBufferSize_t readStart = 0;
+    tokenBufferSize_t writeStart = 0;
 
     //Writer:
     /** index of data-length field of most recent token segment (esp required for long multi-segment tokens) */
-    uint16_t writeLastLen = 0;
+    tokenBufferSize_t writeLastLen = 0;
     /** the current write index into data array */
-    uint16_t writeCursor = 0;
+    tokenBufferSize_t writeCursor = 0;
 
-    bool inNibble = false;
-    bool numeric = false;
-    ZcodeTokenBufferFlags<ZP> flags;
+    TokenBufferFlags<ZP> flags;
+    bool inNibble :1;
+    bool numeric :1;
 
-    uint16_t offset(uint16_t index, uint16_t offset) {
-        return (uint16_t) (index + offset) % data_length;
+public:
+
+    TokenRingBuffer(uint8_t *data, tokenBufferSize_t data_length) :
+            data(data), data_length(data_length), inNibble(false), numeric(false) {
+    }
+    TokenRingBuffer(uint8_t *data, tokenBufferSize_t data_length, tokenBufferSize_t writeStartPos) :
+            data(data), data_length(data_length), writeStart(writeStartPos), inNibble(false), numeric(false) {
+    }
+
+    TokenRingReader<ZP> getReader() {
+        return TokenRingReader<ZP>(this);
+    }
+
+    TokenRingWriter<ZP> getWriter() {
+        return TokenRingWriter<ZP>(this);
+    }
+private:
+
+    tokenBufferSize_t offset(tokenBufferSize_t index, tokenBufferSize_t offset) {
+        return (tokenBufferSize_t) (index + offset) % data_length;
     }
 
     void W_writeNewTokenStart(uint8_t key) {
@@ -85,17 +222,7 @@ private:
     void W_moveCursor() {
         writeCursor = offset(writeCursor, 1);
     }
-
-public:
-
-    TokenRingBuffer(uint8_t *data, uint16_t data_length) :
-            data(data), data_length(data_length) {
-    }
-    TokenRingBuffer(uint8_t *data, uint16_t data_length, uint16_t writeStartPos) :
-            data(data), data_length(data_length), writeStart(writeStartPos) {
-    }
-
-    ZcodeTokenBufferFlags<ZP>* getFlags() {
+    TokenBufferFlags<ZP>* getFlags() {
         return &flags;
     }
 
@@ -132,7 +259,7 @@ public:
             if (numeric) {
                 // if odd nibble count, then shuffle nibbles through token's data to ensure "right-aligned", eg 4ad0 really means 04ad
                 uint8_t hold = 0;
-                uint16_t pos = offset(writeStart, 1);
+                tokenBufferSize_t pos = offset(writeStart, 1);
                 do {
                     pos = offset(pos, 1);
                     uint8_t tmp = data[pos] & 0xF;
@@ -147,7 +274,7 @@ public:
         inNibble = false;
     }
 
-    bool W_checkAvailableCapacity(uint16_t size) {
+    bool W_checkAvailableCapacity(tokenBufferSize_t size) {
         return ((writeCursor >= readStart ? data_length : 0) + readStart - writeCursor - 1) >= size;
     }
 
@@ -199,20 +326,21 @@ public:
         return RingBufferToken<ZP>(readStart);
     }
 
+    void R_flushFirstReadToken();
+
+public:
     uint8_t* getData() {
         return data;
     }
-    uint16_t getLength() {
+    tokenBufferSize_t getLength() {
         return data_length;
     }
-    uint16_t getWritePos() {
+    tokenBufferSize_t getWritePos() {
         return writeStart;
     }
     void disableWriteStart() {
-        writeStart = 0xFFFF;
+        writeStart = (tokenBufferSize_t) -1;
     }
-
-    void R_flushFirstReadToken();
 };
 template<class ZP>
 struct OptionalRingBufferToken {
@@ -228,17 +356,18 @@ struct OptionalRingBufferToken {
 
 template<class ZP>
 class RawTokenBlockIterator {
-    uint16_t itIndex;
+    typedef typename ZP::tokenBufferSize_t tokenBufferSize_t;
+    tokenBufferSize_t itIndex;
     uint8_t segRemaining;
 
 public:
 
-    RawTokenBlockIterator(uint16_t itIndex, uint8_t segRemaining) :
+    RawTokenBlockIterator(tokenBufferSize_t itIndex, uint8_t segRemaining) :
             itIndex(itIndex), segRemaining(segRemaining) {
     }
 
     RawTokenBlockIterator() :
-            itIndex(0xFFFF), segRemaining(0) {
+            itIndex((tokenBufferSize_t) -1), segRemaining(0) {
     }
 
     uint8_t next(TokenRingBuffer<ZP> *buffer) {
@@ -271,7 +400,7 @@ public:
         if (!hasNext(buffer)) {
             //TODO: die
         }
-        uint16_t length = buffer->data_length - itIndex;
+        tokenBufferSize_t length = buffer->data_length - itIndex;
         if (segRemaining < length) {
             length = segRemaining;
         }
@@ -287,11 +416,12 @@ public:
 };
 template<class ZP>
 class RingBufferTokenIterator {
-    uint16_t index;
+    typedef typename ZP::tokenBufferSize_t tokenBufferSize_t;
+    tokenBufferSize_t index;
 
 public:
 
-    RingBufferTokenIterator(uint16_t index) :
+    RingBufferTokenIterator(tokenBufferSize_t index) :
             index(index) {
     }
 
@@ -300,12 +430,12 @@ public:
             return OptionalRingBufferToken<ZP>();
         }
 
-        uint16_t initialIndex = index;
+        tokenBufferSize_t initialIndex = index;
         if (TokenRingBuffer<ZP>::isMarker(buffer->data[index])) {
             index = buffer->offset(index, 1);
         } else {
             do {
-                uint16_t tokenDataLength = buffer->data[buffer->offset(index, 1)];
+                tokenBufferSize_t tokenDataLength = buffer->data[buffer->offset(index, 1)];
                 index = buffer->offset(index, tokenDataLength + 2);
             } while (buffer->data[index] == TokenRingBuffer<ZP>::TOKEN_EXTENSION);
         }
@@ -320,14 +450,16 @@ public:
 
 template<class ZP>
 class RingBufferToken {
+    typedef typename ZP::tokenBufferSize_t tokenBufferSize_t;
+
     friend class TokenRingBuffer<ZP> ;
     friend class RingBufferTokenIterator<ZP> ;
     friend class OptionalRingBufferToken<ZP> ;
 
 private:
-    uint16_t index;
+    tokenBufferSize_t index;
 
-    RingBufferToken(uint16_t index) :
+    RingBufferToken(tokenBufferSize_t index) :
             index(index) {
     }
 
@@ -340,13 +472,17 @@ public:
         return RingBufferTokenIterator<ZP>(index);
     }
 
-    RawTokenBlockIterator<ZP> blockIterator(TokenRingBuffer<ZP> *buffer) {
+    RawTokenBlockIterator<ZP> rawBlockIterator(TokenRingBuffer<ZP> *buffer) {
         return RawTokenBlockIterator<ZP>(buffer->offset(index, 2), buffer->data[buffer->offset(index, 1)]);
+    }
+
+    CombinedTokenBlockIterator<ZP> blockIterator(TokenRingBuffer<ZP> *buffer) {
+        return CombinedTokenBlockIterator<ZP>(buffer, rawBlockIterator(buffer));
     }
 
     uint16_t getData16(TokenRingBuffer<ZP> *buffer) {
         uint16_t value = 0;
-        for (uint16_t i = 0; i < getSegmentDataSize(buffer); i++) {
+        for (tokenBufferSize_t i = 0; i < getSegmentDataSize(buffer); i++) {
             // Check before we left shift. Avoids overflowing data type.
             value <<= 8;
             value += buffer->data[buffer->offset(index, i + 2)];
@@ -358,12 +494,12 @@ public:
         return buffer->data[index];
     }
 
-    uint16_t getDataSize(TokenRingBuffer<ZP> *buffer) {
+    tokenBufferSize_t getDataSize(TokenRingBuffer<ZP> *buffer) {
         if (isMarker(buffer)) {
             return 0;
         }
-        uint16_t totalSz = 0;
-        uint16_t index = this->index;
+        tokenBufferSize_t totalSz = 0;
+        tokenBufferSize_t index = this->index;
 
         do {
             uint8_t segSz = buffer->data[buffer->offset(index, 1)];
@@ -413,6 +549,23 @@ public:
         return iterator.nextContiguous(buffer, maxLength);
     }
 
+};
+template<class ZP>
+class CombinedTokenIterator {
+    GenericCore::TokenRingBuffer<ZP> *buffer;
+    GenericCore::RingBufferTokenIterator<ZP> iterator;
+
+public:
+    CombinedTokenIterator(GenericCore::TokenRingBuffer<ZP> *buffer, GenericCore::RingBufferTokenIterator<ZP> iterator) :
+            buffer(buffer), iterator(iterator) {
+    }
+    GenericCore::TokenRingBuffer<ZP>* getBuffer() {
+        return buffer;
+    }
+
+    GenericCore::OptionalRingBufferToken<ZP> next() {
+        return iterator.next(buffer);
+    }
 };
 }
 #endif /* SRC_MAIN_C___ZSCRIPT_TOKENRINGBUFFER_HPP_ */

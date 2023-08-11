@@ -27,25 +27,24 @@ class SemanticParser;
 
 template<class ZP>
 class AddressOptIterator {
-    GenericCore::TokenRingBuffer<ZP> *buffer;
-    GenericCore::RingBufferTokenIterator<ZP> iterator;
+    CombinedTokenIterator<ZP> iterator;
 
 public:
-    AddressOptIterator(GenericCore::TokenRingBuffer<ZP> *buffer) :
-            buffer(buffer), iterator(buffer->R_iterator()) {
+    AddressOptIterator(TokenRingReader<ZP> reader) :
+            iterator(reader.iterator()) {
 
     }
 
     OptInt16 next() {
-        GenericCore::OptionalRingBufferToken<ZP> rbt = iterator.next(buffer);
+        GenericCore::OptionalRingBufferToken<ZP> rbt = iterator.next();
         if (!rbt.isPresent) {
             return {0, false};
         }
-        uint8_t key = rbt.token.getKey(buffer);
+        uint8_t key = rbt.token.getKey(iterator.getBuffer());
         if (key != Zchars::Z_ADDRESSING && key != Zchars::Z_ADDRESSING_CONTINUE) {
             return {0, false};
         }
-        return {rbt.token.getData16(buffer), true};
+        return {rbt.token.getData16(iterator.getBuffer()), true};
     }
 };
 
@@ -63,27 +62,27 @@ public:
     }
 
     CombinedTokenBlockIterator<ZP> getAddressedData() {
-        GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getBuffer();
-        GenericCore::RingBufferTokenIterator<ZP> iterator = buffer->R_iterator();
-        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
+        TokenRingReader<ZP> reader = parseState->getReader();
+        GenericCore::RingBufferTokenIterator<ZP> iterator = reader.rawIterator();
+        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(reader.asBuffer()); opt.isPresent; opt = iterator.next(reader.asBuffer())) {
             GenericCore::RingBufferToken<ZP> token = opt.token;
-            if (token.getKey(buffer) == ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
-                return CombinedTokenBlockIterator<ZP>(buffer, token.blockIterator(buffer));
+            if (token.getKey(reader.asBuffer()) == ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
+                return CombinedTokenBlockIterator<ZP>(reader.asBuffer(), token.blockIterator(reader.asBuffer()));
             }
         }
     }
 
     AddressOptIterator<ZP> getAddressSegments() {
-        return AddressOptIterator<ZP>(parseState->getBuffer());
+        return AddressOptIterator<ZP>(parseState->getReader());
     }
 
     uint16_t getAddressedDataSize() {
-        GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getBuffer();
-        GenericCore::RingBufferTokenIterator<ZP> iterator = buffer->R_iterator();
-        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
+        TokenRingReader<ZP> reader = parseState->getReader();
+        GenericCore::RingBufferTokenIterator<ZP> iterator = reader.rawIterator();
+        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(reader.asBuffer()); opt.isPresent; opt = iterator.next(reader.asBuffer())) {
             GenericCore::RingBufferToken<ZP> token = opt.token;
-            if (token.getKey(buffer) == ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
-                return token.getDataSize(buffer);
+            if (token.getKey(reader.asBuffer()) == ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
+                return token.getDataSize(reader.asBuffer());
             }
         }
         return 0;
@@ -93,22 +92,22 @@ public:
         bool hasReachedData = false;
         int i = 0;
 
-        GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getBuffer();
-        GenericCore::RingBufferTokenIterator<ZP> iterator = buffer->R_iterator();
-        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
+        TokenRingReader<ZP> reader = parseState->getReader();
+        GenericCore::RingBufferTokenIterator<ZP> iterator = reader.rawIterator();
+        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(reader.asBuffer()); opt.isPresent; opt = iterator.next(reader.asBuffer())) {
             GenericCore::RingBufferToken<ZP> token = opt.token;
             i++;
             if (hasReachedData) {
-                if (token.isMarker(buffer)) {
+                if (token.isMarker(reader.asBuffer())) {
                     return true;
                 }
                 status(ResponseStatus::INVALID_KEY);
                 return false;
             }
-            if (token.getKey(buffer) == Zchars::Z_ADDRESSING || token.getKey(buffer) == Zchars::Z_ADDRESSING_CONTINUE) {
+            if (token.getKey(reader.asBuffer()) == Zchars::Z_ADDRESSING || token.getKey(reader.asBuffer()) == Zchars::Z_ADDRESSING_CONTINUE) {
                 continue;
             }
-            if (token.getKey(buffer) != ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
+            if (token.getKey(reader.asBuffer()) != ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
                 status(ResponseStatus::INVALID_KEY);
                 return false;
             }

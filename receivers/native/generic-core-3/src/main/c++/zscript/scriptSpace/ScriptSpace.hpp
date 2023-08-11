@@ -20,12 +20,12 @@ class ScriptSpace: public ZscriptChannel<ZP> {
     bool canBeWrittenToB;
 
 public:
-    ScriptSpace(Zscript<ZP> *z, uint8_t *scriptSpace, uint16_t spaceLength, uint8_t *outBuffer, uint16_t outBufferSize) :
-            ZscriptChannel<ZP>(buffer.getReadBuffer(), &out), buffer(scriptSpace, spaceLength), out(z, &this->parser, outBuffer, outBufferSize), canBeWrittenToB(true) {
+    ScriptSpace(uint8_t *scriptSpace, uint16_t spaceLength, uint8_t *outBuffer, uint16_t outBufferSize) :
+            ZscriptChannel<ZP>(&out, buffer.getReadBuffer(), false), buffer(scriptSpace, spaceLength), out(&this->parser, outBuffer, outBufferSize), canBeWrittenToB(true) {
         stop();
     }
-    ScriptSpace(Zscript<ZP> *z, uint8_t *scriptSpace, uint16_t spaceLength, uint16_t initialDataLength, bool canWrite, uint8_t *outBuffer, uint16_t outBufferSize) :
-            ZscriptChannel<ZP>(buffer.getReadBuffer(), &out), buffer(scriptSpace, spaceLength, initialDataLength, canWrite), out(z, &this->parser, outBuffer, outBufferSize), canBeWrittenToB(
+    ScriptSpace(uint8_t *scriptSpace, uint16_t spaceLength, uint16_t initialDataLength, bool canWrite, uint8_t *outBuffer, uint16_t outBufferSize) :
+            ZscriptChannel<ZP>(&out, buffer.getReadBuffer(), false), buffer(scriptSpace, spaceLength, initialDataLength, canWrite), out(&this->parser, outBuffer, outBufferSize), canBeWrittenToB(
                     canWrite) {
     }
     void channelInfo(ZscriptCommandContext<ZP> ctx) {

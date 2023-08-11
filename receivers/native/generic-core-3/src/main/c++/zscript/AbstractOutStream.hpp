@@ -100,19 +100,7 @@ public:
         }
     }
     void continueBigString(DataArrayWLeng16 data) {
-        uint16_t segStart = 0;
-        for (uint16_t i = 0; i < data.length; ++i) {
-            if (ZcharsUtils<ZP>::needsStringEscape(data.data[i])) {
-                if (segStart != i) {
-                    writeBytes(data.data + segStart, i - segStart, false);
-                }
-                segStart = i + 1;
-                escapeStrChar(data.data[i]);
-            }
-        }
-        if (segStart != data.length) {
-            writeBytes(data.data + segStart, data.length - segStart, false);
-        }
+        continueBigString(data.data, data.length);
     }
     void continueBigString(const uint8_t *data, uint16_t length) {
         uint16_t segStart = 0;
@@ -129,13 +117,44 @@ public:
             writeBytes(data + segStart, length - segStart, false);
         }
     }
+    void continueBigString(const char *text) {
+        uint16_t segStart = 0;
+        uint16_t i;
+        for (i = 0; text[i] != 0; ++i) {
+            if (ZcharsUtils<ZP>::needsStringEscape(text[i])) {
+                if (segStart != i) {
+                    writeBytes((const uint8_t*) text + segStart, i - segStart, false);
+                }
+                segStart = i + 1;
+                escapeStrChar(text[i]);
+            }
+        }
+        if (segStart != i) {
+            writeBytes((const uint8_t*) text + segStart, i - segStart, false);
+        }
+    }
 
     void writeQuotedString(const char *text) {
         beginBigString();
-        uint16_t length;
-        for (length = 0; text[length] != 0; ++length) {
-        }
-        continueBigString((const uint8_t*) text, length);
+        continueBigString(text);
+        endBigString();
+    }
+
+    void writeQuotedString(DataArrayWLeng8 data) {
+        beginBigString();
+        continueBigString(data);
+        endBigString();
+    }
+
+    void writeQuotedString(DataArrayWLeng16 data) {
+        beginBigString();
+        continueBigString(data);
+        endBigString();
+    }
+
+    void writeQuotedString(const uint8_t *data, uint16_t length) {
+        beginBigString();
+        continueBigString(data, length);
         endBigString();
     }
 
@@ -153,8 +172,35 @@ public:
     void continueBigHex(DataArrayWLeng16 data) {
         writeBytes(data.data, data.length, true);
     }
-    void continueBigHex(uint8_t *data, uint16_t length) {
+    void continueBigHex(const uint8_t *data, uint16_t length) {
         writeBytes(data, length, true);
+    }
+    void continueBigHex(const char *text) {
+        uint16_t length = 0;
+        while (text[length] != 0) {
+            length++;
+        }
+        writeBytes((const uint8_t*) text, length, true);
+    }
+
+    void writeBigHex(const char *text) {
+        beginBigHex();
+        continueBigHex(text);
+    }
+
+    void writeBigHex(DataArrayWLeng8 data) {
+        beginBigHex();
+        continueBigHex(data);
+    }
+
+    void writeBigHex(DataArrayWLeng16 data) {
+        beginBigHex();
+        continueBigHex(data);
+    }
+
+    void writeBigHex(const uint8_t *data, uint16_t length) {
+        beginBigHex();
+        continueBigHex(data, length);
     }
 
     void writeOrElse() {

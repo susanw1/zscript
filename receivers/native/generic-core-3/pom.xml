@@ -31,24 +31,32 @@
                             <option>-flto</option>
                             <option>-g</option>
                             <option>-Wall</option>
-                            <testOption>-fno-exceptions</testOption>
-                            <option>-Wextra</option>
+                            <option>-fno-exceptions</option>
+                            <option>-Wextra</option> 
+                            <option>-m32</option>
                         </options>
                         <testOptions>
                             <testOption>-fexceptions</testOption>
+                            <testOption>-m32</testOption>
                         </testOptions>
                     </cpp>
+                    <linker>
+                        <name>g++</name>
+                        <options>
+                            <option>-m32</option>
+                        </options>
+                    </linker>
                     <libraries>
                         <library>
                             <type>static</type>
                         </library>
                     </libraries>
                     <tests>
-<!--                        <test>-->
-<!--                            <name>default-cli</name>-->
-<!--                            <link>static</link>-->
-<!--                            <run>false</run>-->
-<!--                        </test>-->
+                        <test>
+                            <name>default-cli</name>
+                            <link>static</link>
+                            <run>false</run>
+                        </test>
                         <test>
                             <name>ZscriptTokenizerTest</name>
                             <link>static</link>
@@ -98,20 +106,20 @@
                 </configuration>
             </plugin>
 
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.mojo</groupId>-->
-<!--                <artifactId>exec-maven-plugin</artifactId>-->
-<!--                <executions>-->
-<!--                    <execution>-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
 <!--                         run with mvn [-pl receivers/native/generic-core] exec:exec@default-cli -->
-<!--                        <id>default-cli</id>-->
-<!--                        <configuration>-->
-<!--                            <executable>${project.build.directory}/test-nar/bin/amd64-Linux-gpp/default-cli</executable>-->
-<!--                            <workingDirectory>${project.build.directory}</workingDirectory>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+                        <id>default-cli</id>
+                        <configuration>
+                            <executable>${project.build.directory}/test-nar/bin/amd64-Linux-gpp/default-cli</executable>
+                            <workingDirectory>${project.build.directory}</workingDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

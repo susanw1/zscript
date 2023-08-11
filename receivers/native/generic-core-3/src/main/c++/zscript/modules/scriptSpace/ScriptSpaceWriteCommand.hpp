@@ -22,7 +22,7 @@ template<class ZP>
 class ScriptSpaceWriteCommand {
 
     static void writeToWriter(ZscriptCommandContext<ZP> ctx, ScriptSpace<ZP> *target, TokenRingBuffer<ZP> writer) {
-        ZscriptTokenizer<ZP> tok(&writer, 2);
+        ZscriptTokenizer<ZP> tok(writer.getWriter(), 2);
 
         for (BigFieldBlockIterator<ZP> iter = ctx.getBigField(); iter.hasNext();) {
             DataArrayWLeng16 data = iter.nextContiguous();
@@ -39,12 +39,12 @@ public:
         if (!ctx.getField('P', &spaceIndex)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
-        } else if (spaceIndex >= ctx.getZscript()->getScriptSpaceCount()) {
+        } else if (spaceIndex >= Zscript<ZP>::zscript.getScriptSpaceCount()) {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
-        AbstractOutStream<ZP> *out = ctx.getOutStream();
-        ScriptSpace<ZP> *target = ctx.getZscript()->getScriptSpaces()[spaceIndex];
+        CommandOutStream<ZP> out = ctx.getOutStream();
+        ScriptSpace<ZP> *target = Zscript<ZP>::zscript.getScriptSpaces()[spaceIndex];
         if (target->isRunning()) {
             ctx.status(ResponseStatus::COMMAND_FAIL);
             return;
@@ -54,7 +54,7 @@ public:
         } else {
             writeToWriter(ctx, target, target->append());
         }
-        out->writeField('L', target->getRemainingLength());
+        out.writeField('L', target->getRemainingLength());
     }
 
 };

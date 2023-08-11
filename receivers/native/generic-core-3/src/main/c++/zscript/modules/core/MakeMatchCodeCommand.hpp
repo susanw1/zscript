@@ -23,9 +23,9 @@ class MakeMatchCodeCommand {
 
 public:
     static void makeCode(ZscriptCommandContext<ZP> ctx) {
-        AbstractOutStream<ZP> *out = ctx.getOutStream();
+        CommandOutStream<ZP> out = ctx.getOutStream();
         code = ZP::generateRandom16();
-        out->writeField('C', code);
+        out.writeField('C', code);
     }
 
     static void matchCode(ZscriptCommandContext<ZP> ctx) {

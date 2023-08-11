@@ -19,27 +19,32 @@ namespace Zscript {
 
 template<class ZP>
 class Zscript {
+public:
+    static Zscript<ZP> zscript;
+
 private:
-    //    ZcodeModuleRegistry moduleRegistry = new ZcodeModuleRegistry();
-    GenericCore::LockSystem<ZP> locks;
+
+    Zscript<ZP>* operator &() {
+        return this;
+    }
+    Zscript<ZP> operator *() {
+        return this;
+    }
+
     ZscriptChannel<ZP> **channels = NULL;
     GenericCore::ZscriptNotificationSource<ZP> **notifSources = NULL;
     ScriptSpace<ZP> **scriptSpaces = NULL;
+    GenericCore::LockSystem<ZP> locks;
+    uint8_t notificationChannelIndex = 0xFF;
     uint8_t channelCount = 0;
     uint8_t notifSrcCount = 0;
     uint8_t scriptSpaceCount = 0;
-    AbstractOutStream<ZP> *notificationOutStream = NULL;
 
-//    ZcodeExecutor executor;
-
-public:
     Zscript() {
-//        executor = new ZcodeExecutor(this);
     }
 
-//    void addModule(ZcodeModule m) {
-//        moduleRegistry.addModule(m);
-//    }
+public:
+
 //
     void setChannels(ZscriptChannel<ZP> **channels, uint8_t channelCount) {
         this->channels = channels;
@@ -72,23 +77,22 @@ public:
         for (uint8_t i = 0; i < channelCount; ++i) {
             channels[i]->moveAlong();
         }
-        return GenericCore::ZscriptExecutor<ZP>::progress(this, channels, notifSources, channelCount, notifSrcCount);
+        return GenericCore::ZscriptExecutor<ZP>::progress(channels, notifSources, channelCount, notifSrcCount);
     }
-//
-//    List<ZcodeChannel> getChannels() {
-//        return channels;
-//    }
-
-//    ZcodeModuleRegistry getModuleRegistry() {
-//        return moduleRegistry;
-//    }
 
     AbstractOutStream<ZP>* getNotificationOutStream() {
-        return notificationOutStream;
+        return channels[notificationChannelIndex]->getOutStream();
+    }
+    bool hasNotificationOutStream() {
+        return notificationChannelIndex != 0xFF;
     }
 //
-    void setNotificationOutStream(AbstractOutStream<ZP> *out) {
-        this->notificationOutStream = out;
+    void setNotificationChannelIndex(uint8_t index) {
+        if (index < channelCount && channels[index]->canBeNotifChannel()) {
+            notificationChannelIndex = index;
+        } else {
+            notificationChannelIndex = 0xFF;
+        }
     }
     ScriptSpace<ZP>** getScriptSpaces() {
         return scriptSpaces;
@@ -104,6 +108,8 @@ public:
     }
 
 };
+template<class ZP>
+Zscript<ZP> Zscript<ZP>::zscript;
 }
 
 #endif /* SRC_MAIN_C___ZSCRIPT_ZSCRIPT_HPP_ */

@@ -8,7 +8,8 @@
 #include "../../../../main/c++/zscript/tokenizer/TokenRingBuffer.hpp"
 
 class zp {
-
+public:
+    typedef uint16_t tokenBufferSize_t;
 };
 namespace Zscript {
 const int MAX_TOKEN_COUNT = 1000;
@@ -75,34 +76,34 @@ void writeNormalTokens(uint16_t count, uint16_t uint8_tCount) {
         uint8_t *data = (uint8_t*) malloc(uint8_tCount);
         nextRngBytes(data, uint8_tCount);
         TokenExpectation exp = normal((uint8_t) (getNextRng() & 0x7F), data, uint8_tCount);
-        buffer.W_startToken(exp.key, true);
+        buffer.getWriter().startToken(exp.key, true);
         for (int j = 0; j < uint8_tCount; j++) {
-            buffer.W_continueTokenByte(data[j]);
+            buffer.getWriter().continueTokenByte(data[j]);
         }
         expectations[expIndex++] = exp;
     }
-    buffer.W_endToken();
+    buffer.getWriter().endToken();
 }
 
 void writeMarkerTokens(uint16_t count) {
     for (uint16_t i = 0; i < count; i++) {
         TokenExpectation exp = marker((uint8_t) (0xe0 + (getNextRng() & 0x1F)));
-        buffer.W_writeMarker(exp.key);
+        buffer.getWriter().writeMarker(exp.key);
         expectations[expIndex++] = exp;
     }
-    buffer.W_endToken();
+    buffer.getWriter().endToken();
 }
 
 void writeExtendedToken(uint16_t uint8_tCount) {
     uint8_t *data = (uint8_t*) malloc(uint8_tCount);
     nextRngBytes(data, uint8_tCount);
     TokenExpectation exp = extended((uint8_t) (getNextRng() & 0x7F), data, uint8_tCount);
-    buffer.W_startToken(exp.key, false);
+    buffer.getWriter().startToken(exp.key, false);
     for (uint16_t j = 0; j < uint8_tCount; j++) {
-        buffer.W_continueTokenByte(data[j]);
+        buffer.getWriter().continueTokenByte(data[j]);
     }
     expectations[expIndex++] = exp;
-    buffer.W_endToken();
+    buffer.getWriter().endToken();
 }
 
 bool testTokenSimilarity(GenericCore::RingBufferToken<zp> found, TokenExpectation expected) {
@@ -126,7 +127,7 @@ bool testTokenSimilarity(GenericCore::RingBufferToken<zp> found, TokenExpectatio
                 return false;
             }
         }
-        GenericCore::RawTokenBlockIterator<zp> tbi = found.blockIterator(&buffer);
+        GenericCore::RawTokenBlockIterator<zp> tbi = found.rawBlockIterator(&buffer);
         for (uint16_t i = 0; i < expected.dataLen; ++i) {
             if (!tbi.hasNext(&buffer)) {
                 std::cerr << "iterator exited early\n";
@@ -175,37 +176,37 @@ bool testIteratorCorrectness(GenericCore::RingBufferTokenIterator<zp> iterator, 
 
 bool shouldIterateNormalTokensCorrectly() {
     writeNormalTokens(100, 2);
-    if (!buffer.R_hasReadToken()) {
+    if (!buffer.getReader().hasReadToken()) {
         std::cerr << "Buffer not reporting read token\n";
         return false;
     }
-    if (buffer.R_getFirstReadToken().getKey(&buffer) != expectations[0].key) {
+    if (buffer.getReader().getFirstReadToken().getKey(&buffer) != expectations[0].key) {
         std::cerr << "First read token does not have correct key\n";
         return false;
     }
-    if (buffer.R_getFirstReadToken().getData16(&buffer) != expectations[0].getData16()) {
+    if (buffer.getReader().getFirstReadToken().getData16(&buffer) != expectations[0].getData16()) {
         std::cerr << "First read token does not have correct value:\nExpected: " << expectations[0].getData16()
-                << "\nActual: " << buffer.R_getFirstReadToken().getData16(&buffer) << "\n";
+                << "\nActual: " << buffer.getReader().getFirstReadToken().getData16(&buffer) << "\n";
         return false;
     }
-    return testIteratorCorrectness(buffer.R_iterator(), 0);
+    return testIteratorCorrectness(buffer.getReader().rawIterator(), 0);
 }
 
 bool shouldIterateMarkerTokensCorrectly() {
     writeMarkerTokens(800);
-    if (!buffer.R_hasReadToken()) {
+    if (!buffer.getReader().hasReadToken()) {
         std::cerr << "Buffer not reporting read token\n";
         return false;
     }
-    if (buffer.R_getFirstReadToken().getKey(&buffer) != expectations[0].key) {
+    if (buffer.getReader().getFirstReadToken().getKey(&buffer) != expectations[0].key) {
         std::cerr << "First read token does not have correct key\n";
         return false;
     }
-    if (buffer.R_getFirstReadToken().getData16(&buffer) != expectations[0].getData16()) {
+    if (buffer.getReader().getFirstReadToken().getData16(&buffer) != expectations[0].getData16()) {
         std::cerr << "First read token does not have correct value\n";
         return false;
     }
-    return testIteratorCorrectness(buffer.R_iterator(), 0);
+    return testIteratorCorrectness(buffer.getReader().rawIterator(), 0);
 }
 
 bool shouldIterateMixedTokensCorrectly() {
@@ -214,19 +215,19 @@ bool shouldIterateMixedTokensCorrectly() {
     writeNormalTokens(10, 2);
     writeExtendedToken(400);
     writeNormalTokens(10, 2);
-    if (!buffer.R_hasReadToken()) {
+    if (!buffer.getReader().hasReadToken()) {
         std::cerr << "Buffer not reporting read token\n";
         return false;
     }
-    if (buffer.R_getFirstReadToken().getKey(&buffer) != expectations[0].key) {
+    if (buffer.getReader().getFirstReadToken().getKey(&buffer) != expectations[0].key) {
         std::cerr << "First read token does not have correct key\n";
         return false;
     }
-    if (buffer.R_getFirstReadToken().getData16(&buffer) != expectations[0].getData16()) {
+    if (buffer.getReader().getFirstReadToken().getData16(&buffer) != expectations[0].getData16()) {
         std::cerr << "First read token does not have correct value\n";
         return false;
     }
-    return testIteratorCorrectness(buffer.R_iterator(), 0);
+    return testIteratorCorrectness(buffer.getReader().rawIterator(), 0);
 }
 
 bool flushFirstShouldFlush() {
@@ -235,8 +236,8 @@ bool flushFirstShouldFlush() {
     writeNormalTokens(10, 2);
     writeExtendedToken(400);
     writeNormalTokens(10, 2);
-    buffer.R_flushFirstReadToken();
-    return testIteratorCorrectness(buffer.R_iterator(), 1);
+    buffer.getReader().flushFirstReadToken();
+    return testIteratorCorrectness(buffer.getReader().rawIterator(), 1);
 }
 
 bool iteratorsStartedFromTokensShouldMatch() {
@@ -247,7 +248,7 @@ bool iteratorsStartedFromTokensShouldMatch() {
     writeNormalTokens(10, 2);
     int i = 0;
 
-    GenericCore::RingBufferTokenIterator<zp> iterator = buffer.R_iterator();
+    GenericCore::RingBufferTokenIterator<zp> iterator = buffer.getReader().rawIterator();
     for (GenericCore::OptionalRingBufferToken<zp> opt = iterator.next(&buffer); opt.isPresent; i++, opt = iterator.next(&buffer)) {
         if (!testIteratorCorrectness(opt.token.getNextTokens(), i)) {
             return false;
@@ -258,21 +259,21 @@ bool iteratorsStartedFromTokensShouldMatch() {
 
 bool shouldIterateTokenDataThroughExtensions() {
     writeExtendedToken(800);
-    return testIteratorCorrectness(buffer.R_iterator(), 0);
+    return testIteratorCorrectness(buffer.getReader().rawIterator(), 0);
 }
 
 bool shouldIterateTokenDataThroughLoopingBuffer() {
     writeExtendedToken(800);
-    GenericCore::RingBufferTokenIterator<zp> it = buffer.R_iterator();
+    GenericCore::RingBufferTokenIterator<zp> it = buffer.getReader().rawIterator();
     it.next(&buffer);
     it.flushBuffer(&buffer);
     writeExtendedToken(800);
-    return testIteratorCorrectness(buffer.R_iterator(), 1);
+    return testIteratorCorrectness(buffer.getReader().rawIterator(), 1);
 }
 
 bool shouldIterateTokenDataInContiguousChunks() {
     writeExtendedToken(255);
-    GenericCore::RawTokenBlockIterator<zp> iterator = buffer.R_iterator().next(&buffer).token.blockIterator(&buffer);
+    GenericCore::RawTokenBlockIterator<zp> iterator = buffer.getReader().rawIterator().next(&buffer).token.rawBlockIterator(&buffer);
     uint16_t i = 0;
     for (; iterator.hasNext(&buffer);) {
         DataArrayWLeng16 nextCont = iterator.nextContiguous(&buffer);
@@ -293,7 +294,7 @@ bool shouldIterateTokenDataInContiguousChunks() {
 
 bool shouldIterateTokenDataInLimtedContiguousChunks() {
     writeExtendedToken(800);
-    GenericCore::RawTokenBlockIterator<zp> iterator = buffer.R_iterator().next(&buffer).token.blockIterator(&buffer);
+    GenericCore::RawTokenBlockIterator<zp> iterator = buffer.getReader().rawIterator().next(&buffer).token.rawBlockIterator(&buffer);
     uint16_t i = 0;
     for (; iterator.hasNext(&buffer);) {
         DataArrayWLeng16 nextCont = iterator.nextContiguous(&buffer, 200);
@@ -328,11 +329,11 @@ bool shouldIterateTokenDataInLimtedContiguousChunks() {
 bool shouldIterateTokenDataInLimtedContiguousChunksAroundEnd() {
     uint16_t initialLength = 700;
     writeExtendedToken(initialLength);
-    GenericCore::RingBufferTokenIterator<zp> it = buffer.R_iterator();
+    GenericCore::RingBufferTokenIterator<zp> it = buffer.getReader().rawIterator();
     it.next(&buffer);
     it.flushBuffer(&buffer);
     writeExtendedToken(800);
-    GenericCore::RawTokenBlockIterator<zp> iterator = buffer.R_iterator().next(&buffer).token.blockIterator(&buffer);
+    GenericCore::RawTokenBlockIterator<zp> iterator = buffer.getReader().rawIterator().next(&buffer).token.rawBlockIterator(&buffer);
     int i = 0;
     for (; iterator.hasNext(&buffer);) {
         DataArrayWLeng16 nextCont = iterator.nextContiguous(&buffer, 200);

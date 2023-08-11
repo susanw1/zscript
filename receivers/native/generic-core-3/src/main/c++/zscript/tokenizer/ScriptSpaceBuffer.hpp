@@ -15,17 +15,18 @@ namespace GenericCore {
 
 template<class ZP>
 class ScriptSpaceBuffer {
+    typedef typename ZP::tokenBufferSize_t tokenBufferSize_t;
     TokenRingBuffer<ZP> readBuffer;
     bool canBeWrittenB;
-    uint16_t maxLength;
+    tokenBufferSize_t maxLength;
 
 public:
-    ScriptSpaceBuffer(uint8_t *buffer, uint16_t maxLength) :
+    ScriptSpaceBuffer(uint8_t *buffer, tokenBufferSize_t maxLength) :
             readBuffer(buffer, 0), canBeWrittenB(true), maxLength(maxLength) {
         readBuffer.disableWriteStart();
     }
 
-    ScriptSpaceBuffer(uint8_t *buffer, uint16_t maxLength, uint16_t initialLength, bool canBeWritten) :
+    ScriptSpaceBuffer(uint8_t *buffer, tokenBufferSize_t maxLength, tokenBufferSize_t initialLength, bool canBeWritten) :
             readBuffer(buffer, initialLength), canBeWrittenB(canBeWritten), maxLength(maxLength) {
         readBuffer.disableWriteStart();
     }
@@ -50,11 +51,11 @@ public:
         return canBeWrittenB;
     }
 
-    uint16_t getMaxLength() {
+    tokenBufferSize_t getMaxLength() {
         return maxLength;
     }
 
-    uint16_t getRemainingLength() {
+    tokenBufferSize_t getRemainingLength() {
         return maxLength - readBuffer.getLength();
     }
 

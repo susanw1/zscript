@@ -20,8 +20,8 @@ class ActivateCommand {
 public:
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
-        AbstractOutStream<ZP> *out = ctx.getOutStream();
-        out->writeField('A', ctx.isActivated());
+        CommandOutStream<ZP> out = ctx.getOutStream();
+        out.writeField('A', ctx.isActivated());
         ctx.activate();
     }
 
