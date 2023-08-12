@@ -14,15 +14,13 @@ import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.modules.ZscriptModule;
 import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
-import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
-import net.zscript.javareceiver.semanticParser.SemanticParser;
 import net.zscript.javareceiver.semanticParser.ContextView.AsyncActionNotifier;
-import net.zscript.javareceiver.semanticParser.SemanticParser.State;
 import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
-import net.zscript.util.OptIterator;
+import net.zscript.javareceiver.semanticParser.SemanticParser.State;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.util.OptIterator;
 
 class SemanticParserAsyncCommandTest {
     private final TokenBuffer buffer    = TokenRingBuffer.createBufferWithCapacity(256);
