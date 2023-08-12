@@ -1,6 +1,6 @@
 /*
- * Zcode Library - Command System for Microcontrollers)
- * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
  * SPDX-License-Identifier: MIT
  */
@@ -8,9 +8,10 @@
 #ifndef SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_
 #define SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_
 
-#include <zcode/modules/ZcodeCommand.hpp>
+#include <zscript/modules/ZscriptCommand.hpp>
 #include "PinController.hpp"
 
+namespace Zscript {
 enum DigitalPinMode {
     DigitalInput = 0,
     DigitalInputPullUp = 1,
@@ -49,9 +50,9 @@ public:
         (void) pin;
         return CanReadWritePin;
     }
-    static void outputPinCaps(uint8_t pin, ZcodeOutStream<ZP> *out) {
+    static void outputPinCaps(uint8_t pin, CommandOutStream<ZP> out) {
         (void) pin;
-        out->writeField16('M', 0x0313);
+        out.writeField('M', 0x0313);
     }
 
     static bool setupPin(uint8_t pin, uint16_t modeV) {
@@ -107,5 +108,6 @@ template<class ZP>
 uint8_t DigitalPinController<ZP>::openDrain[(ZP::pinCount + 7) / 8];
 template<class ZP>
 uint8_t DigitalPinController<ZP>::pullUp[(ZP::pinCount + 7) / 8];
+}
 
 #endif /* SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_DIGITALPINCONTROLLER_HPP_ */

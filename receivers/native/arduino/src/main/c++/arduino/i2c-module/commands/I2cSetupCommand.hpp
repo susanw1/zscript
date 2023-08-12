@@ -1,21 +1,21 @@
 /*
- * Zcode Library - Command System for Microcontrollers)
- * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZCODEI2CSETUPCOMMAND_HPP_
-#define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZCODEI2CSETUPCOMMAND_HPP_
+#ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CSETUPCOMMAND_HPP_
+#define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CSETUPCOMMAND_HPP_
 
-#include <zcode/modules/ZcodeCommand.hpp>
+#include <zscript/modules/ZscriptCommand.hpp>
 #include "../I2cStrings.hpp"
 #include <Wire.h>
 
 #define COMMAND_EXISTS_0051 EXISTENCE_MARKER_UTIL
 
 template<class ZP>
-class ZcodeI2cSetupCommand: public ZcodeCommand<ZP> {
+class ZscriptI2cSetupCommand: public ZscriptCommand<ZP> {
     typedef typename ZP::Strings::string_t string_t;
 
 public:
@@ -27,7 +27,7 @@ public:
     // chooses comms frequency, from 10, 100, 400 and 1000 kHz
     static constexpr char CMD_PARAM_FREQ_F = 'F';
 
-    static void execute(ZcodeExecutionCommandSlot<ZP> slot) {
+    static void execute(ZscriptExecutionCommandSlot<ZP> slot) {
 
         uint16_t freq;
         if (slot.getFields()->get(CMD_PARAM_FREQ_F, &freq)) {
@@ -64,4 +64,4 @@ public:
     }
 };
 
-#endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZCODEI2CSETUPCOMMAND_HPP_ */
+#endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CSETUPCOMMAND_HPP_ */

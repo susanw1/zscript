@@ -1,6 +1,6 @@
 /*
- * Zcode Library - Command System for Microcontrollers)
- * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
  * SPDX-License-Identifier: MIT
  */
@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_GENERALI2CACTION_HPP_
 #define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_GENERALI2CACTION_HPP_
 
-#include <zcode/modules/ZcodeCommand.hpp>
+#include <zscript/modules/ZscriptCommand.hpp>
 #include "../I2cStrings.hpp"
 #include <Wire.h>
 
@@ -39,7 +39,7 @@ public:
         SEND = 1, RECEIVE = 2, SEND_RECEIVE = 3
     };
 
-    static void executeSendReceive(ZcodeExecutionCommandSlot<ZP> slot, uint8_t action) {
+    static void executeSendReceive(ZscriptExecutionCommandSlot<ZP> slot, uint8_t action) {
         uint16_t address;
         if (!slot.getFields()->get(CMD_PARAM_I2C_ADDR_A, &address)) {
             slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::noAddress);
@@ -54,7 +54,7 @@ public:
             return;
         }
 
-        ZcodeOutStream<ZP> *out = slot.getOut();
+        ZscriptOutStream<ZP> *out = slot.getOut();
 
         uint16_t requestedLength = slot.getFields()->get(CMD_PARAM_READ_LENGTH, (uint16_t) 0);
         if (requestedLength > 32) {
@@ -82,7 +82,7 @@ public:
 #ifdef WIRE_HAS_TIMEOUT
         Wire.setWireTimeout();
 #endif
-        const ZcodeBigField<ZP> *bigField = slot.getBigField();
+        const ZscriptBigField<ZP> *bigField = slot.getBigField();
         uint16_t attemptsDone = 0;
         uint8_t infoValue;
         while (true) {

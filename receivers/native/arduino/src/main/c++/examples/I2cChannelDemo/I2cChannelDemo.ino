@@ -1,12 +1,12 @@
-#include "ZcodeParameters.hpp"
-#include <ZcodeFullInclude.hpp>
+#include "ZscriptParameters.hpp"
+#include <ZscriptFullInclude.hpp>
 
 void setup() {
     Serial.begin(9600);
-    ZcodeI2cChannelI.setAddress(0x61);
-    ZcodeSetup.setup();
+    ZscriptI2cChannel.setAddress(0x61);
+    ZscriptSetup.setup();
 }
 
 void loop() {
-    Zcode<ZcodeParams>::zcode.progressZcode();
+    Zscript::Zscript<ZscriptParams>::zscript.progress();
 }

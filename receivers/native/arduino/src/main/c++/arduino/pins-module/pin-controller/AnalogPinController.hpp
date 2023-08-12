@@ -1,6 +1,6 @@
 /*
- * Zcode Library - Command System for Microcontrollers)
- * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
  * SPDX-License-Identifier: MIT
  */
@@ -8,9 +8,10 @@
 #ifndef SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_ANALOGPINCONTROLLER_HPP_
 #define SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_ANALOGPINCONTROLLER_HPP_
 
-#include <zcode/modules/ZcodeCommand.hpp>
+#include <zscript/modules/ZscriptCommand.hpp>
 #include "PinController.hpp"
 
+namespace Zscript {
 template<class ZP>
 class AnalogPinController: public PinController<ZP> {
 
@@ -22,9 +23,9 @@ public:
             return None;
         }
     }
-    static void outputPinCaps(uint8_t pin, ZcodeOutStream<ZP> *out) {
+    static void outputPinCaps(uint8_t pin, CommandOutStream<ZP> out) {
         if (getPinCaps(pin) == CanReadPin) {
-            out->writeField8('B', 10);
+            out.writeField('B', 10);
         }
     }
 
@@ -44,5 +45,6 @@ public:
         return analogRead(pin) << 6;
     }
 };
+}
 
 #endif /* SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_ANALOGPINCONTROLLER_HPP_ */
