@@ -3,8 +3,8 @@ package net.zscript.javareceiver.core;
 import net.zscript.javareceiver.execution.ActionSource;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
-import net.zscript.javareceiver.semanticParser.SemanticParser;
 import net.zscript.javareceiver.semanticParser.SemanticAction;
+import net.zscript.javareceiver.semanticParser.SemanticParser;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 
 public abstract class ZscriptChannel implements ActionSource {

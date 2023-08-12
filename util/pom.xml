@@ -9,14 +9,14 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zscript-model</artifactId>
+    <artifactId>zscript-util</artifactId>
     <packaging>pom</packaging>
-    <name>Zscript Model</name>
+    <name>Zscript Utilities</name>
 
     <modules>
-        <module>zscript-client-transformer-adapter</module>
-        <module>schema</module>
-        <module>standard-module-definitions</module>
+        <module>misc</module>
+        <module>transformer-maven-plugin</module>
+        <module>transformer-maven-plugin-adapter</module>
     </modules>
 
     <dependencies>

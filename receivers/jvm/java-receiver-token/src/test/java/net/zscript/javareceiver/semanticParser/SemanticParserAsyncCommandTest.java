@@ -19,7 +19,7 @@ import net.zscript.javareceiver.semanticParser.SemanticParser;
 import net.zscript.javareceiver.semanticParser.ContextView.AsyncActionNotifier;
 import net.zscript.javareceiver.semanticParser.SemanticParser.State;
 import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
-import net.zscript.javareceiver.tokenizer.OptIterator;
+import net.zscript.util.OptIterator;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;

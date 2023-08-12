@@ -8,14 +8,14 @@ import java.util.Set;
 
 import net.zscript.javaclient.zscriptapi.CommandSeqElement;
 import net.zscript.javaclient.zscriptapi.ZscriptCommand;
-import net.zscript.javaclient.zscriptapi.ZscriptUnparsedCommandResponse;
 import net.zscript.javaclient.zscriptapi.ZscriptCommand.ZscriptSequencePath;
-import net.zscript.javareceiver.tokenizer.OptIterator;
+import net.zscript.javaclient.zscriptapi.ZscriptUnparsedCommandResponse;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
-import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
+import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.util.OptIterator;
 
 public class ResponseParser {
     static class ResponseHeader {
@@ -46,7 +46,7 @@ public class ResponseParser {
     public static ResponseHeader parseResponseHeader(byte[] resp) {
         final TokenBuffer buffer = new TokenExtendingBuffer();
         final Tokenizer   in     = new Tokenizer(buffer.getTokenWriter(), 4);
-        final TokenReader      reader = buffer.getTokenReader();
+        final TokenReader reader = buffer.getTokenReader();
 
         ReadToken lastWritten = null;
         for (final byte b : resp) {
@@ -97,7 +97,8 @@ public class ResponseParser {
     private static byte convertMarkers(byte encoded) {
         if (encoded == Tokenizer.CMD_END_ANDTHEN) {
             return '&';
-        } else if (encoded == Tokenizer.CMD_END_ORELSE) {
+        }
+        if (encoded == Tokenizer.CMD_END_ORELSE) {
             return '|';
         } else if (encoded == Tokenizer.CMD_END_OPEN_PAREN) {
             return '(';
@@ -184,12 +185,11 @@ public class ResponseParser {
                         }
                     }
                 }
-                if (canBeFail) {
-                    offset += failPath.getMarkers().size();
-                    current = failPath.getNext();
-                } else {
+                if (!canBeFail) {
                     break;
                 }
+                offset += failPath.getMarkers().size();
+                current = failPath.getNext();
             }
             if (current == null) {
                 break;

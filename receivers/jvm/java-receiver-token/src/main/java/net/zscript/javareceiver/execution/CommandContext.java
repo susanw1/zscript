@@ -6,18 +6,18 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
 
+import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.semanticParser.ContextView;
 import net.zscript.javareceiver.tokenizer.BlockIterator;
-import net.zscript.javareceiver.tokenizer.OptIterator;
-import net.zscript.javareceiver.tokenizer.Zchars;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.javareceiver.tokenizer.Zchars;
+import net.zscript.util.OptIterator;
 
 public class CommandContext extends AbstractContext {
-    private final Zscript          zscript;
+    private final Zscript   zscript;
     private final OutStream out;
 
     public CommandContext(final Zscript zscript, final ContextView contextView, final OutStream out) {

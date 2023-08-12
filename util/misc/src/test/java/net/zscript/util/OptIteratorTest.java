@@ -1,4 +1,4 @@
-package net.zscript.javareceiver.tokenizer;
+package net.zscript.util;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
-
-import net.zscript.javareceiver.tokenizer.OptIterator;
 
 class OptIteratorTest {
     final OptIterator<Integer> simpleListIterator = OptIterator.of(List.of(1, 2, 3));

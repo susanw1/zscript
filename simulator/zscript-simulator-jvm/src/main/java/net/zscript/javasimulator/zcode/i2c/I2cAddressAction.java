@@ -5,13 +5,13 @@ import java.util.Optional;
 
 import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.AddressingContext;
-import net.zscript.javareceiver.tokenizer.OptIterator;
 import net.zscript.javasimulator.Connection;
 import net.zscript.javasimulator.Entity;
 import net.zscript.javasimulator.connections.i2c.I2cAddress;
 import net.zscript.javasimulator.connections.i2c.I2cProtocolCategory;
 import net.zscript.javasimulator.connections.i2c.I2cResponse;
 import net.zscript.javasimulator.connections.i2c.I2cSendPacket;
+import net.zscript.util.OptIterator;
 
 public class I2cAddressAction {
     public static void execute(AddressingContext ctx, I2cModule module) {

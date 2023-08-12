@@ -1,6 +1,7 @@
 package net.zscript.javareceiver.tokenizer;
 
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.util.OptIterator;
 
 public interface TokenBufferIterator extends OptIterator<ReadToken> {
 

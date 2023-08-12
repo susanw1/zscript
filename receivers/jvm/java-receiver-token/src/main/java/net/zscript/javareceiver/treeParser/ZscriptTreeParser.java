@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import net.zscript.javareceiver.tokenizer.OptIterator;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.util.OptIterator;
 
 public class ZscriptTreeParser {
 

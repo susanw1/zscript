@@ -6,8 +6,6 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import net.zscript.model.loader.ModelLoader;
-
 class ModelLoaderTest {
 
     @Test

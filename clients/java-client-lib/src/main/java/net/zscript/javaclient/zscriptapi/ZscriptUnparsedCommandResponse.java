@@ -5,9 +5,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import net.zscript.javareceiver.tokenizer.BlockIterator;
-import net.zscript.javareceiver.tokenizer.OptIterator;
-import net.zscript.javareceiver.tokenizer.Zchars;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.javareceiver.tokenizer.Zchars;
+import net.zscript.util.OptIterator;
 
 public class ZscriptUnparsedCommandResponse {
     private final ReadToken first;

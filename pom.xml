@@ -41,6 +41,7 @@
         <module>clients</module>
         <module>acceptance-tests</module>
         <module>simulator</module>
+        <module>util</module>
     </modules>
 
     <dependencyManagement>

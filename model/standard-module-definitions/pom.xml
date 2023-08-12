@@ -9,8 +9,8 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zscript-model-standard-definitions</artifactId>
-    <name>Zscript Model Standard Definitions</name>
+    <artifactId>zscript-model-standard-module-definitions</artifactId>
+    <name>Zscript Model Standard Module Definitions</name>
 
     <properties>
     </properties>

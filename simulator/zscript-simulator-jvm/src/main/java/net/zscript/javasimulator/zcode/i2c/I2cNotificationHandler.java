@@ -2,12 +2,12 @@ package net.zscript.javasimulator.zcode.i2c;
 
 import java.util.Arrays;
 
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
 import net.zscript.javareceiver.core.LockSet;
 import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.core.ZscriptCommandOutStream;
 import net.zscript.javareceiver.core.ZscriptStatus;
-import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
 import net.zscript.javareceiver.execution.NotificationContext;
+import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
 import net.zscript.javareceiver.tokenizer.Zchars;
 import net.zscript.javasimulator.BlankCommunicationResponse;
 import net.zscript.javasimulator.CommunicationPacket;
