@@ -8,8 +8,6 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javareceiver.execution.ZscriptField;
-
 public class AbstractOutStreamTest {
     StringWriterOutStream stOut;
 
@@ -127,10 +125,10 @@ public class AbstractOutStreamTest {
         assertThat(stOut.getString()).isEqualTo("\"Hello World\"");
     }
 
-    
     @Test
     void shouldWriteZscriptField() {
-        // This is really hard/annoying to test, and it's only used in the echo command. But we want to test it - we just had a stupid bug in it. Let's just write comprehensive parser tests around this.
+        // This is really hard/annoying to test, and it's only used in the echo command. But we want to test it - we just had a stupid bug in it. Let's just write comprehensive
+        // parser tests around this.
     }
 
 }
