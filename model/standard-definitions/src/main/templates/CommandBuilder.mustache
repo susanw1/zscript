@@ -1,23 +1,43 @@
-package {{#package}}{{.}} {{^last}}.{{/last}} {{/package}};
+package {{#listDotSeparated}}{{package}}{{/listDotSeparated}};
 
-import net.zscript.javaclient.zcodeApi.ZscriptCommandBuilder;
-import net.zscript.javaclient.zcodeApi.ZscriptResponse;
-import net.zscript.javaclient.zcodeApi.ZscriptUnparsedCommandResponse;
+import net.zscript.javaclient.zscriptapi.ZscriptCommandBuilder;
+import net.zscript.javaclient.zscriptapi.ZscriptResponse;
+import net.zscript.javaclient.zscriptapi.ZscriptUnparsedCommandResponse;
+import net.zscript.javareceiver.tokenizer.Zchars;
 
+/**
+ * {{name} Module: {{description}}.
+ */
 public class {{name}}Module {
     public static final int MODULE_ID = {{id}};
     public static final String MODULE_NAME = "{{name}}";
     public static final String VERSION = "{{version}}";
     public static final String DESCRIPTION = "{{description}}";
-     
-     
-    public class {{CmdName}}CommandBuilder extends ZscriptCommandBuilder<{{CmdName}}CommandResponse> {
-{{#requestParams}}
-{{#allowedValues}}
-    public static final int {{Name}}_{{valueName}} = {{index}}
-{{/allowedValues}}
-{{/requestParams}}
 
+    
+{{#commands}}
+    public static {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}() {
+        return new {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}}();
+    }
+
+    /**
+     * {{description}}
+     */
+    public static class {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}} extends ZscriptCommandBuilder<{{#upperCamel}}{{name}}{{/upperCamel}}CommandResponse> {
+    {{#requestParams}}
+        {{#allowedValues}}
+    public static final char {{name}}_{{valueName}} = {{index}};
+        {{/allowedValues}}
+    {{/requestParams}}
+
+        public static final byte CMD_ID = {{command}};
+
+        private {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}}() {
+            setField(Zchars.Z_CMD, (byte) CMD_ID);
+        }                   
 
     }
+    
+    
+{{/commands}}
 }

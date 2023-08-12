@@ -84,10 +84,10 @@ public class TransformerMojo extends AbstractMojo {
     private String fileTypeSuffix;
 
     /**
-     * Specifies whether sources are added to the {@code compile} or {@code test} scope.
+     * Specifies whether sources are added to the {@code compile} scope, or not. If unset, sources will be generated if fileTypeSuffix is ".java".
      */
-    @Parameter(property = "zscript.generateTestSources", defaultValue = "false")
-    private boolean generateTestSources;
+    @Parameter(property = "transformer.generateSources")
+    private Boolean generateSources;
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -138,12 +138,12 @@ public class TransformerMojo extends AbstractMojo {
             }
         }
 
-        if (fileTypeSuffix.equals(FILE_TYPE_SUFFIX_DEFAULT)) {
-            if (generateTestSources) {
-                project.addTestCompileSourceRoot(outputDirectoryPath.toString());
-            } else {
-//                project.addCompileSourceRoot(outputDirectoryPath.toString());
-            }
+        if (Boolean.TRUE.equals(generateSources) || generateSources == null && fileTypeSuffix.equals(FILE_TYPE_SUFFIX_DEFAULT)) {
+//            if (generateTestSources) {
+//                project.addTestCompileSourceRoot(outputDirectoryPath.toString());
+//            } else {
+            project.addCompileSourceRoot(outputDirectoryPath.toString());
+//            }
         }
     }
 
