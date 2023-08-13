@@ -48,21 +48,21 @@ class SemanticParser {
     uint16_t echo = 0;
     LockSet<ZP> locks = LockSet<ZP>::allLocked();
     uint8_t channelIndex = 0;
+    //Basic attempt has been made to improve ordering on bitpacking...
     SemanticActionType currentAction :4; // 4 bits
     uint8_t parenCounter :4;    // 4 bit
 
+    uint8_t nextMarker :5;    // 5 bit really
     bool haveNextMarker :1;
     bool haveSeqEndMarker :1;
     bool hasSentStatusB :1;
-    uint8_t nextMarker :5;    // 5 bit really
 
+    SemanticParserState state :5; // 5 bit
     bool hasEchoB :1;
     // Execution state
     bool activated :1;
 
     bool locked :1;
-
-    SemanticParserState state :5; // 5 bit
 
     uint8_t seqEndMarker :4;    // 4 bits really
 
@@ -486,7 +486,7 @@ private:
                 echo = first.getData16(reader.asBuffer());
                 hasEchoB = true;
             } else if (first.getKey(reader.asBuffer()) == Zchars::Z_LOCKS) {
-                if (hasLocks || first.getDataSize(reader.asBuffer()) > ZP::lockByteCount) {
+                if (hasLocks || first.hasSizeGreaterThan(reader.asBuffer(), ZP::lockByteCount)) {
                     state = SemanticParserState::ERROR_LOCKS;
                     return;
                 }

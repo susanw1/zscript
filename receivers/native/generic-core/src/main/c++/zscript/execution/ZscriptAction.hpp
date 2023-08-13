@@ -82,24 +82,17 @@ private:
             startResponseSem(out, (uint8_t) 0);
             // falls through
         case SemanticActionType::RUN_COMMAND:
+            case SemanticActionType::COMMAND_MOVEALONG:
             if (typeStored == (uint8_t) SemanticActionType::RUN_COMMAND) {
                 sendNormalMarkerPrefix(out);
             }
+            bool isMoveAlong = typeStored == (uint8_t) SemanticActionType::COMMAND_MOVEALONG;
             cmdCtx = ZscriptCommandContext<ZP>(parseState, out);
-            if (cmdCtx.verify()) {
-                if (!parseState->isEmpty()) {
-                    ModuleRegistry<ZP>::execute(cmdCtx);
-                    if (cmdCtx.isCommandComplete()) {
-                        cmdCtx.status(ResponseStatus::SUCCESS);
-                    }
+            if (isMoveAlong || (cmdCtx.verify() && !parseState->isEmpty())) {
+                ModuleRegistry<ZP>::execute(cmdCtx, isMoveAlong);
+                if (cmdCtx.isCommandComplete()) {
+                    cmdCtx.status(ResponseStatus::SUCCESS);
                 }
-            }
-            break;
-        case SemanticActionType::COMMAND_MOVEALONG:
-            cmdCtx = ZscriptCommandContext<ZP>(parseState, out);
-            ModuleRegistry<ZP>::moveAlong(cmdCtx);
-            if (cmdCtx.isCommandComplete() && !parseState->hasSentStatus()) {
-                cmdCtx.status(ResponseStatus::SUCCESS);
             }
             break;
         case SemanticActionType::END_SEQUENCE:
@@ -215,6 +208,13 @@ public:
             ((SemanticParser<ZP>*) source)->actionPerformed((SemanticActionType) typeStored);
         } else {
             performActionNotification(out);
+            ((ZscriptNotificationSource<ZP>*) source)->actionPerformed((NotificationActionType) typeStored);
+        }
+    }
+    void performEmptyAction() {
+        if (isSemantic) {
+            ((SemanticParser<ZP>*) source)->actionPerformed((SemanticActionType) typeStored);
+        } else {
             ((ZscriptNotificationSource<ZP>*) source)->actionPerformed((NotificationActionType) typeStored);
         }
     }

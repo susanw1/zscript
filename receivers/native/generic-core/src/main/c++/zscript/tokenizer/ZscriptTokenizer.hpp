@@ -41,10 +41,10 @@ private:
     bool tokenizerError :1;
     bool numeric :1;
 
+    uint8_t escapingCount :2; // 2 bit counter, from 2 to 0
     bool addressing :1;
     bool isText :1;
     bool isNormalString :1;
-    uint8_t escapingCount :2; // 2 bit counter, from 2 to 0
 
 public:
 

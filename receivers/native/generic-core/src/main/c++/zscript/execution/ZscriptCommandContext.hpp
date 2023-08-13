@@ -233,7 +233,7 @@ public:
                     return false;
                 }
                 foundCommands |= (1 << (key - 'A'));
-                if (rt.getDataSize(buffer) > 2) {
+                if (rt.hasSizeGreaterThan(buffer, 2)) {
                     commandComplete();
                     status(ResponseStatus::FIELD_TOO_LONG);
                     return false;

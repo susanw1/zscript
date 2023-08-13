@@ -40,7 +40,7 @@ public:
 
             ZscriptAction<ZP> action = channels[i]->getParser()->getAction();
             if (action.isEmptyAction()) {
-                action.performAction( NULL);
+                action.performEmptyAction();
             } else {
                 hasNonWait = true;
             }

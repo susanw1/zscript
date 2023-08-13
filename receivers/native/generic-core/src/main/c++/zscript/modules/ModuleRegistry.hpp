@@ -34,7 +34,7 @@ class ModuleRegistry {
     static const uint16_t MAX_SYSTEM_CMD = 0xF;
 
 public:
-    static void execute(ZscriptCommandContext<ZP> ctx) {
+    static void execute(ZscriptCommandContext<ZP> ctx, bool moveAlong) {
         // commands are complete unless explicitly marked otherwise by a command
         ctx.commandComplete();
         OptInt16 value = ctx.getField(Zchars::Z_CMD);
@@ -49,7 +49,6 @@ public:
         }
         uint8_t commandBottomBits = (uint8_t) (cmd & 0xF);
         (void) commandBottomBits;
-        bool moveAlong = false;
         (void) moveAlong;
 
         switch (cmd >> 4) {
@@ -61,24 +60,24 @@ public:
         }
 
     }
-    static void moveAlong(ZscriptCommandContext<ZP> ctx) {
-        // commands are complete unless explicitly marked otherwise by a command
-        ctx.commandComplete();
-        OptInt16 value = ctx.getField(Zchars::Z_CMD);
-        uint16_t cmd = value.value;
-        uint8_t commandBottomBits = (uint8_t) (cmd & 0xF);
-        (void) commandBottomBits;
-        bool moveAlong = true;
-        (void) moveAlong;
-
-        switch (cmd >> 4) {
-        MODULE_SWITCH()
-
-    default:
-        ctx.status(ResponseStatus::COMMAND_NOT_FOUND);
-        break;
-        }
-    }
+//    static void moveAlong(ZscriptCommandContext<ZP> ctx) {
+//        // commands are complete unless explicitly marked otherwise by a command
+//        ctx.commandComplete();
+//        OptInt16 value = ctx.getField(Zchars::Z_CMD);
+//        uint16_t cmd = value.value;
+//        uint8_t commandBottomBits = (uint8_t) (cmd & 0xF);
+//        (void) commandBottomBits;
+//        bool moveAlong = true;
+//        (void) moveAlong;
+//
+//        switch (cmd >> 4) {
+//        MODULE_SWITCH()
+//
+//    default:
+//        ctx.status(ResponseStatus::COMMAND_NOT_FOUND);
+//        break;
+//        }
+//    }
 
     static void execute(ZscriptAddressingContext<ZP> ctx) {
         ctx.commandComplete();

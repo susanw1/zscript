@@ -509,6 +509,16 @@ public:
 
         return totalSz;
     }
+    bool hasSizeGreaterThan(TokenRingBuffer<ZP> *buffer, uint8_t length) {
+        if (isMarker(buffer)) {
+            return false;
+        }
+
+        if (buffer->data[buffer->offset(index, 1)] > length) {
+            return true;
+        }
+        return false;
+    }
     bool isMarker(TokenRingBuffer<ZP> *buffer) {
         return TokenRingBuffer<ZP>::isMarker(getKey(buffer));
     }
