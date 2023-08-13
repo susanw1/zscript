@@ -14,14 +14,16 @@
 
 #define COMMAND_EXISTS_0052 EXISTENCE_MARKER_UTIL
 
+namespace Zscript {
 template<class ZP>
-class ZscriptI2cSendCommand: public ZscriptCommand<ZP> {
+class ZscriptI2cSendCommand {
 public:
     static constexpr uint8_t CODE = 0x02;
 
-    static void execute(ZscriptExecutionCommandSlot<ZP> slot) {
-        GeneralI2cAction<ZP>::executeSendReceive(slot, GeneralI2cAction<ZP>::ActionType::SEND);
+    static void execute(ZscriptCommandContext<ZP> ctx) {
+        GeneralI2cAction<ZP>::executeSendReceive(ctx, GeneralI2cAction<ZP>::ActionType::SEND);
     }
 };
+}
 
 #endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CSENDCOMMAND_HPP_ */

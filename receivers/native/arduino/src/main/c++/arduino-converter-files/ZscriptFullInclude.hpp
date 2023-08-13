@@ -27,7 +27,7 @@
 #define ZSCRIPT_GENERATE_NOTIFICATIONS
 #endif
 
-#include "arduino/arduino-core-module/commands/ZscriptResetCommand.hpp"
+//#include "arduino/arduino-core-module/commands/ZscriptResetCommand.hpp"
 
 #ifdef ZSCRIPT_HAVE_PIN_MODULE
 #include "arduino/pins-module/ZscriptPinModule.hpp"
@@ -36,8 +36,8 @@
 #include "arduino/i2c-module/ZscriptI2cModule.hpp"
 #endif
 
-#include "ZscriptScriptModule.hpp"
-#include "ZscriptOuterCoreModule.hpp"
+//#include "ZscriptScriptModule.hpp"
+//#include "ZscriptOuterCoreModule.hpp"
 #include "ZscriptCoreModule.hpp"
 
 #include "Zscript.hpp"

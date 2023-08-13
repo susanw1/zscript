@@ -15,43 +15,43 @@
 #include <zscript/modules/ZscriptModule.hpp>
 #include <zscript/execution/ZscriptCommandContext.hpp>
 
-#include "commands/ZscriptI2cSetupCommand.hpp"
-#include "commands/ZscriptI2cSendCommand.hpp"
-#include "commands/ZscriptI2cReceiveCommand.hpp"
-#include "commands/ZscriptI2cSendReceiveCommand.hpp"
-#include "commands/ZscriptI2cCapabilitiesCommand.hpp"
+#include "commands/I2cSetupCommand.hpp"
+#include "commands/I2cSendCommand.hpp"
+#include "commands/I2cReceiveCommand.hpp"
+#include "commands/I2cSendReceiveCommand.hpp"
+#include "commands/I2cCapabilitiesCommand.hpp"
 
 #define MODULE_EXISTS_005 EXISTENCE_MARKER_UTIL
 #define MODULE_SWITCH_005 MODULE_SWITCH_UTIL(ZscriptI2cModule<ZP>::execute)
 
+namespace Zscript {
 template<class ZP>
 class ZscriptI2cModule: public ZscriptModule<ZP> {
-    typedef typename ZP::Strings::string_t string_t;
-
 public:
 
-    static void execute(ZscriptExecutionCommandSlot<ZP> slot, uint8_t bottomBits) {
+    static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
         switch (bottomBits) {
         case ZscriptI2cCapabilitiesCommand<ZP>::CODE:
-            ZscriptI2cCapabilitiesCommand<ZP>::execute(slot);
+            ZscriptI2cCapabilitiesCommand<ZP>::execute(ctx);
             break;
         case ZscriptI2cSetupCommand<ZP>::CODE:
-            ZscriptI2cSetupCommand<ZP>::execute(slot);
+            ZscriptI2cSetupCommand<ZP>::execute(ctx);
             break;
         case ZscriptI2cSendCommand<ZP>::CODE:
-            ZscriptI2cSendCommand<ZP>::execute(slot);
+            ZscriptI2cSendCommand<ZP>::execute(ctx);
             break;
         case ZscriptI2cReceiveCommand<ZP>::CODE:
-            ZscriptI2cReceiveCommand<ZP>::execute(slot);
+            ZscriptI2cReceiveCommand<ZP>::execute(ctx);
             break;
         case ZscriptI2cSendReceiveCommand<ZP>::CODE:
-            ZscriptI2cSendReceiveCommand<ZP>::execute(slot);
+            ZscriptI2cSendReceiveCommand<ZP>::execute(ctx);
             break;
         default:
-            slot.fail(UNKNOWN_CMD, (string_t) ZP::Strings::failParseUnknownCommand);
+            ctx.status(ResponseStatus::COMMAND_NOT_FOUND);
             break;
         }
     }
 };
+}
 
 #endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_ZSCRIPTI2CMODULE_HPP_ */

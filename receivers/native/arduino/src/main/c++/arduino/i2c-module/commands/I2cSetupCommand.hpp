@@ -14,10 +14,9 @@
 
 #define COMMAND_EXISTS_0051 EXISTENCE_MARKER_UTIL
 
+namespace Zscript {
 template<class ZP>
-class ZscriptI2cSetupCommand: public ZscriptCommand<ZP> {
-    typedef typename ZP::Strings::string_t string_t;
-
+class ZscriptI2cSetupCommand {
 public:
     static constexpr uint8_t CODE = 0x01;
 
@@ -27,10 +26,10 @@ public:
     // chooses comms frequency, from 10, 100, 400 and 1000 kHz
     static constexpr char CMD_PARAM_FREQ_F = 'F';
 
-    static void execute(ZscriptExecutionCommandSlot<ZP> slot) {
+    static void execute(ZscriptCommandContext<ZP> ctx) {
 
         uint16_t freq;
-        if (slot.getFields()->get(CMD_PARAM_FREQ_F, &freq)) {
+        if (ctx.getField(CMD_PARAM_FREQ_F, &freq)) {
             uint32_t freqValue;
 
             switch (freq) {
@@ -47,21 +46,22 @@ public:
                 freqValue = 1000000;
                 break;
             default:
-                slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::badFreq);
+                ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
                 return;
             }
 
             uint16_t port;
-            if (slot.getFields()->get(CMD_PARAM_I2C_PORT_P, &port)) {
-                if (port != 0) {
-                    slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::badPort);
-                    return;
-                }
+            if (!ctx.getField(CMD_PARAM_I2C_PORT_P, &port)) {
+                ctx.status(ResponseStatus::MISSING_KEY);
+            }
+            if (port != 0) {
+                ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+                return;
             }
             Wire.setClock(freqValue);
         }
-        slot.getOut()->writeStatus(OK);
     }
 };
+}
 
 #endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CSETUPCOMMAND_HPP_ */

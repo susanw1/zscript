@@ -49,6 +49,9 @@ public:
             }
         }
     }
+    void writeByte(uint8_t byte) {
+        Serial.print((char) byte);
+    }
 
 };
 
