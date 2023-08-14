@@ -3,6 +3,15 @@ LOG OF IDEAS AND DEVELOPMENT
 
 Realizing we're making lots of design decisions without writing them down!
 
+2023-08-14
+---
+Spent a while optimising for code size on the arduino - got a minimal version (including deleting code which wasn't relevant) down to 8388 bytes, which is larger than `generic-core 2` (at ~7400 bytes), but not too large. To get this in a real version we'll need to add `#ifdef`s to the code.
+More general optimisation guides appear to be:
+- Inlining is very important, for both speed and code size. In light of this, calling a complex function twice (instead of once) costs ~200 bytes of flash.
+- Bit-packing bools is free, bit-packing other values at the bottom of bytes is free, while putting them elsewhere in a byte isn't too expensive.
+- Most other optimisation attempts result in marginal or minimal gains. virtual functions aren't free, but aren't too bad either.
+
+
 2023-07
 ---
 Semantic parser (Java version) is done, and we've ported the tokenizer to C++. Interesting decisions along the way include:
