@@ -1,12 +1,12 @@
 package {{#listDotSeparated}}{{package}}{{/listDotSeparated}};
 
-import net.zscript.javaclient.zscriptapi.ZscriptCommandBuilder;
-import net.zscript.javaclient.zscriptapi.ZscriptResponse;
-import net.zscript.javaclient.zscriptapi.ZscriptUnparsedCommandResponse;
+import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
+import net.zscript.javaclient.commandbuilder.ZscriptResponse;
+import net.zscript.javaclient.commandbuilder.ZscriptUnparsedCommandResponse;
 import net.zscript.javareceiver.tokenizer.Zchars;
 
 /**
- * {{name} Module: {{description}}.
+ * {{name}} Module: {{description}}.
  */
 public class {{name}}Module {
     public static final int MODULE_ID = {{id}};
@@ -23,7 +23,7 @@ public class {{name}}Module {
     /**
      * {{description}}
      */
-    public static class {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}} extends ZscriptCommandBuilder<{{#upperCamel}}{{name}}{{/upperCamel}}CommandResponse> {
+    public static class {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}} extends ZscriptCommandBuilder<{{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}}.{{#upperCamel}}{{name}}{{/upperCamel}}CommandResponse> {
     {{#requestParams}}
         {{#allowedValues}}
     public static final char {{name}}_{{valueName}} = {{index}};
@@ -34,8 +34,38 @@ public class {{name}}Module {
 
         private {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}}() {
             setField(Zchars.Z_CMD, (byte) CMD_ID);
-        }                   
+        }
 
+{{#requestFields}}
+// {{key}}
+//{{name}}
+//{{#typeDefinition}}
+//{{ '@type' }}
+// {{allowedValues}}
+//{{/typeDefinition}}
+
+
+{{/requestFields}}
+
+        @Override
+        protected boolean commandCanFail() {
+            return {{#status}}true|{{/status}}{{^status}}false|{{/status}}false;
+        }
+
+        @Override
+        protected {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}} parseResponse(ZscriptUnparsedCommandResponse resp) {
+            return new {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}}(resp);
+        }
+
+        public static class {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}} implements ZscriptResponse {
+            private final ZscriptUnparsedCommandResponse resp;
+
+            public {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}}(ZscriptUnparsedCommandResponse resp) {
+                this.resp = resp;
+            }
+            
+            
+        }
     }
     
     

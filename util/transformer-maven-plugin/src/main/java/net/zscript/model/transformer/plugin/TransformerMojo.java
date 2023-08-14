@@ -90,8 +90,8 @@ public class TransformerMojo extends AbstractMojo {
     /**
      * Specifies whether sources are added to the {@code compile} scope, or not. If unset, sources will be generated if fileTypeSuffix is ".java".
      */
-    @Parameter(property = "transformer.generateSources")
-    private Boolean generateSources;
+    @Parameter(defaultValue = "")
+    private String generateSources;
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -142,7 +142,8 @@ public class TransformerMojo extends AbstractMojo {
             }
         }
 
-        if (Boolean.TRUE.equals(generateSources) || generateSources == null && fileTypeSuffix.equals(FILE_TYPE_SUFFIX_DEFAULT)) {
+        getLog().info("generateSources: " + generateSources + ", fileTypeSuffix: " + fileTypeSuffix);
+        if (Boolean.valueOf(generateSources) || generateSources == null && fileTypeSuffix.equals(FILE_TYPE_SUFFIX_DEFAULT)) {
 //            if (generateTestSources) {
 //                project.addTestCompileSourceRoot(outputDirectoryPath.toString());
 //            } else {
