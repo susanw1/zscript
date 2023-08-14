@@ -47,7 +47,8 @@ public class TransformerMojo extends AbstractMojo {
     private FileSet templates;
 
     /**
-     * A fileset describing a set of context files (ie JSON/YAML files for the default transformer).
+     * A fileset describing a set of context files (ie JSON/YAML files for the default transformer). Defaults to src/main/contexts. If the directory element does not correspond to
+     * an existing directory, then it will be checked as a URL, allowing "classpath:" scheme.
      */
     @Parameter(required = false)
     private FileSet contexts;

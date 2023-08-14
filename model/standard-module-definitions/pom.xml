@@ -14,65 +14,12 @@
 
     <properties>
     </properties>
+    
     <dependencies>
         <dependency>
             <groupId>net.zscript</groupId>
             <artifactId>zscript-model-schema</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-        </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>net.zscript</groupId>
-                <artifactId>transformer-maven-plugin</artifactId>
-                <version>${project.version}</version>
-
-                <dependencies>
-                    <dependency>
-                        <groupId>net.zscript</groupId>
-                        <artifactId>zscript-client-transformer-adapter</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
-
-                <configuration>
-                    <encoding>UTF-8</encoding>
-
-                    <templates>
-                        <includes>**/Comm*.mustache</includes>
-                    </templates>
-                    <contexts>
-                        <directory>${project.resources[0].directory}/zscript-datamodel</directory>
-                        <includes>**/module-list.yaml</includes>
-                    </contexts>
-                    <outputDirectory>
-                        ${project.build.directory}/generated-sources/zscript</outputDirectory>
-                    <transformMapperClass>
-                        net.zscript.model.transformer.adapter.ZscriptClientTransformerPluginMapper</transformMapperClass>
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <id>transformer-default</id>
-                        <goals>
-                            <goal>transform</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

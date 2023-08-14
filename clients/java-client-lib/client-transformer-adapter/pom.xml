@@ -5,7 +5,7 @@
 
     <parent>
         <groupId>net.zscript</groupId>
-        <artifactId>zscript-model</artifactId>
+	    <artifactId>zscript-clients</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -13,6 +13,7 @@
     <name>Zscript Client Generator Transformer Adapter</name>
 
     <properties>
+        <guava.version>32.1.2-jre</guava.version>
     </properties>
 
     <dependencies>
@@ -29,7 +30,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>32.1.2-jre</version>
+            <version>${guava.version}</version>
         </dependency>
     </dependencies>
 

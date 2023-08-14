@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-java-client</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>zscript-java-client-command-builders</artifactId>
+    <name>Java Client Command Builders</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-java-client-commandapi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.zscript</groupId>
+                <artifactId>transformer-maven-plugin</artifactId>
+                <version>${project.version}</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>net.zscript</groupId>
+                        <artifactId>zscript-client-transformer-adapter</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+
+                <configuration>
+                    <encoding>UTF-8</encoding>
+
+                    <templates>
+                        <includes>**/Comm*.mustache</includes>
+                    </templates>
+                    <contextResource>/zscript-datamodel/module-list.yaml</contextResource>
+                    <outputDirectory>
+                        ${project.build.directory}/generated-sources/zscript</outputDirectory>
+                    <transformMapperClass>
+                        net.zscript.model.transformer.adapter.ZscriptClientTransformerPluginMapper</transformMapperClass>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>transformer-default</id>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -15,7 +15,6 @@
 
     <modules>
         <module>language-definition</module>
-        <module>zscript-client-transformer-adapter</module>
         <module>schema</module>
         <module>standard-module-definitions</module>
     </modules>

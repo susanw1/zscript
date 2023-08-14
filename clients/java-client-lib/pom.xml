@@ -15,8 +15,11 @@
 
     <modules>
         <module>client-command-api</module>
+        <module>client-transformer-adapter</module>
+        <module>client-command-builders</module>
         <module>client-connection</module>
     </modules>
+    
     <dependencies>
         <dependency>
             <groupId>net.zscript</groupId>
