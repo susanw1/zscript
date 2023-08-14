@@ -13,7 +13,6 @@
 #define COMMAND_EXISTS_0003 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
-namespace GenericCore {
 template<class ZP>
 class ZscriptResetCommand {
 
@@ -24,11 +23,11 @@ public:
         CommandOutStream<ZP> out = ctx.getOutStream();
         uint16_t target = 0;
         if (ctx.getField('C', &target)) {
-            if (target >= Zscript < ZP > ::zscript.getChannelCount()) {
+            if (target >= Zscript<ZP>::zscript.getChannelCount()) {
                 ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
                 return;
             }
-            if (!Zscript < ZP > ::zscript.getChannel(target)->reset()) {
+            if (!Zscript<ZP>::zscript.getChannels()[target]->reset()) {
                 ctx.status(ResponseStatus::COMMAND_FAIL);
                 return;
             }
@@ -40,8 +39,7 @@ public:
 
 };
 }
-}
 
-#define ZSCRIPT_CORE_RESET_COMMAND ZscriptResetCommand<ZP>::execute
+#define ZSCRIPT_RESET_COMMAND
 
 #endif /* SRC_MAIN_CPP_ARDUINO_ARDUINO_CORE_MODULE_COMMANDS_ZSCRIPTRESETCOMMAND_HPP_ */

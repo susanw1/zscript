@@ -6,9 +6,8 @@
  */
 
 #ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
-#include "zscript/modules/script/ZscriptScriptModule.hpp"
+#include "zscript/modules/scriptSpace/ScriptSpaceModule.hpp"
 
-ZscriptScriptModule<ZscriptParams> ZscriptScriptModuleI; 
 
 #ifdef ZSCRIPT_HPP_INCLUDED
 #error ZscriptScriptModule.hpp needs to be included before Zscript.hpp

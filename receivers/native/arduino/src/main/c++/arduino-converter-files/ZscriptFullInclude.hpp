@@ -6,28 +6,13 @@
  */
 
 //we do this to ensure we have a valid config...
-#ifdef ZSCRIPT_USE_MODULE_ADDRESSING
-#define ZSCRIPT_SUPPORT_ADDRESSING
-#endif
 #ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
-#define ZSCRIPT_GENERATE_NOTIFICATIONS
-#endif
-
-//#ifdef ZSCRIPT_USE_DEBUG_ADDRESSING_SYSTEM
-//#include "ZscriptDebugAddressingSystem.hpp"
-//#define ZSCRIPT_SUPPORT_DEBUG
-//#endif
-
-// makes the above #define's the only needed ones...
-#ifdef ZSCRIPT_ARDUINO_USE_MODULE_ADDRESS_ROUTER
-#define ZSCRIPT_SUPPORT_ADDRESSING
+#define ZSCRIPT_SUPPORT_NOTIFICATIONS
 #endif
 
 #ifdef ZSCRIPT_SUPPORT_ADDRESSING
-#define ZSCRIPT_GENERATE_NOTIFICATIONS
+#define ZSCRIPT_SUPPORT_NOTIFICATIONS
 #endif
-
-//#include "arduino/arduino-core-module/commands/ZscriptResetCommand.hpp"
 
 #ifdef ZSCRIPT_HAVE_PIN_MODULE
 #include "arduino/pins-module/ZscriptPinModule.hpp"
@@ -36,8 +21,11 @@
 #include "arduino/i2c-module/ZscriptI2cModule.hpp"
 #endif
 
-//#include "ZscriptScriptModule.hpp"
-//#include "ZscriptOuterCoreModule.hpp"
+#ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
+#include "ZscriptScriptModule.hpp"
+#endif
+
+#include "ZscriptOuterCoreModule.hpp"
 #include "ZscriptCoreModule.hpp"
 
 #include "Zscript.hpp"
