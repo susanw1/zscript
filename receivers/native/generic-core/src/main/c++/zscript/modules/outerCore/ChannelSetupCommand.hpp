@@ -31,9 +31,11 @@ public:
             return;
         }
         Zscript<ZP>::zscript.getChannels()[target]->channelSetup(ctx);
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         if (ctx.hasField('N')) {
             Zscript<ZP>::zscript.setNotificationChannelIndex((uint8_t) target);
         }
+#endif
     }
 
 };

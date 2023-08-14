@@ -9,7 +9,9 @@
 #define SRC_MAIN_C___ZSCRIPT_EXECUTION_EXECUTOR_HPP_
 #include "../ZscriptIncludes.hpp"
 #include "../ZscriptChannel.hpp"
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
 #include "../notifications/ZscriptNotificationSource.hpp"
+#endif
 #include "DiscardingOutStream.hpp"
 
 namespace Zscript {
@@ -28,12 +30,23 @@ public:
         return 0;
     }
 
-    static bool progress(ZscriptChannel<ZP> **channels, GenericCore::ZscriptNotificationSource<ZP> **notifSources, uint8_t channelCount,
-            uint8_t notifSrcCount) {
-        if (channelCount == 0 && notifSrcCount == 0) {
+    static bool progress(ZscriptChannel<ZP> **channels, uint8_t channelCount
+
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+    , GenericCore::ZscriptNotificationSource<ZP> **notifSources,
+            uint8_t notifSrcCount
+#endif
+            ) {
+        uint8_t totalCount = channelCount
+
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+                + notifSrcCount
+#endif
+        ;
+        if (totalCount == 0) {
             return false;
         }
-        ZscriptAction<ZP> possibleActions[channelCount + notifSrcCount];
+        ZscriptAction<ZP> possibleActions[totalCount];
 
         bool hasNonWait = false;
         for (uint8_t i = 0; i < channelCount; ++i) {
@@ -46,6 +59,7 @@ public:
             }
             possibleActions[i] = action;
         }
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         for (uint8_t i = 0; i < notifSrcCount; ++i) {
 
             ZscriptAction<ZP> action = notifSources[i]->getAction();
@@ -56,11 +70,13 @@ public:
             }
             possibleActions[channelCount + i] = action;
         }
+#endif
 
-        uint16_t indexToExec = decide(possibleActions, channelCount + notifSrcCount);
+        uint16_t indexToExec = decide(possibleActions, totalCount);
         ZscriptAction<ZP> action = possibleActions[indexToExec];
 
         if (!action.isEmptyAction() && action.lock()) {
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
             if (indexToExec >= channelCount) {
                 if (Zscript<ZP>::zscript.getNotificationOutStream() == NULL) {
                     GenericCore::DiscardingOutStream<ZP> out;
@@ -69,8 +85,11 @@ public:
                     action.performAction(Zscript<ZP>::zscript.getNotificationOutStream());
                 }
             } else {
-                action.performAction(channels[indexToExec]->getOutStream());
+#endif
+            action.performAction(channels[indexToExec]->getOutStream());
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
             }
+#endif
         }
         return hasNonWait;
     }

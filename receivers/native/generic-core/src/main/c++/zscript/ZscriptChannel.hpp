@@ -20,6 +20,9 @@ protected:
     AbstractOutStream<ZP> *out;
     GenericCore::SemanticParser<ZP> parser;
 
+    virtual bool resetInternal() {
+        return false;
+    }
 public:
     ZscriptChannel(AbstractOutStream<ZP> *out, GenericCore::TokenRingBuffer<ZP> *buffer, bool canBeNotifChannel) :
             out(out), parser(buffer) {
@@ -51,6 +54,10 @@ public:
 
     virtual void channelSetup(ZscriptCommandContext<ZP> ctx) {
         (void) ctx;
+    }
+    bool reset() {
+        parser.deActivate();
+        return resetInternal();
     }
 
 };

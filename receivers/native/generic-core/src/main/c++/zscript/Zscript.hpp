@@ -13,7 +13,21 @@
 #include "execution/LockSystem.hpp"
 #include "execution/ZscriptExecutor.hpp"
 #include "ZscriptChannel.hpp"
+
+#ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
 #include "scriptSpace/ScriptSpace.hpp"
+#endif
+
+#ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
+#ifndef ZSCRIPT_SUPPORT_NOTIFICATIONS
+#error Cannot use script space without notifications
+#endif
+#endif
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
+#ifndef ZSCRIPT_SUPPORT_NOTIFICATIONS
+#error Cannot use addressing without notifications
+#endif
+#endif
 
 namespace Zscript {
 
@@ -32,13 +46,19 @@ private:
     }
 
     ZscriptChannel<ZP> **channels = NULL;
+
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
     GenericCore::ZscriptNotificationSource<ZP> **notifSources = NULL;
+
+#ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
     ScriptSpace<ZP> **scriptSpaces = NULL;
-    GenericCore::LockSystem<ZP> locks;
-    uint8_t notificationChannelIndex = 0xFF;
-    uint8_t channelCount = 0;
-    uint8_t notifSrcCount = 0;
     uint8_t scriptSpaceCount = 0;
+#endif
+    uint8_t notifSrcCount = 0;
+    uint8_t notificationChannelIndex = 0xFF;
+#endif
+    GenericCore::LockSystem<ZP> locks;
+    uint8_t channelCount = 0;
 
     Zscript() {
     }
@@ -51,15 +71,19 @@ public:
         this->channelCount = channelCount;
     }
 
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
     void setNotificationSources(GenericCore::ZscriptNotificationSource<ZP> **notifSources, uint8_t notifSrcCount) {
         this->notifSources = notifSources;
         this->notifSrcCount = notifSrcCount;
     }
+#endif
 
+#ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
     void setScriptSpaces(ScriptSpace<ZP> **scriptSpaces, uint8_t scriptSpaceCount) {
         this->scriptSpaces = scriptSpaces;
         this->scriptSpaceCount = scriptSpaceCount;
     }
+#endif
 
     bool lock(GenericCore::LockSet<ZP> *l) {
         return locks.lock(l);
@@ -77,16 +101,21 @@ public:
         for (uint8_t i = 0; i < channelCount; ++i) {
             channels[i]->moveAlong();
         }
-        return GenericCore::ZscriptExecutor<ZP>::progress(channels, notifSources, channelCount, notifSrcCount);
+        return GenericCore::ZscriptExecutor<ZP>::progress(channels, channelCount
+
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+                , notifSources, notifSrcCount
+#endif
+                );
     }
 
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
     AbstractOutStream<ZP>* getNotificationOutStream() {
         return channels[notificationChannelIndex]->getOutStream();
     }
     bool hasNotificationOutStream() {
         return notificationChannelIndex != 0xFF;
     }
-//
     void setNotificationChannelIndex(uint8_t index) {
         if (index < channelCount && channels[index]->canBeNotifChannel()) {
             notificationChannelIndex = index;
@@ -94,12 +123,17 @@ public:
             notificationChannelIndex = 0xFF;
         }
     }
+#endif
+
+#ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
     ScriptSpace<ZP>** getScriptSpaces() {
         return scriptSpaces;
     }
     uint8_t getScriptSpaceCount() {
         return scriptSpaceCount;
     }
+#endif
+
     uint8_t getChannelCount() {
         return channelCount;
     }

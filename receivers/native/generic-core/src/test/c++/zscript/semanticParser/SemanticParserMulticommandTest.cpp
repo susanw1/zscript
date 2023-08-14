@@ -6,6 +6,11 @@
  */
 
 #include <iostream>
+
+#define ZSCRIPT_SUPPORT_NOTIFICATIONS
+#define ZSCRIPT_SUPPORT_ADDRESSING
+#define ZSCRIPT_DONT_FAST_DISCARD_COMMENTS
+
 #include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
 #include "../../../../main/c++/zscript/semanticParser/SemanticParser.hpp"
 #include "../../../../main/c++/zscript/notifications/ZscriptNotificationSource.hpp"

@@ -41,7 +41,12 @@ public:
         case 0x2:
             ActivateCommand<ZP>::execute(ctx);
             break;
-#ifdef GUID_FETCH_COMMAND
+#ifdef ZSCRIPT_RESET_COMMAND
+        case 0x3:
+            ZP::ResetCommand::execute(ctx);
+            break;
+#endif
+#ifdef ZSCRIPT_GUID_FETCH_COMMAND
         case 0x4:
             ZP::GuidCommand::fetchGuid(ctx);
             break;
@@ -55,7 +60,7 @@ public:
         case 0xd:
             MakeMatchCodeCommand<ZP>::matchCode(ctx);
             break;
-#ifdef USER_CUSTOM_CORE_COMMAND
+#ifdef ZSCRIPT_USER_CUSTOM_CORE_COMMAND
         case 0x4:
             ZP::CustomCoreCommand::execute(ctx);
             break;

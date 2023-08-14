@@ -23,9 +23,12 @@ namespace GenericCore {
 
 enum class SemanticParserState : uint8_t {
     PRESEQUENCE,
+
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
     ADDRESSING_INCOMPLETE,
     ADDRESSING_NEEDS_ACTION,
     ADDRESSING_COMPLETE,
+#endif
     COMMAND_INCOMPLETE,
     COMMAND_NEEDS_ACTION,
     COMMAND_COMPLETE_NEEDS_TOKENS,
@@ -228,6 +231,9 @@ private:
         return fetchNextMarker();
     }
 public:
+    void emptyActionPerformed() {
+        currentAction = SemanticActionType::INVALID;
+    }
     void actionPerformed(SemanticActionType type) {
         currentAction = SemanticActionType::INVALID;
 
@@ -281,10 +287,13 @@ private:
             parseSequenceLevel();
             if (state == SemanticParserState::PRESEQUENCE) {
                 // expecting buffer to be pointing at first token after lock/echo preamble.
+
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
                 if (reader.getFirstReadToken().getKey(reader.asBuffer()) == Zchars::Z_ADDRESSING) {
                     state = SemanticParserState::ADDRESSING_INCOMPLETE;
                     return SemanticActionType::INVOKE_ADDRESSING;
                 }
+#endif
                 // Until first command is run (and starts presuming it will complete), assert that the command state is INcomplete
                 state = SemanticParserState::COMMAND_INCOMPLETE;
                 return SemanticActionType::RUN_FIRST_COMMAND;
@@ -292,6 +301,7 @@ private:
             // force iteration to handle ERROR / SemanticParserState::SEQUENCE
             return SemanticActionType::GO_AROUND;
 
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
         case SemanticParserState::ADDRESSING_INCOMPLETE:
             return SemanticActionType::WAIT_FOR_ASYNC;
 
@@ -303,6 +313,7 @@ private:
             state = SemanticParserState::PRESEQUENCE;
             skipSequence();
             return SemanticActionType::END_SEQUENCE;
+#endif
 
         case SemanticParserState::COMMAND_INCOMPLETE:
             return SemanticActionType::WAIT_FOR_ASYNC;
@@ -496,6 +507,7 @@ private:
             first = reader.getFirstReadToken();
         }
 
+#ifdef ZSCRIPT_DONT_FAST_DISCARD_COMMENTS
         if (first.getKey(reader.asBuffer()) == Zchars::Z_COMMENT) {
             if (fetchNextMarker() != ZscriptTokenizer<ZP>::NORMAL_SEQUENCE_END) {
                 state = SemanticParserState::ERROR_TOKENIZER;
@@ -507,6 +519,7 @@ private:
             }
             state = SemanticParserState::SEQUENCE_SKIP;
         }
+#endif
     }
 
     void resetToSequence() {
@@ -612,10 +625,12 @@ public:
         switch (state) {
         case SemanticParserState::STOPPING:
             break;
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
         case SemanticParserState::ADDRESSING_COMPLETE:
             case SemanticParserState::ADDRESSING_INCOMPLETE:
             state = b ? SemanticParserState::ADDRESSING_COMPLETE : SemanticParserState::ADDRESSING_INCOMPLETE;
             break;
+#endif
         case SemanticParserState::COMMAND_COMPLETE:
             case SemanticParserState::COMMAND_INCOMPLETE:
             state = b ? SemanticParserState::COMMAND_COMPLETE : SemanticParserState::COMMAND_INCOMPLETE;
@@ -627,7 +642,12 @@ public:
     }
 
     bool isCommandComplete() {
-        return state == SemanticParserState::COMMAND_COMPLETE || state == SemanticParserState::ADDRESSING_COMPLETE;
+        return state == SemanticParserState::COMMAND_COMPLETE
+
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
+                || state == SemanticParserState::ADDRESSING_COMPLETE
+#endif
+        ;
     }
 
     bool isActivated() {
@@ -636,6 +656,10 @@ public:
 
     void activate() {
         activated = true;
+    }
+
+    void deActivate() {
+        activated = false;
     }
 
     void setStatus(uint8_t status) {
@@ -703,10 +727,12 @@ public:
 
     void notifyNeedsAction() {
         switch (state) {
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
         case SemanticParserState::ADDRESSING_INCOMPLETE:
             case SemanticParserState::ADDRESSING_NEEDS_ACTION:
             state = SemanticParserState::ADDRESSING_NEEDS_ACTION;
             break;
+#endif
         case SemanticParserState::COMMAND_INCOMPLETE:
             case SemanticParserState::COMMAND_NEEDS_ACTION:
             state = SemanticParserState::COMMAND_NEEDS_ACTION;

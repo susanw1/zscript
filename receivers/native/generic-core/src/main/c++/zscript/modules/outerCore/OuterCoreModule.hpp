@@ -30,7 +30,7 @@ public:
         case 0x0:
             ExtendedCapabilitiesCommand<ZP>::execute(ctx);
             break;
-#ifdef GUID_SAVE_COMMAND
+#ifdef ZSCRIPT_GUID_SAVE_COMMAND
         case 0x4:
             ZP::GuidCommand::saveGuid(ctx);
             break;
@@ -38,7 +38,7 @@ public:
         case 0x8:
             ChannelSetupCommand<ZP>::execute(ctx);
             break;
-#ifdef USER_CUSTOM_OUTER_CORE_COMMAND
+#ifdef ZSCRIPT_USER_CUSTOM_OUTER_CORE_COMMAND
         case 0x4:
             ZP::CustomOuterCoreCommand::execute(ctx);
             break;

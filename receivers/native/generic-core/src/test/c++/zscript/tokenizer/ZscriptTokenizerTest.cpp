@@ -5,9 +5,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "../../../../main/c++/zscript/tokenizer/ZscriptTokenizer.hpp"
-
 #include <iostream>
+
+#define ZSCRIPT_DONT_FAST_DISCARD_COMMENTS
+#define ZSCRIPT_SUPPORT_ADDRESSING
+
+#include "../../../../main/c++/zscript/tokenizer/ZscriptTokenizer.hpp"
 
 class zp {
 public:

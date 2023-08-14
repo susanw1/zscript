@@ -8,9 +8,13 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_MODULEREGISTRY_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_MODULEREGISTRY_HPP_
 #include "../ZscriptIncludes.hpp"
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
 #include "../execution/ZscriptAddressingContext.hpp"
+#endif
 #include "../execution/ZscriptCommandContext.hpp"
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
 #include "../execution/ZscriptNotificationContext.hpp"
+#endif
 #include "ZscriptModule.hpp"
 
 #define MODULE_SWITCH_CHECK(x, y) MODULE_EXISTS_##x##y
@@ -79,6 +83,7 @@ public:
 //        }
 //    }
 
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
     static void execute(ZscriptAddressingContext<ZP> ctx, bool moveAlong) {
         ctx.commandComplete();
         if (!ctx.isActivated()) {
@@ -98,6 +103,9 @@ public:
         break;
         }
     }
+#endif
+
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
     static void notification(ZscriptNotificationContext<ZP> ctx, bool moveAlong) {
         uint8_t typeBits = ctx.getID() & 0xF;
         (void) typeBits;
@@ -108,8 +116,8 @@ public:
     default:
         ctx.getOutStream().writeField(Zchars::Z_STATUS, ResponseStatus::INTERNAL_ERROR);
         }
-
     }
+#endif
 };
 }
 }

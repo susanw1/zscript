@@ -6,6 +6,10 @@
  */
 
 #include <iostream>
+
+#define ZSCRIPT_SUPPORT_NOTIFICATIONS
+#define ZSCRIPT_SUPPORT_SCRIPT_SPACE
+
 #include "../../../../main/c++/zscript/modules/scriptSpace/ScriptSpaceModule.hpp"
 #include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
 #include "StringChannel.hpp"

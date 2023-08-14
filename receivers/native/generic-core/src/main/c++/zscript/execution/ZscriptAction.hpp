@@ -10,7 +10,9 @@
 #include "../ZscriptIncludes.hpp"
 #include "../AbstractOutStream.hpp"
 #include "../tokenizer/TokenRingBuffer.hpp"
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
 #include "ZscriptAddressingContext.hpp"
+#endif
 #include "ZscriptCommandContext.hpp"
 #include "../ZscriptResponseStatus.hpp"
 #include "../modules/ModuleRegistry.hpp"
@@ -29,8 +31,11 @@ enum class SemanticActionType : uint8_t {
     WAIT_FOR_TOKENS,
     WAIT_FOR_ASYNC,
     ERROR,
+
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
     INVOKE_ADDRESSING,
     ADDRESSING_MOVEALONG,
+#endif
     RUN_FIRST_COMMAND,
     RUN_COMMAND,
     COMMAND_MOVEALONG,
@@ -39,6 +44,7 @@ enum class SemanticActionType : uint8_t {
     STOPPED
 };
 
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
 enum class NotificationActionType : uint8_t {
     INVALID,
     WAIT_FOR_NOTIFICATION,
@@ -47,18 +53,24 @@ enum class NotificationActionType : uint8_t {
     NOTIFICATION_MOVE_ALONG,
     NOTIFICATION_END
 };
+#endif
 
 template<class ZP>
 class ZscriptAction {
 private:
     void *source;
     uint8_t typeStored;
+
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
     bool isSemantic;
+#endif
 
     void performActionSemantic(AbstractOutStream<ZP> *out) {
         SemanticParser<ZP> *parseState = ((SemanticParser<ZP>*) source);
         ZscriptCommandContext<ZP> cmdCtx;
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
         ZscriptAddressingContext<ZP> addrCtx;
+#endif
         SemanticActionType type = (SemanticActionType) typeStored;
         bool isMoveAlong;
         if (typeStored == (uint8_t) SemanticActionType::ERROR || typeStored == (uint8_t) SemanticActionType::RUN_FIRST_COMMAND) {
@@ -67,10 +79,15 @@ private:
         switch (type) {
         case SemanticActionType::ERROR:
             out->writeField('S', parseState->getErrorStatus());
-            out->endSequence();
-            out->close();
+            // falls through
+        case SemanticActionType::END_SEQUENCE:
+            if (out->isOpen()) {
+                out->endSequence();
+                out->close();
+            }
             parseState->unlock();
             break;
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
         case SemanticActionType::INVOKE_ADDRESSING:
             case SemanticActionType::ADDRESSING_MOVEALONG:
             isMoveAlong = typeStored == (uint8_t) SemanticActionType::ADDRESSING_MOVEALONG;
@@ -79,6 +96,7 @@ private:
                 ModuleRegistry<ZP>::execute(addrCtx, isMoveAlong);
             }
             break;
+#endif
         case SemanticActionType::RUN_FIRST_COMMAND:
             case SemanticActionType::RUN_COMMAND:
             case SemanticActionType::COMMAND_MOVEALONG:
@@ -93,13 +111,6 @@ private:
                     cmdCtx.status(ResponseStatus::SUCCESS);
                 }
             }
-            break;
-        case SemanticActionType::END_SEQUENCE:
-            if (out->isOpen()) {
-                out->endSequence();
-                out->close();
-            }
-            parseState->unlock();
             break;
         case SemanticActionType::CLOSE_PAREN:
             out->writeCloseParen();
@@ -126,21 +137,21 @@ private:
     void sendNormalMarkerPrefix(AbstractOutStream<ZP> *out) {
         uint8_t marker = ((SemanticParser<ZP>*) source)->takeCurrentMarker();
         if (marker != 0) {
-            if (marker == ZscriptTokenizer<ZP>::CMD_END_ANDTHEN) {
+            if (marker == ZscriptTokenizer < ZP > ::CMD_END_ANDTHEN) {
                 out->writeAndThen();
-            } else if (marker == ZscriptTokenizer<ZP>::CMD_END_ORELSE) {
+            } else if (marker == ZscriptTokenizer < ZP > ::CMD_END_ORELSE) {
                 out->writeOrElse();
-            } else if (marker == ZscriptTokenizer<ZP>::CMD_END_OPEN_PAREN) {
+            } else if (marker == ZscriptTokenizer < ZP > ::CMD_END_OPEN_PAREN) {
                 out->writeOpenParen();
-            } else if (marker == ZscriptTokenizer<ZP>::CMD_END_CLOSE_PAREN) {
+            } else if (marker == ZscriptTokenizer < ZP > ::CMD_END_CLOSE_PAREN) {
                 out->writeCloseParen();
-            } else if (marker == ZscriptTokenizer<ZP>::NORMAL_SEQUENCE_END) {
+            } else if (marker == ZscriptTokenizer < ZP > ::NORMAL_SEQUENCE_END) {
             } else {
                 //unreachable
             }
         }
     }
-
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
     void performActionNotification(AbstractOutStream<ZP> *out) {
         ZscriptNotificationSource<ZP> *notifSrc = ((ZscriptNotificationSource<ZP>*) source);
         NotificationActionType type = (NotificationActionType) typeStored;
@@ -178,66 +189,99 @@ private:
             out->writeField('!', (notifSrc->getID() >> 4));
         }
     }
+#endif
 
 public:
     ZscriptAction(SemanticParser<ZP> *source, SemanticActionType type) :
-            source(source), typeStored((uint8_t) type), isSemantic(true) {
+            source(source), typeStored((uint8_t) type)
+
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+    , isSemantic(true)
+#endif
+    {
     }
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
     ZscriptAction(ZscriptNotificationSource<ZP> *source, NotificationActionType type) :
             source(source), typeStored((uint8_t) type), isSemantic(false) {
     }
+#endif
     ZscriptAction() :
-            source(NULL), typeStored(0), isSemantic(true) {
+            source(NULL), typeStored(0)
+    #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+    , isSemantic(true)
+#endif
+    {
     }
 
     bool isEmptyAction() {
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         if (isSemantic) {
-            SemanticActionType type = (SemanticActionType) typeStored;
-            return type == SemanticActionType::GO_AROUND || type == SemanticActionType::WAIT_FOR_TOKENS || type == SemanticActionType::WAIT_FOR_ASYNC
-                    || type == SemanticActionType::STOPPED;
+#endif
+        SemanticActionType type = (SemanticActionType) typeStored;
+        return type == SemanticActionType::GO_AROUND || type == SemanticActionType::WAIT_FOR_TOKENS || type == SemanticActionType::WAIT_FOR_ASYNC
+                || type == SemanticActionType::STOPPED;
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         } else {
             NotificationActionType type = (NotificationActionType) typeStored;
             return type == NotificationActionType::WAIT_FOR_NOTIFICATION || type == NotificationActionType::WAIT_FOR_ASYNC;
         }
+#endif
     }
 
     void performAction(AbstractOutStream<ZP> *out) {
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         if (isSemantic) {
-            performActionSemantic(out);
-            ((SemanticParser<ZP>*) source)->actionPerformed((SemanticActionType) typeStored);
+#endif
+        performActionSemantic(out);
+        ((SemanticParser<ZP>*) source)->actionPerformed((SemanticActionType) typeStored);
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         } else {
             performActionNotification(out);
             ((ZscriptNotificationSource<ZP>*) source)->actionPerformed((NotificationActionType) typeStored);
         }
+#endif
     }
     void performEmptyAction() {
-        if (isSemantic) {
-            ((SemanticParser<ZP>*) source)->actionPerformed((SemanticActionType) typeStored);
-        } else {
-            ((ZscriptNotificationSource<ZP>*) source)->actionPerformed((NotificationActionType) typeStored);
-        }
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+            if (isSemantic) {
+#endif
+        ((SemanticParser<ZP>*) source)->emptyActionPerformed();
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+            } else {
+                ((ZscriptNotificationSource<ZP>*) source)->actionPerformed((NotificationActionType) typeStored);
+            }
+#endif
     }
 
     bool canLock() {
-        if (isSemantic) {
-            return ((SemanticParser<ZP>*) source)->canLock();
-        } else {
-            return ((ZscriptNotificationSource<ZP>*) source)->canLock();
-        }
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+            if (isSemantic) {
+#endif
+        return ((SemanticParser<ZP>*) source)->canLock();
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+            } else {
+                return ((ZscriptNotificationSource<ZP>*) source)->canLock();
+            }
+#endif
     }
 
     bool lock() {
-        if (isSemantic) {
-            return ((SemanticParser<ZP>*) source)->lock();
-        } else {
-            return ((ZscriptNotificationSource<ZP>*) source)->lock();
-        }
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+            if (isSemantic) {
+#endif
+        return ((SemanticParser<ZP>*) source)->lock();
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+            } else {
+                return ((ZscriptNotificationSource<ZP>*) source)->lock();
+            }
+#endif
     }
 
     uint8_t getType() {
         return typeStored;
     }
-};
+}
+;
 }
 }
 

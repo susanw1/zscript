@@ -32,7 +32,12 @@ public:
     static const uint8_t CMD_END_CLOSE_PAREN = 0xe4;
 
 private:
+
+#ifdef ZSCRIPT_DONT_FAST_DISCARD_COMMENTS
     static const bool DROP_COMMENTS = false;
+#else
+    static const bool DROP_COMMENTS = true;
+    #endif
 
     TokenRingWriter<ZP> writer;
     const uint8_t maxNumericBytes :4;
@@ -51,7 +56,7 @@ public:
     ZscriptTokenizer(TokenRingWriter<ZP> writer, uint8_t maxNumericBytes) :
             writer(writer),
                     maxNumericBytes(maxNumericBytes & 0xF), skipToNL(false), bufferOvr(false), tokenizerError(false), numeric(false),
-                    escapingCount(0), addressing(false), isText(false), isNormalString(false) {
+                    escapingCount(0), addressing(false), isText(false), isNormalString(true) {
     }
 
 private:
@@ -62,7 +67,7 @@ private:
         numeric = false;
         addressing = false;
         isText = false;
-        isNormalString = false;
+        isNormalString = true;
         escapingCount = 0;
     }
 
@@ -100,7 +105,7 @@ private:
             resetFlags();
             return;
         }
-
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
         if (addressing && b != Zchars::Z_ADDRESSING_CONTINUE) {
             writer.startToken(ADDRESSING_FIELD_KEY, false);
             writer.continueTokenByte(b);
@@ -110,6 +115,7 @@ private:
             isNormalString = false;
             return;
         }
+#endif
 
         if (ZcharsUtils<ZP>::isSeparator(b)) {
             uint8_t marker = 0;
@@ -135,9 +141,11 @@ private:
             //TODO: die
         }
 
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
         if (b == Zchars::Z_ADDRESSING) {
             addressing = true;
         }
+#endif
 
         if (!ZcharsUtils<ZP>::isAllowableKey(b)) {
             writer.fail(ERROR_CODE_ILLEGAL_TOKEN);
