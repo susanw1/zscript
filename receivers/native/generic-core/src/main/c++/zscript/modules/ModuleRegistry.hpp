@@ -79,7 +79,7 @@ public:
 //        }
 //    }
 
-    static void execute(ZscriptAddressingContext<ZP> ctx) {
+    static void execute(ZscriptAddressingContext<ZP> ctx, bool moveAlong) {
         ctx.commandComplete();
         if (!ctx.isActivated()) {
             ctx.status(ResponseStatus::NOT_ACTIVATED);
@@ -87,22 +87,6 @@ public:
         }
         uint16_t addr = ctx.getAddressSegments().next().value;
 
-        bool moveAlong = false;
-        (void) moveAlong;
-        (void) addr;
-
-        switch (addr) {
-        ADDRESS_SWITCH()
-
-    default:
-        ctx.status(ResponseStatus::ADDRESS_NOT_FOUND);
-        break;
-        }
-    }
-    static void moveAlong(ZscriptAddressingContext<ZP> ctx) {
-        ctx.commandComplete();
-        uint16_t addr = ctx.getAddressSegments().next().value;
-        bool moveAlong = true;
         (void) moveAlong;
         (void) addr;
 

@@ -51,7 +51,7 @@ public:
     ZscriptTokenizer(TokenRingWriter<ZP> writer, uint8_t maxNumericBytes) :
             writer(writer),
                     maxNumericBytes(maxNumericBytes & 0xF), skipToNL(false), bufferOvr(false), tokenizerError(false), numeric(false),
-                    addressing(false), isText(false), isNormalString(false), escapingCount(0) {
+                    escapingCount(0), addressing(false), isText(false), isNormalString(false) {
     }
 
 private:
@@ -217,45 +217,42 @@ public:
         //            bufferOvr = false;
         //        }
 
-        if (writer.isTokenComplete()) {
-            startNewToken(b);
-            return;
-        }
-
-        if (isText) {
-            // "text" is broadly interpreted: we're pushing non-numeric bytes into a current token
-            acceptText(b);
-            return;
-        }
-
-        uint8_t hex = ZcharsUtils<ZP>::parseHex(b);
-        if (hex != ZcharsUtils<ZP>::PARSE_NOT_HEX_0X10) {
-            if (numeric) {
-                // Check field length
-                int currentLength = writer.getCurrentWriteTokenLength();
-                if (currentLength == maxNumericBytes && !writer.isInNibble()) {
-                    writer.fail(ERROR_CODE_FIELD_TOO_LONG);
-                    tokenizerError = true;
-                    return;
-                }
-                // Skip leading zeros
-                if (currentLength == 0 && hex == 0) {
-                    return;
-                }
+        if (!writer.isTokenComplete()) {
+            if (isText) {
+                // "text" is broadly interpreted: we're pushing non-numeric bytes into a current token
+                acceptText(b);
+                return;
             }
-            writer.continueTokenNibble(hex);
-            return;
-        }
 
-        // Check big field odd length
-        if (!numeric && writer.getCurrentWriteTokenKey() == Zchars::Z_BIGFIELD_HEX && writer.isInNibble()) {
-            writer.fail(ERROR_CODE_ODD_BIGFIELD_LENGTH);
-            tokenizerError = true;
-            if (b == Zchars::EOL_SYMBOL) {
-                // interesting case: the error above could be caused by b==Z_NEWLINE, but we've written an error marker, so just reset and return
-                resetFlags();
+            uint8_t hex = ZcharsUtils<ZP>::parseHex(b);
+            if (hex != ZcharsUtils<ZP>::PARSE_NOT_HEX_0X10) {
+                if (numeric) {
+                    // Check field length
+                    int currentLength = writer.getCurrentWriteTokenLength();
+                    if (currentLength == maxNumericBytes && !writer.isInNibble()) {
+                        writer.fail(ERROR_CODE_FIELD_TOO_LONG);
+                        tokenizerError = true;
+                        return;
+                    }
+                    // Skip leading zeros
+                    if (currentLength == 0 && hex == 0) {
+                        return;
+                    }
+                }
+                writer.continueTokenNibble(hex);
+                return;
             }
-            return;
+
+            // Check big field odd length
+            if (!numeric && writer.getCurrentWriteTokenKey() == Zchars::Z_BIGFIELD_HEX && writer.isInNibble()) {
+                writer.fail(ERROR_CODE_ODD_BIGFIELD_LENGTH);
+                tokenizerError = true;
+                if (b == Zchars::EOL_SYMBOL) {
+                    // interesting case: the error above could be caused by b==Z_NEWLINE, but we've written an error marker, so just reset and return
+                    resetFlags();
+                }
+                return;
+            }
         }
 
         startNewToken(b);

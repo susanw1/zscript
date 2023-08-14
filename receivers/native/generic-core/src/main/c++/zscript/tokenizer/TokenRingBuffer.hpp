@@ -233,26 +233,26 @@ private:
         W_writeNewTokenStart(key);
     }
 
+    void W_continueByWriting(uint8_t b) {
+        if (data[writeLastLen] == MAX_TOKEN_DATA_LENGTH) {
+            W_writeNewTokenStart(TOKEN_EXTENSION);
+        }
+        data[writeCursor] = b;
+        data[writeLastLen]++;
+    }
+
     void W_continueTokenNibble(uint8_t nibble) {
         if (inNibble) {
             data[writeCursor] |= nibble;
             W_moveCursor();
         } else {
-            if (data[writeLastLen] == MAX_TOKEN_DATA_LENGTH) {
-                W_writeNewTokenStart(TOKEN_EXTENSION);
-            }
-            data[writeCursor] = nibble << 4;
-            data[writeLastLen]++;
+            W_continueByWriting(nibble << 4);
         }
         inNibble = !inNibble;
     }
     void W_continueTokenByte(uint8_t b) {
-        if (data[writeLastLen] == MAX_TOKEN_DATA_LENGTH) {
-            W_writeNewTokenStart(TOKEN_EXTENSION);
-        }
-        data[writeCursor] = b;
+        W_continueByWriting(b);
         W_moveCursor();
-        data[writeLastLen]++;
     }
     void W_endToken() {
         if (inNibble) {

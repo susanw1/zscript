@@ -72,8 +72,8 @@ public:
     SemanticParser(TokenRingBuffer<ZP> *buffer) :
             reader(buffer->getReader()),
                     currentAction(SemanticActionType::INVALID), parenCounter(0),
-                    haveNextMarker(false), haveSeqEndMarker(false), hasSentStatusB(false), nextMarker(0),
-                    hasEchoB(false), activated(false), locked(false), state(SemanticParserState::PRESEQUENCE),
+                    nextMarker(0), haveNextMarker(false), haveSeqEndMarker(false), hasSentStatusB(false),
+                    state(SemanticParserState::PRESEQUENCE), hasEchoB(false), activated(false), locked(false),
                     seqEndMarker(0), freeBool(false) {
     }
 private:
@@ -228,7 +228,6 @@ private:
         return fetchNextMarker();
     }
 public:
-
     void actionPerformed(SemanticActionType type) {
         currentAction = SemanticActionType::INVALID;
 

@@ -139,15 +139,9 @@ public:
     }
 
     OptInt16 getField(uint8_t key) {
-        GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getReader().asBuffer();
-        CommandTokenIterator<ZP> iterator = iteratorToMarker();
-        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
-            GenericCore::RingBufferToken<ZP> token = opt.token;
-            if (token.getKey(buffer) == key) {
-                return {token.getData16(buffer), true};
-            }
-        }
-        return {0, false};
+        OptInt16 ret;
+        ret.isPresent = getField(key, &ret.value);
+        return ret;
     }
     bool getField(uint8_t key, uint16_t *dest) {
         GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getReader().asBuffer();
@@ -167,15 +161,12 @@ public:
     }
 
     uint16_t getField(uint8_t key, uint16_t def) {
-        OptInt16 opt = getField(key);
-        if (opt.isPresent) {
-            return opt.value;
-        } else {
-            return def;
-        }
+        uint16_t val = def;
+        getField(key, &val);
+        return val;
     }
 
-    int getFieldCount() {
+    uint8_t getFieldCount() {
         int count = 0;
 
         GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getReader().asBuffer();
@@ -192,7 +183,7 @@ public:
         return BigFieldBlockIterator<ZP>(parseState->getReader(), iteratorToMarker());
     }
 
-    int getBigFieldSize() {
+    uint16_t getBigFieldSize() {
         int size = 0;
 
         GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getReader().asBuffer();

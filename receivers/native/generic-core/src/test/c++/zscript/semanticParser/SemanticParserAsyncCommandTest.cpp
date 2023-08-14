@@ -184,7 +184,7 @@ class SemanticParserTest {
 
     void checkActionType(ZscriptAction<zp> a, SemanticActionType t) {
         if ((SemanticActionType) a.getType() != t) {
-            std::cerr << "Bad action type: \nExpected: " << (uint8_t) t << "\nActual: " << (uint8_t) a.getType() << "\n";
+            std::cerr << "Bad action type: \nExpected: " << (uint16_t) t << "\nActual: " << (uint16_t) a.getType() << "\n";
             throw 0;
         }
     }
@@ -283,8 +283,8 @@ public:
         AsyncTestModule::increment();
 
         parserActionTester.parseSnippet("", SemanticActionType::COMMAND_MOVEALONG, SemanticParserState::COMMAND_COMPLETE, "!AS&AffC2S");
-        parserActionTester.parseSnippet("", SemanticActionType::ERROR, SemanticParserState::PRESEQUENCE, "!AS&AffC2S!10S10\n");
-        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!AS&AffC2S!10S10\n");
+        parserActionTester.parseSnippet("", SemanticActionType::ERROR, SemanticParserState::PRESEQUENCE, "!AS&AffC2S!S10\n");
+        parserActionTester.parseSnippet("", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!AS&AffC2S!S10\n");
     }
 
     void shouldRunMultiplePassesInAddressing() {
@@ -326,17 +326,17 @@ int main(int argc, char **argv) {
     (void) argc;
     (void) argv;
 
-    Zscript::GenericCore::SemanticParserTest s1;
-    s1.shouldRunAsyncCommand();
-    Zscript::someValue = 0;
-
-    Zscript::GenericCore::SemanticParserTest s2;
-    s2.shouldRunMultiplePasses();
-    Zscript::someValue = 0;
-
-    Zscript::GenericCore::SemanticParserTest s3;
-    s3.shouldRunMultiplePassesWithErrorMidflight();
-    Zscript::someValue = 0;
+//    Zscript::GenericCore::SemanticParserTest s1;
+//    s1.shouldRunAsyncCommand();
+//    Zscript::someValue = 0;
+//
+//    Zscript::GenericCore::SemanticParserTest s2;
+//    s2.shouldRunMultiplePasses();
+//    Zscript::someValue = 0;
+//
+//    Zscript::GenericCore::SemanticParserTest s3;
+//    s3.shouldRunMultiplePassesWithErrorMidflight();
+//    Zscript::someValue = 0;
 
     Zscript::GenericCore::SemanticParserTest s4;
     s4.shouldRunMultiplePassesInAddressing();

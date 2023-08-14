@@ -101,7 +101,7 @@ public:
 //        std::cout << "  Received action: actionType=" <<(uint8_t) action.getType() << " (expected=" <<(uint8_t) expectedSemanticActionType << "); state=" << parser->getState() << "\n";
         if (expectedSemanticActionType != SemanticActionType::INVALID) {
             if ((SemanticActionType) action.getType() != expectedSemanticActionType) {
-                std::cerr << "Action type does not match\nExpected: " << (uint8_t) expectedSemanticActionType << "\nActual: " << (uint8_t) action.getType() << "\n";
+                std::cerr << "Action type does not match\nExpected: " << (uint16_t) expectedSemanticActionType << "\nActual: " << (uint16_t) action.getType() << "\n";
                 return false;
             }
         }
@@ -109,7 +109,7 @@ public:
         action.performAction(outStream);
 //        std::cout << "   - After execute action: state=" << parser->getState() << "\n";
         if (parser->getState() != endState) {
-            std::cerr << "End state does not match\nExpected: " << (uint8_t) endState << "\nActual: " << (uint8_t) parser->getState() << "\n";
+            std::cerr << "End state does not match\nExpected: " << (uint16_t) endState << "\nActual: " << (uint16_t) parser->getState() << "\n";
             return false;
         }
 

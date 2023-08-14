@@ -60,33 +60,32 @@ private:
         ZscriptCommandContext<ZP> cmdCtx;
         ZscriptAddressingContext<ZP> addrCtx;
         SemanticActionType type = (SemanticActionType) typeStored;
+        bool isMoveAlong;
+        if (typeStored == (uint8_t) SemanticActionType::ERROR || typeStored == (uint8_t) SemanticActionType::RUN_FIRST_COMMAND) {
+            startResponseSem(out, (uint8_t) 0); //TODO: Sort out what response type...
+        }
         switch (type) {
         case SemanticActionType::ERROR:
-            startResponseSem(out, (uint8_t) 0x10);
             out->writeField('S', parseState->getErrorStatus());
             out->endSequence();
             out->close();
             parseState->unlock();
             break;
         case SemanticActionType::INVOKE_ADDRESSING:
+            case SemanticActionType::ADDRESSING_MOVEALONG:
+            isMoveAlong = typeStored == (uint8_t) SemanticActionType::ADDRESSING_MOVEALONG;
             addrCtx = ZscriptAddressingContext<ZP>(parseState);
-            if (addrCtx.verify()) {
-                ModuleRegistry<ZP>::execute(addrCtx);
+            if (isMoveAlong || addrCtx.verify()) {
+                ModuleRegistry<ZP>::execute(addrCtx, isMoveAlong);
             }
             break;
-        case SemanticActionType::ADDRESSING_MOVEALONG:
-            addrCtx = ZscriptAddressingContext<ZP>(parseState);
-            ModuleRegistry<ZP>::moveAlong(addrCtx);
-            break;
         case SemanticActionType::RUN_FIRST_COMMAND:
-            startResponseSem(out, (uint8_t) 0);
-            // falls through
-        case SemanticActionType::RUN_COMMAND:
+            case SemanticActionType::RUN_COMMAND:
             case SemanticActionType::COMMAND_MOVEALONG:
             if (typeStored == (uint8_t) SemanticActionType::RUN_COMMAND) {
                 sendNormalMarkerPrefix(out);
             }
-            bool isMoveAlong = typeStored == (uint8_t) SemanticActionType::COMMAND_MOVEALONG;
+            isMoveAlong = typeStored == (uint8_t) SemanticActionType::COMMAND_MOVEALONG;
             cmdCtx = ZscriptCommandContext<ZP>(parseState, out);
             if (isMoveAlong || (cmdCtx.verify() && !parseState->isEmpty())) {
                 ModuleRegistry<ZP>::execute(cmdCtx, isMoveAlong);

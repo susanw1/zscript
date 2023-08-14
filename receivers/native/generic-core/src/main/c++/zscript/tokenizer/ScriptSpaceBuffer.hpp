@@ -18,7 +18,7 @@ class ScriptSpaceBuffer {
     typedef typename ZP::tokenBufferSize_t tokenBufferSize_t;
     TokenRingBuffer<ZP> readBuffer;
     bool canBeWrittenB;
-    tokenBufferSize_t maxLength;
+    const tokenBufferSize_t maxLength;
 
 public:
     ScriptSpaceBuffer(uint8_t *buffer, tokenBufferSize_t maxLength) :

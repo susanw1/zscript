@@ -57,13 +57,18 @@ public:
     void writeField(uint8_t field, uint16_t value) {
         uint8_t bytes[5];
         bytes[0] = field;
+        uint8_t offset = 0;
 
-        uint8_t offset = appendHexTrim((uint8_t) (value >> 8), bytes + 1);
-        if (offset > 0) {
-            appendHex((uint8_t) (value & 0xFF), bytes + offset + 1);
-            offset += 2;
-        } else {
-            offset += appendHexTrim((uint8_t) (value & 0xFF), bytes + offset + 1);
+        uint8_t byteToTrim = (uint8_t) (value >> 8);
+        if (byteToTrim == 0) {
+            byteToTrim = (uint8_t) (value & 0xFF);
+        }
+        if (byteToTrim != 0) {
+            offset = appendHexTrim(byteToTrim, bytes + 1);
+            if (value >= 0x100) {
+                appendHex((uint8_t) (value & 0xFF), bytes + offset + 1);
+                offset += 2;
+            }
         }
         writeBytes(bytes, offset + 1, false);
     }

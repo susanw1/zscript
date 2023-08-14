@@ -128,7 +128,7 @@ public:
         ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
         SemanticActionType types[] = { ERROR, WAIT_FOR_TOKENS };
         parserActionTester.parseSnippet("@99999Z1\n", types, 2);
-        checkAgainstOut("!10S20\n");
+        checkAgainstOut("!S20\n");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
