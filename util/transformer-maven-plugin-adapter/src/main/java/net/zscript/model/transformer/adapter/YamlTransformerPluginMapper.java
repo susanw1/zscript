@@ -25,10 +25,10 @@ public class YamlTransformerPluginMapper implements TransformerPluginMapper {
     }
 
     private List<LoadedEntityContent> load(LoadableEntity entity) {
-        final Path relativePathToSource = entity.getRelativePath();
-        final Path relativePathToOutput = findRelativePathToOutput(relativePathToSource, entity.getFileTypeSuffix());
+        final String relativePathToSource = entity.getRelativePath();
+        final Path   relativePathToOutput = findRelativePathToOutput(relativePathToSource, entity.getFileTypeSuffix());
 
-        try (final Reader r = Files.newBufferedReader(entity.getFullPath())) {
+        try (final Reader r = Files.newBufferedReader(Path.of(entity.getFullPath()))) {
             final Map<?, ?> value = jsonMapper.reader().readValue(r, Map.class);
             return List.of(entity.withContents(List.of(value), relativePathToOutput));
         } catch (IOException ex) {

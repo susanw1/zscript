@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,7 +50,8 @@ public class TransformerMojo extends AbstractMojo {
 
     /**
      * A fileset describing a set of context files (ie JSON/YAML files for the default transformer). Defaults to src/main/contexts. If the directory element does not correspond to
-     * an existing directory, then it will be checked as a URL, allowing "classpath:" scheme.
+     * an existing directory, then it will be checked as a URL, allowing "classpath:" scheme. Note, only specific &lt;include> tags with relative paths are supported with URLs - no
+     * wildcards, no excludes etc.
      */
     @Parameter(required = false)
     private FileSet contexts;
@@ -124,8 +127,8 @@ public class TransformerMojo extends AbstractMojo {
             for (LoadedEntityContent context : loadedMappedContexts) {
                 try {
                     final Path outputFileFullPath = outputDirectoryPath.resolve(context.getRelativeOutputPath());
-                    final Path parentDir          = outputFileFullPath.getParent();
-                    createDirIfRequired(parentDir);
+                    final Path outputParentDir    = outputFileFullPath.getParent();
+                    createDirIfRequired(outputParentDir);
 
                     final Mustache mustache = (Mustache) template.getContents().get(0);
 
@@ -171,18 +174,36 @@ public class TransformerMojo extends AbstractMojo {
     }
 
     private LoadableEntities extractFileList(String description, final FileSet fileSet) throws MojoExecutionException {
-        final Path rootPath = Path.of(fileSet.getDirectory());
+        final String directoryString = fileSet.getDirectory();
+
+        URI rootUri;
+        try {
+            rootUri = new URI(directoryString);
+            if (rootUri.getScheme() != null) {
+                getLog().debug(description + ": directory is valid URI, so assuming using limited includes paths: " + directoryString);
+                return new LoadableEntities(description, rootUri, fileSet.getIncludes(), fileTypeSuffix);
+            }
+        } catch (URISyntaxException e) {
+            getLog().debug(description + ": directory isn't valid URI, so assuming local directory: " + directoryString);
+        }
+
+        return extractFileListAsLocalFiles(description, fileSet, Path.of(directoryString));
+    }
+
+    private LoadableEntities extractFileListAsLocalFiles(String description, final FileSet fileSet, Path rootPath) throws MojoExecutionException {
+        URI rootUri;
         if (!Files.isDirectory(rootPath)) {
             throw new MojoExecutionException(description + " directory not found: " + rootPath);
         }
         if (!Files.isReadable(rootPath)) {
             throw new MojoExecutionException(description + " directory not readable: " + rootPath);
         }
+        rootUri = rootPath.toUri();
 
-        getLog().debug("    " + description + ": fileSet.getDirectory: " + rootPath);
+        getLog().debug("    " + description + ": fileSet.getDirectory: " + rootPath + "; rootUri: " + rootUri);
 
         final FileSetManager fileSetManager = new FileSetManager();
-        final List<Path>     files          = stream(fileSetManager.getIncludedFiles(fileSet)).map(f -> Path.of(f)).collect(Collectors.toList());
+        final List<String>   files          = stream(fileSetManager.getIncludedFiles(fileSet)).collect(Collectors.toList());
 
         if (failIfNoFiles && files.size() == 0) {
             throw new MojoExecutionException("No matching " + description + " files found in: " + rootPath);
@@ -191,7 +212,7 @@ public class TransformerMojo extends AbstractMojo {
         getLog().debug("    #files = " + files.size());
         files.forEach(f -> getLog().debug("    " + f.toString()));
 
-        return new LoadableEntities(description, rootPath, files, fileTypeSuffix);
+        return new LoadableEntities(description, rootUri, files, fileTypeSuffix);
     }
 
     private List<LoadedEntityContent> loadMappedContexts(LoadableEntities contextEntities) throws MojoExecutionException {
@@ -208,13 +229,10 @@ public class TransformerMojo extends AbstractMojo {
         final DefaultMustacheFactory mf = new DefaultMustacheFactory();
 
         return entities.loadEntities(entity -> {
-            if (entity.getRelativePath().isAbsolute()) {
-                throw new TransformerMojoFailureException("Cannot load class '" + transformMapperClass + "'");
-            }
-            final Path fullPath = entity.getRootPath().resolve(entity.getRelativePath());
+            final Path fullPath = Path.of(entity.getFullPath());
             try (final Reader reader = Files.newBufferedReader(fullPath)) {
                 final Mustache template = mf.compile(reader, entity.getRelativePath().toString());
-                return List.of(entity.withContents(List.of(template), entity.getRelativePath()));
+                return List.of(entity.withContents(List.of(template), Path.of(entity.getRelativePath())));
             } catch (final IOException e) {
                 throw new TransformerMojoFailureException("Cannot open " + entity.getDescription() + ": " + entity.getRelativePath(), e);
             }

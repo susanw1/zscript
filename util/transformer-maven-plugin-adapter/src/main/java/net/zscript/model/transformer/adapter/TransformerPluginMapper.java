@@ -25,10 +25,9 @@ public interface TransformerPluginMapper {
      * @param suffix               the suffix to add
      * @return the output path
      */
-    default Path findRelativePathToOutput(final Path relativePathToSource, String suffix) {
-        final String lastPart    = relativePathToSource.getFileName().toString();
-        final int    index       = lastPart.lastIndexOf('.');
-        final String newLastPart = (index != -1 ? lastPart.substring(0, index) : lastPart) + "." + suffix;
-        return relativePathToSource.resolveSibling(newLastPart);
+    default Path findRelativePathToOutput(final String relativePathToSource, String suffix) {
+        final int    index      = relativePathToSource.lastIndexOf('.');
+        final String newUriPath = (index != -1 ? relativePathToSource.substring(0, index) : relativePathToSource) + "." + suffix;
+        return Path.of(relativePathToSource).resolve(newUriPath);
     }
 }

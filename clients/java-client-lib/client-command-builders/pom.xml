@@ -33,6 +33,11 @@
                         <artifactId>zscript-client-transformer-adapter</artifactId>
                         <version>${project.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>net.zscript</groupId>
+                        <artifactId>zscript-model-standard-module-definitions</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
                 </dependencies>
 
                 <configuration>
@@ -41,7 +46,15 @@
                     <templates>
                         <includes>**/Comm*.mustache</includes>
                     </templates>
-                    <contextResource>/zscript-datamodel/module-list.yaml</contextResource>
+
+                    <contexts>
+                        <!--
+                        <directory>${project.resources[0].directory}/zscript-datamodel</directory> 
+                        -->
+                        <directory>classpath:/zscript-datamodel/</directory>
+                        <includes>module-list.yaml</includes>
+                    </contexts>
+
                     <outputDirectory>
                         ${project.build.directory}/generated-sources/zscript</outputDirectory>
                     <transformMapperClass>

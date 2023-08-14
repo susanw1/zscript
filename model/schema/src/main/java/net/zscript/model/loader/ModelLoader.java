@@ -5,7 +5,6 @@ import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
@@ -50,7 +49,7 @@ public class ModelLoader {
         final InputStream resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/intrinsics.yaml"), "intrinsics not found");
         try {
             intrinsicsDataModel = jsonMapper.readValue(resourceStream, IntrinsicsDataModel.class);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
@@ -70,27 +69,25 @@ public class ModelLoader {
      * @throws URISyntaxException
      */
     public ModelLoader withModel(final URL moduleListLocation) throws IOException, URISyntaxException {
-//        final URL moduleListLocation = new URL(moduleListRoot, "module-list.yaml");
-
         final DefinitionResources d;
         try (final InputStream openStream = moduleListLocation.openStream()) {
             d = jsonMapper.readValue(openStream, DefinitionResources.class);
         }
 
-        for (ModuleBankDef mb : d.getModuleBanks()) {
-            ModuleBank moduleBank = moduleBanks.computeIfAbsent(mb.getName(), n -> new ModuleBank(mb));
+        for (final ModuleBankDef mb : d.getModuleBanks()) {
+            final ModuleBank moduleBank = moduleBanks.computeIfAbsent(mb.getName(), n -> new ModuleBank(mb));
 
-            for (String moduleDefinitionLocation : mb.getModuleDefinitions()) {
-                URI moduleDefinition = moduleListLocation.toURI().resolve(moduleDefinitionLocation);
+            for (final String moduleDefinitionLocation : mb.getModuleDefinitions()) {
+                final URL moduleDefinition = new URL(moduleListLocation, moduleDefinitionLocation);
 
-                ModuleModel model;
-                try (final InputStream openStream = moduleDefinition.toURL().openStream()) {
+                final ModuleModel model;
+                try (final InputStream openStream = moduleDefinition.openStream()) {
                     model = jsonMapper.readValue(openStream, ModuleModel.class);
                 }
                 model.setModuleBank(moduleBank);
                 moduleBank.add(model);
 
-                for (CommandModel c : model.getCommands()) {
+                for (final CommandModel c : model.getCommands()) {
                     addIntrinsicIfRequired(requireNonNull(c.getRequestFields(), () -> c.getName() + ": requestFields null"),
                             intrinsicsDataModel.getIntrinsics().getRequestFields());
                     addIntrinsicIfRequired(requireNonNull(c.getResponseFields(), () -> c.getName() + ": responseFields null"),
@@ -102,9 +99,9 @@ public class ModelLoader {
         return this;
     }
 
-    private <F extends GenericField> void addIntrinsicIfRequired(List<F> commandFields, List<F> intrinsics) {
-        for (F intrinsicField : intrinsics) {
-            for (F f : commandFields) {
+    private <F extends GenericField> void addIntrinsicIfRequired(final List<F> commandFields, final List<F> intrinsics) {
+        for (final F intrinsicField : intrinsics) {
+            for (final F f : commandFields) {
                 if (intrinsicField.getKey() == f.getKey()) {
                     return;
                 }

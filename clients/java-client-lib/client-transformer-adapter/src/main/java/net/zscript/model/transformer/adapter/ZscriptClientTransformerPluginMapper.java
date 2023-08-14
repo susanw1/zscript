@@ -5,7 +5,9 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +38,17 @@ public class ZscriptClientTransformerPluginMapper implements TransformerPluginMa
 
         ModelLoader loader = ModelLoader.rawModel();
         try {
-            ModelLoader model = loader.withModel(entity.getFullPath().toUri().toURL());
-            for (ModuleBank moduleBank : model.getModuleBanks().values()) {
-                for (ModuleModel module : moduleBank.modules()) {
+            final URI fullPath = entity.getFullPath();
+            final URL url;
+            if ("classpath".equals(fullPath.getScheme())) {
+                url = ModelLoader.class.getResource(fullPath.getPath());
+            } else {
+                url = fullPath.toURL();
+            }
+
+            final ModelLoader model = loader.withModel(url);
+            for (final ModuleBank moduleBank : model.getModuleBanks().values()) {
+                for (final ModuleModel module : moduleBank.modules()) {
 
                     final List<String> packageElements = module.getPackage() != null ? module.getPackage() : moduleBank.getDefaultPackage();
                     final String       bankName        = requireNonNull(module.getModuleBank().getName(), "moduleBank name not defined");
@@ -50,10 +60,10 @@ public class ZscriptClientTransformerPluginMapper implements TransformerPluginMa
 
                     final Path   packagePath           = Path.of(fqcn.get(0), fqcn.subList(1, fqcn.size()).toArray(new String[0]));
                     final String capitalizedModuleName = Character.toUpperCase(moduleName.charAt(0)) + moduleName.substring(1) + "Module." + entity.getFileTypeSuffix();
-                    final Path   moduleClassName       = packagePath.resolve(capitalizedModuleName);
+                    final Path   moduleClassFileName   = packagePath.resolve(capitalizedModuleName);
 
                     final List<Object> contents = List.of(utils, model.getIntrinsics(), module);
-                    result.add(entity.withContents(contents, moduleClassName));
+                    result.add(entity.withContents(contents, moduleClassFileName));
                 }
             }
         } catch (IOException ex) {

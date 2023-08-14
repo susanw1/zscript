@@ -2,18 +2,22 @@ package net.zscript.model.transformer.adapter;
 
 import static java.util.stream.Collectors.toList;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Function;
 
 public class LoadableEntities {
-    private final String     entityDescription;
-    private final Path       rootPath;
-    private final List<Path> relativePaths;
-    private final String     fileTypeSuffix;
+    private final String       entityDescription;
+    private final URI          rootPath;
+    private final List<String> relativePaths;
+    private final String       fileTypeSuffix;
 
-    public LoadableEntities(String entityDescription, Path rootPath, List<Path> relativePaths, String fileTypeSuffix) {
+    public LoadableEntities(String entityDescription, URI rootPath, List<String> relativePaths, String fileTypeSuffix) {
         this.entityDescription = entityDescription;
+        if (!rootPath.getPath().endsWith("/")) {
+            throw new IllegalArgumentException("Invalid directory URI - missing '/'? " + rootPath);
+        }
         this.rootPath = rootPath;
         this.relativePaths = relativePaths;
         this.fileTypeSuffix = fileTypeSuffix;
@@ -28,20 +32,20 @@ public class LoadableEntities {
     }
 
     public class LoadableEntity {
-        private final Path relativePath;
+        private final String relativePath;
 
-        public LoadableEntity(Path relativePath) {
-            if (relativePath.isAbsolute()) {
+        public LoadableEntity(String relativePath) {
+            if (Path.of(relativePath).isAbsolute()) {
                 throw new IllegalArgumentException("relativePath is absolute: " + relativePath);
             }
             this.relativePath = relativePath;
         }
 
-        public Path getRelativePath() {
+        public String getRelativePath() {
             return relativePath;
         }
 
-        public Path getRootPath() {
+        public URI getRootPath() {
             return rootPath;
         }
 
@@ -53,7 +57,7 @@ public class LoadableEntities {
             return fileTypeSuffix;
         }
 
-        public Path getFullPath() {
+        public URI getFullPath() {
             return rootPath.resolve(relativePath);
         }
 
@@ -66,7 +70,7 @@ public class LoadableEntities {
         private final List<Object> contents;
         private final Path         relativeOutputPath;
 
-        public LoadedEntityContent(Path relativePath, List<Object> contents, Path relativeOutputPath) {
+        public LoadedEntityContent(String relativePath, List<Object> contents, Path relativeOutputPath) {
             super(relativePath);
 
             this.contents = contents;
