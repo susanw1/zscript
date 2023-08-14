@@ -80,13 +80,10 @@ public:
     }
 
     void moveAlong() {
-        if (usingTmp) {
-            if (tokenizer.offer(tmp)) {
-                usingTmp = false;
+        while (usingTmp || Serial.available() > 0) {
+            if (!usingTmp) {
+                tmp = (uint8_t) Serial.read();
             }
-        }
-        while (Serial.available() > 0) {
-            tmp = (uint8_t) Serial.read();
             if (!tokenizer.offer(tmp)) {
                 usingTmp = true;
                 return;

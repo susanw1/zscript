@@ -61,7 +61,7 @@ public:
     typedef uint16_t debugOutputBufferSize_t;
 
     static const uint8_t lockByteCount = 3;
-    static const uint16_t serialBufferSize = 256;
+    static const uint16_t serialBufferSize = 128;
     static const uint16_t i2cBufferSize = 128;
 
     static const int maxParams = 10;
