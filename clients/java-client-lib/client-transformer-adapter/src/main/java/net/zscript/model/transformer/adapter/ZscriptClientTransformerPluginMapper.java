@@ -6,7 +6,6 @@ import static java.util.stream.Collectors.toList;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 
+import net.zscript.model.ZscriptModel;
 import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
 import net.zscript.model.loader.ModelLoader;
 import net.zscript.model.loader.ModuleBank;
@@ -36,7 +36,6 @@ public class ZscriptClientTransformerPluginMapper implements TransformerPluginMa
 
         ConversionUtils utils = new ConversionUtils();
 
-        ModelLoader loader = ModelLoader.rawModel();
         try {
             final URI fullPath = entity.getFullPath();
             final URL url;
@@ -46,17 +45,25 @@ public class ZscriptClientTransformerPluginMapper implements TransformerPluginMa
                 url = fullPath.toURL();
             }
 
-            final ModelLoader model = loader.withModel(url);
-            for (final ModuleBank moduleBank : model.getModuleBanks().values()) {
+            final ZscriptModel model = ZscriptModel.rawModel().withModel(url);
+
+            for (final ModuleBank moduleBank : model.banks()) {
                 for (final ModuleModel module : moduleBank.modules()) {
 
                     final List<String> packageElements = module.getPackage() != null ? module.getPackage() : moduleBank.getDefaultPackage();
-                    final String       bankName        = requireNonNull(module.getModuleBank().getName(), "moduleBank name not defined");
-                    final String       moduleName      = requireNonNull(module.getName(), "module name not defined");
+
+                    System.out.println("packageElements: " + packageElements);
+                    System.out.println("module.getPackage: " + module.getPackage());
+                    System.out.println("moduleBank.getDefaultPackage: " + moduleBank.getDefaultPackage());
+
+                    final String bankName   = requireNonNull(module.getModuleBank().getName(), "moduleBank name not defined");
+                    final String moduleName = requireNonNull(module.getName(), "module name not defined");
 
                     final List<String> fqcn = Stream.concat(packageElements.stream(), Stream.of(bankName))
                             .map(p -> p.toLowerCase().replace('-', '_'))
                             .collect(toList());
+
+                    utils.getMapOfStuff().put("package-elements", String.join(".", fqcn));
 
                     final Path   packagePath           = Path.of(fqcn.get(0), fqcn.subList(1, fqcn.size()).toArray(new String[0]));
                     final String capitalizedModuleName = Character.toUpperCase(moduleName.charAt(0)) + moduleName.substring(1) + "Module." + entity.getFileTypeSuffix();
@@ -68,8 +75,6 @@ public class ZscriptClientTransformerPluginMapper implements TransformerPluginMa
             }
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
-        } catch (URISyntaxException ex) {
-            throw new RuntimeException(ex);
         }
         return result;
     }

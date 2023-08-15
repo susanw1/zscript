@@ -20,6 +20,13 @@ public interface ZscriptDataModel {
 
         String getName();
 
+        /**
+         * Facilitates disambiguating the name in templating engines. Identical to calling {@link #getName()}.
+         */
+        default String getModuleName() {
+            return getName();
+        }
+
         short getId();
 
         String getVersion();
@@ -56,6 +63,13 @@ public interface ZscriptDataModel {
         ModuleModel getModule();
 
         String getName();
+
+        /**
+         * Facilitates disambiguating the name in templating engines. Identical to calling {@link #getName()}.
+         */
+        default String getCommandName() {
+            return getName();
+        }
 
         byte getCommand();
 
@@ -104,6 +118,9 @@ public interface ZscriptDataModel {
             @Type(value = CustomTypeDefinition.class, name = "custom"),
     })
     interface TypeDefinition {
+//        default boolean isType(String typeName) {
+//            return getClass().getSimpleName().en
+//        }
     }
 
     interface EnumTypeDefinition extends TypeDefinition {

@@ -6,11 +6,19 @@ import static com.google.common.base.CaseFormat.LOWER_UNDERSCORE;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ConversionUtils {
+public final class ConversionUtils {
+    private final Map<String, Object> mapOfStuff = new HashMap<>();
+
+    public Map<String, Object> getMapOfStuff() {
+        return mapOfStuff;
+    }
+
     public Function<String, String> toUpper() {
         return s -> s.toUpperCase();
     }

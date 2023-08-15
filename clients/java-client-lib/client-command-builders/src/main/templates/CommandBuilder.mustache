@@ -1,4 +1,4 @@
-package {{#listDotSeparated}}{{package}}{{/listDotSeparated}};
+package {{mapOfStuff.package-elements}};
 
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
@@ -7,6 +7,8 @@ import net.zscript.javareceiver.tokenizer.Zchars;
 
 /**
  * {{name}} Module: {{description}}.
+ *
+ * @version {{version}}
  */
 public class {{name}}Module {
     public static final int MODULE_ID = {{id}};

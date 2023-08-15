@@ -8,16 +8,16 @@ commands:
     command: 0
     description: ScriptSpace capabilities
     operation: get
-    requestParams: []
-    responseParams:
-    -   label: C
+    requestFields: []
+    responseFields:
+    -   key: C
         name: commandsSet
         description: which commands are enabled in the I2C module
         typeDefinition:
             '@type': commands
             bitFields: []
         required: yes
-    -   label: P
+    -   key: P
         name: scriptSpaceCount
         description: how many independant script spaces are present
         typeDefinition:
@@ -29,39 +29,39 @@ commands:
     command: 1
     description: configures a script space
     operation: put
-    requestParams:
-    -   label: P
+    requestFields:
+    -   key: P
         name: scriptSpaceID
         description: which space to configure
         typeDefinition:
             '@type': number
         required: yes
-    -   label: R
+    -   key: R
         name: run
         description: if present, sets whether the script space is running
         typeDefinition:
             '@type': tri-state
         required: no
-    responseParams:
-    -   label: L
+    responseFields:
+    -   key: L
         name: availableLength
         description: how much memory is dedicated to the given script space
         typeDefinition:
             '@type': number
         required: yes
-    -   label: R
+    -   key: R
         name: running
         description: whether the script space is currently running
         typeDefinition:
             '@type': flag
         required: no
-    -   label: P
+    -   key: P
         name: currentWritePosition
         description: where the current write position is in the script space
         typeDefinition:
             '@type': number
         required: yes
-    -   label: W
+    -   key: W
         name: writeAllowed
         description: whether the script space supports writing via Zscript
         typeDefinition:
@@ -73,27 +73,27 @@ commands:
     command: 2
     description: writes into a script space
     operation: post
-    requestParams:
-    -   label: P
+    requestFields:
+    -   key: P
         name: scriptSpaceID
         description: which space to write to
         typeDefinition:
             '@type': number
         required: yes
-    -   label: R
+    -   key: R
         name: reset
         description: if present, empties the space and writes from the beginning
         typeDefinition:
             '@type': flag
         required: no
-    -   label: +
+    -   key: +
         name: data
         description: the data to write - in standard zscript form
         typeDefinition:
             '@type': bytes
         required: no
-    responseParams:
-    -   label: L
+    responseFields:
+    -   key: L
         name: availableLength
         description: how much space is available after the write is complete
         typeDefinition:
@@ -109,11 +109,11 @@ commands:
     command: 8
     description: asynchronously sleeps for the specified amount of time
     operation: post
-    requestParams:
-    -   label: M
+    requestFields:
+    -   key: M
         name: milliseconds
         description: how many milliseconds to sleep for
         typeDefinition:
             '@type': number
         required: yes
-    responseParams: []
+    responseFields: []

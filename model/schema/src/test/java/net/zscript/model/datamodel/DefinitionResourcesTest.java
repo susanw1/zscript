@@ -20,21 +20,25 @@ import net.zscript.model.datamodel.DefinitionResources.ModuleBankDef;
 public class DefinitionResourcesTest {
     private JsonMapper jsonMapper;
 
+    private InputStream         resourceStream;
+    private DefinitionResources model;
+
     @BeforeEach
-    public void setup() {
+    public void setup() throws IOException {
         jsonMapper = JsonMapper.builder(new YAMLFactory())
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
                 .addModule(new MrBeanModule())
                 .build();
+
+        resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/module-list.yaml"), "resourceStream");
+        model = jsonMapper.readValue(resourceStream, DefinitionResources.class);
     }
 
     @Test
     public void shouldLoadDefinitionResources() throws IOException {
-        final InputStream   resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/module-list.yaml"), "resourceStream");
-        DefinitionResources model          = jsonMapper.readValue(resourceStream, DefinitionResources.class);
-
         final List<ModuleBankDef> moduleBanks = model.getModuleBanks();
         assertThat(moduleBanks).hasSize(1);
         assertThat(moduleBanks.get(0).getModuleDefinitions()).hasSize(1);
     }
+
 }

@@ -29,10 +29,10 @@ public class IntrinsicsTest {
     public void shouldLoadIntrinsics() throws IOException {
 
         final InputStream   resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/intrinsics.yaml"), "resourceStream is null");
-        IntrinsicsDataModel model          = jsonMapper.readValue(resourceStream, IntrinsicsDataModel.class);
+        IntrinsicsDataModel dataModel          = jsonMapper.readValue(resourceStream, IntrinsicsDataModel.class);
 
-        assertThat(model.getIntrinsics().getRequestFields()).hasSize(1);
-        assertThat(model.getIntrinsics().getResponseFields()).hasSize(1);
-        assertThat(model.getIntrinsics().getStatus()).hasSize(32);
+        assertThat(dataModel.getIntrinsics().getRequestFields()).hasSize(1);
+        assertThat(dataModel.getIntrinsics().getResponseFields()).hasSize(1);
+        assertThat(dataModel.getIntrinsics().getStatus()).hasSize(32);
     }
 }

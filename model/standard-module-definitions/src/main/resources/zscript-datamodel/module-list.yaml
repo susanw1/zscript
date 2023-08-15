@@ -9,5 +9,10 @@ moduleBanks:
 
     moduleDefinitions:
     - 00xx-base-modules/000x-core.yaml
-#    - 00xx-base-modules/001x-outercore.yaml
-#    - 00xx-base-modules/005x-i2c.yaml
+    - 00xx-base-modules/001x-outercore.yaml
+    - 00xx-base-modules/002x-scriptspace.yaml
+    - 00xx-base-modules/004x-pins.yaml
+    - 00xx-base-modules/005x-i2c.yaml
+    - 00xx-base-modules/007x-serial.yaml
+    - 00xx-base-modules/008x-servo-pulse-control.yaml
+    
