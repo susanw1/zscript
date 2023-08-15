@@ -69,6 +69,9 @@ public:
     void setChannels(ZscriptChannel<ZP> **channels, uint8_t channelCount) {
         this->channels = channels;
         this->channelCount = channelCount;
+        for (uint8_t i = 0; i < channelCount; ++i) {
+            channels[i]->setChannelIndex(i);
+        }
     }
 
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
@@ -122,6 +125,9 @@ public:
         } else {
             notificationChannelIndex = 0xFF;
         }
+    }
+    uint8_t getNotificationChannelIndex() {
+        return notificationChannelIndex;
     }
 #endif
 

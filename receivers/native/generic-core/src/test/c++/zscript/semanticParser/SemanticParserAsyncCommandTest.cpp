@@ -10,6 +10,7 @@
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS
 #define ZSCRIPT_SUPPORT_ADDRESSING
 
+#include "../test-defines.hpp"
 #include "../../../../main/c++/zscript/ZscriptIncludes.hpp"
 #include "../../../../main/c++/zscript/execution/ZscriptCommandContext.hpp"
 #include "../../../../main/c++/zscript/execution/ZscriptAddressingContext.hpp"

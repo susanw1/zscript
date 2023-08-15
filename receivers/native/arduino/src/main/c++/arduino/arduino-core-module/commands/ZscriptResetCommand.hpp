@@ -23,11 +23,15 @@ public:
         CommandOutStream<ZP> out = ctx.getOutStream();
         uint16_t target = 0;
         if (ctx.getField('C', &target)) {
-            if (target >= Zscript<ZP>::zscript.getChannelCount()) {
+            if (target >= Zscript < ZP > ::zscript.getChannelCount()) {
                 ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
                 return;
             }
-            if (!Zscript<ZP>::zscript.getChannels()[target]->reset()) {
+            if (!ctx.isActivated()) {
+                ctx.status(ResponseStatus::NOT_ACTIVATED);
+                return;
+            }
+            if (!Zscript < ZP > ::zscript.getChannels()[target]->reset()) {
                 ctx.status(ResponseStatus::COMMAND_FAIL);
                 return;
             }

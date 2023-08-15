@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 #include <iostream>
+
+#include "../test-defines.hpp"
 #include "../../../../main/c++/zscript/tokenizer/TokenRingBuffer.hpp"
 
 class zp {

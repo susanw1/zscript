@@ -24,7 +24,8 @@ public:
         (void) hexMode;
     }
 
-    void open() {
+    void open(uint8_t sourceInd) {
+        (void) sourceInd;
         openB = true;
     }
     void close() {

@@ -127,7 +127,7 @@ private:
     }
     void startResponseSem(AbstractOutStream<ZP> *out, uint8_t respType) {
         if (!out->isOpen()) {
-            out->open();
+            out->open(((SemanticParser<ZP>*) source)->getChannelIndex());
         }
         out->writeField('!', respType);
         if (((SemanticParser<ZP>*) source)->hasEcho()) {
@@ -180,7 +180,7 @@ private:
     void startResponseNotif(AbstractOutStream<ZP> *out) {
         ZscriptNotificationSource<ZP> *notifSrc = ((ZscriptNotificationSource<ZP>*) source);
         if (!out->isOpen()) {
-            out->open();
+            out->open(Zscript<ZP>::zscript.getNotificationChannelIndex());
         }
         if (notifSrc->isAddressing()) {
             out->writeField('!', 0);

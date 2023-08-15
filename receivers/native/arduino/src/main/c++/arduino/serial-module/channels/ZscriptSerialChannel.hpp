@@ -25,7 +25,8 @@ public:
     ZscriptSerialOutStream() {
     }
 
-    void open() {
+    void open(uint8_t source) {
+        (void) source;
         openB = true;
     }
 
@@ -48,9 +49,6 @@ public:
                 Serial.print((char) bytes[i]);
             }
         }
-    }
-    void writeByte(uint8_t byte) {
-        Serial.print((char) byte);
     }
 
 };

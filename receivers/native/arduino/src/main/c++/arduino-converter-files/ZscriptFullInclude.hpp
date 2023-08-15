@@ -30,6 +30,10 @@
 
 #include "Zscript.hpp"
 
+#ifdef ZSCRIPT_HAVE_UDP_CHANNEL
+#include <arduino/udp-module/channels/ZscriptUdpChannel.hpp>
+#endif
+
 #ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
 #include "arduino/serial-module/channels/ZscriptSerialChannel.hpp"
 
@@ -53,6 +57,9 @@ class ArduinoZscriptBasicSetup {
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
 		                                           +1
 #endif
+#ifdef ZSCRIPT_HAVE_UDP_CHANNEL
+		                                           +ZscriptParams::udpChannelCount
+#endif
 
 		                                           ];
 #endif
@@ -60,6 +67,7 @@ class ArduinoZscriptBasicSetup {
 public:
 
     void setup() {
+
         uint8_t i = 0;
 #ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
         channels[i++] = &ZscriptSerialChannel;
@@ -67,6 +75,14 @@ public:
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
         channels[i++] = &ZscriptI2cChannel;
         ZscriptI2cChannel.setup();
+        ZscriptI2cChannel.setAddress(ZscriptParams::i2cChannelAddress);
+#endif
+#ifdef ZSCRIPT_HAVE_UDP_CHANNEL
+    	Zscript::ZscriptUdpManager<ZscriptParams>::setup();
+    	for(uint8_t j = 0; j < ZscriptParams::udpChannelCount; j++){
+    	    channels[i++] = Zscript::ZscriptUdpManager<ZscriptParams>::channels+j;
+    	}
+
 #endif
 #if defined(ZSCRIPT_HAVE_SERIAL_CHANNEL) or defined(ZSCRIPT_HAVE_I2C_CHANNEL)
         Zscript::Zscript<ZscriptParams>::zscript.setChannels(channels, i);

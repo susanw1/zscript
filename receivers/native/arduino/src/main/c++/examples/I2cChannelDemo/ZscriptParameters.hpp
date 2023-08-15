@@ -14,21 +14,22 @@
 #define ZSCRIPT_IDENTIFY_USER_HARDWARE_STRING     "Arduino Nano"
 #define ZSCRIPT_IDENTIFY_USER_HARDWARE_VERSION    0x0000
 
-#include <ArduinoPlatformFirmwareVersion.hpp>
-
-#include <ZscriptIncludes.hpp>
+#include <ArduinoPlatformVersion.hpp>
 #include <arduino/arduino-core-module/commands/ZscriptResetCommand.hpp>
 
-// Please note that ZscriptFullInclude will set any #defines necessary to other set #defines - so ZSCRIPT_SUPPORT_SCRIPT_SPACE enables ZSCRIPT_SUPPORT_NOTIFICATIONS
+#include <ZscriptIncludes.hpp>
+
+// Please note that ZscriptFullInclude will set any #defines necessary to other set #defines - so ZSCRIPT_USE_DEBUG_ADDRESSING_SYSTEM enables ZSCRIPT_SUPPORT_DEBUG
 
 //#define ZSCRIPT_SUPPORT_SCRIPT_SPACE
-//#define ZSCRIPT_SUPPORT_NOTIFICATIONS
-//#define ZSCRIPT_SUPPORT_ADDRESSING
+#define ZSCRIPT_SUPPORT_NOTIFICATIONS
+#define ZSCRIPT_SUPPORT_ADDRESSING
 //#define ZSCRIPT_DONT_FAST_DISCARD_COMMENTS
 
-//#define ZSCRIPT_HAVE_PIN_MODULE
-//#define ZSCRIPT_HAVE_I2C_MODULE
+#define ZSCRIPT_HAVE_PIN_MODULE
+#define ZSCRIPT_HAVE_I2C_MODULE
 
+#define ZSCRIPT_HAVE_UDP_CHANNEL
 #define ZSCRIPT_HAVE_SERIAL_CHANNEL
 //#define ZSCRIPT_HAVE_I2C_CHANNEL
 
@@ -44,12 +45,19 @@ public:
     }
     typedef uint8_t tokenBufferSize_t;
 
+    static const uint8_t udpChannelCount = 1;
+    static const uint16_t udpLocalPort = 8888;
+    static const uint8_t udpBufferSize = 128;
+
     static const uint8_t lockByteCount = 1;
     static const uint16_t serialBufferSize = 128;
     static const uint16_t i2cBufferSize = 128;
 
     static const uint16_t i2cChannelOutputBufferSize = 32;
     static const uint16_t i2cAlertPin = 4;
+    static const uint8_t i2cChannelAddress = 0x61;
+
+    static const uint16_t nonActivatedChannelTimeout = 5000;
 
     static const uint8_t pinCount = 21;
 };

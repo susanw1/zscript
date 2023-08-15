@@ -10,6 +10,7 @@
 #define ZSCRIPT_DONT_FAST_DISCARD_COMMENTS
 #define ZSCRIPT_SUPPORT_ADDRESSING
 
+#include "../test-defines.hpp"
 #include "../../../../main/c++/zscript/tokenizer/ZscriptTokenizer.hpp"
 
 class zp {

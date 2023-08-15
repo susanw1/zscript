@@ -70,7 +70,8 @@ public:
         }
     }
 
-    void open() {
+    void open(uint8_t source) {
+        (void) source;
         openB = true;
     }
 

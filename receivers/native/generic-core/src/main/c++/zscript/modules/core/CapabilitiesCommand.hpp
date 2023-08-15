@@ -32,21 +32,21 @@ public:
 
         switch (versionType) {
         case UserFirmware:
-            ident = "aa";
-            version = 1;
+            ident = ZSCRIPT_IDENTIFY_USER_FIRMWARE_STRING;
+            version = ZSCRIPT_IDENTIFY_USER_FIRMWARE_VERSION;
             break;
-//        case UserHardware:
-//            ident = ZP::Strings::identifyUserHardware;
-//            version = ZCODE_IDENTIFY_USER_HARDWARE_VERSION;
-//            break;
-//        case PlatformFirmware:
-//            ident = ZP::Strings::identifyPlatformFirmware;
-//            version = ZCODE_IDENTIFY_PLATFORM_FIRMWARE_VERSION;
-//            break;
-//        case PlatformHardware:
-//            ident = ZP::Strings::identifyPlatformHardware;
-//            version = ZCODE_IDENTIFY_PLATFORM_HARDWARE_VERSION;
-//            break;
+        case UserHardware:
+            ident = ZSCRIPT_IDENTIFY_USER_HARDWARE_STRING;
+            version = ZSCRIPT_IDENTIFY_USER_HARDWARE_VERSION;
+            break;
+        case PlatformFirmware:
+            ident = ZSCRIPT_IDENTIFY_PLATFORM_FIRMWARE_STRING;
+            version = ZSCRIPT_IDENTIFY_PLATFORM_FIRMWARE_VERSION;
+            break;
+        case PlatformHardware:
+            ident = ZSCRIPT_IDENTIFY_PLATFORM_HARDWARE_STRING;
+            version = ZSCRIPT_IDENTIFY_PLATFORM_HARDWARE_VERSION;
+            break;
         case CoreZcodeLanguage:
             ident = ZSCRIPT_IDENTIFY_CORE_ZSCRIPT_LANG_STRING;
             version = ZSCRIPT_IDENTIFY_CORE_ZSCRIPT_LANG_VERSION;
@@ -54,7 +54,7 @@ public:
         }
 
         if (ident != NULL) {
-//            out->writeBigStringField(ident);
+            out.writeQuotedString(ident);
             out.writeField('V', version);
         } else {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);

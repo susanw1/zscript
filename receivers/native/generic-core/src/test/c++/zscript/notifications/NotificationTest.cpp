@@ -9,6 +9,7 @@
 
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS
 
+#include "../test-defines.hpp"
 #include "../../../../main/c++/zscript/ZscriptIncludes.hpp"
 #include "../../../../main/c++/zscript/execution/ZscriptCommandContext.hpp"
 #include "../../../../main/c++/zscript/execution/ZscriptNotificationContext.hpp"

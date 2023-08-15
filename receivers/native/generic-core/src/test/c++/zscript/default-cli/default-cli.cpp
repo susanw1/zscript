@@ -11,6 +11,7 @@
 #define ZSCRIPT_SUPPORT_SCRIPT_SPACE
 #define ZSCRIPT_SUPPORT_ADDRESSING
 
+#include "../test-defines.hpp"
 #include "../../../../main/c++/zscript/modules/scriptSpace/ScriptSpaceModule.hpp"
 #include "../../../../main/c++/zscript/modules/outerCore/OuterCoreModule.hpp"
 #include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
@@ -22,7 +23,8 @@ class LocalOutStream: public AbstractOutStream<ZP> {
 public:
     bool openB = false;
 
-    void open() {
+    void open(uint8_t sourceInd) {
+        (void) sourceInd;
         openB = true;
     }
 
