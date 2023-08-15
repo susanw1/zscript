@@ -50,7 +50,7 @@
                         <prefix>avr-</prefix>
                         <toolPath>${arduino-gcc-path}</toolPath>
                         <exceptions>false</exceptions>
-                        <debug>true</debug>
+                        <debug>false</debug>
                         <sourceDirectory>src/main/c++</sourceDirectory>
                         <testSourceDirectory>src/test/c++</testSourceDirectory>
 
@@ -94,8 +94,8 @@
 
                     <linker>
                         <name>ld</name>
-                        <prefix>avr-</prefix>
-                        <toolPath>${arduino-gcc-path}</toolPath>
+                        <prefix>${arduino-gcc-path}/avr-</prefix>
+<!--                        <toolPath>${arduino-gcc-path}</toolPath>-->
                     </linker>
 
                     <tests>

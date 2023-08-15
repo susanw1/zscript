@@ -1,6 +1,6 @@
 /*
- * Zcode Library - Command System for Microcontrollers)
- * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
  * SPDX-License-Identifier: MIT
  */
@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_PINCONTROLLER_HPP_
 #define SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_PINCONTROLLER_HPP_
 
-#include <zcode/modules/ZcodeCommand.hpp>
+#include <zscript/modules/ZscriptCommand.hpp>
 
 enum PinControllerCapability {
     None,
@@ -22,6 +22,7 @@ enum PinControllerMode {
     AnalogPin
 };
 
+namespace Zscript {
 template<class ZP>
 class PinController {
 private:
@@ -35,19 +36,20 @@ private:
     }
 
 public:
-    static bool setupPin(uint8_t pinIndex, PinControllerMode mode, uint16_t internalMode, ZcodeExecutionCommandSlot<ZP> slot);
-    static bool pinInfo(uint8_t pinIndex, ZcodeExecutionCommandSlot<ZP> slot);
-    static bool readPin(uint8_t pinIndex, ZcodeExecutionCommandSlot<ZP> slot);
-    static bool writePin(uint8_t pinIndex, uint16_t value, ZcodeExecutionCommandSlot<ZP> slot);
+    static bool setupPin(uint8_t pinIndex, PinControllerMode mode, uint16_t internalMode, ZscriptCommandContext<ZP> ctx);
+    static bool pinInfo(uint8_t pinIndex, ZscriptCommandContext<ZP> ctx);
+    static bool readPin(uint8_t pinIndex, ZscriptCommandContext<ZP> ctx);
+    static bool writePin(uint8_t pinIndex, uint16_t value, ZscriptCommandContext<ZP> ctx);
 };
 template<class ZP>
 uint8_t PinController<ZP>::controller[ZP::pinCount];
-
+}
 #include "DigitalPinController.hpp"
 #include "AnalogPinController.hpp"
 
+namespace Zscript {
 template<class ZP>
-bool PinController<ZP>::setupPin(uint8_t pinIndex, PinControllerMode mode, uint16_t internalMode, ZcodeExecutionCommandSlot<ZP> slot) {
+bool PinController<ZP>::setupPin(uint8_t pinIndex, PinControllerMode mode, uint16_t internalMode, ZscriptCommandContext<ZP> ctx) {
     bool worked;
     switch (mode) {
     case DigitalPin:
@@ -59,32 +61,32 @@ bool PinController<ZP>::setupPin(uint8_t pinIndex, PinControllerMode mode, uint1
         worked = AnalogPinController<ZP>::setupPin(pinIndex, internalMode);
         break;
     default:
-        slot.fail(BAD_PARAM, "Unknown pin mode");
+        ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
         return false;
     }
     if (!worked) {
-        slot.fail(CMD_FAIL, "Pin mode not supported");
+        ctx.status(ResponseStatus::EXECUTION_ERROR);
         return false;
     }
     return true;
 }
 template<class ZP>
-bool PinController<ZP>::pinInfo(uint8_t pinIndex, ZcodeExecutionCommandSlot<ZP> slot) {
+bool PinController<ZP>::pinInfo(uint8_t pinIndex, ZscriptCommandContext<ZP> ctx) {
     switch (controller[pinIndex]) {
     case DigitalPin:
-        DigitalPinController<ZP>::outputPinCaps(pinIndex, slot.getOut());
+        DigitalPinController<ZP>::outputPinCaps(pinIndex, ctx.getOutStream());
         break;
     case AnalogPin:
-        AnalogPinController<ZP>::outputPinCaps(pinIndex, slot.getOut());
+        AnalogPinController<ZP>::outputPinCaps(pinIndex, ctx.getOutStream());
         break;
     default:
-        slot.fail(BAD_PARAM, "Unknown pin mode");
+        ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
         return false;
     }
     return true;
 }
 template<class ZP>
-bool PinController<ZP>::readPin(uint8_t pinIndex, ZcodeExecutionCommandSlot<ZP> slot) {
+bool PinController<ZP>::readPin(uint8_t pinIndex, ZscriptCommandContext<ZP> ctx) {
     uint16_t value;
     bool worked = true;
     switch (controller[pinIndex]) {
@@ -103,18 +105,18 @@ bool PinController<ZP>::readPin(uint8_t pinIndex, ZcodeExecutionCommandSlot<ZP> 
         value = AnalogPinController<ZP>::readPin(pinIndex);
         break;
     default:
-        slot.fail(BAD_PARAM, "Unknown pin mode");
+        ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
         return false;
     }
     if (!worked) {
-        slot.fail(CMD_FAIL, "Pin read not supported");
+        ctx.status(ResponseStatus::EXECUTION_ERROR);
         return false;
     }
-    slot.getOut()->writeField16('V', value);
+    ctx.getOutStream().writeField('V', value);
     return true;
 }
 template<class ZP>
-bool PinController<ZP>::writePin(uint8_t pinIndex, uint16_t value, ZcodeExecutionCommandSlot<ZP> slot) {
+bool PinController<ZP>::writePin(uint8_t pinIndex, uint16_t value, ZscriptCommandContext<ZP> ctx) {
     bool worked = true;
     switch (controller[pinIndex]) {
     case DigitalPin:
@@ -132,14 +134,14 @@ bool PinController<ZP>::writePin(uint8_t pinIndex, uint16_t value, ZcodeExecutio
         AnalogPinController<ZP>::writePin(pinIndex, value);
         break;
     default:
-        slot.fail(BAD_PARAM, "Unknown pin mode");
+        ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
         return false;
     }
     if (!worked) {
-        slot.fail(CMD_FAIL, "Pin write not supported");
+        ctx.status(ResponseStatus::EXECUTION_ERROR);
         return false;
     }
     return true;
 }
-
+}
 #endif /* SRC_MAIN_CPP_ARDUINO_PINS_MODULE_PIN_CONTROLLER_PINCONTROLLER_HPP_ */

@@ -1,6 +1,6 @@
 /*
- * Zcode Library - Command System for Microcontrollers)
- * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
  * SPDX-License-Identifier: MIT
  */
@@ -8,16 +8,16 @@
 #ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_GENERALI2CACTION_HPP_
 #define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_GENERALI2CACTION_HPP_
 
-#include <zcode/modules/ZcodeCommand.hpp>
+#include <zscript/modules/ZscriptCommand.hpp>
 #include "../I2cStrings.hpp"
 #include <Wire.h>
 
 /**
  * Handles the Send, Receive, and Send+Receive cases directly - they're pretty similar
  */
+namespace Zscript {
 template<class ZP>
 class GeneralI2cAction {
-    typedef typename ZP::Strings::string_t string_t;
 
 public:
     static constexpr char CMD_PARAM_I2C_PORT_P = 'P';
@@ -39,41 +39,41 @@ public:
         SEND = 1, RECEIVE = 2, SEND_RECEIVE = 3
     };
 
-    static void executeSendReceive(ZcodeExecutionCommandSlot<ZP> slot, uint8_t action) {
+    static void executeSendReceive(ZscriptCommandContext<ZP> ctx, uint8_t action) {
         uint16_t address;
-        if (!slot.getFields()->get(CMD_PARAM_I2C_ADDR_A, &address)) {
-            slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::noAddress);
+        if (!ctx.getField(CMD_PARAM_I2C_ADDR_A, &address)) {
+            ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }
-        if (slot.getFields()->has(CMD_PARAM_TENBIT_ADDR_N)) {
-            slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::no10BitAddress);
+        if (ctx.hasField(CMD_PARAM_TENBIT_ADDR_N)) {
+            ctx.status(ResponseStatus::EXECUTION_ERROR);
             return;
         }
         if (address >= 128) {
-            slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::badAddress);
+            ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
 
-        ZcodeOutStream<ZP> *out = slot.getOut();
+        CommandOutStream<ZP> out = ctx.getOutStream();
 
-        uint16_t requestedLength = slot.getFields()->get(CMD_PARAM_READ_LENGTH, (uint16_t) 0);
+        uint16_t requestedLength = ctx.getField(CMD_PARAM_READ_LENGTH, (uint16_t) 0);
         if (requestedLength > 32) {
-            slot.fail(TOO_BIG, (string_t) I2cStrings<ZP>::tooLong);
+            ctx.status(ResponseStatus::DATA_TOO_LONG);
             return;
         }
 
         // initial pass
         uint16_t port;
-        if (!slot.getFields()->get(CMD_PARAM_I2C_PORT_P, &port)) {
+        if (!ctx.getField(CMD_PARAM_I2C_PORT_P, &port)) {
             port = 0;
         } else if (port > 0) {
-            slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::badPort);
+            ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
 
-        uint16_t retries = slot.getFields()->get(CMD_PARAM_RETRIES_T, 5);
+        uint16_t retries = ctx.getField(CMD_PARAM_RETRIES_T, 5);
         if (retries > 255) {
-            slot.fail(BAD_PARAM, (string_t) I2cStrings<ZP>::badPort);
+            ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
         if (retries == 0) {
@@ -82,7 +82,6 @@ public:
 #ifdef WIRE_HAS_TIMEOUT
         Wire.setWireTimeout();
 #endif
-        const ZcodeBigField<ZP> *bigField = slot.getBigField();
         uint16_t attemptsDone = 0;
         uint8_t infoValue;
         while (true) {
@@ -93,8 +92,11 @@ public:
             switch ((ActionType) action) {
             case SEND:
                 Wire.beginTransmission((uint8_t) address);
-                if (bigField->getLength() > 0) {
-                    Wire.write(bigField->getData(), bigField->getLength());
+                if (ctx.getBigFieldSize() > 0) {
+                    for (BigFieldBlockIterator<ZP> tbi = ctx.getBigField(); tbi.hasNext();) {
+                        DataArrayWLeng16 data = tbi.nextContiguous();
+                        Wire.write(data.data, data.length);
+                    }
                 }
                 status = Wire.endTransmission();
                 break;
@@ -115,8 +117,11 @@ public:
                 break;
             case SEND_RECEIVE:
                 Wire.beginTransmission((uint8_t) address);
-                if (bigField->getLength() > 0) {
-                    Wire.write(bigField->getData(), bigField->getLength());
+                if (ctx.getBigFieldSize() > 0) {
+                    for (BigFieldBlockIterator<ZP> tbi = ctx.getBigField(); tbi.hasNext();) {
+                        DataArrayWLeng16 data = tbi.nextContiguous();
+                        Wire.write(data.data, data.length);
+                    }
                 }
                 status = Wire.endTransmission(false);
                 if (status == 0) {
@@ -138,45 +143,44 @@ public:
 
             if (status == 0) {
                 infoValue = CMD_RESP_I2C_INFO_VAL_OK;
-                out->writeStatus(OK);
                 if ((action & RECEIVE) != 0) {
-                    out->writeBigHexField(buffer, requestedLength);
+                    out.writeBigHex(buffer, requestedLength);
                 }
                 break;
             } else if (status == 3) {
                 // abrupt failure during data send - don't retry, because its status is now unknown
                 infoValue = CMD_RESP_I2C_INFO_VAL_DATANACK;
-                slot.fail(CMD_FAIL, (string_t) I2cStrings<ZP>::dataNack);
+                ctx.status(ResponseStatus::COMMAND_DATA_NOT_TRANSMITTED);
                 break;
             } else if (status == 5 || status == 4) {
                 if (recoverBusJam()) {
                     infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
-                    slot.fail(CMD_ERROR, (string_t) I2cStrings<ZP>::fatalError);
+                    ctx.status(ResponseStatus::PERIPHERAL_JAM);
                 } else {
                     infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
-                    slot.fail(CMD_FAIL, (string_t) I2cStrings<ZP>::fail);
+                    ctx.status(ResponseStatus::COMMAND_FAIL);
                 }
                 break;
             } else if (status == 6 && action == ActionType::SEND_RECEIVE) {
                 infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
-                slot.fail(CMD_FAIL, (string_t) I2cStrings<ZP>::address2Nack);
+                ctx.status(ResponseStatus::COMMAND_NO_TARGET);
                 break;
             } else if (attemptsDone < retries) {
                 // any other error, keep retrying. Beyond here, we must be at the end of all retries.
             } else if (status == 2) {
                 infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
-                slot.fail(CMD_FAIL, (string_t) I2cStrings<ZP>::addressNack);
+                ctx.status(ResponseStatus::COMMAND_NO_TARGET);
                 break;
             } else {
                 infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
-                slot.fail(CMD_FAIL, (string_t) I2cStrings<ZP>::fail);
+                ctx.status(ResponseStatus::COMMAND_FAIL);
                 break;
             }
 
         }
-        out->writeField8(CMD_RESP_I2C_ATTEMPTS_T, attemptsDone);
-        out->writeField8(CMD_RESP_I2C_INFO_I, infoValue);
-        out->writeField16(CMD_RESP_I2C_ADDR_A, address);
+        out.writeField(CMD_RESP_I2C_ATTEMPTS_T, attemptsDone);
+        out.writeField(CMD_RESP_I2C_INFO_I, infoValue);
+        out.writeField(CMD_RESP_I2C_ADDR_A, address);
         return;
 
     }
@@ -219,5 +223,6 @@ public:
     }
 
 };
+}
 
 #endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_GENERALI2CACTION_HPP_ */
