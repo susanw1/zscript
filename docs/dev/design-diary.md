@@ -6,6 +6,15 @@ Realizing we're making lots of design decisions without writing them down!
 
 2023-08-16
 ---
+A few other interesting discussions/decisions:
+- The word 'port' is not a good fit for all communication protocols. Instead we'll switch to "interface" as a descriptor for physically different subsystems of the same protocol.
+- We will not have boolean or tri-state values. Instead they will be two state enums, and two state optional enums. This allows for better descriptions and gives only one true/false type (flags)
+- Channel info will have: Module (number, M), Notifications (opt-enum, N), Activated (flag, A), and Interface (number, I), and others as required. No string descriptors.
+- Channel setup will have: Notifications (opt-enum, N), and other setting as required
+- String descriptors should be avoided. Instead the machine-readable state should be unambiguous, and the client side should generate the strings (through lookup or dynamic generation). This saves memory, makes coms easier, etc.
+
+2023-08-16
+---
 Discussed whether UARTs, USB and TCP should be unified at all. Conclusion: NO.
 The philosophy of Zscript should be: Any time two things are distinct, they should live in different modules, even if they act very similarly.
 This should also be seen in the Pins system, where no attempt will be made to unify analog and digital read/write.
