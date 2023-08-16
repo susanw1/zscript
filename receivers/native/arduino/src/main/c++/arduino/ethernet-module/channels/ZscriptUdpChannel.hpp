@@ -8,14 +8,11 @@
 #ifndef SRC_MAIN_C___ARDUINO_UDP_MODULE_CHANNELS_ZSCRIPTUDPCHANNEL_HPP_
 #define SRC_MAIN_C___ARDUINO_UDP_MODULE_CHANNELS_ZSCRIPTUDPCHANNEL_HPP_
 
-#include <Ethernet.h>
-#include <EthernetUdp.h>
+#include "../ZscriptEthernetSystem.hpp"
 
 #include <ZscriptChannelBuilder.hpp>
 
 EthernetUDP Udp;
-
-uint8_t macAddress[6] = { 0xde, 0xad, 0xbe, 0xef, 0xfe, 0xad };
 
 namespace Zscript {
 
@@ -67,7 +64,6 @@ public:
 template<class ZP>
 class ZscriptUdpManager {
     static uint16_t port;
-    static bool hasLink;
     static bool hasMessageB;
 
 public:
@@ -77,30 +73,14 @@ public:
 
     static void setup() {
         port = ZP::udpLocalPort;
-//        if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-//            return;
-//        }
-//        if (Ethernet.linkStatus() == LinkOFF) {
-//            return;
-//        }
-        if (Ethernet.begin(macAddress)) {
+        if (EthernetSystem<ZP>::ensureLink()) {
             Udp.begin(port);
-            hasLink = true;
         }
     }
     static void setup(uint16_t portI) {
         port = portI;
-//        if (!Ethernet.begin(macAddress, 2, 2)) {
-//            if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-//                return;
-//            }
-//        if (Ethernet.linkStatus() == LinkOFF) {
-//                return;
-//            }
-//        }
-        if (Ethernet.begin(macAddress)) {
+        if (EthernetSystem<ZP>::ensureLink()) {
             Udp.begin(port);
-            hasLink = true;
         }
     }
 
@@ -113,39 +93,13 @@ public:
     static void reset() {
         Udp.flush();
         Udp.stop();
-        hasLink = false;
-//        if (!Ethernet.begin(macAddress, 2, 2)) {
-//            if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-//                return;
-//            }
-//        if (Ethernet.linkStatus() == LinkOFF) {
-//                return;
-//            }
-//        }
-        if (Ethernet.begin(macAddress)) {
+        if (EthernetSystem<ZP>::resetLink()) {
             Udp.begin(port);
-            hasLink = true;
         }
     }
 
     static void moveAlong() {
-        if (!hasLink) {
-            if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-                return;
-            }
-            if (Ethernet.linkStatus() == LinkOFF) {
-                return;
-            }
-            if (Ethernet.begin(macAddress)) {
-                Udp.begin(ZP::udpLocalPort);
-                hasLink = true;
-            }
-            return;
-        }
-        uint8_t result = Ethernet.maintain();
-        if (result == 1 || result == 3) {
-            hasLink = false;
-            Udp.stop();
+        if (!EthernetSystem<ZP>::ensureLink()) {
             return;
         }
         if (hasMessageB) {
@@ -173,10 +127,9 @@ public:
             Udp.flush();
         }
     }
-};
+}
+;
 
-template<class ZP>
-bool ZscriptUdpManager<ZP>::hasLink = false;
 template<class ZP>
 uint16_t ZscriptUdpManager<ZP>::port = ZP::udpLocalPort;
 template<class ZP>

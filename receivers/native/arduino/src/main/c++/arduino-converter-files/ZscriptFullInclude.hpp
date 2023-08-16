@@ -31,7 +31,10 @@
 #include "Zscript.hpp"
 
 #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
-#include <arduino/udp-module/channels/ZscriptUdpChannel.hpp>
+#include <arduino/ethernet-module/channels/ZscriptUdpChannel.hpp>
+#endif
+#ifdef ZSCRIPT_HAVE_TCP_CHANNEL
+#include <arduino/ethernet-module/channels/ZscriptTcpChannel.hpp>
 #endif
 
 #ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
