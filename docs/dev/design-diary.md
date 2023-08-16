@@ -3,6 +3,18 @@ LOG OF IDEAS AND DEVELOPMENT
 
 Realizing we're making lots of design decisions without writing them down!
 
+
+2023-08-16
+---
+Discussed whether UARTs, USB and TCP should be unified at all. Conclusion: NO.
+The philosophy of Zscript should be: Any time two things are distinct, they should live in different modules, even if they act very similarly.
+This should also be seen in the Pins system, where no attempt will be made to unify analog and digital read/write.
+Instead they are considered different commands within the same module (which is valid), but unless the capabilities are as related as different ways of reading the same pin, they should be in different modules.
+Zscript supports LOTS of modules (4096), and they should be used liberally. Abstracting shared functionality like that is not the role of the Zscript receiver, instead, the command layouts should share patterns and languages. Then it is the role of good client side software to provide meaningfully shared interfaces onto those capabilities. This way, no more tension is added to the difficult low-level code, making it easier to use on a range of devices, and no capabilities are hidden from the client side, so abstractions are optional rather than mandatory.
+This gives better flexibility, moves complexity to where it can easily be absorbed, while still providing useful abstractions.
+It also removes issues surrounding pointless settings, like setting the baud rate of a TCP serial connection.
+
+
 2023-08-14
 ---
 Spent a while optimising for code size on the arduino - got a minimal version (including deleting code which wasn't relevant) down to 8388 bytes, which is larger than `generic-core 2` (at ~7400 bytes), but not too large. To get this in a real version we'll need to add `#ifdef`s to the code.
