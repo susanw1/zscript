@@ -6,27 +6,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 
 import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
+import net.zscript.model.loader.ModelLoader;
 
 public class ModuleTest {
-    private JsonMapper jsonMapper;
-
-    @BeforeEach
-    public void setup() {
-        jsonMapper = JsonMapper.builder(new YAMLFactory())
-                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-                .addModule(new MrBeanModule())
-                .build();
-    }
+    private final JsonMapper jsonMapper = ModelLoader.createJsonMapper();
 
     @ParameterizedTest
     @CsvSource({

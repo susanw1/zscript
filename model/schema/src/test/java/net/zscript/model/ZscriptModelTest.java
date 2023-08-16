@@ -2,15 +2,9 @@ package net.zscript.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class ZmodelTest {
-
-    @BeforeEach
-    void setUp() throws Exception {
-    }
-
+class ZscriptModelTest {
     @Test
     void shouldLoadRaw() {
         ZscriptModel model = ZscriptModel.rawModel();

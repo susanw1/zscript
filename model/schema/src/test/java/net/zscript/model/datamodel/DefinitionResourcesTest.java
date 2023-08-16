@@ -10,26 +10,23 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 
+import net.zscript.model.ZscriptModel;
 import net.zscript.model.datamodel.DefinitionResources.ModuleBankDef;
+import net.zscript.model.datamodel.ZscriptDataModel.CommandModel;
+import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
+import net.zscript.model.datamodel.ZscriptDataModel.RequestFieldModel;
+import net.zscript.model.loader.ModelLoader;
 
 public class DefinitionResourcesTest {
-    private JsonMapper jsonMapper;
+    private final JsonMapper jsonMapper = ModelLoader.createJsonMapper();
 
     private InputStream         resourceStream;
     private DefinitionResources model;
 
     @BeforeEach
     public void setup() throws IOException {
-        jsonMapper = JsonMapper.builder(new YAMLFactory())
-                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-                .addModule(new MrBeanModule())
-                .build();
-
         resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/module-list.yaml"), "resourceStream");
         model = jsonMapper.readValue(resourceStream, DefinitionResources.class);
     }
@@ -41,4 +38,15 @@ public class DefinitionResourcesTest {
         assertThat(moduleBanks.get(0).getModuleDefinitions()).hasSize(1);
     }
 
+    @Test
+    public void shouldMatchCommandType() throws IOException {
+        final ZscriptModel standardModel = ZscriptModel.standardModel();
+        ModuleModel        module        = standardModel.getModule("Base", "Testing").orElseThrow();
+
+        CommandModel      command = module.getCommands().stream().filter(c -> c.getCommandName().equals("capabilities")).findFirst().orElseThrow();
+        RequestFieldModel req     = command.getRequestFields().stream().filter(f -> f.getName().equals("versionType")).findFirst().orElseThrow();
+        assertThat(req.getKey()).isEqualTo('V');
+        assertThat(req.getTypeDefinition().isType("enum")).isTrue();
+        assertThat(req.getTypeDefinition().isType("bitset")).isFalse();
+    }
 }

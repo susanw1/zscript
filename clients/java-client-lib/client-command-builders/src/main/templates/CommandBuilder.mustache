@@ -40,11 +40,12 @@ public class {{name}}Module {
 
 {{#requestFields}}
 // {{key}}
-//{{name}}
-//{{#typeDefinition}}
-//{{ '@type' }}
-// {{allowedValues}}
-//{{/typeDefinition}}
+// {{name}}
+// {{#typeDefinition}}
+// {{#enumType}}enumType{{/enumType}}
+// {{#bitsetType}}bitsetType{{/bitsetType}}
+// {{#numberType}}numberType{{/numberType}}
+// {{/typeDefinition}}
 
 
 {{/requestFields}}
