@@ -21,7 +21,7 @@ public class DemoActivateCommandBuilder extends ZscriptCommandBuilder<DemoActiva
 
     @Override
     protected DemoActivateCommandResponse parseResponse(ZscriptUnparsedCommandResponse resp) {
-        return new DemoActivateCommandResponse(resp.getField('A').get() == 1 ? true : false);
+        return new DemoActivateCommandResponse(resp.getField('A').getAsInt() == 1 ? true : false);
     }
 
     @Override

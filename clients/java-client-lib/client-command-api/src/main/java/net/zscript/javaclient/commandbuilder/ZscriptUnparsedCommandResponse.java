@@ -3,6 +3,7 @@ package net.zscript.javaclient.commandbuilder;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import net.zscript.javareceiver.tokenizer.BlockIterator;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
@@ -40,15 +41,15 @@ public class ZscriptUnparsedCommandResponse {
         return false;
     }
 
-    public Optional<Integer> getField(byte f) {
+    public OptionalInt getField(byte f) {
         OptIterator<ReadToken> it = iterator();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             ReadToken token = opt.get();
             if (token.getKey() == f) {
-                return Optional.of(token.getData16());
+                return OptionalInt.of(token.getData16());
             }
         }
-        return Optional.empty();
+        return OptionalInt.empty();
     }
 
     public int getField(byte f, int def) {
@@ -153,7 +154,7 @@ public class ZscriptUnparsedCommandResponse {
         return data;
     }
 
-    public Optional<Integer> getField(char c) {
+    public OptionalInt getField(char c) {
         return getField((byte) c);
     }
 

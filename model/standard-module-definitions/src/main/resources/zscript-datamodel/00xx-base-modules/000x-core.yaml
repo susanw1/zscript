@@ -50,7 +50,7 @@ commands:
         name: ident
         description: identification string relating to requested versionType
         typeDefinition:
-            '@type': string
+            '@type': text
         required: yes
     status: []
 
@@ -239,3 +239,4 @@ commands:
     requestFields: []
     responseFields: []
     status: []
+    

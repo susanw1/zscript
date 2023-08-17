@@ -53,16 +53,16 @@ commands:
         description: a set of more specific capabilities of the module
         typeDefinition:
             '@type': bitset
-            bitFields: null
+            bitFields: 
+                - name: parityOn
+                  description: enables sending parity bits
+                - name: doubleStop
+                  description: whether the device supports choosing single or double stop bits
+                - name: autoBaud
+                  description: whether the device supports automatic baudrate detection
+                - name: arbitraryFrequency
+                  description: whether the device supports selecting baudrate as a freely varying number
         required: yes
-#                - name: parity
-#                  description: whether the device supports sending a parity bit
-#                - name: singleDoubleStop
-#                  description: whether the device supports choosing single or double stop bits
-#                - name: autoBaud
-#                  description: whether the device supports automatic baudrate detection
-#                - name: arbitraryFrequency
-#                  description: whether the device supports selecting baudrate as a freely varying number
     -   key: R
         name: rxBufferSize
         description: how many bytes of buffer have been assigned for received data
@@ -102,20 +102,20 @@ commands:
             '@type': number
         required: no
     -   key: B
-        name: bitsetOptions
+        name: options
         description: a set of more specific operational choices about the device's operation
         typeDefinition:
             '@type': bitset
-            bitFields: null
+            bitFields:
+                - name: parityOn
+                  description: enables sending parity bits
+                - name: doubleStop
+                  description: selects double stop bits rather than single
+                - name: autoBaud
+                  description: enables automatic baud rate detection
         required: no
     -   key: A
         name: addressing
-#                - name: parity
-#                  description: enables sending parity bits
-#                - name: singleDoubleStop
-#                  description: selects double stop bits rather than single
-#                - name: autoBaud
-#                  description: enables automatic baud rate detection
         description: enables addressing
         typeDefinition:
             '@type': flag
@@ -143,7 +143,7 @@ commands:
         name: baudRate
         description: the baud rate the device will now run at, in Hz (only present if frequency was changed)
         typeDefinition:
-            '@type': number
+            '@type': bytes
         required: no
     status: []
 
@@ -201,13 +201,12 @@ commands:
         required: yes
     -   key: +
         name: data
-
-
         description: the data received up to the first serial
         typeDefinition:
             '@type': bytes
         required: yes
     status: []
+
 -   name: skip
     command: 4
     description: Serial skip

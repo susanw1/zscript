@@ -45,7 +45,7 @@ public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCa
 
     @Override
     protected DemoCapabilitiesCommandResponse parseResponse(ZscriptUnparsedCommandResponse resp) {
-        return new DemoCapabilitiesCommandResponse(resp.getField('V').get(), resp.getBigFieldString());
+        return new DemoCapabilitiesCommandResponse(resp.getField('V').getAsInt(), resp.getBigFieldString());
     }
 
     @Override

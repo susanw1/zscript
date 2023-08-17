@@ -2,6 +2,7 @@ package net.zscript.javaclient.commandbuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -12,6 +13,8 @@ import java.util.Map;
 import net.zscript.javareceiver.tokenizer.Zchars;
 
 public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
+    private static final int BIGFIELD_REQD_OFFSET = 26;
+
     private final List<ZscriptResponseListener<T>> listeners      = new ArrayList<>();
     private final List<BigField>                   bigFields      = new ArrayList<>();
     private final Map<Byte, Integer>               fields         = new HashMap<>();
@@ -53,7 +56,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
                 }
                 return out.toByteArray();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedIOException(e);
             }
         }
 
@@ -163,12 +166,12 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     }
 
     protected ZscriptCommandBuilder<T> addBigField(byte[] data) {
-        bigFields.add(new BigField(data, false));
+        addBigFieldImpl(new BigField(data, false));
         return this;
     }
 
     protected ZscriptCommandBuilder<T> addBigField(byte[] data, boolean asString) {
-        bigFields.add(new BigField(data, asString));
+        addBigFieldImpl(new BigField(data, asString));
         return this;
     }
 
@@ -176,23 +179,30 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         int bigFieldPlusLen = data.length * 2 + 1;
         int bigFieldStrLen  = 2 + data.length;
         for (byte b : data) {
-            if (b == '"' || b == '\n' || b == '=' || b == '\0') {
+            if (Zchars.mustStringEscape(b)) {
                 bigFieldStrLen += 2;
             }
         }
-        bigFields.add(new BigField(data, bigFieldStrLen > bigFieldPlusLen));
+        addBigFieldImpl(new BigField(data, bigFieldStrLen > bigFieldPlusLen));
         return this;
     }
 
     protected ZscriptCommandBuilder<T> addBigField(String data) {
-        bigFields.add(new BigField(data.getBytes(StandardCharsets.UTF_8), true));
+        addBigFieldImpl(new BigField(data.getBytes(StandardCharsets.UTF_8), true));
         return this;
+    }
+
+    private void addBigFieldImpl(BigField bigField) {
+        bigFields.add(bigField);
+        requiredFields.clear(BIGFIELD_REQD_OFFSET);
     }
 
     protected final void setRequiredFields(byte[] keys) {
         for (byte k : keys) {
             if (Zchars.isNumericKey(k)) {
                 requiredFields.set(k - 'A');
+            } else if (Zchars.isBigField(k)) {
+                requiredFields.set(BIGFIELD_REQD_OFFSET);
             }
         }
     }
@@ -206,8 +216,23 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         return this;
     }
 
+    /**
+     * Determines whether this command has all of its required fields set.
+     *
+     * @return true if required fields are all set, false otherwise
+     */
+    public boolean isValid() {
+        return requiredFields.isEmpty();
+    }
+
+    /**
+     * Builds the command.
+     *
+     * @return the command that has been built
+     * @throws IllegalStateException if builder doesn't yet pass validation
+     */
     public ZscriptCommand build() {
-        if (!requiredFields.isEmpty()) {
+        if (!isValid()) {
             throw new IllegalStateException("Required field not set: " + (char) ((requiredFields.nextSetBit(0) + 'A')));
         }
         return new ZscriptBuiltCommand();

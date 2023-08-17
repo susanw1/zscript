@@ -44,10 +44,11 @@ public class {{name}}Module {
             setField(Zchars.Z_CMD, {{fullCommand}});
         }
 
+        // +++++++++++++ REQUEST FIELDS +++++++++++++
     {{#requestFields}}
         {{#typeDefinition}}
             {{#enumType}}
-{{ ! ENUM SETTERS }}
+{{ ! ============ ENUM-TYPE SETTERS ============= }}
         /**
          * Enum of acceptable values for {@link #{{name}}} field.
          */
@@ -116,7 +117,7 @@ public class {{name}}Module {
                 {{/required}}        
             {{/enumType}}
             {{#numberType}}
-{{ ! NUMBER SETTERS }}
+{{ ! ============ NUMBER-TYPE SETTERS ============= }}
         /**
          * Sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
          *
@@ -153,7 +154,7 @@ public class {{name}}Module {
                 {{/required}}        
             {{/numberType}}
             {{#flagType}}
-{{ ! FLAG SETTERS }}
+{{ ! ============ FLAG-TYPE SETTERS ============= }}
         /**
          * Sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
          *
@@ -177,7 +178,7 @@ public class {{name}}Module {
 
             {{/flagType}}
             {{#bitsetType}}
-{{ ! BITSET SETTERS }}
+{{ ! ============ BITSET-TYPE SETTERS ============= }}
         /**
          * Enum of acceptable values for {@link #{{name}}} field.
          */
@@ -270,7 +271,7 @@ public class {{name}}Module {
                 {{/required}}        
             {{/bitsetType}}
             {{#textType}}
-{{ ! TEXT SETTERS }}
+{{ ! ============ TEXT-TYPE SETTERS ============= }}
         /**
          * Appends the supplied text for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} big-field: {{description}}
          * <p>
@@ -339,7 +340,7 @@ public class {{name}}Module {
                 {{/required}}
             {{/textType}}
             {{#bytesType}}
-{{ ! BYTES SETTERS }}
+{{ ! ============ BYTES-TYPE SETTERS ============= }}
         /**
          * Appends the supplied bytes for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} big-field: {{description}}
          *
@@ -405,7 +406,7 @@ public class {{name}}Module {
                 {{/required}}
             {{/bytesType}}
             {{#anyType}}
-{{ ! ANY SETTERS }}
+{{ ! ============ ANY-TYPE SETTERS ============= }}
         /**
          * Sets any field: {{description}}
          *
@@ -417,7 +418,6 @@ public class {{name}}Module {
             setField((byte) key, value);
             return this;
         }
- 
                 {{^required}}
         /**
          * Optionally sets any field: {{description}}
@@ -456,16 +456,120 @@ public class {{name}}Module {
             return new {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}}(resp);
         }
 
+// +++++++++++++ RESPONSE FIELDS +++++++++++++
+
         public static class {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}} implements ZscriptResponse {
             private final ZscriptUnparsedCommandResponse resp;
 
             public {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}}(ZscriptUnparsedCommandResponse resp) {
                 this.resp = resp;
             }
-            
-        }
+    {{#responseFields}}
+        {{#typeDefinition}}
+            {{#enumType}}
+{{ ! ============ ENUM GETTERS ============= }}
+            /**
+             * Enum of acceptable values for {@link #{{name}}} field.
+             */
+            public static enum {{#upperCamel}}{{name}}{{/upperCamel}} {
+                {{#allowedValues}}
+                {{#upperCamel}}{{.}}{{/upperCamel}},            
+                {{/allowedValues}}
+            }
+
+                {{#required}}
+            /**
+             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+             *
+             * @return the value of this required field 
+             */
+            public int get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt() {
+                return resp.getField((byte) '{{key}}').orElseThrow(() -> new IllegalStateException("Missing required field: {{#lowerCamel}}{{name}}{{/lowerCamel}}: '{{key}}'"));
+            }
+     
+            /**
+             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+             *
+             * @return the value of this required field 
+             */
+            public {{#upperCamel}}{{name}}{{/upperCamel}} get{{#upperCamel}}{{name}}{{/upperCamel}}(final {{#upperCamel}}{{name}}{{/upperCamel}} value) {
+                return {{#upperCamel}}{{name}}{{/upperCamel}}.values()[get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt()];
+            }
+                {{/required}}
+                {{^required}}
+            /**
+             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+             *
+             * @return the value of this non-required field
+             */
+            public OptionalInt get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt() {
+                final OptionalInt field = resp.getField((byte) '{{key}}');
+                field.ifPresent(v -> {
+                    final int max = {{#upperCamel}}{{name}}{{/upperCamel}}.values().length; 
+                    if (v >= max) {
+                        throw new IllegalStateException("{{#upperCamel}}{{name}}{{/upperCamel}} value out of range (max=" + max + "): " + v);
+                    }
+                });
+                return field;
+            }
+     
+            /**
+             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+             *
+             * @return the value of this non-required field as enum
+             */
+            public Optional<{{#upperCamel}}{{name}}{{/upperCamel}}> get{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                OptionalInt valueOpt = get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt();
+                return valueOpt.stream().mapToObj(v -> {{#upperCamel}}{{name}}{{/upperCamel}}.values()[v]).findFirst();
+            }
+
+            /**
+             * Determines if the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field is set: {{description}}
+             *
+             * @return the value of this non-required field, or empty if not set
+             */
+            public boolean has{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                return resp.hasField((byte) '{{key}}');
+            }
+                {{/required}}        
+            {{/enumType}}
+            {{#numberType}}
+{{ ! ============ NUMBER-TYPE GETTERS ============= }}
+                {{#required}}
+            /**
+             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+             *
+             * @return the value of this required field 
+             */
+            public int get{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                return resp.getField((byte) '{{key}}').orElseThrow(() -> new IllegalStateException("Missing required field: {{#lowerCamel}}{{name}}{{/lowerCamel}}: '{{key}}'"));
+            }
+                {{/required}}
+                {{^required}}
+            /**
+             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+             *
+             * @return the value of this non-required field, or empty if not set
+             */
+            public OptionalInt get{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                return resp.getField((byte) '{{key}}');
+            }
+    
+            /**
+             * Determines if the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field is set: {{description}}
+             *
+             * @return the value of this non-required field, or empty if not set
+             */
+            public boolean has{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                return resp.hasField((byte) '{{key}}');
+            }
+                {{/required}}        
+            {{/numberType}}
+        {{/typeDefinition}}
+    {{/responseFields}}
+
+        } 
     }
-    
-    
+        
 {{/commands}}
 }
