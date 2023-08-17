@@ -17,6 +17,9 @@
 #ifdef ZSCRIPT_HAVE_PIN_MODULE
 #include "arduino/pins-module/ZscriptPinModule.hpp"
 #endif
+#ifdef ZSCRIPT_HAVE_SERVO_MODULE
+#include "arduino/servo-module/ServoModule.hpp"
+#endif
 #ifdef ZSCRIPT_HAVE_I2C_MODULE
 #include "arduino/i2c-module/ZscriptI2cModule.hpp"
 #endif
@@ -70,7 +73,9 @@ class ArduinoZscriptBasicSetup {
 public:
 
     void setup() {
-
+#ifdef ZSCRIPT_HAVE_SERVO_MODULE
+        Zscript::ZscriptServoModule<ZscriptParams>::setup();
+#endif
         uint8_t i = 0;
 #ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
         channels[i++] = &ZscriptSerialChannel;

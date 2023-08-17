@@ -53,6 +53,7 @@ public:
             uint16_t port;
             if (!ctx.getField(CMD_PARAM_I2C_PORT_P, &port)) {
                 ctx.status(ResponseStatus::MISSING_KEY);
+                return;
             }
             if (port != 0) {
                 ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);

@@ -24,25 +24,48 @@ class ZscriptNotificationSource;
 template<class ZP>
 class AsyncActionNotifier {
     void *source;
+    #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
     bool isSemantic;
+#endif
 
 public:
     AsyncActionNotifier(GenericCore::SemanticParser<ZP> *parser) :
-            source(parser), isSemantic(true) {
+            source(parser)
+
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+    ,isSemantic(true)
+#endif
+
+    {
     }
+
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
     AsyncActionNotifier(GenericCore::ZscriptNotificationSource<ZP> *notification) :
             source(notification), isSemantic(false) {
     }
+#endif
     AsyncActionNotifier() :
-            source(NULL), isSemantic(true) {
+            source(NULL)
+
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+    ,isSemantic(true)
+#endif
+    {
     }
 
     void notifyNeedsAction() {
+        if (source == NULL) {
+            return;
+        }
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         if (isSemantic) {
-            ((GenericCore::SemanticParser<ZP>*) source)->notifyNeedsAction();
+#endif
+        ((GenericCore::SemanticParser<ZP>*) source)->notifyNeedsAction();
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         } else {
             ((GenericCore::ZscriptNotificationSource<ZP>*) source)->notifyNeedsAction();
         }
+#endif
     }
 };
 template<class ZP>
