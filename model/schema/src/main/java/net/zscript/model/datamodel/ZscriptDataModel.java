@@ -115,7 +115,7 @@ public interface ZscriptDataModel {
             return true;
         }
 
-        List<String> getAllowedValues();
+        List<String> getValues();
     }
 
     interface BitsetTypeDefinition extends TypeDefinition {
@@ -123,7 +123,7 @@ public interface ZscriptDataModel {
             return true;
         }
 
-        List<Bit> getBitFields();
+        List<Bit> getBits();
 
         interface Bit {
             String getName();
@@ -166,8 +166,6 @@ public interface ZscriptDataModel {
         default boolean commandsType() {
             return true;
         }
-
-        List<String> getBitFields();
     }
 
     interface CustomTypeDefinition extends TypeDefinition {

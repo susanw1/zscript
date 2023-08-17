@@ -36,7 +36,7 @@ public class {{name}}Module {
      * Command semantics characterized as: {{operation}}.
      */
     public static class {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} extends ZscriptCommandBuilder<{{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}}.{{#upperCamel}}{{name}}{{/upperCamel}}CommandResponse> {
-    
+
         public static final byte CMD_ID = {{command}};
 
         private {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}}() {
@@ -53,9 +53,9 @@ public class {{name}}Module {
          * Enum of acceptable values for {@link #{{name}}} field.
          */
         public static enum {{#upperCamel}}{{name}}{{/upperCamel}} {
-            {{#allowedValues}}
+            {{#values}}
             {{#upperCamel}}{{.}}{{/upperCamel}},            
-            {{/allowedValues}}
+            {{/values}}
         }
         
         /**
@@ -472,9 +472,9 @@ public class {{name}}Module {
              * Enum of acceptable values for {@link #{{name}}} field.
              */
             public static enum {{#upperCamel}}{{name}}{{/upperCamel}} {
-                {{#allowedValues}}
+                {{#values}}
                 {{#upperCamel}}{{.}}{{/upperCamel}},            
-                {{/allowedValues}}
+                {{/values}}
             }
 
                 {{#required}}

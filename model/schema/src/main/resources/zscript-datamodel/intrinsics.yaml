@@ -2,14 +2,14 @@ intrinsics:
     requestFields:
     -   key: Z
         name: command
-        description: which operation to be performed
+        description: which command to be executed
         typeDefinition:
             '@type': number
         required: yes
     responseFields:
     -   key: S
         name: status
-        description: indicates success (0), failure (1-f) or error
+        description: indicates success (0), failure (1-0xf) or error (0x10+)
         typeDefinition:
             '@type': number
         required: yes

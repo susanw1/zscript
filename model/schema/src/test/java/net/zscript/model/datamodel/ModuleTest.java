@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -22,8 +22,8 @@ public class ModuleTest {
             "my-module.yaml,        Testing"
     })
     public void shouldLoad(String module, String expectedName) throws IOException {
-        InputStream resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/test-modulebank/" + module), "resourceStream");
-        ModuleModel model          = jsonMapper.readValue(resourceStream, ModuleModel.class);
+        URL         resourceurl = requireNonNull(getClass().getResource("/zscript-datamodel/test-modulebank/" + module), "resourceStream");
+        ModuleModel model          = jsonMapper.readValue(resourceurl, ModuleModel.class);
 
         assertThat(model.getName()).isEqualTo(expectedName);
     }

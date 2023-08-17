@@ -15,7 +15,6 @@ commands:
         description: which commands are enabled in the I2C module
         typeDefinition:
             '@type': commands
-            bitFields: []
         required: yes
     -   key: P
         name: pinCount
@@ -28,7 +27,7 @@ commands:
         description: a set representing which pin controllers are available overall
         typeDefinition:
             '@type': bitset
-            bitFields: 
+            bits: 
                 - name: digital
                   description: whether the device supports digital pin control
                 - name: AtoD
@@ -54,7 +53,7 @@ commands:
         description: 'which mode should be selected for the pin (default: DigitalInput)'
         typeDefinition:
             '@type': enum
-            allowedValues:
+            values:
             - Input
             - InputPullUp
             - InputPullDown
@@ -69,7 +68,7 @@ commands:
         description: A bitset of the supported operational modes of the pin
         typeDefinition:
             '@type': bitset
-            bitFields:
+            bits:
             -     name:    Input
             -     name:    InputPullUp
             -     name:    InputPullDown
@@ -95,7 +94,10 @@ commands:
         name: value
         description: what value should be selected
         typeDefinition:
-            '@type': boolean
+            '@type': enum
+            values:
+                - low
+                - high
         required: yes
     responseFields: []
     status: []
@@ -199,3 +201,4 @@ commands:
         required: yes
     responseFields: []
     status: []
+    

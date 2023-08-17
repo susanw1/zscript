@@ -18,7 +18,7 @@ commands:
         description: selects which ident/version info to return
         typeDefinition:
             '@type': enum
-            allowedValues:
+            values:
             - UserFirmware
             - UserHardware
             - PlatformFirmware
@@ -31,14 +31,12 @@ commands:
         description: which commands are enabled in this module
         typeDefinition:
             '@type': commands
-            bitFields: []
         required: yes
     -   key: M
         name: modulesBankSet
         description: which modules present in this bank (ie 00xx)
         typeDefinition:
             '@type': commands
-            bitFields: []
         required: yes
     -   key: V
         name: version

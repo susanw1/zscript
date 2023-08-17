@@ -15,11 +15,10 @@ commands:
         description: which commands are enabled in the I2C module
         typeDefinition:
             '@type': commands
-            bitFields: []
         required: yes
     -   key: P
         name: scriptSpaceCount
-        description: how many independant script spaces are present
+        description: how many independent script spaces are present
         typeDefinition:
             '@type': number
         required: no
@@ -31,7 +30,7 @@ commands:
     operation: put
     requestFields:
     -   key: P
-        name: scriptSpaceID
+        name: scriptSpaceId
         description: which space to configure
         typeDefinition:
             '@type': number
@@ -40,7 +39,10 @@ commands:
         name: run
         description: if present, sets whether the script space is running
         typeDefinition:
-            '@type': tri-state
+            '@type': enum
+            values:
+                - running
+                - notRunning
         required: no
     responseFields:
     -   key: L
@@ -67,7 +69,7 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    status: null
+    status: []
 
 -   name: scriptSpaceWrite
     command: 2
@@ -75,7 +77,7 @@ commands:
     operation: post
     requestFields:
     -   key: P
-        name: scriptSpaceID
+        name: scriptSpaceId
         description: which space to write to
         typeDefinition:
             '@type': number
@@ -108,7 +110,7 @@ commands:
 -   name: sleep
     command: 8
     description: asynchronously sleeps for the specified amount of time
-    operation: post
+    operation: get
     requestFields:
     -   key: M
         name: milliseconds
@@ -117,3 +119,5 @@ commands:
             '@type': number
         required: yes
     responseFields: []
+    status: []
+    

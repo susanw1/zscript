@@ -15,7 +15,6 @@ commands:
         description: which commands are enabled in the servo module
         typeDefinition:
             '@type': commands
-            bitFields: []
         required: yes
     -   key: P
         name: servoPinCount
@@ -59,19 +58,19 @@ commands:
         description: capability bitset
         typeDefinition:
             '@type': bitset
-            bitFields: null
+            bits: 
+                - name: adjustableRange
+                  description: whether the device supports changing the pulse length range for each servo
+                - name: adjustableCenter
+                  description: whether the device supports changing the middle pulse length for each servo (is interpolated between this and ends)
+                - name: persistableCalibration
+                  description: whether the device supports persisting the calibrations for the servos
+                - name: slowMove
+                  description: whether the device supports gradual changes for servo position
+                - name: preciseSpeed
+                  description: whether the device supports precise speed setting
         required: yes
     status: []
-#                - name: adjustableRange
-#                  description: whether the device supports changing the pulse length range for each servo
-#                - name: adjustableCenter
-#                  description: whether the device supports changing the middle pulse length for each servo (is interpolated between this and ends)
-#                - name: persistableCalibration
-#                  description: whether the device supports persisting the calibrations for the servos
-#                - name: slowMove
-#                  description: whether the device supports gradual changes for servo position
-#                - name: preciseSpeed
-#                  description: whether the device supports precise speed setting
 
 
 -   name: setup
@@ -159,10 +158,10 @@ commands:
         description: the speed for the servo - 2 byte. The time to do a full sweep will be exactly '256/W's, allowing sweeps in anything from 4ms to 4 minutes.
         typeDefinition:
             '@type': number
-
-
         required: no
     status: []
+
+
 -   name: write
     command: 2
     description: moves a servo to a desired position. Changing the destination of a moving servo will immediately change its course
@@ -190,12 +189,15 @@ commands:
         name: enable
         description: if present, and true, will enable servo at current position (may result in sudden movement), if false, will disable servo. Otherwise, unchanged
         typeDefinition:
-            '@type': tri-state
+            '@type': enum
+            values:
+            -    disable
+            -    enable
         required: no
-
-
     responseFields: []
     status: []
+
+
 -   name: read
     command: 3
     description: reads dynamic state about a given servo
@@ -227,3 +229,4 @@ commands:
             '@type': flag
         required: no
     status: []
+    

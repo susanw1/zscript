@@ -18,7 +18,7 @@ commands:
         description: selects which ident/version info to return
         typeDefinition:
             '@type': enum
-            allowedValues:
+            values:
             - UserFirmware
             - UserHardware
             - PlatformFirmware
@@ -31,7 +31,6 @@ commands:
         description: which commands are enabled in this module
         typeDefinition:
             '@type': commands
-            bitFields: []
         required: yes
 -   name: echo
     command: 1
@@ -47,7 +46,7 @@ commands:
     -   name: any
         description: any supplied value will be returned
         typeDefinition:
-            '@type': number
+            '@type': any
         required: no
     responseFields:
     -   name: any
@@ -61,3 +60,4 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
+        

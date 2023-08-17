@@ -15,7 +15,6 @@ commands:
         description: which commands are enabled in the I2C module
         typeDefinition:
             '@type': commands
-            bitFields: []
         required: yes
     -   key: N
         name: notificationsSupported
@@ -52,7 +51,7 @@ commands:
         description: a set of more specific capabilities of the module
         typeDefinition:
             '@type': bitset
-            bitFields: 
+            bits: 
                 - name: lowSpeedSupported
                   description: whether the device supports a frequency in the range 1kHz-10kHz, as a noise resistant mode
                 - name: busFree
@@ -155,7 +154,7 @@ commands:
         description: detailed status info for I2C activity
         typeDefinition:
             '@type': enum
-            allowedValues:
+            values:
             - Ok
             - BufferOverrun
             - AddrNack
@@ -215,7 +214,7 @@ commands:
         description: detailed status info for I2C activity
         typeDefinition:
             '@type': enum
-            allowedValues:
+            values:
             - Ok
             - BufferOverrun
             - AddrNack
@@ -289,7 +288,7 @@ commands:
         description: detailed status info for I2C activity
         typeDefinition:
             '@type': enum
-            allowedValues:
+            values:
             - Ok
             - BufferOverrun
             - AddrNack
@@ -313,3 +312,4 @@ commands:
         meaning: write failed in benign way
     -   code: CMD_ERROR
         meaning: write failed in bad way - serious error
+        
