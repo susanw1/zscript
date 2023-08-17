@@ -34,6 +34,15 @@ public class CoreModuleTest {
     }
 
     @Test
+    public void shouldCreateCoreEcho() {
+        ZscriptCommand c     = CoreModule.echo()
+                .any('J', 123)
+                .build();
+        byte[]         ztext = c.compile(false);
+        assertThat(ztext).containsExactly('Z', '1', 'J', '7', 'b');
+    }
+
+    @Test
     public void shouldCreateCoreMatchCodeWithRequiredField() {
         ZscriptCommand c     = CoreModule.matchCode()
                 .matchCode(0x3a42)

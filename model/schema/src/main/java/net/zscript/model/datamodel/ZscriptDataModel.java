@@ -98,12 +98,13 @@ public interface ZscriptDataModel {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, defaultImpl = TypeDefinition.class)
     @JsonSubTypes({
             @Type(value = EnumTypeDefinition.class, name = "enum"),
-            @Type(value = BitsetTypeDefinition.class, name = "bitset"),
-            @Type(value = CommandsTypeDefinition.class, name = "commands"),
-            @Type(value = FlagTypeDefinition.class, name = "flag"),
             @Type(value = NumberTypeDefinition.class, name = "number"),
-            @Type(value = BytesTypeDefinition.class, name = "bytes"),
+            @Type(value = BitsetTypeDefinition.class, name = "bitset"),
+            @Type(value = FlagTypeDefinition.class, name = "flag"),
             @Type(value = TextTypeDefinition.class, name = "text"),
+            @Type(value = BytesTypeDefinition.class, name = "bytes"),
+            @Type(value = CommandsTypeDefinition.class, name = "commands"),
+            @Type(value = AnyTypeDefinition.class, name = "any"),
             @Type(value = CustomTypeDefinition.class, name = "custom"),
     })
     interface TypeDefinition {
@@ -131,14 +132,6 @@ public interface ZscriptDataModel {
         }
     }
 
-    interface CommandsTypeDefinition extends TypeDefinition {
-        default boolean commandsType() {
-            return true;
-        }
-
-        List<String> getBitFields();
-    }
-
     interface FlagTypeDefinition extends TypeDefinition {
         default boolean flagType() {
             return true;
@@ -161,6 +154,20 @@ public interface ZscriptDataModel {
         default boolean textType() {
             return true;
         }
+    }
+
+    interface AnyTypeDefinition extends TypeDefinition {
+        default boolean anyType() {
+            return true;
+        }
+    }
+
+    interface CommandsTypeDefinition extends TypeDefinition {
+        default boolean commandsType() {
+            return true;
+        }
+
+        List<String> getBitFields();
     }
 
     interface CustomTypeDefinition extends TypeDefinition {

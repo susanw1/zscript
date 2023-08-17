@@ -32,6 +32,8 @@ public class {{name}}Module {
 
     /**
      * {{description}}
+     * <p>
+     * Command semantics characterized as: {{operation}}.
      */
     public static class {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} extends ZscriptCommandBuilder<{{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}}.{{#upperCamel}}{{name}}{{/upperCamel}}CommandResponse> {
     
@@ -102,7 +104,7 @@ public class {{name}}Module {
         }
          
         /**
-         * Optionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+         * Conditionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
          *
          * @param set       if true, then set the field; otherwise, ignore it
          * @param value     the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set
@@ -116,7 +118,7 @@ public class {{name}}Module {
             {{#numberType}}
 {{ ! NUMBER SETTERS }}
         /**
-         * Optionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+         * Sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
          *
          * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, using the supplied numerical value
          * @return this builder, to facilitate method chaining 
@@ -139,7 +141,7 @@ public class {{name}}Module {
         }
 
         /**
-         * Optionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+         * Conditionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
          *
          * @param set       if true, then set the field; otherwise, ignore
          * @param value     the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set
@@ -254,7 +256,7 @@ public class {{name}}Module {
         }
          
         /**
-         * Optionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+         * Conditionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
          * <p>
          * If 'set' is true, then this ORs the supplied bit onto the field's existing value - it does NOT overwrite. 
          *
@@ -322,7 +324,7 @@ public class {{name}}Module {
         }
 
         /**
-         * Optionally appends the supplied text for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} big-field: {{description}}
+         * Conditionally appends the supplied text for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} big-field: {{description}}
          * <p>
          * The string is encoded as UTF-8.
          *
@@ -389,7 +391,7 @@ public class {{name}}Module {
         }
 
         /**
-         * Optionally appends the supplied bytes for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} big-field: {{description}}
+         * Conditionally appends the supplied bytes for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} big-field: {{description}}
          * <p>
          * The string is encoded as UTF-8.
          *
@@ -402,6 +404,45 @@ public class {{name}}Module {
         }
                 {{/required}}
             {{/bytesType}}
+            {{#anyType}}
+{{ ! ANY SETTERS }}
+        /**
+         * Sets any field: {{description}}
+         *
+         * @param key    the key to set, 'A'-'Z'
+         * @param value  the numerical value
+         * @return this builder, to facilitate method chaining 
+         */ 
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final char key, final int value) {
+            setField((byte) key, value);
+            return this;
+        }
+ 
+                {{^required}}
+        /**
+         * Optionally sets any field: {{description}}
+         * 
+         * @param key    the key to set, 'A'-'Z' 
+         * @param value  the numerical value
+         * @return this builder, to facilitate method chaining
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final char key, final OptionalInt value) {
+            return value.isPresent() ? {{#lowerCamel}}{{name}}{{/lowerCamel}}(key, value.getAsInt()) : this;
+        }
+
+        /**
+         * Conditionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+         *
+         * @param set    if true, then set the field; otherwise, ignore
+         * @param key    the key to set, 'A'-'Z' 
+         * @param value  the numerical value
+         * @return this builder, to facilitate method chaining
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final boolean set, final char key, final int value) {
+            return set ? {{#lowerCamel}}{{name}}{{/lowerCamel}}(key, value) : this;
+        }
+                {{/required}}        
+            {{/anyType}}
         {{/typeDefinition}}
     {{/requestFields}}
 

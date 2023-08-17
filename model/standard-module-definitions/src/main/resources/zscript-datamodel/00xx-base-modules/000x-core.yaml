@@ -24,7 +24,7 @@ commands:
             - PlatformFirmware
             - PlatformHardware
             - CoreZscriptLanguage
-        required: false
+        required: no
     responseFields:
     -   key: C
         name: commandsSet
@@ -76,13 +76,13 @@ commands:
         name: any
         description: any supplied value will be returned
         typeDefinition:
-            '@type': number
+            '@type': any
         required: no
     responseFields:
     -   name: any
         description: any supplied value will be returned
         typeDefinition:
-            '@type': number
+            '@type': any
         required: no
     -   key: S
         name: status
