@@ -27,6 +27,8 @@
 //#define ZSCRIPT_DONT_FAST_DISCARD_COMMENTS
 
 //#define ZSCRIPT_HAVE_PIN_MODULE
+//#define ZSCRIPT_HAVE_SERVO_MODULE
+//#define ZSCRIPT_SERVO_MODULE_SLOW_MOVE
 //#define ZSCRIPT_HAVE_I2C_MODULE
 
 //#define ZSCRIPT_HAVE_UDP_CHANNEL
@@ -45,9 +47,12 @@ public:
     }
     typedef uint8_t tokenBufferSize_t;
 
+    static const uint8_t tcpChannelCount = 1;
+
     static const uint8_t udpChannelCount = 1;
     static const uint16_t udpLocalPort = 8888;
     static const uint8_t udpBufferSize = 128;
+
 
     static const uint8_t lockByteCount = 1;
     static const uint16_t serialBufferSize = 128;
@@ -60,7 +65,11 @@ public:
     static const uint16_t nonActivatedChannelTimeout = 5000;
 
     static const uint8_t pinCount = 21;
+
+    static const uint8_t servoCount = 1;
+    //static const uint8_t servoPins[1];
 };
+//const uint8_t ZscriptParams::servoPins[1] = {9};
 
 #endif /* SRC_MAIN_CPP_ARDUINO_CONVERTER_FILES_ZSCRIPTDEFAULTPARAMETERS_HPP_ */
 

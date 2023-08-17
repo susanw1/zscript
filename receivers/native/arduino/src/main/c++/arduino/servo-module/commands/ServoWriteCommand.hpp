@@ -21,13 +21,8 @@ public:
 
     static constexpr char ParamServoPin__P = 'P';
     static constexpr char ParamValue__V = 'V';
-    static constexpr char ParamForce__F = 'F';
+    static constexpr char ParamFast__F = 'F';
     static constexpr char ParamEnable__E = 'E';
-
-    static constexpr char RespMinPulseTime__N = 'N';
-    static constexpr char RespMaxPulseTime__M = 'M';
-    static constexpr char RespCentrePulseTime__C = 'C';
-    static constexpr char RespTravelSpeedPrecise__W = 'W';
 
     static void execute(ZscriptCommandContext<ZP> ctx, ZscriptGeneralServo<ZP> *servos) {
         uint16_t pin;

@@ -37,7 +37,7 @@ public:
         out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(008));
         out.writeField(RespServoPinCount__P, ZP::servoCount);
         out.writeField(RespPulseRate__R, 20);
-        out.writeField(RespMinPulseTime__N, 544 - 128 * 4);
+        out.writeField(RespMinPulseTime__N, 544 - 127 * 4);
         out.writeField(RespMaxPulseTime__M, 2400 + 127 * 4);
         out.writeField(RespCapabilityBitset__B,
                 RespCapabilityBitset__AdjustableRange
