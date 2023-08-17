@@ -37,7 +37,7 @@ public class CommandResponseQueue implements CommandResponseSystem {
         @Override
         public byte[] compile() {
             // TODO: decide on how locking will work...
-            byte[] echoF     = ZscriptCommandBuilder.writeField((byte) '_', echo);
+            byte[] echoF     = ZscriptCommandBuilder.formatField((byte) '_', echo);
             byte[] startData = cmdSeq.compile(false);
 
             ByteArrayOutputStream str = new ByteArrayOutputStream(startData.length + echoF.length + 1);
@@ -81,7 +81,7 @@ public class CommandResponseQueue implements CommandResponseSystem {
             try {
                 boolean isFirst = true;
                 for (int i : addr.getAddr()) {
-                    str.write(ZscriptCommandBuilder.writeField((byte) (isFirst ? '@' : '.'), i));
+                    str.write(ZscriptCommandBuilder.formatField((byte) (isFirst ? '@' : '.'), i));
                     isFirst = false;
                 }
                 str.write(cmdSeq);

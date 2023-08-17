@@ -25,17 +25,6 @@ commands:
             - PlatformHardware
             - CoreZscriptLanguage
         required: false
-    -   key: X
-        name: dummy
-        description: dummy field
-        typeDefinition:
-            '@type': bitset
-            bitFields:
-                - name: lowSpeedSupported
-                  description: whether the device supports a frequency in the range 1kHz-10kHz, as a noise resistant mode
-                - name: busFree
-                  description: whether the device supports freeing from a bus lockup (due to a missed SCL pulse)
-        required: false
     responseFields:
     -   key: C
         name: commandsSet

@@ -6,17 +6,19 @@ import static com.google.common.base.CaseFormat.LOWER_UNDERSCORE;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class ConversionUtils {
-    private final Map<String, Object> mapOfStuff = new HashMap<>();
+public final class ConversionHelper {
+    private final Map<String, Object> additional = new HashMap<>();
 
-    public Map<String, Object> getMapOfStuff() {
-        return mapOfStuff;
+    public Map<String, Object> getAdditional() {
+        return additional;
     }
 
     public Function<String, String> toUpper() {
@@ -56,5 +58,9 @@ public final class ConversionUtils {
 
     private String fixNonJavaIdentifiers(String s) {
         return s.replaceAll("[^A-Za-z0-9_]+", "_");
+    }
+
+    public Function<String, String> timeNow() {
+        return s -> DateTimeFormatter.ISO_INSTANT.format(Instant.now());
     }
 }

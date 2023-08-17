@@ -34,7 +34,7 @@ public class ZscriptClientTransformerPluginMapper implements TransformerPluginMa
     private List<LoadedEntityContent> load(LoadableEntity entity) {
         List<LoadedEntityContent> result = new ArrayList<>();
 
-        ConversionUtils utils = new ConversionUtils();
+        ConversionHelper helper = new ConversionHelper();
 
         try {
             final URI fullPath = entity.getFullPath();
@@ -59,13 +59,14 @@ public class ZscriptClientTransformerPluginMapper implements TransformerPluginMa
                             .map(p -> p.toLowerCase().replace('-', '_'))
                             .collect(toList());
 
-                    utils.getMapOfStuff().put("package-elements", String.join(".", fqcn));
+                    helper.getAdditional().put("package-elements", String.join(".", fqcn));
+                    helper.getAdditional().put("context-source", url);
 
                     final Path   packagePath           = Path.of(fqcn.get(0), fqcn.subList(1, fqcn.size()).toArray(new String[0]));
                     final String capitalizedModuleName = Character.toUpperCase(moduleName.charAt(0)) + moduleName.substring(1) + "Module." + entity.getFileTypeSuffix();
                     final Path   moduleClassFileName   = packagePath.resolve(capitalizedModuleName);
 
-                    final List<Object> contents = List.of(utils, model.getIntrinsics(), module);
+                    final List<Object> contents = List.of(helper, model.getIntrinsics(), module);
                     result.add(entity.withContents(contents, moduleClassFileName));
                 }
             }

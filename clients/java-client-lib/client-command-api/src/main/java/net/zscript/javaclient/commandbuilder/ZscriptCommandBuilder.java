@@ -39,13 +39,13 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
             try {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 if (fields.get(Zchars.Z_CMD) != null) {
-                    out.write(writeField(Zchars.Z_CMD, fields.get(Zchars.Z_CMD)));
+                    out.write(formatField(Zchars.Z_CMD, fields.get(Zchars.Z_CMD)));
                 }
                 for (Map.Entry<Byte, Integer> entry : fields.entrySet()) {
                     Byte key = entry.getKey();
                     if (key != Zchars.Z_CMD) {
                         Integer val = entry.getValue();
-                        out.write(writeField(key, val));
+                        out.write(formatField(key, val));
                     }
                 }
                 for (BigField big : bigFields) {
@@ -119,7 +119,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         return (byte) (nibble + 'a' - 10);
     }
 
-    public static byte[] writeField(byte f, int value) {
+    public static byte[] formatField(byte f, int value) {
         if (value > 0x10000 || value < 0) {
             throw new IllegalStateException("Command fields must be uint16s");
         }
@@ -155,7 +155,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         if (!Zchars.isNumericKey(key)) {
             throw new IllegalArgumentException("Key not a valid Zscript Command key: " + (char) key);
         }
-        return fields.get(key);
+        return fields.getOrDefault(key, 0);
     }
 
     protected int getField(char key) {

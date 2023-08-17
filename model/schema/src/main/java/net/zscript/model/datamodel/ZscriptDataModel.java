@@ -95,17 +95,6 @@ public interface ZscriptDataModel {
         }
     }
 
-    enum FieldType {
-        bitset,
-        number,
-        flag,
-        bool,
-        tristate,
-        enums,
-        bytes,
-        text
-    }
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, defaultImpl = TypeDefinition.class)
     @JsonSubTypes({
             @Type(value = EnumTypeDefinition.class, name = "enum"),
