@@ -41,20 +41,10 @@
                 </dependencies>
 
                 <configuration>
-                    <encoding>UTF-8</encoding>
-
                     <templates>
-                        <includes>**/Comm*.mustache</includes>
+                        <directory>${project.basedir}/src/main/templates</directory>
+                        <includes>**/CommandBuilder.mustache</includes>
                     </templates>
-
-                    <contexts>
-                        <!--
-                        <directory>${project.resources[0].directory}/zscript-datamodel</directory> 
-                        -->
-                        <directory>classpath:/zscript-datamodel/</directory>
-                        <includes>module-list.yaml</includes>
-                    </contexts>
-
                     <outputDirectory>
                         ${project.build.directory}/generated-sources/zscript</outputDirectory>
                     <transformMapperClass>
@@ -67,6 +57,27 @@
                         <goals>
                             <goal>transform</goal>
                         </goals>
+                        <configuration>
+                            <contexts>
+                                <directory>classpath:/zscript-datamodel/</directory>
+                                <includes>module-list.yaml</includes>
+                            </contexts>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>transformer-test</id>
+                        <goals>
+                            <goal>test-transform</goal>
+                        </goals>
+                        <configuration>
+                            <contexts>
+                                <directory>
+                                    ${project.testResources[0].directory}/zscript-test-datamodel</directory>
+                                <includes>module-test-list.yaml</includes>
+                            </contexts>
+                            <outputDirectory>
+                                ${project.build.directory}/generated-test-sources/zscript/</outputDirectory>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

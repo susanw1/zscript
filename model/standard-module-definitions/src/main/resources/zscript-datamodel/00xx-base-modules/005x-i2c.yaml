@@ -147,7 +147,7 @@ commands:
         description: the data to send
         typeDefinition:
             '@type': bytes
-        required: no
+        required: yes
     responseFields:
     -   key: I
         name: resultInfo
