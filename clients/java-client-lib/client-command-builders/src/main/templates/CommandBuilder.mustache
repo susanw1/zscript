@@ -1,5 +1,9 @@
 package {{mapOfStuff.package-elements}};
 
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Set;
+
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.ZscriptUnparsedCommandResponse;
@@ -11,11 +15,10 @@ import net.zscript.javareceiver.tokenizer.Zchars;
  * @version {{version}}
  */
 public class {{name}}Module {
-    public static final int MODULE_ID = {{id}};
+    public static final int    MODULE_ID = {{id}};
     public static final String MODULE_NAME = "{{name}}";
     public static final String VERSION = "{{version}}";
     public static final String DESCRIPTION = "{{description}}";
-
     
 {{#commands}}
     public static {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}() {
@@ -25,30 +28,230 @@ public class {{name}}Module {
     /**
      * {{description}}
      */
-    public static class {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}} extends ZscriptCommandBuilder<{{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}}.{{#upperCamel}}{{name}}{{/upperCamel}}CommandResponse> {
-    {{#requestParams}}
-        {{#allowedValues}}
-    public static final char {{name}}_{{valueName}} = {{index}};
-        {{/allowedValues}}
-    {{/requestParams}}
-
+    public static class {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} extends ZscriptCommandBuilder<{{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}}.{{#upperCamel}}{{name}}{{/upperCamel}}CommandResponse> {
+    
         public static final byte CMD_ID = {{command}};
 
         private {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}}() {
-            setField(Zchars.Z_CMD, (byte) CMD_ID);
+            setRequiredFields(new byte[] { {{#requestFields}}{{#required}}(byte) '{{key}}', {{/required}}{{/requestFields}}}); 
+            setField(Zchars.Z_CMD, {{fullCommand}});
         }
 
-{{#requestFields}}
-// {{key}}
-// {{name}}
-// {{#typeDefinition}}
-// {{#enumType}}enumType{{/enumType}}
-// {{#bitsetType}}bitsetType{{/bitsetType}}
-// {{#numberType}}numberType{{/numberType}}
-// {{/typeDefinition}}
+    {{#requestFields}}
+        {{#typeDefinition}}
+            {{#enumType}}
+{{ ! ENUM SETTERS }}
+        /**
+         * Enum of acceptable values for {@link #{{name}}} field.
+         */
+        public static enum {{#upperCamel}}{{name}}{{/upperCamel}} {
+            {{#allowedValues}}
+            {{#upperCamel}}{{.}}{{/upperCamel}},            
+            {{/allowedValues}}
+        }
+        
+        /**
+         * {{description}}
+         *
+         * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, using the supplied numerical value.
+         * @return this builder, to facilitate method chaining 
+         * @throws IllegalArgumentException if the value is out of range of the available values
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final int value) {
+            if (value < 0 || value >= {{#upperCamel}}{{name}}{{/upperCamel}}.values().length) {
+                throw new IllegalArgumentException("{{#upperCamel}}{{name}}{{/upperCamel}} value out of range");
+            }
+            setField((byte) '{{key}}', value);
+            return this;
+        }
+
+        /**
+         * {{description}}
+         *
+         * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an enum (never null)
+         * @return this builder, to facilitate method chaining 
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final {{#upperCamel}}{{name}}{{/upperCamel}} value) {
+            return {{#lowerCamel}}{{name}}{{/lowerCamel}}(value.ordinal());
+        }
+
+                {{^required}}
+        /**
+         * {{description}}
+         *
+         * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an OptionalInt
+         * @return this builder, to facilitate method chaining 
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final OptionalInt value) {
+            return value.isPresent() ? {{#lowerCamel}}{{name}}{{/lowerCamel}}(value.getAsInt()) : this;
+        }
+
+        /**
+         * {{description}}
+         *
+         * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an Optional enum
+         * @return this builder, to facilitate method chaining 
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final Optional<{{#upperCamel}}{{name}}{{/upperCamel}}> value) {
+            return value.isPresent() ? {{#lowerCamel}}{{name}}{{/lowerCamel}}(value.get()) : this;
+        }
+         
+        /**
+         * {{description}}
+         *
+         * @param set       if true, then set the field; otherwise, ignore it
+         * @param value     the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set
+         * @return this builder, to facilitate method chaining
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final boolean set, final {{#upperCamel}}{{name}}{{/upperCamel}} value) {
+            return set ? {{#lowerCamel}}{{name}}{{/lowerCamel}}(value) : this;
+        }
+                {{/required}}        
+            {{/enumType}}
+            {{#numberType}}
+{{ ! NUMBER SETTERS }}
+        /**
+         * {{description}}
+         *
+         * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, using the supplied numerical value
+         * @return this builder, to facilitate method chaining 
+         * @throws IllegalArgumentException if the value is out of range of the available values
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final int value) {
+            setField((byte)'{{key}}', value);
+            return this;
+        }
+
+                {{^required}}
+        /**
+         * {{description}}
+         *
+         * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an OptionalInt
+         * @return this builder, to facilitate method chaining 
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final OptionalInt value) {
+            return value.isPresent() ? {{#lowerCamel}}{{name}}{{/lowerCamel}}(value.getAsInt()) : this;
+        }
+
+        /**
+         * {{description}}
+         *
+         * @param set       if true, then set the field; otherwise, ignore
+         * @param value     the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set
+         * @return this builder, to facilitate method chaining
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final boolean set, final int value) {
+            return set ? {{#lowerCamel}}{{name}}{{/lowerCamel}}(value) : this;
+        }
+                {{/required}}        
+            {{/numberType}}
+            {{#flagType}}
+{{ ! FLAG SETTERS }}
+        /**
+         * {{description}}
+         *
+         * @return this builder, to facilitate method chaining 
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}() {
+            setField((byte)'{{key}}', 0);
+            return this;
+        }
+
+        /**
+         * {{description}}
+         *
+         * @param set       if true, then set the field; otherwise, ignore it
+         * @return this builder, to facilitate method chaining 
+         * @throws IllegalArgumentException if the value is out of range of the available values
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final boolean set) {
+            return set ? {{#lowerCamel}}{{name}}{{/lowerCamel}}() : this;
+        }
+
+            {{/flagType}}
+            {{#bitsetType}}
+{{ ! BITSET SETTERS }}
+        /**
+         * Enum of acceptable values for {@link #{{name}}} field. xxx
+         */
+        public static enum {{#upperCamel}}{{name}}{{/upperCamel}} {
+            {{#bitFields}}
+            /** {{description}} */
+            {{#upperCamel}}{{name}}{{/upperCamel}}, 
+            {{/bitFields}}
+        }
+        
+        /**
+         * {{description}}
+         *
+         * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, using the supplied int value representing the OR'ed bits.
+         * @return this builder, to facilitate method chaining 
+         * @throws IllegalArgumentException if the value is out of range of the available values
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final int value) {
+            if (value < 0 || value >= (1 << {{#upperCamel}}{{name}}{{/upperCamel}}.values().length)) {
+                throw new IllegalArgumentException("{{#upperCamel}}{{name}}{{/upperCamel}} value out of range");
+            }
+            setField((byte) '{{key}}', value);
+            return this;
+        }
+
+        /**
+         * {{description}}
+         *
+         * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an enum (never null)
+         * @return this builder, to facilitate method chaining 
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final Set<{{#upperCamel}}{{name}}{{/upperCamel}}> values) {
+            return {{#lowerCamel}}{{name}}{{/lowerCamel}}(getField((byte) '{{key}}')); // | (1 << value.ordinal()));
+        }
+
+        /**
+         * {{description}}
+         *
+         * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an enum (never null)
+         * @return this builder, to facilitate method chaining 
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final {{#upperCamel}}{{name}}{{/upperCamel}} value) {
+            return {{#lowerCamel}}{{name}}{{/lowerCamel}}(getField((byte) '{{key}}') | (1 << value.ordinal()));
+        }
 
 
-{{/requestFields}}
+                {{^required}}
+        /**
+         * {{description}}
+         *
+         * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an OptionalInt
+         * @return this builder, to facilitate method chaining 
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final OptionalInt value) {
+            return value.isPresent() ? {{#lowerCamel}}{{name}}{{/lowerCamel}}(value.getAsInt()) : this;
+        }
+
+        /**
+         * {{description}}
+         *
+         * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an Optional enum
+         * @return this builder, to facilitate method chaining 
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final Optional<{{#upperCamel}}{{name}}{{/upperCamel}}> value) {
+            return value.isPresent() ? {{#lowerCamel}}{{name}}{{/lowerCamel}}(value.get()) : this;
+        }
+         
+        /**
+         * {{description}}
+         *
+         * @param set       if true, then set the field; otherwise, ignore it
+         * @param value     the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set
+         * @return this builder, to facilitate method chaining
+         */
+        public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final boolean set, final {{#upperCamel}}{{name}}{{/upperCamel}} value) {
+            return set ? {{#lowerCamel}}{{name}}{{/lowerCamel}}(value) : this;
+        }
+                {{/required}}        
+            {{/bitsetType}}
+        {{/typeDefinition}}
+    {{/requestFields}}
 
         @Override
         protected boolean commandCanFail() {
@@ -66,7 +269,6 @@ public class {{name}}Module {
             public {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}}(ZscriptUnparsedCommandResponse resp) {
                 this.resp = resp;
             }
-            
             
         }
     }

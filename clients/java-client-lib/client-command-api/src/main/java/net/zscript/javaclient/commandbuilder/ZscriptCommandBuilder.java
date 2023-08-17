@@ -4,14 +4,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.zscript.javareceiver.tokenizer.Zchars;
+
 public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
-    private final List<ZscriptResponseListener<T>> listeners = new ArrayList<>();
-    private final List<BigField>                   bigFields = new ArrayList<>();
-    private final Map<Byte, Integer>               fields    = new HashMap<>();
+    private final List<ZscriptResponseListener<T>> listeners      = new ArrayList<>();
+    private final List<BigField>                   bigFields      = new ArrayList<>();
+    private final Map<Byte, Integer>               fields         = new HashMap<>();
+    private final BitSet                           requiredFields = new BitSet();;
 
     public class ZscriptBuiltCommand extends ZscriptCommand {
 
@@ -34,12 +38,12 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         public byte[] compile(boolean includeParens) {
             try {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                if (fields.get((byte) 'Z') != null) {
-                    out.write(writeField((byte) 'Z', fields.get((byte) 'Z')));
+                if (fields.get(Zchars.Z_CMD) != null) {
+                    out.write(writeField(Zchars.Z_CMD, fields.get(Zchars.Z_CMD)));
                 }
                 for (Map.Entry<Byte, Integer> entry : fields.entrySet()) {
                     Byte key = entry.getKey();
-                    if (key != 'Z') {
+                    if (key != Zchars.Z_CMD) {
                         Integer val = entry.getValue();
                         out.write(writeField(key, val));
                     }
@@ -67,7 +71,6 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
                 listener.notExecuted();
             }
         }
-
     }
 
     private class BigField {
@@ -131,28 +134,16 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
         if (value < 0x1000) {
             return new byte[] { f, toHex(value >> 8), toHex((value >> 4) & 0xF), toHex(value & 0xF) };
-        } else {
-            return new byte[] { f, toHex(value >> 12), toHex((value >> 8) & 0xF), toHex((value >> 4) & 0xF), toHex(value & 0xF) };
         }
+        return new byte[] { f, toHex(value >> 12), toHex((value >> 8) & 0xF), toHex((value >> 4) & 0xF), toHex(value & 0xF) };
     }
 
-    protected ZscriptCommandBuilder<T> removeField(byte key) {
-        if ((key & 0x80) != 0) {
-            throw new IllegalArgumentException("Key not a valid Zcode Command key");
-        }
-        fields.remove(key);
-        return this;
-    }
-
-    protected ZscriptCommandBuilder<T> removeField(char key) {
-        return removeField((byte) key);
-    }
-
-    protected ZscriptCommandBuilder<T> setField(byte key, int value) {
-        if ((key & 0x80) != 0) {
-            throw new IllegalArgumentException("Key not a valid Zscript Command key");
+    public ZscriptCommandBuilder<T> setField(byte key, int value) {
+        if (!Zchars.isNumericKey(key)) {
+            throw new IllegalArgumentException("Key not a valid Zscript Command key: " + (char) key);
         }
         fields.put(key, value);
+        requiredFields.clear(key - 'A');
         return this;
     }
 
@@ -161,8 +152,8 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     }
 
     protected int getField(byte key) {
-        if ((key & 0x80) != 0) {
-            throw new IllegalArgumentException("Key not a valid Zscript Command key");
+        if (!Zchars.isNumericKey(key)) {
+            throw new IllegalArgumentException("Key not a valid Zscript Command key: " + (char) key);
         }
         return fields.get(key);
     }
@@ -198,16 +189,27 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         return this;
     }
 
-    abstract protected T parseResponse(ZscriptUnparsedCommandResponse resp);
+    protected final void setRequiredFields(byte[] keys) {
+        for (byte k : keys) {
+            if (Zchars.isNumericKey(k)) {
+                requiredFields.set(k - 'A');
+            }
+        }
+    }
 
-    abstract protected boolean commandCanFail();
+    protected abstract T parseResponse(ZscriptUnparsedCommandResponse resp);
+
+    protected abstract boolean commandCanFail();
 
     public ZscriptCommandBuilder<T> addResponseListener(ZscriptResponseListener<T> listener) {
         listeners.add(listener);
         return this;
     }
 
-    public CommandSeqElement build() {
+    public ZscriptCommand build() {
+        if (!requiredFields.isEmpty()) {
+            throw new IllegalStateException("Required field not set: " + (char) ((requiredFields.nextSetBit(0) + 'A')));
+        }
         return new ZscriptBuiltCommand();
     }
 }

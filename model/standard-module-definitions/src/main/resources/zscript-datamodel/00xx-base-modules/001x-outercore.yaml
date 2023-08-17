@@ -28,12 +28,18 @@ commands:
         description: which module banks (bottom nibble of bank address) are configured with any modules on this device, for region specified by moduleBankRequest
         typeDefinition:
             '@type': bitset
+            bitFields:
+            -    name:
+                 description:
         required: no
     -   key: M
         name: moduleBanksUpper
         description: which module banks (top nibble of bank address) are configured with any modules on this device
         typeDefinition:
             '@type': bitset
+            bitFields:
+            -    name:
+                 description:
         required: yes
     status: []
 

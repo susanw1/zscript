@@ -52,10 +52,6 @@ public class ZscriptClientTransformerPluginMapper implements TransformerPluginMa
 
                     final List<String> packageElements = module.getPackage() != null ? module.getPackage() : moduleBank.getDefaultPackage();
 
-                    System.out.println("packageElements: " + packageElements);
-                    System.out.println("module.getPackage: " + module.getPackage());
-                    System.out.println("moduleBank.getDefaultPackage: " + moduleBank.getDefaultPackage());
-
                     final String bankName   = requireNonNull(module.getModuleBank().getName(), "moduleBank name not defined");
                     final String moduleName = requireNonNull(module.getName(), "module name not defined");
 

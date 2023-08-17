@@ -46,7 +46,5 @@ public class DefinitionResourcesTest {
         CommandModel      command = module.getCommands().stream().filter(c -> c.getCommandName().equals("capabilities")).findFirst().orElseThrow();
         RequestFieldModel req     = command.getRequestFields().stream().filter(f -> f.getName().equals("versionType")).findFirst().orElseThrow();
         assertThat(req.getKey()).isEqualTo('V');
-        assertThat(req.getTypeDefinition().isType("enum")).isTrue();
-        assertThat(req.getTypeDefinition().isType("bitset")).isFalse();
     }
 }

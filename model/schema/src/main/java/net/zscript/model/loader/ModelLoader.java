@@ -60,10 +60,7 @@ public class ModelLoader {
     public Map<String, ModuleBank> loadModules(final URL moduleListLocation) throws IOException {
         final Map<String, ModuleBank> moduleBanks = new HashMap<>();
 
-        final DefinitionResources d;
-        try (final InputStream openStream = moduleListLocation.openStream()) {
-            d = jsonMapper.readValue(openStream, DefinitionResources.class);
-        }
+        final DefinitionResources d = jsonMapper.readValue(moduleListLocation, DefinitionResources.class);
 
         for (final ModuleBankDef mb : d.getModuleBanks()) {
             final ModuleBank moduleBank = moduleBanks.computeIfAbsent(mb.getName(), n -> new ModuleBank(mb));

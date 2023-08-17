@@ -118,11 +118,6 @@ public interface ZscriptDataModel {
             @Type(value = CustomTypeDefinition.class, name = "custom"),
     })
     interface TypeDefinition {
-        default boolean isType(String typeName) {
-            System.out.println(getClass().getSimpleName());
-            System.out.println(typeName + "TypeDefinition");
-            return getClass().getSimpleName().toLowerCase().endsWith("$" + typeName + "typedefinition");
-        }
     }
 
     interface EnumTypeDefinition extends TypeDefinition {
@@ -138,14 +133,27 @@ public interface ZscriptDataModel {
             return true;
         }
 
-        List<String> getBitFields();
+        List<Bit> getBitFields();
+
+        interface Bit {
+            String getName();
+
+            String getDescription();
+        }
     }
 
     interface CommandsTypeDefinition extends TypeDefinition {
+        default boolean commandsType() {
+            return true;
+        }
+
         List<String> getBitFields();
     }
 
     interface FlagTypeDefinition extends TypeDefinition {
+        default boolean flagType() {
+            return true;
+        }
     }
 
     interface NumberTypeDefinition extends TypeDefinition {
@@ -155,12 +163,21 @@ public interface ZscriptDataModel {
     }
 
     interface BytesTypeDefinition extends TypeDefinition {
+        default boolean bytesType() {
+            return true;
+        }
     }
 
     interface TextTypeDefinition extends TypeDefinition {
+        default boolean textType() {
+            return true;
+        }
     }
 
     interface CustomTypeDefinition extends TypeDefinition {
+        default boolean customType() {
+            return true;
+        }
     }
 
     interface GenericField {
