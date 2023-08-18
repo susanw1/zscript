@@ -183,10 +183,10 @@ public class {{name}}Module {
          * Enum of acceptable values for {@link #{{name}}} field.
          */
         public static enum {{#upperCamel}}{{name}}{{/upperCamel}} {
-            {{#bitFields}}
+            {{#bits}}
             /** {{description}} */
             {{#upperCamel}}{{name}}{{/upperCamel}}, 
-            {{/bitFields}}
+            {{/bits}}
         }
         
         /**

@@ -3,11 +3,13 @@ package net.zscript.model.datamodel;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import net.zscript.model.loader.ModuleBank;
 
@@ -95,6 +97,7 @@ public interface ZscriptDataModel {
         }
     }
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, defaultImpl = TypeDefinition.class)
     @JsonSubTypes({
             @Type(value = EnumTypeDefinition.class, name = "enum"),

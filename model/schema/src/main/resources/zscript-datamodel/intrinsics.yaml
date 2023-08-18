@@ -4,7 +4,7 @@ intrinsics:
         name: command
         description: which command to be executed
         typeDefinition:
-            '@type': number
+            '@type': command
         required: yes
     responseFields:
     -   key: S
