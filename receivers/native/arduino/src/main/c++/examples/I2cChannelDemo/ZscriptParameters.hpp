@@ -54,7 +54,6 @@ public:
     static const uint16_t udpLocalPort = 8888;
     static const uint8_t udpBufferSize = 128;
 
-
     static const uint8_t lockByteCount = 1;
     static const uint16_t serialBufferSize = 128;
     static const uint16_t i2cBufferSize = 128;
@@ -65,7 +64,7 @@ public:
 
     static const uint16_t nonActivatedChannelTimeout = 5000;
 
-    static const uint8_t pinCount = 21;
+    static const uint8_t pinCount = NUM_DIGITAL_PINS;
 
     static const uint8_t servoCount = 1;
     //static const uint8_t servoPins[1];

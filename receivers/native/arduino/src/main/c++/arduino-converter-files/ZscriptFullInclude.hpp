@@ -15,7 +15,7 @@
 #endif
 
 #ifdef ZSCRIPT_HAVE_PIN_MODULE
-#include "arduino/pins-module/ZscriptPinModule.hpp"
+#include "arduino/pins-module/PinModule.hpp"
 #endif
 #ifdef ZSCRIPT_HAVE_SERVO_MODULE
 #include "arduino/servo-module/ServoModule.hpp"

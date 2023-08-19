@@ -26,11 +26,11 @@ public:
     static constexpr char RespMaxPulseTime__M = 'M';
     static constexpr char RespCapabilityBitset__B = 'B';
 
-    static constexpr uint16_t RespCapabilityBitset__AdjustableRange = 0x10;
-    static constexpr uint16_t RespCapabilityBitset__AdjustableCenter = 0x08;
+    static constexpr uint16_t RespCapabilityBitset__AdjustableRange = 0x1;
+    static constexpr uint16_t RespCapabilityBitset__AdjustableCenter = 0x02;
     static constexpr uint16_t RespCapabilityBitset__PersistableCalibration = 0x04;
-    static constexpr uint16_t RespCapabilityBitset__SlowMove = 0x02;
-    static constexpr uint16_t RespCapabilityBitset__PreciseSpeed = 0x01;
+    static constexpr uint16_t RespCapabilityBitset__SlowMove = 0x08;
+    static constexpr uint16_t RespCapabilityBitset__PreciseSpeed = 0x10;
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
