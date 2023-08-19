@@ -1,48 +1,34 @@
-package net.zscript.javaclient.commandbuilder;
+package net.zscript.javareceiver.tokenizer;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.function.Supplier;
 
-import net.zscript.javareceiver.tokenizer.BlockIterator;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
-import net.zscript.javareceiver.tokenizer.Zchars;
 import net.zscript.util.OptIterator;
 
-public class ZscriptUnparsedCommandResponse {
-    private final ReadToken first;
-    // TODO: split common code from CommandContext
+public class ZscriptTokenExpression implements ZscriptExpression {
+    private final Supplier<OptIterator<ReadToken>> tokenIteratorSupplier;
 
-    public ZscriptUnparsedCommandResponse(ReadToken first) {
-        this.first = first;
+    public ZscriptTokenExpression(final Supplier<OptIterator<ReadToken>> tokenIteratorSupplier) {
+        this.tokenIteratorSupplier = tokenIteratorSupplier;
     }
 
-    private OptIterator<ReadToken> iterator() {
+    public OptIterator<ReadToken> iteratorToMarker() {
         return new OptIterator<ReadToken>() {
-            OptIterator<ReadToken> internal = first.getNextTokens();
+            final OptIterator<ReadToken> internal = tokenIteratorSupplier.get();
 
             @Override
             public Optional<ReadToken> next() {
                 return internal.next().filter(t -> !t.isMarker());
             }
-
         };
     }
 
-    public boolean hasField(byte f) {
-        OptIterator<ReadToken> it = iterator();
-        for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
-            ReadToken token = opt.get();
-            if (token.getKey() == f) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+    @Override
     public OptionalInt getField(byte f) {
-        OptIterator<ReadToken> it = iterator();
+        OptIterator<ReadToken> it = iteratorToMarker();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             ReadToken token = opt.get();
             if (token.getKey() == f) {
@@ -52,21 +38,11 @@ public class ZscriptUnparsedCommandResponse {
         return OptionalInt.empty();
     }
 
-    public int getField(byte f, int def) {
-        OptIterator<ReadToken> it = iterator();
-        for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
-            ReadToken token = opt.get();
-            if (token.getKey() == f) {
-                return token.getData16();
-            }
-        }
-        return def;
-    }
-
+    @Override
     public int getFieldCount() {
         int count = 0;
 
-        OptIterator<ReadToken> it = iterator();
+        OptIterator<ReadToken> it = iteratorToMarker();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             if (Zchars.isNumericKey(opt.get().getKey())) {
                 count++;
@@ -75,9 +51,10 @@ public class ZscriptUnparsedCommandResponse {
         return count;
     }
 
+    @Override
     public BlockIterator getBigField() {
         return new BlockIterator() {
-            OptIterator<ReadToken> it = iterator();
+            OptIterator<ReadToken> it = iteratorToMarker();
 
             BlockIterator internal = null;
 
@@ -124,10 +101,11 @@ public class ZscriptUnparsedCommandResponse {
         };
     }
 
+    @Override
     public int getBigFieldSize() {
         int size = 0;
 
-        OptIterator<ReadToken> it = iterator();
+        OptIterator<ReadToken> it = iteratorToMarker();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             ReadToken token = opt.get();
             if (Zchars.isBigField(token.getKey())) {
@@ -136,26 +114,4 @@ public class ZscriptUnparsedCommandResponse {
         }
         return size;
     }
-
-    public String getBigFieldString() {
-        StringBuilder str = new StringBuilder();
-        for (Iterator<Byte> iterator = getBigField(); iterator.hasNext();) {
-            str.append((char) (byte) iterator.next());
-        }
-        return str.toString();
-    }
-
-    public byte[] getBigFieldData() {
-        byte[] data = new byte[getBigFieldSize()];
-        int    i    = 0;
-        for (Iterator<Byte> iterator = getBigField(); iterator.hasNext();) {
-            data[i] = iterator.next();
-        }
-        return data;
-    }
-
-    public OptionalInt getField(char c) {
-        return getField((byte) c);
-    }
-
 }

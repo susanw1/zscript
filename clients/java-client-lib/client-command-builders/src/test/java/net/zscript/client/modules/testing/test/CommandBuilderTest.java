@@ -146,12 +146,18 @@ public class CommandBuilderTest {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
                 .enumReqTestB(Optional.empty())
                 .numberReqTestD(OptionalInt.empty())
-                .bitsetReqTestF(Optional.empty())
+                .bitsetReqTestF(OptionalInt.empty())
 
                 .enumReqTestA(2)
                 .numberReqTestC(35)
                 .bitsetReqTestE(1);
         assertThat(build(b)).isEqualTo("ZA2C23E1");
+    }
+
+    @Test
+    void shouldCreateResponse() {
+//        ZscriptFields r = new ZscriptFields();
+//        assertThat(build(b)).isEqualTo("ZA2C23E1");
     }
 
     private String build(ZscriptCommandBuilder<?> b) {

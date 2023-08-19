@@ -9,12 +9,12 @@ import java.util.Set;
 import net.zscript.javaclient.commandbuilder.CommandSeqElement;
 import net.zscript.javaclient.commandbuilder.ZscriptCommand;
 import net.zscript.javaclient.commandbuilder.ZscriptCommand.ZscriptSequencePath;
-import net.zscript.javaclient.commandbuilder.ZscriptUnparsedCommandResponse;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.javareceiver.tokenizer.ZscriptTokenExpression;
 import net.zscript.util.OptIterator;
 
 public class ResponseParser {
@@ -106,11 +106,11 @@ public class ResponseParser {
         }
         if (encoded == Tokenizer.CMD_END_CLOSE_PAREN) {
             return ')';
-        } else if (encoded == Tokenizer.NORMAL_SEQUENCE_END) {
-            return '\n';
-        } else {
-            throw new IllegalArgumentException("Unknown marker: " + Integer.toHexString(Byte.toUnsignedInt(encoded)));
         }
+        if (encoded == Tokenizer.NORMAL_SEQUENCE_END) {
+            return '\n';
+        }
+        throw new IllegalArgumentException("Unknown marker: " + Integer.toHexString(Byte.toUnsignedInt(encoded)));
     }
 
     // TODO: Trim the sequence level stuff off of first command
@@ -198,7 +198,10 @@ public class ResponseParser {
             }
             successPath = current.findSuccessPath();
             failPath = current.findFailPath();
-            current.response(new ZscriptUnparsedCommandResponse(tokenAfterMarkers.get(offset)));
+
+            final ReadToken t = tokenAfterMarkers.get(offset);
+            current.response(new ZscriptTokenExpression(() -> t.getNextTokens()));
+
             sentResponses.add(current);
         }
         for (ZscriptSequencePath path = ZscriptCommand.findFirstCommand(command); path != null; path = path.getNext().findNext()) {

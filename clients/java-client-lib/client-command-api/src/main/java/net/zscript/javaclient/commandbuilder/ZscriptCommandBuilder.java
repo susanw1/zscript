@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.zscript.javareceiver.tokenizer.Zchars;
+import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
 public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     private static final int BIGFIELD_REQD_OFFSET = 26;
@@ -61,7 +62,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
 
         @Override
-        public void response(ZscriptUnparsedCommandResponse resp) {
+        public void response(ZscriptExpression resp) {
             T parsed = parseResponse(resp);
             for (ZscriptResponseListener<T> listener : listeners) {
                 listener.accept(parsed);
@@ -207,7 +208,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
     }
 
-    protected abstract T parseResponse(ZscriptUnparsedCommandResponse resp);
+    protected abstract T parseResponse(ZscriptExpression resp);
 
     protected abstract boolean commandCanFail();
 

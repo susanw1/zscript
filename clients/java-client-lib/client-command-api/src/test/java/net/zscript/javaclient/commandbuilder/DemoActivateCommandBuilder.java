@@ -1,6 +1,7 @@
 package net.zscript.javaclient.commandbuilder;
 
 import net.zscript.javaclient.commandbuilder.DemoActivateCommandBuilder.DemoActivateCommandResponse;
+import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
 public class DemoActivateCommandBuilder extends ZscriptCommandBuilder<DemoActivateCommandResponse> {
     public class DemoActivateCommandResponse implements ZscriptResponse {
@@ -20,7 +21,7 @@ public class DemoActivateCommandBuilder extends ZscriptCommandBuilder<DemoActiva
     }
 
     @Override
-    protected DemoActivateCommandResponse parseResponse(ZscriptUnparsedCommandResponse resp) {
+    protected DemoActivateCommandResponse parseResponse(ZscriptExpression resp) {
         return new DemoActivateCommandResponse(resp.getField('A').getAsInt() == 1 ? true : false);
     }
 

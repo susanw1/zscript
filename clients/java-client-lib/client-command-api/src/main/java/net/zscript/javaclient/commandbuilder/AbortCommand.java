@@ -2,6 +2,8 @@ package net.zscript.javaclient.commandbuilder;
 
 import java.nio.charset.StandardCharsets;
 
+import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+
 public class AbortCommand extends ZscriptCommand {
 
     @Override
@@ -65,7 +67,7 @@ public class AbortCommand extends ZscriptCommand {
     }
 
     @Override
-    public void response(ZscriptUnparsedCommandResponse resp) {
+    public void response(ZscriptExpression resp) {
     }
 
     @Override

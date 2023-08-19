@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandbuilder;
 
+import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+
 public class BlankCommand extends ZscriptCommand {
 
     @Override
@@ -63,7 +65,7 @@ public class BlankCommand extends ZscriptCommand {
     }
 
     @Override
-    public void response(ZscriptUnparsedCommandResponse resp) {
+    public void response(ZscriptExpression resp) {
     }
 
     @Override

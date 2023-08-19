@@ -8,7 +8,7 @@ import javax.annotation.processing.Generated;
 
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javaclient.commandbuilder.ZscriptUnparsedCommandResponse;
+import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 import net.zscript.javareceiver.tokenizer.Zchars;
 
 /**
@@ -247,7 +247,7 @@ public class {{name}}Module {
         /**
          * Optionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
          * <p>
-         * If 'bit' is non-empty, this sets the whole field, overwriting any previously set bits.
+         * If 'bit' is non-empty, then this ORs the supplied bit onto the field's existing value - it does NOT overwrite.
          *
          * @param value  the bit in the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an Optional enum
          * @return this builder, to facilitate method chaining 
@@ -452,16 +452,16 @@ public class {{name}}Module {
         }
 
         @Override
-        protected {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}} parseResponse(ZscriptUnparsedCommandResponse resp) {
+        protected {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}} parseResponse(ZscriptExpression resp) {
             return new {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}}(resp);
         }
 
 // +++++++++++++ RESPONSE FIELDS +++++++++++++
 
         public static class {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}} implements ZscriptResponse {
-            private final ZscriptUnparsedCommandResponse resp;
+            private final ZscriptExpression resp;
 
-            public {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}}(ZscriptUnparsedCommandResponse resp) {
+            public {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}}(ZscriptExpression resp) {
                 this.resp = resp;
             }
     {{#responseFields}}

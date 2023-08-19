@@ -1,6 +1,9 @@
 package net.zscript.javaclient.commandbuilder;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+
 import net.zscript.javaclient.commandbuilder.DemoCapabilitiesCommandBuilder.DemoCapabilitiesCommandResponse;
+import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
 public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> {
     public static final int USER_FIRMWARE     = 0;
@@ -44,13 +47,12 @@ public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCa
     }
 
     @Override
-    protected DemoCapabilitiesCommandResponse parseResponse(ZscriptUnparsedCommandResponse resp) {
-        return new DemoCapabilitiesCommandResponse(resp.getField('V').getAsInt(), resp.getBigFieldString());
+    protected DemoCapabilitiesCommandResponse parseResponse(ZscriptExpression resp) {
+        return new DemoCapabilitiesCommandResponse(resp.getField('V').getAsInt(), new String(resp.getBigFieldData(), ISO_8859_1));
     }
 
     @Override
     protected boolean commandCanFail() {
         return false;
     }
-
 }

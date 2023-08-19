@@ -3,6 +3,8 @@ package net.zscript.javaclient.commandbuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+
 public abstract class ZscriptCommand extends CommandSeqElement {
     public static class ZscriptSequencePath {
         private final List<Byte>     markers;
@@ -30,7 +32,7 @@ public abstract class ZscriptCommand extends CommandSeqElement {
 
     public abstract void notExecuted();
 
-    public abstract void response(ZscriptUnparsedCommandResponse resp);
+    public abstract void response(ZscriptExpression resp);
 
     public static ZscriptSequencePath findFirstCommand(final CommandSeqElement start) {
         CommandSeqElement current = start;
