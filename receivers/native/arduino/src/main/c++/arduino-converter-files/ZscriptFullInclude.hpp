@@ -21,7 +21,7 @@
 #include "arduino/servo-module/ServoModule.hpp"
 #endif
 #ifdef ZSCRIPT_HAVE_I2C_MODULE
-#include "arduino/i2c-module/ZscriptI2cModule.hpp"
+#include "arduino/i2c-module/I2cModule.hpp"
 #endif
 
 #ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
@@ -47,9 +47,9 @@ Zscript::ZscriptSerialChannel<ZscriptParams> ZscriptSerialChannel;
 #endif
 
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-#include "arduino/i2c-module/channels/ZscriptI2cChannel.hpp"
+#include "arduino/i2c-module/channels/I2cChannel.hpp"
 
-Zscript::ZscriptI2cChannel<ZscriptParams> ZscriptI2cChannel;
+Zscript::I2cChannel<ZscriptParams> ZscriptI2cChannel;
 #endif
 
 class ArduinoZscriptBasicSetup {
