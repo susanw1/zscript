@@ -11,7 +11,7 @@
 #define ZSCRIPT_IDENTIFY_USER_FIRMWARE_STRING         "Zscript Arduino Testing"
 #define ZSCRIPT_IDENTIFY_USER_FIRMWARE_VERSION        0x0001
 
-#define ZSCRIPT_IDENTIFY_USER_HARDWARE_STRING     "Arduino Nano"
+#define ZSCRIPT_IDENTIFY_USER_HARDWARE_STRING     "Test setup"
 #define ZSCRIPT_IDENTIFY_USER_HARDWARE_VERSION    0x0000
 
 #include <ArduinoPlatformVersion.hpp>
@@ -52,7 +52,6 @@ public:
     static const uint8_t udpChannelCount = 1;
     static const uint16_t udpLocalPort = 8888;
     static const uint8_t udpBufferSize = 128;
-
 
     static const uint8_t lockByteCount = 1;
     static const uint16_t serialBufferSize = 128;

@@ -11,7 +11,7 @@
 #define ZSCRIPT_IDENTIFY_USER_FIRMWARE_STRING         "Zscript Arduino Example"
 #define ZSCRIPT_IDENTIFY_USER_FIRMWARE_VERSION        0x0001
 
-#define ZSCRIPT_IDENTIFY_USER_HARDWARE_STRING     "Arduino Nano"
+#define ZSCRIPT_IDENTIFY_USER_HARDWARE_STRING     "Test setup"
 #define ZSCRIPT_IDENTIFY_USER_HARDWARE_VERSION    0x0000
 
 #include <ArduinoPlatformVersion.hpp>
