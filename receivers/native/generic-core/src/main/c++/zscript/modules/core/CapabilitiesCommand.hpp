@@ -61,6 +61,12 @@ public:
         }
         out.writeField('C', MODULE_CAPABILITIES(000));
         out.writeField('M', COMMAND_SWITCH_EXISTS_BOTTOM_BYTE(00));
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+        out.writeField('N', 0);
+#endif
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
+        out.writeField('A', 0);
+#endif
     }
 
 };

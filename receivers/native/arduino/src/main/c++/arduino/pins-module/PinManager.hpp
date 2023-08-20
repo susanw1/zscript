@@ -9,6 +9,17 @@
 #define SRC_MAIN_C___ARDUINO_PINS_MODULE_PINMANAGER_HPP_
 #include <zscript/modules/ZscriptCommand.hpp>
 
+#ifndef digitalPinHasPWM
+#ifdef ARDUINO_ARCH_NRF52840    // NANO 33 BLE apparently...
+#define digitalPinHasPWM(p) (p==2 || p==3 || p==5 || p==6 || p==9 || p==10 || p==11 || p==12)
+#else
+#define digitalPinHasPWM(p) (true)
+#ifndef IGNORE_UNKNOWN_DEVICE_FEATURES
+#error "Device not recognised, so pins with support for PWM not known. Please specify in parameters with #define digitalPinHasPWM(p) (p==...)"
+#endif
+#endif
+#endif
+
 #ifdef A20
 #define PIN_SUPPORTS_ANALOG_READ(p) (p==A0 || p==A1 || p==A2 || p==A3 || p==A4 || p==A5 || \
         p==A6 || p==A7 || p==A8 || p==A9 || p==A10 || p==A11 || p==A12 || p==A13 || p==A14\

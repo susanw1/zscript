@@ -36,9 +36,6 @@
 #define ZSCRIPT_HAVE_SERIAL_CHANNEL
 //#define ZSCRIPT_HAVE_I2C_CHANNEL
 
-#define I2C_ENABLE_GENERAL_CALL() (TWAR |= 1)
-#define I2C_SET_ADDRESS(addr) (TWAR = addr<<1)
-
 class ZscriptParams {
 public:
     typedef Zscript::ZscriptResetCommand<ZscriptParams> ResetCommand;

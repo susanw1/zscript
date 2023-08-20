@@ -65,7 +65,7 @@ class ZscriptTcpChannel: public ZscriptChannel<ZP> {
     ZscriptTcpOutStream<ZP> out;
 
     EthernetClient client;
-    uint8_t buffer[ZP::udpBufferSize];
+    uint8_t buffer[ZP::tcpBufferSize];
 
 protected:
     bool resetInternal() {
@@ -76,7 +76,7 @@ protected:
 public:
     ZscriptTcpChannel() :
             ZscriptChannel<ZP>(&out, &tBuffer, true),
-                    tBuffer(buffer, ZP::udpBufferSize),
+                    tBuffer(buffer, ZP::tcpBufferSize),
                     tokenizer(tBuffer.getWriter(), 2),
                     out(&client) {
     }
