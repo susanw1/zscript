@@ -21,7 +21,7 @@ public:
     static constexpr uint8_t CODE = 0x01;
 
     // if set, determines which port to control; else set all ports
-    static constexpr char CMD_PARAM_I2C_PORT_P = 'P';
+    static constexpr char ParamPort__P = 'P';
 
     // chooses comms frequency, from 10, 100, 400 and 1000 kHz
     static constexpr char CMD_PARAM_FREQ_F = 'F';
@@ -51,7 +51,7 @@ public:
             }
 
             uint16_t port;
-            if (!ctx.getField(CMD_PARAM_I2C_PORT_P, &port)) {
+            if (!ctx.getField(ParamPort__P, &port)) {
                 ctx.status(ResponseStatus::MISSING_KEY);
                 return;
             }

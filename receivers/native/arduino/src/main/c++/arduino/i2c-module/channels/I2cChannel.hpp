@@ -15,32 +15,36 @@
 #include <ZscriptChannelBuilder.hpp>
 #include <Wire.h>
 
+#include "../I2cManager.hpp"
+
 namespace Zscript {
 
 template<class ZP>
-class ZscriptI2cOutStream: public AbstractOutStream<ZP> {
+class I2cOutStream: public AbstractOutStream<ZP> {
 public:
+    static const uint8_t SmBusAlertAddr;
     static uint8_t outBuffer[ZP::i2cChannelOutputBufferSize];
     static uint16_t writePos;
     static uint16_t readPos;
-    static uint8_t valueThingTest;
     static uint8_t addr;
     static bool usingMagicAddr;
     bool openB = false;
 
 public:
     void setAddr(uint8_t addr) {
-        I2C_SET_ADDRESS(addr);
-        I2C_ENABLE_GENERAL_CALL();
-        ZscriptI2cOutStream<ZP>::addr = addr;
+        if (!usingMagicAddr) {
+            I2C_ADDRESS_AND_GENERAL_CALL(addr);
+        }
+        I2cOutStream<ZP>::addr = addr;
     }
 
     static void requestHandler() {
-        if (usingMagicAddr) {
+        if (usingMagicAddr && I2C_WAS_SMBUS_ALERT_READ()) {
             Wire.write(addr << 1);
-            Wire.write(addr << 1);
-            I2C_SET_ADDRESS(addr);
-            I2C_ENABLE_GENERAL_CALL();
+            Wire.write(0);
+            if (I2C_SMBUS_ALERT_IS_EXCLUSIVE_WITH_ADDR()) {
+                I2C_END_SMBUS_ALERT(addr);
+            }
             usingMagicAddr = false;
             return;
         }
@@ -62,11 +66,13 @@ public:
             for (uint8_t i = 0; i < ZP::i2cChannelOutputBufferSize; ++i) {
                 outBuffer[i] = 0x00;
             }
+            if (!I2C_SMBUS_ALERT_IS_EXCLUSIVE_WITH_ADDR()) {
+                I2C_END_SMBUS_ALERT(addr);
+            }
             pinMode(ZP::i2cAlertPin, INPUT);
         } else if (outBuffer[readPos - 1] == '\n') {
+            I2C_BEGIN_SMBUS_ALERT();
             usingMagicAddr = true;
-            I2C_SET_ADDRESS(0x0C);
-            I2C_ENABLE_GENERAL_CALL();
         }
     }
 
@@ -82,8 +88,7 @@ public:
     void close() {
         openB = false;
         if (writePos > 0) {
-            I2C_SET_ADDRESS(0x0C);
-            I2C_ENABLE_GENERAL_CALL();
+            I2C_BEGIN_SMBUS_ALERT();
             pinMode(ZP::i2cAlertPin, OUTPUT);
             usingMagicAddr = true;
         }
@@ -104,22 +109,23 @@ public:
 
 };
 template<class ZP>
-uint8_t ZscriptI2cOutStream<ZP>::outBuffer[ZP::i2cChannelOutputBufferSize];
-template<class ZP>
-uint16_t ZscriptI2cOutStream<ZP>::writePos = 0;
-template<class ZP>
-uint16_t ZscriptI2cOutStream<ZP>::readPos = 0;
-template<class ZP>
-uint8_t ZscriptI2cOutStream<ZP>::valueThingTest = 0;
-template<class ZP>
-uint8_t ZscriptI2cOutStream<ZP>::addr = 0;
-template<class ZP>
-bool ZscriptI2cOutStream<ZP>::usingMagicAddr = false;
+const uint8_t I2cOutStream<ZP>::SmBusAlertAddr = 0x0C;
 
 template<class ZP>
-class ZscriptI2cChannel: public ZscriptChannel<ZP> {
+uint8_t I2cOutStream<ZP>::outBuffer[ZP::i2cChannelOutputBufferSize];
+template<class ZP>
+uint16_t I2cOutStream<ZP>::writePos = 0;
+template<class ZP>
+uint16_t I2cOutStream<ZP>::readPos = 0;
+template<class ZP>
+uint8_t I2cOutStream<ZP>::addr = 0;
+template<class ZP>
+bool I2cOutStream<ZP>::usingMagicAddr = false;
+
+template<class ZP>
+class I2cChannel: public ZscriptChannel<ZP> {
 public:
-    ZscriptI2cOutStream<ZP> out;
+    I2cOutStream<ZP> out;
     GenericCore::TokenRingBuffer<ZP> tBuffer;
     ZscriptTokenizer<ZP> tokenizer;
 
@@ -128,14 +134,14 @@ public:
     bool usingTmp = false;
 
 public:
-    ZscriptI2cChannel() :
+    I2cChannel() :
             ZscriptChannel<ZP>(&out, &tBuffer, true), tBuffer(buffer, ZP::i2cBufferSize), tokenizer(tBuffer.getWriter(), 2) {
     }
 
     void setup() {
         pinMode(ZP::i2cAlertPin, INPUT);
         digitalWrite(ZP::i2cAlertPin, LOW);
-        Wire.onRequest(&ZscriptI2cOutStream<ZP>::requestHandler);
+        Wire.onRequest(&I2cOutStream<ZP>::requestHandler);
     }
 
     void setAddress(uint8_t addr) {
@@ -166,7 +172,14 @@ public:
     }
 
     void channelSetup(ZscriptCommandContext<ZP> ctx) {
-        (void) ctx;
+        uint16_t addr;
+        if (ctx.getField('A', &addr)) {
+            if (addr >= 128) {
+                ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+                return;
+            }
+            out.setAddr((uint8_t) addr);
+        }
     }
 
 };

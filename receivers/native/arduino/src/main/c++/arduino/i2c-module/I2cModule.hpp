@@ -16,17 +16,15 @@
 #include <zscript/execution/ZscriptCommandContext.hpp>
 
 #include "commands/I2cSetupCommand.hpp"
-#include "commands/I2cSendCommand.hpp"
-#include "commands/I2cReceiveCommand.hpp"
-#include "commands/I2cSendReceiveCommand.hpp"
+#include "commands/GeneralI2cAction.hpp"
 #include "commands/I2cCapabilitiesCommand.hpp"
 
 #define MODULE_EXISTS_005 EXISTENCE_MARKER_UTIL
-#define MODULE_SWITCH_005 MODULE_SWITCH_UTIL(ZscriptI2cModule<ZP>::execute)
+#define MODULE_SWITCH_005 MODULE_SWITCH_UTIL(I2cModule<ZP>::execute)
 
 namespace Zscript {
 template<class ZP>
-class ZscriptI2cModule: public ZscriptModule<ZP> {
+class I2cModule: public ZscriptModule<ZP> {
 public:
 
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
@@ -37,14 +35,14 @@ public:
         case ZscriptI2cSetupCommand<ZP>::CODE:
             ZscriptI2cSetupCommand<ZP>::execute(ctx);
             break;
-        case ZscriptI2cSendCommand<ZP>::CODE:
-            ZscriptI2cSendCommand<ZP>::execute(ctx);
+        case GeneralI2cAction<ZP>::SEND_CODE:
+            GeneralI2cAction<ZP>::executeSendReceive(ctx, GeneralI2cAction<ZP>::ActionType::SEND);
             break;
-        case ZscriptI2cReceiveCommand<ZP>::CODE:
-            ZscriptI2cReceiveCommand<ZP>::execute(ctx);
+        case GeneralI2cAction<ZP>::RECEIVE_CODE:
+            GeneralI2cAction<ZP>::executeSendReceive(ctx, GeneralI2cAction<ZP>::ActionType::RECEIVE);
             break;
-        case ZscriptI2cSendReceiveCommand<ZP>::CODE:
-            ZscriptI2cSendReceiveCommand<ZP>::execute(ctx);
+        case GeneralI2cAction<ZP>::SEND_RECEIVE_CODE:
+            GeneralI2cAction<ZP>::executeSendReceive(ctx, GeneralI2cAction<ZP>::ActionType::SEND_RECEIVE);
             break;
         default:
             ctx.status(ResponseStatus::COMMAND_NOT_FOUND);
