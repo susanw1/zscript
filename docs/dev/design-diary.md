@@ -4,6 +4,17 @@ LOG OF IDEAS AND DEVELOPMENT
 Realizing we're making lots of design decisions without writing them down!
 
 
+2023-08-20
+---
+Talked about 'ranking' module implementations for quality.
+- Diamond: Official Zscript implementation. Is tested as part of the release process.
+- Platinum: Working out of the box and verified in hardware.
+- Gold: Working out of the box, verified against compiler (and has related versions verified in hardware).
+- Silver: Works to spec, but only with some config provided.
+- Bronze: Provides functionality, but doesn't fully conform to spec.
+- Tin: May work in some cases, but has major weaknesses in functionality, in violation of the spec.
+- Paper: Doesn't actually work, but is promising.
+
 2023-08-16
 ---
 A few other interesting discussions/decisions:
