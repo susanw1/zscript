@@ -1,0 +1,126 @@
+name: Testing
+id: 0
+version: 0.0.1
+description: Just testing
+package:
+- net
+- zscript
+- client
+- modules
+- test
+commands:
+-   name: testCommand1
+    command: 0
+    description: Description A
+    operation: get
+    requestFields:
+    -   key: A
+        name: enumReqTestA
+        description: a required test field with enum
+        typeDefinition:
+            '@type': enum
+            values:
+            - Cat
+            - Dog
+            - Snake
+        required: yes
+    -   key: B
+        name: enumReqTestB
+        description: an optional test field with enum
+        typeDefinition:
+            '@type': enum
+            values:
+            - Rabbit
+            - Hare
+            - Mouse
+        required: no
+    -   key: C
+        name: numberReqTestC
+        description: a required test field with number
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: D
+        name: numberReqTestD
+        description: an optional test field with number
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: E
+        name: bitsetReqTestE
+        description: a required test field with bitset
+        typeDefinition:
+            '@type': bitset
+            bits:
+            -   name: Lion
+                description: large and flappy
+            -   name: Tiger
+                description: large stripy feline
+            -   name: Tabby
+                description: small feline
+        required: yes
+    -   key: F
+        name: bitsetReqTestF
+        description: a optional test field with bitset
+        typeDefinition:    &id001
+            '@type': bitset
+            bits:
+            -   name: Cheddar
+                description: the most popular cheese in the world
+            -   name: Camembert
+                description: a bit runny
+            -   name: GreekFeta
+                description: not as such
+        required: no
+    responseFields:
+    -   key: P
+        name: enumRespTestP
+        description: a required test response field with enum
+        typeDefinition:
+            '@type': enum
+            values:
+            - Elephant
+            - Goat
+            - Monkey
+        required: yes
+    -   key: Q
+        name: enumRespTestQ
+        description: an test response field with optional enum
+        typeDefinition:
+            '@type': enum
+            values:
+            - Elephant
+            - Goat
+            - Monkey
+        required: yes
+    -   key: R
+        name: numberRespTestR
+        description: a required test response field with number
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: T
+        name: numberReqTestT
+        description: an test response field with optional number
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: U
+        name: bitsetReqTestU
+        description: a required test response field with bitset
+        typeDefinition:
+            '@type': bitset
+            bits:
+            -   name: Lion
+                description: large and flappy
+            -   name: Tiger
+                description: large stripy feline
+            -   name: Tabby
+                description: small feline
+        required: yes
+    -   key: V
+        name: bitsetReqTestV
+        description: an test response field with optional bitset
+        typeDefinition: *id001
+        required: no
+

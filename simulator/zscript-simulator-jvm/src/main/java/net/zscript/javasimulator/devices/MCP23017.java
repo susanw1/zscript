@@ -14,7 +14,6 @@ import net.zscript.javasimulator.connections.i2c.I2cAddress;
 import net.zscript.javasimulator.connections.i2c.I2cConnection;
 import net.zscript.javasimulator.connections.i2c.I2cProtocolCategory;
 import net.zscript.javasimulator.connections.i2c.I2cReceivePacket;
-import net.zscript.javasimulator.connections.i2c.I2cReceiveResponse;
 import net.zscript.javasimulator.connections.i2c.I2cSendPacket;
 import net.zscript.javasimulator.connections.i2c.SmBusAlertConnection;
 import net.zscript.javasimulator.connections.i2c.SmBusAlertPacket;
@@ -23,7 +22,7 @@ import net.zscript.javasimulator.connections.pin.PinProtocolCategory;
 import net.zscript.javasimulator.connections.pin.PinReadPacket;
 import net.zscript.javasimulator.connections.pin.PinStatePacket;
 import net.zscript.javasimulator.connections.pin.PinWritePacket;
-
+ 
 public class MCP23017 extends EntityController {
 
     private static final int IODIR = 0;

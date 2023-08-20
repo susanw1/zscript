@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
 
 class TokenRingBufferWriterTest {

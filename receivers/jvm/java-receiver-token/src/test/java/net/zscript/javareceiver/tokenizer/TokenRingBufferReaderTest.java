@@ -14,20 +14,17 @@ import java.util.Random;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javareceiver.tokenizer.BlockIterator;
-import net.zscript.javareceiver.tokenizer.OptIterator;
-import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
-import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
+import net.zscript.util.OptIterator;
 
 class TokenRingBufferReaderTest {
 
     private static final int  BUFSIZE = 1000;
     private static final long SEED    = 2001;
 
-    private final TokenRingBuffer   buffer = TokenRingBuffer.createBufferWithCapacity(BUFSIZE);
+    private final TokenRingBuffer        buffer = TokenRingBuffer.createBufferWithCapacity(BUFSIZE);
     private final TokenReader            reader = buffer.getTokenReader();
     private final List<TokenExpectation> tokens = new ArrayList<>();
 

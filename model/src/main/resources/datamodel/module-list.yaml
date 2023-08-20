@@ -1,7 +1,0 @@
-moduleBanks:
--   name: Base
-    id: 0
-    moduleDefinitions:
-    - 00xx-base-modules/000x-core.yaml
-    - 00xx-base-modules/001x-outercore.yaml
-    - 00xx-base-modules/005x-i2c.yaml

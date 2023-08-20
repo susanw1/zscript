@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -9,11 +11,29 @@
 
     <artifactId>zscript-java-client</artifactId>
     <name>Java Client</name>
+    <packaging>pom</packaging>
 
+    <modules>
+        <module>client-command-api</module>
+        <module>client-transformer-adapter</module>
+        <module>client-command-builders</module>
+        <module>client-connection</module>
+    </modules>
+    
     <dependencies>
         <dependency>
             <groupId>net.zscript</groupId>
-            <artifactId>zscript-model</artifactId>
+            <artifactId>zscript-model-standard-module-definitions</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-util-misc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>java-receiver-token</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

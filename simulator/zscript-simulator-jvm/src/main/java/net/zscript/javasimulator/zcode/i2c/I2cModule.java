@@ -3,7 +3,6 @@ package net.zscript.javasimulator.zcode.i2c;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
@@ -62,7 +61,7 @@ public class I2cModule implements ZscriptModule {
         I2cAddressAction.execute(ctx, this);
     }
 
-   
+    @Override
     public void notification(NotificationContext ctx, boolean moveAlong) {
         notificationHandler.notification(entity, ctx);
     }

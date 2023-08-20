@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javareceiver.tokenizer.Zchars;
-
 class ZcharsTest {
 
     @Test

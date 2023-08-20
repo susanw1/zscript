@@ -1,0 +1,123 @@
+name: ScriptSpace
+id: 2
+version: 0.0.1
+description: ScriptSpace
+
+commands:
+-   name: capabilities
+    command: 0
+    description: ScriptSpace capabilities
+    operation: get
+    requestFields: []
+    responseFields:
+    -   key: C
+        name: commandsSet
+        description: which commands are enabled in the I2C module
+        typeDefinition:
+            '@type': commands
+        required: yes
+    -   key: P
+        name: scriptSpaceCount
+        description: how many independent script spaces are present
+        typeDefinition:
+            '@type': number
+        required: no
+    status: []
+
+-   name: scriptSpaceSetup
+    command: 1
+    description: configures a script space
+    operation: put
+    requestFields:
+    -   key: P
+        name: scriptSpaceId
+        description: which space to configure
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: R
+        name: run
+        description: if present, sets whether the script space is running
+        typeDefinition:
+            '@type': enum
+            values:
+                - running
+                - notRunning
+        required: no
+    responseFields:
+    -   key: L
+        name: availableLength
+        description: how much memory is dedicated to the given script space
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: R
+        name: running
+        description: whether the script space is currently running
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: P
+        name: currentWritePosition
+        description: where the current write position is in the script space
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: W
+        name: writeAllowed
+        description: whether the script space supports writing via Zscript
+        typeDefinition:
+            '@type': flag
+        required: no
+    status: []
+
+-   name: scriptSpaceWrite
+    command: 2
+    description: writes into a script space
+    operation: post
+    requestFields:
+    -   key: P
+        name: scriptSpaceId
+        description: which space to write to
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: R
+        name: reset
+        description: if present, empties the space and writes from the beginning
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: +
+        name: data
+        description: the data to write - in standard zscript form
+        typeDefinition:
+            '@type': bytes
+        required: no
+    responseFields:
+    -   key: L
+        name: availableLength
+        description: how much space is available after the write is complete
+        typeDefinition:
+            '@type': number
+        required: yes
+    status:
+    -   code: FAIL
+        meaning: The script space is running
+    -   code: ERROR
+        meaning: The write would exceed the boundaries of the space
+
+-   name: sleep
+    command: 8
+    description: asynchronously sleeps for the specified amount of time
+    operation: get
+    requestFields:
+    -   key: M
+        name: milliseconds
+        description: how many milliseconds to sleep for
+        typeDefinition:
+            '@type': number
+        required: yes
+    responseFields: []
+    status: []
+    

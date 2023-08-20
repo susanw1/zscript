@@ -50,6 +50,10 @@ public class Zchars {
         return b >= 0x20 && parseHex(b) == PARSE_NOT_HEX_0X10;
     }
 
+    public static boolean mustStringEscape(byte b) {
+        return b == Z_BIGFIELD_QUOTED || b == Z_NEWLINE || b == Z_STRING_ESCAPE || b == '\0';
+    }
+
     static final int PARSE_NOT_HEX_0X10 = 0x10;
 
     public static byte parseHex(byte b) {

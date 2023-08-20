@@ -5,8 +5,8 @@ import java.util.Optional;
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.execution.ZscriptField;
-import net.zscript.javareceiver.tokenizer.OptIterator;
 import net.zscript.javareceiver.tokenizer.Zchars;
+import net.zscript.util.OptIterator;
 
 public class ZscriptEchoCommand {
 

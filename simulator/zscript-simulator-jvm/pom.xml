@@ -14,7 +14,12 @@
         <dependency>
             <groupId>net.zscript</groupId>
             <artifactId>java-receiver-token</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-util-misc</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies> 
 </project>

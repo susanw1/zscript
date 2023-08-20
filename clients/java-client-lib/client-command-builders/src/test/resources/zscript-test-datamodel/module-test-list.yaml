@@ -1,0 +1,9 @@
+moduleBanks:
+-   name: Testing
+    id: 0
+    defaultPackage:
+    - a
+    - b
+    - c
+    moduleDefinitions:
+    - mod/test-module.yaml

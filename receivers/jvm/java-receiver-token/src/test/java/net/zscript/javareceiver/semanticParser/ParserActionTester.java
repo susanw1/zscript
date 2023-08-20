@@ -4,12 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.OutStream;
-import net.zscript.javareceiver.semanticParser.SemanticParser;
-import net.zscript.javareceiver.semanticParser.SemanticAction;
-import net.zscript.javareceiver.semanticParser.SemanticParser.State;
+import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
+import net.zscript.javareceiver.semanticParser.SemanticParser.State;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 

@@ -1,0 +1,157 @@
+intrinsics:
+    requestFields:
+    -   key: Z
+        name: command
+        description: which command to be executed
+        typeDefinition:
+            '@type': command
+        required: yes
+    responseFields:
+    -   key: S
+        name: status
+        description: indicates success (0), failure (1-0xf) or error (0x10+)
+        typeDefinition:
+            '@type': number
+        required: yes
+        
+    status:
+    -   code: SUCCESS
+        id: 0
+        meaning: command success
+        
+        
+        
+    -   code: COMMAND_FAIL
+        id: 1
+        meaning: command failure
+        
+    -   code: COMMAND_FAIL_CONTROL
+        id: 2
+        meaning: command failed in order to control the program flow
+        
+    -   code: COMMAND_NO_TARGET
+        id: 3
+        meaning: target of command either non-existent or not responding
+        
+    -   code: COMMAND_TARGET_DOES_NOT_SUPPORT
+        id: 4
+        meaning: target of command does not support the requested functionality
+        
+        
+    -   code: COMMAND_DATA_NOT_TRANSMITTED
+        id: 8
+        meaning: data transmission not successful - may have failed or only been partial
+        
+    -   code: COMMAND_DATA_NOT_RECEIVED
+        id: 9
+        meaning: data reception not successful - may have failed or only been partial
+        
+        
+        
+    -   code: BUFFER_OVR_ERROR
+        id: 16
+        meaning: buffer overflow
+        
+    -   code: INTERNAL_ERROR
+        id: 17
+        meaning: impossible condition hit
+        
+    -   code: NOT_ACTIVATED
+        id: 18
+        meaning: channel not activated for non-core command
+        
+    -   code: COMMAND_ERROR_CONTROL
+        id: 19
+        meaning: command error in order to control the program flow
+        
+        
+    -   code: FIELD_TOO_LONG
+        id: 32
+        meaning: numeric field too long
+        
+    -   code: ODD_LENGTH
+        id: 33
+        meaning: odd length big field
+        
+    -   code: UNTERMINATED_STRING
+        id: 34
+        meaning: missing end quote
+        
+    -   code: ESCAPING_ERROR
+        id: 35
+        meaning: string escaping invalid
+        
+    -   code: ILLEGAL_KEY
+        id: 36
+        meaning: illegal character given as token key
+        
+        
+    -   code: INVALID_LOCKS
+        id: 48
+        meaning: locks field too long or repeated
+        
+    -   code: INVALID_ECHO
+        id: 49
+        meaning: echo field too long or repeated
+        
+    -   code: INVALID_COMMENT
+        id: 50
+        meaning: comment with non-comment fields found
+        
+        
+    -   code: REPEATED_KEY
+        id: 64
+        meaning: two fields (in the same command) with the same key found
+        
+    -   code: INVALID_KEY
+        id: 65
+        meaning: field not valid in this position
+        
+    -   code: COMMAND_NOT_FOUND
+        id: 66
+        meaning: given command does not exist or not specified
+        
+    -   code: ADDRESS_NOT_FOUND
+        id: 67
+        meaning: given address does not exist or cannot be addressed
+        
+        
+    -   code: MISSING_KEY
+        id: 80
+        meaning: a required field was not given
+        
+    -   code: VALUE_OUT_OF_RANGE
+        id: 81
+        meaning: a field or big field was given with a value which is not supported
+        
+    -   code: DATA_TOO_LONG
+        id: 82
+        meaning: data transmission/reception exceeds maximum transmission length
+        
+        
+        
+    -   code: EXECUTION_ERROR
+        id: 128
+        meaning: generic failure mid-execution 
+        
+        
+    -   code: PERIPHERAL_ERROR
+        id: 144
+        meaning: a peripheral required for the command has failed fatally
+        
+    -   code: PERIPHERAL_JAM
+        id: 145
+        meaning: a peripheral required for the command is in a state it cannot exit (and may require rebooting)
+        
+    -   code: PERIPHERAL_DISABLED
+        id: 146
+        meaning: a peripheral required for the command is not currently enabled (and may require other commands or activity to enable)
+        
+    -   code: PERIPHERAL_DISCONNECTED
+        id: 147
+        meaning: a peripheral required for the command is not attached (and may require physical intervention to attach)
+        
+    -   code: PERIPHERAL_BROKEN
+        id: 148
+        meaning: a peripheral required for the command has sustained permanent damage (and may require replacement)
+        
