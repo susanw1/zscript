@@ -43,7 +43,7 @@
                 <configuration>
                     <templates>
                         <directory>${project.basedir}/src/main/templates</directory>
-                        <includes>**/CommandBuilder.mustache</includes>
+                        <includes>**/JavaCommandBuilder.mustache</includes>
                     </templates>
                     <outputDirectory>
                         ${project.build.directory}/generated-sources/zscript</outputDirectory>

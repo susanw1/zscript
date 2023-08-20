@@ -21,7 +21,7 @@ import net.zscript.client.modules.test.testing.TestingModule;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.BitsetReqTestE;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 
-public class CommandBuilderTest {
+public class JavaCommandBuilderTest {
     @Test
     void shouldCreateCommandWithRequiredFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
