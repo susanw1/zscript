@@ -16,6 +16,12 @@ commands:
         typeDefinition:
             '@type': commands
         required: yes
+    -   key: I
+        name: interfaceCount
+        description: how many ports are available
+        typeDefinition:
+            '@type': number
+        required: yes
     -   key: N
         name: notificationsSupported
         description: whether notifications are supported for SMBus alerts or similar
@@ -28,24 +34,12 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    -   key: P
-        name: portCount
-        description: how many ports are available
-        typeDefinition:
-            '@type': number
-        required: yes
     -   key: F
         name: frequenciesSupported
         description: how many frequencies are supported as a 'menu' of (0 -> slow, 1 -> 100kHz, 2 -> 400kHz, 3 -> 1MHz)
         typeDefinition:
             '@type': number
         required: yes
-    -   key: M
-        name: maximumSupportedFrequency
-        description: if present, arbitrary frequency selection is supported, and this is the highest supported (in units of kHz, giving a limit of 64MHz)
-        typeDefinition:
-            '@type': number
-        required: no
     -   key: B
         name: bitsetCapabilities
         description: a set of more specific capabilities of the module
@@ -58,6 +52,8 @@ commands:
                 description: whether the device supports freeing from a bus lockup (due to a missed SCL pulse)
             -   name: smBusAddressResolution
                 description: whether the device supports resolving I2C addresses associated with alerts
+            -   name: tenBit
+                description: whether the device supports using ten bit I2C addresses
         required: yes
     status: [ ]
 
@@ -66,21 +62,15 @@ commands:
     description: configures the I2C subsystem
     operation: put
     requestFields:
-    -   key: P
-        name: port
-        description: 'which port to configure (default: all)'
+    -   key: I
+        name: interface
+        description: 'which I2C interface to configure (default: all)'
         typeDefinition:
             '@type': number
         required: no
     -   key: F
         name: frequency
         description: the frequency to set as a choice from the 'menu'
-        typeDefinition:
-            '@type': number
-        required: no
-    -   key: K
-        name: frequencykHz
-        description: the frequency to set in kHz (the device will choose a frequency <= this)
         typeDefinition:
             '@type': number
         required: no
@@ -118,9 +108,9 @@ commands:
     description: Sends data to a specified I2C device
     operation: post
     requestFields:
-    -   key: P
-        name: port
-        description: which port to send to
+    -   key: I
+        name: interface
+        description: which interface to send to
         typeDefinition:
             '@type': number
         required: yes
@@ -130,13 +120,13 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: N
+    -   key: T
         name: tenBitMode
         description: 'indicates if 10-bit addressing (default: 7 bit)'
         typeDefinition:
             '@type': flag
         required: no
-    -   key: T
+    -   key: R
         name: retries
         description: 'how many times to try the write operation (default: 5)'
         typeDefinition:
@@ -161,7 +151,7 @@ commands:
             - DataNack
             - Other
         required: yes
-    -   key: T
+    -   key: R
         name: attempts
         description: how many attempts we made to send
         typeDefinition:
@@ -178,9 +168,9 @@ commands:
     description: Receives data from a specified I2C device
     operation: post
     requestFields:
-    -   key: P
-        name: port
-        description: which port to read from
+    -   key: I
+        name: interface
+        description: which interface to read from
         typeDefinition:
             '@type': number
         required: yes
@@ -190,13 +180,13 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: N
+    -   key: T
         name: tenBitMode
         description: 'indicates if 10-bit addressing (default: 7 bit)'
         typeDefinition:
             '@type': flag
         required: no
-    -   key: T
+    -   key: R
         name: retries
         description: 'how many times to try the receive operation (default: 5)'
         typeDefinition:
@@ -221,7 +211,7 @@ commands:
             - DataNack
             - Other
         required: yes
-    -   key: T
+    -   key: R
         name: attempts
         description: how many attempts were made to receive
         typeDefinition:
@@ -246,9 +236,9 @@ commands:
     description: Sends a message to a specified I2C device, then performs a receive without an intervening stop bit
     operation: post
     requestFields:
-    -   key: P
-        name: port
-        description: which port to send to/receive from
+    -   key: I
+        name: interface
+        description: which interface to send to/read from
         typeDefinition:
             '@type': number
         required: yes
@@ -258,13 +248,13 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: N
+    -   key: T
         name: tenBitMode
         description: 'indicates if 10-bit addressing (default: 7 bit)'
         typeDefinition:
             '@type': flag
         required: no
-    -   key: T
+    -   key: R
         name: retries
         description: 'how many times to try the send/receive operation (default: 5)'
         typeDefinition:
@@ -295,7 +285,7 @@ commands:
             - DataNack
             - Other
         required: yes
-    -   key: T
+    -   key: R
         name: attempts
         description: how many attempts we made to send/receive
         typeDefinition:

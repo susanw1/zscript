@@ -57,10 +57,19 @@ commands:
             - Input
             - InputPullUp
             - InputPullDown
+            - Reserved__0
             - Output
+            - Reserved__1
+            - Reserved__2
+            - Reserved__3
             - OpenDrain
             - OpenDrainPullUp
             - OpenDrainPullDown
+            - Reserved__4
+            - OpenCollector
+            - OpenCollectorPullUp
+            - OpenCollectorPullDown
+            - Reserved__5
         required: no
     responseFields:
     -   key: M
@@ -72,10 +81,19 @@ commands:
             -   name: Input
             -   name: InputPullUp
             -   name: InputPullDown
+            -   name: Reserved__0
             -   name: Output
+            -   name: Reserved__1
+            -   name: Reserved__2
+            -   name: Reserved__3
             -   name: OpenDrain
             -   name: OpenDrainPullUp
             -   name: OpenDrainPullDown
+            -   name: Reserved__4
+            -   name: OpenCollector
+            -   name: OpenCollectorPullUp
+            -   name: OpenCollectorPullDown
+            -   name: Reserved__5
         required: no
     status: [ ]
 
@@ -118,7 +136,10 @@ commands:
         name: value
         description: value read from pin
         typeDefinition:
-            '@type': boolean
+            '@type': enum
+            values:
+            - low
+            - high
         required: yes
     status: [ ]
 
@@ -136,7 +157,7 @@ commands:
     responseFields:
     -   key: B
         name: bitCount
-        description: how many bits of precision can be read
+        description: how many bits of precision can be read (1 bit -> digital)
         typeDefinition:
             '@type': number
         required: yes
@@ -176,7 +197,7 @@ commands:
     responseFields:
     -   key: B
         name: bitCount
-        description: how many bits of precision can be written
+        description: how many bits of precision can be written  (1 bit -> digital)
         typeDefinition:
             '@type': number
         required: yes
@@ -196,6 +217,45 @@ commands:
     -   key: V
         name: value
         description: value to be written, left-shifted to compensate for precision, so that 8000 is always half
+        typeDefinition:
+            '@type': number
+        required: yes
+    responseFields: [ ]
+    status: [ ]
+-   name: pwmSetup
+    command: 8
+    description: PWM setup
+    operation: put
+    requestFields:
+    -   key: P
+        name: pin
+        description: which pin should be configured
+        typeDefinition:
+            '@type': number
+        required: yes
+    responseFields:
+    -   key: B
+        name: bitCount
+        description: how many bits of precision can be written  (1 bit -> digital)
+        typeDefinition:
+            '@type': number
+        required: yes
+    status: [ ]
+
+-   name: pwmWrite
+    command: 9
+    description: pwm pin write
+    operation: get
+    requestFields:
+    -   key: P
+        name: pin
+        description: which pin should be written to
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: V
+        name: value
+        description: value to be written, leftshifted to compensate for precision, so that 8000 is always 50%
         typeDefinition:
             '@type': number
         required: yes

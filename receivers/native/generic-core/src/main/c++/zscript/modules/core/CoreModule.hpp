@@ -8,6 +8,10 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_CORE_COREMODULE_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_CORE_COREMODULE_HPP_
 
+#ifdef ZSCRIPT_HPP_INCLUDED
+#error Must be included before Zscript.hpp
+#endif
+
 #include "../../ZscriptIncludes.hpp"
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../ZscriptModule.hpp"

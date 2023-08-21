@@ -8,6 +8,7 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_ZSCRIPT_HPP_
 #define SRC_MAIN_C___ZSCRIPT_ZSCRIPT_HPP_
 
+#define ZSCRIPT_HPP_INCLUDED
 #include "ZscriptIncludes.hpp"
 #include "execution/LockSet.hpp"
 #include "execution/LockSystem.hpp"
@@ -151,5 +152,4 @@ public:
 template<class ZP>
 Zscript<ZP> Zscript<ZP>::zscript;
 }
-
 #endif /* SRC_MAIN_C___ZSCRIPT_ZSCRIPT_HPP_ */

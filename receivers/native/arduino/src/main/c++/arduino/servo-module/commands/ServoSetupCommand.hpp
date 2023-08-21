@@ -19,29 +19,30 @@ class ServoSetupCommand {
 public:
     static constexpr uint8_t CODE = 0x01;
 
-    static constexpr char ParamServoPin__P = 'P';
+    static constexpr char ParamServoInterface__I = 'I';
     static constexpr char ParamMinPulseTime__N = 'N';
     static constexpr char ParamMaxPulseTime__M = 'M';
     static constexpr char ParamTravelSpeed__V = 'V';
     static constexpr char ParamTravelSpeedPrecise__W = 'W';
     static constexpr char ParamResetCalibrations__R = 'R';
 
+    static constexpr char RespPin__P = 'P';
     static constexpr char RespMinPulseTime__N = 'N';
     static constexpr char RespMaxPulseTime__M = 'M';
     static constexpr char RespCentrePulseTime__C = 'C';
     static constexpr char RespTravelSpeedPrecise__W = 'W';
 
     static void execute(ZscriptCommandContext<ZP> ctx, ZscriptGeneralServo<ZP> *servos) {
-        uint16_t pin;
-        if (!ctx.getField(ParamServoPin__P, &pin)) {
+        uint16_t interface;
+        if (!ctx.getField(ParamServoInterface__I, &interface)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }
-        if (pin >= ZP::servoCount) {
+        if (interface >= ZP::servoCount) {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
-        ZscriptGeneralServo<ZP> *target = servos + pin;
+        ZscriptGeneralServo<ZP> *target = servos + interface;
         if (ctx.hasField(ParamResetCalibrations__R)) {
             target->resetCalibration();
         }
@@ -62,6 +63,7 @@ public:
         }
 #endif
         CommandOutStream<ZP> out = ctx.getOutStream();
+        out.writeField(RespPin__P, target->getPin());
         out.writeField(RespMinPulseTime__N, target->getMinMicros());
         out.writeField(RespMaxPulseTime__M, target->getMaxMicros());
         out.writeField(RespCentrePulseTime__C, target->getCentreMicros());

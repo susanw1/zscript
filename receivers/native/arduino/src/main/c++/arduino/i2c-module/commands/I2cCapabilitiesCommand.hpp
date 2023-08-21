@@ -22,7 +22,7 @@ public:
     static constexpr char RespCommands__C = 'C';
     static constexpr char RespNotificationsSupported__N = 'N';
     static constexpr char RespAddressingSupported__A = 'A';
-    static constexpr char RespPortCount__P = 'P';
+    static constexpr char RespInterfaceCount__I = 'I';
     static constexpr char RespFrequenciesSupported__F = 'F';
     static constexpr char RespBitsetCapabilities__B = 'B';
 
@@ -34,6 +34,7 @@ public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
         out.writeField(RespCommands__C, MODULE_CAPABILITIES(005));
+        out.writeField(RespInterfaceCount__I, 1);
         out.writeField(RespFrequenciesSupported__F, 3);
         out.writeField(RespBitsetCapabilities__B, RespBitsetCapabilities__LowSpeedSupported | RespBitsetCapabilities__SmBusAddressResolution);
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS

@@ -16,9 +16,9 @@ commands:
         typeDefinition:
             '@type': commands
         required: yes
-    -   key: P
-        name: servoPinCount
-        description: how many servo pins are available
+    -   key: I
+        name: servoInterfaceCount
+        description: how many servo interfaces are available
         typeDefinition:
             '@type': number
         required: yes
@@ -78,8 +78,8 @@ commands:
     description: allows reading and writing of setup information about specific servos
     operation: put
     requestFields:
-    -   key: P
-        name: servoPin
+    -   key: I
+        name: servoInterface
         description: which servo to setup
         typeDefinition:
             '@type': number
@@ -111,7 +111,7 @@ commands:
         required: no
     -   key: W
         name: pinChangeSpeedPrecise
-        description: the speed for the servo - 2 byte. The time to do a full sweep will be exactly '256/W's, allowing sweeps in anything from 4ms to 4 minutes.
+        description: the speed for the servo - 2 byte. The time to do a full sweep will be exactly '4096/W's, allowing sweeps in anything from 64ms to 64 minutes.
         typeDefinition:
             '@type': number
         required: no
@@ -123,11 +123,17 @@ commands:
         required: no
     -   key: R
         name: resetCalibrations
-        description: if present, resets the calibrations for the chosen servo back to those in persistent memory, or default
+        description: if present, resets the calibrations for the chosen servo back to those in persistent memory, or default (and then applies other calibrations listed here)
         typeDefinition:
             '@type': flag
         required: no
     responseFields:
+    -   key: P
+        name: pin
+        description: the pin ID which this servo runs on
+        typeDefinition:
+            '@type': number
+        required: yes
     -   key: N
         name: minimumPulseTime
         description: the length of pulse used as the minimum for the chosen servo, in us
@@ -155,7 +161,7 @@ commands:
         required: no
     -   key: W
         name: pinChangeSpeedPrecise
-        description: the speed for the servo - 2 byte. The time to do a full sweep will be exactly '256/W's, allowing sweeps in anything from 4ms to 4 minutes.
+        description: the speed for the servo - 2 byte. The time to do a full sweep will be exactly '4096/W's, allowing sweeps in anything from 64ms to 64 minutes.
         typeDefinition:
             '@type': number
         required: no
@@ -167,8 +173,8 @@ commands:
     description: moves a servo to a desired position. Changing the destination of a moving servo will immediately change its course
     operation: put
     requestFields:
-    -   key: P
-        name: servoPin
+    -   key: I
+        name: servoInterface
         description: which servo to setup
         typeDefinition:
             '@type': number
@@ -180,7 +186,7 @@ commands:
             '@type': number
         required: yes
     -   key: F
-        name: force
+        name: fast
         description: if present, will ignore current speed settings, and assert the desired value immediately
         typeDefinition:
             '@type': flag
@@ -203,16 +209,34 @@ commands:
     description: reads dynamic state about a given servo
     operation: get
     requestFields:
-    -   key: P
-        name: servoPin
+    -   key: I
+        name: servoInterface
         description: which servo to setup
         typeDefinition:
             '@type': number
         required: yes
+    -   key: W
+        name: wait
+        description: wait for servo motion to complete
+        typeDefinition:
+            '@type': flag
+        required: no
     responseFields:
-    -   key: V
-        name: value
+    -   key: T
+        name: target
         description: The current target position for the servo
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: C
+        name: cuurent
+        description: The current position for the servo
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: U
+        name: curentMicroseconds
+        description: The current microsecond time for the high pulse of the signal
         typeDefinition:
             '@type': number
         required: yes

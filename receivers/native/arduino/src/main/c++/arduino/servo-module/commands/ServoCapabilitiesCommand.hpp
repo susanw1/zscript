@@ -20,7 +20,7 @@ public:
     static constexpr uint8_t CODE = 0x00;
 
     static constexpr char RespCommandsSet__C = 'C';
-    static constexpr char RespServoPinCount__P = 'P';
+    static constexpr char RespServoInterfaceCount__I = 'I';
     static constexpr char RespPulseRate__R = 'R';
     static constexpr char RespMinPulseTime__N = 'N';
     static constexpr char RespMaxPulseTime__M = 'M';
@@ -35,7 +35,7 @@ public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
         out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(008));
-        out.writeField(RespServoPinCount__P, ZP::servoCount);
+        out.writeField(RespServoInterfaceCount__I, ZP::servoCount);
         out.writeField(RespPulseRate__R, 20);
         out.writeField(RespMinPulseTime__N, 544 - 127 * 4);
         out.writeField(RespMaxPulseTime__M, 2400 + 127 * 4);

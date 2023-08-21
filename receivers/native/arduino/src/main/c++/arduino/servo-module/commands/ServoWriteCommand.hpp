@@ -19,18 +19,18 @@ class ServoWriteCommand {
 public:
     static constexpr uint8_t CODE = 0x02;
 
-    static constexpr char ParamServoPin__P = 'P';
+    static constexpr char ParamServoInterface__I = 'I';
     static constexpr char ParamValue__V = 'V';
     static constexpr char ParamFast__F = 'F';
     static constexpr char ParamEnable__E = 'E';
 
     static void execute(ZscriptCommandContext<ZP> ctx, ZscriptGeneralServo<ZP> *servos) {
-        uint16_t pin;
-        if (!ctx.getField(ParamServoPin__P, &pin)) {
+        uint16_t interface;
+        if (!ctx.getField(ParamServoInterface__I, &interface)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }
-        if (pin >= ZP::servoCount) {
+        if (interface >= ZP::servoCount) {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
@@ -39,7 +39,7 @@ public:
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }
-        ZscriptGeneralServo<ZP> *target = servos + pin;
+        ZscriptGeneralServo<ZP> *target = servos + interface;
 
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
         if (ctx.hasField('F')) {

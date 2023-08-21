@@ -71,7 +71,7 @@ public:
         CommandOutStream < ZP > out = ctx.getOutStream();
         out.writeField('N', 0);
         out.writeField('M', 0x7);
-        out.writeQuotedString("Serial channel");
+        out.writeField('I', 0);
     }
 
     void channelSetup(ZscriptCommandContext<ZP> ctx) {

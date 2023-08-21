@@ -56,6 +56,9 @@ public:
     void setup(uint8_t pin) {
         this->pin = pin;
     }
+    uint8_t getPin() {
+        return pin;
+    }
 
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
     void updatePos(uint8_t timeMillis16) {

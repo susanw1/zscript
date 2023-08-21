@@ -21,13 +21,13 @@
 namespace Zscript {
 template<class ZP>
 class GeneralI2cAction {
-    static constexpr char ParamPort__P = 'P';
+    static constexpr char ParamInterface__I = 'I';
     static constexpr char ParamAddr__A = 'A';
-    static constexpr char ParamTenBit__N = 'N';
-    static constexpr char ParamRetries_T = 'T';
+    static constexpr char ParamTenBit__T = 'T';
+    static constexpr char ParamRetries__R = 'R';
     static constexpr char ParamReadLength__L = 'L';
 
-    static constexpr char RespRetries__T = 'T';
+    static constexpr char RespRetries__R = 'R';
     static constexpr char RespResultType__I = 'I';
     static constexpr char RespResultType__OK = 0;
     static constexpr char RespResultType__ADDRNACK = 2;
@@ -50,7 +50,7 @@ public:
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }
-        if (ctx.hasField(ParamTenBit__N)) {
+        if (ctx.hasField(ParamTenBit__T)) {
             ctx.status(ResponseStatus::EXECUTION_ERROR);
             return;
         }
@@ -68,10 +68,10 @@ public:
         }
 
         // initial pass
-        uint16_t port;
-        if (!ctx.getField(ParamPort__P, &port)) {
-            port = 0;
-        } else if (port > 0) {
+        uint16_t interface;
+        if (!ctx.getField(ParamInterface__I, &interface)) {
+            interface = 0;
+        } else if (interface > 0) {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
@@ -183,7 +183,7 @@ public:
             }
 
         }
-        out.writeField(RespRetries__T, attemptsDone);
+        out.writeField(RespRetries__R, attemptsDone);
         out.writeField(RespResultType__I, infoValue);
         return;
     }

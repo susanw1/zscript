@@ -34,9 +34,9 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    -   key: P
-        name: portCount
-        description: how many ports are available
+    -   key: I
+        name: interfaceCount
+        description: how many interfaces are available
         typeDefinition:
             '@type': number
         required: yes
@@ -87,9 +87,9 @@ commands:
     description: Serial setup
     operation: put
     requestFields:
-    -   key: P
-        name: port
-        description: 'which port should be configured (default: all)'
+    -   key: I
+        name: interface
+        description: 'which interface should be configured (default: all)'
         typeDefinition:
             '@type': number
         required: no
@@ -151,9 +151,9 @@ commands:
     description: Serial send
     operation: post
     requestFields:
-    -   key: P
-        name: port
-        description: which port should be used
+    -   key: I
+        name: interface
+        description: which interface should be used
         typeDefinition:
             '@type': number
         required: yes
@@ -172,9 +172,9 @@ commands:
     description: Serial receive
     operation: read
     requestFields:
-    -   key: P
-        name: port
-        description: which port should be used
+    -   key: I
+        name: interface
+        description: which interface should be used
         typeDefinition:
             '@type': number
         required: yes
@@ -210,9 +210,9 @@ commands:
     description: Serial skip
     operation: read
     requestFields:
-    -   key: P
-        name: port
-        description: which port should be used
+    -   key: I
+        name: interface
+        description: which interface should be used
         typeDefinition:
             '@type': number
         required: yes
