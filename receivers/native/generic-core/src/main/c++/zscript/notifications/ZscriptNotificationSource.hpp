@@ -8,10 +8,18 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_NOTIFICATIONS_ZSCRIPTNOTIFICATIONSOURCE_HPP_
 #define SRC_MAIN_C___ZSCRIPT_NOTIFICATIONS_ZSCRIPTNOTIFICATIONSOURCE_HPP_
 #include "../execution/LockSet.hpp"
-#include "../execution/ZscriptAction.hpp"
 
 namespace Zscript {
 namespace GenericCore {
+enum class NotificationActionType : uint8_t {
+    INVALID,
+    WAIT_FOR_NOTIFICATION,
+    WAIT_FOR_ASYNC,
+    NOTIFICATION_BEGIN,
+    NOTIFICATION_MOVE_ALONG,
+    NOTIFICATION_END
+};
+
 enum NotificationSourceState {
     NO_NOTIFICATION,
     NOTIFICATION_READY,
@@ -19,6 +27,9 @@ enum NotificationSourceState {
     NOTIFICATION_NEEDS_ACTION,
     NOTIFICATION_COMPLETE
 };
+
+template<class ZP>
+class ZscriptAction;
 
 template<class ZP>
 class ZscriptNotificationSource {
@@ -52,12 +63,7 @@ private:
 
 public:
 
-    ZscriptAction<ZP> getAction() {
-        while (currentAction == NotificationActionType::INVALID) {
-            currentAction = getActionType();
-        }
-        return ZscriptAction<ZP>(this, currentAction);
-    }
+    ZscriptAction<ZP> getAction();
 
     uint16_t getID() {
         return id;
@@ -170,9 +176,9 @@ public:
         }
         if (locks == NULL) {
             LockSet<ZP> ls = LockSet<ZP>::allLocked();
-            return Zscript<ZP>::zscript.canLock(&ls);
+            return Zscript < ZP > ::zscript.canLock(&ls);
         }
-        return Zscript<ZP>::zscript.canLock(locks);
+        return Zscript < ZP > ::zscript.canLock(locks);
     }
 
     bool lock() {
@@ -181,10 +187,10 @@ public:
         }
         if (locks == NULL) {
             LockSet<ZP> ls = LockSet<ZP>::allLocked();
-            locked = Zscript<ZP>::zscript.lock(&ls);
+            locked = Zscript < ZP > ::zscript.lock(&ls);
             return locked;
         }
-        locked = Zscript<ZP>::zscript.lock(locks);
+        locked = Zscript < ZP > ::zscript.lock(locks);
         return locked;
     }
 
@@ -194,11 +200,11 @@ public:
         }
         if (locks == NULL) {
             LockSet<ZP> ls = LockSet<ZP>::allLocked();
-            Zscript<ZP>::zscript.unlock(&ls);
+            Zscript < ZP > ::zscript.unlock(&ls);
             locked = false;
             return;
         }
-        Zscript<ZP>::zscript.unlock(locks);
+        Zscript < ZP > ::zscript.unlock(locks);
         locked = false;
         return;
     }

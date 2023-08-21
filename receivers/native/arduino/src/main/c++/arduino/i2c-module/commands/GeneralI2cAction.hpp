@@ -186,8 +186,58 @@ public:
         out.writeField(RespRetries__T, attemptsDone);
         out.writeField(RespResultType__I, infoValue);
         return;
-
     }
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
+    static void executeAddressing(ZscriptAddressingContext<ZP> ctx) {
+        uint16_t interface;
+        uint16_t address;
+        AddressOptIterator<ZP> iter = ctx.getAddressSegments();
+        iter.next();
+        OptInt16 seg = iter.next();
+        if (!seg.isPresent) {
+            ctx.status(ResponseStatus::ADDRESS_NOT_FOUND);
+            return;
+        }
+        interface = seg.value;
+        if (interface > 0) {
+            ctx.status(ResponseStatus::ADDRESS_NOT_FOUND);
+            return;
+        }
+        seg = iter.next();
+        if (!seg.isPresent) {
+            ctx.status(ResponseStatus::ADDRESS_NOT_FOUND);
+            return;
+        }
+        address = seg.value;
+        if (address >= 128) {
+            ctx.status(ResponseStatus::ADDRESS_NOT_FOUND);
+            return;
+        }
+        Wire.beginTransmission((uint8_t) address);
+        if (ctx.getAddressedDataSize() > 0) {
+            for (CombinedTokenBlockIterator<ZP> tbi = ctx.getAddressedData(); tbi.hasNext();) {
+                DataArrayWLeng16 data = tbi.nextContiguous();
+                Wire.write(data.data, data.length);
+            }
+        }
+        uint8_t status = Wire.endTransmission();
+        if (status == 0) {
+            //done
+        } else if (status == 3) {
+            ctx.status(ResponseStatus::COMMAND_DATA_NOT_TRANSMITTED);
+        } else if (status == 5 || status == 4) {
+            if (recoverBusJam()) {
+                ctx.status(ResponseStatus::PERIPHERAL_JAM);
+            } else {
+                ctx.status(ResponseStatus::COMMAND_FAIL);
+            }
+        } else if (status == 2) {
+            ctx.status(ResponseStatus::COMMAND_NO_TARGET);
+        } else {
+            ctx.status(ResponseStatus::COMMAND_FAIL);
+        }
+    }
+#endif
 
     static bool recoverBusJam() {
         int attempts = 18;

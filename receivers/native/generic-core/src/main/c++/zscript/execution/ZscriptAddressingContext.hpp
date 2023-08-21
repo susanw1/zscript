@@ -9,10 +9,9 @@
 #define SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTADDRESSINGCONTEXT_HPP_
 
 #include "../ZscriptIncludes.hpp"
-#include "../AbstractOutStream.hpp"
-#include "../Zchars.hpp"
 #include "../tokenizer/TokenRingBuffer.hpp"
 #include "../tokenizer/ZscriptTokenizer.hpp"
+#include "CommandOutStream.hpp"
 
 namespace Zscript {
 template<class ZP>
@@ -67,7 +66,7 @@ public:
         for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(reader.asBuffer()); opt.isPresent; opt = iterator.next(reader.asBuffer())) {
             GenericCore::RingBufferToken<ZP> token = opt.token;
             if (token.getKey(reader.asBuffer()) == ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
-                return CombinedTokenBlockIterator<ZP>(reader.asBuffer(), token.blockIterator(reader.asBuffer()));
+                return token.blockIterator(reader.asBuffer());
             }
         }
     }

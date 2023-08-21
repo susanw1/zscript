@@ -22,14 +22,22 @@ public:
 
     // if set, determines which port to control; else set all ports
     static constexpr char ParamPort__P = 'P';
-
     // chooses comms frequency, from 10, 100, 400 and 1000 kHz
-    static constexpr char CMD_PARAM_FREQ_F = 'F';
+    static constexpr char ParamFreq__F = 'F';
+    // If present, sets whether addressing is enabled
+    static constexpr char ParamAddressingEnable__A = 'A';
+    // If present, sets whether notifications are enabled
+    static constexpr char ParamNotificationEnable__N = 'N';
 
-    static void execute(ZscriptCommandContext<ZP> ctx) {
+    static void execute(ZscriptCommandContext<ZP> ctx
+
+#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+            , bool *addressing, bool *notifications
+#endif
+            ) {
 
         uint16_t freq;
-        if (ctx.getField(CMD_PARAM_FREQ_F, &freq)) {
+        if (ctx.getField(ParamFreq__F, &freq)) {
             uint32_t freqValue;
 
             switch (freq) {
@@ -61,6 +69,18 @@ public:
             }
             Wire.setClock(freqValue);
         }
+#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+        uint16_t notif;
+        if (ctx.getField(ParamNotificationEnable__N, &notif)) {
+            *notifications = (notif != 0);
+        }
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
+        uint16_t addr;
+        if (ctx.getField(ParamAddressingEnable__A, &addr)) {
+            *addressing = (addr != 0);
+        }
+#endif
+#endif
     }
 };
 }

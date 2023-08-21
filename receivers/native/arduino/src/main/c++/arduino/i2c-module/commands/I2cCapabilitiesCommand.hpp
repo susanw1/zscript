@@ -36,11 +36,11 @@ public:
         out.writeField(RespCommands__C, MODULE_CAPABILITIES(005));
         out.writeField(RespFrequenciesSupported__F, 3);
         out.writeField(RespBitsetCapabilities__B, RespBitsetCapabilities__LowSpeedSupported | RespBitsetCapabilities__SmBusAddressResolution);
-#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
         out.writeField(RespNotificationsSupported__N, 0);
-#endif
 #ifdef ZSCRIPT_SUPPORT_ADDRESSING
         out.writeField(RespAddressingSupported__A, 0);
+#endif
 #endif
     }
 

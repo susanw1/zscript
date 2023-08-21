@@ -13,6 +13,9 @@
 #ifdef ZSCRIPT_SUPPORT_ADDRESSING
 #include "ZscriptAddressingContext.hpp"
 #endif
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+#include "../notifications/ZscriptNotificationSource.hpp"
+#endif
 #include "ZscriptCommandContext.hpp"
 #include "../ZscriptResponseStatus.hpp"
 #include "../modules/ModuleRegistry.hpp"
@@ -43,17 +46,6 @@ enum class SemanticActionType : uint8_t {
     CLOSE_PAREN,
     STOPPED
 };
-
-#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
-enum class NotificationActionType : uint8_t {
-    INVALID,
-    WAIT_FOR_NOTIFICATION,
-    WAIT_FOR_ASYNC,
-    NOTIFICATION_BEGIN,
-    NOTIFICATION_MOVE_ALONG,
-    NOTIFICATION_END
-};
-#endif
 
 template<class ZP>
 class ZscriptAction {
@@ -282,6 +274,13 @@ public:
     }
 }
 ;
+template<class ZP>
+ZscriptAction<ZP> ZscriptNotificationSource<ZP>::getAction() {
+    while (currentAction == NotificationActionType::INVALID) {
+        currentAction = getActionType();
+    }
+    return ZscriptAction<ZP>(this, currentAction);
+}
 }
 }
 
