@@ -22,15 +22,25 @@ public interface ZscriptExpression {
 
     BlockIterator getBigField();
 
+    boolean hasBigField();
+
     int getBigFieldSize();
 
     default byte[] getBigFieldData() {
         byte[] data = new byte[getBigFieldSize()];
         int    i    = 0;
         for (Iterator<Byte> iterator = getBigField(); iterator.hasNext();) {
-            data[i] = iterator.next();
+            data[i++] = iterator.next();
         }
         return data;
     }
 
+    default boolean isValid(final byte[] hasRequiredKeys) {
+        for (byte b : hasRequiredKeys) {
+            if (Zchars.isNumericKey(b) && !hasField(b) || Zchars.isBigField(b) && !hasField(b)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

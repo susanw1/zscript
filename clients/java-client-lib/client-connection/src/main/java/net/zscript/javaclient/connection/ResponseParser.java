@@ -114,10 +114,10 @@ public class ResponseParser {
     }
 
     // TODO: Trim the sequence level stuff off of first command
-    public static void parseFullResponse(final CommandSeqElement command, final byte[] responce) {
+    public static void parseFullResponse(final CommandSeqElement command, final byte[] response) {
         final TokenBuffer buffer = new TokenExtendingBuffer();
         final Tokenizer   in     = new Tokenizer(buffer.getTokenWriter(), 4);
-        for (final byte b : responce) {
+        for (final byte b : response) {
             in.accept(b);
         }
         final TokenReader     reader            = buffer.getTokenReader();

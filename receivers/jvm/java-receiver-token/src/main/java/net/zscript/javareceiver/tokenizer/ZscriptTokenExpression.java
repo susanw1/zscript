@@ -28,27 +28,32 @@ public class ZscriptTokenExpression implements ZscriptExpression {
 
     @Override
     public OptionalInt getField(byte f) {
-        OptIterator<ReadToken> it = iteratorToMarker();
-        for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
-            ReadToken token = opt.get();
-            if (token.getKey() == f) {
-                return OptionalInt.of(token.getData16());
-            }
-        }
-        return OptionalInt.empty();
+        return iteratorToMarker().stream()
+                .filter(tok -> tok.getKey() == f)
+                .mapToInt(tok -> tok.getData16())
+                .findFirst();
     }
 
     @Override
     public int getFieldCount() {
-        int count = 0;
+        return (int) iteratorToMarker().stream()
+                .filter(tok -> Zchars.isNumericKey(tok.getKey()))
+                .count();
+    }
 
-        OptIterator<ReadToken> it = iteratorToMarker();
-        for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
-            if (Zchars.isNumericKey(opt.get().getKey())) {
-                count++;
-            }
-        }
-        return count;
+    @Override
+    public boolean hasBigField() {
+        return iteratorToMarker().stream()
+                .anyMatch(tok -> Zchars.isBigField(tok.getKey()));
+    }
+
+    @Override
+    public int getBigFieldSize() {
+        return iteratorToMarker().stream()
+                .filter(tok -> Zchars.isBigField(tok.getKey()))
+                .mapToInt(tok -> tok.getDataSize())
+                .sum();
+
     }
 
     @Override
@@ -101,17 +106,4 @@ public class ZscriptTokenExpression implements ZscriptExpression {
         };
     }
 
-    @Override
-    public int getBigFieldSize() {
-        int size = 0;
-
-        OptIterator<ReadToken> it = iteratorToMarker();
-        for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
-            ReadToken token = opt.get();
-            if (Zchars.isBigField(token.getKey())) {
-                size += token.getDataSize();
-            }
-        }
-        return size;
-    }
 }
