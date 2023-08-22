@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandbuilder;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -230,11 +232,14 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
      * Builds the command.
      *
      * @return the command that has been built
-     * @throws IllegalStateException if builder doesn't yet pass validation
+     * @throws ZscriptMissingFieldException if builder doesn't yet pass validation
      */
     public ZscriptCommand build() {
         if (!isValid()) {
-            throw new IllegalStateException("Required field not set: " + (char) ((requiredFields.nextSetBit(0) + 'A')));
+            String fieldList = requiredFields.stream()
+                    .mapToObj(b -> "'" + (b == BIGFIELD_REQD_OFFSET ? "+" : String.valueOf((char) (b + 'A')) + "'"))
+                    .collect(joining(","));
+            throw new ZscriptMissingFieldException("[keys=%s]", fieldList);
         }
         return new ZscriptBuiltCommand();
     }

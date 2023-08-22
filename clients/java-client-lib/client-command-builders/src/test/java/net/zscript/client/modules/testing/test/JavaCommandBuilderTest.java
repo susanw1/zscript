@@ -22,6 +22,7 @@ import net.zscript.client.modules.test.testing.TestingModule.TestCommand1Command
 import net.zscript.javaclient.commandbuilder.ZscriptCommand;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptFieldOutOfRangeException;
+import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
@@ -40,8 +41,8 @@ public class JavaCommandBuilderTest {
     @Test
     void shouldFailToCreateCommandWithAllMissingRequiredFields() {
         assertThatThrownBy(() -> TestingModule.testCommand1().build())
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Required field not set: A");
+                .isInstanceOf(ZscriptMissingFieldException.class)
+                .hasMessage("[keys='A','C','E']");
     }
 
     @Test
@@ -49,8 +50,8 @@ public class JavaCommandBuilderTest {
         assertThatThrownBy(() -> TestingModule.testCommand1()
                 .enumReqTestA(2)
                 .build())
-                        .isInstanceOf(IllegalStateException.class)
-                        .hasMessage("Required field not set: C");
+                        .isInstanceOf(ZscriptMissingFieldException.class)
+                        .hasMessage("[keys='C','E']");
     }
 
     @Test
