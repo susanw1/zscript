@@ -1,13 +1,13 @@
 package net.zscript.client.modules.testing.test;
 
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.BitsetReqTestE.Lion;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.BitsetReqTestE.Tabby;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.BitsetReqTestF.Camembert;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.BitsetReqTestF.Cheddar;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.BitsetReqTestF.GreekFeta;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.EnumReqTestA.Dog;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.EnumReqTestB.Hare;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.EnumReqTestB.Rabbit;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestE.Lion;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestE.Tabby;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestF.Camembert;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestF.Cheddar;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestF.GreekFeta;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.EnumReqTestA.Dog;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.EnumReqTestB.Hare;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.EnumReqTestB.Rabbit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -18,7 +18,7 @@ import java.util.OptionalInt;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.client.modules.test.testing.TestingModule;
-import net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.BitsetReqTestE;
+import net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestE;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptFieldOutOfRangeException;
 import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
@@ -26,7 +26,7 @@ import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
 public class JavaCommandBuilderBuildTest {
     @Test
     void shouldCreateCommandWithRequiredFields() {
-        ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand0()
                 .enumReqTestA(2)
                 .numberReqTestC(35)
                 .bitsetReqTestE(2);
@@ -35,14 +35,14 @@ public class JavaCommandBuilderBuildTest {
 
     @Test
     void shouldFailToCreateCommandWithAllMissingRequiredFields() {
-        assertThatThrownBy(() -> TestingModule.testCommand1().build())
+        assertThatThrownBy(() -> TestingModule.testCommand0().build())
                 .isInstanceOf(ZscriptMissingFieldException.class)
                 .hasMessage("missingKeys='A','C','E'");
     }
 
     @Test
     void shouldFailToCreateCommandWithSomeMissingRequiredFields() {
-        assertThatThrownBy(() -> TestingModule.testCommand1()
+        assertThatThrownBy(() -> TestingModule.testCommand0()
                 .enumReqTestA(2)
                 .build())
                         .isInstanceOf(ZscriptMissingFieldException.class)
@@ -51,7 +51,7 @@ public class JavaCommandBuilderBuildTest {
 
     @Test
     void shouldFailToCreateCommandWithOutOfRangeEnumField() {
-        assertThatThrownBy(() -> TestingModule.testCommand1()
+        assertThatThrownBy(() -> TestingModule.testCommand0()
                 .enumReqTestA(3))
                         .isInstanceOf(ZscriptFieldOutOfRangeException.class)
                         .hasMessage("name=EnumReqTestA, key='A', value=0x3, min=0x0, max=0x2");
@@ -59,7 +59,7 @@ public class JavaCommandBuilderBuildTest {
 
     @Test
     void shouldFailToCreateCommandWithOutOfRangeBitsetField() {
-        assertThatThrownBy(() -> TestingModule.testCommand1()
+        assertThatThrownBy(() -> TestingModule.testCommand0()
                 .bitsetReqTestE(8))
                         .isInstanceOf(ZscriptFieldOutOfRangeException.class)
                         .hasMessage("name=BitsetReqTestE, key='E', value=0x8, min=0x0, max=0x7");
@@ -67,7 +67,7 @@ public class JavaCommandBuilderBuildTest {
 
     @Test
     void shouldCreateCommandWithRequiredBitsetFields() {
-        ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand0()
                 .enumReqTestA(Dog)
                 .numberReqTestC(5)
                 .bitsetReqTestE(BitsetReqTestE.Tiger)
@@ -78,7 +78,7 @@ public class JavaCommandBuilderBuildTest {
 
     @Test
     void shouldCreateCommandWithOptionalFields() {
-        ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand0()
                 .enumReqTestB(1)
                 .numberReqTestD(0x2914)
                 .bitsetReqTestF(6)
@@ -91,7 +91,7 @@ public class JavaCommandBuilderBuildTest {
 
     @Test
     void shouldCreateCommandWithOptionalEnumFields() {
-        ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand0()
                 .enumReqTestB(Optional.of(Hare))
                 .numberReqTestD(OptionalInt.of(0x21a))
                 .bitsetReqTestF(Optional.of(GreekFeta))
@@ -105,7 +105,7 @@ public class JavaCommandBuilderBuildTest {
 
     @Test
     void shouldCreateCommandWithConditionalFieldsTrue() {
-        ZscriptCommandBuilder<?> b1 = TestingModule.testCommand1()
+        ZscriptCommandBuilder<?> b1 = TestingModule.testCommand0()
                 .enumReqTestB(true, Rabbit)
                 .numberReqTestD(false, 0x21a)
                 .bitsetReqTestF(true, GreekFeta)
@@ -116,7 +116,7 @@ public class JavaCommandBuilderBuildTest {
                 .bitsetReqTestE(1);
         assertThat(build(b1)).isEqualTo("ZA2BC23E1F4");
 
-        ZscriptCommandBuilder<?> b2 = TestingModule.testCommand1()
+        ZscriptCommandBuilder<?> b2 = TestingModule.testCommand0()
                 .enumReqTestB(false, Rabbit)
                 .numberReqTestD(true, 0x21a)
                 .bitsetReqTestF(false, GreekFeta)
@@ -130,7 +130,7 @@ public class JavaCommandBuilderBuildTest {
 
     @Test
     void shouldCreateCommandWithOptionalIntFields() {
-        ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand0()
                 .enumReqTestB(OptionalInt.of(1))
                 .numberReqTestD(OptionalInt.of(0x1a))
                 .bitsetReqTestF(Optional.of(Camembert)) // should be overwritten
@@ -145,7 +145,7 @@ public class JavaCommandBuilderBuildTest {
 
     @Test
     void shouldCreateCommandWithMissingOptionalEnumFields() {
-        ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand0()
                 .enumReqTestB(Optional.empty())
                 .numberReqTestD(OptionalInt.empty())
                 .bitsetReqTestF(OptionalInt.empty())

@@ -217,13 +217,13 @@ commands:
             '@type': number
         required: yes
     -   key: M
-        name: value
+        name: moving
         description: present if servo is currently moving
         typeDefinition:
             '@type': flag
         required: no
     -   key: E
-        name: value
+        name: enabled
         description: present if servo is enabled
         typeDefinition:
             '@type': flag

@@ -9,7 +9,7 @@ package:
 - modules
 - test
 commands:
--   name: testCommand1
+-   name: testCommand0
     command: 0
     description: Description A
     operation: get
@@ -100,13 +100,13 @@ commands:
             '@type': number
         required: yes
     -   key: T
-        name: numberReqTestT
+        name: numberRespTestT
         description: a test response field with optional number
         typeDefinition:
             '@type': number
         required: no
     -   key: U
-        name: bitsetReqTestU
+        name: bitsetRespTestU
         description: a required test response field with bitset
         typeDefinition:
             '@type': bitset
@@ -119,8 +119,25 @@ commands:
                 description: small feline
         required: yes
     -   key: V
-        name: bitsetReqTestV
+        name: bitsetRespTestV
         description: a test response field with optional bitset
         typeDefinition: *id001
         required: no
+        
+-   name: testCommand1
+    command: 1
+    description: Description B
+    operation: get
+    requestFields:
+    -   key: A
+        name: enumReqTestA
+        description: a required test field with enum
+        typeDefinition:
+            '@type': enum
+            values:
+            - Cat
+            - Dog
+            - Snake
+        required: yes
+    responseFields: []
 

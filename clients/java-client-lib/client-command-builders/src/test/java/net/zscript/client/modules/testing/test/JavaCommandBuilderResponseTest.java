@@ -1,13 +1,17 @@
 package net.zscript.client.modules.testing.test;
 
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.TestCommand1CommandResponse.EnumRespTestP.Monkey;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.TestCommand0CommandResponse.BitsetRespTestU.Lion;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.TestCommand0CommandResponse.BitsetRespTestU.Tabby;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.TestCommand0CommandResponse.BitsetRespTestU.Tiger;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.TestCommand0CommandResponse.EnumRespTestP.Monkey;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
 import net.zscript.client.modules.test.testing.TestingModule;
-import net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.TestCommand1CommandResponse.EnumRespTestP;
-import net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.TestCommand1CommandResponse.EnumRespTestQ;
+import net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.TestCommand0CommandResponse.BitsetRespTestV;
+import net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.TestCommand0CommandResponse.EnumRespTestP;
+import net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.TestCommand0CommandResponse.EnumRespTestQ;
 import net.zscript.javaclient.commandbuilder.ZscriptCommand;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
@@ -22,9 +26,9 @@ public class JavaCommandBuilderResponseTest {
     @Test
     void shouldCreateResponseWithRequiredFields() {
 
-        "S P2 R1b Ud\n".chars().forEach(c -> tokenizer.accept((byte) c));
+        "S P2 R1b U5\n".chars().forEach(c -> tokenizer.accept((byte) c));
 
-        ZscriptCommand cmd = TestingModule.testCommand1()
+        ZscriptCommand cmd = TestingModule.testCommand0()
                 .enumReqTestA(2)
                 .numberReqTestC(35)
                 .bitsetReqTestE(1)
@@ -39,12 +43,15 @@ public class JavaCommandBuilderResponseTest {
 
                     assertThat(response.getNumberRespTestR()).isEqualTo(0x1b);
 
-                    assertThat(response.getNumberReqTestT()).isEmpty();
-                    assertThat(response.hasNumberReqTestT()).isFalse();
+                    assertThat(response.getNumberRespTestT()).isEmpty();
+                    assertThat(response.hasNumberRespTestT()).isFalse();
 
-//                    assertThat(response.hasBi()).isFalse();
-//                  assertThat(response.getTestU).isEqualTo(0x0d);
+                    assertThat(response.getBitsetRespTestUAsInt()).isEqualTo(0x5);
+                    assertThat(response.getBitsetRespTestU()).containsExactly(Lion, Tabby);
 
+                    assertThat(response.getBitsetRespTestVAsInt()).isEmpty();
+                    assertThat(response.getBitsetRespTestV()).isEmpty();
+                    assertThat(response.hasBitsetRespTestV()).isFalse();
                 })
                 .build();
 
@@ -54,9 +61,9 @@ public class JavaCommandBuilderResponseTest {
     @Test
     void shouldCreateResponseWithAllFields() {
 
-        "S P Q1 R1b Tf1 Ud V12 \n".chars().forEach(c -> tokenizer.accept((byte) c));
+        "S P Q1 R1b Tf1 U3 V6 \n".chars().forEach(c -> tokenizer.accept((byte) c));
 
-        ZscriptCommand cmd = TestingModule.testCommand1()
+        ZscriptCommand cmd = TestingModule.testCommand0()
                 .enumReqTestA(2)
                 .numberReqTestC(35)
                 .bitsetReqTestE(1)
@@ -71,8 +78,15 @@ public class JavaCommandBuilderResponseTest {
 
                     assertThat(response.getNumberRespTestR()).isEqualTo(0x1b);
 
-                    assertThat(response.getNumberReqTestT()).isPresent().hasValue(0xf1);
-                    assertThat(response.hasNumberReqTestT()).isTrue();
+                    assertThat(response.getNumberRespTestT()).isPresent().hasValue(0xf1);
+                    assertThat(response.hasNumberRespTestT()).isTrue();
+
+                    assertThat(response.getBitsetRespTestUAsInt()).isEqualTo(0x3);
+                    assertThat(response.getBitsetRespTestU()).containsExactly(Lion, Tiger);
+
+                    assertThat(response.getBitsetRespTestVAsInt()).isPresent().hasValue(0x6);
+                    assertThat(response.getBitsetRespTestV()).contains(BitsetRespTestV.Camembert, BitsetRespTestV.GreekFeta);
+                    assertThat(response.hasBitsetRespTestV()).isTrue();
                 })
                 .build();
 

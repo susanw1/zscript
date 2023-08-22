@@ -18,6 +18,11 @@ public abstract class ValidatingResponse implements ZscriptResponse {
         return expression;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Note that at this time, it validates <em>required</em> fields, but not whether they are in a valid range.
+     */
     @Override
     public boolean isValid() {
         return expression.isValid(requiredKeys);

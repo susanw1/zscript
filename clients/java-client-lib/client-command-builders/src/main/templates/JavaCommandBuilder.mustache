@@ -1,8 +1,7 @@
 package {{additional.package-elements}};
 
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.*;
 
 import javax.annotation.processing.Generated;
 
@@ -17,11 +16,29 @@ import net.zscript.javareceiver.tokenizer.*;
 @Generated(value = "JavaCommandBuilder.mustache",
            date = "{{timeNow}}",
            comments = "Zscript Java fluent Command/Response builder generator, using {{additional.context-source}}")
-public class {{name}}Module {
+public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
     public static final int    MODULE_ID = {{id}};
     public static final String MODULE_NAME = "{{name}}";
     public static final String VERSION = "{{version}}";
     public static final String DESCRIPTION = "{{description}}"; 
+
+    public static enum {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands {
+{{#commands}}
+        /** {{description}} */
+        {{#upperCamel}}{{commandName}}{{/upperCamel}}({{command}}),
+{{/commands}}
+        ;
+        
+        private final byte command;
+        
+        private {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands(int command) {
+            this.command = (byte) command;
+        }
+        
+        public byte getCommand() {
+            return command;
+        } 
+    }
     
 {{#commands}}
     public static {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}() {
@@ -472,6 +489,8 @@ public class {{name}}Module {
              * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
              *
              * @return the value of this required field 
+             * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available values
+             * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}
              */
             public int get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt() {
                 int value = expression.getField((byte) '{{key}}')
@@ -483,6 +502,7 @@ public class {{name}}Module {
              * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
              *
              * @return the value of this required field 
+             * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available values
              */
             public {{#upperCamel}}{{name}}{{/upperCamel}} get{{#upperCamel}}{{name}}{{/upperCamel}}() {
                 return {{#upperCamel}}{{name}}{{/upperCamel}}.values()[get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt()];
@@ -493,6 +513,7 @@ public class {{name}}Module {
              * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
              *
              * @return the value of this non-required field
+             * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available values
              */
             public OptionalInt get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt() {
                 final OptionalInt field = expression.getField((byte) '{{key}}');
@@ -506,6 +527,7 @@ public class {{name}}Module {
              * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
              *
              * @return the value of this non-required field as enum
+             * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available values
              */
             public Optional<{{#upperCamel}}{{name}}{{/upperCamel}}> get{{#upperCamel}}{{name}}{{/upperCamel}}() {
                 OptionalInt valueOpt = get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt();
@@ -515,7 +537,7 @@ public class {{name}}Module {
             /**
              * Determines if the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field is set: {{description}}
              *
-             * @return the value of this non-required field, or empty if not set
+             * @return true if this field is set, false otherwise
              */
             public boolean has{{#upperCamel}}{{name}}{{/upperCamel}}() {
                 return expression.hasField((byte) '{{key}}');
@@ -529,6 +551,7 @@ public class {{name}}Module {
              * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
              *
              * @return the value of this required field 
+             * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}
              */
             public int get{{#upperCamel}}{{name}}{{/upperCamel}}() {
                 return expression.getField((byte) '{{key}}')
@@ -548,16 +571,110 @@ public class {{name}}Module {
             /**
              * Determines if the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field is set: {{description}}
              *
-             * @return the value of this non-required field, or empty if not set
+             * @return true if this field is set, false otherwise
              */
             public boolean has{{#upperCamel}}{{name}}{{/upperCamel}}() {
                 return expression.hasField((byte) '{{key}}');
             }
                 {{/required}}        
             {{/numberType}}
+            {{#flagType}}
+{{ ! ============ FLAG-TYPE GETTERS ============= }}
+            /**
+             * Checks if the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field is set: {{description}}
+             *
+             * @return true if this field is set, false otherwise
+             */
+            public boolean is{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                return expression.hasField((byte) '{{key}}');
+            }
+            {{/flagType}}
+            {{#bitsetType}}
+{{ ! ============ BITSET-TYPE GETTERS ============= }}
+            /**
+             * Enum of acceptable values for {@link #{{name}}} field.
+             */
+            public static enum {{#upperCamel}}{{name}}{{/upperCamel}} {
+                {{#bits}}
+                /** {{description}} */
+                {{#upperCamel}}{{name}}{{/upperCamel}}, 
+                {{/bits}}
+            }
+            
+                {{#required}} 
+            /**
+             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+             *
+             * @return the value of this required field as a int, with bits OR'ed together
+             * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available bit values
+             * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}
+             */
+            public int get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt() {
+                final int value = expression.getField((byte) '{{key}}')
+                        .orElseThrow(() -> new ZscriptMissingFieldException("name={{#lowerCamel}}{{name}}{{/lowerCamel}}, key='{{key}}'"));
+                return checkInEnumRange(value, {{#upperCamel}}{{name}}{{/upperCamel}}.class, '{{key}}', true);
+            }
+
+            /**
+             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+             *
+             * @return the value of this required field, with the bits represented as an EnumSet
+             * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available bit values
+             * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}
+             */
+            public EnumSet<{{#upperCamel}}{{name}}{{/upperCamel}}> get{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                return bitsetToEnumSet(get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt(), {{#upperCamel}}{{name}}{{/upperCamel}}.class);
+            }
+                {{/required}}
+                {{^required}}
+            /**
+             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+             *
+             * @return the value of this non-required field, or empty if not set
+             */
+            public OptionalInt get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt() {
+                return expression.getField((byte) '{{key}}');
+            }
+    
+            /**
+             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+             * 
+             * @return the value of this required field, with the bits represented as an EnumSet; if field is missing, the EnumSet is empty.
+             * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available bit values
+             */
+            public EnumSet<{{#upperCamel}}{{name}}{{/upperCamel}}> get{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                return bitsetToEnumSet(get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt().orElse(0), {{#upperCamel}}{{name}}{{/upperCamel}}.class);
+            }
+
+            /**
+             * Determines if the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field is set: {{description}}
+             *
+             * @return true if this field is set, false otherwise
+             */
+            public boolean has{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                return expression.hasField((byte) '{{key}}');
+            }
+                {{/required}}        
+            {{/bitsetType}}
+            {{#textType}}
+{{ ! ============ TEXT-TYPE GETTERS ============= }}
+            /**
+             * Appends the supplied text for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} big-field: {{description}}
+             * <p>
+             * The string is encoded as UTF-8.
+             *
+             * @param text      the text to append
+             * @return this builder, to facilitate method chaining 
+             */
+//            public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final String text) {
+//                addBigField(text);
+//                return this;
+//            }
+//    
+            {{/textType}}
+
         {{/typeDefinition}}
     {{/responseFields}}
-
         } 
     }
         
