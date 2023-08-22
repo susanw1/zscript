@@ -64,10 +64,7 @@ public class {{name}}Module {
          * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available values
          */
         public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final int value) {
-            final int max = {{#upperCamel}}{{name}}{{/upperCamel}}.values().length;
-            if (value < 0 || value >= max) {
-                throw new ZscriptFieldOutOfRangeException("[name=%s, key='%c', value=0x%x, min=0x%x, max=0x%x]", "{{#lowerCamel}}{{name}}{{/lowerCamel}}", '{{key}}', value, 0, max - 1);
-            }
+            checkInEnumRange(value, {{#upperCamel}}{{name}}{{/upperCamel}}.class, '{{key}}', false);
             setField((byte) '{{key}}', value);
             return this;
         }
@@ -196,10 +193,7 @@ public class {{name}}Module {
          * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available values
          */
         public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final int bits) {
-            final int max = (1 << {{#upperCamel}}{{name}}{{/upperCamel}}.values().length);
-            if (bits < 0 || bits >= max) {
-                throw new ZscriptFieldOutOfRangeException("[name=%s, key='%c', value=0x%x, min=0x%x, max=0x%x]", "{{#lowerCamel}}{{name}}{{/lowerCamel}}", '{{key}}', bits, 0, max - 1);
-            }
+            checkInEnumRange(bits, {{#upperCamel}}{{name}}{{/upperCamel}}.class, '{{key}}', true);
             setField((byte) '{{key}}', bits);
             return this;
         }
@@ -480,7 +474,9 @@ public class {{name}}Module {
              * @return the value of this required field 
              */
             public int get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt() {
-                return expression.getField((byte) '{{key}}').orElseThrow(() -> new ZscriptMissingFieldException("[name=%s, key='%c']", "{{#lowerCamel}}{{name}}{{/lowerCamel}}", '{{key}}'));
+                int value = expression.getField((byte) '{{key}}')
+                        .orElseThrow(() -> new ZscriptMissingFieldException("name={{#lowerCamel}}{{name}}{{/lowerCamel}}, key='{{key}}'"));
+                return checkInEnumRange(value, {{#upperCamel}}{{name}}{{/upperCamel}}.class, '{{key}}', false);
             }
      
             /**
@@ -488,7 +484,7 @@ public class {{name}}Module {
              *
              * @return the value of this required field 
              */
-            public {{#upperCamel}}{{name}}{{/upperCamel}} get{{#upperCamel}}{{name}}{{/upperCamel}}(final {{#upperCamel}}{{name}}{{/upperCamel}} value) {
+            public {{#upperCamel}}{{name}}{{/upperCamel}} get{{#upperCamel}}{{name}}{{/upperCamel}}() {
                 return {{#upperCamel}}{{name}}{{/upperCamel}}.values()[get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt()];
             }
                 {{/required}}
@@ -500,12 +496,9 @@ public class {{name}}Module {
              */
             public OptionalInt get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt() {
                 final OptionalInt field = expression.getField((byte) '{{key}}');
-                field.ifPresent(v -> {
-                    final int max = {{#upperCamel}}{{name}}{{/upperCamel}}.values().length; 
-                    if (v >= max) {
-                        throw new ZscriptFieldOutOfRangeException("[name=%s, key='%c', value=0x%x, min=0x%x, max=0x%x", "{{#lowerCamel}}{{name}}{{/lowerCamel}}", '{{key}}', v, 0, max - 1);
-                    }
-                });
+                if (field.isPresent()) {
+                    checkInEnumRange(field.getAsInt(), {{#upperCamel}}{{name}}{{/upperCamel}}.class, '{{key}}', false);
+                }
                 return field;
             }
      
@@ -538,7 +531,8 @@ public class {{name}}Module {
              * @return the value of this required field 
              */
             public int get{{#upperCamel}}{{name}}{{/upperCamel}}() {
-                return expression.getField((byte) '{{key}}').orElseThrow(() -> new ZscriptMissingFieldException("[name=%s, key='%c']", "{{#lowerCamel}}{{name}}{{/lowerCamel}}", '{{key}}'));
+                return expression.getField((byte) '{{key}}')
+                        .orElseThrow(() -> new ZscriptMissingFieldException("name={{#lowerCamel}}{{name}}{{/lowerCamel}}, key='{{key}}'"));
             }
                 {{/required}}
                 {{^required}}

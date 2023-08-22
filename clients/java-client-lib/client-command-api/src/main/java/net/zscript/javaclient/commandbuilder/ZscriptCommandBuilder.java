@@ -210,6 +210,26 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
     }
 
+    /**
+     *
+     * @param value     the value to check
+     * @param enumClass the class of the enum to validate against
+     * @param key       the letter key of the field being checked, for error msg purposes
+     * @param isBitset  true if this enum represents a bitset, where values are really powers of 2; false if it's a normal enum
+     * @return the value passed in, for nesting
+     * @throws ZscriptFieldOutOfRangeException if value is out of range
+     */
+    protected static <E extends Enum<E>> int checkInEnumRange(int value, Class<E> enumClass, char key, boolean isBitset) {
+        int max = enumClass.getEnumConstants().length;
+        if (isBitset) {
+            max = 1 << max;
+        }
+        if (value < 0 || value >= max) {
+            throw new ZscriptFieldOutOfRangeException("name=%s, key='%c', value=0x%x, min=0x%x, max=0x%x", enumClass.getSimpleName(), key, value, 0, max - 1);
+        }
+        return value;
+    }
+
     protected abstract T parseResponse(ZscriptExpression resp);
 
     protected abstract boolean commandCanFail();
@@ -239,7 +259,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
             String fieldList = requiredFields.stream()
                     .mapToObj(b -> "'" + (b == BIGFIELD_REQD_OFFSET ? "+" : String.valueOf((char) (b + 'A')) + "'"))
                     .collect(joining(","));
-            throw new ZscriptMissingFieldException("[keys=%s]", fieldList);
+            throw new ZscriptMissingFieldException("missingKeys=%s", fieldList);
         }
         return new ZscriptBuiltCommand();
     }

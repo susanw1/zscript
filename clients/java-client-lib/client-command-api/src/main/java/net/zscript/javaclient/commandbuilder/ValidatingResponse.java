@@ -1,6 +1,8 @@
 package net.zscript.javaclient.commandbuilder;
 
-import net.zscript.javareceiver.tokenizer.Zchars;
+import java.util.OptionalInt;
+
+import net.zscript.javareceiver.tokenizer.BlockIterator;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
 public abstract class ValidatingResponse implements ZscriptResponse {
@@ -18,11 +20,16 @@ public abstract class ValidatingResponse implements ZscriptResponse {
 
     @Override
     public boolean isValid() {
-        for (final byte b : requiredKeys) {
-            if (Zchars.isNumericKey(b) && !expression.hasField(b) || Zchars.isBigField(b) && !expression.hasBigField()) {
-                return false;
-            }
-        }
-        return true;
+        return expression.isValid(requiredKeys);
+    }
+
+    @Override
+    public OptionalInt getField(char key) {
+        return expression.getField(key);
+    }
+
+    @Override
+    public BlockIterator getBigField() {
+        return expression.getBigField();
     }
 }

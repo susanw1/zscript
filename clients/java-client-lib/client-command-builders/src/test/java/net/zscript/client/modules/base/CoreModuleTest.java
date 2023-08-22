@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.javaclient.commandbuilder.ZscriptCommand;
+import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
 
 public class CoreModuleTest {
     @Test
@@ -55,8 +56,8 @@ public class CoreModuleTest {
     public void shouldCreateCoreMatchCodeWithoutRequiredField() {
         assertThatThrownBy(() -> {
             CoreModule.matchCode().build();
-        }).isInstanceOf(IllegalStateException.class)
-                .hasMessage("Required field not set: C");
+        }).isInstanceOf(ZscriptMissingFieldException.class)
+                .hasMessage("missingKeys='C'");
     }
 
 }

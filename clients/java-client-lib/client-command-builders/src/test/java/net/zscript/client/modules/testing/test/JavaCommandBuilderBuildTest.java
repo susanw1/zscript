@@ -19,16 +19,11 @@ import org.junit.jupiter.api.Test;
 
 import net.zscript.client.modules.test.testing.TestingModule;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand1CommandBuilder.BitsetReqTestE;
-import net.zscript.javaclient.commandbuilder.ZscriptCommand;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptFieldOutOfRangeException;
 import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
-import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
-import net.zscript.javareceiver.tokenizer.ZscriptTokenExpression;
 
-public class JavaCommandBuilderTest {
+public class JavaCommandBuilderBuildTest {
     @Test
     void shouldCreateCommandWithRequiredFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
@@ -42,7 +37,7 @@ public class JavaCommandBuilderTest {
     void shouldFailToCreateCommandWithAllMissingRequiredFields() {
         assertThatThrownBy(() -> TestingModule.testCommand1().build())
                 .isInstanceOf(ZscriptMissingFieldException.class)
-                .hasMessage("[keys='A','C','E']");
+                .hasMessage("missingKeys='A','C','E'");
     }
 
     @Test
@@ -51,7 +46,7 @@ public class JavaCommandBuilderTest {
                 .enumReqTestA(2)
                 .build())
                         .isInstanceOf(ZscriptMissingFieldException.class)
-                        .hasMessage("[keys='C','E']");
+                        .hasMessage("missingKeys='C','E'");
     }
 
     @Test
@@ -59,7 +54,7 @@ public class JavaCommandBuilderTest {
         assertThatThrownBy(() -> TestingModule.testCommand1()
                 .enumReqTestA(3))
                         .isInstanceOf(ZscriptFieldOutOfRangeException.class)
-                        .hasMessage("[name=enumReqTestA, key='A', value=0x3, min=0x0, max=0x2]");
+                        .hasMessage("name=EnumReqTestA, key='A', value=0x3, min=0x0, max=0x2");
     }
 
     @Test
@@ -67,7 +62,7 @@ public class JavaCommandBuilderTest {
         assertThatThrownBy(() -> TestingModule.testCommand1()
                 .bitsetReqTestE(8))
                         .isInstanceOf(ZscriptFieldOutOfRangeException.class)
-                        .hasMessage("[name=bitsetReqTestE, key='E', value=0x8, min=0x0, max=0x7]");
+                        .hasMessage("name=BitsetReqTestE, key='E', value=0x8, min=0x0, max=0x7");
     }
 
     @Test
@@ -159,27 +154,6 @@ public class JavaCommandBuilderTest {
                 .numberReqTestC(35)
                 .bitsetReqTestE(1);
         assertThat(build(b)).isEqualTo("ZA2C23E1");
-    }
-
-    @Test
-    void shouldCreateResponse() {
-        final TokenExtendingBuffer buffer      = new TokenExtendingBuffer();
-        final Tokenizer            tokenizer   = new Tokenizer(buffer.getTokenWriter(), 2);
-        final TokenReader          tokenReader = buffer.getTokenReader();
-
-        "SP2a\n".chars().forEach(c -> tokenizer.accept((byte) c));
-
-        ZscriptCommand cmd = TestingModule.testCommand1()
-                .enumReqTestA(2)
-                .numberReqTestC(35)
-                .bitsetReqTestE(1)
-                .addResponseListener(resp -> {
-//                    assertThat(resp.isValid()).isTrue();
-                    assertThat(resp.getEnumRespTestPAsInt()).isEqualTo(0x2a);
-                })
-                .build();
-
-        cmd.response(new ZscriptTokenExpression(() -> tokenReader.iterator()));
     }
 
     private String build(ZscriptCommandBuilder<?> b) {

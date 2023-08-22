@@ -37,7 +37,7 @@ public interface ZscriptExpression {
 
     default boolean isValid(final byte[] hasRequiredKeys) {
         for (byte b : hasRequiredKeys) {
-            if (Zchars.isNumericKey(b) && !hasField(b) || Zchars.isBigField(b) && !hasField(b)) {
+            if (Zchars.isNumericKey(b) && !hasField(b) || Zchars.isBigField(b) && !hasBigField()) {
                 return false;
             }
         }

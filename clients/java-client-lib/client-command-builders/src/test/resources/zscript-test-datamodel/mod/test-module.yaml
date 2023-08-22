@@ -85,14 +85,14 @@ commands:
         required: yes
     -   key: Q
         name: enumRespTestQ
-        description: an test response field with optional enum
+        description: a test response field with optional enum
         typeDefinition:
             '@type': enum
             values:
             - Elephant
             - Goat
             - Monkey
-        required: yes
+        required: no
     -   key: R
         name: numberRespTestR
         description: a required test response field with number
@@ -101,7 +101,7 @@ commands:
         required: yes
     -   key: T
         name: numberReqTestT
-        description: an test response field with optional number
+        description: a test response field with optional number
         typeDefinition:
             '@type': number
         required: no
@@ -120,7 +120,7 @@ commands:
         required: yes
     -   key: V
         name: bitsetReqTestV
-        description: an test response field with optional bitset
+        description: a test response field with optional bitset
         typeDefinition: *id001
         required: no
 
