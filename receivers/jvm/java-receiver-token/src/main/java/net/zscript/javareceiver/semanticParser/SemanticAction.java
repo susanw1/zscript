@@ -49,20 +49,20 @@ public class SemanticAction implements ZscriptAction {
     protected void performActionImpl(Zscript zscript, OutStream out) {
         switch (type) {
         case ERROR:
-            startResponse(out, (byte) 0x10); // TODO: debate
+            startResponse(out, (byte) 0); // TODO: debate
             out.asCommandOutStream().writeField(Zchars.Z_STATUS, parseState.getErrorStatus());
             out.endSequence();
             out.close();
             parseState.unlock(zscript);
             break;
         case INVOKE_ADDRESSING:
-            AddressingContext addrCtx = new AddressingContext((ContextView) parseState);
+            AddressingContext addrCtx = new AddressingContext(zscript, (ContextView) parseState);
             if (addrCtx.verify()) {
                 zscript.getModuleRegistry().execute(addrCtx);
             }
             break;
         case ADDRESSING_MOVEALONG:
-            zscript.getModuleRegistry().moveAlong(new AddressingContext((ContextView) parseState));
+            zscript.getModuleRegistry().moveAlong(new AddressingContext(zscript, (ContextView) parseState));
             break;
         case RUN_FIRST_COMMAND:
             startResponse(out, (byte) 0);

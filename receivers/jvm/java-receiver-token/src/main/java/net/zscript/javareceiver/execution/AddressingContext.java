@@ -2,6 +2,9 @@ package net.zscript.javareceiver.execution;
 
 import java.util.Optional;
 
+import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.core.Zscript;
+import net.zscript.javareceiver.core.ZscriptCommandOutStream;
 import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.semanticParser.ContextView;
 import net.zscript.javareceiver.tokenizer.BlockIterator;
@@ -11,8 +14,11 @@ import net.zscript.javareceiver.tokenizer.Zchars;
 import net.zscript.util.OptIterator;
 
 public class AddressingContext extends AbstractContext {
-    public AddressingContext(final ContextView contextView) {
+    private final Zscript zscript;
+
+    public AddressingContext(final Zscript zscript, final ContextView contextView) {
         super(contextView);
+        this.zscript = zscript;
     }
 
     public BlockIterator getAddressedData() {
@@ -35,6 +41,20 @@ public class AddressingContext extends AbstractContext {
                 return internal.next().filter(rt -> rt.getKey() == Zchars.Z_ADDRESSING || rt.getKey() == Zchars.Z_ADDRESSING_CONTINUE).map(rt -> rt.getData16());
             }
         };
+    }
+
+    @Override
+    public boolean status(byte status) {
+        OutStream               out        = zscript.getNotificationOutStream();
+        ZscriptCommandOutStream commandOut = out.asCommandOutStream();
+        if (!out.isOpen()) {
+            out.open();
+        }
+        commandOut.writeField('!', 0);
+        commandOut.writeField(Zchars.Z_STATUS, status);
+        out.endSequence();
+        out.close();
+        return super.status(status);
     }
 
     public int getAddressedDataSize() {

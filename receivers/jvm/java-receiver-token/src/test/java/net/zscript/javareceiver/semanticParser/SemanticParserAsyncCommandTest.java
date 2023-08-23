@@ -205,8 +205,8 @@ class SemanticParserAsyncCommandTest {
         newModule.increment();
 
         parserActionTester.parseSnippet("", ActionType.COMMAND_MOVEALONG, State.COMMAND_COMPLETE, "!AS&AffC2S");
-        parserActionTester.parseSnippet("", ActionType.ERROR, State.PRESEQUENCE, "!AS&AffC2S!10S10\n");
-        parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!AS&AffC2S!10S10\n");
+        parserActionTester.parseSnippet("", ActionType.ERROR, State.PRESEQUENCE, "!AS&AffC2S!S10\n");
+        parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!AS&AffC2S!S10\n");
     }
 
     @Test
