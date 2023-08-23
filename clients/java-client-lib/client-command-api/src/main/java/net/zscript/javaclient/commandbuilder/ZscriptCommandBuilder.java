@@ -267,7 +267,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     public ZscriptCommand build() {
         if (!isValid()) {
             String fieldList = requiredFields.stream()
-                    .mapToObj(b -> "'" + (b == BIGFIELD_REQD_OFFSET ? "+" : String.valueOf((char) (b + 'A')) + "'"))
+                    .mapToObj(b -> "'" + (b == BIGFIELD_REQD_OFFSET ? "+" : String.valueOf((char) (b + 'A'))) + "'")
                     .collect(joining(","));
             throw new ZscriptMissingFieldException("missingKeys=%s", fieldList);
         }

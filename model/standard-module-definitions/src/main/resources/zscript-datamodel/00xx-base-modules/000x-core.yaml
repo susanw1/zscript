@@ -34,9 +34,9 @@ commands:
         required: yes
     -   key: M
         name: modulesBankSet
-        description: which modules present in this bank (ie 00xx)
+        description: which modules present in this bank (ie given 00mc, return m)
         typeDefinition:
-            '@type': commands
+            '@type': modules
         required: yes
     -   key: V
         name: version

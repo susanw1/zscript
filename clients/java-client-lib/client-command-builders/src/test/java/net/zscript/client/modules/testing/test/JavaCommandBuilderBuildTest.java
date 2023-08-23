@@ -11,6 +11,7 @@ import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -156,7 +157,122 @@ public class JavaCommandBuilderBuildTest {
         assertThat(build(b)).isEqualTo("ZA2C23E1");
     }
 
+    @Test
+    void shouldCreateCommandWithRequiredTextField() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
+                .textReqTestA("foo");
+        assertThat(build(b)).isEqualTo("Z1\"foo\"");
+    }
+
+    @Test
+    void shouldCreateCommandWithMissingTextField() {
+        assertThatThrownBy(() -> TestingModule.testCommand1().build())
+                .isInstanceOf(ZscriptMissingFieldException.class)
+                .hasMessage("missingKeys='+'");
+    }
+
+    @Test
+    void shouldCreateCommandWithMultipleRequiredTextFields() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
+                .textReqTestA("foo")
+                .textReqTestAAsBytes(new byte[] { 0x42, 0x41, 0x52 });
+        assertThat(build(b)).isEqualTo("Z1\"foo\"+424152");
+    }
+
+    @Test
+    void shouldCreateCommandWithRequiredTextAsEmptyBytes() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
+                .textReqTestAAsBytes(new byte[] {});
+        assertThat(build(b)).isEqualTo("Z1+");
+    }
+
+    @Test
+    void shouldCreateCommandWithRequiredBytesField() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand2()
+                .textReqTestA(new byte[] { 0x42, 0x41, 0x52 });
+        assertThat(build(b)).isEqualTo("Z2+424152");
+    }
+
+    @Test
+    void shouldCreateCommandWithMissingBytesField() {
+        assertThatThrownBy(() -> TestingModule.testCommand2().build())
+                .isInstanceOf(ZscriptMissingFieldException.class)
+                .hasMessage("missingKeys='+'");
+    }
+
+    @Test
+    void shouldCreateCommandWithMultipleRequiredBytesFields() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand2()
+                .textReqTestAAsText("foo")
+                .textReqTestA(new byte[] { 0x42, 0x41, 0x52 });
+        assertThat(build(b)).isEqualTo("Z2\"foo\"+424152");
+    }
+
+    @Test
+    void shouldCreateCommandWithRequiredBytesAsEmptyBytes() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand2()
+                .textReqTestA(new byte[] {});
+        assertThat(build(b)).isEqualTo("Z2+");
+    }
+
+    @Test
+    void shouldCreateCommandWithOptionalTextField() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand3()
+                .textReqTestA("foo");
+        assertThat(build(b)).isEqualTo("Z3\"foo\"");
+    }
+
+    @Test
+    void shouldCreateCommandWithMissingOptionalTextField() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand3();
+        assertThat(build(b)).isEqualTo("Z3");
+    }
+
+    @Test
+    void shouldCreateCommandWithMultipleOptionalTextFields() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand3()
+                .textReqTestA("foo")
+                .textReqTestAAsBytes(new byte[] { 0x42, 0x41, 0x52 });
+        assertThat(build(b)).isEqualTo("Z3\"foo\"+424152");
+    }
+
+    @Test
+    void shouldCreateCommandWithOptionalTextAsEmptyBytes() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand3()
+                .textReqTestAAsBytes(new byte[] {});
+        assertThat(build(b)).isEqualTo("Z3+");
+    }
+
+    @Test
+    void shouldCreateCommandWithOptionalBytesField() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand4()
+                .textReqTestA(new byte[] { 0x42, 0x41, 0x52 });
+        assertThat(build(b)).isEqualTo("Z4+424152");
+    }
+
+    @Test
+    void shouldCreateCommandWithMissingOptionalBytesField() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand4();
+        assertThat(build(b)).isEqualTo("Z4");
+    }
+
+    @Test
+    void shouldCreateCommandWithMultipleOptionalBytesFields() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand4()
+                .textReqTestAAsText("foo")
+                .textReqTestA(new byte[] { 0x42, 0x41, 0x52 });
+        assertThat(build(b)).isEqualTo("Z4\"foo\"+424152");
+    }
+
+    @Test
+    void shouldCreateCommandWithOptionalBytesAsEmptyBytes() {
+        ZscriptCommandBuilder<?> b = TestingModule.testCommand4()
+                .textReqTestA(new byte[] {});
+        assertThat(build(b)).isEqualTo("Z4+");
+    }
+
     private String build(ZscriptCommandBuilder<?> b) {
-        return new String(b.build().compile(true));
+        // ISO8859, because we want an 8-bit byte in each char, and they *could* be non-printing / non-ascii if they're in Text
+        return new String(b.build().compile(true), StandardCharsets.ISO_8859_1);
     }
 }

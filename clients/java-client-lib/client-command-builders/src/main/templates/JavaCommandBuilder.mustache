@@ -1,5 +1,6 @@
 package {{additional.package-elements}};
 
+import java.nio.charset.*;
 import java.util.*;
 import java.util.stream.*;
 
@@ -22,6 +23,9 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
     public static final String VERSION = "{{version}}";
     public static final String DESCRIPTION = "{{description}}"; 
 
+    /**
+     * Defines the set of all commands defined in this module.
+     */
     public static enum {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands {
 {{#commands}}
         /** {{description}} */
@@ -600,7 +604,7 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
                 {{#upperCamel}}{{name}}{{/upperCamel}}, 
                 {{/bits}}
             }
-            
+
                 {{#required}} 
             /**
              * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
@@ -656,27 +660,100 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
             }
                 {{/required}}        
             {{/bitsetType}}
+            {{#bigfieldType}}
+{{ ! ============ BIG-FIELD-TYPE GETTERS ============= }}
+            /**
+             * Returns the big-field data as bytes: {{description}}
+             *
+             * @return the big-field data, as bytes 
+             */
+            public byte[] get{{#upperCamel}}{{name}}{{/upperCamel}}AsBytes() {
+                return expression.getBigFieldData();
+            }
+
+            /**
+             * Returns the big-field data as a String: {{description}}
+             * <p>
+             * The bytes are interpreted as encoded as UTF-8.
+             *
+             * @return the big-field data, as a String 
+             */
+            public String get{{#upperCamel}}{{name}}{{/upperCamel}}AsString() {
+                return new String(expression.getBigFieldData(), StandardCharsets.UTF_8);
+            }
+            
+                {{^required}}
+            /**
+             * Determines whether a big-field was supplied in the response: {{description}}
+             *
+             * @return true if any big-field component was supplied, false otherwise 
+             */
+            public boolean has{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                return expression.hasBigField();
+            }
+                {{/required}}
+            {{/bigfieldType}}
             {{#textType}}
 {{ ! ============ TEXT-TYPE GETTERS ============= }}
-            /**
-             * Appends the supplied text for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} big-field: {{description}}
+            /** 
+             * Returns the big-field data as text: {{description}}
              * <p>
-             * The string is encoded as UTF-8.
+             * The bytes are interpreted as encoded as UTF-8.
              *
-             * @param text      the text to append
-             * @return this builder, to facilitate method chaining 
+             * @return the big-field data, as a String
              */
-//            public {{#upperCamel}}{{commandName}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}(final String text) {
-//                addBigField(text);
-//                return this;
-//            }
-//    
+            public String get{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                return get{{#upperCamel}}{{name}}{{/upperCamel}}AsString();
+            }
             {{/textType}}
+            {{#bytesType}}
+{{ ! ============ BYTES-TYPE GETTERS ============= }}
+            /**
+             * Returns the big-field data as bytes: {{description}}
+             *
+             * @return the big-field data, as bytes 
+             */
+            public byte[] get{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                return get{{#upperCamel}}{{name}}{{/upperCamel}}AsBytes();
+            }
+            {{/bytesType}}
+            {{#commandsType}}
+{{ ! ============ COMMANDS-TYPE GETTERS ============= }}
+            /**
+             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}}} field: {{description}}
+             *
+             * @return the value of this required field 
+             * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}
+             */
+            public int get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt() {
+                return expression.getField((byte) '{{key}}')
+                        .orElseThrow(() -> new ZscriptMissingFieldException("name={{#lowerCamel}}{{name}}{{/lowerCamel}}, key='{{key}}'"));
+            }
+            
+            /**
+             * Commands: {{description}}
+             *
+             * @return the set of implemented commands in this module 
+             */
+            public EnumSet<{{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands> get{{#upperCamel}}{{name}}{{/upperCamel}}() {
+                return bitsetToEnumSet(get{{#upperCamel}}{{name}}{{/upperCamel}}AsInt(), {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands.class);
+            }
 
+            /**
+             * Commands: {{description}}
+             *
+             * @return the set of implemented commands in this module 
+             */
+            public boolean isImplementedIn{{#upperCamel}}{{moduleName}}{{/upperCamel}}(final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands command) {
+                return true;
+            }
+    
+            {{/commandsType}}
         {{/typeDefinition}}
     {{/responseFields}}
-        } 
+
+        }
     }
-        
+
 {{/commands}}
 }
