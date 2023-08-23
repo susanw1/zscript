@@ -59,8 +59,8 @@ class LockEchoParserTest {
                 of("_1234Z1\n", "!_1234S\n"),
                 of("_\n", "!_\n"),
                 of("_1\n_2\n", "!_1\n!_2\n"),
-                of("__\n", "!10_S31\n"),
-                of("_12345\n", "!10S20\n"));
+                of("__\n", "!_S31\n"),
+                of("_12345\n", "!S20\n"));
     }
 
     @ParameterizedTest
@@ -77,7 +77,7 @@ class LockEchoParserTest {
                 of("%ffff\n", "!\n"),
                 of("%ffff\n%ffff\n", "!\n!\n"),
                 of("%1 Z1A \n  %1 Z1B\n", "!AS\n!BS\n"),
-                of("%1 %2 Z1A \n", "!10S30\n"),
+                of("%1 %2 Z1A \n", "!S30\n"),
                 of("_1234%f Z1A\n", "!_1234AS\n"));
     }
 
@@ -114,13 +114,13 @@ class LockEchoParserTest {
 
     @Test
     public void shouldGiveErrorForLocksWithComment() {
-        parserActionTester.parseSnippet("%1#Z1\n", ActionType.ERROR, State.PRESEQUENCE, "!10S32\n");
+        parserActionTester.parseSnippet("%1#Z1\n", ActionType.ERROR, State.PRESEQUENCE, "!S32\n");
         assertThat(outStream.isOpen()).isFalse();
     }
 
     @Test
     public void shouldGiveErrorForLineNumberWithComment() {
-        parserActionTester.parseSnippet("_ff#Z1\n", ActionType.ERROR, State.PRESEQUENCE, "!10_ffS32\n");
+        parserActionTester.parseSnippet("_ff#Z1\n", ActionType.ERROR, State.PRESEQUENCE, "!_ffS32\n");
         assertThat(outStream.isOpen()).isFalse();
     }
 

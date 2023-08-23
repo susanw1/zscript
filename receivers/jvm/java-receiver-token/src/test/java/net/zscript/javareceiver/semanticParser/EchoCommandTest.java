@@ -55,7 +55,7 @@ class EchoCommandTest {
                 of("Z1A\n", "!AS\n"),
                 of("Z1C3B2A1\n", "!C3B2A1S\n"),
                 of("Z1ABfCffDfffEffff\n", "!ABfCffDfffEffffS\n"),
-                of("Z1Afffff\n", "!10S20\n"), // TODO is this good?
+                of("Z1Afffff\n", "!S20\n"), // TODO is this good?
                 of("Z1A000000B0000001C00000ffff\n", "!AB1CffffS\n"),
                 of("Z1A\"hello\"\n", "!A\"hello\"S\n"),
                 of("Z1A\"hµllo\"\n", "!A\"hµllo\"S\n"),

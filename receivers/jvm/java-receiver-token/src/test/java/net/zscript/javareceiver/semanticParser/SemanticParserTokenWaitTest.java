@@ -143,27 +143,27 @@ class SemanticParserTokenWaitTest {
         parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "");
         assertThat(outStream.isOpen()).isFalse();
 
-        parserActionTester.parseSnippet("&", ActionType.ERROR, State.PRESEQUENCE, "!10S21\n");
+        parserActionTester.parseSnippet("&", ActionType.ERROR, State.PRESEQUENCE, "!S21\n");
         assertThat(outStream.isOpen()).isFalse();
-        parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!10S21\n");
-        assertThat(outStream.isOpen()).isFalse();
-
-        parserActionTester.parseSnippet("Z1B", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!10S21\n");
-        assertThat(outStream.isOpen()).isFalse();
-        parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!10S21\n");
+        parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!S21\n");
         assertThat(outStream.isOpen()).isFalse();
 
-        parserActionTester.parseSnippet("\n", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!10S21\n");
+        parserActionTester.parseSnippet("Z1B", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!S21\n");
+        assertThat(outStream.isOpen()).isFalse();
+        parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!S21\n");
         assertThat(outStream.isOpen()).isFalse();
 
-        parserActionTester.parseSnippet("Z1C", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!10S21\n");
+        parserActionTester.parseSnippet("\n", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!S21\n");
         assertThat(outStream.isOpen()).isFalse();
 
-        parserActionTester.parseSnippet("\n", ActionType.RUN_FIRST_COMMAND, State.COMMAND_COMPLETE, "!10S21\n!CS");
+        parserActionTester.parseSnippet("Z1C", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!S21\n");
+        assertThat(outStream.isOpen()).isFalse();
+
+        parserActionTester.parseSnippet("\n", ActionType.RUN_FIRST_COMMAND, State.COMMAND_COMPLETE, "!S21\n!CS");
         assertThat(outStream.isOpen()).isTrue();
-        parserActionTester.parseSnippet("", ActionType.END_SEQUENCE, State.PRESEQUENCE, "!10S21\n!CS\n");
+        parserActionTester.parseSnippet("", ActionType.END_SEQUENCE, State.PRESEQUENCE, "!S21\n!CS\n");
         assertThat(outStream.isOpen()).isFalse();
-        parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!10S21\n!CS\n");
+        parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!S21\n!CS\n");
         assertThat(outStream.isOpen()).isFalse();
     }
 
@@ -178,19 +178,19 @@ class SemanticParserTokenWaitTest {
         "& Z1B & Z1C".chars().forEachOrdered(c -> tokenizer.accept((byte) c));
         tokenizer.dataLost();
 
-        parserActionTester.parseSnippet("", ActionType.ERROR, State.PRESEQUENCE, "!10S10\n");
+        parserActionTester.parseSnippet("", ActionType.ERROR, State.PRESEQUENCE, "!S10\n");
         assertThat(outStream.isOpen()).isFalse();
 
-        parserActionTester.parseSnippet("\n", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!10S10\n");
+        parserActionTester.parseSnippet("\n", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!S10\n");
         assertThat(outStream.isOpen()).isFalse();
-        parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!10S10\n");
+        parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!S10\n");
         assertThat(outStream.isOpen()).isFalse();
 
-        parserActionTester.parseSnippet("Z1D\n", ActionType.RUN_FIRST_COMMAND, State.COMMAND_COMPLETE, "!10S10\n!DS");
+        parserActionTester.parseSnippet("Z1D\n", ActionType.RUN_FIRST_COMMAND, State.COMMAND_COMPLETE, "!S10\n!DS");
         assertThat(outStream.isOpen()).isTrue();
-        parserActionTester.parseSnippet("", ActionType.END_SEQUENCE, State.PRESEQUENCE, "!10S10\n!DS\n");
+        parserActionTester.parseSnippet("", ActionType.END_SEQUENCE, State.PRESEQUENCE, "!S10\n!DS\n");
         assertThat(outStream.isOpen()).isFalse();
-        parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!10S10\n!DS\n");
+        parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!S10\n!DS\n");
         assertThat(outStream.isOpen()).isFalse();
     }
 
@@ -198,10 +198,10 @@ class SemanticParserTokenWaitTest {
     public void shouldGiveErrorForFailedComment() {
         parserActionTester.parseSnippet("#pq", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "");
         tokenizer.dataLost();
-        parserActionTester.parseSnippet("xyz", ActionType.ERROR, State.PRESEQUENCE, "!10S10\n");
-        parserActionTester.parseSnippet("\n", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!10S10\n");
-        parserActionTester.parseSnippet("Z1\n", ActionType.RUN_FIRST_COMMAND, State.COMMAND_COMPLETE, "!10S10\n!S");
-        parserActionTester.parseSnippet("", ActionType.END_SEQUENCE, State.PRESEQUENCE, "!10S10\n!S\n");
+        parserActionTester.parseSnippet("xyz", ActionType.ERROR, State.PRESEQUENCE, "!S10\n");
+        parserActionTester.parseSnippet("\n", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!S10\n");
+        parserActionTester.parseSnippet("Z1\n", ActionType.RUN_FIRST_COMMAND, State.COMMAND_COMPLETE, "!S10\n!S");
+        parserActionTester.parseSnippet("", ActionType.END_SEQUENCE, State.PRESEQUENCE, "!S10\n!S\n");
 
         assertThat(outStream.isOpen()).isFalse();
     }
