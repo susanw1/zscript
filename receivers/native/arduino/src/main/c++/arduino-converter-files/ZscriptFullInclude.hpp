@@ -104,6 +104,9 @@ public:
         Wire.begin();
 #endif
 #endif
+#ifdef ZSCRIPT_HAVE_I2C_MODULE
+        Zscript::I2cModule<ZscriptParams>::setup();
+#endif
 #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
         Zscript::ZscriptUdpManager<ZscriptParams>::setup();
         for(uint8_t j = 0; j < ZscriptParams::udpChannelCount; j++){

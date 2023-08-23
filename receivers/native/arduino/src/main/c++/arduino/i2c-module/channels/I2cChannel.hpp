@@ -97,11 +97,20 @@ public:
     void writeBytes(const uint8_t *bytes, uint16_t count, bool hexMode) {
         if (hexMode) {
             for (uint16_t i = 0; i < count; i++) {
+                if (writePos == ZP::i2cChannelOutputBufferSize) {
+                    return;
+                }
                 outBuffer[writePos++] = AbstractOutStream < ZP > ::toHexChar(bytes[i] >> 4);
+                if (writePos == ZP::i2cChannelOutputBufferSize) {
+                    return;
+                }
                 outBuffer[writePos++] = AbstractOutStream < ZP > ::toHexChar(bytes[i] & 0xf);
             }
         } else {
             for (uint16_t i = 0; i < count; ++i) {
+                if (writePos == ZP::i2cChannelOutputBufferSize) {
+                    return;
+                }
                 outBuffer[writePos++] = bytes[i];
             }
         }

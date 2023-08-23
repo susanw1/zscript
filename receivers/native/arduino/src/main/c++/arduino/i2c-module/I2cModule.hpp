@@ -34,6 +34,7 @@
 #define MODULE_ADDRESS_EXISTS_005 EXISTENCE_MARKER_UTIL
 #define MODULE_ADDRESS_SWITCH_005 ADDRESS_SWITCH_UTIL(I2cModule<ZP>::address)
 #endif
+#define MODULE_NOTIFICATION_EXISTS_005 EXISTENCE_MARKER_UTIL
 #define MODULE_NOTIFICATION_SWITCH_005 NOTIFICATION_SWITCH_UTIL(I2cModule<ZP>::notification)
 #endif
 
@@ -41,7 +42,7 @@ namespace Zscript {
 template<class ZP>
 class I2cModule: public ZscriptModule<ZP> {
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
-    static const uint8_t I2C_ADDRESSING_READ_BLOCK_LENGTH = 32;
+    static const uint8_t I2C_ADDRESSING_READ_BLOCK_LENGTH = 8;
     static const uint8_t SMBUS_ALERT_ADDR = 0xC;
     static bool isAddressing;
     static bool giveNotifs;
@@ -65,6 +66,7 @@ public:
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
         pinMode(ZP::i2cAlertInPin, INPUT_PULLUP);
         attachInterrupt(digitalPinToInterrupt(ZP::i2cAlertInPin), &SmBusAlertRecieved, FALLING);
+        pinMode(ZP::i2cAlertInPin, INPUT_PULLUP);
 #endif
     }
 
@@ -108,7 +110,7 @@ public:
     static void notification(ZscriptNotificationContext<ZP> ctx, bool moveAlong) {
         (void) moveAlong;
         NotificationOutStream<ZP> out = ctx.getOutStream();
-        uint8_t len = Wire.requestFrom(SMBUS_ALERT_ADDR, 2);
+        uint8_t len = Wire.requestFrom(SMBUS_ALERT_ADDR, (uint8_t)2);
         if (len != 2 && len != 1) {
             if (isAddressing) {
                 out.writeField(Zchars::Z_ADDRESSING, 0x5);
@@ -126,7 +128,7 @@ public:
             addrFull = (addr1 & 0x3) << 8 | (uint8_t) Wire.read();
             tenBit = true;
         } else {
-            addrFull = addr1;
+            addrFull = addr1>>1;
             tenBit = false;
         }
         if (!isAddressing) {
@@ -146,9 +148,10 @@ public:
         }
         out.writeField(Zchars::Z_ADDRESSING_CONTINUE, addrFull);
         uint8_t dataBuffer[I2C_ADDRESSING_READ_BLOCK_LENGTH];
+        delayMicroseconds(10);
         while (true) {
-            uint8_t len = Wire.requestFrom(addrFull, I2C_ADDRESSING_READ_BLOCK_LENGTH);
-            if (len != 8) {
+            uint8_t len = Wire.requestFrom((uint8_t)addrFull, (uint8_t)I2C_ADDRESSING_READ_BLOCK_LENGTH);
+            if (len != I2C_ADDRESSING_READ_BLOCK_LENGTH) {
                 out.endSequence();
                 out.writeField('!', 0x5);
                 out.writeField('S', ResponseStatus::ADDRESS_NOT_FOUND);
