@@ -76,7 +76,7 @@ public:
             return;
         }
 
-        uint16_t retries = ctx.getField(ParamRetries_T, 5);
+        uint16_t retries = ctx.getField(ParamRetries__R, 5);
         if (retries > 255) {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
@@ -220,6 +220,7 @@ public:
                 Wire.write(data.data, data.length);
             }
         }
+        Wire.write('\n');
         uint8_t status = Wire.endTransmission();
         if (status == 0) {
             //done

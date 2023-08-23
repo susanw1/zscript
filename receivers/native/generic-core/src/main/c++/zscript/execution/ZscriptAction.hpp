@@ -274,6 +274,7 @@ public:
     }
 }
 ;
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
 template<class ZP>
 ZscriptAction<ZP> ZscriptNotificationSource<ZP>::getAction() {
     while (currentAction == NotificationActionType::INVALID) {
@@ -281,6 +282,7 @@ ZscriptAction<ZP> ZscriptNotificationSource<ZP>::getAction() {
     }
     return ZscriptAction<ZP>(this, currentAction);
 }
+#endif
 }
 }
 

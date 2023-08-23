@@ -38,6 +38,7 @@
 #endif
 #ifdef ZSCRIPT_HAVE_TCP_CHANNEL
 #include <arduino/ethernet-module/channels/ZscriptTcpChannel.hpp>
+Zscript::ZscriptTcpChannel<ZscriptParams> ZscriptTcpChannel;
 #endif
 
 #ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
@@ -53,21 +54,35 @@ Zscript::I2cChannel<ZscriptParams> ZscriptI2cChannel;
 #endif
 
 class ArduinoZscriptBasicSetup {
-#if defined(ZSCRIPT_HAVE_SERIAL_CHANNEL) or defined(ZSCRIPT_HAVE_I2C_CHANNEL)
+#if defined(ZSCRIPT_HAVE_SERIAL_CHANNEL) or defined(ZSCRIPT_HAVE_I2C_CHANNEL) or defined(ZSCRIPT_HAVE_UDP_CHANNEL) or defined(ZSCRIPT_HAVE_TCP_CHANNEL)
     Zscript::ZscriptChannel<ZscriptParams> *channels[0
 
 #ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
-		                                           +1
+                                                   +1
 #endif
 
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-		                                           +1
+                                                   +1
 #endif
 #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
-		                                           +ZscriptParams::udpChannelCount
+                                                   +ZscriptParams::udpChannelCount
+#endif
+#ifdef ZSCRIPT_HAVE_TCP_CHANNEL
+                                                   +ZscriptParams::tcpChannelCount
+#endif
+
+                                                   ];
+#endif
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
+    Zscript::GenericCore::ZscriptNotificationSource<ZscriptParams> *notifSrcs[0
+
+#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+                                                   +1
 #endif
 
 		                                           ];
+#endif
 #endif
 
 public:
@@ -84,17 +99,34 @@ public:
         channels[i++] = &ZscriptI2cChannel;
         ZscriptI2cChannel.setup();
         ZscriptI2cChannel.setAddress(ZscriptParams::i2cChannelAddress);
+#else
+#ifdef ZSCRIPT_HAVE_I2C_MODULE
+        Wire.begin();
+#endif
 #endif
 #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
-    	Zscript::ZscriptUdpManager<ZscriptParams>::setup();
-    	for(uint8_t j = 0; j < ZscriptParams::udpChannelCount; j++){
-    	    channels[i++] = Zscript::ZscriptUdpManager<ZscriptParams>::channels+j;
-    	}
+        Zscript::ZscriptUdpManager<ZscriptParams>::setup();
+        for(uint8_t j = 0; j < ZscriptParams::udpChannelCount; j++){
+            channels[i++] = Zscript::ZscriptUdpManager<ZscriptParams>::channels+j;
+        }
 
 #endif
-#if defined(ZSCRIPT_HAVE_SERIAL_CHANNEL) or defined(ZSCRIPT_HAVE_I2C_CHANNEL)
+#ifdef ZSCRIPT_HAVE_TCP_CHANNEL
+        channels[i++] = &ZscriptTcpChannel;
+#endif
+#if defined(ZSCRIPT_HAVE_SERIAL_CHANNEL) or defined(ZSCRIPT_HAVE_I2C_CHANNEL) or defined(ZSCRIPT_HAVE_UDP_CHANNEL) or defined(ZSCRIPT_HAVE_TCP_CHANNEL)
         Zscript::Zscript<ZscriptParams>::zscript.setChannels(channels, i);
 #endif
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+        uint8_t j = 0;
+#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+        notifSrcs[j++] = &Zscript::I2cModule<ZscriptParams>::notifSrc;
+#endif
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
+        Zscript::Zscript<ZscriptParams>::zscript.setNotificationSources(notifSrcs, j);
+#endif
+#endif
+
     }
 };
 ArduinoZscriptBasicSetup ZscriptSetup;

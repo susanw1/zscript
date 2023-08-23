@@ -69,7 +69,7 @@ public:
             if (!I2C_SMBUS_ALERT_IS_EXCLUSIVE_WITH_ADDR()) {
                 I2C_END_SMBUS_ALERT(addr);
             }
-            pinMode(ZP::i2cAlertPin, INPUT);
+            pinMode(ZP::i2cAlertOutPin, INPUT);
         } else if (outBuffer[readPos - 1] == '\n') {
             I2C_BEGIN_SMBUS_ALERT();
             usingMagicAddr = true;
@@ -89,7 +89,7 @@ public:
         openB = false;
         if (writePos > 0) {
             I2C_BEGIN_SMBUS_ALERT();
-            pinMode(ZP::i2cAlertPin, OUTPUT);
+            pinMode(ZP::i2cAlertOutPin, OUTPUT);
             usingMagicAddr = true;
         }
     }
@@ -126,33 +126,20 @@ template<class ZP>
 class I2cChannel: public ZscriptChannel<ZP> {
 public:
     I2cOutStream<ZP> out;
-    GenericCore::TokenRingBuffer<ZP> tBuffer;
-    ZscriptTokenizer<ZP> tokenizer;
+    static GenericCore::TokenRingBuffer<ZP> tBuffer;
+    static ZscriptTokenizer<ZP> tokenizer;
 
-    uint8_t buffer[ZP::i2cBufferSize];
-    uint8_t tmp = 0;
-    bool usingTmp = false;
+    static uint8_t buffer[ZP::i2cBufferSize];
+    static uint8_t tmp;
+    static bool usingTmp;
 
-public:
-    I2cChannel() :
-            ZscriptChannel<ZP>(&out, &tBuffer, true), tBuffer(buffer, ZP::i2cBufferSize), tokenizer(tBuffer.getWriter(), 2) {
-    }
-
-    void setup() {
-        pinMode(ZP::i2cAlertPin, INPUT);
-        digitalWrite(ZP::i2cAlertPin, LOW);
-        Wire.onRequest(&I2cOutStream<ZP>::requestHandler);
-    }
-
-    void setAddress(uint8_t addr) {
-        Wire.begin(0x61);
-        out.setAddr(addr);
-    }
-
-    void moveAlong() {
+    static void dataHandler(int a) {
+        (void) a;
         if (usingTmp) {
             if (tokenizer.offer(tmp)) {
                 usingTmp = false;
+            } else {
+                return;
             }
         }
         while (Wire.available() > 0) {
@@ -162,7 +149,39 @@ public:
                 return;
             }
         }
+    }
+public:
+    I2cChannel() :
+            ZscriptChannel<ZP>(&out, &tBuffer, true) {
+    }
 
+    void setup() {
+        pinMode(ZP::i2cAlertOutPin, INPUT);
+        digitalWrite(ZP::i2cAlertOutPin, LOW);
+        Wire.onRequest(&I2cOutStream<ZP>::requestHandler);
+        Wire.onReceive(&I2cChannel<ZP>::dataHandler);
+    }
+
+    void setAddress(uint8_t addr) {
+        Wire.begin(addr);
+        out.setAddr(addr);
+    }
+
+    void moveAlong() {
+        if (usingTmp) {
+            if (tokenizer.offer(tmp)) {
+                usingTmp = false;
+            } else {
+                return;
+            }
+        }
+        while (Wire.available() > 0) {
+            tmp = (uint8_t) Wire.read();
+            if (!tokenizer.offer(tmp)) {
+                usingTmp = true;
+                return;
+            }
+        }
     }
 
     void channelInfo(ZscriptCommandContext<ZP> ctx) {
@@ -183,6 +202,17 @@ public:
     }
 
 };
+template<class ZP>
+GenericCore::TokenRingBuffer<ZP> I2cChannel<ZP>::tBuffer(I2cChannel<ZP>::buffer, ZP::i2cBufferSize);
+template<class ZP>
+ZscriptTokenizer<ZP> I2cChannel<ZP>::tokenizer(I2cChannel<ZP>::tBuffer.getWriter(), 2);
+template<class ZP>
+uint8_t I2cChannel<ZP>::buffer[ZP::i2cBufferSize];
+template<class ZP>
+uint8_t I2cChannel<ZP>::tmp = 0;
+template<class ZP>
+bool I2cChannel<ZP>::usingTmp = false;
+
 }
 
 #endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_CHANNELS_ZSCRIPTI2CCHANNEL_HPP_ */
