@@ -11,7 +11,7 @@ RemoteSystemTempFiles/
 .autotools
 .externalToolBuilders
 *.iml
-
+.idea/
 
 # Log file
 *.log
