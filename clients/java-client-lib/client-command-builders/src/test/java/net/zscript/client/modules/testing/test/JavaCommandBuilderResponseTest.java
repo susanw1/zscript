@@ -29,9 +29,9 @@ public class JavaCommandBuilderResponseTest {
     @Test
     void shouldCreateResponseWithRequiredFields() {
         checkResponse("S P2 R1b U5\n", TestingModule.testCommand0()
-                .enumReqTestA(2)
-                .numberReqTestC(35)
-                .bitsetReqTestE(1),
+                        .enumReqTestA(2)
+                        .numberReqTestC(35)
+                        .bitsetReqTestE(1),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getEnumRespTestPAsInt()).isEqualTo(0x2);
@@ -58,9 +58,9 @@ public class JavaCommandBuilderResponseTest {
     @Test
     void shouldCreateResponseWithAllFields() {
         checkResponse("S P Q1 R1b Tf1 U3 V6 \n", TestingModule.testCommand0()
-                .enumReqTestA(2)
-                .numberReqTestC(35)
-                .bitsetReqTestE(1),
+                        .enumReqTestA(2)
+                        .numberReqTestC(35)
+                        .bitsetReqTestE(1),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getEnumRespTestPAsInt()).isEqualTo(0x0);

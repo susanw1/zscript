@@ -62,7 +62,7 @@ commands:
     -   key: F
         name: bitsetReqTestF
         description: a optional test field with bitset
-        typeDefinition:    &id001
+        typeDefinition: &id001
             '@type': bitset
             bits:
             -   name: Cheddar
@@ -123,7 +123,7 @@ commands:
         description: a test response field with optional bitset
         typeDefinition: *id001
         required: no
-        
+
 -   name: testCommand1
     command: 1
     description: Bigfield request and response required text
@@ -135,7 +135,7 @@ commands:
         typeDefinition:
             '@type': text
         required: yes
-    responseFields: 
+    responseFields:
     -   key: +
         name: textRespTestP
         description: a required test bigfield text
@@ -154,7 +154,7 @@ commands:
         typeDefinition:
             '@type': bytes
         required: yes
-    responseFields: 
+    responseFields:
     -   key: +
         name: textRespTestA
         description: a required test bigfield bytes
@@ -173,7 +173,7 @@ commands:
         typeDefinition:
             '@type': text
         required: no
-    responseFields: 
+    responseFields:
     -   key: +
         name: textRespTestP
         description: a optional test bigfield text
@@ -192,11 +192,10 @@ commands:
         typeDefinition:
             '@type': bytes
         required: no
-    responseFields: 
+    responseFields:
     -   key: +
         name: textRespTestA
         description: a optional test bigfield bytes
         typeDefinition:
             '@type': bytes
         required: no
-

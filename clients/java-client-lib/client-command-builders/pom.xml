@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -45,10 +45,8 @@
                         <directory>${project.basedir}/src/main/templates</directory>
                         <includes>**/JavaCommandBuilder.mustache</includes>
                     </templates>
-                    <outputDirectory>
-                        ${project.build.directory}/generated-sources/zscript</outputDirectory>
-                    <transformMapperClass>
-                        net.zscript.model.transformer.adapter.ZscriptClientTransformerPluginMapper</transformMapperClass>
+                    <outputDirectory>${project.build.directory}/generated-sources/zscript</outputDirectory>
+                    <transformMapperClass>net.zscript.model.transformer.adapter.ZscriptClientTransformerPluginMapper</transformMapperClass>
                 </configuration>
 
                 <executions>
@@ -71,12 +69,11 @@
                         </goals>
                         <configuration>
                             <contexts>
-                                <directory>
-                                    ${project.testResources[0].directory}/zscript-test-datamodel</directory>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <directory>${project.testResources[0].directory}/zscript-test-datamodel</directory>
                                 <includes>module-test-list.yaml</includes>
                             </contexts>
-                            <outputDirectory>
-                                ${project.build.directory}/generated-test-sources/zscript/</outputDirectory>
+                            <outputDirectory>${project.build.directory}/generated-test-sources/zscript/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

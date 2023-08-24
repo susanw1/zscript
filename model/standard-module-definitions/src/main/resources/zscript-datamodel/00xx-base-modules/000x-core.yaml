@@ -50,7 +50,7 @@ commands:
         typeDefinition:
             '@type': text
         required: yes
-    status: []
+    status: [ ]
 
 
 -   name: echo
@@ -130,7 +130,7 @@ commands:
         typeDefinition:
             '@type': number
         required: no
-    responseFields: []
+    responseFields: [ ]
     status:
     -   code: CMD_FAIL
         meaning: reset failed
@@ -140,7 +140,7 @@ commands:
     command: 4
     description: Retrieves the system GUID, if set
     operation: get
-    requestFields: []
+    requestFields: [ ]
     responseFields:
     -   key: +
         name: guid
@@ -196,14 +196,14 @@ commands:
             '@type': number
         required: no
     extension: channel
-    status: []
+    status: [ ]
 
 
 -   name: makeCode
     command: 12
     description: Generates a random match-code
     operation: post
-    requestFields: []
+    requestFields: [ ]
     responseFields:
     -   key: C
         name: matchCode
@@ -224,7 +224,7 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    responseFields: []
+    responseFields: [ ]
     status:
     -   code: CMD_FAIL
         meaning: supplied code didn't match
@@ -234,7 +234,6 @@ commands:
     command: 15
     description: Command kept free for user-defined system command
     operation: unknown
-    requestFields: []
-    responseFields: []
-    status: []
-    
+    requestFields: [ ]
+    responseFields: [ ]
+    status: [ ]

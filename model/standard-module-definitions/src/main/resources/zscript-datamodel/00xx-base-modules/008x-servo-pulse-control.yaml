@@ -8,7 +8,7 @@ commands:
     command: 0
     description: servo capabilities.
     operation: get
-    requestFields: []
+    requestFields: [ ]
     responseFields:
     -   key: C
         name: commandsSet
@@ -58,19 +58,19 @@ commands:
         description: capability bitset
         typeDefinition:
             '@type': bitset
-            bits: 
-                - name: adjustableRange
-                  description: whether the device supports changing the pulse length range for each servo
-                - name: adjustableCenter
-                  description: whether the device supports changing the middle pulse length for each servo (is interpolated between this and ends)
-                - name: persistableCalibration
-                  description: whether the device supports persisting the calibrations for the servos
-                - name: slowMove
-                  description: whether the device supports gradual changes for servo position
-                - name: preciseSpeed
-                  description: whether the device supports precise speed setting
+            bits:
+            -   name: adjustableRange
+                description: whether the device supports changing the pulse length range for each servo
+            -   name: adjustableCenter
+                description: whether the device supports changing the middle pulse length for each servo (is interpolated between this and ends)
+            -   name: persistableCalibration
+                description: whether the device supports persisting the calibrations for the servos
+            -   name: slowMove
+                description: whether the device supports gradual changes for servo position
+            -   name: preciseSpeed
+                description: whether the device supports precise speed setting
         required: yes
-    status: []
+    status: [ ]
 
 
 -   name: setup
@@ -159,7 +159,7 @@ commands:
         typeDefinition:
             '@type': number
         required: no
-    status: []
+    status: [ ]
 
 
 -   name: write
@@ -191,11 +191,11 @@ commands:
         typeDefinition:
             '@type': enum
             values:
-            -    disable
-            -    enable
+            - disable
+            - enable
         required: no
-    responseFields: []
-    status: []
+    responseFields: [ ]
+    status: [ ]
 
 
 -   name: read
@@ -228,5 +228,4 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    status: []
-    
+    status: [ ]

@@ -7,7 +7,7 @@ import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
 public abstract class ValidatingResponse implements ZscriptResponse {
     protected final ZscriptExpression expression;
-    private final byte[]              requiredKeys;
+    private final   byte[]            requiredKeys;
 
     public ValidatingResponse(final ZscriptExpression expression, final byte[] requiredKeys) {
         this.expression = expression;

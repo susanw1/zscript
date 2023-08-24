@@ -28,8 +28,8 @@ commands:
         typeDefinition:
             '@type': bitset
             bits:
-            -    name:
-                 description:
+            -   name:
+                description:
         required: no
     -   key: M
         name: moduleBanksUpper
@@ -37,10 +37,10 @@ commands:
         typeDefinition:
             '@type': bitset
             bits:
-            -    name:
-                 description:
+            -   name:
+                description:
         required: yes
-    status: []
+    status: [ ]
 
 
 -   name: writeGuid
@@ -54,7 +54,7 @@ commands:
         typeDefinition:
             '@type': bytes
         required: yes
-    responseFields: []
+    responseFields: [ ]
     status:
     -   code: BAD_PARAM
         meaning: GUID must be 16 bytes
@@ -83,7 +83,7 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    responseFields: []
+    responseFields: [ ]
     extension: channel
     status:
     -   code: BAD_PARAM
@@ -94,7 +94,6 @@ commands:
     command: 15
     description: Command kept free for user-defined non-core command
     operation: unknown
-    requestFields: []
-    responseFields: []
-    status: []
-    
+    requestFields: [ ]
+    responseFields: [ ]
+    status: [ ]
