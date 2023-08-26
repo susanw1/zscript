@@ -5,19 +5,14 @@
 
     <parent>
         <groupId>net.zscript</groupId>
-        <artifactId>zscript-java-client</artifactId>
+        <artifactId>zscript-receivers-jvm</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zscript-java-client-command-builders</artifactId>
-    <name>Java Client Command Builders</name>
+    <artifactId>zscript-java-model-components</artifactId>
+    <name>Java Model Components (Generated)</name>
 
     <dependencies>
-        <dependency>
-            <groupId>net.zscript</groupId>
-            <artifactId>zscript-java-client-commandapi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -35,7 +30,7 @@
                     </dependency>
                     <dependency>
                         <groupId>net.zscript</groupId>
-                        <artifactId>zscript-model-standard-module-definitions</artifactId>
+                        <artifactId>zscript-model-schema</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>
@@ -43,9 +38,9 @@
                 <configuration>
                     <templates>
                         <directory>${project.basedir}/src/main/templates</directory>
-                        <includes>**/JavaCommandBuilder.mustache</includes>
+                        <includes>**/JavaZchars.mustache</includes>
                     </templates>
-                    <outputDirectory>${project.build.directory}/generated-sources/zscript</outputDirectory>
+                    <outputDir>${project.build.directory}/generated-sources/zscript</outputDir>
                     <transformMapperClass>net.zscript.model.transformer.adapter.ZscriptModuleTransformerPluginMapper</transformMapperClass>
                 </configuration>
 
@@ -57,25 +52,24 @@
                         </goals>
                         <configuration>
                             <contexts>
-                                <directory>classpath:/zscript-datamodel/</directory>
-                                <includes>module-list.yaml</includes>
+                                <includes>zchars-list.yaml</includes>
                             </contexts>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>transformer-test</id>
-                        <goals>
-                            <goal>test-transform</goal>
-                        </goals>
-                        <configuration>
-                            <contexts>
-                                <!--suppress UnresolvedMavenProperty -->
-                                <directory>${project.testResources[0].directory}/zscript-test-datamodel</directory>
-                                <includes>module-test-list.yaml</includes>
-                            </contexts>
-                            <outputDirectory>${project.build.directory}/generated-test-sources/zscript/</outputDirectory>
-                        </configuration>
-                    </execution>
+                    <!--                    <execution>-->
+                    <!--                        <id>transformer-test</id>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>test-transform</goal>-->
+                    <!--                        </goals>-->
+                    <!--                        <configuration>-->
+                    <!--                            <contexts>-->
+                    <!--                                &lt;!&ndash;suppress UnresolvedMavenProperty &ndash;&gt;-->
+                    <!--                                <directory>${project.testResources[0].directory}/zscript-test-datamodel</directory>-->
+                    <!--                                <includes>module-test-list.yaml</includes>-->
+                    <!--                            </contexts>-->
+                    <!--                            <outputDirectory>${project.build.directory}/generated-test-sources/zscript/</outputDirectory>-->
+                    <!--                        </configuration>-->
+                    <!--                    </execution>-->
                 </executions>
             </plugin>
         </plugins>

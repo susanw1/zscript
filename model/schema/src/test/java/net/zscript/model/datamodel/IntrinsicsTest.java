@@ -17,12 +17,12 @@ public class IntrinsicsTest {
 
     @Test
     public void shouldLoadIntrinsics() throws IOException {
-
         final InputStream   resourceStream = requireNonNull(getClass().getResourceAsStream("/zscript-datamodel/intrinsics.yaml"), "resourceStream is null");
         IntrinsicsDataModel dataModel      = jsonMapper.readValue(resourceStream, IntrinsicsDataModel.class);
 
         assertThat(dataModel.getIntrinsics().getRequestFields()).hasSize(1);
         assertThat(dataModel.getIntrinsics().getResponseFields()).hasSize(1);
+        assertThat(dataModel.getIntrinsics().getZchars()).hasSize(21);
         assertThat(dataModel.getIntrinsics().getStatus()).hasSize(32);
     }
 }

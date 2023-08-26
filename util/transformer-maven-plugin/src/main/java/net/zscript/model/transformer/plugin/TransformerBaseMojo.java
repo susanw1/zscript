@@ -48,7 +48,7 @@ abstract class TransformerBaseMojo extends AbstractMojo {
      * Specify output directory where the transformed output files are placed. This is added to the Maven Compile Source Root list if the {@code fileTypeSuffix} is "java".
      */
     @Parameter
-    protected File outputDirectory;
+    protected File outputDir;
 
     /**
      * The fully-qualified classmame of a TransformerPluginMapper to use for loading and mapping the files described by the {@code contexts}. Changing this allows you to perform
@@ -88,14 +88,14 @@ abstract class TransformerBaseMojo extends AbstractMojo {
         // read in context files as YAML and perform any field mapping as required. Read in templates ready to use Mustache.
         final List<LoadedEntityContent> loadedMappedContexts = loadMappedContexts(contextEntities);
         final List<LoadedEntityContent> loadedTemplates      = loadTemplates(templateEntities);
-        getLog().info("outputDirectory: " + outputDirectory);
+        getLog().info("outputDir: " + outputDir);
 
-        if (outputDirectory == null) {
-            outputDirectory = new File(project.getBuild().getDirectory(), outputDefaultDir);
+        if (outputDir == null) {
+            outputDir = new File(project.getBuild().getDirectory(), outputDefaultDir);
         }
-        getLog().info("outputDirectory1: " + outputDirectory);
+        getLog().info("outputDir: " + outputDir);
 
-        final Path outputDirectoryPath = outputDirectory.toPath();
+        final Path outputDirectoryPath = outputDir.toPath();
         createDirIfRequired(outputDirectoryPath);
 
         for (LoadedEntityContent template : loadedTemplates) {

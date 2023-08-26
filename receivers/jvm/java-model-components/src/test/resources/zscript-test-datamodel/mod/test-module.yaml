@@ -1,0 +1,201 @@
+name: Testing
+id: 0
+version: 0.0.1
+description: Just testing
+package:
+- net
+- zscript
+- client
+- modules
+- test
+commands:
+-   name: testCommand0
+    command: 0
+    description: Description A
+    operation: get
+    requestFields:
+    -   key: A
+        name: enumReqTestA
+        description: a required test field with enum
+        typeDefinition:
+            '@type': enum
+            values:
+            - Cat
+            - Dog
+            - Snake
+        required: yes
+    -   key: B
+        name: enumReqTestB
+        description: an optional test field with enum
+        typeDefinition:
+            '@type': enum
+            values:
+            - Rabbit
+            - Hare
+            - Mouse
+        required: no
+    -   key: C
+        name: numberReqTestC
+        description: a required test field with number
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: D
+        name: numberReqTestD
+        description: an optional test field with number
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: E
+        name: bitsetReqTestE
+        description: a required test field with bitset
+        typeDefinition:
+            '@type': bitset
+            bits:
+            -   name: Lion
+                description: large and flappy
+            -   name: Tiger
+                description: large stripy feline
+            -   name: Tabby
+                description: small feline
+        required: yes
+    -   key: F
+        name: bitsetReqTestF
+        description: a optional test field with bitset
+        typeDefinition: &id001
+            '@type': bitset
+            bits:
+            -   name: Cheddar
+                description: the most popular cheese in the world
+            -   name: Camembert
+                description: a bit runny
+            -   name: GreekFeta
+                description: not as such
+        required: no
+    responseFields:
+    -   key: P
+        name: enumRespTestP
+        description: a required test response field with enum
+        typeDefinition:
+            '@type': enum
+            values:
+            - Elephant
+            - Goat
+            - Monkey
+        required: yes
+    -   key: Q
+        name: enumRespTestQ
+        description: a test response field with optional enum
+        typeDefinition:
+            '@type': enum
+            values:
+            - Elephant
+            - Goat
+            - Monkey
+        required: no
+    -   key: R
+        name: numberRespTestR
+        description: a required test response field with number
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: T
+        name: numberRespTestT
+        description: a test response field with optional number
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: U
+        name: bitsetRespTestU
+        description: a required test response field with bitset
+        typeDefinition:
+            '@type': bitset
+            bits:
+            -   name: Lion
+                description: large and flappy
+            -   name: Tiger
+                description: large stripy feline
+            -   name: Tabby
+                description: small feline
+        required: yes
+    -   key: V
+        name: bitsetRespTestV
+        description: a test response field with optional bitset
+        typeDefinition: *id001
+        required: no
+
+-   name: testCommand1
+    command: 1
+    description: Bigfield request and response required text
+    operation: get
+    requestFields:
+    -   key: +
+        name: textReqTestA
+        description: a required test bigfield text
+        typeDefinition:
+            '@type': text
+        required: yes
+    responseFields:
+    -   key: +
+        name: textRespTestP
+        description: a required test bigfield text
+        typeDefinition:
+            '@type': text
+        required: yes
+
+-   name: testCommand2
+    command: 2
+    description: Bigfield request and response required bytes
+    operation: get
+    requestFields:
+    -   key: +
+        name: textReqTestA
+        description: a required test bigfield bytes
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    responseFields:
+    -   key: +
+        name: textRespTestA
+        description: a required test bigfield bytes
+        typeDefinition:
+            '@type': bytes
+        required: yes
+
+-   name: testCommand3
+    command: 3
+    description: Bigfield request and response optional text
+    operation: get
+    requestFields:
+    -   key: +
+        name: textReqTestA
+        description: a optional test bigfield text
+        typeDefinition:
+            '@type': text
+        required: no
+    responseFields:
+    -   key: +
+        name: textRespTestP
+        description: a optional test bigfield text
+        typeDefinition:
+            '@type': text
+        required: no
+
+-   name: testCommand4
+    command: 4
+    description: Bigfield request and response optional bytes
+    operation: get
+    requestFields:
+    -   key: +
+        name: textReqTestA
+        description: a optional test bigfield bytes
+        typeDefinition:
+            '@type': bytes
+        required: no
+    responseFields:
+    -   key: +
+        name: textRespTestA
+        description: a optional test bigfield bytes
+        typeDefinition:
+            '@type': bytes
+        required: no
