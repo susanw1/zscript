@@ -44,8 +44,8 @@ const char *toWrite = "";
 
 AsyncActionNotifier<zp> notifier;
 
-#define MODULE_NOTIFICATION_EXISTS_00F EXISTENCE_MARKER_UTIL
-#define MODULE_NOTIFICATION_SWITCH_00F NOTIFICATION_SWITCH_UTIL(AsyncTestModule::notification)
+#define MODULE_NOTIFICATION_EXISTS_00f EXISTENCE_MARKER_UTIL
+#define MODULE_NOTIFICATION_SWITCH_00f NOTIFICATION_SWITCH_UTIL(AsyncTestModule::notification)
 
 class AsyncTestModule {
 public:
@@ -54,7 +54,7 @@ public:
      * For testing, use 2nd part of address to match someValue if it's <10. Otherwise, don't go async at all.
      */
 
-    static void notification(GenericCore::ZscriptNotificationContext<zp> ctx, bool moveAlong) {
+    static void notification(ZscriptNotificationContext<zp> ctx, bool moveAlong) {
         lastID = ctx.getID();
         lastIsAddressing = ctx.isAddressing();
         lastIsMoveAlong = moveAlong;

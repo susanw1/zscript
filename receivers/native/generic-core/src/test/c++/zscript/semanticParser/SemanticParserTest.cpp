@@ -140,7 +140,7 @@ public:
         checkActionType(a1, RUN_FIRST_COMMAND);
 
         a1.performAction(&outStream);
-        checkAgainstOut("!\"Firmware\"V23C3107M3S");
+        checkAgainstOut("!\"Firmware\"V23C3107M3NS");
         outStream.reset();
         checkParserState(SemanticParserState::COMMAND_COMPLETE);
 
@@ -214,7 +214,7 @@ public:
     static void shouldProduceActionsForSingleCommands() {
         SemanticParserTest s1;
         SemanticActionType types1[] = { RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS, INVALID };
-        s1.shouldHandleActionTypesAndIO("Z0V1\n", types1, "!\"Hardware\"V42C3107M3S\n");
+        s1.shouldHandleActionTypesAndIO("Z0V1\n", types1, "!\"Hardware\"V42C3107M3NS\n");
         SemanticParserTest s2;
         SemanticActionType types2[] = { RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS, INVALID };
         s2.shouldHandleActionTypesAndIO("Z1A\n", types2, "!AS\n");

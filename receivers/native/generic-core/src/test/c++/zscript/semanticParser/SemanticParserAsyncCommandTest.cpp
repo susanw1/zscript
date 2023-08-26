@@ -39,7 +39,7 @@ uint16_t zp::currentRnd = 1249;
 
 int someValue = 0;
 AsyncActionNotifier<zp> notifier;
-#define COMMAND_EXISTS_00F2 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_00f2 EXISTENCE_MARKER_UTIL
 class AsyncCommand {
 public:
 
@@ -71,10 +71,10 @@ public:
     }
 
 };
-#define MODULE_EXISTS_00F EXISTENCE_MARKER_UTIL
-#define MODULE_SWITCH_00F MODULE_SWITCH_UTIL_WITH_ASYNC(AsyncTestModule::execute)
-#define MODULE_ADDRESS_EXISTS_00F EXISTENCE_MARKER_UTIL
-#define MODULE_ADDRESS_SWITCH_00F ADDRESS_SWITCH_UTIL_WITH_ASYNC(AsyncTestModule::address)
+#define MODULE_EXISTS_00f EXISTENCE_MARKER_UTIL
+#define MODULE_SWITCH_00f MODULE_SWITCH_UTIL_WITH_ASYNC(AsyncTestModule::execute)
+#define MODULE_ADDRESS_EXISTS_00f EXISTENCE_MARKER_UTIL
+#define MODULE_ADDRESS_SWITCH_00f ADDRESS_SWITCH_UTIL_WITH_ASYNC(AsyncTestModule::address)
 
 class AsyncTestModule {
 public:

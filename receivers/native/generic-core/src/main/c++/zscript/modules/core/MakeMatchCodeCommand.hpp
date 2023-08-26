@@ -12,8 +12,8 @@
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../../LanguageVersion.hpp"
 
-#define COMMAND_EXISTS_000C EXISTENCE_MARKER_UTIL
-#define COMMAND_EXISTS_000D EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_000c EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_000d EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
 namespace GenericCore {

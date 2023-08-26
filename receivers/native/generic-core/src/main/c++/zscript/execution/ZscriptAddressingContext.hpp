@@ -121,14 +121,16 @@ public:
     }
 
     void status(uint8_t status) {
-        AbstractOutStream<ZP> *out = Zscript<ZP>::zscript.getNotificationOutStream();
-        if (!out->isOpen()) {
-            out->open(Zscript<ZP>::zscript.getNotificationChannelIndex());
+        if(Zscript<ZP>::zscript.hasNotificationOutStream()) {
+            AbstractOutStream<ZP> *out = Zscript<ZP>::zscript.getNotificationOutStream();
+            if (!out->isOpen()) {
+                out->open(Zscript<ZP>::zscript.getNotificationChannelIndex());
+            }
+            out->writeField('!', 0);
+            out->writeField(Zchars::Z_STATUS, status);
+            out->endSequence();
+            out->close();
         }
-        out->writeField('!', 0);
-        out->writeField(Zchars::Z_STATUS, status);
-        out->endSequence();
-        out->close();
         parseState->setStatus(status);
     }
 

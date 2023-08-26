@@ -7,6 +7,7 @@
 
 #ifndef SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTNOTIFICATIONCONTEXT_HPP_
 #define SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTNOTIFICATIONCONTEXT_HPP_
+
 #include "../ZscriptIncludes.hpp"
 #include "CommandOutStream.hpp"
 
@@ -48,7 +49,7 @@ public:
     }
 
     NotificationOutStream<ZP> getOutStream() {
-        return NotificationOutStream<ZP>(Zscript < ZP > ::zscript.getNotificationOutStream());
+        return NotificationOutStream<ZP>(Zscript<ZP>::zscript.getNotificationOutStream());
     }
 
     AsyncActionNotifier<ZP> getAsyncActionNotifier() {
