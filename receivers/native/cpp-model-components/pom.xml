@@ -30,6 +30,11 @@
                         <artifactId>zscript-model-schema</artifactId>
                         <version>${project.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>net.zscript</groupId>
+                        <artifactId>zscript-model-standard-module-definitions</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
                 </dependencies>
 
                 <configuration>
@@ -66,6 +71,22 @@
                             </templates>
                             <contexts>
                                 <includes>zstatus-list.yaml</includes>
+                            </contexts>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>transformer-modules-cpp</id>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                        <configuration>
+                            <templates>
+                                <directory>${project.basedir}/src/main/templates</directory>
+                                <includes>CppCommandKeyDefs.mustache</includes>
+                            </templates>
+                            <contexts>
+                                <directory>classpath:/zscript-datamodel/</directory>
+                                <includes>module-list.yaml</includes>
                             </contexts>
                         </configuration>
                     </execution>

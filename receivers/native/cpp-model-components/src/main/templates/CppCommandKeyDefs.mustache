@@ -5,27 +5,83 @@
 * SPDX-License-Identifier: MIT
 */
 
-#ifndef SRC_MAIN_C___ZSCRIPT_ZCHARS_HPP_
-#define SRC_MAIN_C___ZSCRIPT_ZCHARS_HPP_
+#ifndef SRC_MAIN_C___ZSCRIPT_KEYS_{{#upperUnderscore}}{{moduleName}}{{/upperUnderscore}}_HPP_
+#define SRC_MAIN_C___ZSCRIPT_KEYS_{{#upperUnderscore}}{{moduleName}}{{/upperUnderscore}}_HPP_
 #include "ZscriptIncludes.hpp"
 
 namespace Zscript {
 
 /**
- * Constants generated from the module command/response keys.
+ * {{name}} Module: {{description}}.
+ *
+ * @version {{version}}
  *
  * Generated(value = "CppCommandKeyDefs.mustache",
  *  date = "{{timeNow}}",
  *  comments = "Module command/response key constants list, using {{additional.context-source}}")
  */
-enum Zchars {
-{{#zchars}}
-    /** {{description}} */
-    Z_{{name}} = '{{{chEscapedAsC}}}',
+namespace {{#lowerUnderscore}}{{moduleName}}{{/lowerUnderscore}}_module {
 
-{{/zchars}}
-};
+{{#commands}}
+namespace cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}} {
+    {{#requestFields}}
+        {{#typeDefinition}}
+            {{#enumType}}
+    /** Enum: {{description}} */
+    constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+            {{/enumType}}
+            {{#numberType}}
+    /** Number: {{description}} */
+    constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+            {{/numberType}}
+            {{#bitsetType}}
+    /** Bitset: {{description}} */
+    constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+            {{/bitsetType}}
+            {{#flagType}}
+    /** Flag: {{description}} */
+    constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+            {{/flagType}}
+            {{#textType}}
+    /** Text: {{description}} */
+    constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__Txt = '{{key}}';
+            {{/textType}}
+            {{#bytesType}}
+    /** Text: {{description}} */
+    constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__Bytes = '{{key}}';
+            {{/bytesType}}
+        {{/typeDefinition}}
+    {{/requestFields}}
+
+    {{#responseFields}}
+            {{#typeDefinition}}
+            {{#enumType}}
+    /** Enum: {{description}} */
+    constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+            {{/enumType}}
+            {{#numberType}}
+    /** Number: {{description}} */
+    constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+            {{/numberType}}
+            {{#bitsetType}}
+    /** Bitset: {{description}} */
+    constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+            {{/bitsetType}}
+            {{#flagType}}
+    /** Flag: {{description}} */
+    constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+            {{/flagType}}
+
+        {{/typeDefinition}}
+    {{/responseFields}}
+}
+
+{{/commands}}
 
 
 }
-#endif /* SRC_MAIN_C___ZSCRIPT_ZCHARS_HPP_ */
+}
+
+
+}
+#endif /* SRC_MAIN_C___ZSCRIPT_KEYS_{{#upperUnderscore}}{{moduleName}}{{/upperUnderscore}}_HPP_ */
