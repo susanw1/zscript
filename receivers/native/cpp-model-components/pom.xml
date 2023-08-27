@@ -1,0 +1,77 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-native</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>zscript-cpp-model-components</artifactId>
+    <name>C++ Model Components (Generated)</name>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.zscript</groupId>
+                <artifactId>transformer-maven-plugin</artifactId>
+                <version>${project.version}</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>net.zscript</groupId>
+                        <artifactId>zscript-model-transformer-adapter</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.zscript</groupId>
+                        <artifactId>zscript-model-schema</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+
+                <configuration>
+                    <outputDirectory>${project.build.directory}/generated-sources/zscript/cpp</outputDirectory>
+                    <transformMapperClass>net.zscript.model.transformer.adapter.ZscriptModuleTransformerPluginMapper</transformMapperClass>
+                    <fileTypeSuffix>hpp</fileTypeSuffix>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>transformer-zchars-cpp</id>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                        <configuration>
+                            <templates>
+                                <directory>${project.basedir}/src/main/templates</directory>
+                                <includes>CppZchars.mustache</includes>
+                            </templates>
+                            <contexts>
+                                <includes>zchars-list.yaml</includes>
+                            </contexts>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>transformer-zstatus-cpp</id>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                        <configuration>
+                            <templates>
+                                <directory>${project.basedir}/src/main/templates</directory>
+                                <includes>CppZscriptStatus.mustache</includes>
+                            </templates>
+                            <contexts>
+                                <includes>zstatus-list.yaml</includes>
+                            </contexts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

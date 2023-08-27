@@ -1,0 +1,55 @@
+/*
+* Zscript Library - Command System for Microcontrollers)
+* Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
+*
+* SPDX-License-Identifier: MIT
+*/
+
+#ifndef SRC_MAIN_CPP_ZSCRIPT_ZSCRIPTRESPONSESTATUS_HPP_
+#define SRC_MAIN_CPP_ZSCRIPT_ZSCRIPTRESPONSESTATUS_HPP_
+
+#include "ZscriptIncludes.hpp"
+
+namespace Zscript {
+
+/**
+ * Constants generated from the Status intrinsics.
+ *
+ * Status code values are significant:
+ * <dl>
+ *   <dt>00</dt><dd>Success</dd>
+ *   <dt>01-0f</dt><dd>Failure (allows ORELSE logic)</dd>
+ *   <dt>0f-ff</dt><dd>Error (unexpected, or not immediately recoverable)</dd>
+ * </dl>
+ *
+ * Generated(value = "CppZscriptStatus.mustache",
+ *  date = "{{timeNow}}",
+ *  comments = "Zscript Response Status list, using {{additional.context-source}}")
+*/
+enum ResponseStatus {
+{{#status}}
+    /** {{meaning}} */
+    {{code}} = 0x{{#toHex}}{{id}}{{/toHex}},
+
+{{/status}}
+};
+
+template<class ZP>
+class ResponseStatusUtils {
+public:
+    static bool isSuccess(uint8_t code) {
+        return code == SUCCESS;
+    }
+
+    static bool isError(uint8_t code) {
+        return (code & ~0xf) != 0;
+    }
+
+    static bool isFailure(uint8_t code) {
+        return (code & ~0xf) == 0 && code != SUCCESS;
+    }
+};
+
+}
+
+#endif /* SRC_MAIN_CPP_ZSCRIPT_ZSCRIPTRESPONSESTATUS_HPP_ */

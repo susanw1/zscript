@@ -13,6 +13,7 @@
     <name>Zscript Native Receivers</name>
 
     <modules>
+        <module>cpp-model-components</module>
         <module>generic-core</module>
         <module>arduino</module>
         <module>arm</module>
