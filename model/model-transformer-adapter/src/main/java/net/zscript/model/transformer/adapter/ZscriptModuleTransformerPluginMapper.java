@@ -12,11 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.module.mrbean.MrBeanModule;
-
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
 import net.zscript.model.loader.ModelLoader;
@@ -28,7 +23,7 @@ public class ZscriptModuleTransformerPluginMapper implements TransformerPluginMa
 
     @Override
     public List<LoadedEntityContent> loadAndMap(LoadableEntities entities) {
-        return entities.loadEntities(e -> load(e));
+        return entities.loadEntities(this::load);
     }
 
     private List<LoadedEntityContent> load(LoadableEntity entity) {
@@ -83,12 +78,5 @@ public class ZscriptModuleTransformerPluginMapper implements TransformerPluginMa
         helper.getAdditional().put("package-elements", String.join(".", fqcn));
         final Path packagePath = Path.of(fqcn.get(0), fqcn.subList(1, fqcn.size()).toArray(new String[0]));
         return packagePath.resolve(fileName);
-    }
-
-    public static JsonMapper createJsonMapper() {
-        return JsonMapper.builder(new YAMLFactory())
-                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-                .addModule(new MrBeanModule())
-                .build();
     }
 }

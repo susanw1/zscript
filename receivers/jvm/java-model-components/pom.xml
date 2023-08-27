@@ -40,7 +40,7 @@
                         <directory>${project.basedir}/src/main/templates</directory>
                         <includes>**/JavaZchars.mustache</includes>
                     </templates>
-                    <outputDir>${project.build.directory}/generated-sources/zscript</outputDir>
+                    <outputDirectory>${project.build.directory}/generated-sources/zscript</outputDirectory>
                     <transformMapperClass>net.zscript.model.transformer.adapter.ZscriptModuleTransformerPluginMapper</transformMapperClass>
                 </configuration>
 
@@ -56,20 +56,6 @@
                             </contexts>
                         </configuration>
                     </execution>
-                    <!--                    <execution>-->
-                    <!--                        <id>transformer-test</id>-->
-                    <!--                        <goals>-->
-                    <!--                            <goal>test-transform</goal>-->
-                    <!--                        </goals>-->
-                    <!--                        <configuration>-->
-                    <!--                            <contexts>-->
-                    <!--                                &lt;!&ndash;suppress UnresolvedMavenProperty &ndash;&gt;-->
-                    <!--                                <directory>${project.testResources[0].directory}/zscript-test-datamodel</directory>-->
-                    <!--                                <includes>module-test-list.yaml</includes>-->
-                    <!--                            </contexts>-->
-                    <!--                            <outputDirectory>${project.build.directory}/generated-test-sources/zscript/</outputDirectory>-->
-                    <!--                        </configuration>-->
-                    <!--                    </execution>-->
                 </executions>
             </plugin>
         </plugins>

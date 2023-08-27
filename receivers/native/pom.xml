@@ -1,28 +1,20 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>net.zscript</groupId>
-		<artifactId>zscript-receivers</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>zscript-receivers-native</artifactId>
-	<packaging>pom</packaging>
-	<name>Zscript Native Receivers</name>
+    <artifactId>zscript-receivers-native</artifactId>
+    <packaging>pom</packaging>
+    <name>Zscript Native Receivers</name>
 
-	<modules>
-		<module>generic-core</module>
+    <modules>
+        <module>generic-core</module>
         <module>arduino</module>
-		<module>arm</module>
-	</modules>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>com.github.sdedwards.m2e-nar</groupId>
-				<artifactId>m2e-nar</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+        <module>arm</module>
+    </modules>
 </project>

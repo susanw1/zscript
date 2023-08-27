@@ -13,8 +13,6 @@
     <packaging>pom</packaging>
     <name>Zscript JVM Receiver</name>
 
-    <properties></properties>
-
     <modules>
         <module>java-receiver</module>
         <module>java-receiver-token</module>

@@ -54,9 +54,7 @@ public class CoreModuleTest {
 
     @Test
     public void shouldCreateCoreMatchCodeWithoutRequiredField() {
-        assertThatThrownBy(() -> {
-            CoreModule.matchCode().build();
-        }).isInstanceOf(ZscriptMissingFieldException.class)
+        assertThatThrownBy(() -> CoreModule.matchCode().build()).isInstanceOf(ZscriptMissingFieldException.class)
                 .hasMessage("missingKeys='C'");
     }
 }

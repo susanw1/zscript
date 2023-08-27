@@ -5,6 +5,7 @@ import static com.google.common.base.CaseFormat.LOWER_HYPHEN;
 import static com.google.common.base.CaseFormat.LOWER_UNDERSCORE;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
+import static java.util.stream.Collectors.joining;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -33,7 +34,7 @@ public final class ConversionHelper {
      * Function which converts a toString'ed List (','-separated, encased in '[]', to a '.'-separated string. eg, "[a, b, c]" becomes "a.b.c". Good for Java package names.
      */
     public Function<String, String> listDotSeparated() {
-        return s -> Stream.of(s.replaceAll("[\\]\\[]", "").split(", *")).map(lowerUnderscore()::apply).collect(Collectors.joining("."));
+        return s -> Stream.of(s.replaceAll("[\\]\\[]", "").split(", *")).map(lowerUnderscore()).collect(joining("."));
     }
 
     public Function<String, String> lowerCamel() {

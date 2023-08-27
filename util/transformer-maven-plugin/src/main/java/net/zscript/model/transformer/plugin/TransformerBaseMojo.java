@@ -48,7 +48,7 @@ abstract class TransformerBaseMojo extends AbstractMojo {
      * Specify output directory where the transformed output files are placed. This is added to the Maven Compile Source Root list if the {@code fileTypeSuffix} is "java".
      */
     @Parameter
-    protected File outputDir;
+    protected File outputDirectory;
 
     /**
      * The fully-qualified classmame of a TransformerPluginMapper to use for loading and mapping the files described by the {@code contexts}. Changing this allows you to perform
@@ -78,7 +78,7 @@ abstract class TransformerBaseMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     protected MavenProject project;
 
-    public String executeBase(String templateDefaultDir, String contextDefaultDir, String outputDefaultDir) throws MojoExecutionException, MojoExecutionException {
+    public String executeBase(String templateDefaultDir, String contextDefaultDir, String outputDefaultDir) throws MojoExecutionException {
 
         final FileSet          templateFileSet  = initFileSet(templates, templateDefaultDir);
         final LoadableEntities templateEntities = extractFileList("Template", templateFileSet);
@@ -88,14 +88,14 @@ abstract class TransformerBaseMojo extends AbstractMojo {
         // read in context files as YAML and perform any field mapping as required. Read in templates ready to use Mustache.
         final List<LoadedEntityContent> loadedMappedContexts = loadMappedContexts(contextEntities);
         final List<LoadedEntityContent> loadedTemplates      = loadTemplates(templateEntities);
-        getLog().info("outputDir: " + outputDir);
+        getLog().info("outputDir: " + outputDirectory);
 
-        if (outputDir == null) {
-            outputDir = new File(project.getBuild().getDirectory(), outputDefaultDir);
+        if (outputDirectory == null) {
+            outputDirectory = new File(project.getBuild().getDirectory(), outputDefaultDir);
         }
-        getLog().info("outputDir: " + outputDir);
+        getLog().info("outputDir: " + outputDirectory);
 
-        final Path outputDirectoryPath = outputDir.toPath();
+        final Path outputDirectoryPath = outputDirectory.toPath();
         createDirIfRequired(outputDirectoryPath);
 
         for (LoadedEntityContent template : loadedTemplates) {
@@ -117,7 +117,7 @@ abstract class TransformerBaseMojo extends AbstractMojo {
             }
         }
 
-        if (Boolean.valueOf(generateSources) || generateSources == null && fileTypeSuffix.equals(FILE_TYPE_SUFFIX_DEFAULT)) {
+        if (Boolean.parseBoolean(generateSources) || generateSources == null && fileTypeSuffix.equals(FILE_TYPE_SUFFIX_DEFAULT)) {
             return outputDirectoryPath.toString();
         }
 
@@ -178,12 +178,12 @@ abstract class TransformerBaseMojo extends AbstractMojo {
         final FileSetManager fileSetManager = new FileSetManager();
         final List<String>   files          = stream(fileSetManager.getIncludedFiles(fileSet)).collect(Collectors.toList());
 
-        if (failIfNoFiles && files.size() == 0) {
+        if (failIfNoFiles && files.isEmpty()) {
             throw new MojoExecutionException("No matching " + description + " files found in: " + rootPath);
         }
 
         getLog().debug("    #files = " + files.size());
-        files.forEach(f -> getLog().debug("    " + f.toString()));
+        files.forEach(f -> getLog().debug("    " + f));
 
         return new LoadableEntities(description, rootUri, files, fileTypeSuffix);
     }
@@ -204,7 +204,7 @@ abstract class TransformerBaseMojo extends AbstractMojo {
         return entities.loadEntities(entity -> {
             final Path fullPath = Path.of(entity.getFullPath());
             try (final Reader reader = Files.newBufferedReader(fullPath)) {
-                final Mustache template = mf.compile(reader, entity.getRelativePath().toString());
+                final Mustache template = mf.compile(reader, entity.getRelativePath());
                 return List.of(entity.withContents(List.of(template), Path.of(entity.getRelativePath())));
             } catch (final IOException e) {
                 throw new TransformerMojoFailureException("Cannot open " + entity.getDescription() + ": " + entity.getRelativePath(), e);
