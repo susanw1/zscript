@@ -49,7 +49,7 @@ public:
             return;
         }
         bool hasHitNewLine = false;
-        for (uint8_t i = 0; i < 8; ++i) {
+        for (uint8_t i = 0; i < ZP::I2cAddressingReadBlockLength; ++i) {
             if (hasHitNewLine || readPos >= writePos) {
                 Wire.write('\n');
                 hasHitNewLine = true;

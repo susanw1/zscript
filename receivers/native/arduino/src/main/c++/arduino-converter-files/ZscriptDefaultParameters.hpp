@@ -58,8 +58,10 @@ public:
     static const uint16_t i2cBufferSize = 128;
 
     static const uint16_t i2cChannelOutputBufferSize = 32;
-    static const uint16_t i2cAlertPin = 4;
-    static const uint8_t i2cChannelAddress = 0x61;
+    static const uint16_t I2cAddressingReadBlockLength = 8;
+    static const uint16_t i2cAlertInPin = 2;
+    static const uint16_t i2cAlertOutPin = 9;
+    static const uint8_t i2cChannelAddress = 0x60;
 
     static const uint16_t nonActivatedChannelTimeout = 5000;
 
