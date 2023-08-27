@@ -97,7 +97,7 @@ public:
             GenericCore::RingBufferToken<ZP> token = opt.token;
             i++;
             if (hasReachedData) {
-                if (token.isMarker(reader.asBuffer())) {
+                if (token.isSequenceEndMarker(reader.asBuffer())) {
                     return true;
                 }
                 status(ResponseStatus::INVALID_KEY);
@@ -107,6 +107,9 @@ public:
                 continue;
             }
             if (token.getKey(reader.asBuffer()) != ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
+                if(token.isSequenceEndMarker(reader.asBuffer())){
+                    return true;
+                }
                 status(ResponseStatus::INVALID_KEY);
                 return false;
             }
