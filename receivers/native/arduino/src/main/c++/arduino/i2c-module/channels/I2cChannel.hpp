@@ -20,7 +20,7 @@
 namespace Zscript {
 
 template<class ZP>
-class I2cOutStream: public AbstractOutStream<ZP> {
+class I2cOutStream : public AbstractOutStream<ZP> {
 public:
     static const uint8_t SmBusAlertAddr;
     static uint8_t outBuffer[ZP::i2cChannelOutputBufferSize];
@@ -61,6 +61,22 @@ public:
             }
         }
         if (readPos >= writePos) {
+            if (writePos >= ZP::i2cChannelOutputBufferSize) {
+                // return error...
+                writePos = 0;
+                readPos = 0;
+                outBuffer[writePos++] = '!';
+                outBuffer[writePos++] = 'S';
+                outBuffer[writePos++] = '1';
+                outBuffer[writePos++] = '0';
+                outBuffer[writePos++] = '\n';
+                for (uint8_t i = writePos; i < ZP::i2cChannelOutputBufferSize; ++i) {
+                    outBuffer[i] = 0x00;
+                }
+                I2C_BEGIN_SMBUS_ALERT();
+                usingMagicAddr = true;
+                return;
+            }
             writePos = 0;
             readPos = 0;
             for (uint8_t i = 0; i < ZP::i2cChannelOutputBufferSize; ++i) {
@@ -95,20 +111,26 @@ public:
     }
 
     void writeBytes(const uint8_t *bytes, uint16_t count, bool hexMode) {
+        if(writePos == ZP::i2cChannelOutputBufferSize){
+            return;
+        }
         if (hexMode) {
             for (uint16_t i = 0; i < count; i++) {
-                if (writePos == ZP::i2cChannelOutputBufferSize) {
+                if (writePos == ZP::i2cChannelOutputBufferSize - 1) {
+                    outBuffer[writePos++] = '\n';
                     return;
                 }
-                outBuffer[writePos++] = AbstractOutStream < ZP > ::toHexChar(bytes[i] >> 4);
-                if (writePos == ZP::i2cChannelOutputBufferSize) {
+                outBuffer[writePos++] = AbstractOutStream<ZP>::toHexChar(bytes[i] >> 4);
+                if (writePos == ZP::i2cChannelOutputBufferSize - 1) {
+                    outBuffer[writePos++] = '\n';
                     return;
                 }
-                outBuffer[writePos++] = AbstractOutStream < ZP > ::toHexChar(bytes[i] & 0xf);
+                outBuffer[writePos++] = AbstractOutStream<ZP>::toHexChar(bytes[i] & 0xf);
             }
         } else {
             for (uint16_t i = 0; i < count; ++i) {
-                if (writePos == ZP::i2cChannelOutputBufferSize) {
+                if (writePos == ZP::i2cChannelOutputBufferSize - 1) {
+                    outBuffer[writePos++] = '\n';
                     return;
                 }
                 outBuffer[writePos++] = bytes[i];
@@ -117,6 +139,7 @@ public:
     }
 
 };
+
 template<class ZP>
 const uint8_t I2cOutStream<ZP>::SmBusAlertAddr = 0x0C;
 
@@ -132,7 +155,7 @@ template<class ZP>
 bool I2cOutStream<ZP>::usingMagicAddr = false;
 
 template<class ZP>
-class I2cChannel: public ZscriptChannel<ZP> {
+class I2cChannel : public ZscriptChannel<ZP> {
 public:
     I2cOutStream<ZP> out;
     static GenericCore::TokenRingBuffer<ZP> tBuffer;
@@ -159,6 +182,7 @@ public:
             }
         }
     }
+
 public:
     I2cChannel() :
             ZscriptChannel<ZP>(&out, &tBuffer, true) {
@@ -194,7 +218,7 @@ public:
     }
 
     void channelInfo(ZscriptCommandContext<ZP> ctx) {
-        CommandOutStream < ZP > out = ctx.getOutStream();
+        CommandOutStream<ZP> out = ctx.getOutStream();
         out.writeField('N', 0);
         out.writeField('M', 0x5);
     }
@@ -211,6 +235,7 @@ public:
     }
 
 };
+
 template<class ZP>
 GenericCore::TokenRingBuffer<ZP> I2cChannel<ZP>::tBuffer(I2cChannel<ZP>::buffer, ZP::i2cBufferSize);
 template<class ZP>
