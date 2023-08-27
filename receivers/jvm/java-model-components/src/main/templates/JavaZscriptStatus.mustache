@@ -1,0 +1,44 @@
+package {{additional.package-elements}};
+
+import java.nio.charset.*;
+import java.util.*;
+import java.util.stream.*;
+
+import javax.annotation.processing.Generated;
+
+/**
+ * Constants generated from the Status intrinsics.
+ * <p>
+ * Status code values are significant:
+ * <dl>
+ *   <dt>00</dt><dd>Success</dd>
+ *   <dt>01-0f</dt><dd>Failure (allows ORELSE logic)</dd>
+ *   <dt>0f-ff</dt><dd>Error (unexpected, or not immediately recoverable)</dd>
+ * </dl>
+ */
+@Generated(value = "JavaZscriptStatus.mustache",
+           date = "{{timeNow}}",
+           comments = "Zscript Response Status list, using {{additional.context-source}}")
+public class ZscriptStatus {
+    /**
+     * If these bits are set in a status code, then it's a
+     */
+    public static final int BITMASK_ERROR = ~0xf;
+
+{{#status}}
+    /** {{meaning}} */
+    public static final byte {{code}} = (byte) 0x{{#toHex}}{{id}}{{/toHex}};
+
+{{/status}}
+    public static boolean isSuccess(final int code) {
+        return code == SUCCESS;
+    }
+
+    public static boolean isError(final int code) {
+        return (code & BITMASK_ERROR) != 0;
+    }
+
+    public static boolean isFailure(final int code) {
+        return (code & BITMASK_ERROR) == 0 && code != SUCCESS;
+    }
+}

@@ -70,7 +70,7 @@ class EchoCommandTest {
                 of("Z1AS13\n", "!AS13\n"),
                 of("Z1AS13 | Z1\n", "!AS13\n"),
 
-                of("Z1A1A2\n", "!S43\n"), // TODO verify this is standard, or whether we just pick first one
+                of("Z1A1A2\n", "!S40\n"), // TODO verify this is standard, or whether we just pick first one
                 of("Z1+12+34\n", "!+12+34S\n"),
                 of("Z1+12\"ab\"+34\n", "!+12\"ab\"+34S\n")
 

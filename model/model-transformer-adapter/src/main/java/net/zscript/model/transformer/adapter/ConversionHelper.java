@@ -12,9 +12,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unused")
 public final class ConversionHelper {
     private final Map<String, Object> additional = new HashMap<>();
 
@@ -23,11 +23,11 @@ public final class ConversionHelper {
     }
 
     public Function<String, String> toUpper() {
-        return s -> s.toUpperCase();
+        return String::toUpperCase;
     }
 
     public Function<String, String> toLower() {
-        return s -> s.toLowerCase();
+        return String::toLowerCase;
     }
 
     /**
@@ -63,5 +63,9 @@ public final class ConversionHelper {
 
     public Function<String, String> timeNow() {
         return s -> DateTimeFormatter.ISO_INSTANT.format(Instant.now());
+    }
+
+    public Function<String, String> toHex() {
+        return s -> Integer.toHexString(Integer.parseInt(s));
     }
 }

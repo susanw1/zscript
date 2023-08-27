@@ -6,9 +6,6 @@ import java.util.stream.*;
 
 import javax.annotation.processing.Generated;
 
-//import net.zscript.javaclient.commandbuilder.*;
-//import net.zscript.javareceiver.tokenizer.*;
-
 /**
  * Constants generated from the Zchars intrinsics.
  *
@@ -38,17 +35,14 @@ public class Zchars {
 
     public static boolean isNonNumerical(byte b) {
         return false{{#zchars}}{{#nonNumeric}} || b == '{{{chEscapedAsC}}}'{{/nonNumeric}}{{/zchars}};
-//    return b == Z_LOCKS || b == Z_BIGFIELD_HEX || b == Z_COMMENT || b == Z_BIGFIELD_QUOTED;
     }
 
     public static boolean isBigField(byte b) {
         return false{{#zchars}}{{#bigField}} || b == '{{{chEscapedAsC}}}'{{/bigField}}{{/zchars}};
-//    return b == Z_BIGFIELD_HEX || b == Z_BIGFIELD_QUOTED;
     }
 
     public static boolean mustStringEscape(byte b) {
         return false{{#zchars}}{{#mustEscape}} || b == '{{{chEscapedAsC}}}'{{/mustEscape}}{{/zchars}};
-//        return b == Z_BIGFIELD_QUOTED || b == Z_NEWLINE || b == Z_STRING_ESCAPE || b == '\0';
     }
 
     public static boolean isNumericKey(byte b) {
@@ -64,7 +58,7 @@ public class Zchars {
         return b >= 0x20 && parseHex(b) == PARSE_NOT_HEX_0X10;
     }
 
-    static final int PARSE_NOT_HEX_0X10 = 0x10;
+    public static final int PARSE_NOT_HEX_0X10 = 0x10;
 
     public static byte parseHex(byte b) {
         if (b >= '0' && b <= '9') {

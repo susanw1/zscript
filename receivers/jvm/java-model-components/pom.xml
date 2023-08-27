@@ -36,23 +36,38 @@
                 </dependencies>
 
                 <configuration>
-                    <templates>
-                        <directory>${project.basedir}/src/main/templates</directory>
-                        <includes>**/JavaZchars.mustache</includes>
-                    </templates>
                     <outputDirectory>${project.build.directory}/generated-sources/zscript</outputDirectory>
                     <transformMapperClass>net.zscript.model.transformer.adapter.ZscriptModuleTransformerPluginMapper</transformMapperClass>
                 </configuration>
 
                 <executions>
                     <execution>
-                        <id>transformer-default</id>
+                        <id>transformer-zchars</id>
                         <goals>
                             <goal>transform</goal>
                         </goals>
                         <configuration>
+                            <templates>
+                                <directory>${project.basedir}/src/main/templates</directory>
+                                <includes>JavaZchars.mustache</includes>
+                            </templates>
                             <contexts>
                                 <includes>zchars-list.yaml</includes>
+                            </contexts>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>transformer-zstatus</id>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                        <configuration>
+                            <templates>
+                                <directory>${project.basedir}/src/main/templates</directory>
+                                <includes>JavaZscriptStatus.mustache</includes>
+                            </templates>
+                            <contexts>
+                                <includes>zstatus-list.yaml</includes>
                             </contexts>
                         </configuration>
                     </execution>
