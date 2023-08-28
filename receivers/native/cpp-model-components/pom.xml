@@ -138,7 +138,7 @@
                     </libraries>
                     <tests>
                         <test>
-                            <name>ZscriptConstantsTest</name>
+                            <name>ZscriptGeneratedCodeTest</name>
                             <link>static</link>
                             <run>true</run>
                         </test>

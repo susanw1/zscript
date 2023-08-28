@@ -22,31 +22,34 @@ namespace Zscript {
 namespace {{#lowerUnderscore}}{{moduleName}}{{/lowerUnderscore}}_module {
 
 {{#commands}}
+/**
+ * {{description}}
+ */
 namespace cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}} {
     {{#requestFields}}
         {{#typeDefinition}}
             {{#enumType}}
-    /** Enum: {{description}} */
+    /** Enum ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
     constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/enumType}}
             {{#numberType}}
-    /** Number: {{description}} */
+    /** Number ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
     constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/numberType}}
             {{#bitsetType}}
-    /** Bitset: {{description}} */
+    /** Bitset ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
     constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/bitsetType}}
             {{#flagType}}
-    /** Flag: {{description}} */
+    /** Flag ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
     constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/flagType}}
             {{#textType}}
-    /** Text: {{description}} */
+    /** Text ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
     constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__Txt = '{{key}}';
             {{/textType}}
             {{#bytesType}}
-    /** Text: {{description}} */
+    /** Bytes ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
     constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__Bytes = '{{key}}';
             {{/bytesType}}
         {{/typeDefinition}}
@@ -55,32 +58,35 @@ namespace cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}} {
     {{#responseFields}}
             {{#typeDefinition}}
             {{#enumType}}
-    /** Enum: {{description}} */
+    /** Enum ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
     constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/enumType}}
             {{#numberType}}
-    /** Number: {{description}} */
+    /** Number ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
     constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/numberType}}
             {{#bitsetType}}
-    /** Bitset: {{description}} */
+    /** Bitset ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
     constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/bitsetType}}
             {{#flagType}}
-    /** Flag: {{description}} */
+    /** Flag ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
     constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/flagType}}
-
+            {{#textType}}
+    /** Text ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
+    constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__Txt = '{{key}}';
+            {{/textType}}
+            {{#bytesType}}
+    /** Bytes ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
+    constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__Bytes = '{{key}}';
+            {{/bytesType}}
         {{/typeDefinition}}
     {{/responseFields}}
-}
+}   // cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}}
 
 {{/commands}}
 
-
-}
-}
-
-
-}
+} // {{#lowerUnderscore}}{{moduleName}}{{/lowerUnderscore}}_module
+} // Zscript
 #endif /* SRC_MAIN_C___ZSCRIPT_KEYS_{{#upperUnderscore}}{{moduleName}}{{/upperUnderscore}}_HPP_ */
