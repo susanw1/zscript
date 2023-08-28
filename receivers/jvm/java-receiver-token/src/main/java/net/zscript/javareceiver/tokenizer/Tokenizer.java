@@ -1,6 +1,7 @@
 package net.zscript.javareceiver.tokenizer;
 
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
+import net.zscript.model.components.Zchars;
 
 /**
  * General Tokenizer for handling a stream of incoming Zscript bytes. Responsibilities:
@@ -36,8 +37,6 @@ import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
  * should be called to mark the sequence as OVERRUN.
  *
  * If an incoming single command is too long for the buffer, then it will become OVERRUN no matter what.
- *
- * @param b the new byte of zscript input
  */
 public class Tokenizer {
     public static final byte ADDRESSING_FIELD_KEY = (byte) 0x80;
@@ -152,12 +151,12 @@ public class Tokenizer {
         }
 
         // TODO: Hysteresis on bufferOvr - review this approach given we're rewinding current token on failure marker
-//        if (bufferOvr) {
-//            if (!writer.checkAvailableCapacity(10)) {
-//                return;
-//            }
-//            bufferOvr = false;
-//        }
+        //        if (bufferOvr) {
+        //            if (!writer.checkAvailableCapacity(10)) {
+        //                return;
+        //            }
+        //            bufferOvr = false;
+        //        }
 
         if (writer.isTokenComplete()) {
             startNewToken(b);
@@ -300,7 +299,6 @@ public class Tokenizer {
             isText = true;
             isNormalString = true;
             escapingCount = 0;
-            return;
         }
     }
 }

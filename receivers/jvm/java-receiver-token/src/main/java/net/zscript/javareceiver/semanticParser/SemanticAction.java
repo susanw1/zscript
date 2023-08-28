@@ -8,7 +8,7 @@ import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.execution.ZscriptAction;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
-import net.zscript.javareceiver.tokenizer.Zchars;
+import net.zscript.model.components.Zchars;
 
 public class SemanticAction implements ZscriptAction {
     enum ActionType {

@@ -6,6 +6,7 @@ import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.model.components.Zchars;
 import net.zscript.util.OptIterator;
 
 public class ZscriptTokenExpression implements ZscriptExpression {
@@ -16,7 +17,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
     }
 
     public OptIterator<ReadToken> iteratorToMarker() {
-        return new OptIterator<ReadToken>() {
+        return new OptIterator<>() {
             final OptIterator<ReadToken> internal = tokenIteratorSupplier.get();
 
             @Override
@@ -30,7 +31,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
     public OptionalInt getField(byte f) {
         return iteratorToMarker().stream()
                 .filter(tok -> tok.getKey() == f)
-                .mapToInt(tok -> tok.getData16())
+                .mapToInt(ReadToken::getData16)
                 .findFirst();
     }
 
@@ -51,7 +52,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
     public int getBigFieldSize() {
         return iteratorToMarker().stream()
                 .filter(tok -> Zchars.isBigField(tok.getKey()))
-                .mapToInt(tok -> tok.getDataSize())
+                .mapToInt(ReadToken::getDataSize)
                 .sum();
 
     }
@@ -59,7 +60,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
     @Override
     public BlockIterator getBigField() {
         return new BlockIterator() {
-            OptIterator<ReadToken> it = iteratorToMarker();
+            final OptIterator<ReadToken> it = iteratorToMarker();
 
             BlockIterator internal = null;
 

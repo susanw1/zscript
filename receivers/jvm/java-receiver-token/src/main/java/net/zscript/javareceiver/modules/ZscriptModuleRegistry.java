@@ -6,11 +6,11 @@ import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.execution.NotificationContext;
-import net.zscript.javareceiver.tokenizer.Zchars;
+import net.zscript.model.components.Zchars;
 
 public class ZscriptModuleRegistry {
-    private static final int      MAX_SYSTEM_CMD = 0xF;
-    private final ZscriptModule[] modules        = new ZscriptModule[0x1000];
+    private static final int             MAX_SYSTEM_CMD = 0xF;
+    private final        ZscriptModule[] modules        = new ZscriptModule[0x1000];
 
     public void addModule(ZscriptModule m) {
         if (modules[m.getModuleID()] != null) {

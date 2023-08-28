@@ -3,6 +3,8 @@ package net.zscript.javareceiver.tokenizer;
 import java.util.Iterator;
 import java.util.OptionalInt;
 
+import net.zscript.model.components.Zchars;
+
 public interface ZscriptExpression {
     OptionalInt getField(byte f);
 
@@ -29,7 +31,7 @@ public interface ZscriptExpression {
     default byte[] getBigFieldData() {
         byte[] data = new byte[getBigFieldSize()];
         int    i    = 0;
-        for (Iterator<Byte> iterator = getBigField(); iterator.hasNext();) {
+        for (Iterator<Byte> iterator = getBigField(); iterator.hasNext(); ) {
             data[i++] = iterator.next();
         }
         return data;

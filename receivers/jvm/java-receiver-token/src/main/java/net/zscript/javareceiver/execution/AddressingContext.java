@@ -10,7 +10,7 @@ import net.zscript.javareceiver.semanticParser.ContextView;
 import net.zscript.javareceiver.tokenizer.BlockIterator;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
-import net.zscript.javareceiver.tokenizer.Zchars;
+import net.zscript.model.components.Zchars;
 import net.zscript.util.OptIterator;
 
 public class AddressingContext extends AbstractContext {
@@ -33,12 +33,12 @@ public class AddressingContext extends AbstractContext {
     }
 
     public OptIterator<Integer> getAddressSegments() {
-        return new OptIterator<Integer>() {
-            OptIterator<ReadToken> internal = contextView.getReader().iterator();
+        return new OptIterator<>() {
+            final OptIterator<ReadToken> internal = contextView.getReader().iterator();
 
             @Override
             public Optional<Integer> next() {
-                return internal.next().filter(rt -> rt.getKey() == Zchars.Z_ADDRESSING || rt.getKey() == Zchars.Z_ADDRESSING_CONTINUE).map(rt -> rt.getData16());
+                return internal.next().filter(rt -> rt.getKey() == Zchars.Z_ADDRESSING || rt.getKey() == Zchars.Z_ADDRESSING_CONTINUE).map(ReadToken::getData16);
             }
         };
     }

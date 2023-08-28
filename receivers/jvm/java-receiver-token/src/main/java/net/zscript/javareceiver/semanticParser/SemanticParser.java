@@ -14,14 +14,14 @@ import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.javareceiver.tokenizer.TokenBufferFlags;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
-import net.zscript.javareceiver.tokenizer.Zchars;
+import net.zscript.model.components.Zchars;
 
 public class SemanticParser implements ParseState, ContextView {
     // 6 bytes + 1 pointer
 
     private final TokenReader   reader;
     private final ActionFactory actionFactory;
-    private byte                channelIndex;
+    private       byte          channelIndex;
 
     private class MarkerCache {
         private byte    nextMarker       = 0;    // 5 bit really
@@ -57,15 +57,14 @@ public class SemanticParser implements ParseState, ContextView {
 
         /**
          * Scans the reader for the next Marker (or sequence-end Marker). If {@code flush} is set, then all tokens prior to the one returned are flushed.
-         *
+         * <p/>
          * Also, in all circumstances, it ensures that the Marker cache values {@link #haveSeqEndMarker}/{@link #seqEndMarker} and {@link #haveNextMarker}/{@link #nextMarker} are
          * all correct and up-to-date.
-         *
+         * <p/>
          * If buffer's reader is pointing at a matching Marker already, it just returns that Marker (flush has no effect).
          *
          * @param seekSeqEnd if true, seeks the sequence-end marker, otherwise just seeks any marker
          * @param flush      enables flushing of tokens (up to, but not including the Marker), otherwise buffer is unchanged
-         *
          * @return the Marker token that was found, or empty if none
          */
         private Optional<ReadToken> seekMarker(final boolean seekSeqEnd, final boolean flush) {
@@ -356,7 +355,7 @@ public class SemanticParser implements ParseState, ContextView {
         switch (type) {
         case END_SEQUENCE:
             resetToSequence();
-//            seekMarker(true, false); // Might not be necessary?
+            //            seekMarker(true, false); // Might not be necessary?
             break;
         case ERROR:
             if (markerCache.skipSequence()) {
@@ -386,19 +385,19 @@ public class SemanticParser implements ParseState, ContextView {
     /**
      * Handles cases COMMAND_COMPLETE, COMMAND_FAILED, COMMAND_SKIP with the following logical operator, and decides how to proceed. This method does not interact with the token
      * buffer, but generates the new State/Action based on the current state and the Marker just before this command.
-     *
+     * <p/>
      * COMMAND_COMPLETE tells us to skip ORELSE cmds; COMMAND_FAILED tells us to skip ANDTHEN cmds; COMMAND_SKIP skips both (ie ends parenthesized groups).
-     *
+     * <p/>
      * Note: parens do two things:
-     *
+     * <p/>
      * 1) in a COMMAND_SKIP state, a ')' exits that state and runs the next command; a '(' neutralizes the matching ')'. This means on encountering an ORELSE inside parens
      * containing succeeding commands, we skip to the ')', whereas if the cmds before the ORELSE failed, we still end up running the cmds after it.
-     *
+     * <p/>
      * 2) in a COMMAND_FAILED state, a '(' neutralizes any ORELSE until the matching ')'. This means a '(...)' acts as a single skipped item when we're skipping due to earlier cmd
      * failure - if we enter in a COMMAND_FAILED state, we need to exit in that state without executing the contents.
-     *
+     * <p/>
      * Net result is that grouped commands act as an atomic unit, being skipped as a group.
-     *
+     * <p/>
      * The parenCounter is interesting: The only way to reach the COMMAND_SKIP state is "successful cmd followed by ORELSE". The only way to reach the COMMAND_FAILED state is
      * "unsuccessful cmd". This means you can't switch from COMMAND_FAILED to COMMAND_SKIP (or vice versa) without running a command in between! And thus the parenCounter is very
      * "local"
@@ -488,11 +487,11 @@ public class SemanticParser implements ParseState, ContextView {
 
     /**
      * Captures the initial fields - ECHO and LOCKS - at the beginning of a sequence, with lots of error checking. Also detects and error-checks COMMENT sequences.
-     *
+     * <p/>
      * Buffer ends up pointing at first token after ECHO/LOCK.
-     *
+     * <p/>
      * Presumes 'nextMarker' is up-to-date.
-     *
+     * <p/>
      * Leaves the parser in: ERROR_*, SEQUENCE_SKIP (for comments), or PRESEQUENCE (implying no error, normal sequence)
      */
     private void parseSequenceLevel() {
@@ -653,8 +652,8 @@ public class SemanticParser implements ParseState, ContextView {
             state = b ? State.COMMAND_COMPLETE : State.COMMAND_INCOMPLETE;
             break;
         case COMMAND_FAILED:
-//            state = errorState(OTHER_ERROR);// ?? should we do this? What error?
-//            break;
+            //            state = errorState(OTHER_ERROR);// ?? should we do this? What error?
+            //            break;
         default:
             throw new IllegalStateException("Invalid state transition");
         }
@@ -719,21 +718,18 @@ public class SemanticParser implements ParseState, ContextView {
 
     @Override
     public AsyncActionNotifier getAsyncActionNotifier() {
-        return new AsyncActionNotifier() {
-            @Override
-            public void notifyNeedsAction() {
-                switch (state) {
-                case ADDRESSING_INCOMPLETE:
-                case ADDRESSING_NEEDS_ACTION:
-                    state = State.ADDRESSING_NEEDS_ACTION;
-                    break;
-                case COMMAND_INCOMPLETE:
-                case COMMAND_NEEDS_ACTION:
-                    state = State.COMMAND_NEEDS_ACTION;
-                    break;
-                default:
-                    throw new IllegalStateException("Invalid state transition");
-                }
+        return () -> {
+            switch (state) {
+            case ADDRESSING_INCOMPLETE:
+            case ADDRESSING_NEEDS_ACTION:
+                state = State.ADDRESSING_NEEDS_ACTION;
+                break;
+            case COMMAND_INCOMPLETE:
+            case COMMAND_NEEDS_ACTION:
+                state = State.COMMAND_NEEDS_ACTION;
+                break;
+            default:
+                throw new IllegalStateException("Invalid state transition");
             }
         };
     }

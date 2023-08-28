@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import net.zscript.javareceiver.tokenizer.Zchars;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.model.components.Zchars;
 
 public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     private static final int BIGFIELD_REQD_OFFSET = 26;
@@ -23,7 +23,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     private final List<ZscriptResponseListener<T>> listeners      = new ArrayList<>();
     private final List<BigField>                   bigFields      = new ArrayList<>();
     private final Map<Byte, Integer>               fields         = new HashMap<>();
-    private final BitSet                           requiredFields = new BitSet();;
+    private final BitSet                           requiredFields = new BitSet();
 
     public class ZscriptBuiltCommand extends ZscriptCommand {
 
@@ -81,7 +81,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
     }
 
-    private class BigField {
+    private static class BigField {
         private final byte[]  data;
         private final boolean isString;
 
