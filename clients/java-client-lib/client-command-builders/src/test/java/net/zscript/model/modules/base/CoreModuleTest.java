@@ -1,4 +1,4 @@
-package net.zscript.client.modules.base;
+package net.zscript.model.modules.base;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

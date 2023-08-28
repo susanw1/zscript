@@ -1,4 +1,4 @@
-package net.zscript.client.modules.testing.test;
+package net.zscript.model.modules.testing.test;
 
 import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestE.Lion;
 import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestE.Tabby;
@@ -46,24 +46,24 @@ public class JavaCommandBuilderBuildTest {
         assertThatThrownBy(() -> TestingModule.testCommand0()
                 .enumReqTestA(2)
                 .build())
-                        .isInstanceOf(ZscriptMissingFieldException.class)
-                        .hasMessage("missingKeys='C','E'");
+                .isInstanceOf(ZscriptMissingFieldException.class)
+                .hasMessage("missingKeys='C','E'");
     }
 
     @Test
     void shouldFailToCreateCommandWithOutOfRangeEnumField() {
         assertThatThrownBy(() -> TestingModule.testCommand0()
                 .enumReqTestA(3))
-                        .isInstanceOf(ZscriptFieldOutOfRangeException.class)
-                        .hasMessage("name=EnumReqTestA, key='A', value=0x3, min=0x0, max=0x2");
+                .isInstanceOf(ZscriptFieldOutOfRangeException.class)
+                .hasMessage("name=EnumReqTestA, key='A', value=0x3, min=0x0, max=0x2");
     }
 
     @Test
     void shouldFailToCreateCommandWithOutOfRangeBitsetField() {
         assertThatThrownBy(() -> TestingModule.testCommand0()
                 .bitsetReqTestE(8))
-                        .isInstanceOf(ZscriptFieldOutOfRangeException.class)
-                        .hasMessage("name=BitsetReqTestE, key='E', value=0x8, min=0x0, max=0x7");
+                .isInstanceOf(ZscriptFieldOutOfRangeException.class)
+                .hasMessage("name=BitsetReqTestE, key='E', value=0x8, min=0x0, max=0x7");
     }
 
     @Test

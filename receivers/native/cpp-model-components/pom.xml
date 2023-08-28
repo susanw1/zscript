@@ -10,7 +10,12 @@
     </parent>
 
     <artifactId>zscript-cpp-model-components</artifactId>
+    <packaging>nar</packaging>
     <name>C++ Model Components (Generated)</name>
+
+    <properties>
+        <generated-code-path>${project.build.directory}/generated-sources/zscript/c++</generated-code-path>
+    </properties>
 
     <build>
         <plugins>
@@ -38,7 +43,7 @@
                 </dependencies>
 
                 <configuration>
-                    <outputDirectory>${project.build.directory}/generated-sources/zscript/cpp</outputDirectory>
+                    <outputDirectory>${generated-code-path}</outputDirectory>
                     <transformMapperClass>net.zscript.model.transformer.adapter.ZscriptModuleTransformerPluginMapper</transformMapperClass>
                     <fileTypeSuffix>hpp</fileTypeSuffix>
                 </configuration>
@@ -91,6 +96,54 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.maven-nar</groupId>
+                <artifactId>nar-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <cpp>
+                        <name>gcc</name>
+                        <debug>true</debug>
+                        <includePaths>
+                            <includePath>
+                                <path>${generated-code-path}</path>
+                                <includes>**/*.hpp</includes>
+                            </includePath>
+                        </includePaths>
+                        <options>
+                            <option>-flto</option>
+                            <option>-g</option>
+                            <option>-Wall</option>
+                            <option>-fno-exceptions</option>
+                            <option>-Wextra</option>
+                            <option>-m32</option>
+                        </options>
+                        <testOptions>
+                            <testOption>-fexceptions</testOption>
+                            <testOption>-m32</testOption>
+                        </testOptions>
+                    </cpp>
+                    <linker>
+                        <name>g++</name>
+                        <options>
+                            <option>-m32</option>
+                        </options>
+                    </linker>
+                    <libraries>
+                        <library>
+                            <type>static</type>
+                        </library>
+                    </libraries>
+                    <tests>
+                        <test>
+                            <name>ZscriptConstantsTest</name>
+                            <link>static</link>
+                            <run>true</run>
+                        </test>
+                    </tests>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -1,4 +1,4 @@
-package net.zscript.client.modules.testing.test;
+package net.zscript.model.modules.testing.test;
 
 import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.TestCommand0CommandResponse.BitsetRespTestU.Lion;
 import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.TestCommand0CommandResponse.BitsetRespTestU.Tabby;

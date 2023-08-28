@@ -2,11 +2,6 @@ name: Core
 id: 0
 version: 0.0.1
 description: Provides core system commands which can be executed without device activation
-package:
-- net
-- zscript
-- client
-- modules
 commands:
 -   name: capabilities
     command: 0
