@@ -9,7 +9,7 @@ package:
 - modules
 - test
 commands:
--   name: testCommand1
+-   name: testCommand0
     command: 0
     description: Description A
     operation: get
@@ -62,7 +62,7 @@ commands:
     -   key: F
         name: bitsetReqTestF
         description: a optional test field with bitset
-        typeDefinition:    &id001
+        typeDefinition: &id001
             '@type': bitset
             bits:
             -   name: Cheddar
@@ -85,14 +85,14 @@ commands:
         required: yes
     -   key: Q
         name: enumRespTestQ
-        description: an test response field with optional enum
+        description: a test response field with optional enum
         typeDefinition:
             '@type': enum
             values:
             - Elephant
             - Goat
             - Monkey
-        required: yes
+        required: no
     -   key: R
         name: numberRespTestR
         description: a required test response field with number
@@ -100,13 +100,13 @@ commands:
             '@type': number
         required: yes
     -   key: T
-        name: numberReqTestT
-        description: an test response field with optional number
+        name: numberRespTestT
+        description: a test response field with optional number
         typeDefinition:
             '@type': number
         required: no
     -   key: U
-        name: bitsetReqTestU
+        name: bitsetRespTestU
         description: a required test response field with bitset
         typeDefinition:
             '@type': bitset
@@ -119,8 +119,83 @@ commands:
                 description: small feline
         required: yes
     -   key: V
-        name: bitsetReqTestV
-        description: an test response field with optional bitset
+        name: bitsetRespTestV
+        description: a test response field with optional bitset
         typeDefinition: *id001
         required: no
 
+-   name: testCommand1
+    command: 1
+    description: Bigfield request and response required text
+    operation: get
+    requestFields:
+    -   key: +
+        name: textReqTestA
+        description: a required test bigfield text
+        typeDefinition:
+            '@type': text
+        required: yes
+    responseFields:
+    -   key: +
+        name: textRespTestP
+        description: a required test bigfield text
+        typeDefinition:
+            '@type': text
+        required: yes
+
+-   name: testCommand2
+    command: 2
+    description: Bigfield request and response required bytes
+    operation: get
+    requestFields:
+    -   key: +
+        name: textReqTestA
+        description: a required test bigfield bytes
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    responseFields:
+    -   key: +
+        name: textRespTestA
+        description: a required test bigfield bytes
+        typeDefinition:
+            '@type': bytes
+        required: yes
+
+-   name: testCommand3
+    command: 3
+    description: Bigfield request and response optional text
+    operation: get
+    requestFields:
+    -   key: +
+        name: textReqTestA
+        description: a optional test bigfield text
+        typeDefinition:
+            '@type': text
+        required: no
+    responseFields:
+    -   key: +
+        name: textRespTestP
+        description: a optional test bigfield text
+        typeDefinition:
+            '@type': text
+        required: no
+
+-   name: testCommand4
+    command: 4
+    description: Bigfield request and response optional bytes
+    operation: get
+    requestFields:
+    -   key: +
+        name: textReqTestA
+        description: a optional test bigfield bytes
+        typeDefinition:
+            '@type': bytes
+        required: no
+    responseFields:
+    -   key: +
+        name: textRespTestA
+        description: a optional test bigfield bytes
+        typeDefinition:
+            '@type': bytes
+        required: no

@@ -1,6 +1,7 @@
 package net.zscript.javareceiver.tokenizer;
 
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
+import net.zscript.model.components.Zchars;
 
 /**
  * General Tokenizer for handling a stream of incoming Zscript bytes. Responsibilities:
@@ -22,22 +23,20 @@ import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
  *
  * If an channel is feeding unbuffered chars into the tokenizer, then running out of tokenizer buffer is fatal to the current sequence: chars are doomed to be dropped. This might
  * reflect an I2C input being read in an interrupt handler, and if the current char can't be accepted, then there's nowhere else to store it.
- *
+ * <p/>
  * In this case, the channel should call {@link #accept(byte)}, which will create the token or write an OVERRUN marker. Consequently, we must mark the buffer as OVERRUN at that
  * point, so that the executor gets signalled asap to stop executing commands in the sequence and to flag the error.
- *
+ * <p/>
  * <h4>Buffered</h4>
- *
+ * <p/>
  * If a buffered channel is feeding chars in, then it needs to be able to tell (up front) when its char won't fit, so it can avoid taking the char from its buffer and perhaps wait
  * for some command processing to happen. This might reflect a UDP channel or a hardware buffered serial port, where the input chars are happy where they are for now. Once some
  * commands in a sequence have been processed, there may be more room.
- *
+ * <p/>
  * Even in the buffered channel case, there may come a point where either the channel's data *must* be flushed before it was able to be presented, in which case {@link #dataLost()}
  * should be called to mark the sequence as OVERRUN.
- *
+ * <p/>
  * If an incoming single command is too long for the buffer, then it will become OVERRUN no matter what.
- *
- * @param b the new byte of zscript input
  */
 public class Tokenizer {
     public static final byte ADDRESSING_FIELD_KEY = (byte) 0x80;
@@ -152,12 +151,12 @@ public class Tokenizer {
         }
 
         // TODO: Hysteresis on bufferOvr - review this approach given we're rewinding current token on failure marker
-//        if (bufferOvr) {
-//            if (!writer.checkAvailableCapacity(10)) {
-//                return;
-//            }
-//            bufferOvr = false;
-//        }
+        //        if (bufferOvr) {
+        //            if (!writer.checkAvailableCapacity(10)) {
+        //                return;
+        //            }
+        //            bufferOvr = false;
+        //        }
 
         if (writer.isTokenComplete()) {
             startNewToken(b);
@@ -300,7 +299,6 @@ public class Tokenizer {
             isText = true;
             isNormalString = true;
             escapingCount = 0;
-            return;
         }
     }
 }

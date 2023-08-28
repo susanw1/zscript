@@ -8,7 +8,7 @@ commands:
     command: 0
     description: I2C capabilities
     operation: get
-    requestFields: []
+    requestFields: [ ]
     responseFields:
     -   key: C
         name: commandsSet
@@ -51,15 +51,15 @@ commands:
         description: a set of more specific capabilities of the module
         typeDefinition:
             '@type': bitset
-            bits: 
-                - name: lowSpeedSupported
-                  description: whether the device supports a frequency in the range 1kHz-10kHz, as a noise resistant mode
-                - name: busFree
-                  description: whether the device supports freeing from a bus lockup (due to a missed SCL pulse)
-                - name: smBusAddressResolution
-                  description: whether the device supports resolving I2C addresses associated with alerts
+            bits:
+            -   name: lowSpeedSupported
+                description: whether the device supports a frequency in the range 1kHz-10kHz, as a noise resistant mode
+            -   name: busFree
+                description: whether the device supports freeing from a bus lockup (due to a missed SCL pulse)
+            -   name: smBusAddressResolution
+                description: whether the device supports resolving I2C addresses associated with alerts
         required: yes
-    status: []
+    status: [ ]
 
 -   name: i2cSetup
     command: 1
@@ -312,4 +312,3 @@ commands:
         meaning: write failed in benign way
     -   code: CMD_ERROR
         meaning: write failed in bad way - serious error
-        

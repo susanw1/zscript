@@ -14,11 +14,12 @@ public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCa
 
     private int infoType = USER_FIRMWARE;
 
-    public class DemoCapabilitiesCommandResponse implements ZscriptResponse {
+    public class DemoCapabilitiesCommandResponse extends ValidatingResponse {
         private final int    version;
         private final String name;
 
-        public DemoCapabilitiesCommandResponse(int version, String name) {
+        public DemoCapabilitiesCommandResponse(ZscriptExpression resp, byte[] bs, int version, String name) {
+            super(resp, bs);
             this.version = version;
             this.name = name;
         }
@@ -48,7 +49,7 @@ public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCa
 
     @Override
     protected DemoCapabilitiesCommandResponse parseResponse(ZscriptExpression resp) {
-        return new DemoCapabilitiesCommandResponse(resp.getField('V').getAsInt(), new String(resp.getBigFieldData(), ISO_8859_1));
+        return new DemoCapabilitiesCommandResponse(resp, new byte[] {}, resp.getField('V').getAsInt(), new String(resp.getBigFieldData(), ISO_8859_1));
     }
 
     @Override

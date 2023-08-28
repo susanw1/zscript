@@ -1,17 +1,21 @@
 package net.zscript.javaclient.commandbuilder;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import net.zscript.javareceiver.tokenizer.Zchars;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.model.components.Zchars;
 
 public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     private static final int BIGFIELD_REQD_OFFSET = 26;
@@ -19,7 +23,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     private final List<ZscriptResponseListener<T>> listeners      = new ArrayList<>();
     private final List<BigField>                   bigFields      = new ArrayList<>();
     private final Map<Byte, Integer>               fields         = new HashMap<>();
-    private final BitSet                           requiredFields = new BitSet();;
+    private final BitSet                           requiredFields = new BitSet();
 
     public class ZscriptBuiltCommand extends ZscriptCommand {
 
@@ -77,7 +81,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
     }
 
-    private class BigField {
+    private static class BigField {
         private final byte[]  data;
         private final boolean isString;
 
@@ -208,6 +212,34 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
     }
 
+    /**
+     * Checks that the supplied number can index the supplied Enum type, and throws a ZscriptFieldOutOfRangeException if it isn't.
+     *
+     * @param value     the value to check
+     * @param enumClass the class of the enum to validate against
+     * @param key       the letter key of the field being checked, for error msg purposes
+     * @param isBitset  true if this enum represents a bitset, where values are really powers of 2; false if it's a normal enum
+     * @return the value passed in, for nesting
+     * @throws ZscriptFieldOutOfRangeException if value is out of range
+     */
+    protected static <E extends Enum<E>> int checkInEnumRange(int value, Class<E> enumClass, char key, boolean isBitset) {
+        int max = enumClass.getEnumConstants().length;
+        if (isBitset) {
+            max = 1 << max;
+        }
+        if (value < 0 || value >= max) {
+            throw new ZscriptFieldOutOfRangeException("name=%s, key='%c', value=0x%x, min=0x%x, max=0x%x", enumClass.getSimpleName(), key, value, 0, max - 1);
+        }
+        return value;
+    }
+
+    protected static <E extends Enum<E>> EnumSet<E> bitsetToEnumSet(int bitFields, Class<E> enumClass) {
+        final E[] enumValues = enumClass.getEnumConstants();
+        return BitSet.valueOf(new long[] { bitFields }).stream()
+                .mapToObj(b -> enumValues[b])
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(enumClass)));
+    }
+
     protected abstract T parseResponse(ZscriptExpression resp);
 
     protected abstract boolean commandCanFail();
@@ -230,11 +262,14 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
      * Builds the command.
      *
      * @return the command that has been built
-     * @throws IllegalStateException if builder doesn't yet pass validation
+     * @throws ZscriptMissingFieldException if builder doesn't yet pass validation
      */
     public ZscriptCommand build() {
         if (!isValid()) {
-            throw new IllegalStateException("Required field not set: " + (char) ((requiredFields.nextSetBit(0) + 'A')));
+            String fieldList = requiredFields.stream()
+                    .mapToObj(b -> "'" + (b == BIGFIELD_REQD_OFFSET ? "+" : String.valueOf((char) (b + 'A'))) + "'")
+                    .collect(joining(","));
+            throw new ZscriptMissingFieldException("missingKeys=%s", fieldList);
         }
         return new ZscriptBuiltCommand();
     }

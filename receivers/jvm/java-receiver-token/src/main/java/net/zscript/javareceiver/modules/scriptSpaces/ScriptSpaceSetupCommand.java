@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.OptionalInt;
 
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.scriptSpaces.ScriptSpace;
+import net.zscript.model.components.ZscriptStatus;
 
 public class ScriptSpaceSetupCommand {
     public static void execute(List<ScriptSpace> spaces, CommandContext ctx) {

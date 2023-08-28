@@ -5,10 +5,8 @@ import java.util.Arrays;
 import net.zscript.javareceiver.core.LockSet;
 import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.NotificationContext;
 import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
-import net.zscript.javareceiver.tokenizer.Zchars;
 import net.zscript.javasimulator.BlankCommunicationResponse;
 import net.zscript.javasimulator.CommunicationPacket;
 import net.zscript.javasimulator.CommunicationResponse;
@@ -22,13 +20,16 @@ import net.zscript.javasimulator.connections.i2c.I2cResponse;
 import net.zscript.javasimulator.connections.i2c.SmBusAlertConnection;
 import net.zscript.javasimulator.connections.i2c.SmBusAlertPacket;
 import net.zscript.javasimulator.zcode.SimulatorConsumer;
+import net.zscript.model.components.Zchars;
+import net.zscript.model.components.ZscriptStatus;
 
 public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCategory> {
-    private static final int              CHUNK_LENGTH    = 8;
-    private final ZscriptNotificationSource source          = new ZscriptNotificationSource();
-    private int                           notificationSet = 0;
-    private int                           bitSet          = 0;
-    private int                           addressingSet   = 0;
+    private static final int                       CHUNK_LENGTH = 8;
+    private final        ZscriptNotificationSource source       = new ZscriptNotificationSource();
+
+    private int notificationSet = 0;
+    private int bitSet          = 0;
+    private int addressingSet   = 0;
 
     public ZscriptNotificationSource getNotificationSource() {
         return source;
@@ -50,7 +51,7 @@ public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCate
             }
         }
         generateNotification();
-        return new BlankCommunicationResponse<T>(packet.getProtocolConnectionType());
+        return new BlankCommunicationResponse<>(packet.getProtocolConnectionType());
     }
 
     public void setNotifications(int index, boolean notification) {
@@ -93,10 +94,10 @@ public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCate
     }
 
     public void notification(Entity entity, NotificationContext ctx) {
-        OutStream out = ctx.getOutStream();
-        int i = ctx.getID() & 0xF;
-        boolean isAddressed = ctx.isAddressing();
-        ZscriptCommandOutStream commandOut = out.asCommandOutStream();
+        OutStream               out         = ctx.getOutStream();
+        int                     i           = ctx.getID() & 0xF;
+        boolean                 isAddressed = ctx.isAddressing();
+        ZscriptCommandOutStream commandOut  = out.asCommandOutStream();
         bitSet &= ~(1 << i);
         I2cResponse addrRespTmp = (I2cResponse) entity.getConnection(I2cProtocolCategory.class, i).sendMessage(entity, new I2cReceivePacket(SmBusAlertConnection.ALERT_ADDRESS, 2));
         if (!addrRespTmp.worked()) {
@@ -142,7 +143,7 @@ public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCate
             data = ((I2cReceiveResponse) respTmp).getData();
             int nonNlLen;
             for (nonNlLen = 0; nonNlLen < data.length && data[nonNlLen] != '\n'; nonNlLen++) {
-                ;
+                // just loop
             }
             if (nonNlLen < data.length) {
                 out.writeBytes(Arrays.copyOf(data, nonNlLen));

@@ -3,15 +3,14 @@ package net.zscript.javasimulator.zcode.i2c;
 import java.util.OptionalInt;
 
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javasimulator.connections.i2c.I2cProtocolCategory;
+import net.zscript.model.components.ZscriptStatus;
 
 public class I2cSetupCommand {
 
     public static void execute(CommandContext ctx, I2cModule module) {
-        ZscriptCommandOutStream out     = ctx.getOutStream();
-        OptionalInt           portOpt = ctx.getField((byte) 'P');
+        final OptionalInt portOpt = ctx.getField((byte) 'P');
         if (portOpt.isPresent() && portOpt.getAsInt() >= module.getEntity().countConnection(I2cProtocolCategory.class)) {
             ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
             return;
@@ -21,7 +20,7 @@ public class I2cSetupCommand {
             module.getNotificationHandler().setNotifications(port, ctx.hasField((byte) 'N'));
             module.getNotificationHandler().setAddressing(port, ctx.hasField((byte) 'A'));
         }
-        OptionalInt freqOpt = ctx.getField((byte) 'F');
+        final OptionalInt freqOpt = ctx.getField((byte) 'F');
         if (freqOpt.isPresent()) {
             if (freqOpt.getAsInt() > 3) {
                 ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
@@ -47,6 +46,5 @@ public class I2cSetupCommand {
                 module.setBauds(baud);
             }
         }
-
     }
 }

@@ -1,10 +1,10 @@
 package net.zscript.javareceiver.modules.core;
 
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.modules.ZscriptModule;
 import net.zscript.javareceiver.tokenizer.BlockIterator;
+import net.zscript.model.components.ZscriptStatus;
 
 public class ZscriptCoreModule implements ZscriptModule {
     private final ZscriptCapabilitiesCommand capabilitiesCmd = new ZscriptCapabilitiesCommand();
@@ -51,7 +51,7 @@ public class ZscriptCoreModule implements ZscriptModule {
 
     @Override
     public void address(AddressingContext ctx) {
-        for (BlockIterator iterator = ctx.getAddressedData(); iterator.hasNext();) {
+        for (BlockIterator iterator = ctx.getAddressedData(); iterator.hasNext(); ) {
             byte b = iterator.next();
             System.out.print((char) b);
         }

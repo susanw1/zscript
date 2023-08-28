@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets;
 
 import net.zscript.javareceiver.execution.ZscriptField;
 import net.zscript.javareceiver.tokenizer.BlockIterator;
-import net.zscript.javareceiver.tokenizer.Zchars;
+import net.zscript.model.components.Zchars;
 
 public abstract class AbstractOutStream implements OutStream, ZscriptCommandOutStream {
     /**
@@ -25,7 +25,7 @@ public abstract class AbstractOutStream implements OutStream, ZscriptCommandOutS
      * @param b the byte to convert (ignores top nibble)
      * @return a byte in range '0'-'9' or 'a'-'f'
      */
-    protected static final byte toHexChar(int b) {
+    protected static byte toHexChar(int b) {
         int lowNibble = b & 0xf;
         return (byte) (lowNibble < 10 ? lowNibble + '0' : lowNibble + ('a' - 10));
     }
@@ -105,7 +105,7 @@ public abstract class AbstractOutStream implements OutStream, ZscriptCommandOutS
                 writeCharAsByte('"');
             } else {
                 writeCharAsByte('+');
-                for (BlockIterator iterator = field.iterator(); iterator.hasNext();) {
+                for (BlockIterator iterator = field.iterator(); iterator.hasNext(); ) {
                     byte[] bytes = iterator.nextContiguous();
                     writeBytes(bytes, bytes.length, true);
                 }

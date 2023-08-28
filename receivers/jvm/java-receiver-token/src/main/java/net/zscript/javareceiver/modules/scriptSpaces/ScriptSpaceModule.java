@@ -3,10 +3,10 @@ package net.zscript.javareceiver.modules.scriptSpaces;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.modules.ZscriptModule;
 import net.zscript.javareceiver.scriptSpaces.ScriptSpace;
+import net.zscript.model.components.ZscriptStatus;
 
 public class ScriptSpaceModule implements ZscriptModule {
     private final List<ScriptSpace> spaces = new ArrayList<>();

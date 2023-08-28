@@ -4,10 +4,11 @@ import net.zscript.javaclient.commandbuilder.DemoActivateCommandBuilder.DemoActi
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
 public class DemoActivateCommandBuilder extends ZscriptCommandBuilder<DemoActivateCommandResponse> {
-    public class DemoActivateCommandResponse implements ZscriptResponse {
+    public class DemoActivateCommandResponse extends ValidatingResponse {
         private final boolean alreadyActivated;
 
-        public DemoActivateCommandResponse(boolean alreadyActivated) {
+        public DemoActivateCommandResponse(ZscriptExpression resp, byte[] requiredKeys, boolean alreadyActivated) {
+            super(resp, requiredKeys);
             this.alreadyActivated = alreadyActivated;
         }
 
@@ -22,7 +23,7 @@ public class DemoActivateCommandBuilder extends ZscriptCommandBuilder<DemoActiva
 
     @Override
     protected DemoActivateCommandResponse parseResponse(ZscriptExpression resp) {
-        return new DemoActivateCommandResponse(resp.getField('A').getAsInt() == 1 ? true : false);
+        return new DemoActivateCommandResponse(resp, new byte[] {}, resp.getField('A').getAsInt() == 1 ? true : false);
     }
 
     @Override

@@ -3,8 +3,8 @@ package net.zscript.javareceiver.modules.core;
 import java.util.List;
 
 import net.zscript.javareceiver.core.ZscriptChannel;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
+import net.zscript.model.components.ZscriptStatus;
 
 public class ZscriptChannelInfoCommand {
 

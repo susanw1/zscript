@@ -8,7 +8,7 @@ commands:
     command: 0
     description: ScriptSpace capabilities
     operation: get
-    requestFields: []
+    requestFields: [ ]
     responseFields:
     -   key: C
         name: commandsSet
@@ -22,7 +22,7 @@ commands:
         typeDefinition:
             '@type': number
         required: no
-    status: []
+    status: [ ]
 
 -   name: scriptSpaceSetup
     command: 1
@@ -41,8 +41,8 @@ commands:
         typeDefinition:
             '@type': enum
             values:
-                - running
-                - notRunning
+            - running
+            - notRunning
         required: no
     responseFields:
     -   key: L
@@ -69,7 +69,7 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    status: []
+    status: [ ]
 
 -   name: scriptSpaceWrite
     command: 2
@@ -118,6 +118,5 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    responseFields: []
-    status: []
-    
+    responseFields: [ ]
+    status: [ ]

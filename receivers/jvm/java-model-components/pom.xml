@@ -1,0 +1,79 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-receivers-jvm</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>zscript-java-model-components</artifactId>
+    <name>Java Model Components (Generated)</name>
+
+    <dependencies>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.zscript</groupId>
+                <artifactId>transformer-maven-plugin</artifactId>
+                <version>${project.version}</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>net.zscript</groupId>
+                        <artifactId>zscript-model-transformer-adapter</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.zscript</groupId>
+                        <artifactId>zscript-model-schema</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+
+                <configuration>
+                    <outputDirectory>${project.build.directory}/generated-sources/zscript</outputDirectory>
+                    <transformMapperClass>net.zscript.model.transformer.adapter.ZscriptModuleTransformerPluginMapper</transformMapperClass>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>transformer-zchars</id>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                        <configuration>
+                            <templates>
+                                <directory>${project.basedir}/src/main/templates</directory>
+                                <includes>JavaZchars.mustache</includes>
+                            </templates>
+                            <contexts>
+                                <includes>zchars-list.yaml</includes>
+                            </contexts>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>transformer-zstatus</id>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                        <configuration>
+                            <templates>
+                                <directory>${project.basedir}/src/main/templates</directory>
+                                <includes>JavaZscriptStatus.mustache</includes>
+                            </templates>
+                            <contexts>
+                                <includes>zstatus-list.yaml</includes>
+                            </contexts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

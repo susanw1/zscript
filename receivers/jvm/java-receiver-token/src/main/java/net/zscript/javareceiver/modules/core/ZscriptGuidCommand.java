@@ -4,8 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.UUID;
 
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
+import net.zscript.model.components.ZscriptStatus;
 
 public class ZscriptGuidCommand {
     private UUID uuid = null;
@@ -28,7 +28,7 @@ public class ZscriptGuidCommand {
         } else {
             byte[] data = new byte[16];
             int    i    = 0;
-            for (Iterator<Byte> iterator = ctx.getBigField(); iterator.hasNext();) {
+            for (Iterator<Byte> iterator = ctx.getBigField(); iterator.hasNext(); ) {
                 byte b = iterator.next();
                 data[i++] = b;
             }

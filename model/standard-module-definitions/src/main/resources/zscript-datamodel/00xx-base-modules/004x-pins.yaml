@@ -8,7 +8,7 @@ commands:
     command: 0
     description: pin capabilities
     operation: get
-    requestFields: []
+    requestFields: [ ]
     responseFields:
     -   key: C
         name: commandsSet
@@ -27,15 +27,15 @@ commands:
         description: a set representing which pin controllers are available overall
         typeDefinition:
             '@type': bitset
-            bits: 
-                - name: digital
-                  description: whether the device supports digital pin control
-                - name: AtoD
-                  description: whether the device supports AtoDs on the pins
-                - name: DtoA
-                  description: whether the device supports DtoAs on the pins
+            bits:
+            -   name: digital
+                description: whether the device supports digital pin control
+            -   name: AtoD
+                description: whether the device supports AtoDs on the pins
+            -   name: DtoA
+                description: whether the device supports DtoAs on the pins
         required: yes
-    status: []
+    status: [ ]
 
 -   name: digitalSetup
     command: 1
@@ -69,16 +69,16 @@ commands:
         typeDefinition:
             '@type': bitset
             bits:
-            -     name:    Input
-            -     name:    InputPullUp
-            -     name:    InputPullDown
-            -     name:    Output
-            -     name:    OpenDrain
-            -     name:    OpenDrainPullUp
-            -     name:    OpenDrainPullDown
+            -   name: Input
+            -   name: InputPullUp
+            -   name: InputPullDown
+            -   name: Output
+            -   name: OpenDrain
+            -   name: OpenDrainPullUp
+            -   name: OpenDrainPullDown
         required: no
-    status: []
-    
+    status: [ ]
+
 -   name: digitalWrite
     command: 2
     description: digital pin write
@@ -96,12 +96,12 @@ commands:
         typeDefinition:
             '@type': enum
             values:
-                - low
-                - high
+            - low
+            - high
         required: yes
-    responseFields: []
-    status: []
-    
+    responseFields: [ ]
+    status: [ ]
+
 -   name: digitalRead
     command: 3
     description: digital pin read
@@ -120,8 +120,8 @@ commands:
         typeDefinition:
             '@type': boolean
         required: yes
-    status: []
-    
+    status: [ ]
+
 -   name: aToDSetup
     command: 4
     description: AtoD setup
@@ -140,8 +140,8 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    status: []
-    
+    status: [ ]
+
 -   name: analogRead
     command: 5
     description: analog pin read
@@ -160,8 +160,8 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    status: []
-    
+    status: [ ]
+
 -   name: dToASetup
     command: 6
     description: DtoA setup
@@ -180,8 +180,8 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    status: []
-    
+    status: [ ]
+
 -   name: analogWrite
     command: 7
     description: analog pin write
@@ -195,10 +195,9 @@ commands:
         required: yes
     -   key: V
         name: value
-        description: value to be written, leftshifted to compensate for precision, so that 8000 is always half
+        description: value to be written, left-shifted to compensate for precision, so that 8000 is always half
         typeDefinition:
             '@type': number
         required: yes
-    responseFields: []
-    status: []
-    
+    responseFields: [ ]
+    status: [ ]

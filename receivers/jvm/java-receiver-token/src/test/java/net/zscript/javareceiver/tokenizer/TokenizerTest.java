@@ -10,8 +10,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +18,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.stream.Stream;
+
+import net.zscript.model.components.Zchars;
 
 @ExtendWith(MockitoExtension.class)
 class TokenizerTest {
@@ -42,7 +44,7 @@ class TokenizerTest {
     private static final int CAPACITY_CHECK_LENGTH = 3;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         tokenizer = new Tokenizer(writer, 2);
         when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
     }
@@ -169,7 +171,7 @@ class TokenizerTest {
         int index = 0;
         for (byte c : zscript.getBytes()) {
             tokenizer.accept(c);
-//            System.out.println("c = " + c);
+            //            System.out.println("c = " + c);
             char action = bufferActions.charAt(index * 2);
             byte arg    = (byte) bufferActions.charAt(index * 2 + 1);
             try {
@@ -229,20 +231,20 @@ class TokenizerTest {
     public void shouldFailOnLongNumber() {
         when(writer.getCurrentWriteTokenLength()).thenReturn(0).thenReturn(1).thenReturn(1).thenReturn(2).thenReturn(2).thenThrow(RuntimeException.class);
         when(writer.isInNibble()).thenReturn(true).thenReturn(false).thenThrow(RuntimeException.class);
-        validateZscriptActions("Z12345\n\n", "tZn1n2n3n4f" + (char) Tokenizer.ERROR_CODE_FIELD_TOO_LONG + "--m"+END + "--");
+        validateZscriptActions("Z12345\n\n", "tZn1n2n3n4f" + (char) Tokenizer.ERROR_CODE_FIELD_TOO_LONG + "--m" + END + "--");
     }
 
     @Test
     public void shouldFailOnOddHexString() {
         when(writer.getCurrentWriteTokenKey()).thenReturn(Zchars.Z_BIGFIELD_HEX);
-        when(writer.isInNibble()).thenReturn(false) .thenReturn(true).thenReturn(false).thenReturn(true).thenThrow(RuntimeException.class);
+        when(writer.isInNibble()).thenReturn(false).thenReturn(true).thenReturn(false).thenReturn(true).thenThrow(RuntimeException.class);
         validateZscriptActions("+123A\nB\n", "s+n1n2n3f" + (char) Tokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH + "--tBm" + END + "--");
     }
 
     @Test
     public void shouldFailOnOddHexStringTerminatedByNL() {
         when(writer.getCurrentWriteTokenKey()).thenReturn(Zchars.Z_BIGFIELD_HEX);
-        when(writer.isInNibble()).thenReturn(false) .thenReturn(true).thenReturn(false).thenReturn(true).thenThrow(RuntimeException.class);
+        when(writer.isInNibble()).thenReturn(false).thenReturn(true).thenReturn(false).thenReturn(true).thenThrow(RuntimeException.class);
         validateZscriptActions("+12abc\nA\n", "s+n1n2nanbncf" + (char) Tokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH + "tAm" + END + "--");
     }
 

@@ -107,6 +107,7 @@ public interface ZscriptDataModel {
             @Type(value = TextTypeDefinition.class, name = "text"),
             @Type(value = BytesTypeDefinition.class, name = "bytes"),
             @Type(value = CommandsTypeDefinition.class, name = "commands"),
+            @Type(value = ModulesTypeDefinition.class, name = "modules"),
             @Type(value = AnyTypeDefinition.class, name = "any"),
             @Type(value = CustomTypeDefinition.class, name = "custom"),
     })
@@ -145,15 +146,32 @@ public interface ZscriptDataModel {
         default boolean numberType() {
             return true;
         }
+
+        int getMin();
+
+        int getMax();
     }
 
-    interface BytesTypeDefinition extends TypeDefinition {
+    /**
+     * "abstract" type to represent the common behaviour in the big-field related types.
+     */
+    interface BigfieldTypeDefinition extends TypeDefinition {
+        default boolean bigfieldType() {
+            return true;
+        }
+
+        int getMinLength();
+
+        int getMaxLength();
+    }
+
+    interface BytesTypeDefinition extends BigfieldTypeDefinition {
         default boolean bytesType() {
             return true;
         }
     }
 
-    interface TextTypeDefinition extends TypeDefinition {
+    interface TextTypeDefinition extends BigfieldTypeDefinition {
         default boolean textType() {
             return true;
         }
@@ -167,6 +185,12 @@ public interface ZscriptDataModel {
 
     interface CommandsTypeDefinition extends TypeDefinition {
         default boolean commandsType() {
+            return true;
+        }
+    }
+
+    interface ModulesTypeDefinition extends TypeDefinition {
+        default boolean modulesType() {
             return true;
         }
     }

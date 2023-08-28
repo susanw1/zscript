@@ -3,12 +3,12 @@ package net.zscript.javareceiver.semanticParser;
 import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.execution.ZscriptAction;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
-import net.zscript.javareceiver.tokenizer.Zchars;
+import net.zscript.model.components.Zchars;
+import net.zscript.model.components.ZscriptStatus;
 
 public class SemanticAction implements ZscriptAction {
     enum ActionType {

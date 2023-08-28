@@ -2,11 +2,6 @@ name: Core
 id: 0
 version: 0.0.1
 description: Provides core system commands which can be executed without device activation
-package:
-- net
-- zscript
-- client
-- modules
 commands:
 -   name: capabilities
     command: 0
@@ -34,9 +29,9 @@ commands:
         required: yes
     -   key: M
         name: modulesBankSet
-        description: which modules present in this bank (ie 00xx)
+        description: which modules present in this bank (ie given 00mc, return m)
         typeDefinition:
-            '@type': commands
+            '@type': modules
         required: yes
     -   key: V
         name: version
@@ -50,7 +45,7 @@ commands:
         typeDefinition:
             '@type': text
         required: yes
-    status: []
+    status: [ ]
 
 
 -   name: echo
@@ -130,7 +125,7 @@ commands:
         typeDefinition:
             '@type': number
         required: no
-    responseFields: []
+    responseFields: [ ]
     status:
     -   code: CMD_FAIL
         meaning: reset failed
@@ -140,7 +135,7 @@ commands:
     command: 4
     description: Retrieves the system GUID, if set
     operation: get
-    requestFields: []
+    requestFields: [ ]
     responseFields:
     -   key: +
         name: guid
@@ -196,14 +191,14 @@ commands:
             '@type': number
         required: no
     extension: channel
-    status: []
+    status: [ ]
 
 
 -   name: makeCode
     command: 12
     description: Generates a random match-code
     operation: post
-    requestFields: []
+    requestFields: [ ]
     responseFields:
     -   key: C
         name: matchCode
@@ -224,7 +219,7 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    responseFields: []
+    responseFields: [ ]
     status:
     -   code: CMD_FAIL
         meaning: supplied code didn't match
@@ -234,7 +229,6 @@ commands:
     command: 15
     description: Command kept free for user-defined system command
     operation: unknown
-    requestFields: []
-    responseFields: []
-    status: []
-    
+    requestFields: [ ]
+    responseFields: [ ]
+    status: [ ]

@@ -6,6 +6,7 @@ import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.model.components.Zchars;
 import net.zscript.util.OptIterator;
 
 public class ZscriptTokenExpression implements ZscriptExpression {
@@ -16,7 +17,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
     }
 
     public OptIterator<ReadToken> iteratorToMarker() {
-        return new OptIterator<ReadToken>() {
+        return new OptIterator<>() {
             final OptIterator<ReadToken> internal = tokenIteratorSupplier.get();
 
             @Override
@@ -28,33 +29,38 @@ public class ZscriptTokenExpression implements ZscriptExpression {
 
     @Override
     public OptionalInt getField(byte f) {
-        OptIterator<ReadToken> it = iteratorToMarker();
-        for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
-            ReadToken token = opt.get();
-            if (token.getKey() == f) {
-                return OptionalInt.of(token.getData16());
-            }
-        }
-        return OptionalInt.empty();
+        return iteratorToMarker().stream()
+                .filter(tok -> tok.getKey() == f)
+                .mapToInt(ReadToken::getData16)
+                .findFirst();
     }
 
     @Override
     public int getFieldCount() {
-        int count = 0;
+        return (int) iteratorToMarker().stream()
+                .filter(tok -> Zchars.isNumericKey(tok.getKey()))
+                .count();
+    }
 
-        OptIterator<ReadToken> it = iteratorToMarker();
-        for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
-            if (Zchars.isNumericKey(opt.get().getKey())) {
-                count++;
-            }
-        }
-        return count;
+    @Override
+    public boolean hasBigField() {
+        return iteratorToMarker().stream()
+                .anyMatch(tok -> Zchars.isBigField(tok.getKey()));
+    }
+
+    @Override
+    public int getBigFieldSize() {
+        return iteratorToMarker().stream()
+                .filter(tok -> Zchars.isBigField(tok.getKey()))
+                .mapToInt(ReadToken::getDataSize)
+                .sum();
+
     }
 
     @Override
     public BlockIterator getBigField() {
         return new BlockIterator() {
-            OptIterator<ReadToken> it = iteratorToMarker();
+            final OptIterator<ReadToken> it = iteratorToMarker();
 
             BlockIterator internal = null;
 
@@ -101,17 +107,4 @@ public class ZscriptTokenExpression implements ZscriptExpression {
         };
     }
 
-    @Override
-    public int getBigFieldSize() {
-        int size = 0;
-
-        OptIterator<ReadToken> it = iteratorToMarker();
-        for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
-            ReadToken token = opt.get();
-            if (Zchars.isBigField(token.getKey())) {
-                size += token.getDataSize();
-            }
-        }
-        return size;
-    }
 }

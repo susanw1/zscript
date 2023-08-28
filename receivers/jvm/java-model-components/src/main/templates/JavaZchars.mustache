@@ -1,0 +1,72 @@
+package {{additional.package-elements}};
+
+import java.nio.charset.*;
+import java.util.*;
+import java.util.stream.*;
+
+import javax.annotation.processing.Generated;
+
+/**
+ * Constants generated from the Zchars intrinsics.
+ *
+ * @version {{version}}
+ */
+@Generated(value = "JavaZchars.mustache",
+           date = "{{timeNow}}",
+           comments = "Zscript Zchars constants list, using {{additional.context-source}}")
+public class Zchars {
+{{#zchars}}
+    /** {{description}} */
+    public static final byte Z_{{name}} = '{{{chEscapedAsC}}}';
+
+{{/zchars}}
+
+    public static boolean alwaysIgnore(byte b) {
+        return false{{#zchars}}{{#ignoreAlways}} || b == '{{{chEscapedAsC}}}'{{/ignoreAlways}}{{/zchars}};
+    }
+
+    public static boolean shouldIgnore(byte b) {
+        return false{{#zchars}}{{#ignoreInCode}} || b == '{{{chEscapedAsC}}}'{{/ignoreInCode}}{{/zchars}};
+    }
+
+    public static boolean isSeparator(byte b) {
+        return false{{#zchars}}{{#separator}} || b == '{{{chEscapedAsC}}}'{{/separator}}{{/zchars}};
+    }
+
+    public static boolean isNonNumerical(byte b) {
+        return false{{#zchars}}{{#nonNumeric}} || b == '{{{chEscapedAsC}}}'{{/nonNumeric}}{{/zchars}};
+    }
+
+    public static boolean isBigField(byte b) {
+        return false{{#zchars}}{{#bigField}} || b == '{{{chEscapedAsC}}}'{{/bigField}}{{/zchars}};
+    }
+
+    public static boolean mustStringEscape(byte b) {
+        return false{{#zchars}}{{#mustEscape}} || b == '{{{chEscapedAsC}}}'{{/mustEscape}}{{/zchars}};
+    }
+
+    public static boolean isNumericKey(byte b) {
+        return (b >= 'A' && b <= 'Z');
+    }
+
+    public static boolean isCommandKey(byte b) {
+        return isNumericKey(b) || isBigField(b);
+    }
+
+    public static boolean isAllowableKey(byte b) {
+        // disallow hex, non-printing and top-bit-set keys
+        return b >= 0x20 && parseHex(b) == PARSE_NOT_HEX_0X10;
+    }
+
+    public static final int PARSE_NOT_HEX_0X10 = 0x10;
+
+    public static byte parseHex(byte b) {
+        if (b >= '0' && b <= '9') {
+            return (byte) (b - '0');
+        }
+        if (b >= 'a' && b <= 'f') {
+            return (byte) (b - 'a' + 10);
+        }
+        return PARSE_NOT_HEX_0X10;
+    }
+}
