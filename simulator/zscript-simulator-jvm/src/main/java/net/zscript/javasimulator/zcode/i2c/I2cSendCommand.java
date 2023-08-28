@@ -3,7 +3,6 @@ package net.zscript.javasimulator.zcode.i2c;
 import java.util.OptionalInt;
 
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javasimulator.Connection;
 import net.zscript.javasimulator.Entity;
@@ -11,14 +10,15 @@ import net.zscript.javasimulator.connections.i2c.I2cAddress;
 import net.zscript.javasimulator.connections.i2c.I2cProtocolCategory;
 import net.zscript.javasimulator.connections.i2c.I2cResponse;
 import net.zscript.javasimulator.connections.i2c.I2cSendPacket;
+import net.zscript.model.components.ZscriptStatus;
 
 public class I2cSendCommand {
 
     public static void execute(CommandContext ctx, I2cModule module) {
-        Entity                entity  = module.getEntity();
+        Entity                  entity  = module.getEntity();
         ZscriptCommandOutStream out     = ctx.getOutStream();
-        OptionalInt           addrOpt = ctx.getField((byte) 'A');
-        OptionalInt           portOpt = ctx.getField((byte) 'P');
+        OptionalInt             addrOpt = ctx.getField((byte) 'A');
+        OptionalInt             portOpt = ctx.getField((byte) 'P');
 
         if (addrOpt.isEmpty()) {
             ctx.status(ZscriptStatus.MISSING_KEY);
@@ -42,9 +42,9 @@ public class I2cSendCommand {
             return;
         }
         Connection<I2cProtocolCategory> connection = entity.getConnection(I2cProtocolCategory.class, port);
-        I2cResponse                     resp       = (I2cResponse) connection.sendMessage(entity,
+        I2cResponse resp = (I2cResponse) connection.sendMessage(entity,
                 new I2cSendPacket(new I2cAddress(tenBit, addr), module.getBaud(port), true, data));
-        int                             i          = 1;
+        int i = 1;
         while (resp.addressNack() && i < attempts) {
             resp = (I2cResponse) connection.sendMessage(entity, new I2cSendPacket(new I2cAddress(tenBit, addr), module.getBaud(port), true, data));
             i++;

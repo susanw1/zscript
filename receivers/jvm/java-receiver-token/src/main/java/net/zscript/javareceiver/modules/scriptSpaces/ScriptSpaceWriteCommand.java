@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.OptionalInt;
 
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.scriptSpaces.ScriptSpace;
 import net.zscript.javareceiver.tokenizer.ScriptSpaceBuffer.ScriptSpaceWriterBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.model.components.ZscriptStatus;
 
 public class ScriptSpaceWriteCommand {
     public static void execute(List<ScriptSpace> spaces, CommandContext ctx) {
@@ -34,7 +34,7 @@ public class ScriptSpaceWriteCommand {
             writer = target.append();
         }
         Tokenizer tok = new Tokenizer(writer.getTokenWriter(), 2);
-        for (Iterator<Byte> iterator = ctx.getBigField(); iterator.hasNext();) {
+        for (Iterator<Byte> iterator = ctx.getBigField(); iterator.hasNext(); ) {
             tok.accept(iterator.next());
         }
         writer.commitChanges();

@@ -1,12 +1,12 @@
 package net.zscript.javareceiver.modules.outerCore;
 
 import net.zscript.javareceiver.core.LockSet;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.execution.NotificationContext;
 import net.zscript.javareceiver.modules.ZscriptModule;
 import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
 import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
+import net.zscript.model.components.ZscriptStatus;
 
 public class ZscriptOuterCoreModule implements ZscriptModule {
     private final ZscriptNotificationSource source = new ZscriptNotificationSource();

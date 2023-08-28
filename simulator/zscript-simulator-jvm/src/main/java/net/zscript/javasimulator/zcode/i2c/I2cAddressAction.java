@@ -3,7 +3,6 @@ package net.zscript.javasimulator.zcode.i2c;
 import java.util.Iterator;
 import java.util.Optional;
 
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javasimulator.Connection;
 import net.zscript.javasimulator.Entity;
@@ -11,6 +10,7 @@ import net.zscript.javasimulator.connections.i2c.I2cAddress;
 import net.zscript.javasimulator.connections.i2c.I2cProtocolCategory;
 import net.zscript.javasimulator.connections.i2c.I2cResponse;
 import net.zscript.javasimulator.connections.i2c.I2cSendPacket;
+import net.zscript.model.components.ZscriptStatus;
 import net.zscript.util.OptIterator;
 
 public class I2cAddressAction {
@@ -22,14 +22,14 @@ public class I2cAddressAction {
             return;
         }
         Optional<Integer> oint = it.next();
-        if (!oint.isPresent()) {
+        if (oint.isEmpty()) {
             ctx.status(ZscriptStatus.INTERNAL_ERROR);
             return;
         }
 
         int port = oint.get();
         oint = it.next();
-        if (!oint.isPresent()) {
+        if (oint.isEmpty()) {
             ctx.status(ZscriptStatus.INTERNAL_ERROR);
             return;
         }
@@ -47,12 +47,12 @@ public class I2cAddressAction {
 
         byte[] data = new byte[ctx.getAddressedDataSize() + 1];
         int    i    = 0;
-        for (Iterator<Byte> iterator = ctx.getAddressedData(); iterator.hasNext();) {
+        for (Iterator<Byte> iterator = ctx.getAddressedData(); iterator.hasNext(); ) {
             data[i++] = iterator.next();
         }
         data[i++] = '\n';
         Connection<I2cProtocolCategory> connection = entity.getConnection(I2cProtocolCategory.class, port);
-        I2cResponse                     resp       = (I2cResponse) connection.sendMessage(entity,
+        I2cResponse resp = (I2cResponse) connection.sendMessage(entity,
                 new I2cSendPacket(new I2cAddress(tenBit, addr), module.getBaud(port), true, data));
         if (!resp.worked()) {
             ctx.status(ZscriptStatus.ADDRESS_NOT_FOUND);

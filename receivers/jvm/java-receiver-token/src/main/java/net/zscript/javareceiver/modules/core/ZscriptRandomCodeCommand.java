@@ -4,13 +4,13 @@ import java.util.OptionalInt;
 import java.util.Random;
 
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
+import net.zscript.model.components.ZscriptStatus;
 
 public class ZscriptRandomCodeCommand {
 
     private final Random r = new Random();
-    private int          code;
+    private       int    code;
 
     public void make(CommandContext ctx) {
         ZscriptCommandOutStream out = ctx.getOutStream();

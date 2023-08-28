@@ -3,8 +3,8 @@ package net.zscript.javareceiver.modules.outerCore;
 import java.util.OptionalInt;
 
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
+import net.zscript.model.components.ZscriptStatus;
 
 public class ZscriptExtendedCapabilitiesCommand {
 

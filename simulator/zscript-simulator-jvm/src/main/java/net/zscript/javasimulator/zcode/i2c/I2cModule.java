@@ -3,7 +3,6 @@ package net.zscript.javasimulator.zcode.i2c;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.execution.NotificationContext;
@@ -11,6 +10,7 @@ import net.zscript.javareceiver.modules.ZscriptModule;
 import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
 import net.zscript.javasimulator.Entity;
 import net.zscript.javasimulator.connections.i2c.I2cProtocolCategory;
+import net.zscript.model.components.ZscriptStatus;
 
 public class I2cModule implements ZscriptModule {
     private final Entity                 entity;

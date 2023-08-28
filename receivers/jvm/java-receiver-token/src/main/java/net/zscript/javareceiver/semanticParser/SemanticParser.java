@@ -6,7 +6,6 @@ import java.util.function.Predicate;
 import net.zscript.javareceiver.core.LockSet;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptLocks;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
@@ -15,6 +14,7 @@ import net.zscript.javareceiver.tokenizer.TokenBufferFlags;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.components.Zchars;
+import net.zscript.model.components.ZscriptStatus;
 
 public class SemanticParser implements ParseState, ContextView {
     // 6 bytes + 1 pointer
@@ -31,7 +31,7 @@ public class SemanticParser implements ParseState, ContextView {
 
         /**
          * Checks the buffer's flags and makes sure we've identified the next marker and the next sequence marker, if available.
-         *
+         * <p/>
          * Makes sure the buffer flag's readerBlocked status is up-to-date.
          */
         private void dealWithTokenBufferFlags() {

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import net.zscript.javareceiver.core.LockSet;
 import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.NotificationContext;
 import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
 import net.zscript.javasimulator.BlankCommunicationResponse;
@@ -22,13 +21,15 @@ import net.zscript.javasimulator.connections.i2c.SmBusAlertConnection;
 import net.zscript.javasimulator.connections.i2c.SmBusAlertPacket;
 import net.zscript.javasimulator.zcode.SimulatorConsumer;
 import net.zscript.model.components.Zchars;
+import net.zscript.model.components.ZscriptStatus;
 
 public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCategory> {
-    private static final int                       CHUNK_LENGTH    = 8;
-    private final        ZscriptNotificationSource source          = new ZscriptNotificationSource();
-    private              int                       notificationSet = 0;
-    private              int                       bitSet          = 0;
-    private              int                       addressingSet   = 0;
+    private static final int                       CHUNK_LENGTH = 8;
+    private final        ZscriptNotificationSource source       = new ZscriptNotificationSource();
+
+    private int notificationSet = 0;
+    private int bitSet          = 0;
+    private int addressingSet   = 0;
 
     public ZscriptNotificationSource getNotificationSource() {
         return source;

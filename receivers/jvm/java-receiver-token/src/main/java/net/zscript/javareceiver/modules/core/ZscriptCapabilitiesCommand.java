@@ -1,8 +1,8 @@
 package net.zscript.javareceiver.modules.core;
 
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
-import net.zscript.javareceiver.core.ZscriptStatus;
 import net.zscript.javareceiver.execution.CommandContext;
+import net.zscript.model.components.ZscriptStatus;
 
 public class ZscriptCapabilitiesCommand {
 
@@ -28,7 +28,7 @@ public class ZscriptCapabilitiesCommand {
     public int    platformHardwareVersion = 0;
     public String platformHardwareStr     = System.getProperty("os.arch") + " " + System.getProperty("os.name");
     public int    coreZscriptVersion      = 0;
-    public String coreZscriptStr            = "Prototype parsing/running system for JVM";
+    public String coreZscriptStr          = "Prototype parsing/running system for JVM";
 
     public void execute(CommandContext ctx) {
         ZscriptCommandOutStream out = ctx.getOutStream();
@@ -61,7 +61,7 @@ public class ZscriptCapabilitiesCommand {
         }
         if (str != null) {
             out.writeField('V', ver);
-            if (str.length() > 0) {
+            if (!str.isEmpty()) {
                 out.writeQuotedString(str);
             }
         } else {
