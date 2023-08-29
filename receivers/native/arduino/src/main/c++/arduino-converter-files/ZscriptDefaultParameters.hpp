@@ -48,6 +48,8 @@ public:
     typedef uint8_t tokenBufferSize_t;
 
     static const uint8_t tcpChannelCount = 1;
+    static const uint16_t tcpLocalPort = 23;
+    static const uint8_t tcpBufferSize = 128;
 
     static const uint8_t udpChannelCount = 1;
     static const uint16_t udpLocalPort = 8888;

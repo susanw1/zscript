@@ -9,6 +9,7 @@
 #define SRC_MAIN_C___ARDUINO_UDP_MODULE_CHANNELS_ZSCRIPTUDPCHANNEL_HPP_
 
 #include "../ZscriptEthernetSystem.hpp"
+#include "../../arduino-core-module/persistence/PersistenceSystem.hpp"
 
 #include <ZscriptChannelBuilder.hpp>
 
@@ -26,7 +27,7 @@ template<class ZP>
 class AbstractOutStream;
 
 template<class ZP>
-class ZscriptUdpOutStream: public AbstractOutStream<ZP> {
+class ZscriptUdpOutStream : public AbstractOutStream<ZP> {
 private:
     bool openB = false;
 
@@ -35,7 +36,7 @@ public:
     }
 
     void open(uint8_t source) {
-        ZscriptUdpChannel<ZP> *sourceCh = (ZscriptUdpChannel<ZP>*) Zscript<ZP>::zscript.getChannels()[source];
+        ZscriptUdpChannel<ZP> *sourceCh = (ZscriptUdpChannel<ZP> *) Zscript<ZP>::zscript.getChannels()[source];
         Udp.beginPacket(sourceCh->getAddress(), sourceCh->getPort());
         openB = true;
     }
@@ -61,6 +62,7 @@ public:
     }
 
 };
+
 template<class ZP>
 class ZscriptUdpManager {
     static uint16_t port;
@@ -71,12 +73,17 @@ public:
 
     static ZscriptUdpOutStream<ZP> out;
 
+    static uint8_t getNotifChannelPersistMaxLength() {
+        return 4 + 2; // address + port - IPv4
+    }
+
     static void setup() {
         port = ZP::udpLocalPort;
         if (EthernetSystem<ZP>::ensureLink()) {
             Udp.begin(port);
         }
     }
+
     static void setup(uint16_t portI) {
         port = portI;
         if (EthernetSystem<ZP>::ensureLink()) {
@@ -87,9 +94,11 @@ public:
     static bool hasMessage() {
         return hasMessageB;
     }
+
     static void messageOver() {
         hasMessageB = false;
     }
+
     static void reset() {
         Udp.flush();
         Udp.stop();
@@ -127,8 +136,7 @@ public:
             Udp.flush();
         }
     }
-}
-;
+};
 
 template<class ZP>
 uint16_t ZscriptUdpManager<ZP>::port = ZP::udpLocalPort;
@@ -140,7 +148,7 @@ template<class ZP>
 ZscriptUdpChannel<ZP> ZscriptUdpManager<ZP>::channels[ZP::udpChannelCount];
 
 template<class ZP>
-class ZscriptUdpChannel: public ZscriptChannel<ZP> {
+class ZscriptUdpChannel : public ZscriptChannel<ZP> {
     GenericCore::TokenRingBuffer<ZP> tBuffer;
     ZscriptTokenizer<ZP> tokenizer;
 
@@ -160,26 +168,46 @@ protected:
 public:
     ZscriptUdpChannel() :
             ZscriptChannel<ZP>(&ZscriptUdpManager<ZP>::out, &tBuffer, true),
-                    tBuffer(buffer, ZP::udpBufferSize),
-                    tokenizer(tBuffer.getWriter(), 2),
-                    lastMilliAccess(millis()), remoteAddr(), remotePort(0) {
+            tBuffer(buffer, ZP::udpBufferSize),
+            tokenizer(tBuffer.getWriter(), 2),
+            lastMilliAccess(millis()), remoteAddr(), remotePort(0) {
+    }
+
+    bool setAsStartupNotificationChannel(uint8_t persistStart) {
+        if (!EthernetSystem<ZP>::ensureLink()) {
+            return false;
+        }
+        uint8_t content[6];
+        if (!PersistenceSystem<ZP>::readSection(persistStart, 6, content)) {
+            return false;
+        }
+        remoteAddr = (content[0] << 24) | (content[1] << 16) | (content[2] << 8) | (content[3]);
+        remotePort = (content[4] << 8) | (content[5]);
+        lastMilliAccess(millis());
+        return true;
     }
 
     IPAddress getAddress() {
         return remoteAddr;
     }
+
     uint16_t getPort() {
         return remotePort;
     }
+
     bool matches() {
         return remoteAddr == (uint32_t) Udp.remoteIP() && remotePort == Udp.remotePort();
     }
+
     bool isAvailable(uint32_t currentTime) {
-        return (remotePort == 0) || (!this->parser.isActivated()) && currentTime - lastMilliAccess < ZP::nonActivatedChannelTimeout;
+        return (remotePort == 0) ||
+               (!this->parser.isActivated()) && currentTime - lastMilliAccess < ZP::nonActivatedChannelTimeout;
     }
+
     void messageIncoming(uint32_t currentTime) {
         lastMilliAccess = currentTime;
     }
+
     void assign() {
         remoteAddr = Udp.remoteIP();
         remotePort = Udp.remotePort();
@@ -187,9 +215,10 @@ public:
 
     void channelInfo(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
+        out.writeField('B', ZP::udpBufferSize);
         out.writeField('N', 0);
         uint32_t ipData = Ethernet.localIP();
-        out.writeBigHex((uint8_t*) &ipData, 4);
+        out.writeBigHex((uint8_t *) &ipData, 4);
         out.writeField('P', Udp.localPort());
         if (Ethernet.hardwareStatus() == EthernetNoHardware) {
             out.writeField('H', 0);

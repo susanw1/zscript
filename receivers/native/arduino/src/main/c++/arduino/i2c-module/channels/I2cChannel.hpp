@@ -184,8 +184,16 @@ public:
     }
 
 public:
+    static uint8_t getNotifChannelPersistMaxLength() {
+        return 0;
+    }
+
     I2cChannel() :
             ZscriptChannel<ZP>(&out, &tBuffer, true) {
+    }
+
+    bool setAsStartupNotificationChannel(uint8_t persistStart) {
+        return true;
     }
 
     void setup() {

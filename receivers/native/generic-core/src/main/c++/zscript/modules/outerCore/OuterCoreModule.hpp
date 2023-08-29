@@ -34,6 +34,11 @@ public:
         case 0x0:
             ExtendedCapabilitiesCommand<ZP>::execute(ctx);
             break;
+#ifdef ZSCRIPT_RESET_COMMAND
+        case 0x1:
+            ZP::ResetCommand::execute(ctx);
+            break;
+#endif
 #ifdef ZSCRIPT_GUID_SAVE_COMMAND
         case 0x4:
             ZP::GuidCommand::saveGuid(ctx);

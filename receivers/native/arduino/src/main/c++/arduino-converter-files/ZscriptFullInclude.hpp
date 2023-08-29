@@ -38,7 +38,7 @@
 #endif
 #ifdef ZSCRIPT_HAVE_TCP_CHANNEL
 #include <arduino/ethernet-module/channels/ZscriptTcpChannel.hpp>
-Zscript::ZscriptTcpChannel<ZscriptParams> ZscriptTcpChannel;
+Zscript::ZscriptTcpChannel<ZscriptParams> ZscriptTcpChannels[ZscriptParams::tcpChannelCount];
 #endif
 
 #ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
@@ -115,7 +115,10 @@ public:
 
 #endif
 #ifdef ZSCRIPT_HAVE_TCP_CHANNEL
-        channels[i++] = &ZscriptTcpChannel;
+        Zscript::ZscriptTcpManager<ZscriptParams>::setup();
+        for(uint8_t j = 0; j < ZscriptParams::tcpChannelCount; j++){
+            channels[i++] = ZscriptTcpChannels+j;
+        }
 #endif
 #if defined(ZSCRIPT_HAVE_SERIAL_CHANNEL) or defined(ZSCRIPT_HAVE_I2C_CHANNEL) or defined(ZSCRIPT_HAVE_UDP_CHANNEL) or defined(ZSCRIPT_HAVE_TCP_CHANNEL)
         Zscript::Zscript<ZscriptParams>::zscript.setChannels(channels, i);

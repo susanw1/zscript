@@ -45,6 +45,11 @@ public:
         parser.setChannelIndex(i);
     }
 
+    virtual bool setAsStartupNotificationChannel(uint8_t persistStart) {
+        (void) persistStart;
+        return false;
+    }
+
     virtual void moveAlong() {
     }
 

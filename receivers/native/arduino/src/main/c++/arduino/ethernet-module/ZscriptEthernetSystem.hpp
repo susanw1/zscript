@@ -52,7 +52,7 @@ public:
 //        if (Ethernet.linkStatus() == LinkOFF) {
 //            return false;
 //        }
-        if (Ethernet.begin(macAddress)) {
+        if (Ethernet.begin(macAddress, 20000, 4000)) {
             hasLink = true;
         }
         return hasLink;

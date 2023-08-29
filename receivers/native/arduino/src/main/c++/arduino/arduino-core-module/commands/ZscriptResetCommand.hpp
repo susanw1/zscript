@@ -27,10 +27,6 @@ public:
                 ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
                 return;
             }
-            if (!ctx.isActivated()) {
-                ctx.status(ResponseStatus::NOT_ACTIVATED);
-                return;
-            }
             if (!Zscript < ZP > ::zscript.getChannels()[target]->reset()) {
                 ctx.status(ResponseStatus::COMMAND_FAIL);
                 return;

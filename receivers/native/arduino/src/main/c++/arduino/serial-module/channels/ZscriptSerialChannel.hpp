@@ -64,9 +64,18 @@ class ZscriptSerialChannel: public ZscriptChannel<ZP> {
     bool usingTmp = false;
 
 public:
+    static uint8_t getNotifChannelPersistMaxLength() {
+        return 0;
+    }
+
     ZscriptSerialChannel() :
             ZscriptChannel<ZP>(&out, &tBuffer, true), tBuffer(buffer, ZP::serialBufferSize), tokenizer(tBuffer.getWriter(), 2) {
     }
+
+    bool setAsStartupNotificationChannel(uint8_t persistStart) {
+        return true;
+    }
+
     void channelInfo(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream < ZP > out = ctx.getOutStream();
         out.writeField('N', 0);

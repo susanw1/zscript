@@ -45,11 +45,6 @@ public:
         case 0x2:
             ActivateCommand<ZP>::execute(ctx);
             break;
-#ifdef ZSCRIPT_RESET_COMMAND
-        case 0x3:
-            ZP::ResetCommand::execute(ctx);
-            break;
-#endif
 #ifdef ZSCRIPT_GUID_FETCH_COMMAND
         case 0x4:
             ZP::GuidCommand::fetchGuid(ctx);

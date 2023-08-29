@@ -12,7 +12,6 @@
 #include <ZscriptChannelBuilder.hpp>
 
 namespace Zscript {
-EthernetServer server(23);
 
 template<class ZP>
 class Zscript;
@@ -24,7 +23,45 @@ template<class ZP>
 class AbstractOutStream;
 
 template<class ZP>
-class ZscriptTcpOutStream: public AbstractOutStream<ZP> {
+class ZscriptTcpManager {
+    static EthernetServer server;
+public:
+    static uint8_t getNotifChannelPersistMaxLength() {
+        return 0;
+    }
+    static EthernetClient takeClient() {
+        if (!EthernetSystem<ZP>::ensureLink()) {
+            return EthernetClient();
+        }
+        return server.accept();
+    }
+
+    static void setup() {
+        server = EthernetServer(ZP::tcpLocalPort);;
+        if (EthernetSystem<ZP>::ensureLink()) {
+            server.begin();
+        }
+    }
+
+    static void setup(uint16_t port) {
+        server = EthernetServer(port);
+        if (EthernetSystem<ZP>::ensureLink()) {
+            server.begin();
+        }
+    }
+
+    static void reset() {
+        if (EthernetSystem<ZP>::resetLink()) {
+            server.begin();
+        }
+    }
+};
+
+template<class ZP>
+EthernetServer ZscriptTcpManager<ZP>::server;
+
+template<class ZP>
+class ZscriptTcpOutStream : public AbstractOutStream<ZP> {
     EthernetClient *client;
     bool openB = false;
 
@@ -59,7 +96,7 @@ public:
 };
 
 template<class ZP>
-class ZscriptTcpChannel: public ZscriptChannel<ZP> {
+class ZscriptTcpChannel : public ZscriptChannel<ZP> {
     GenericCore::TokenRingBuffer<ZP> tBuffer;
     ZscriptTokenizer<ZP> tokenizer;
     ZscriptTcpOutStream<ZP> out;
@@ -70,22 +107,24 @@ class ZscriptTcpChannel: public ZscriptChannel<ZP> {
 protected:
     bool resetInternal() {
         client.stop();
+        ZscriptTcpManager<ZP>::reset();
         return true;
     }
 
 public:
     ZscriptTcpChannel() :
             ZscriptChannel<ZP>(&out, &tBuffer, true),
-                    tBuffer(buffer, ZP::tcpBufferSize),
-                    tokenizer(tBuffer.getWriter(), 2),
-                    out(&client) {
+            tBuffer(buffer, ZP::tcpBufferSize),
+            tokenizer(tBuffer.getWriter(), 2),
+            out(&client) {
     }
 
     void channelInfo(ZscriptCommandContext<ZP> ctx) {
-        CommandOutStream < ZP > out = ctx.getOutStream();
+        CommandOutStream<ZP> out = ctx.getOutStream();
+        out.writeField('B', ZP::tcpBufferSize);
         out.writeField('N', 0);
         uint32_t ipData = Ethernet.localIP();
-        out.writeBigHex((uint8_t*) &ipData, 4);
+        out.writeBigHex((uint8_t *) &ipData, 4);
         out.writeField('P', client.localPort());
         if (Ethernet.hardwareStatus() == EthernetNoHardware) {
             out.writeField('H', 0);
@@ -105,7 +144,7 @@ public:
                 client.read();
             }
         } else {
-            client = server.available();
+            client = ZscriptTcpManager<ZP>::takeClient();
         }
     }
 
