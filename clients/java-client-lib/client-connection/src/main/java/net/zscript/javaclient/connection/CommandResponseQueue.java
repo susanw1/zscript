@@ -77,10 +77,10 @@ public class CommandResponseQueue implements CommandResponseSystem {
         @Override
         public byte[] compile() {
             // TODO: decide on how locking will work...
-            ByteArrayOutputStream str = new ByteArrayOutputStream(addr.getAddr().length * 3 + cmdSeq.length);
+            ByteArrayOutputStream str = new ByteArrayOutputStream(addr.getAsInts().length * 3 + cmdSeq.length);
             try {
                 boolean isFirst = true;
-                for (int i : addr.getAddr()) {
+                for (int i : addr.getAsInts()) {
                     str.write(ZscriptCommandBuilder.formatField((byte) (isFirst ? '@' : '.'), i));
                     isFirst = false;
                 }
@@ -167,7 +167,7 @@ public class CommandResponseQueue implements CommandResponseSystem {
 
     @Override
     public void send(final byte[] zscript, final Consumer<byte[]> callback) {
-        if (sent.size() == 0) {
+        if (sent.isEmpty()) {
             ByteArrEntry el = new ByteArrEntry(callback, zscript);
             sent.add(el);
             connection.send(el.compile());
@@ -177,6 +177,11 @@ public class CommandResponseQueue implements CommandResponseSystem {
         }
     }
 
+    /**
+     * @param response
+     * @param echo
+     * @param respType
+     */
     private void callback(final byte[] response, int echo, int respType) {
         if (respType != 0) {
             // TODO: notifications
@@ -185,7 +190,7 @@ public class CommandResponseQueue implements CommandResponseSystem {
             canPipeline = true;
         } else {
             boolean found = false;
-            for (Iterator<CommandEntry> iterator = sent.iterator(); iterator.hasNext();) {
+            for (final Iterator<CommandEntry> iterator = sent.iterator(); iterator.hasNext(); ) {
                 CommandEntry entryPlain = iterator.next();
                 if (entryPlain.getClass() == CommandSeqElEntry.class && ((CommandSeqElEntry) entryPlain).getEcho() == echo) {
                     ((CommandSeqElEntry) entryPlain).callback(response);
@@ -200,7 +205,7 @@ public class CommandResponseQueue implements CommandResponseSystem {
         }
         if (!toSend.isEmpty()) {
             CommandEntry entry = toSend.peek();
-            if (sent.size() == 0) {
+            if (sent.isEmpty()) {
                 sent.add(entry);
                 canPipeline = entry.canBePipelined();
                 toSend.poll();

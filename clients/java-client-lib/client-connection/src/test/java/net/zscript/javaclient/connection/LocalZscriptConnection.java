@@ -37,7 +37,6 @@ public class LocalZscriptConnection implements ZscriptConnection {
             }
             exec.submit(this);
         }
-
     }
 
     public LocalZscriptConnection() {

@@ -30,7 +30,7 @@ public class I2cModule implements ZscriptModule {
     }
 
     @Override
-    public int getModuleID() {
+    public int getModuleId() {
         return 5;
     }
 

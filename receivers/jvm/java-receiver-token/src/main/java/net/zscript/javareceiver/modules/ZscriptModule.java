@@ -8,7 +8,7 @@ import net.zscript.model.components.ZscriptStatus;
 
 public interface ZscriptModule {
 
-    int getModuleID();
+    int getModuleId();
 
     void execute(CommandContext ctx, int command);
 

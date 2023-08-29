@@ -1,35 +1,33 @@
 package net.zscript.javaclient.connection;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
+
 import java.util.Arrays;
 
+/**
+ * Simple encapsulation of a Zscript address.
+ */
 public class ZscriptAddress {
-    private final int[] addr;
+    private final int[] address;
 
-    public static ZscriptAddress from(int addr0) {
-        return new ZscriptAddress(new int[] { addr0 });
+    public static ZscriptAddress from(int... address) {
+        return new ZscriptAddress(address);
     }
 
-    public static ZscriptAddress from(int addr0, int addr1) {
-        return new ZscriptAddress(new int[] { addr0, addr1 });
+    private ZscriptAddress(int[] addr) {
+        this.address = addr.clone();
     }
 
-    public static ZscriptAddress from(int addr0, int addr1, int addr2) {
-        return new ZscriptAddress(new int[] { addr0, addr1, addr2 });
-    }
-
-    public ZscriptAddress(int[] addr) {
-        this.addr = addr;
-    }
-
-    public int[] getAddr() {
-        return addr;
+    public int[] getAsInts() {
+        return address.clone();
     }
 
     @Override
     public int hashCode() {
         final int prime  = 31;
         int       result = 1;
-        result = prime * result + Arrays.hashCode(addr);
+        result = prime * result + Arrays.hashCode(address);
         return result;
     }
 
@@ -45,10 +43,21 @@ public class ZscriptAddress {
             return false;
         }
         ZscriptAddress other = (ZscriptAddress) obj;
-        if (!Arrays.equals(addr, other.addr)) {
+        if (!Arrays.equals(address, other.address)) {
             return false;
         }
         return true;
     }
 
+    /**
+     * Presents this address in conventional "@3.6a.1" format, including empty field for zero.
+     *
+     * @return the address as a string
+     */
+    @Override
+    public String toString() {
+        return stream(address)
+                .mapToObj(a -> a == 0 ? "" : Integer.toHexString(a))
+                .collect(joining(".", "@", ""));
+    }
 }

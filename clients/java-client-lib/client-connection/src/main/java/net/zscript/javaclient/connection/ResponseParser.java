@@ -15,6 +15,7 @@ import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.javareceiver.tokenizer.ZscriptTokenExpression;
+import net.zscript.model.components.Zchars;
 import net.zscript.util.OptIterator;
 
 public class ResponseParser {
@@ -56,11 +57,14 @@ public class ResponseParser {
                     lastWritten = reader.getFirstReadToken();
                 }
             } else {
-                Optional<ReadToken> opt = lastWritten.getNextTokens().next();
+                final Optional<ReadToken> opt = lastWritten.getNextTokens().next();
                 if (opt.isPresent()) {
                     lastWritten = opt.get();
                 }
-                if (lastWritten.getKey() != '_' && lastWritten.getKey() != '!' && lastWritten.getKey() != '@' && lastWritten.getKey() != '.') {
+                if (lastWritten.getKey() != Zchars.Z_ECHO
+                        && lastWritten.getKey() != Zchars.Z_RESPONSE_MARK
+                        && lastWritten.getKey() != Zchars.Z_ADDRESSING
+                        && lastWritten.getKey() != Zchars.Z_ADDRESSING_CONTINUE) {
                     break;
                 }
             }
@@ -71,16 +75,16 @@ public class ResponseParser {
         int respType = -1;
         int echo     = -1;
 
-        List<Integer> addr = new ArrayList<>();
+        final List<Integer> addr = new ArrayList<>();
 
         OptIterator<ReadToken> it = reader.iterator();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
-            ReadToken token = opt.get();
-            if (token.getKey() == '_') {
+            final ReadToken token = opt.get();
+            if (token.getKey() == Zchars.Z_ECHO) {
                 echo = token.getData16();
-            } else if (token.getKey() == '!') {
+            } else if (token.getKey() == Zchars.Z_RESPONSE_MARK) {
                 respType = token.getData16();
-            } else if (token.getKey() == '@' || token.getKey() == '.') {
+            } else if (token.getKey() == Zchars.Z_ADDRESSING || token.getKey() == Zchars.Z_ADDRESSING_CONTINUE) {
                 addr.add(token.getData16());
             } else {
                 break;
@@ -96,19 +100,19 @@ public class ResponseParser {
 
     private static byte convertMarkers(byte encoded) {
         if (encoded == Tokenizer.CMD_END_ANDTHEN) {
-            return '&';
+            return Zchars.Z_ANDTHEN;
         }
         if (encoded == Tokenizer.CMD_END_ORELSE) {
-            return '|';
+            return Zchars.Z_ORELSE;
         }
         if (encoded == Tokenizer.CMD_END_OPEN_PAREN) {
-            return '(';
+            return Zchars.Z_OPENPAREN;
         }
         if (encoded == Tokenizer.CMD_END_CLOSE_PAREN) {
-            return ')';
+            return Zchars.Z_CLOSEPAREN;
         }
         if (encoded == Tokenizer.NORMAL_SEQUENCE_END) {
-            return '\n';
+            return Zchars.Z_NEWLINE;
         }
         throw new IllegalArgumentException("Unknown marker: " + Integer.toHexString(Byte.toUnsignedInt(encoded)));
     }
@@ -127,7 +131,7 @@ public class ResponseParser {
 
         final OptIterator<ReadToken> itEndSeq = reader.iterator();
         for (Optional<ReadToken> opt = itEndSeq.next(); opt.isPresent(); opt = itEndSeq.next()) {
-            if (opt.get().getKey() != '!' && opt.get().getKey() != '_') {
+            if (opt.get().getKey() != Zchars.Z_RESPONSE_MARK && opt.get().getKey() != Zchars.Z_ECHO) {
                 tokenAfterMarkers.add(opt.get());
                 break;
             }
@@ -149,10 +153,11 @@ public class ResponseParser {
     }
 
     private static void matchMarkers(final CommandSeqElement command, final List<Byte> markers, final List<ReadToken> tokenAfterMarkers) {
-        ZscriptCommand      current       = null;
-        ZscriptSequencePath successPath   = ZscriptCommand.findFirstCommand(command);
-        ZscriptSequencePath failPath      = ZscriptCommand.findFirstCommand(command);
-        Set<ZscriptCommand> sentResponses = new HashSet<>();
+        ZscriptCommand      current;
+        ZscriptSequencePath successPath = ZscriptCommand.findFirstCommand(command);
+        ZscriptSequencePath failPath    = ZscriptCommand.findFirstCommand(command);
+
+        final Set<ZscriptCommand> sentResponses = new HashSet<>();
 
         int offset = 0;
 
@@ -167,11 +172,7 @@ public class ResponseParser {
                         break;
                     }
                 }
-//                System.out.println("Success: " + successPath.getMarkers());
             }
-//            if (failPath != null) {
-//                System.out.println("Fail: " + failPath.getMarkers());
-//            }
             if (canBeSuccess) {
                 offset += successPath.getMarkers().size();
                 current = successPath.getNext();
@@ -200,7 +201,7 @@ public class ResponseParser {
             failPath = current.findFailPath();
 
             final ReadToken t = tokenAfterMarkers.get(offset);
-            current.response(new ZscriptTokenExpression(() -> t.getNextTokens()));
+            current.response(new ZscriptTokenExpression(t::getNextTokens));
 
             sentResponses.add(current);
         }
@@ -211,5 +212,4 @@ public class ResponseParser {
             }
         }
     }
-
 }

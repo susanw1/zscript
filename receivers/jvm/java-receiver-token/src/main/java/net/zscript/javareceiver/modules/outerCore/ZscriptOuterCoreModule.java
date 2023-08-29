@@ -24,7 +24,7 @@ public class ZscriptOuterCoreModule implements ZscriptModule {
     }
 
     @Override
-    public int getModuleID() {
+    public int getModuleId() {
         return 1;
     }
 

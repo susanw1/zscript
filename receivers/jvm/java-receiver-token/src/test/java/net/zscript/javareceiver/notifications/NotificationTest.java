@@ -28,13 +28,13 @@ public class NotificationTest {
     private volatile boolean             lastIsMoveAlong  = false;
     private volatile AsyncActionNotifier notifier         = null;
 
-    private volatile String                 toWrite = "";
-    private final ZscriptNotificationSource source  = new ZscriptNotificationSource();
+    private volatile String                    toWrite = "";
+    private final    ZscriptNotificationSource source  = new ZscriptNotificationSource();
 
     class TestModule implements ZscriptModule {
 
         @Override
-        public int getModuleID() {
+        public int getModuleId() {
             return 0xf;
         }
 
