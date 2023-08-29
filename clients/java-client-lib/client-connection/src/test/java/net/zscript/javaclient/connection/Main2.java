@@ -21,11 +21,12 @@ public class Main2 {
 
         ZscriptAddress        address           = ZscriptAddress.from(0x50, 0x0, 0x1);
         ZscriptConnection     addressConnection = zscriptOut.getResponseAddressingSystem().getAddressConnection(address);
+
         CommandResponseSystem zscriptOutAddr    = new CommandResponseQueue(addressConnection);
 
-        zscriptOutAddr.send(CoreModule.capabilities()
-                .versionType(PlatformFirmware)
-                .addResponseListener(r -> System.out.println(r.getIdent()))
-                .build());
+        //        zscriptOutAddr.send(CoreModule.capabilities()
+        //                .versionType(PlatformFirmware)
+        //                .addResponseListener(r -> System.out.println(r.getIdent()))
+        //                .build());
     }
 }

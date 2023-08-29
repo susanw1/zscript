@@ -2,6 +2,7 @@ package net.zscript.javaclient.connection;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
@@ -11,6 +12,7 @@ import java.util.function.Consumer;
 import net.zscript.javaclient.commandbuilder.CommandSeqElement;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.connection.ResponseParser.ResponseHeader;
+import net.zscript.model.components.Zchars;
 
 public class CommandResponseQueue implements CommandResponseSystem {
     private static final int MAX_SENT = 10;
@@ -19,10 +21,109 @@ public class CommandResponseQueue implements CommandResponseSystem {
 
     private final ZscriptConnection connection;
 
+    private final Deque<CommandEntry> sent   = new ArrayDeque<>();
+    private final Queue<CommandEntry> toSend = new ArrayDeque<>();
+
+    private int     currentAutoEchoNumber = 0;
+    private boolean canPipeline           = true;
+
     private interface CommandEntry {
         byte[] compile();
 
         boolean canBePipelined();
+    }
+
+    public CommandResponseQueue(ZscriptConnection connection) {
+        this.connection = connection;
+        connection.onReceive(resp -> {
+            ResponseHeader header = ResponseParser.parseResponseHeader(resp);
+            if (header.getAddr().length == 0) {
+                callback(resp, header.getEcho(), header.getType());
+            } else {
+                addrSystem.response(header.getAddr(), resp);
+            }
+        });
+    }
+
+    @Override
+    public void send(final ZscriptAddress addr, final byte[] data) {
+        if (sent.size() < MAX_SENT && canPipeline) {
+            AddrCommandSeqElEntry el = new AddrCommandSeqElEntry(data, addr);
+            sent.add(el);
+            connection.send(el.compile());
+        } else {
+            toSend.add(new AddrCommandSeqElEntry(data, addr));
+        }
+    }
+
+    @Override
+    public void send(final CommandSeqElement seq) {
+        if (sent.size() < MAX_SENT && canPipeline) {
+            CommandSeqElEntry el = new CommandSeqElEntry(seq, currentAutoEchoNumber);
+            sent.add(el);
+            connection.send(el.compile());
+        } else {
+            toSend.add(new CommandSeqElEntry(seq, currentAutoEchoNumber));
+        }
+        currentAutoEchoNumber++;
+        if (currentAutoEchoNumber >= 0x10000) {
+            currentAutoEchoNumber = 0;
+        }
+    }
+
+    @Override
+    public void send(final byte[] zscript, final Consumer<byte[]> callback) {
+        if (sent.isEmpty()) {
+            ByteArrEntry el = new ByteArrEntry(callback, zscript);
+            sent.add(el);
+            connection.send(el.compile());
+            canPipeline = false;
+        } else {
+            toSend.add(new ByteArrEntry(callback, zscript));
+        }
+    }
+
+    /**
+     * @param response
+     * @param echo
+     * @param respType
+     */
+    private void callback(final byte[] response, int echo, int respType) {
+        if (respType != 0) {
+            // TODO: notifications
+        } else if (!canPipeline) {
+            ((ByteArrEntry) sent.poll()).callback(response);
+            canPipeline = true;
+        } else {
+            boolean found = false;
+            for (final Iterator<CommandEntry> iterator = sent.iterator(); iterator.hasNext(); ) {
+                CommandEntry entryPlain = iterator.next();
+                if (entryPlain.getClass() == CommandSeqElEntry.class && ((CommandSeqElEntry) entryPlain).getEcho() == echo) {
+                    ((CommandSeqElEntry) entryPlain).callback(response);
+                    iterator.remove();
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                throw new IllegalStateException("Command Response system doesn't know this response");
+            }
+        }
+        if (!toSend.isEmpty()) {
+            CommandEntry entry = toSend.peek();
+            if (sent.isEmpty()) {
+                sent.add(entry);
+                canPipeline = entry.canBePipelined();
+                toSend.poll();
+            } else if (sent.size() < MAX_SENT && canPipeline && entry.canBePipelined()) {
+                sent.add(toSend.poll());
+            }
+        }
+    }
+
+    @Override
+    public ResponseAddressingSystem getResponseAddressingSystem() {
+        return new ResponseAddressingSystem(this);
     }
 
     private class CommandSeqElEntry implements CommandEntry {
@@ -37,7 +138,7 @@ public class CommandResponseQueue implements CommandResponseSystem {
         @Override
         public byte[] compile() {
             // TODO: decide on how locking will work...
-            byte[] echoF     = ZscriptCommandBuilder.formatField((byte) '_', echo);
+            byte[] echoF     = ZscriptCommandBuilder.formatField(Zchars.Z_ECHO, echo);
             byte[] startData = cmdSeq.compile(false);
 
             ByteArrayOutputStream str = new ByteArrayOutputStream(startData.length + echoF.length + 1);
@@ -46,7 +147,7 @@ public class CommandResponseQueue implements CommandResponseSystem {
                 str.write(startData);
                 str.write('\n');
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedIOException(e);
             }
             return str.toByteArray();
         }
@@ -120,104 +221,4 @@ public class CommandResponseQueue implements CommandResponseSystem {
             return false;
         }
     }
-
-    private final Deque<CommandEntry> sent   = new ArrayDeque<>();
-    private final Queue<CommandEntry> toSend = new ArrayDeque<>();
-
-    private int     currentEcho = 0;
-    private boolean canPipeline = true;
-
-    public CommandResponseQueue(ZscriptConnection connection) {
-        this.connection = connection;
-        connection.onReceive(resp -> {
-            ResponseHeader header = ResponseParser.parseResponseHeader(resp);
-            if (header.getAddr().length == 0) {
-                callback(resp, header.getEcho(), header.getType());
-            } else {
-                addrSystem.response(header.getAddr(), resp);
-            }
-        });
-    }
-
-    @Override
-    public void send(final ZscriptAddress addr, final byte[] data) {
-        if (sent.size() < MAX_SENT && canPipeline) {
-            AddrCommandSeqElEntry el = new AddrCommandSeqElEntry(data, addr);
-            sent.add(el);
-            connection.send(el.compile());
-        } else {
-            toSend.add(new AddrCommandSeqElEntry(data, addr));
-        }
-    }
-
-    @Override
-    public void send(final CommandSeqElement seq) {
-        if (sent.size() < MAX_SENT && canPipeline) {
-            CommandSeqElEntry el = new CommandSeqElEntry(seq, currentEcho);
-            sent.add(el);
-            connection.send(el.compile());
-        } else {
-            toSend.add(new CommandSeqElEntry(seq, currentEcho));
-        }
-        currentEcho++;
-        if (currentEcho >= 0x10000) {
-            currentEcho = 0;
-        }
-    }
-
-    @Override
-    public void send(final byte[] zscript, final Consumer<byte[]> callback) {
-        if (sent.isEmpty()) {
-            ByteArrEntry el = new ByteArrEntry(callback, zscript);
-            sent.add(el);
-            connection.send(el.compile());
-            canPipeline = false;
-        } else {
-            toSend.add(new ByteArrEntry(callback, zscript));
-        }
-    }
-
-    /**
-     * @param response
-     * @param echo
-     * @param respType
-     */
-    private void callback(final byte[] response, int echo, int respType) {
-        if (respType != 0) {
-            // TODO: notifications
-        } else if (!canPipeline) {
-            ((ByteArrEntry) sent.poll()).callback(response);
-            canPipeline = true;
-        } else {
-            boolean found = false;
-            for (final Iterator<CommandEntry> iterator = sent.iterator(); iterator.hasNext(); ) {
-                CommandEntry entryPlain = iterator.next();
-                if (entryPlain.getClass() == CommandSeqElEntry.class && ((CommandSeqElEntry) entryPlain).getEcho() == echo) {
-                    ((CommandSeqElEntry) entryPlain).callback(response);
-                    iterator.remove();
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                throw new IllegalStateException("Command Response system doesn't know this response");
-            }
-        }
-        if (!toSend.isEmpty()) {
-            CommandEntry entry = toSend.peek();
-            if (sent.isEmpty()) {
-                sent.add(entry);
-                canPipeline = entry.canBePipelined();
-                toSend.poll();
-            } else if (sent.size() < MAX_SENT && canPipeline && entry.canBePipelined()) {
-                sent.add(toSend.poll());
-            }
-        }
-    }
-
-    @Override
-    public ResponseAddressingSystem getResponseAddressingSystem() {
-        return new ResponseAddressingSystem(this);
-    }
-
 }

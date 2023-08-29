@@ -67,10 +67,10 @@ public class AbortCommand extends ZscriptCommand {
     }
 
     @Override
-    public void response(ZscriptExpression resp) {
+    public void onResponse(ZscriptExpression resp) {
     }
 
     @Override
-    public void notExecuted() {
+    public void onNotExecuted() {
     }
 }

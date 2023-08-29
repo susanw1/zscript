@@ -201,14 +201,14 @@ public class ResponseParser {
             failPath = current.findFailPath();
 
             final ReadToken t = tokenAfterMarkers.get(offset);
-            current.response(new ZscriptTokenExpression(t::getNextTokens));
+            current.onResponse(new ZscriptTokenExpression(t::getNextTokens));
 
             sentResponses.add(current);
         }
         for (ZscriptSequencePath path = ZscriptCommand.findFirstCommand(command); path != null; path = path.getNext().findNext()) {
             ZscriptCommand cmd = path.getNext();
             if (!sentResponses.contains(cmd)) {
-                cmd.notExecuted();
+                cmd.onNotExecuted();
             }
         }
     }

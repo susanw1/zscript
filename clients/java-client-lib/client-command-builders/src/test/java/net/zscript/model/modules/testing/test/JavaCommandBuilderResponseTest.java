@@ -235,7 +235,7 @@ public class JavaCommandBuilderResponseTest {
         ZscriptCommand cmd = commandBuilder.addResponseListener(listener)
                 .build();
 
-        cmd.response(new ZscriptTokenExpression(tokenReader::iterator));
+        cmd.onResponse(new ZscriptTokenExpression(tokenReader::iterator));
     }
 
 }

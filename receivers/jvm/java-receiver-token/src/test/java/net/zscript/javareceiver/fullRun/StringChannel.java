@@ -38,5 +38,4 @@ public class StringChannel extends ZscriptChannel {
     @Override
     public void channelSetup(CommandContext ctx) {
     }
-
 }

@@ -2,6 +2,7 @@ package net.zscript.javaclient.commandbuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 public class OrSeqElement extends CommandSeqElement {
     final CommandSeqElement before;
@@ -43,7 +44,7 @@ public class OrSeqElement extends CommandSeqElement {
             out.write((byte) '|');
             out.write(after.compile(false));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
         if (includeParens) {
             out.write((byte) ')');

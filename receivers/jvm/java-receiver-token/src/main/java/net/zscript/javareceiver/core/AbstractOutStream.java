@@ -56,14 +56,9 @@ public abstract class AbstractOutStream implements OutStream, ZscriptCommandOutS
     }
 
     private void writeStringByte(byte b) {
-        switch (b) {
-        case '\n':
-        case '=':
-        case '"':
-        case '\0':
+        if (Zchars.mustStringEscape(b)) {
             writeEscaped(b);
-            break;
-        default:
+        } else {
             writeCharAsByte(b);
         }
     }

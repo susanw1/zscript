@@ -17,9 +17,9 @@ import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 
 public class LocalZscriptConnection implements ZscriptConnection {
-    private final ExecutorService exec   = Executors.newSingleThreadExecutor();
-    private final Queue<byte[]>   dataIn = new ArrayDeque<>();
-    private Consumer<byte[]>      handler;
+    private final ExecutorService  exec   = Executors.newSingleThreadExecutor();
+    private final Queue<byte[]>    dataIn = new ArrayDeque<>();
+    private       Consumer<byte[]> handler;
 
     private class ProgressForever implements Runnable {
         private final Zscript zscript;
@@ -45,8 +45,8 @@ public class LocalZscriptConnection implements ZscriptConnection {
         zscript.addModule(new ZscriptCoreModule());
         zscript.addModule(new ZscriptOuterCoreModule());
 
-        TokenRingBuffer rbuff = TokenRingBuffer.createBufferWithCapacity(100);
-        zscript.addChannel(new ZscriptChannel(rbuff, new OutputStreamOutStream<>(new ByteArrayOutputStream()) {
+        TokenRingBuffer ringBuffer = TokenRingBuffer.createBufferWithCapacity(100);
+        zscript.addChannel(new ZscriptChannel(ringBuffer, new OutputStreamOutStream<>(new ByteArrayOutputStream()) {
 
             @Override
             public void close() {
@@ -54,10 +54,10 @@ public class LocalZscriptConnection implements ZscriptConnection {
                 getOutputStream().reset();
             }
         }) {
-            Tokenizer in = new Tokenizer(rbuff.getTokenWriter(), 2);
+            final Tokenizer in = new Tokenizer(ringBuffer.getTokenWriter(), 2);
 
             byte[] current = null;
-            int    pos     = 0;
+            int pos = 0;
 
             @Override
             public void moveAlong() {
