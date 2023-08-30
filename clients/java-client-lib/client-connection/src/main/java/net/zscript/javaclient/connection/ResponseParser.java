@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import net.zscript.javaclient.commandbuilder.CommandSeqElement;
+import net.zscript.javaclient.commandbuilder.CommandSequence;
 import net.zscript.javaclient.commandbuilder.ZscriptCommand;
 import net.zscript.javaclient.commandbuilder.ZscriptCommand.ZscriptSequencePath;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
@@ -117,7 +117,7 @@ public class ResponseParser {
     }
 
     // TODO: Trim the sequence level stuff off of first command
-    public static void parseFullResponse(final CommandSeqElement command, final byte[] response) {
+    public static void parseFullResponse(final CommandSequence command, final byte[] response) {
         final TokenBuffer buffer = new TokenExtendingBuffer();
         final Tokenizer   in     = new Tokenizer(buffer.getTokenWriter(), 4);
         for (final byte b : response) {
@@ -148,7 +148,7 @@ public class ResponseParser {
         matchMarkers(command, markers, tokenAfterMarkers);
     }
 
-    private static void matchMarkers(final CommandSeqElement command, final List<Byte> markers, final List<ReadToken> tokenAfterMarkers) {
+    private static void matchMarkers(final CommandSequence command, final List<Byte> markers, final List<ReadToken> tokenAfterMarkers) {
         ZscriptCommand      current;
         ZscriptSequencePath successPath = ZscriptCommand.findFirstCommand(command);
         ZscriptSequencePath failPath    = ZscriptCommand.findFirstCommand(command);

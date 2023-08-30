@@ -3,68 +3,68 @@ package net.zscript.javaclient.commandbuilder;
 /**
  * An element of a Command Sequence under construction, representing a node in the Syntax Tree of a sequence during building.
  */
-public abstract class CommandSeqElement {
-    protected CommandSeqElement parent = null;
+public abstract class CommandSequence {
+    protected CommandSequence parent = null;
 
-    void setParent(CommandSeqElement parent) {
+    void setParent(CommandSequence parent) {
         this.parent = parent;
     }
 
-    CommandSeqElement getParent() {
+    CommandSequence getParent() {
         return parent;
     }
 
     public interface SuccessConditional {
-        SuccessConditionalElse then(CommandSeqElement cmdsOnSuccess);
+        SuccessConditionalElse then(CommandSequence cmdsOnSuccess);
     }
 
     public interface SuccessConditionalElse {
-        CommandSeqElement otherwise(CommandSeqElement cmdsOnFail);
+        CommandSequence otherwise(CommandSequence cmdsOnFail);
     }
 
     public interface FailureConditional {
-        SuccessConditionalElse then(CommandSeqElement cmdsOnFail);
+        SuccessConditionalElse then(CommandSequence cmdsOnFail);
     }
 
     public interface FailureConditionalElse {
-        CommandSeqElement otherwise(CommandSeqElement cmdsOnSuccess);
+        CommandSequence otherwise(CommandSequence cmdsOnSuccess);
     }
 
-    public static SuccessConditional ifSucceeds(CommandSeqElement condition) {
+    public static SuccessConditional ifSucceeds(CommandSequence condition) {
         return condition.ifSucceeds();
     }
 
-    public static FailureConditional ifFails(CommandSeqElement condition) {
+    public static FailureConditional ifFails(CommandSequence condition) {
         return condition.ifFails();
     }
 
-    public CommandSeqElement andThen(CommandSeqElement next) {
-        return new AndSeqElement(this, next);
+    public CommandSequence andThen(CommandSequence next) {
+        return new AndSequence(this, next);
     }
 
-    public CommandSeqElement dropFailureCondition() {
+    public CommandSequence dropFailureCondition() {
         if (canFail()) {
             return onFail(new BlankCommand());
         }
         return this;
     }
 
-    public CommandSeqElement thenFail() {
+    public CommandSequence thenFail() {
         return andThen(new FailureCommand());
     }
 
-    public CommandSeqElement thenAbort() {
+    public CommandSequence thenAbort() {
         return andThen(new AbortCommand());
     }
 
-    public CommandSeqElement onFail(CommandSeqElement next) {
+    public CommandSequence onFail(CommandSequence next) {
         if (canFail()) {
-            return new OrSeqElement(this, next);
+            return new OrSequence(this, next);
         }
         return this;
     }
 
-    public CommandSeqElement abortOnFail() {
+    public CommandSequence abortOnFail() {
         return onFail(new AbortCommand());
     }
 
@@ -80,7 +80,7 @@ public abstract class CommandSeqElement {
 
     public abstract boolean canFail();
 
-    abstract CommandSeqElement reEvaluate();
+    abstract CommandSequence reEvaluate();
 
     public abstract byte[] compile(boolean includeParens);
 }

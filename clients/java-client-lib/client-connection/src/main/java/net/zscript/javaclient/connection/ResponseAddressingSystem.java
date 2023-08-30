@@ -5,12 +5,12 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class ResponseAddressingSystem {
-    private final DeviceCommunications parent;
+    private final GenericDevice parent;
 
     private final Map<ZscriptAddress, Consumer<byte[]>>  addressResp       = new HashMap<>();
     private final Map<ZscriptAddress, ZscriptConnection> addressConnection = new HashMap<>();
 
-    public ResponseAddressingSystem(DeviceCommunications parent) {
+    public ResponseAddressingSystem(GenericDevice parent) {
         this.parent = parent;
     }
 

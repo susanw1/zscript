@@ -7,27 +7,27 @@ import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 public class AbortCommand extends ZscriptCommand {
 
     @Override
-    public CommandSeqElement thenFail() {
+    public CommandSequence thenFail() {
         return this;
     }
 
     @Override
-    public CommandSeqElement thenAbort() {
+    public CommandSequence thenAbort() {
         return this;
     }
 
     @Override
-    public CommandSeqElement andThen(CommandSeqElement next) {
+    public CommandSequence andThen(CommandSequence next) {
         return this;
     }
 
     @Override
-    public CommandSeqElement dropFailureCondition() {
+    public CommandSequence dropFailureCondition() {
         return this;
     }
 
     @Override
-    public CommandSeqElement abortOnFail() {
+    public CommandSequence abortOnFail() {
         return this;
     }
 
@@ -42,7 +42,7 @@ public class AbortCommand extends ZscriptCommand {
     }
 
     @Override
-    public CommandSeqElement onFail(CommandSeqElement next) {
+    public CommandSequence onFail(CommandSequence next) {
         return this;
     }
 
@@ -52,7 +52,7 @@ public class AbortCommand extends ZscriptCommand {
     }
 
     @Override
-    public CommandSeqElement reEvaluate() {
+    public CommandSequence reEvaluate() {
         return this;
     }
 

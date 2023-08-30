@@ -9,12 +9,12 @@ import java.util.Iterator;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.commandbuilder.CommandSeqElement;
+import net.zscript.javaclient.commandbuilder.CommandSequence;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.connection.ResponseParser.ResponseHeader;
 import net.zscript.model.components.Zchars;
 
-public class CommandResponseQueue implements DeviceCommunications {
+public class CommandResponseQueue implements GenericDevice {
     private static final int MAX_SENT = 10;
 
     private final ResponseAddressingSystem addrSystem = new ResponseAddressingSystem(this);
@@ -57,13 +57,13 @@ public class CommandResponseQueue implements DeviceCommunications {
     }
 
     @Override
-    public void send(final CommandSeqElement seq) {
+    public void send(final CommandSequence sequence) {
         if (sent.size() < MAX_SENT && canPipeline) {
-            CommandSeqElEntry el = new CommandSeqElEntry(seq, currentAutoEchoNumber);
+            CommandSeqElEntry el = new CommandSeqElEntry(sequence, currentAutoEchoNumber);
             sent.add(el);
             connection.send(el.compile());
         } else {
-            toSend.add(new CommandSeqElEntry(seq, currentAutoEchoNumber));
+            toSend.add(new CommandSeqElEntry(sequence, currentAutoEchoNumber));
         }
         currentAutoEchoNumber++;
         if (currentAutoEchoNumber >= 0x10000) {
@@ -127,10 +127,10 @@ public class CommandResponseQueue implements DeviceCommunications {
     }
 
     private class CommandSeqElEntry implements CommandEntry {
-        private final CommandSeqElement cmdSeq;
-        private final int               echo;
+        private final CommandSequence cmdSeq;
+        private final int             echo;
 
-        public CommandSeqElEntry(final CommandSeqElement cmdSeq, final int echo) {
+        public CommandSeqElEntry(final CommandSequence cmdSeq, final int echo) {
             this.cmdSeq = cmdSeq;
             this.echo = echo;
         }

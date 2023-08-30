@@ -6,17 +6,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class AndSeqElement extends CommandSeqElement {
-    private final List<CommandSeqElement> elements;
+public class AndSequence extends CommandSequence {
+    private final List<CommandSequence> elements;
 
-    AndSeqElement(List<CommandSeqElement> elements) {
+    AndSequence(List<CommandSequence> elements) {
         this.elements = elements;
-        for (CommandSeqElement el : elements) {
+        for (CommandSequence el : elements) {
             el.setParent(this);
         }
     }
 
-    AndSeqElement(CommandSeqElement el1, CommandSeqElement el2) {
+    AndSequence(CommandSequence el1, CommandSequence el2) {
         this.elements = new ArrayList<>();
         elements.add(el1);
         elements.add(el2);
@@ -25,19 +25,19 @@ public class AndSeqElement extends CommandSeqElement {
     }
 
     @Override
-    public CommandSeqElement andThen(CommandSeqElement next) {
-        List<CommandSeqElement> newEls = new ArrayList<>(elements);
-        if (next.getClass() == AndSeqElement.class) {
-            newEls.addAll(((AndSeqElement) next).elements);
+    public CommandSequence andThen(CommandSequence next) {
+        List<CommandSequence> newEls = new ArrayList<>(elements);
+        if (next.getClass() == AndSequence.class) {
+            newEls.addAll(((AndSequence) next).elements);
         } else {
             newEls.add(next);
         }
-        return new AndSeqElement(newEls);
+        return new AndSequence(newEls);
     }
 
     @Override
     public boolean canFail() {
-        for (CommandSeqElement element : elements) {
+        for (CommandSequence element : elements) {
             if (element.canFail()) {
                 return true;
             }
@@ -51,9 +51,9 @@ public class AndSeqElement extends CommandSeqElement {
     }
 
     @Override
-    public CommandSeqElement reEvaluate() {
-        List<CommandSeqElement> els = new ArrayList<>();
-        for (CommandSeqElement element : elements) {
+    public CommandSequence reEvaluate() {
+        List<CommandSequence> els = new ArrayList<>();
+        for (CommandSequence element : elements) {
             if (element.getClass() == FailureCommand.class) {
                 els.add(element);
                 break;
@@ -61,8 +61,8 @@ public class AndSeqElement extends CommandSeqElement {
             if (element.getClass() == AbortCommand.class) {
                 els.add(element);
                 break;
-            } else if (element.getClass() == AndSeqElement.class) {
-                els.addAll(((AndSeqElement) element).elements);
+            } else if (element.getClass() == AndSequence.class) {
+                els.addAll(((AndSequence) element).elements);
             } else if (element.getClass() == BlankCommand.class) {
             } else {
                 els.add(element.reEvaluate());
@@ -74,7 +74,7 @@ public class AndSeqElement extends CommandSeqElement {
         if (els.size() == 1) {
             return els.get(0);
         }
-        return new AndSeqElement(els);
+        return new AndSequence(els);
     }
 
     @Override
@@ -82,8 +82,8 @@ public class AndSeqElement extends CommandSeqElement {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         boolean useAnd = false;
-        for (Iterator<CommandSeqElement> iterator = elements.iterator(); iterator.hasNext();) {
-            CommandSeqElement el = iterator.next();
+        for (Iterator<CommandSequence> iterator = elements.iterator(); iterator.hasNext(); ) {
+            CommandSequence el = iterator.next();
             try {
                 byte[] data = el.compile(true);
                 if (useAnd && data.length > 0 && data[0] != '(') {
@@ -100,7 +100,7 @@ public class AndSeqElement extends CommandSeqElement {
         return out.toByteArray();
     }
 
-    public List<CommandSeqElement> getElements() {
+    public List<CommandSequence> getElements() {
         return elements;
     }
 }

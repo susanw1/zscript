@@ -36,7 +36,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     public class ZscriptBuiltCommand extends ZscriptCommand {
 
         @Override
-        public CommandSeqElement reEvaluate() {
+        public CommandSequence reEvaluate() {
             return this;
         }
 

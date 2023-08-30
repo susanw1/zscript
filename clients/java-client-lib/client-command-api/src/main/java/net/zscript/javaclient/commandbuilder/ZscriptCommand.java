@@ -6,7 +6,7 @@ import java.util.List;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 import net.zscript.model.components.Zchars;
 
-public abstract class ZscriptCommand extends CommandSeqElement {
+public abstract class ZscriptCommand extends CommandSequence {
     /**
      * Represents the next command from a given point in the Syntax Tree based on the AND/OR logic of a command sequence.
      */
@@ -43,22 +43,22 @@ public abstract class ZscriptCommand extends CommandSeqElement {
      */
     public abstract void onResponse(ZscriptExpression resp);
 
-    public static ZscriptSequencePath findFirstCommand(final CommandSeqElement start) {
-        CommandSeqElement current = start;
-        CommandSeqElement prev;
-        List<Byte>        markers = new ArrayList<>();
+    public static ZscriptSequencePath findFirstCommand(final CommandSequence start) {
+        CommandSequence current = start;
+        CommandSequence prev;
+        List<Byte>      markers = new ArrayList<>();
         while (!current.isCommand()) {
-            if (current.getClass() == AndSeqElement.class) {
+            if (current.getClass() == AndSequence.class) {
                 prev = current;
-                current = ((AndSeqElement) current).getElements().get(0);
-            } else if (current.getClass() == OrSeqElement.class) {
+                current = ((AndSequence) current).getElements().get(0);
+            } else if (current.getClass() == OrSequence.class) {
                 prev = current;
-                current = ((OrSeqElement) current).before;
+                current = ((OrSequence) current).before;
             } else {
                 throw new IllegalStateException("Unknown CommandSeqElement: " + current);
             }
 
-            if (current.getClass() == OrSeqElement.class && prev.getClass() == OrSeqElement.class) {
+            if (current.getClass() == OrSequence.class && prev.getClass() == OrSequence.class) {
                 markers.add(Zchars.Z_OPENPAREN);
             }
         }
@@ -66,29 +66,29 @@ public abstract class ZscriptCommand extends CommandSeqElement {
     }
 
     public ZscriptSequencePath findNext() {
-        CommandSeqElement current = parent;
-        CommandSeqElement prev    = this;
-        List<Byte>        markers = new ArrayList<>();
+        CommandSequence current = parent;
+        CommandSequence prev    = this;
+        List<Byte>      markers = new ArrayList<>();
 
         while (current != null) {
-            if (current.getClass() == OrSeqElement.class) {
-                OrSeqElement orAncestor = (OrSeqElement) current;
+            if (current.getClass() == OrSequence.class) {
+                OrSequence orAncestor = (OrSequence) current;
                 if (prev == orAncestor.before) {
                     markers.add(Zchars.Z_ORELSE);
                     return new ZscriptSequencePath(markers, findFirstCommand(orAncestor.after));
                 }
-            } else if (current.getClass() == AndSeqElement.class) {
-                AndSeqElement andAncestor = (AndSeqElement) current;
+            } else if (current.getClass() == AndSequence.class) {
+                AndSequence andAncestor = (AndSequence) current;
                 if (prev != andAncestor.getElements().get(andAncestor.getElements().size() - 1)) {
-                    CommandSeqElement next = andAncestor.getElements().get(andAncestor.getElements().indexOf(prev) + 1);
-                    if (prev.getClass() != OrSeqElement.class && next.getClass() != OrSeqElement.class) {
+                    CommandSequence next = andAncestor.getElements().get(andAncestor.getElements().indexOf(prev) + 1);
+                    if (prev.getClass() != OrSequence.class && next.getClass() != OrSequence.class) {
                         markers.add(Zchars.Z_ANDTHEN);
                     }
                     return new ZscriptSequencePath(markers, findFirstCommand(next));
                 }
             }
 
-            if (current.getClass() == OrSeqElement.class && current.getParent() != null && current.getParent().getClass() != OrSeqElement.class) {
+            if (current.getClass() == OrSequence.class && current.getParent() != null && current.getParent().getClass() != OrSequence.class) {
                 markers.add(Zchars.Z_CLOSEPAREN);
             }
             prev = current;
@@ -98,19 +98,19 @@ public abstract class ZscriptCommand extends CommandSeqElement {
     }
 
     public ZscriptSequencePath findFailPath() {
-        CommandSeqElement current = parent;
-        CommandSeqElement prev    = this;
-        List<Byte>        markers = new ArrayList<>();
+        CommandSequence current = parent;
+        CommandSequence prev    = this;
+        List<Byte>      markers = new ArrayList<>();
 
         while (current != null) {
-            if (current.getClass() == OrSeqElement.class) {
-                OrSeqElement orAncestor = (OrSeqElement) current;
+            if (current.getClass() == OrSequence.class) {
+                OrSequence orAncestor = (OrSequence) current;
                 if (prev == orAncestor.before) {
                     markers.add(Zchars.Z_ORELSE);
                     return new ZscriptSequencePath(markers, findFirstCommand(orAncestor.after));
                 }
             }
-            if (current.getClass() == OrSeqElement.class && current.getParent() != null && current.getParent().getClass() != OrSeqElement.class) {
+            if (current.getClass() == OrSequence.class && current.getParent() != null && current.getParent().getClass() != OrSequence.class) {
                 markers.add(Zchars.Z_CLOSEPAREN);
             }
             prev = current;
@@ -120,22 +120,22 @@ public abstract class ZscriptCommand extends CommandSeqElement {
     }
 
     public ZscriptSequencePath findSuccessPath() {
-        CommandSeqElement current = parent;
-        CommandSeqElement prev    = this;
-        List<Byte>        markers = new ArrayList<>();
+        CommandSequence current = parent;
+        CommandSequence prev    = this;
+        List<Byte>      markers = new ArrayList<>();
 
         while (current != null) {
-            if (current.getClass() == AndSeqElement.class) {
-                AndSeqElement andAncestor = (AndSeqElement) current;
+            if (current.getClass() == AndSequence.class) {
+                AndSequence andAncestor = (AndSequence) current;
                 if (prev != andAncestor.getElements().get(andAncestor.getElements().size() - 1)) {
-                    CommandSeqElement next = andAncestor.getElements().get(andAncestor.getElements().indexOf(prev) + 1);
-                    if (prev.getClass() != OrSeqElement.class && next.getClass() != OrSeqElement.class) {
+                    CommandSequence next = andAncestor.getElements().get(andAncestor.getElements().indexOf(prev) + 1);
+                    if (prev.getClass() != OrSequence.class && next.getClass() != OrSequence.class) {
                         markers.add(Zchars.Z_ANDTHEN);
                     }
                     return new ZscriptSequencePath(markers, findFirstCommand(next));
                 }
             }
-            if (current.getClass() == OrSeqElement.class && current.getParent() != null && current.getParent().getClass() != OrSeqElement.class) {
+            if (current.getClass() == OrSequence.class && current.getParent() != null && current.getParent().getClass() != OrSequence.class) {
                 markers.add(Zchars.Z_CLOSEPAREN);
             }
             prev = current;

@@ -5,27 +5,27 @@ import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 public class BlankCommand extends ZscriptCommand {
 
     @Override
-    public CommandSeqElement thenFail() {
+    public CommandSequence thenFail() {
         return new FailureCommand();
     }
 
     @Override
-    public CommandSeqElement thenAbort() {
+    public CommandSequence thenAbort() {
         return new AbortCommand();
     }
 
     @Override
-    public CommandSeqElement andThen(CommandSeqElement next) {
+    public CommandSequence andThen(CommandSequence next) {
         return next;
     }
 
     @Override
-    public CommandSeqElement dropFailureCondition() {
+    public CommandSequence dropFailureCondition() {
         return this;
     }
 
     @Override
-    public CommandSeqElement abortOnFail() {
+    public CommandSequence abortOnFail() {
         return this;
     }
 
@@ -40,7 +40,7 @@ public class BlankCommand extends ZscriptCommand {
     }
 
     @Override
-    public CommandSeqElement onFail(CommandSeqElement next) {
+    public CommandSequence onFail(CommandSequence next) {
         return this;
     }
 
@@ -55,7 +55,7 @@ public class BlankCommand extends ZscriptCommand {
     }
 
     @Override
-    public CommandSeqElement reEvaluate() {
+    public CommandSequence reEvaluate() {
         return this;
     }
 
