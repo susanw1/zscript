@@ -4,30 +4,39 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Simple encapsulation of a Zscript address.
  */
 public class ZscriptAddress {
-    private final int[] address;
+    private final int[] addressParts;
 
-    public static ZscriptAddress from(int... address) {
-        return new ZscriptAddress(address);
+    public static ZscriptAddress from(int... addressParts) {
+        return new ZscriptAddress(addressParts.clone());
+    }
+
+    public static ZscriptAddress from(List<Integer> addressParts) {
+        return new ZscriptAddress(addressParts.stream().mapToInt(i -> i).toArray());
     }
 
     private ZscriptAddress(int[] addr) {
-        this.address = addr.clone();
+        this.addressParts = addr;
     }
 
     public int[] getAsInts() {
-        return address.clone();
+        return addressParts.clone();
+    }
+
+    public int size() {
+        return addressParts.length;
     }
 
     @Override
     public int hashCode() {
         final int prime  = 31;
         int       result = 1;
-        result = prime * result + Arrays.hashCode(address);
+        result = prime * result + Arrays.hashCode(addressParts);
         return result;
     }
 
@@ -43,7 +52,7 @@ public class ZscriptAddress {
             return false;
         }
         ZscriptAddress other = (ZscriptAddress) obj;
-        if (!Arrays.equals(address, other.address)) {
+        if (!Arrays.equals(addressParts, other.addressParts)) {
             return false;
         }
         return true;
@@ -56,7 +65,7 @@ public class ZscriptAddress {
      */
     @Override
     public String toString() {
-        return stream(address)
+        return stream(addressParts)
                 .mapToObj(a -> a == 0 ? "" : Integer.toHexString(a))
                 .collect(joining(".", "@", ""));
     }

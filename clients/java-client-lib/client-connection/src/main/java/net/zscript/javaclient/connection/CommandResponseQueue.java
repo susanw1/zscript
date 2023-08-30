@@ -14,7 +14,7 @@ import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.connection.ResponseParser.ResponseHeader;
 import net.zscript.model.components.Zchars;
 
-public class CommandResponseQueue implements CommandResponseSystem {
+public class CommandResponseQueue implements DeviceCommunications {
     private static final int MAX_SENT = 10;
 
     private final ResponseAddressingSystem addrSystem = new ResponseAddressingSystem(this);
@@ -35,12 +35,12 @@ public class CommandResponseQueue implements CommandResponseSystem {
 
     public CommandResponseQueue(ZscriptConnection connection) {
         this.connection = connection;
-        connection.onReceive(resp -> {
-            ResponseHeader header = ResponseParser.parseResponseHeader(resp);
-            if (header.getAddr().length == 0) {
-                callback(resp, header.getEcho(), header.getType());
+        connection.onReceive(responseBytes -> {
+            ResponseHeader header = ResponseParser.parseResponseHeader(responseBytes);
+            if (header.hasAddress()) {
+                addrSystem.response(header.getAddress(), responseBytes);
             } else {
-                addrSystem.response(header.getAddr(), resp);
+                callback(responseBytes, header.getEcho(), header.getType());
             }
         });
     }

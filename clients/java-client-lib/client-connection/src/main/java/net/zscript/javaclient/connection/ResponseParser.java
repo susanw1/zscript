@@ -20,18 +20,22 @@ import net.zscript.util.OptIterator;
 
 public class ResponseParser {
     static class ResponseHeader {
-        private final int[] addr;
-        private final int   type;
-        private final int   echo;
+        private final ZscriptAddress address;
+        private final int            type;
+        private final int            echo;
 
-        public ResponseHeader(int[] addr, int type, int echo) {
-            this.addr = addr;
+        public ResponseHeader(ZscriptAddress address, int type, int echo) {
+            this.address = address;
             this.type = type;
             this.echo = echo;
         }
 
-        public int[] getAddr() {
-            return addr;
+        public ZscriptAddress getAddress() {
+            return address;
+        }
+
+        public boolean hasAddress() {
+            return address.size() > 0;
         }
 
         public int getType() {
@@ -90,12 +94,7 @@ public class ResponseParser {
                 break;
             }
         }
-        int[] addrArr = new int[addr.size()];
-        int   i       = 0;
-        for (int val : addr) {
-            addrArr[i++] = val;
-        }
-        return new ResponseHeader(addrArr, respType, echo);
+        return new ResponseHeader(ZscriptAddress.from(addr), respType, echo);
     }
 
     private static byte convertMarkers(byte encoded) {
@@ -129,13 +128,10 @@ public class ResponseParser {
         final List<ReadToken> tokenAfterMarkers = new ArrayList<>();
         boolean               prevWasMarker     = false;
 
-        final OptIterator<ReadToken> itEndSeq = reader.iterator();
-        for (Optional<ReadToken> opt = itEndSeq.next(); opt.isPresent(); opt = itEndSeq.next()) {
-            if (opt.get().getKey() != Zchars.Z_RESPONSE_MARK && opt.get().getKey() != Zchars.Z_ECHO) {
-                tokenAfterMarkers.add(opt.get());
-                break;
-            }
-        }
+        reader.iterator().stream()
+                .filter(tok -> tok.getKey() != Zchars.Z_RESPONSE_MARK && tok.getKey() != Zchars.Z_ECHO)
+                .findFirst()
+                .ifPresent(tokenAfterMarkers::add);
 
         final OptIterator<ReadToken> it = reader.iterator();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {

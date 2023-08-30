@@ -5,12 +5,12 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class ResponseAddressingSystem {
-    private final CommandResponseSystem parent;
+    private final DeviceCommunications parent;
 
     private final Map<ZscriptAddress, Consumer<byte[]>>  addressResp       = new HashMap<>();
     private final Map<ZscriptAddress, ZscriptConnection> addressConnection = new HashMap<>();
 
-    public ResponseAddressingSystem(CommandResponseSystem parent) {
+    public ResponseAddressingSystem(DeviceCommunications parent) {
         this.parent = parent;
     }
 
@@ -28,8 +28,7 @@ public class ResponseAddressingSystem {
         });
     }
 
-    public void response(int[] addr, byte[] received) {
-        addressResp.get(ZscriptAddress.from(addr)).accept(received);
+    public void response(ZscriptAddress address, byte[] received) {
+        addressResp.get(address).accept(received);
     }
-
 }
