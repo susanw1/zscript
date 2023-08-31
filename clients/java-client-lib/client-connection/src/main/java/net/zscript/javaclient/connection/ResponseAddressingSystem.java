@@ -1,5 +1,7 @@
 package net.zscript.javaclient.connection;
 
+import static java.util.Optional.ofNullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -7,8 +9,8 @@ import java.util.function.Consumer;
 public class ResponseAddressingSystem {
     private final GenericDevice parent;
 
-    private final Map<ZscriptAddress, Consumer<byte[]>>  addressResp       = new HashMap<>();
-    private final Map<ZscriptAddress, ZscriptConnection> addressConnection = new HashMap<>();
+    private final Map<ZscriptAddress, Consumer<byte[]>>  addressResponseHandlers = new HashMap<>();
+    private final Map<ZscriptAddress, ZscriptConnection> addressConnection       = new HashMap<>();
 
     public ResponseAddressingSystem(GenericDevice parent) {
         this.parent = parent;
@@ -23,12 +25,19 @@ public class ResponseAddressingSystem {
 
             @Override
             public void onReceive(Consumer<byte[]> handler) {
-                addressResp.put(a, handler);
+                addressResponseHandlers.put(a, handler);
+            }
+
+            @Override
+            public void close() {
+                addressResponseHandlers.remove(a);
+                addressConnection.remove(a);
             }
         });
     }
 
     public void response(ZscriptAddress address, byte[] received) {
-        addressResp.get(address).accept(received);
+        ofNullable(addressResponseHandlers.get(address))
+                .ifPresent(h -> h.accept(received));
     }
 }

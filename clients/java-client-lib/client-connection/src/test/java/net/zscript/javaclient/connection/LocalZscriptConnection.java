@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
+import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.OutputStreamOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptChannel;
@@ -46,14 +47,15 @@ public class LocalZscriptConnection implements ZscriptConnection {
         zscript.addModule(new ZscriptOuterCoreModule());
 
         TokenRingBuffer ringBuffer = TokenRingBuffer.createBufferWithCapacity(100);
-        zscript.addChannel(new ZscriptChannel(ringBuffer, new OutputStreamOutStream<>(new ByteArrayOutputStream()) {
-
+        final OutStream outStream = new OutputStreamOutStream<>(new ByteArrayOutputStream()) {
             @Override
             public void close() {
                 handler.accept(getOutputStream().toByteArray());
                 getOutputStream().reset();
             }
-        }) {
+        };
+
+        zscript.addChannel(new ZscriptChannel(ringBuffer, outStream) {
             final Tokenizer in = new Tokenizer(ringBuffer.getTokenWriter(), 2);
 
             byte[] current = null;
@@ -84,7 +86,6 @@ public class LocalZscriptConnection implements ZscriptConnection {
             @Override
             public void channelSetup(CommandContext view) {
             }
-
         });
         exec.submit(new ProgressForever(zscript));
     }
@@ -97,6 +98,11 @@ public class LocalZscriptConnection implements ZscriptConnection {
     @Override
     public void onReceive(Consumer<byte[]> handler) {
         this.handler = handler;
+    }
+
+    @Override
+    public void close() {
+
     }
 
 }

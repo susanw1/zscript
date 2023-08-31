@@ -24,6 +24,10 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
     public static final String VERSION = "{{version}}";
     public static final String DESCRIPTION = "{{description}}";
 
+    private {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module() {
+        // prevent instantiation
+    }
+
     /**
      * Defines the set of all commands defined in this module.
      */

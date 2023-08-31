@@ -46,8 +46,8 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>net.zscript.demo01.client.ui.UiMain</mainClass>
-                    <jlinkImageName>zscript_demo_01</jlinkImageName>
-                    <launcher>launcher</launcher>
+                    <!--                    <jlinkImageName>zscript_demo_01</jlinkImageName>-->
+                    <!--                    <launcher>launcher</launcher>-->
                 </configuration>
             </plugin>
         </plugins>
