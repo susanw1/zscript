@@ -192,7 +192,7 @@ public:
             ZscriptChannel<ZP>(&out, &tBuffer, true) {
     }
 
-    bool setAsStartupNotificationChannel(uint8_t persistStart) {
+    bool setupStartupNotificationChannel() {
         return true;
     }
 
@@ -239,6 +239,10 @@ public:
                 return;
             }
             out.setAddr((uint8_t) addr);
+        }
+        if (ctx.hasField('P')) {
+            uint8_t index = this->parser.getChannelIndex();
+            PersistenceSystem<ZP>::writeSection(PersistenceSystem<ZP>::getNotifChannelIdOffset(), 1, &index);
         }
     }
 

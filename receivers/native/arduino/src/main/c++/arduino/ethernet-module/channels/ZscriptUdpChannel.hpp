@@ -173,12 +173,12 @@ public:
             lastMilliAccess(millis()), remoteAddr(), remotePort(0) {
     }
 
-    bool setAsStartupNotificationChannel(uint8_t persistStart) {
+    bool setupStartupNotificationChannel() {
         if (!EthernetSystem<ZP>::ensureLink()) {
             return false;
         }
         uint8_t content[6];
-        if (!PersistenceSystem<ZP>::readSection(persistStart, 6, content)) {
+        if (!PersistenceSystem<ZP>::readSection(PersistenceSystem<ZP>::getNotifChannelDataOffset(), 6, content)) {
             return false;
         }
         remoteAddr = (content[0] << 24) | (content[1] << 16) | (content[2] << 8) | (content[3]);
@@ -201,7 +201,9 @@ public:
 
     bool isAvailable(uint32_t currentTime) {
         return (remotePort == 0) ||
-               (!this->parser.isActivated()) && currentTime - lastMilliAccess < ZP::nonActivatedChannelTimeout;
+               (!this->parser.isActivated()) &&
+               Zscript<ZP>::zscript.getNotificationChannelIndex() != this->parser.getChannelIndex() &&
+               currentTime - lastMilliAccess < ZP::nonActivatedChannelTimeout;
     }
 
     void messageIncoming(uint32_t currentTime) {
@@ -228,7 +230,18 @@ public:
     }
 
     void channelSetup(ZscriptCommandContext<ZP> ctx) {
-        (void) ctx;
+        if (ctx.hasField('P')) {
+            uint8_t data[6];
+            data[0] = remoteAddr >> 24;
+            data[1] = (remoteAddr >> 16) & 0xFF;
+            data[2] = (remoteAddr >> 8) & 0xFF;
+            data[3] = (remoteAddr) & 0xFF;
+            data[4] = (remotePort >> 8) & 0xFF;
+            data[5] = (remotePort) & 0xFF;
+            PersistenceSystem<ZP>::writeSection(PersistenceSystem<ZP>::getNotifChannelDataOffset(), 6, data);
+            uint8_t index = this->parser.getChannelIndex();
+            PersistenceSystem<ZP>::writeSection(PersistenceSystem<ZP>::getNotifChannelIdOffset(), 1, &index);
+        }
     }
 
     void moveAlong() {

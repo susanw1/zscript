@@ -45,8 +45,7 @@ public:
         parser.setChannelIndex(i);
     }
 
-    virtual bool setAsStartupNotificationChannel(uint8_t persistStart) {
-        (void) persistStart;
+    virtual bool setupStartupNotificationChannel() {
         return false;
     }
 

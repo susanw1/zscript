@@ -13,6 +13,10 @@
 #endif
 
 #include <Servo.h>
+#include "../arduino-core-module/persistence/PersistenceSystem.hpp"
+
+#include <zscript/modules/ZscriptModule.hpp>
+#include <zscript/execution/ZscriptCommandContext.hpp>
 
 namespace Zscript {
 template<class ZP>
@@ -21,22 +25,22 @@ class ZscriptGeneralServo {
     AsyncActionNotifier<ZP> async;
     uint16_t speed;
     uint16_t target :12;
-    #endif
-    uint16_t pos :12;
-    uint16_t minPos :12;
-    uint16_t maxPos :12;
-    uint8_t pin :8;
+#endif
+    uint16_t pos: 12;
+    uint16_t minPos: 12;
+    uint16_t maxPos: 12;
+    uint8_t index: 8;
 
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
     uint8_t lastMillis16 :8;
-    #endif
+#endif
     Servo s;
 
     void writePos() {
         uint16_t space = maxPos - minPos;
         uint8_t posr4 = pos >> 4;
         uint8_t spacer4 = space >> 4;
-        //Does the bottom nibbles independently - to avoid 16bitx16bit multiply.
+        //Does the bottom nibbles independently - to avoid 16bit x 16bit multiply.
         uint16_t diff = (posr4 * spacer4 + (((pos & 0xF) * spacer4 + (space & 0xF) * posr4) >> 4)) >> 4;
         s.writeMicroseconds(diff + minPos);
     }
@@ -44,20 +48,52 @@ class ZscriptGeneralServo {
 public:
     ZscriptGeneralServo() :
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
-                    speed(0x1000), target(0x800),
-                    #endif
-                    pos(0x800), minPos(1000), maxPos(1500), s(), pin(0xFF)
+            speed(0x1000), target(0x800),
+#endif
+            pos(0x800), minPos(1000), maxPos(1500), s(), index(0xFF)
 
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
-                            , lastMillis16(0)
-    #endif
+    , lastMillis16(0)
+#endif
     {
     }
-    void setup(uint8_t pin) {
-        this->pin = pin;
+
+    void setup(uint8_t index, uint8_t persistStart) {
+#ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
+        uint8_t servoPersistLength = 5;
+#else
+        uint8_t servoPersistLength = 3;
+#endif
+        this->index = index;
+        uint8_t persistedData[servoPersistLength];
+        if (PersistenceSystem<ZP>::readSection(persistStart, servoPersistLength, persistedData)) {
+            minPos = (persistedData[0] << 4) | (persistedData[1] >> 4);
+            maxPos = ((persistedData[1] << 8) & 0xFFF) | (persistedData[2]);
+#ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
+            speed = (persistedData[3] << 8) | (persistedData[4]);
+#endif
+        }
     }
+
+    void persist(uint8_t persistStart) {
+#ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
+        uint8_t servoPersistLength = 5;
+#else
+        uint8_t servoPersistLength = 3;
+#endif
+        uint8_t persistedData[servoPersistLength];
+        persistedData[0] = minPos >> 4;
+        persistedData[1] = (minPos << 4) | (maxPos >> 8);
+        persistedData[2] = (maxPos & 0xFF);
+#ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
+        persistedData[3] = speed>>8;
+        persistedData[4] = speed & 0xFF;
+#endif
+        PersistenceSystem<ZP>::writeSection(persistStart, servoPersistLength, persistedData);
+    }
+
     uint8_t getPin() {
-        return pin;
+        return ZP::servoPins[index];
     }
 
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
@@ -119,6 +155,7 @@ public:
     uint16_t getCurrentProp() {
         return pos << 4;
     }
+
     uint16_t getTargetProp() {
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
         return target << 4;
@@ -126,6 +163,7 @@ public:
         return pos << 4;
 #endif
     }
+
     void fastMove(uint16_t newTarget) {
         pos = newTarget >> 4;
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
@@ -133,6 +171,7 @@ public:
 #endif
         writePos();
     }
+
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
     void slowMove(uint16_t newTarget) {
         target = newTarget >> 4;
@@ -150,6 +189,7 @@ public:
     void setMinMicros(uint16_t min) {
         minPos = min & 0xFFF;
     }
+
     void setMaxMicros(uint16_t max) {
         maxPos = max & 0xFFF;
     }
@@ -157,29 +197,34 @@ public:
     uint16_t getMinMicros() {
         return minPos;
     }
+
     uint16_t getMaxMicros() {
         return maxPos;
     }
+
     uint16_t getCentreMicros() {
         return (maxPos + minPos) / 2;
     }
+
     uint16_t getCurrentMicros() {
         return s.readMicroseconds();
     }
 
     void enable() {
-        if (pin == 0xFF) {
+        if (index == 0xFF) {
             return;
         }
-        s.attach(pin, 544 - 127 * 4, 2400 + 127 * 4);
+        s.attach(ZP::servoPins[index], 544 - 127 * 4, 2400 + 127 * 4);
         writePos();
     }
+
     void disable() {
         if (!s.attached()) {
             return;
         }
         s.detach();
     }
+
     bool isEnabled() {
         return s.attached();
     }
@@ -200,8 +245,6 @@ public:
 };
 }
 
-#include <zscript/modules/ZscriptModule.hpp>
-#include <zscript/execution/ZscriptCommandContext.hpp>
 
 #define MODULE_EXISTS_008 EXISTENCE_MARKER_UTIL
 #define MODULE_SWITCH_008 MODULE_SWITCH_UTIL_WITH_ASYNC(ZscriptServoModule<ZP>::execute)
@@ -213,14 +256,24 @@ public:
 
 namespace Zscript {
 template<class ZP>
-class ZscriptServoModule: public ZscriptModule<ZP> {
+class ZscriptServoModule : public ZscriptModule<ZP> {
     static ZscriptGeneralServo<ZP> servos[ZP::servoCount];
+    static uint8_t persistenceStart;
 
 public:
 
     static void setup() {
+#ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
+        uint8_t servoPersistLength = 5;
+#else
+        uint8_t servoPersistLength = 3;
+#endif
+        persistenceStart = PersistenceSystem<ZP>::reserveSection(servoPersistLength);
+        for (uint8_t i = 1; i < ZP::servoCount; ++i) {
+            PersistenceSystem<ZP>::reserveSection(servoPersistLength);
+        }
         for (uint8_t i = 0; i < ZP::servoCount; ++i) {
-            servos[i].setup(ZP::servoPins[i]);
+            servos[i].setup(ZP::servoPins[i], persistenceStart + i * (servoPersistLength + 2));
         }
         moveAlongServos();
     }
@@ -238,26 +291,29 @@ public:
 
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits, bool moveAlong) {
         switch (bottomBits) {
-        case ServoCapabilitiesCommand<ZP>::CODE:
-            ServoCapabilitiesCommand<ZP>::execute(ctx);
-            break;
-        case ServoSetupCommand<ZP>::CODE:
-            ServoSetupCommand<ZP>::execute(ctx, servos);
-            break;
-        case ServoWriteCommand<ZP>::CODE:
-            ServoWriteCommand<ZP>::execute(ctx, servos);
-            break;
-        case ServoReadCommand<ZP>::CODE:
-            ServoReadCommand<ZP>::execute(ctx, servos, moveAlong);
-            break;
-        default:
-            ctx.status(ResponseStatus::COMMAND_NOT_FOUND);
-            break;
+            case ServoCapabilitiesCommand<ZP>::CODE:
+                ServoCapabilitiesCommand<ZP>::execute(ctx);
+                break;
+            case ServoSetupCommand<ZP>::CODE:
+                ServoSetupCommand<ZP>::execute(ctx, servos, persistenceStart);
+                break;
+            case ServoWriteCommand<ZP>::CODE:
+                ServoWriteCommand<ZP>::execute(ctx, servos);
+                break;
+            case ServoReadCommand<ZP>::CODE:
+                ServoReadCommand<ZP>::execute(ctx, servos, moveAlong);
+                break;
+            default:
+                ctx.status(ResponseStatus::COMMAND_NOT_FOUND);
+                break;
         }
     }
 };
+
 template<class ZP>
 ZscriptGeneralServo<ZP> ZscriptServoModule<ZP>::servos[ZP::servoCount];
+template<class ZP>
+uint8_t ZscriptServoModule<ZP>::persistenceStart = 0xFF;
 }
 
 #endif /* SRC_MAIN_C___ARDUINO_SERVO_MODULE_SERVOMODULE_HPP_ */

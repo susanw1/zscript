@@ -25,6 +25,7 @@ public:
     static constexpr char ParamTravelSpeed__V = 'V';
     static constexpr char ParamTravelSpeedPrecise__W = 'W';
     static constexpr char ParamResetCalibrations__R = 'R';
+    static constexpr char ParamPersist__P = 'P';
 
     static constexpr char RespPin__P = 'P';
     static constexpr char RespMinPulseTime__N = 'N';
@@ -32,7 +33,7 @@ public:
     static constexpr char RespCentrePulseTime__C = 'C';
     static constexpr char RespTravelSpeedPrecise__W = 'W';
 
-    static void execute(ZscriptCommandContext<ZP> ctx, ZscriptGeneralServo<ZP> *servos) {
+    static void execute(ZscriptCommandContext<ZP> ctx, ZscriptGeneralServo<ZP> *servos, uint8_t persistenceStart) {
         uint16_t interface;
         if (!ctx.getField(ParamServoInterface__I, &interface)) {
             ctx.status(ResponseStatus::MISSING_KEY);
@@ -53,6 +54,14 @@ public:
         uint16_t maxTime;
         if (ctx.getField(ParamMaxPulseTime__M, &maxTime)) {
             target->setMaxMicros(maxTime);
+        }
+        if (ctx.hasField(ParamPersist__P)) {
+#ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
+            uint8_t servoPersistLength = 5;
+#else
+            uint8_t servoPersistLength = 3;
+#endif
+            target->persist(persistenceStart + interface * (servoPersistLength + 2));
         }
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
         uint16_t speed;

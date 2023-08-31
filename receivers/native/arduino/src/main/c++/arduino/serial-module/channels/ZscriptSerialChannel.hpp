@@ -13,6 +13,7 @@
 #endif
 
 #include <ZscriptChannelBuilder.hpp>
+#include "../../arduino-core-module/persistence/PersistenceSystem.hpp"
 
 namespace Zscript {
 
@@ -72,7 +73,7 @@ public:
             ZscriptChannel<ZP>(&out, &tBuffer, true), tBuffer(buffer, ZP::serialBufferSize), tokenizer(tBuffer.getWriter(), 2) {
     }
 
-    bool setAsStartupNotificationChannel(uint8_t persistStart) {
+    bool setupStartupNotificationChannel() {
         return true;
     }
 
@@ -84,7 +85,10 @@ public:
     }
 
     void channelSetup(ZscriptCommandContext<ZP> ctx) {
-        (void) ctx;
+        if (ctx.hasField('P')) {
+            uint8_t index = this->parser.getChannelIndex();
+            PersistenceSystem<ZP>::writeSection(PersistenceSystem<ZP>::getNotifChannelIdOffset(), 1, &index);
+        }
     }
 
     void moveAlong() {

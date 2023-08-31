@@ -10,18 +10,24 @@
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS
 #endif
 
+#include "../../arduino-core-module/persistence/PersistenceSystem.hpp"
+
 #ifdef ZSCRIPT_SUPPORT_ADDRESSING
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS
 #endif
 
 #ifdef ZSCRIPT_HAVE_PIN_MODULE
+
 #include "arduino/pins-module/PinModule.hpp"
+
 #endif
 #ifdef ZSCRIPT_HAVE_SERVO_MODULE
 #include "arduino/servo-module/ServoModule.hpp"
 #endif
 #ifdef ZSCRIPT_HAVE_I2C_MODULE
+
 #include "arduino/i2c-module/I2cModule.hpp"
+
 #endif
 
 #ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
@@ -34,7 +40,9 @@
 #include "Zscript.hpp"
 
 #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
+
 #include <arduino/ethernet-module/channels/ZscriptUdpChannel.hpp>
+
 #endif
 #ifdef ZSCRIPT_HAVE_TCP_CHANNEL
 #include <arduino/ethernet-module/channels/ZscriptTcpChannel.hpp>
@@ -42,6 +50,7 @@ Zscript::ZscriptTcpChannel<ZscriptParams> ZscriptTcpChannels[ZscriptParams::tcpC
 #endif
 
 #ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
+
 #include "arduino/serial-module/channels/ZscriptSerialChannel.hpp"
 
 Zscript::ZscriptSerialChannel<ZscriptParams> ZscriptSerialChannel;
@@ -57,21 +66,21 @@ class ArduinoZscriptBasicSetup {
 #if defined(ZSCRIPT_HAVE_SERIAL_CHANNEL) or defined(ZSCRIPT_HAVE_I2C_CHANNEL) or defined(ZSCRIPT_HAVE_UDP_CHANNEL) or defined(ZSCRIPT_HAVE_TCP_CHANNEL)
     Zscript::ZscriptChannel<ZscriptParams> *channels[0
 
-#ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
-                                                   +1
-#endif
+                                                     #ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
+                                                     + 1
+                                                     #endif
 
-#ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-                                                   +1
-#endif
-#ifdef ZSCRIPT_HAVE_UDP_CHANNEL
-                                                   +ZscriptParams::udpChannelCount
+                                                     #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
+                                                     +1
+                                                     #endif
+                                                     #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
+                                                     + ZscriptParams::udpChannelCount
 #endif
 #ifdef ZSCRIPT_HAVE_TCP_CHANNEL
-                                                   +ZscriptParams::tcpChannelCount
+            +ZscriptParams::tcpChannelCount
 #endif
 
-                                                   ];
+    ];
 #endif
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
 #if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
@@ -81,13 +90,30 @@ class ArduinoZscriptBasicSetup {
                                                    +1
 #endif
 
-		                                           ];
+                                                   ];
 #endif
 #endif
 
 public:
 
     void setup() {
+        uint8_t notifPersistLength = 0;
+#ifdef ZSCRIPT_HAVE_UDP_CHANNEL
+        if (Zscript::ZscriptUdpManager<ZscriptParams>::getNotifChannelPersistMaxLength() > notifPersistLength) {
+            notifPersistLength = Zscript::ZscriptUdpManager<ZscriptParams>::getNotifChannelPersistMaxLength();
+        }
+#endif
+#ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
+        if (Zscript::ZscriptSerialChannel<ZscriptParams>::getNotifChannelPersistMaxLength() > notifPersistLength) {
+            notifPersistLength = Zscript::ZscriptSerialChannel<ZscriptParams>::getNotifChannelPersistMaxLength();
+        }
+#endif
+#ifdef ZSCRIPT_HAVE_I2C_CHANNEL
+        if (Zscript::ZscriptI2cChannel<ZscriptParams>::getNotifChannelPersistMaxLength() > notifPersistLength) {
+            notifPersistLength = Zscript::ZscriptI2cChannel<ZscriptParams>::getNotifChannelPersistMaxLength();
+        }
+#endif
+        Zscript::PersistenceSystem<ZscriptParams>::reserveNotifChannelData(notifPersistLength);
 #ifdef ZSCRIPT_HAVE_SERVO_MODULE
         Zscript::ZscriptServoModule<ZscriptParams>::setup();
 #endif
@@ -109,8 +135,8 @@ public:
 #endif
 #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
         Zscript::ZscriptUdpManager<ZscriptParams>::setup();
-        for(uint8_t j = 0; j < ZscriptParams::udpChannelCount; j++){
-            channels[i++] = Zscript::ZscriptUdpManager<ZscriptParams>::channels+j;
+        for (uint8_t j = 0; j < ZscriptParams::udpChannelCount; j++) {
+            channels[i++] = Zscript::ZscriptUdpManager<ZscriptParams>::channels + j;
         }
 
 #endif
@@ -132,7 +158,14 @@ public:
         Zscript::Zscript<ZscriptParams>::zscript.setNotificationSources(notifSrcs, j);
 #endif
 #endif
+        uint8_t notifChannelIndex = 0xFF;
+        if (Zscript::PersistenceSystem<ZscriptParams>::readSection(
+                Zscript::PersistenceSystem<ZscriptParams>::getNotifChannelIdOffset(), 1, &notifChannelIndex) &&
+            notifChannelIndex <= i && channels[notifChannelIndex]->setupStartupNotificationChannel()) {
 
+            Zscript::Zscript<ZscriptParams>::zscript.setNotificationChannelIndex(notifChannelIndex);
+        }
     }
 };
+
 ArduinoZscriptBasicSetup ZscriptSetup;
