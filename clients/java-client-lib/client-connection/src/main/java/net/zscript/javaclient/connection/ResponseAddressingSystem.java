@@ -2,6 +2,7 @@ package net.zscript.javaclient.connection;
 
 import static java.util.Optional.ofNullable;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -19,7 +20,7 @@ public class ResponseAddressingSystem {
     public ZscriptConnection getAddressConnection(ZscriptAddress address) {
         return addressConnection.computeIfAbsent(address, a -> new ZscriptConnection() {
             @Override
-            public void send(byte[] data) {
+            public void send(byte[] data) throws IOException {
                 parent.send(address, data);
             }
 

@@ -1,4 +1,4 @@
-name: OuterCore
+name: Core
 id: 1
 version: 0.0.1
 description: Extended core commands, enabled only after Activation

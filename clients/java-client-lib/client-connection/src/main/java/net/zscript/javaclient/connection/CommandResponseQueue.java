@@ -46,7 +46,7 @@ public class CommandResponseQueue implements GenericDevice {
     }
 
     @Override
-    public void send(final ZscriptAddress addr, final byte[] data) {
+    public void send(final ZscriptAddress addr, final byte[] data) throws IOException {
         if (sent.size() < MAX_SENT && canPipeline) {
             AddrCommandSeqElEntry el = new AddrCommandSeqElEntry(data, addr);
             sent.add(el);
@@ -57,7 +57,7 @@ public class CommandResponseQueue implements GenericDevice {
     }
 
     @Override
-    public void send(final CommandSequence sequence) {
+    public void send(final CommandSequence sequence) throws IOException {
         if (sent.size() < MAX_SENT && canPipeline) {
             CommandSeqElEntry el = new CommandSeqElEntry(sequence, currentAutoEchoNumber);
             sent.add(el);
@@ -72,7 +72,7 @@ public class CommandResponseQueue implements GenericDevice {
     }
 
     @Override
-    public void send(final byte[] zscript, final Consumer<byte[]> callback) {
+    public void send(final byte[] zscript, final Consumer<byte[]> callback) throws IOException {
         if (sent.isEmpty()) {
             ByteArrEntry el = new ByteArrEntry(callback, zscript);
             sent.add(el);

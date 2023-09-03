@@ -2,10 +2,12 @@ package net.zscript.javaclient.connection;
 
 import static net.zscript.model.modules.base.CoreModule.CapabilitiesCommandBuilder.VersionType.PlatformFirmware;
 
+import java.io.IOException;
+
 import net.zscript.model.modules.base.CoreModule;
 
 public class Main2 {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         GenericDevice zscriptOut = new CommandResponseQueue(new LocalZscriptConnection());
 
         zscriptOut.send(CoreModule.capabilities()
