@@ -279,7 +279,7 @@ public:
     }
 
     // Should be called regularly (if slow move is enabled).
-    // Will forget motion that happened during any space when it wasn't called for >=4s.
+    // Will forget motion that happened during any period when it wasn't called for >=4s.
     static void moveAlongServos() {
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
         uint8_t timeMillis16 = (millis() / 16) & 0xFF;

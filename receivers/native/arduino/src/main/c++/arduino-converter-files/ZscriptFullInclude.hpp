@@ -10,7 +10,7 @@
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS
 #endif
 
-#include "../../arduino-core-module/persistence/PersistenceSystem.hpp"
+#include "arduino/arduino-core-module/persistence/PersistenceSystem.hpp"
 
 #ifdef ZSCRIPT_SUPPORT_ADDRESSING
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS

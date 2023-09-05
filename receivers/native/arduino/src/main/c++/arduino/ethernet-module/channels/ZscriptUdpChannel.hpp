@@ -183,7 +183,7 @@ public:
         }
         remoteAddr = (content[0] << 24) | (content[1] << 16) | (content[2] << 8) | (content[3]);
         remotePort = (content[4] << 8) | (content[5]);
-        lastMilliAccess(millis());
+        lastMilliAccess = millis();
         return true;
     }
 

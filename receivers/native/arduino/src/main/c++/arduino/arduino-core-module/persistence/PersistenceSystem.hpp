@@ -31,7 +31,7 @@ public:
     static void writeSection(uint8_t offset, uint8_t sectionLength, uint8_t *data) {
         uint8_t num = EEPROM.read(offset);
         num++;
-        if (num == 0xFF) {
+        if (num == 0xFF || num == 0) {
             num = 1;
         }
         EEPROM.update(offset, num);
@@ -49,12 +49,13 @@ public:
         for (uint8_t i = 0; i < sectionLength; i++) {
             destination[i] = EEPROM.read(offset + i + 1);
         }
-        return EEPROM.read(offset + sectionLength + 1) + num == 0xFF;
+        return (EEPROM.read(offset + sectionLength + 1) + num == 0xFF) && num != 0 && num != 0xFF;
     }
 
     static uint8_t getNotifChannelIdOffset() {
         return notifChannelIdOffset;
     }
+
     static uint8_t getNotifChannelDataOffset() {
         return notifChannelDataOffset;
     }
