@@ -114,6 +114,9 @@ public:
         }
 #endif
         Zscript::PersistenceSystem<ZscriptParams>::reserveNotifChannelData(notifPersistLength);
+#if defined(ZSCRIPT_HAVE_UDP_CHANNEL) || defined(ZSCRIPT_HAVE_TCP_CHANNEL)
+        Zscript::EthernetSystem<ZscriptParams>::setup();
+#endif
 #ifdef ZSCRIPT_HAVE_SERVO_MODULE
         Zscript::ZscriptServoModule<ZscriptParams>::setup();
 #endif

@@ -25,10 +25,15 @@ class AbstractOutStream;
 template<class ZP>
 class ZscriptTcpManager {
     static EthernetServer server;
+    static uint16_t port;
 public:
     static uint8_t getNotifChannelPersistMaxLength() {
         return 0;
     }
+    static uint16_t getLocalPort() {
+        return port;
+    }
+
     static EthernetClient takeClient() {
         if (!EthernetSystem<ZP>::ensureLink()) {
             return EthernetClient();
@@ -38,6 +43,7 @@ public:
 
     static void setup() {
         server = EthernetServer(ZP::tcpLocalPort);;
+        port = ZP::tcpLocalPort;
         if (EthernetSystem<ZP>::ensureLink()) {
             server.begin();
         }
@@ -45,6 +51,7 @@ public:
 
     static void setup(uint16_t port) {
         server = EthernetServer(port);
+        ZscriptTcpManager<ZP>::port = port;
         if (EthernetSystem<ZP>::ensureLink()) {
             server.begin();
         }
@@ -58,7 +65,9 @@ public:
 };
 
 template<class ZP>
-EthernetServer ZscriptTcpManager<ZP>::server;
+EthernetServer ZscriptTcpManager<ZP>::server(ZP::tcpLocalPort);
+template<class ZP>
+uint16_t ZscriptTcpManager<ZP>::port = ZP::tcpLocalPort;
 
 template<class ZP>
 class ZscriptTcpOutStream : public AbstractOutStream<ZP> {
@@ -125,7 +134,7 @@ public:
         out.writeField('N', 0);
         uint32_t ipData = Ethernet.localIP();
         out.writeBigHex((uint8_t *) &ipData, 4);
-        out.writeField('P', client.localPort());
+        out.writeField('P', ZscriptTcpManager<ZP>::getLocalPort());
         if (Ethernet.hardwareStatus() == EthernetNoHardware) {
             out.writeField('H', 0);
         } else if (Ethernet.linkStatus() == LinkOFF) {
@@ -134,7 +143,14 @@ public:
     }
 
     void channelSetup(ZscriptCommandContext<ZP> ctx) {
-        (void) ctx;
+        ctx.getOutStream().writeBigHex(EthernetSystem<ZP>::getMacAddr(), 6);
+        uint16_t bigFieldSize = ctx.getBigFieldSize();
+        if (bigFieldSize == 6) {
+            EthernetSystem<ZP>::setMacAddr(ctx.getBigField());
+        } else if (bigFieldSize != 0) {
+            ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+            return;
+        }
     }
 
     void moveAlong() {

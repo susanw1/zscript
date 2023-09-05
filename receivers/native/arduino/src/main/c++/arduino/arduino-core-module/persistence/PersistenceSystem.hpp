@@ -46,10 +46,13 @@ public:
         if (num == 0 || num == 0xFF) {
             return false;
         }
+        if(EEPROM.read(offset + sectionLength + 1) + num != 0xFF){
+            return false;
+        }
         for (uint8_t i = 0; i < sectionLength; i++) {
             destination[i] = EEPROM.read(offset + i + 1);
         }
-        return (EEPROM.read(offset + sectionLength + 1) + num == 0xFF) && num != 0 && num != 0xFF;
+        return true;
     }
 
     static uint8_t getNotifChannelIdOffset() {

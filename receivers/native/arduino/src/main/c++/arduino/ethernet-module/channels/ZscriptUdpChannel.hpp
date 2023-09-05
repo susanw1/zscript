@@ -242,6 +242,14 @@ public:
             uint8_t index = this->parser.getChannelIndex();
             PersistenceSystem<ZP>::writeSection(PersistenceSystem<ZP>::getNotifChannelIdOffset(), 1, &index);
         }
+        ctx.getOutStream().writeBigHex(EthernetSystem<ZP>::getMacAddr(), 6);
+        uint16_t bigFieldSize = ctx.getBigFieldSize();
+        if (bigFieldSize == 6) {
+            EthernetSystem<ZP>::setMacAddr(ctx.getBigField());
+        } else if (bigFieldSize != 0) {
+            ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+            return;
+        }
     }
 
     void moveAlong() {
