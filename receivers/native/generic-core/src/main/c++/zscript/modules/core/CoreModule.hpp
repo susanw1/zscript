@@ -18,7 +18,6 @@
 
 #include "ActivateCommand.hpp"
 #include "EchoCommand.hpp"
-#include "MakeMatchCodeCommand.hpp"
 #include "ChannelInfoCommand.hpp"
 
 #define MODULE_EXISTS_000 EXISTENCE_MARKER_UTIL
@@ -45,19 +44,18 @@ public:
         case 0x2:
             ActivateCommand<ZP>::execute(ctx);
             break;
-#ifdef ZSCRIPT_GUID_FETCH_COMMAND
+#ifdef ZSCRIPT_ID_FETCH_COMMAND
         case 0x4:
-            ZP::GuidCommand::fetchGuid(ctx);
+            ZP::IdCommand::fetchId(ctx);
+            break;
+#endif
+#ifdef ZSCRIPT_ID_RANDOM_COMMAND
+        case 0x5:
+            ZP::IdCommand::makeRandomCode(ctx);
             break;
 #endif
         case 0x8:
             ChannelInfoCommand<ZP>::execute(ctx);
-            break;
-        case 0xc:
-            MakeMatchCodeCommand<ZP>::makeCode(ctx);
-            break;
-        case 0xd:
-            MakeMatchCodeCommand<ZP>::matchCode(ctx);
             break;
 #ifdef ZSCRIPT_USER_CUSTOM_CORE_COMMAND
         case 0x4:

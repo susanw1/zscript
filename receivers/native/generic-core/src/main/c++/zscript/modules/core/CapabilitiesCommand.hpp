@@ -7,6 +7,7 @@
 
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_CORE_CAPABILITIESCOMMAND_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_CORE_CAPABILITIESCOMMAND_HPP_
+
 #include "../../ZscriptIncludes.hpp"
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../../LanguageVersion.hpp"
@@ -19,7 +20,7 @@ namespace GenericCore {
 template<class ZP>
 class CapabilitiesCommand {
 public:
-    enum VersionType {
+    enum VersionType : uint8_t {
         UserFirmware, UserHardware, PlatformFirmware, PlatformHardware, CoreZcodeLanguage
     };
 
@@ -31,26 +32,26 @@ public:
         uint16_t version;
 
         switch (versionType) {
-        case UserFirmware:
-            ident = ZSCRIPT_IDENTIFY_USER_FIRMWARE_STRING;
-            version = ZSCRIPT_IDENTIFY_USER_FIRMWARE_VERSION;
-            break;
-        case UserHardware:
-            ident = ZSCRIPT_IDENTIFY_USER_HARDWARE_STRING;
-            version = ZSCRIPT_IDENTIFY_USER_HARDWARE_VERSION;
-            break;
-        case PlatformFirmware:
-            ident = ZSCRIPT_IDENTIFY_PLATFORM_FIRMWARE_STRING;
-            version = ZSCRIPT_IDENTIFY_PLATFORM_FIRMWARE_VERSION;
-            break;
-        case PlatformHardware:
-            ident = ZSCRIPT_IDENTIFY_PLATFORM_HARDWARE_STRING;
-            version = ZSCRIPT_IDENTIFY_PLATFORM_HARDWARE_VERSION;
-            break;
-        case CoreZcodeLanguage:
-            ident = ZSCRIPT_IDENTIFY_CORE_ZSCRIPT_LANG_STRING;
-            version = ZSCRIPT_IDENTIFY_CORE_ZSCRIPT_LANG_VERSION;
-            break;
+            case UserFirmware:
+                ident = ZSCRIPT_IDENTIFY_USER_FIRMWARE_STRING;
+                version = ZSCRIPT_IDENTIFY_USER_FIRMWARE_VERSION;
+                break;
+            case UserHardware:
+                ident = ZSCRIPT_IDENTIFY_USER_HARDWARE_STRING;
+                version = ZSCRIPT_IDENTIFY_USER_HARDWARE_VERSION;
+                break;
+            case PlatformFirmware:
+                ident = ZSCRIPT_IDENTIFY_PLATFORM_FIRMWARE_STRING;
+                version = ZSCRIPT_IDENTIFY_PLATFORM_FIRMWARE_VERSION;
+                break;
+            case PlatformHardware:
+                ident = ZSCRIPT_IDENTIFY_PLATFORM_HARDWARE_STRING;
+                version = ZSCRIPT_IDENTIFY_PLATFORM_HARDWARE_VERSION;
+                break;
+            case CoreZcodeLanguage:
+                ident = ZSCRIPT_IDENTIFY_CORE_ZSCRIPT_LANG_STRING;
+                version = ZSCRIPT_IDENTIFY_CORE_ZSCRIPT_LANG_VERSION;
+                break;
         }
 
         if (ident != NULL) {

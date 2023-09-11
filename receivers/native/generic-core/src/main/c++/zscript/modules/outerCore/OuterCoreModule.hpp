@@ -39,9 +39,9 @@ public:
             ZP::ResetCommand::execute(ctx);
             break;
 #endif
-#ifdef ZSCRIPT_GUID_SAVE_COMMAND
+#ifdef ZSCRIPT_ID_SAVE_COMMAND
         case 0x4:
-            ZP::GuidCommand::saveGuid(ctx);
+            ZP::IdCommand::saveId(ctx);
             break;
 #endif
         case 0x8:

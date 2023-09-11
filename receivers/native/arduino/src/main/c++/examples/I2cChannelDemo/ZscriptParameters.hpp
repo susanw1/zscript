@@ -16,6 +16,7 @@
 
 #include <ArduinoPlatformVersion.hpp>
 #include <arduino/arduino-core-module/commands/ZscriptResetCommand.hpp>
+#include <arduino/arduino-core-module/commands/ZscriptIdCommand.hpp>
 
 #include <ZscriptIncludes.hpp>
 
@@ -39,6 +40,7 @@
 class ZscriptParams {
 public:
     typedef Zscript::ZscriptResetCommand<ZscriptParams> ResetCommand;
+    typedef Zscript::ZscriptIdCommand<ZscriptParams> IdCommand;
 
     static uint16_t generateRandom16() {
         return (uint16_t) millis();
@@ -64,8 +66,8 @@ public:
     static const uint8_t pinCount = NUM_DIGITAL_PINS;
 
     static const uint8_t servoCount = 1;
-    //static const uint8_t servoPins[1];
+    static const uint8_t servoPins[1];
 };
-//const uint8_t ZscriptParams::servoPins[1] = {9};
+const uint8_t ZscriptParams::servoPins[1] = {9};
 
 #endif /* SRC_MAIN_CPP_FIRSTARDUINOTEST_ZSCRIPTPARAMETERS_HPP_ */
