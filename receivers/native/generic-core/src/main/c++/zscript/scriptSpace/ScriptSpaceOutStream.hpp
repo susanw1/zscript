@@ -33,7 +33,8 @@ public:
             parser(parser), buffer(buffer), bufferLength(bufferLength) {
     }
 
-    void open() {
+    void open(uint8_t source) {
+        (void) source;
         openB = true;
         bufferPos = 0;
         isFailed = false;
@@ -42,7 +43,7 @@ public:
     void close() {
         if (isFailed) {
             AbstractOutStream<ZP> *out = Zscript<ZP>::zscript.getNotificationOutStream();
-            out->open();
+            out->open(Zscript<ZP>::zscript.getNotificationChannelIndex());
             out->writeBytes(buffer, bufferPos);
             out->close();
         }

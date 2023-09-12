@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARDUINO_PINS_MODULE_COMMANDS_ZSCRIPTPINCAPABILITIESCOMMAND_HPP_
-#define SRC_MAIN_CPP_ARDUINO_PINS_MODULE_COMMANDS_ZSCRIPTPINCAPABILITIESCOMMAND_HPP_
+#ifndef SRC_MAIN_C___ARDUINO_PINS_MODULE_COMMANDS_PINCAPABILITIESCOMMAND_HPP_
+#define SRC_MAIN_C___ARDUINO_PINS_MODULE_COMMANDS_PINCAPABILITIESCOMMAND_HPP_
 
 #include <zscript/modules/ZscriptCommand.hpp>
 
@@ -14,16 +14,32 @@
 
 namespace Zscript {
 template<class ZP>
-class ZscriptPinCapabilitiesCommand {
+class PinCapabilitiesCommand {
+    static constexpr char RespCommandsSet__C = 'C';
+    static constexpr char RespPinCount__P = 'P';
+    static constexpr char RespAvailableControllersBitset__B = 'B';
+
+    static constexpr uint16_t RespAvailableControllersBitset__Digital = 0x1;
+    static constexpr uint16_t RespAvailableControllersBitset__AtoD = 0x2;
+    static constexpr uint16_t RespAvailableControllersBitset__DtoA = 0x4;
+    static constexpr uint16_t RespAvailableControllersBitset__PWM = 0x8;
+
 public:
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
-        out.writeField('C', MODULE_CAPABILITIES(003));
-        out.writeField('P', ZP::pinCount);
+        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(003));
+        out.writeField(RespPinCount__P, ZP::pinCount);
+        out.writeField(RespAvailableControllersBitset__B, RespAvailableControllersBitset__Digital | RespAvailableControllersBitset__AtoD |
+
+#ifdef DEVICE_SUPPORTS_ANALOG_WRITE
+        RespAvailableControllersBitset__DtoA |
+#endif
+
+                RespAvailableControllersBitset__PWM);
     }
 
 };
 }
 
-#endif /* SRC_MAIN_CPP_ARDUINO_PINS_MODULE_COMMANDS_ZSCRIPTPINCAPABILITIESCOMMAND_HPP_ */
+#endif /* SRC_MAIN_C___ARDUINO_PINS_MODULE_COMMANDS_PINCAPABILITIESCOMMAND_HPP_ */

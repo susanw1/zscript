@@ -13,6 +13,7 @@
 #endif
 
 #include <ZscriptChannelBuilder.hpp>
+#include "../../arduino-core-module/persistence/PersistenceSystem.hpp"
 
 namespace Zscript {
 
@@ -25,7 +26,8 @@ public:
     ZscriptSerialOutStream() {
     }
 
-    void open() {
+    void open(uint8_t source) {
+        (void) source;
         openB = true;
     }
 
@@ -49,9 +51,6 @@ public:
             }
         }
     }
-    void writeByte(uint8_t byte) {
-        Serial.print((char) byte);
-    }
 
 };
 
@@ -66,18 +65,30 @@ class ZscriptSerialChannel: public ZscriptChannel<ZP> {
     bool usingTmp = false;
 
 public:
+    static uint8_t getNotifChannelPersistMaxLength() {
+        return 0;
+    }
+
     ZscriptSerialChannel() :
             ZscriptChannel<ZP>(&out, &tBuffer, true), tBuffer(buffer, ZP::serialBufferSize), tokenizer(tBuffer.getWriter(), 2) {
     }
+
+    bool setupStartupNotificationChannel() {
+        return true;
+    }
+
     void channelInfo(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream < ZP > out = ctx.getOutStream();
         out.writeField('N', 0);
         out.writeField('M', 0x7);
-        out.writeQuotedString("Serial channel");
+        out.writeField('I', 0);
     }
 
     void channelSetup(ZscriptCommandContext<ZP> ctx) {
-        (void) ctx;
+        if (ctx.hasField('P')) {
+            uint8_t index = this->parser.getChannelIndex();
+            PersistenceSystem<ZP>::writeSection(PersistenceSystem<ZP>::getNotifChannelIdOffset(), 1, &index);
+        }
     }
 
     void moveAlong() {

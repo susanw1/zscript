@@ -60,22 +60,22 @@ public:
                 result = COMMAND_SWITCH_BYTE(9);
                 break;
             case 10:
-                result = COMMAND_SWITCH_BYTE(A);
+                result = COMMAND_SWITCH_BYTE(a);
                 break;
             case 11:
-                result = COMMAND_SWITCH_BYTE(B);
+                result = COMMAND_SWITCH_BYTE(b);
                 break;
             case 12:
-                result = COMMAND_SWITCH_BYTE(C);
+                result = COMMAND_SWITCH_BYTE(c);
                 break;
             case 13:
-                result = COMMAND_SWITCH_BYTE(D);
+                result = COMMAND_SWITCH_BYTE(d);
                 break;
             case 14:
-                result = COMMAND_SWITCH_BYTE(E);
+                result = COMMAND_SWITCH_BYTE(e);
                 break;
             case 15:
-                result = COMMAND_SWITCH_BYTE(F);
+                result = COMMAND_SWITCH_BYTE(f);
                 break;
             default:
                 break;

@@ -30,27 +30,27 @@
         func(prefix##4, 4) | func(prefix##5, 5) | \
         func(prefix##6, 6) | func(prefix##7, 7) | \
         func(prefix##8, 8) | func(prefix##9, 9) | \
-        func(prefix##A, 10) | func(prefix##B, 11) | \
-        func(prefix##C, 12) | func(prefix##D, 13) | \
-        func(prefix##E, 14) | func(prefix##F, 15))
+        func(prefix##a, 10) | func(prefix##b, 11) | \
+        func(prefix##c, 12) | func(prefix##d, 13) | \
+        func(prefix##e, 14) | func(prefix##f, 15))
 
 #define NIBBLE_CHECK_GENERIC(func, prefix) (func(prefix##0) || func(prefix##1) ||\
         func(prefix##2) || func(prefix##3) || \
         func(prefix##4) || func(prefix##5) || \
         func(prefix##6) || func(prefix##7) || \
         func(prefix##8) || func(prefix##9) || \
-        func(prefix##A) || func(prefix##B) || \
-        func(prefix##C) || func(prefix##D) || \
-        func(prefix##E) || func(prefix##F))
+        func(prefix##a) || func(prefix##b) || \
+        func(prefix##c) || func(prefix##d) || \
+        func(prefix##e) || func(prefix##f))
 
 #define NIBBLE_CHECK_GENERICI(func, prefix) (func(prefix##0) || func(prefix##1) ||\
         func(prefix##2) || func(prefix##3) || \
         func(prefix##4) || func(prefix##5) || \
         func(prefix##6) || func(prefix##7) || \
         func(prefix##8) || func(prefix##9) || \
-        func(prefix##A) || func(prefix##B) || \
-        func(prefix##C) || func(prefix##D) || \
-        func(prefix##E) || func(prefix##F))
+        func(prefix##a) || func(prefix##b) || \
+        func(prefix##c) || func(prefix##d) || \
+        func(prefix##e) || func(prefix##f))
 //
 //
 //
@@ -98,9 +98,9 @@
         MODULE_SWITCHING_GENERIC3(check, sw, x, 4) MODULE_SWITCHING_GENERIC3(check, sw, x, 5) \
         MODULE_SWITCHING_GENERIC3(check, sw, x, 6) MODULE_SWITCHING_GENERIC3(check, sw, x, 7) \
         MODULE_SWITCHING_GENERIC3(check, sw, x, 8) MODULE_SWITCHING_GENERIC3(check, sw, x, 9) \
-        MODULE_SWITCHING_GENERIC3(check, sw, x, A) MODULE_SWITCHING_GENERIC3(check, sw, x, B) \
-        MODULE_SWITCHING_GENERIC3(check, sw, x, C) MODULE_SWITCHING_GENERIC3(check, sw, x, D) \
-        MODULE_SWITCHING_GENERIC3(check, sw, x, E) MODULE_SWITCHING_GENERIC3(check, sw, x, F)
+        MODULE_SWITCHING_GENERIC3(check, sw, x, a) MODULE_SWITCHING_GENERIC3(check, sw, x, b) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x, c) MODULE_SWITCHING_GENERIC3(check, sw, x, d) \
+        MODULE_SWITCHING_GENERIC3(check, sw, x, e) MODULE_SWITCHING_GENERIC3(check, sw, x, f)
 
 #define MODULE_SWITCHING_GENERIC2(check, sw, x) MODULE_SWITCHING_GENERIC2_EACH(check, sw, x)
 
@@ -109,9 +109,9 @@
         MODULE_SWITCHING_GENERIC2(check, sw, x##4) MODULE_SWITCHING_GENERIC2(check, sw, x##5) \
         MODULE_SWITCHING_GENERIC2(check, sw, x##6) MODULE_SWITCHING_GENERIC2(check, sw, x##7) \
         MODULE_SWITCHING_GENERIC2(check, sw, x##8) MODULE_SWITCHING_GENERIC2(check, sw, x##9) \
-        MODULE_SWITCHING_GENERIC2(check, sw, x##A) MODULE_SWITCHING_GENERIC2(check, sw, x##B) \
-        MODULE_SWITCHING_GENERIC2(check, sw, x##C) MODULE_SWITCHING_GENERIC2(check, sw, x##D) \
-        MODULE_SWITCHING_GENERIC2(check, sw, x##E) MODULE_SWITCHING_GENERIC2(check, sw, x##F)
+        MODULE_SWITCHING_GENERIC2(check, sw, x##a) MODULE_SWITCHING_GENERIC2(check, sw, x##b) \
+        MODULE_SWITCHING_GENERIC2(check, sw, x##c) MODULE_SWITCHING_GENERIC2(check, sw, x##d) \
+        MODULE_SWITCHING_GENERIC2(check, sw, x##e) MODULE_SWITCHING_GENERIC2(check, sw, x##f)
 
 #define MODULE_SWITCHING_GENERIC1(check, sw, x) MODULE_SWITCHING_GENERIC1_EACH(check, sw, x)
 
@@ -120,9 +120,9 @@
         MODULE_SWITCHING_GENERIC1(check, sw, 4) MODULE_SWITCHING_GENERIC1(check, sw, 5) \
         MODULE_SWITCHING_GENERIC1(check, sw, 6) MODULE_SWITCHING_GENERIC1(check, sw, 7) \
         MODULE_SWITCHING_GENERIC1(check, sw, 8) MODULE_SWITCHING_GENERIC1(check, sw, 9) \
-        MODULE_SWITCHING_GENERIC1(check, sw, A) MODULE_SWITCHING_GENERIC1(check, sw, B) \
-        MODULE_SWITCHING_GENERIC1(check, sw, C) MODULE_SWITCHING_GENERIC1(check, sw, D) \
-        MODULE_SWITCHING_GENERIC1(check, sw, E) MODULE_SWITCHING_GENERIC1(check, sw, F)
+        MODULE_SWITCHING_GENERIC1(check, sw, a) MODULE_SWITCHING_GENERIC1(check, sw, b) \
+        MODULE_SWITCHING_GENERIC1(check, sw, c) MODULE_SWITCHING_GENERIC1(check, sw, d) \
+        MODULE_SWITCHING_GENERIC1(check, sw, e) MODULE_SWITCHING_GENERIC1(check, sw, f)
 
 #define MODULE_SWITCHING_GENERIC(check, sw) MODULE_SWITCHING_GENERIC_EACH(check, sw)
 

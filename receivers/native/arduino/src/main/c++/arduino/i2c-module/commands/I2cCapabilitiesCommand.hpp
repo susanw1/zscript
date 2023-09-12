@@ -19,20 +19,30 @@ class ZscriptI2cCapabilitiesCommand {
 public:
     static constexpr uint8_t CODE = 0x00;
 
-    static constexpr char CMD_RESP_COMMANDS_C = 'C';
-    static constexpr char CMD_RESP_NOTIFICATION_SUPPORTED_N = 'N';
-    static constexpr char CMD_RESP_PORT_COUNT_P = 'P';
-    static constexpr char CMD_RESP_MAX_FREQUENCIES_SUPPORTED_F = 'F';
+    static constexpr char RespCommands__C = 'C';
+    static constexpr char RespNotificationsSupported__N = 'N';
+    static constexpr char RespAddressingSupported__A = 'A';
+    static constexpr char RespInterfaceCount__I = 'I';
+    static constexpr char RespFrequenciesSupported__F = 'F';
+    static constexpr char RespBitsetCapabilities__B = 'B';
+
+    static constexpr uint16_t RespBitsetCapabilities__LowSpeedSupported = 0x1;
+    static constexpr uint16_t RespBitsetCapabilities__BusFreeSupported = 0x2;
+    static constexpr uint16_t RespBitsetCapabilities__SmBusAddressResolution = 0x4;
+    static constexpr uint16_t RespBitsetCapabilities__TenBit = 0x8;
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
-        out.writeField(CMD_RESP_COMMANDS_C, MODULE_CAPABILITIES(005));
-
-        out.writeField(CMD_RESP_NOTIFICATION_SUPPORTED_N, 0);
-        out.writeField('B', 32);
-
-        out.writeField(CMD_RESP_PORT_COUNT_P, 1);
-        out.writeField(CMD_RESP_MAX_FREQUENCIES_SUPPORTED_F, 3);
+        out.writeField(RespCommands__C, MODULE_CAPABILITIES(005));
+        out.writeField(RespInterfaceCount__I, 1);
+        out.writeField(RespFrequenciesSupported__F, 3);
+        out.writeField(RespBitsetCapabilities__B, RespBitsetCapabilities__LowSpeedSupported | RespBitsetCapabilities__SmBusAddressResolution);
+#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+        out.writeField(RespNotificationsSupported__N, 0);
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
+        out.writeField(RespAddressingSupported__A, 0);
+#endif
+#endif
     }
 
 };

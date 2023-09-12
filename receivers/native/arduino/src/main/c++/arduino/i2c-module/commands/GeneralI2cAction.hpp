@@ -12,40 +12,45 @@
 #include "../I2cStrings.hpp"
 #include <Wire.h>
 
+#define COMMAND_EXISTS_0052 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_0053 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_0054 EXISTENCE_MARKER_UTIL
 /**
  * Handles the Send, Receive, and Send+Receive cases directly - they're pretty similar
  */
 namespace Zscript {
 template<class ZP>
 class GeneralI2cAction {
+    static constexpr char ParamInterface__I = 'I';
+    static constexpr char ParamAddr__A = 'A';
+    static constexpr char ParamTenBit__T = 'T';
+    static constexpr char ParamRetries__R = 'R';
+    static constexpr char ParamReadLength__L = 'L';
+
+    static constexpr char RespRetries__R = 'R';
+    static constexpr char RespResultType__I = 'I';
+    static constexpr char RespResultType__OK = 0;
+    static constexpr char RespResultType__ADDRNACK = 2;
+    static constexpr char RespResultType__DATANACK = 3;
+    static constexpr char RespResultType__OTHER = 4;
 
 public:
-    static constexpr char CMD_PARAM_I2C_PORT_P = 'P';
-    static constexpr char CMD_PARAM_I2C_ADDR_A = 'A';
-    static constexpr char CMD_PARAM_TENBIT_ADDR_N = 'N';
-    static constexpr char CMD_PARAM_RETRIES_T = 'T';
-    static constexpr char CMD_PARAM_READ_LENGTH = 'L';
-
-    static constexpr char CMD_RESP_I2C_ADDR_A = 'A';
-    static constexpr char CMD_RESP_I2C_INFO_I = 'I';
-    static constexpr char CMD_RESP_I2C_ATTEMPTS_T = 'T';
-    static constexpr char CMD_RESP_I2C_INFO_VAL_OK = 0;
-    static constexpr char CMD_RESP_I2C_INFO_VAL_ADDRNACK = 2;
-    static constexpr char CMD_RESP_I2C_INFO_VAL_DATANACK = 3;
-    static constexpr char CMD_RESP_I2C_INFO_VAL_OTHER = 4;
+    static constexpr uint8_t SEND_CODE = 0x02;
+    static constexpr uint8_t RECEIVE_CODE = 0x03;
+    static constexpr uint8_t SEND_RECEIVE_CODE = 0x04;
 
     /** Note, SEND | RECEIVE == SEND_RECEIVE */
-    enum ActionType {
+    enum class ActionType : uint8_t {
         SEND = 1, RECEIVE = 2, SEND_RECEIVE = 3
     };
 
-    static void executeSendReceive(ZscriptCommandContext<ZP> ctx, uint8_t action) {
+    static void executeSendReceive(ZscriptCommandContext<ZP> ctx, ActionType action) {
         uint16_t address;
-        if (!ctx.getField(CMD_PARAM_I2C_ADDR_A, &address)) {
+        if (!ctx.getField(ParamAddr__A, &address)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }
-        if (ctx.hasField(CMD_PARAM_TENBIT_ADDR_N)) {
+        if (ctx.hasField(ParamTenBit__T)) {
             ctx.status(ResponseStatus::EXECUTION_ERROR);
             return;
         }
@@ -56,22 +61,22 @@ public:
 
         CommandOutStream<ZP> out = ctx.getOutStream();
 
-        uint16_t requestedLength = ctx.getField(CMD_PARAM_READ_LENGTH, (uint16_t) 0);
+        uint16_t requestedLength = ctx.getField(ParamReadLength__L, (uint16_t) 0);
         if (requestedLength > 32) {
             ctx.status(ResponseStatus::DATA_TOO_LONG);
             return;
         }
 
         // initial pass
-        uint16_t port;
-        if (!ctx.getField(CMD_PARAM_I2C_PORT_P, &port)) {
-            port = 0;
-        } else if (port > 0) {
+        uint16_t interface;
+        if (!ctx.getField(ParamInterface__I, &interface)) {
+            interface = 0;
+        } else if (interface > 0) {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
 
-        uint16_t retries = ctx.getField(CMD_PARAM_RETRIES_T, 5);
+        uint16_t retries = ctx.getField(ParamRetries__R, 5);
         if (retries > 255) {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
@@ -90,7 +95,7 @@ public:
 
             uint8_t buffer[requestedLength];
             switch ((ActionType) action) {
-            case SEND:
+            case ActionType::SEND:
                 Wire.beginTransmission((uint8_t) address);
                 if (ctx.getBigFieldSize() > 0) {
                     for (BigFieldBlockIterator<ZP> tbi = ctx.getBigField(); tbi.hasNext();) {
@@ -100,7 +105,7 @@ public:
                 }
                 status = Wire.endTransmission();
                 break;
-            case RECEIVE:
+            case ActionType::RECEIVE:
                 {
                 uint8_t len = Wire.requestFrom((uint8_t) address, (uint8_t) requestedLength);
                 if (len == 0) {
@@ -115,7 +120,7 @@ public:
                 }
             }
                 break;
-            case SEND_RECEIVE:
+            case ActionType::SEND_RECEIVE:
                 Wire.beginTransmission((uint8_t) address);
                 if (ctx.getBigFieldSize() > 0) {
                     for (BigFieldBlockIterator<ZP> tbi = ctx.getBigField(); tbi.hasNext();) {
@@ -142,48 +147,98 @@ public:
             }
 
             if (status == 0) {
-                infoValue = CMD_RESP_I2C_INFO_VAL_OK;
-                if ((action & RECEIVE) != 0) {
+                infoValue = RespResultType__OK;
+                if (((uint8_t) action & (uint8_t) ActionType::RECEIVE) != 0) {
                     out.writeBigHex(buffer, requestedLength);
                 }
                 break;
             } else if (status == 3) {
                 // abrupt failure during data send - don't retry, because its status is now unknown
-                infoValue = CMD_RESP_I2C_INFO_VAL_DATANACK;
+                infoValue = RespResultType__DATANACK;
                 ctx.status(ResponseStatus::COMMAND_DATA_NOT_TRANSMITTED);
                 break;
             } else if (status == 5 || status == 4) {
                 if (recoverBusJam()) {
-                    infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
+                    infoValue = RespResultType__OTHER;
                     ctx.status(ResponseStatus::PERIPHERAL_JAM);
                 } else {
-                    infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
+                    infoValue = RespResultType__OTHER;
                     ctx.status(ResponseStatus::COMMAND_FAIL);
                 }
                 break;
             } else if (status == 6 && action == ActionType::SEND_RECEIVE) {
-                infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
+                infoValue = RespResultType__ADDRNACK;
                 ctx.status(ResponseStatus::COMMAND_NO_TARGET);
                 break;
             } else if (attemptsDone < retries) {
                 // any other error, keep retrying. Beyond here, we must be at the end of all retries.
             } else if (status == 2) {
-                infoValue = CMD_RESP_I2C_INFO_VAL_ADDRNACK;
+                infoValue = RespResultType__ADDRNACK;
                 ctx.status(ResponseStatus::COMMAND_NO_TARGET);
                 break;
             } else {
-                infoValue = CMD_RESP_I2C_INFO_VAL_OTHER;
+                infoValue = RespResultType__OTHER;
                 ctx.status(ResponseStatus::COMMAND_FAIL);
                 break;
             }
 
         }
-        out.writeField(CMD_RESP_I2C_ATTEMPTS_T, attemptsDone);
-        out.writeField(CMD_RESP_I2C_INFO_I, infoValue);
-        out.writeField(CMD_RESP_I2C_ADDR_A, address);
+        out.writeField(RespRetries__R, attemptsDone);
+        out.writeField(RespResultType__I, infoValue);
         return;
-
     }
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
+    static void executeAddressing(ZscriptAddressingContext<ZP> ctx) {
+        uint16_t interface;
+        uint16_t address;
+        AddressOptIterator<ZP> iter = ctx.getAddressSegments();
+        iter.next();
+        OptInt16 seg = iter.next();
+        if (!seg.isPresent) {
+            ctx.status(ResponseStatus::ADDRESS_NOT_FOUND);
+            return;
+        }
+        interface = seg.value;
+        if (interface > 0) {
+            ctx.status(ResponseStatus::ADDRESS_NOT_FOUND);
+            return;
+        }
+        seg = iter.next();
+        if (!seg.isPresent) {
+            ctx.status(ResponseStatus::ADDRESS_NOT_FOUND);
+            return;
+        }
+        address = seg.value;
+        if (address >= 128) {
+            ctx.status(ResponseStatus::ADDRESS_NOT_FOUND);
+            return;
+        }
+        Wire.beginTransmission((uint8_t) address);
+        if (ctx.getAddressedDataSize() > 0) {
+            for (CombinedTokenBlockIterator<ZP> tbi = ctx.getAddressedData(); tbi.hasNext();) {
+                DataArrayWLeng16 data = tbi.nextContiguous();
+                Wire.write(data.data, data.length);
+            }
+        }
+        Wire.write('\n');
+        uint8_t status = Wire.endTransmission();
+        if (status == 0) {
+            //done
+        } else if (status == 3) {
+            ctx.status(ResponseStatus::COMMAND_DATA_NOT_TRANSMITTED);
+        } else if (status == 5 || status == 4) {
+            if (recoverBusJam()) {
+                ctx.status(ResponseStatus::PERIPHERAL_JAM);
+            } else {
+                ctx.status(ResponseStatus::COMMAND_FAIL);
+            }
+        } else if (status == 2) {
+            ctx.status(ResponseStatus::COMMAND_NO_TARGET);
+        } else {
+            ctx.status(ResponseStatus::COMMAND_FAIL);
+        }
+    }
+#endif
 
     static bool recoverBusJam() {
         int attempts = 18;

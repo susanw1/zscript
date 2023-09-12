@@ -45,6 +45,10 @@ public:
         parser.setChannelIndex(i);
     }
 
+    virtual bool setupStartupNotificationChannel() {
+        return false;
+    }
+
     virtual void moveAlong() {
     }
 

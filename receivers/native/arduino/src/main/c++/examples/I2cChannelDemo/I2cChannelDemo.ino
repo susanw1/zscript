@@ -3,10 +3,10 @@
 
 void setup() {
     Serial.begin(9600);
-   // ZscriptI2cChannel.setAddress(0x61);
     ZscriptSetup.setup();
 }
 
 void loop() {
+    //Zscript::ZscriptServoModule<ZscriptParams>::moveAlongServos();
     Zscript::Zscript<ZscriptParams>::zscript.progress();
 }

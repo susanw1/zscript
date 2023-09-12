@@ -8,13 +8,16 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_CORE_COREMODULE_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_CORE_COREMODULE_HPP_
 
+#ifdef ZSCRIPT_HPP_INCLUDED
+#error Must be included before Zscript.hpp
+#endif
+
 #include "../../ZscriptIncludes.hpp"
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../ZscriptModule.hpp"
 
 #include "ActivateCommand.hpp"
 #include "EchoCommand.hpp"
-#include "MakeMatchCodeCommand.hpp"
 #include "ChannelInfoCommand.hpp"
 
 #define MODULE_EXISTS_000 EXISTENCE_MARKER_UTIL
@@ -41,24 +44,18 @@ public:
         case 0x2:
             ActivateCommand<ZP>::execute(ctx);
             break;
-#ifdef ZSCRIPT_RESET_COMMAND
-        case 0x3:
-            ZP::ResetCommand::execute(ctx);
+#ifdef ZSCRIPT_ID_FETCH_COMMAND
+        case 0x4:
+            ZP::IdCommand::fetchId(ctx);
             break;
 #endif
-#ifdef ZSCRIPT_GUID_FETCH_COMMAND
-        case 0x4:
-            ZP::GuidCommand::fetchGuid(ctx);
+#ifdef ZSCRIPT_ID_RANDOM_COMMAND
+        case 0x5:
+            ZP::IdCommand::makeRandomCode(ctx);
             break;
 #endif
         case 0x8:
             ChannelInfoCommand<ZP>::execute(ctx);
-            break;
-        case 0xc:
-            MakeMatchCodeCommand<ZP>::makeCode(ctx);
-            break;
-        case 0xd:
-            MakeMatchCodeCommand<ZP>::matchCode(ctx);
             break;
 #ifdef ZSCRIPT_USER_CUSTOM_CORE_COMMAND
         case 0x4:

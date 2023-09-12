@@ -5,23 +5,26 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARDUINO_PINS_MODULE_COMMANDS_ZSCRIPTPINREADCOMMAND_HPP_
-#define SRC_MAIN_CPP_ARDUINO_PINS_MODULE_COMMANDS_ZSCRIPTPINREADCOMMAND_HPP_
+#ifndef SRC_MAIN_C___ARDUINO_PINS_MODULE_COMMANDS_DIGITALPINREADCOMMAND_HPP_
+#define SRC_MAIN_C___ARDUINO_PINS_MODULE_COMMANDS_DIGITALPINREADCOMMAND_HPP_
 
 #include <zscript/modules/ZscriptCommand.hpp>
-#include <arduino/pins-module/pin-controller/PinController.hpp>
+#include "../PinManager.hpp"
 
 #define COMMAND_EXISTS_0033 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
 template<class ZP>
-class ZscriptPinReadCommand {
+class DigitalPinReadCommand {
+    static constexpr char ParamPin__P = 'P';
+
+    static constexpr char RespValue__V = 'V';
 
 public:
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t pin;
-        if (!ctx.getField('P', &pin)) {
+        if (!ctx.getField(ParamPin__P, &pin)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }
@@ -29,10 +32,11 @@ public:
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
-
-        PinController<ZP>::readPin(pin, ctx);
+        CommandOutStream<ZP> out = ctx.getOutStream();
+        out.writeField(RespValue__V, digitalRead(pin) == HIGH ? 1 : 0);
     }
+
 };
 }
 
-#endif /* SRC_MAIN_CPP_ARDUINO_PINS_MODULE_COMMANDS_ZSCRIPTPINREADCOMMAND_HPP_ */
+#endif /* SRC_MAIN_C___ARDUINO_PINS_MODULE_COMMANDS_DIGITALPINREADCOMMAND_HPP_ */

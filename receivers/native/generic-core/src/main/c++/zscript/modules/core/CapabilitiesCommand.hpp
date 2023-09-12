@@ -7,6 +7,7 @@
 
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_CORE_CAPABILITIESCOMMAND_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_CORE_CAPABILITIESCOMMAND_HPP_
+
 #include "../../ZscriptIncludes.hpp"
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../../LanguageVersion.hpp"
@@ -19,7 +20,7 @@ namespace GenericCore {
 template<class ZP>
 class CapabilitiesCommand {
 public:
-    enum VersionType {
+    enum VersionType : uint8_t {
         UserFirmware, UserHardware, PlatformFirmware, PlatformHardware, CoreZcodeLanguage
     };
 
@@ -31,36 +32,42 @@ public:
         uint16_t version;
 
         switch (versionType) {
-        case UserFirmware:
-            ident = "aa";
-            version = 1;
-            break;
-//        case UserHardware:
-//            ident = ZP::Strings::identifyUserHardware;
-//            version = ZCODE_IDENTIFY_USER_HARDWARE_VERSION;
-//            break;
-//        case PlatformFirmware:
-//            ident = ZP::Strings::identifyPlatformFirmware;
-//            version = ZCODE_IDENTIFY_PLATFORM_FIRMWARE_VERSION;
-//            break;
-//        case PlatformHardware:
-//            ident = ZP::Strings::identifyPlatformHardware;
-//            version = ZCODE_IDENTIFY_PLATFORM_HARDWARE_VERSION;
-//            break;
-        case CoreZcodeLanguage:
-            ident = ZSCRIPT_IDENTIFY_CORE_ZSCRIPT_LANG_STRING;
-            version = ZSCRIPT_IDENTIFY_CORE_ZSCRIPT_LANG_VERSION;
-            break;
+            case UserFirmware:
+                ident = ZSCRIPT_IDENTIFY_USER_FIRMWARE_STRING;
+                version = ZSCRIPT_IDENTIFY_USER_FIRMWARE_VERSION;
+                break;
+            case UserHardware:
+                ident = ZSCRIPT_IDENTIFY_USER_HARDWARE_STRING;
+                version = ZSCRIPT_IDENTIFY_USER_HARDWARE_VERSION;
+                break;
+            case PlatformFirmware:
+                ident = ZSCRIPT_IDENTIFY_PLATFORM_FIRMWARE_STRING;
+                version = ZSCRIPT_IDENTIFY_PLATFORM_FIRMWARE_VERSION;
+                break;
+            case PlatformHardware:
+                ident = ZSCRIPT_IDENTIFY_PLATFORM_HARDWARE_STRING;
+                version = ZSCRIPT_IDENTIFY_PLATFORM_HARDWARE_VERSION;
+                break;
+            case CoreZcodeLanguage:
+                ident = ZSCRIPT_IDENTIFY_CORE_ZSCRIPT_LANG_STRING;
+                version = ZSCRIPT_IDENTIFY_CORE_ZSCRIPT_LANG_VERSION;
+                break;
         }
 
         if (ident != NULL) {
-//            out->writeBigStringField(ident);
+            out.writeQuotedString(ident);
             out.writeField('V', version);
         } else {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
         }
         out.writeField('C', MODULE_CAPABILITIES(000));
         out.writeField('M', COMMAND_SWITCH_EXISTS_BOTTOM_BYTE(00));
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+        out.writeField('N', 0);
+#endif
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
+        out.writeField('A', 0);
+#endif
     }
 
 };

@@ -20,7 +20,8 @@ class BufferOutStream: public AbstractOutStream<ZP> {
 public:
     bool openB = false;
 
-    void open() {
+    void open(uint8_t source) {
+        (void) source;
         openB = true;
     }
 

@@ -7,21 +7,23 @@
 
 #ifndef SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTNOTIFICATIONCONTEXT_HPP_
 #define SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTNOTIFICATIONCONTEXT_HPP_
+
 #include "../ZscriptIncludes.hpp"
 #include "CommandOutStream.hpp"
 
 namespace Zscript {
-namespace GenericCore {
 
+namespace GenericCore {
 template<class ZP>
 class ZscriptNotificationSource;
+}
 
 template<class ZP>
 class ZscriptNotificationContext {
-    ZscriptNotificationSource<ZP> *source;
+    GenericCore::ZscriptNotificationSource<ZP> *source;
 
 public:
-    ZscriptNotificationContext(ZscriptNotificationSource<ZP> *source) :
+    ZscriptNotificationContext(GenericCore::ZscriptNotificationSource<ZP> *source) :
             source(source) {
         source->setNotificationComplete(true);
     }
@@ -47,14 +49,13 @@ public:
     }
 
     NotificationOutStream<ZP> getOutStream() {
-        return NotificationOutStream<ZP>(Zscript < ZP > ::zscript.getNotificationOutStream());
+        return NotificationOutStream<ZP>(Zscript<ZP>::zscript.getNotificationOutStream());
     }
 
     AsyncActionNotifier<ZP> getAsyncActionNotifier() {
         return source->getAsyncActionNotifier();
     }
 };
-}
 }
 
 #endif /* SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTNOTIFICATIONCONTEXT_HPP_ */

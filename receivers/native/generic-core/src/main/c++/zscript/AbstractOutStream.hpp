@@ -46,7 +46,7 @@ protected:
     }
 
 public:
-    virtual void open() = 0;
+    virtual void open(uint8_t sourceInd) = 0;
     virtual void close() = 0;
     virtual bool isOpen() = 0;
 

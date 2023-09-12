@@ -7,6 +7,10 @@
 
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_OUTERCORE_OUTERCOREMODULE_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_OUTERCORE_OUTERCOREMODULE_HPP_
+#ifdef ZSCRIPT_HPP_INCLUDED
+#error Must be included before Zscript.hpp
+#endif
+
 #include "../../ZscriptIncludes.hpp"
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../ZscriptModule.hpp"
@@ -30,9 +34,14 @@ public:
         case 0x0:
             ExtendedCapabilitiesCommand<ZP>::execute(ctx);
             break;
-#ifdef ZSCRIPT_GUID_SAVE_COMMAND
+#ifdef ZSCRIPT_RESET_COMMAND
+        case 0x1:
+            ZP::ResetCommand::execute(ctx);
+            break;
+#endif
+#ifdef ZSCRIPT_ID_SAVE_COMMAND
         case 0x4:
-            ZP::GuidCommand::saveGuid(ctx);
+            ZP::IdCommand::saveId(ctx);
             break;
 #endif
         case 0x8:

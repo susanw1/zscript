@@ -21,15 +21,25 @@ public:
     static constexpr uint8_t CODE = 0x01;
 
     // if set, determines which port to control; else set all ports
-    static constexpr char CMD_PARAM_I2C_PORT_P = 'P';
-
+    static constexpr char ParamInterface__I = 'I';
     // chooses comms frequency, from 10, 100, 400 and 1000 kHz
-    static constexpr char CMD_PARAM_FREQ_F = 'F';
+    static constexpr char ParamFreq__F = 'F';
+    // If present, sets whether addressing is enabled
+    static constexpr char ParamAddressingEnable__A = 'A';
+    // If present, sets whether notifications are enabled
+    static constexpr char ParamNotificationEnable__N = 'N';
 
-    static void execute(ZscriptCommandContext<ZP> ctx) {
+    static constexpr char RespFreqkHz__K = 'K';
+
+    static void execute(ZscriptCommandContext<ZP> ctx
+
+#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+            , bool *addressing, bool *notifications
+#endif
+            ) {
 
         uint16_t freq;
-        if (ctx.getField(CMD_PARAM_FREQ_F, &freq)) {
+        if (ctx.getField(ParamFreq__F, &freq)) {
             uint32_t freqValue;
 
             switch (freq) {
@@ -50,16 +60,30 @@ public:
                 return;
             }
 
-            uint16_t port;
-            if (!ctx.getField(CMD_PARAM_I2C_PORT_P, &port)) {
+            uint16_t interface;
+            if (!ctx.getField(ParamInterface__I, &interface)) {
                 ctx.status(ResponseStatus::MISSING_KEY);
+                return;
             }
-            if (port != 0) {
+            if (interface != 0) {
                 ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
                 return;
             }
             Wire.setClock(freqValue);
+            ctx.getOutStream().writeField(RespFreqkHz__K, freqValue / 1000);
         }
+#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+        uint16_t notif;
+        if (ctx.getField(ParamNotificationEnable__N, &notif)) {
+            *notifications = (notif != 0);
+        }
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
+        uint16_t addr;
+        if (ctx.getField(ParamAddressingEnable__A, &addr)) {
+            *addressing = (addr != 0);
+        }
+#endif
+#endif
     }
 };
 }

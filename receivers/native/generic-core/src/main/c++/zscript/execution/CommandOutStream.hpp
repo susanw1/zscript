@@ -112,16 +112,16 @@ public:
     }
 
     void writeBigHex(DataArrayWLeng8 data) {
-        internal->writeQuotedString(data);
+        internal->writeBigHex(data);
     }
     void writeBigHex(DataArrayWLeng16 data) {
-        internal->writeQuotedString(data);
+        internal->writeBigHex(data);
     }
     void writeBigHex(uint8_t *data, uint16_t length) {
-        internal->writeQuotedString(data, length);
+        internal->writeBigHex(data, length);
     }
     void writeBigHex(const char *text) {
-        internal->writeQuotedString(text);
+        internal->writeBigHex(text);
     }
 
 };

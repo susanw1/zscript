@@ -56,13 +56,13 @@ enum ResponseStatus {
     INVALID_COMMENT = 0x32,
 
     /** two fields (in the same command) with the same key found */
-    REPEATED_KEY = 0x43,
+    REPEATED_KEY = 0x40,
     /** field not valid in this position */
-    INVALID_KEY = 0x44,
+    INVALID_KEY = 0x41,
     /** given command does not exist or not specified */
-    COMMAND_NOT_FOUND = 0x45,
+    COMMAND_NOT_FOUND = 0x42,
     /** given address does not exist or cannot be addressed */
-    ADDRESS_NOT_FOUND = 0x46,
+    ADDRESS_NOT_FOUND = 0x43,
 
     /** a required field was not given */
     MISSING_KEY = 0x50,

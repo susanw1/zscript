@@ -9,10 +9,9 @@
 #define SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTADDRESSINGCONTEXT_HPP_
 
 #include "../ZscriptIncludes.hpp"
-#include "../AbstractOutStream.hpp"
-#include "../Zchars.hpp"
 #include "../tokenizer/TokenRingBuffer.hpp"
 #include "../tokenizer/ZscriptTokenizer.hpp"
+#include "CommandOutStream.hpp"
 
 namespace Zscript {
 template<class ZP>
@@ -67,7 +66,7 @@ public:
         for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(reader.asBuffer()); opt.isPresent; opt = iterator.next(reader.asBuffer())) {
             GenericCore::RingBufferToken<ZP> token = opt.token;
             if (token.getKey(reader.asBuffer()) == ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
-                return CombinedTokenBlockIterator<ZP>(reader.asBuffer(), token.blockIterator(reader.asBuffer()));
+                return token.blockIterator(reader.asBuffer());
             }
         }
     }
@@ -98,7 +97,7 @@ public:
             GenericCore::RingBufferToken<ZP> token = opt.token;
             i++;
             if (hasReachedData) {
-                if (token.isMarker(reader.asBuffer())) {
+                if (token.isSequenceEndMarker(reader.asBuffer())) {
                     return true;
                 }
                 status(ResponseStatus::INVALID_KEY);
@@ -108,6 +107,9 @@ public:
                 continue;
             }
             if (token.getKey(reader.asBuffer()) != ZscriptTokenizer<ZP>::ADDRESSING_FIELD_KEY) {
+                if(token.isSequenceEndMarker(reader.asBuffer())){
+                    return true;
+                }
                 status(ResponseStatus::INVALID_KEY);
                 return false;
             }
@@ -122,6 +124,16 @@ public:
     }
 
     void status(uint8_t status) {
+        if(Zscript<ZP>::zscript.hasNotificationOutStream()) {
+            AbstractOutStream<ZP> *out = Zscript<ZP>::zscript.getNotificationOutStream();
+            if (!out->isOpen()) {
+                out->open(Zscript<ZP>::zscript.getNotificationChannelIndex());
+            }
+            out->writeField('!', 0);
+            out->writeField(Zchars::Z_STATUS, status);
+            out->endSequence();
+            out->close();
+        }
         parseState->setStatus(status);
     }
 
