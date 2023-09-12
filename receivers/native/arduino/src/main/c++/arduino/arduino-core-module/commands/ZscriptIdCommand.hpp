@@ -57,7 +57,9 @@ public:
                 break;
             case GUID:
                 uint8_t guidValue[16];
-                PersistenceSystem<ZP>::readSection(guidLoc, 16, guidValue);
+                if (!PersistenceSystem<ZP>::readSection(guidLoc, 16, guidValue)) {
+                    break;
+                }
                 out.writeBigHex(guidValue, 16);
                 if (bigLength != 0) {
                     if (bigLength != 16) {
@@ -98,7 +100,7 @@ public:
         for (BigFieldBlockIterator<ZP> iter = ctx.getBigField(); iter.hasNext();) {
             guidToSave[i++] = iter.next();
         }
-        PersistenceSystem<ZP>::readSection(guidLoc, 16, guidToSave);
+        PersistenceSystem<ZP>::writeSection(guidLoc, 16, guidToSave);
     }
 
 };

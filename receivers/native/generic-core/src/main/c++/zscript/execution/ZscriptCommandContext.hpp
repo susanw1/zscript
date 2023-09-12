@@ -114,6 +114,7 @@ public:
             if (ZcharsUtils<ZP>::isBigField(token.getKey(reader.asBuffer()))) {
                 internal = token.rawBlockIterator(reader.asBuffer());
                 if (internal.hasNext(reader.asBuffer())) {
+                    hasInternal = true;
                     return true;
                 }
             }
