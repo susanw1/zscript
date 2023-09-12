@@ -54,8 +54,6 @@ public class Tokenizer {
     public static final byte CMD_END_OPEN_PAREN  = (byte) 0xe3;
     public static final byte CMD_END_CLOSE_PAREN = (byte) 0xe4;
 
-    private final static boolean DROP_COMMENTS = false;
-
     private final TokenWriter writer;
     private final int         maxNumericBytes;
 
@@ -283,18 +281,13 @@ public class Tokenizer {
 
         numeric = !Zchars.isNonNumerical(b);
         isText = false;
-        writer.startToken(b, numeric);
-
-        if (b == Zchars.Z_COMMENT) {
-            if (DROP_COMMENTS) {
-                skipToNL = true;
-            } else {
-                isText = true;
-                isNormalString = false;
-                escapingCount = 0;
-            }
+        if (b != Zchars.Z_COMMENT) {
+            writer.startToken(b, numeric);
+        } else {
+            skipToNL = true;
             return;
         }
+
         if (b == Zchars.Z_BIGFIELD_QUOTED) {
             isText = true;
             isNormalString = true;

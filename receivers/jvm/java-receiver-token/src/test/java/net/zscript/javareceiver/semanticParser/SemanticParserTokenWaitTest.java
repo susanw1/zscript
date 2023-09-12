@@ -199,9 +199,10 @@ class SemanticParserTokenWaitTest {
         parserActionTester.parseSnippet("#pq", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "");
         tokenizer.dataLost();
         parserActionTester.parseSnippet("xyz", ActionType.ERROR, State.PRESEQUENCE, "!S10\n");
-        parserActionTester.parseSnippet("\n", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!S10\n");
-        parserActionTester.parseSnippet("Z1\n", ActionType.RUN_FIRST_COMMAND, State.COMMAND_COMPLETE, "!S10\n!S");
-        parserActionTester.parseSnippet("", ActionType.END_SEQUENCE, State.PRESEQUENCE, "!S10\n!S\n");
+        parserActionTester.parseSnippet("\n", ActionType.RUN_FIRST_COMMAND, State.COMMAND_COMPLETE, "!S10\n!");
+        parserActionTester.parseSnippet("", ActionType.END_SEQUENCE, State.PRESEQUENCE, "!S10\n!\n");
+        parserActionTester.parseSnippet("Z1\n", ActionType.RUN_FIRST_COMMAND, State.COMMAND_COMPLETE, "!S10\n!\n!S");
+        parserActionTester.parseSnippet("", ActionType.END_SEQUENCE, State.PRESEQUENCE, "!S10\n!\n!S\n");
 
         assertThat(outStream.isOpen()).isFalse();
     }
