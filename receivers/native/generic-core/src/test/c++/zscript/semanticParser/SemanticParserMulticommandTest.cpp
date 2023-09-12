@@ -9,7 +9,6 @@
 
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS
 #define ZSCRIPT_SUPPORT_ADDRESSING
-#define ZSCRIPT_DONT_FAST_DISCARD_COMMENTS
 
 #include "../test-defines.hpp"
 #include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
@@ -169,9 +168,9 @@ public:
 
     static void shouldProduceMultipleResponsesWithComments() {
         SemanticParserTest s1;
-        s1.shouldHandleActionTypesAndIO("Z1 A \n#hi\n", "!AS\n");
+        s1.shouldHandleActionTypesAndIO("Z1 A \n#hi\n", "!AS\n!\n");
         SemanticParserTest s2;
-        s2.shouldHandleActionTypesAndIO("Z1 A \n#hi\n#abc\nZ1B\n", "!AS\n!BS\n");
+        s2.shouldHandleActionTypesAndIO("Z1 A \n#hi\n#abc\nZ1B\n", "!AS\n!\n!\n!BS\n");
     }
 
     static void shouldProduceMultipleResponsesWithAddressing() {

@@ -8,7 +8,6 @@
 #include <iostream>
 
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS
-#define ZSCRIPT_DONT_FAST_DISCARD_COMMENTS
 
 #include "../test-defines.hpp"
 #include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
@@ -433,9 +432,10 @@ public:
         parserActionTester.parseSnippet("#pq", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "");
         tokenizer.dataLost();
         parserActionTester.parseSnippet("xyz", SemanticActionType::ERROR, SemanticParserState::PRESEQUENCE, "!S10\n");
-        parserActionTester.parseSnippet("\n", SemanticActionType::WAIT_FOR_TOKENS, SemanticParserState::PRESEQUENCE, "!S10\n");
-        parserActionTester.parseSnippet("Z1\n", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!S10\n!S");
-        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!S10\n!S\n");
+        parserActionTester.parseSnippet("\n", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!S10\n!");
+        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!S10\n!\n");
+        parserActionTester.parseSnippet("Z1\n", SemanticActionType::RUN_FIRST_COMMAND, SemanticParserState::COMMAND_COMPLETE, "!S10\n!\n!S");
+        parserActionTester.parseSnippet("", SemanticActionType::END_SEQUENCE, SemanticParserState::PRESEQUENCE, "!S10\n!\n!S\n");
 
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
