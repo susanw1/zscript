@@ -33,30 +33,26 @@ public:
 
 private:
 
-#ifdef ZSCRIPT_DONT_FAST_DISCARD_COMMENTS
-    static const bool DROP_COMMENTS = false;
-#else
-    static const bool DROP_COMMENTS = true;
-    #endif
 
     TokenRingWriter<ZP> writer;
-    const uint8_t maxNumericBytes :4;
-    bool skipToNL :1;
-    bool bufferOvr :1;
-    bool tokenizerError :1;
-    bool numeric :1;
+    const uint8_t maxNumericBytes: 4;
+    bool skipToNL: 1;
+    bool bufferOvr: 1;
+    bool tokenizerError: 1;
+    bool numeric: 1;
 
-    uint8_t escapingCount :2; // 2 bit counter, from 2 to 0
-    bool addressing :1;
-    bool isText :1;
-    bool isNormalString :1;
+    uint8_t escapingCount: 2; // 2 bit counter, from 2 to 0
+    bool addressing: 1;
+    bool isText: 1;
+    bool isNormalString: 1;
 
 public:
 
     ZscriptTokenizer(TokenRingWriter<ZP> writer, uint8_t maxNumericBytes) :
             writer(writer),
-                    maxNumericBytes(maxNumericBytes & 0xF), skipToNL(false), bufferOvr(false), tokenizerError(false), numeric(false),
-                    escapingCount(0), addressing(false), isText(false), isNormalString(true) {
+            maxNumericBytes(maxNumericBytes & 0xF), skipToNL(false), bufferOvr(false), tokenizerError(false),
+            numeric(false),
+            escapingCount(0), addressing(false), isText(false), isNormalString(true) {
     }
 
 private:
@@ -120,19 +116,19 @@ private:
         if (ZcharsUtils<ZP>::isSeparator(b)) {
             uint8_t marker = 0;
             switch (b) {
-            case Zchars::ANDTHEN_SYMBOL:
-                marker = CMD_END_ANDTHEN;
-                break;
-            case Zchars::ORELSE_SYMBOL:
-                marker = CMD_END_ORELSE;
-                break;
-            case Zchars::OPEN_PAREN_SYMBOL:
-                marker = CMD_END_OPEN_PAREN;
-                break;
-            case Zchars::CLOSE_PAREN_SYMBOL:
-                marker = CMD_END_CLOSE_PAREN;
-                break;
-                // more for other constructs? '(', ')'
+                case Zchars::ANDTHEN_SYMBOL:
+                    marker = CMD_END_ANDTHEN;
+                    break;
+                case Zchars::ORELSE_SYMBOL:
+                    marker = CMD_END_ORELSE;
+                    break;
+                case Zchars::OPEN_PAREN_SYMBOL:
+                    marker = CMD_END_OPEN_PAREN;
+                    break;
+                case Zchars::CLOSE_PAREN_SYMBOL:
+                    marker = CMD_END_CLOSE_PAREN;
+                    break;
+                    // more for other constructs? '(', ')'
             }
             if (marker != 0) {
                 writer.writeMarker(marker);
@@ -155,18 +151,14 @@ private:
 
         numeric = !ZcharsUtils<ZP>::isNonNumerical(b);
         isText = false;
-        writer.startToken(b, numeric);
 
-        if (b == Zchars::Z_COMMENT) {
-            if (DROP_COMMENTS) {
-                skipToNL = true;
-            } else {
-                isText = true;
-                isNormalString = false;
-                escapingCount = 0;
-            }
+        if (b != Zchars::Z_COMMENT) {
+            writer.startToken(b, numeric);
+        } else {
+            skipToNL = true;
             return;
         }
+
         if (b == Zchars::Z_BIGFIELD_QUOTED) {
             isText = true;
             isNormalString = true;
@@ -183,10 +175,12 @@ public:
             bufferOvr = true;
         }
     }
+
     bool checkCapacity() {
         // worst case is... TODO: review this!
         return writer.checkAvailableCapacity(3);
     }
+
     bool offer(uint8_t b) {
         if (checkCapacity() || writer.getFlags()->isReaderBlocked()) {
             accept(b);
@@ -194,6 +188,7 @@ public:
         }
         return false;
     }
+
     void accept(uint8_t b) {
         if ((!isText && ZcharsUtils<ZP>::shouldIgnore(b)) || ZcharsUtils<ZP>::alwaysIgnore(b)) {
             return;

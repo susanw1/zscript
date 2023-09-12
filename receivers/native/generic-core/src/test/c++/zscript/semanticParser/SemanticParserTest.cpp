@@ -8,7 +8,6 @@
 #include <iostream>
 
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS
-#define ZSCRIPT_DONT_FAST_DISCARD_COMMENTS
 
 #include "../test-defines.hpp"
 #include "../../../../main/c++/zscript/modules/outerCore/OuterCoreModule.hpp"
@@ -191,21 +190,6 @@ public:
         checkAgainstOut("");
         checkParserState(SemanticParserState::PRESEQUENCE);
 
-        if (outStream.isOpen()) {
-            std::cerr << "Out stream open unexpectedly\n";
-            throw 0;
-        }
-    }
-    void shouldProduceActionForComment() {
-        feedToTokenizer("#a\n");
-
-        checkParserState(SemanticParserState::PRESEQUENCE);
-        ZscriptAction<zp> a1 = parser.getAction();
-        checkActionType(a1, WAIT_FOR_TOKENS);
-        a1.performAction(&outStream);
-        checkAgainstOut("");
-        outStream.reset();
-        checkParserState(SemanticParserState::PRESEQUENCE);
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
             throw 0;
@@ -508,9 +492,6 @@ int main(int argc, char **argv) {
 
     Zscript::GenericCore::SemanticParserTest s3;
     s3.shouldProduceActionForTwoCommands();
-
-    Zscript::GenericCore::SemanticParserTest s4;
-    s4.shouldProduceActionForComment();
 
     Zscript::GenericCore::SemanticParserTest::shouldProduceActionsForSingleCommands();
 

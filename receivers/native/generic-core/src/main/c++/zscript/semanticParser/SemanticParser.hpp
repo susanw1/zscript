@@ -39,7 +39,6 @@ enum class SemanticParserState : uint8_t {
     ERROR_TOKENIZER,
     ERROR_MULTIPLE_ECHO,
     ERROR_LOCKS,
-    ERROR_COMMENT_WITH_SEQ_FIELDS,
     ERROR_STATUS,
     STOPPING,
     STOPPED
@@ -52,41 +51,44 @@ class SemanticParser {
     LockSet<ZP> locks = LockSet<ZP>::allLocked();
     uint8_t channelIndex = 0;
     //Basic attempt has been made to improve ordering on bitpacking...
-    SemanticActionType currentAction :4; // 4 bits
-    uint8_t parenCounter :4;    // 4 bit
+    SemanticActionType currentAction: 4; // 4 bits
+    uint8_t parenCounter: 4;    // 4 bit
 
-    uint8_t nextMarker :5;    // 5 bit really
-    bool haveNextMarker :1;
-    bool haveSeqEndMarker :1;
-    bool hasSentStatusB :1;
+    uint8_t nextMarker: 5;    // 5 bit really
+    bool haveNextMarker: 1;
+    bool haveSeqEndMarker: 1;
+    bool hasSentStatusB: 1;
 
-    SemanticParserState state :5; // 5 bit
-    bool hasEchoB :1;
+    SemanticParserState state: 5; // 5 bit
+    bool hasEchoB: 1;
     // Execution state
-    bool activated :1;
+    bool activated: 1;
 
-    bool locked :1;
+    bool locked: 1;
 
-    uint8_t seqEndMarker :4;    // 4 bits really
+    uint8_t seqEndMarker: 4;    // 4 bits really
 
 public:
-    bool freeBool :1;
+    bool freeBool: 1;
 
     SemanticParser(TokenRingBuffer<ZP> *buffer) :
             reader(buffer->getReader()),
-                    currentAction(SemanticActionType::INVALID), parenCounter(0),
-                    nextMarker(0), haveNextMarker(false), haveSeqEndMarker(false), hasSentStatusB(false),
-                    state(SemanticParserState::PRESEQUENCE), hasEchoB(false), activated(false), locked(false),
-                    seqEndMarker(0), freeBool(false) {
+            currentAction(SemanticActionType::INVALID), parenCounter(0),
+            nextMarker(0), haveNextMarker(false), haveSeqEndMarker(false), hasSentStatusB(false),
+            state(SemanticParserState::PRESEQUENCE), hasEchoB(false), activated(false), locked(false),
+            seqEndMarker(0), freeBool(false) {
     }
+
 private:
 
     uint8_t fetchNextMarker() {
         return nextMarker | 0xE0;
     }
+
     uint8_t fetchSeqEndMarker() {
         return seqEndMarker | 0xF0;
     }
+
     uint8_t seqMarkerToNextMarker() {
         return seqEndMarker | 0x10;
     }
@@ -99,7 +101,8 @@ private:
     void dealWithTokenBufferFlags() {
         TokenBufferFlags<ZP> *flags = reader.getFlags();
 
-        if (state != SemanticParserState::COMMAND_INCOMPLETE && state != SemanticParserState::COMMAND_NEEDS_ACTION && flags->getAndClearSeqMarkerWritten()) {
+        if (state != SemanticParserState::COMMAND_INCOMPLETE && state != SemanticParserState::COMMAND_NEEDS_ACTION &&
+            flags->getAndClearSeqMarkerWritten()) {
             if (!haveSeqEndMarker) {
                 seekMarker(true, false);
             }
@@ -136,8 +139,9 @@ private:
 
         bool first = true;
         for (token = it.next(reader.asBuffer());
-                token.isPresent && !(token.token.isSequenceEndMarker(reader.asBuffer()) || (!seekSeqEnd && token.token.isMarker(reader.asBuffer())));
-                token = it.next(reader.asBuffer())) {
+             token.isPresent && !(token.token.isSequenceEndMarker(reader.asBuffer()) ||
+                                  (!seekSeqEnd && token.token.isMarker(reader.asBuffer())));
+             token = it.next(reader.asBuffer())) {
             if (flush) {
                 it.flushBuffer(reader.asBuffer());
             } else if (first && seekSeqEnd && token.token.isMarker(reader.asBuffer())) {
@@ -149,7 +153,8 @@ private:
 
         if (seekSeqEnd) {
             if (token.isPresent) {
-                assignSeqEndMarker(token.token.getKey(reader.asBuffer()));    // Literally only this case can happen mid command to cause an error...
+                assignSeqEndMarker(token.token.getKey(
+                        reader.asBuffer()));    // Literally only this case can happen mid command to cause an error...
             } else {
                 haveSeqEndMarker = false;
             }
@@ -230,27 +235,29 @@ private:
         seekMarker(false, true);
         return fetchNextMarker();
     }
+
 public:
     void emptyActionPerformed() {
         currentAction = SemanticActionType::INVALID;
     }
+
     void actionPerformed(SemanticActionType type) {
         currentAction = SemanticActionType::INVALID;
 
         switch (type) {
-        case SemanticActionType::END_SEQUENCE:
-            resetToSequence();
-            //            seekMarker(true, false); // Might not be necessary?
-            break;
-        case SemanticActionType::ERROR:
-            if (skipSequence()) {
+            case SemanticActionType::END_SEQUENCE:
                 resetToSequence();
-            } else {
-                state = SemanticParserState::SEQUENCE_SKIP;
-            }
-            break;
-        default:
-            break;
+                //            seekMarker(true, false); // Might not be necessary?
+                break;
+            case SemanticActionType::ERROR:
+                if (skipSequence()) {
+                    resetToSequence();
+                } else {
+                    state = SemanticParserState::SEQUENCE_SKIP;
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -282,92 +289,91 @@ private:
     SemanticActionType findNextAction() {
         SemanticActionType action;
         switch (state) {
-        case SemanticParserState::PRESEQUENCE:
-            // expecting buffer to be pointing at start of sequence.
-            parseSequenceLevel();
-            if (state == SemanticParserState::PRESEQUENCE) {
-                // expecting buffer to be pointing at first token after lock/echo preamble.
+            case SemanticParserState::PRESEQUENCE:
+                // expecting buffer to be pointing at start of sequence.
+                parseSequenceLevel();
+                if (state == SemanticParserState::PRESEQUENCE) {
+                    // expecting buffer to be pointing at first token after lock/echo preamble.
 
 #ifdef ZSCRIPT_SUPPORT_ADDRESSING
-                if (reader.getFirstReadToken().getKey(reader.asBuffer()) == Zchars::Z_ADDRESSING) {
-                    state = SemanticParserState::ADDRESSING_INCOMPLETE;
-                    return SemanticActionType::INVOKE_ADDRESSING;
+                    if (reader.getFirstReadToken().getKey(reader.asBuffer()) == Zchars::Z_ADDRESSING) {
+                        state = SemanticParserState::ADDRESSING_INCOMPLETE;
+                        return SemanticActionType::INVOKE_ADDRESSING;
+                    }
+#endif
+                    // Until first command is run (and starts presuming it will complete), assert that the command state is INcomplete
+                    state = SemanticParserState::COMMAND_INCOMPLETE;
+                    return SemanticActionType::RUN_FIRST_COMMAND;
                 }
-#endif
-                // Until first command is run (and starts presuming it will complete), assert that the command state is INcomplete
-                state = SemanticParserState::COMMAND_INCOMPLETE;
-                return SemanticActionType::RUN_FIRST_COMMAND;
-            }
-            // force iteration to handle ERROR / SemanticParserState::SEQUENCE
-            return SemanticActionType::GO_AROUND;
+                // force iteration to handle ERROR / SemanticParserState::SEQUENCE
+                return SemanticActionType::GO_AROUND;
 
 #ifdef ZSCRIPT_SUPPORT_ADDRESSING
-        case SemanticParserState::ADDRESSING_INCOMPLETE:
-            return SemanticActionType::WAIT_FOR_ASYNC;
+            case SemanticParserState::ADDRESSING_INCOMPLETE:
+                return SemanticActionType::WAIT_FOR_ASYNC;
 
-        case SemanticParserState::ADDRESSING_NEEDS_ACTION:
-            state = SemanticParserState::ADDRESSING_INCOMPLETE;
-            return SemanticActionType::ADDRESSING_MOVEALONG;
+            case SemanticParserState::ADDRESSING_NEEDS_ACTION:
+                state = SemanticParserState::ADDRESSING_INCOMPLETE;
+                return SemanticActionType::ADDRESSING_MOVEALONG;
 
-        case SemanticParserState::ADDRESSING_COMPLETE:
-            state = SemanticParserState::PRESEQUENCE;
-            skipSequence();
-            return SemanticActionType::END_SEQUENCE;
+            case SemanticParserState::ADDRESSING_COMPLETE:
+                state = SemanticParserState::PRESEQUENCE;
+                skipSequence();
+                return SemanticActionType::END_SEQUENCE;
 #endif
 
-        case SemanticParserState::COMMAND_INCOMPLETE:
-            return SemanticActionType::WAIT_FOR_ASYNC;
+            case SemanticParserState::COMMAND_INCOMPLETE:
+                return SemanticActionType::WAIT_FOR_ASYNC;
 
-        case SemanticParserState::COMMAND_NEEDS_ACTION:
-            state = SemanticParserState::COMMAND_INCOMPLETE;
-            return SemanticActionType::COMMAND_MOVEALONG;
+            case SemanticParserState::COMMAND_NEEDS_ACTION:
+                state = SemanticParserState::COMMAND_INCOMPLETE;
+                return SemanticActionType::COMMAND_MOVEALONG;
 
-        case SemanticParserState::COMMAND_COMPLETE_NEEDS_TOKENS:
+            case SemanticParserState::COMMAND_COMPLETE_NEEDS_TOKENS:
             case SemanticParserState::COMMAND_COMPLETE:
             case SemanticParserState::COMMAND_FAILED:
             case SemanticParserState::COMMAND_SKIP:
-            // record the marker we know is at the end of the last command (and, def not an error), then move past it
-            action = flowControl(skipToAndGetNextMarker());
-            if (state == SemanticParserState::COMMAND_INCOMPLETE && !seekSecondMarker()) {
-                state = SemanticParserState::COMMAND_COMPLETE_NEEDS_TOKENS;
-                return SemanticActionType::WAIT_FOR_TOKENS;
-            } else {
-                if (action != SemanticActionType::RUN_COMMAND) {
-                    flushMarkerAndSeekNext();
+                // record the marker we know is at the end of the last command (and, def not an error), then move past it
+                action = flowControl(skipToAndGetNextMarker());
+                if (state == SemanticParserState::COMMAND_INCOMPLETE && !seekSecondMarker()) {
+                    state = SemanticParserState::COMMAND_COMPLETE_NEEDS_TOKENS;
+                    return SemanticActionType::WAIT_FOR_TOKENS;
+                } else {
+                    if (action != SemanticActionType::RUN_COMMAND) {
+                        flushMarkerAndSeekNext();
+                    }
+                    return action;
                 }
-                return action;
-            }
 
-        case SemanticParserState::SEQUENCE_SKIP:
-            if (!skipSequence()) {
-                return SemanticActionType::WAIT_FOR_TOKENS;
-            }
-            resetToSequence();
-            return SemanticActionType::GO_AROUND;
+            case SemanticParserState::SEQUENCE_SKIP:
+                if (!skipSequence()) {
+                    return SemanticActionType::WAIT_FOR_TOKENS;
+                }
+                resetToSequence();
+                return SemanticActionType::GO_AROUND;
 
-        case SemanticParserState::ERROR_COMMENT_WITH_SEQ_FIELDS:
             case SemanticParserState::ERROR_LOCKS:
             case SemanticParserState::ERROR_MULTIPLE_ECHO:
             case SemanticParserState::ERROR_TOKENIZER:
-            discardSequenceToEnd();
-            return SemanticActionType::ERROR;
-        case SemanticParserState::ERROR_STATUS:
-            if (skipSequence()) {
+                discardSequenceToEnd();
+                return SemanticActionType::ERROR;
+            case SemanticParserState::ERROR_STATUS:
+                if (skipSequence()) {
+                    return SemanticActionType::END_SEQUENCE;
+                } else {
+                    return SemanticActionType::WAIT_FOR_TOKENS;
+                }
+            case SemanticParserState::STOPPING:
+                if (!skipSequence()) {
+                    return SemanticActionType::WAIT_FOR_TOKENS;
+                }
+                state = SemanticParserState::STOPPED;
                 return SemanticActionType::END_SEQUENCE;
-            } else {
-                return SemanticActionType::WAIT_FOR_TOKENS;
-            }
-        case SemanticParserState::STOPPING:
-            if (!skipSequence()) {
-                return SemanticActionType::WAIT_FOR_TOKENS;
-            }
-            state = SemanticParserState::STOPPED;
-            return SemanticActionType::END_SEQUENCE;
 
-        case SemanticParserState::STOPPED:
-            return SemanticActionType::STOPPED;
-        default:
-            return SemanticActionType::ERROR; //unreachable hopefully
+            case SemanticParserState::STOPPED:
+                return SemanticActionType::STOPPED;
+            default:
+                return SemanticActionType::ERROR; //unreachable hopefully
         }
     }
 
@@ -467,7 +473,8 @@ private:
         // skip the current (Marker) token, and then
         it.next(reader.asBuffer());
 
-        for (OptionalRingBufferToken<ZP> token = it.next(reader.asBuffer()); token.isPresent; token = it.next(reader.asBuffer())) {
+        for (OptionalRingBufferToken<ZP> token = it.next(reader.asBuffer()); token.isPresent; token = it.next(
+                reader.asBuffer())) {
             if (token.token.isMarker(reader.asBuffer())) {
                 return true;
             }
@@ -487,7 +494,8 @@ private:
     void parseSequenceLevel() {
         bool hasLocks = false;
         RingBufferToken<ZP> first = reader.getFirstReadToken();
-        while (first.getKey(reader.asBuffer()) == Zchars::Z_ECHO || first.getKey(reader.asBuffer()) == Zchars::Z_LOCKS) {
+        while (first.getKey(reader.asBuffer()) == Zchars::Z_ECHO ||
+               first.getKey(reader.asBuffer()) == Zchars::Z_LOCKS) {
             if (first.getKey(reader.asBuffer()) == Zchars::Z_ECHO) {
                 if (hasEchoB) {
                     state = SemanticParserState::ERROR_MULTIPLE_ECHO;
@@ -506,20 +514,6 @@ private:
             reader.flushFirstReadToken(); // safe as key is checked, not a Marker
             first = reader.getFirstReadToken();
         }
-
-#ifdef ZSCRIPT_DONT_FAST_DISCARD_COMMENTS
-        if (first.getKey(reader.asBuffer()) == Zchars::Z_COMMENT) {
-            if (fetchNextMarker() != ZscriptTokenizer<ZP>::NORMAL_SEQUENCE_END) {
-                state = SemanticParserState::ERROR_TOKENIZER;
-                return;
-            }
-            if (hasEchoB || hasLocks) {
-                state = SemanticParserState::ERROR_COMMENT_WITH_SEQ_FIELDS;
-                return;
-            }
-            state = SemanticParserState::SEQUENCE_SKIP;
-        }
-#endif
     }
 
     void resetToSequence() {
@@ -536,6 +530,7 @@ public:
     void setChannelIndex(uint8_t channelIndex) {
         this->channelIndex = channelIndex;
     }
+
     TokenRingReader<ZP> getReader() {
         return reader;
     }
@@ -559,33 +554,31 @@ public:
         uint8_t tokenizerError;
         uint8_t statusValue;
         switch (state) {
-        case SemanticParserState::ERROR_COMMENT_WITH_SEQ_FIELDS:
-            return INVALID_COMMENT;
-        case SemanticParserState::ERROR_LOCKS:
-            return INVALID_LOCKS;
-        case SemanticParserState::ERROR_MULTIPLE_ECHO:
-            return INVALID_ECHO;
-        case SemanticParserState::ERROR_TOKENIZER:
-            tokenizerError = reader.getFirstReadToken().getKey(reader.asBuffer());
+            case SemanticParserState::ERROR_LOCKS:
+                return INVALID_LOCKS;
+            case SemanticParserState::ERROR_MULTIPLE_ECHO:
+                return INVALID_ECHO;
+            case SemanticParserState::ERROR_TOKENIZER:
+                tokenizerError = reader.getFirstReadToken().getKey(reader.asBuffer());
 
-            if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_BUFFER_OVERRUN) {
-                statusValue = BUFFER_OVR_ERROR;
-            } else if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_CODE_FIELD_TOO_LONG) {
-                statusValue = FIELD_TOO_LONG;
-            } else if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_CODE_ILLEGAL_TOKEN) {
-                statusValue = ILLEGAL_KEY;
-            } else if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_CODE_ODD_BIGFIELD_LENGTH) {
-                statusValue = ODD_LENGTH;
-            } else if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_CODE_STRING_ESCAPING) {
-                statusValue = ESCAPING_ERROR;
-            } else if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_CODE_STRING_NOT_TERMINATED) {
-                statusValue = UNTERMINATED_STRING;
-            } else {
-                statusValue = (INTERNAL_ERROR);
-            }
-            return statusValue;
-        default:
-            return INTERNAL_ERROR;    // should be unreachable
+                if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_BUFFER_OVERRUN) {
+                    statusValue = BUFFER_OVR_ERROR;
+                } else if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_CODE_FIELD_TOO_LONG) {
+                    statusValue = FIELD_TOO_LONG;
+                } else if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_CODE_ILLEGAL_TOKEN) {
+                    statusValue = ILLEGAL_KEY;
+                } else if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_CODE_ODD_BIGFIELD_LENGTH) {
+                    statusValue = ODD_LENGTH;
+                } else if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_CODE_STRING_ESCAPING) {
+                    statusValue = ESCAPING_ERROR;
+                } else if (tokenizerError == ZscriptTokenizer<ZP>::ERROR_CODE_STRING_NOT_TERMINATED) {
+                    statusValue = UNTERMINATED_STRING;
+                } else {
+                    statusValue = (INTERNAL_ERROR);
+                }
+                return statusValue;
+            default:
+                return INTERNAL_ERROR;    // should be unreachable
         }
     }
 
@@ -623,31 +616,31 @@ public:
 
     void setCommandComplete(bool b) {
         switch (state) {
-        case SemanticParserState::STOPPING:
-            break;
+            case SemanticParserState::STOPPING:
+                break;
 #ifdef ZSCRIPT_SUPPORT_ADDRESSING
-        case SemanticParserState::ADDRESSING_COMPLETE:
+            case SemanticParserState::ADDRESSING_COMPLETE:
             case SemanticParserState::ADDRESSING_INCOMPLETE:
-            state = b ? SemanticParserState::ADDRESSING_COMPLETE : SemanticParserState::ADDRESSING_INCOMPLETE;
-            break;
+                state = b ? SemanticParserState::ADDRESSING_COMPLETE : SemanticParserState::ADDRESSING_INCOMPLETE;
+                break;
 #endif
-        case SemanticParserState::COMMAND_COMPLETE:
+            case SemanticParserState::COMMAND_COMPLETE:
             case SemanticParserState::COMMAND_INCOMPLETE:
-            state = b ? SemanticParserState::COMMAND_COMPLETE : SemanticParserState::COMMAND_INCOMPLETE;
-            break;
-        default:
-            //Unreachable
-            break;
+                state = b ? SemanticParserState::COMMAND_COMPLETE : SemanticParserState::COMMAND_INCOMPLETE;
+                break;
+            default:
+                //Unreachable
+                break;
         }
     }
 
     bool isCommandComplete() {
         return state == SemanticParserState::COMMAND_COMPLETE
 
-#ifdef ZSCRIPT_SUPPORT_ADDRESSING
-                || state == SemanticParserState::ADDRESSING_COMPLETE
+               #ifdef ZSCRIPT_SUPPORT_ADDRESSING
+               || state == SemanticParserState::ADDRESSING_COMPLETE
 #endif
-        ;
+                ;
     }
 
     bool isActivated() {
@@ -668,24 +661,24 @@ public:
             state = SemanticParserState::ERROR_STATUS;
         } else if (ResponseStatusUtils<ZP>::isFailure(status)) {
             switch (state) {
-            case SemanticParserState::COMMAND_COMPLETE:
+                case SemanticParserState::COMMAND_COMPLETE:
                 case SemanticParserState::COMMAND_INCOMPLETE:
-                state = SemanticParserState::COMMAND_FAILED;
-                parenCounter = 0;
-                break;
-            case SemanticParserState::ERROR_COMMENT_WITH_SEQ_FIELDS:
+                    state = SemanticParserState::COMMAND_FAILED;
+                    parenCounter = 0;
+                    break;
                 case SemanticParserState::ERROR_LOCKS:
                 case SemanticParserState::ERROR_MULTIPLE_ECHO:
                 case SemanticParserState::ERROR_STATUS:
                 case SemanticParserState::ERROR_TOKENIZER:
-                // ignore: command cannot report failure after an ERROR.
-                break;
-            default:
-                //Unreachable
-                break;
+                    // ignore: command cannot report failure after an ERROR.
+                    break;
+                default:
+                    //Unreachable
+                    break;
             }
         }
     }
+
     bool requestStatusChange(uint8_t status) {
         if (hasSentStatusB) {
             return false;
@@ -705,21 +698,20 @@ public:
 
         if (ResponseStatusUtils<ZP>::isFailure(status)) {
             switch (state) {
-            case SemanticParserState::COMMAND_COMPLETE:
+                case SemanticParserState::COMMAND_COMPLETE:
                 case SemanticParserState::COMMAND_INCOMPLETE:
-                state = SemanticParserState::COMMAND_FAILED;
-                parenCounter = 0;
-                return true;
-            case SemanticParserState::ERROR_COMMENT_WITH_SEQ_FIELDS:
+                    state = SemanticParserState::COMMAND_FAILED;
+                    parenCounter = 0;
+                    return true;
                 case SemanticParserState::ERROR_LOCKS:
                 case SemanticParserState::ERROR_MULTIPLE_ECHO:
                 case SemanticParserState::ERROR_STATUS:
                 case SemanticParserState::ERROR_TOKENIZER:
-                // ignore: command cannot report failure after an ERROR.
-                return false;
-            default:
-                //unreachable...
-                break;
+                    // ignore: command cannot report failure after an ERROR.
+                    return false;
+                default:
+                    //unreachable...
+                    break;
             }
         }
         return false;
@@ -728,18 +720,18 @@ public:
     void notifyNeedsAction() {
         switch (state) {
 #ifdef ZSCRIPT_SUPPORT_ADDRESSING
-        case SemanticParserState::ADDRESSING_INCOMPLETE:
+            case SemanticParserState::ADDRESSING_INCOMPLETE:
             case SemanticParserState::ADDRESSING_NEEDS_ACTION:
-            state = SemanticParserState::ADDRESSING_NEEDS_ACTION;
-            break;
+                state = SemanticParserState::ADDRESSING_NEEDS_ACTION;
+                break;
 #endif
-        case SemanticParserState::COMMAND_INCOMPLETE:
+            case SemanticParserState::COMMAND_INCOMPLETE:
             case SemanticParserState::COMMAND_NEEDS_ACTION:
-            state = SemanticParserState::COMMAND_NEEDS_ACTION;
-            break;
-        default:
-            //Unreachable
-            break;
+                state = SemanticParserState::COMMAND_NEEDS_ACTION;
+                break;
+            default:
+                //Unreachable
+                break;
         }
     }
 
@@ -775,16 +767,16 @@ public:
     bool isEmpty() {
         return reader.getFirstReadToken().isMarker(reader.asBuffer());
     }
+
     AsyncActionNotifier<ZP> getAsyncActionNotifier() {
         return AsyncActionNotifier<ZP>(this);
     }
 
     bool isInErrorState() {
         return state == SemanticParserState::ERROR_TOKENIZER
-                || state == SemanticParserState::ERROR_MULTIPLE_ECHO
-                || state == SemanticParserState::ERROR_LOCKS
-                || state == SemanticParserState::ERROR_COMMENT_WITH_SEQ_FIELDS
-                || state == SemanticParserState::ERROR_STATUS;
+               || state == SemanticParserState::ERROR_MULTIPLE_ECHO
+               || state == SemanticParserState::ERROR_LOCKS
+               || state == SemanticParserState::ERROR_STATUS;
     }
 
     bool isFailed() {
