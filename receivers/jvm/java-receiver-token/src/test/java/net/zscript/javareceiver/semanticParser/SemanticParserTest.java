@@ -92,7 +92,7 @@ class SemanticParserTest {
 
         final SemanticAction a2 = parser.getAction();
         assertThat(a2.getType()).isEqualTo(RUN_COMMAND);
-//        assertThat(a2.getInfo()).isEqualTo(ZscriptTokenizer.CMD_END_ANDTHEN);
+        //        assertThat(a2.getInfo()).isEqualTo(ZscriptTokenizer.CMD_END_ANDTHEN);
         a2.performAction(zscript, outStream);
         assertThat(outStream.getStringAndReset()).isEqualTo("&BS");
         assertThat(parser.getState()).isEqualTo(State.COMMAND_COMPLETE);
@@ -108,19 +108,6 @@ class SemanticParserTest {
         assertThat(outStream.getString()).isEqualTo("");
         assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
 
-        assertThat(outStream.isOpen()).isFalse();
-    }
-
-    @Test
-    void shouldProduceActionForComment() {
-        "#a\n".chars().forEachOrdered(c -> tokenizer.accept((byte) c));
-
-        assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
-        final SemanticAction a1 = parser.getAction();
-        assertThat(a1.getType()).isEqualTo(WAIT_FOR_TOKENS);
-        a1.performAction(zscript, outStream);
-        assertThat(outStream.getStringAndReset()).isEqualTo("");
-        assertThat(parser.getState()).isEqualTo(State.PRESEQUENCE);
         assertThat(outStream.isOpen()).isFalse();
     }
 

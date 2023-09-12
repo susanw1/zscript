@@ -220,14 +220,13 @@ public class SemanticParser implements ParseState, ContextView {
         ERROR_TOKENIZER,
         ERROR_MULTIPLE_ECHO,
         ERROR_LOCKS,
-        ERROR_COMMENT_WITH_SEQ_FIELDS,
         ERROR_STATUS,
         STOPPING,
         STOPPED
     }
 
     public boolean isInErrorState() {
-        return state == State.ERROR_TOKENIZER || state == State.ERROR_MULTIPLE_ECHO || state == State.ERROR_LOCKS || state == State.ERROR_COMMENT_WITH_SEQ_FIELDS
+        return state == State.ERROR_TOKENIZER || state == State.ERROR_MULTIPLE_ECHO || state == State.ERROR_LOCKS
                 || state == State.ERROR_STATUS;
     }
 
@@ -323,7 +322,6 @@ public class SemanticParser implements ParseState, ContextView {
             resetToSequence();
             return ActionType.GO_AROUND;
 
-        case ERROR_COMMENT_WITH_SEQ_FIELDS:
         case ERROR_LOCKS:
         case ERROR_MULTIPLE_ECHO:
         case ERROR_TOKENIZER:
@@ -486,13 +484,13 @@ public class SemanticParser implements ParseState, ContextView {
     }
 
     /**
-     * Captures the initial fields - ECHO and LOCKS - at the beginning of a sequence, with lots of error checking. Also detects and error-checks COMMENT sequences.
+     * Captures the initial fields - ECHO and LOCKS - at the beginning of a sequence, with lots of error checking. .
      * <p/>
      * Buffer ends up pointing at first token after ECHO/LOCK.
      * <p/>
      * Presumes 'nextMarker' is up-to-date.
      * <p/>
-     * Leaves the parser in: ERROR_*, SEQUENCE_SKIP (for comments), or PRESEQUENCE (implying no error, normal sequence)
+     * Leaves the parser in: ERROR_*, or PRESEQUENCE (implying no error, normal sequence)
      */
     private void parseSequenceLevel() {
         ReadToken first = reader.getFirstReadToken();
@@ -516,17 +514,6 @@ public class SemanticParser implements ParseState, ContextView {
             first = reader.getFirstReadToken();
         }
 
-        if (first.getKey() == Zchars.Z_COMMENT) {
-            if (markerCache.nextMarker != Tokenizer.NORMAL_SEQUENCE_END) {
-                state = State.ERROR_TOKENIZER;
-                return;
-            }
-            if (hasEcho || hasLocks) {
-                state = State.ERROR_COMMENT_WITH_SEQ_FIELDS;
-                return;
-            }
-            state = State.SEQUENCE_SKIP;
-        }
     }
 
     private void resetToSequence() {
@@ -555,8 +542,6 @@ public class SemanticParser implements ParseState, ContextView {
     @Override
     public byte getErrorStatus() {
         switch (state) {
-        case ERROR_COMMENT_WITH_SEQ_FIELDS:
-            return ZscriptStatus.INVALID_COMMENT;
         case ERROR_LOCKS:
             return ZscriptStatus.INVALID_LOCKS;
         case ERROR_MULTIPLE_ECHO:
@@ -702,7 +687,6 @@ public class SemanticParser implements ParseState, ContextView {
                 state = State.COMMAND_FAILED;
                 parenCounter = 0;
                 return true;
-            case ERROR_COMMENT_WITH_SEQ_FIELDS:
             case ERROR_LOCKS:
             case ERROR_MULTIPLE_ECHO:
             case ERROR_STATUS:

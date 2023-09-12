@@ -112,16 +112,4 @@ class LockEchoParserTest {
         parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "!AS&BS\n");
     }
 
-    @Test
-    public void shouldGiveErrorForLocksWithComment() {
-        parserActionTester.parseSnippet("%1#Z1\n", ActionType.ERROR, State.PRESEQUENCE, "!S32\n");
-        assertThat(outStream.isOpen()).isFalse();
-    }
-
-    @Test
-    public void shouldGiveErrorForLineNumberWithComment() {
-        parserActionTester.parseSnippet("_ff#Z1\n", ActionType.ERROR, State.PRESEQUENCE, "!_ffS32\n");
-        assertThat(outStream.isOpen()).isFalse();
-    }
-
 }

@@ -139,8 +139,8 @@ class TokenizerTest {
 
     private static Stream<Arguments> shouldHandleComment() {
         return Stream.of(
-                Arguments.of("Comment is taken literally", "A0#abc&|+\"\nB\n", "tA--s#babbbcb&b|b+b\"m" + END + "tBm" + END),
-                Arguments.of("Empty comment", "#\nA\n", "s#m" + END + "tAm" + END));
+                Arguments.of("Comment is discarded", "A0#abc&|+\"\nB\n", "tA------------------m" + END + "tBm" + END),
+                Arguments.of("Empty comment", "#\nA\n", "--m" + END + "tAm" + END));
     }
 
     @ParameterizedTest(name = "{0}: {1}")

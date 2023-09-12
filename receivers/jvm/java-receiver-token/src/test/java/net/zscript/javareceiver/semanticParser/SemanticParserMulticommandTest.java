@@ -89,8 +89,8 @@ class SemanticParserMulticommandTest {
 
     private static Stream<Arguments> shouldProduceMultipleResponsesWithComments() {
         return Stream.of(
-                of("Z1 A \n#hi\n", "!AS\n"),
-                of("Z1 A \n#hi\n#abc\nZ1B\n", "!AS\n!BS\n"));
+                of("Z1 A \n#hi\n", "!AS\n!\n"),
+                of("Z1 A \n#hi\n#abc\nZ1B\n", "!AS\n!\n!\n!BS\n"));
     }
 
     @ParameterizedTest
