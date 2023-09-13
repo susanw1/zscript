@@ -10,8 +10,8 @@ public class Demo {
                 .addResponseListener(r -> System.out.println(r.getName()))
                 .build()
                 .onFail(new DemoActivateCommandBuilder().build())
-                .compile(true);
-        String s    = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(data)).toString();
+                .compile(false);
+        String s = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(data)).toString();
         System.out.println(s);
     }
 }

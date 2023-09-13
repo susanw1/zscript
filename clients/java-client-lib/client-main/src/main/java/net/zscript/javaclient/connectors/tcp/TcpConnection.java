@@ -8,23 +8,32 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
 import net.zscript.javaclient.connection.ZscriptConnection;
-import net.zscript.javaclient.connectors.ZscriptConnectors.ConnectorParams;
 
 public class TcpConnection implements ZscriptConnection {
-    private final Socket       socket;
+    private final Socket          socket;
+    private final ExecutorService executor;
+
     private final InputStream  in;
     private final OutputStream out;
 
     private Future<?>        future;
     private Consumer<byte[]> handler;
 
-    public TcpConnection(TcpConnectionParams params) throws IOException {
-        this.socket = new Socket(params.address, params.port);
+    public TcpConnection(Socket socket) throws IOException {
+        this(socket, Executors.newSingleThreadExecutor());
+    }
+
+    public TcpConnection(Socket socket, ExecutorService executor) throws IOException {
+        this.socket = socket;
+        this.executor = executor;
+
         this.out = socket.getOutputStream();
         this.in = new BufferedInputStream(socket.getInputStream());
     }
@@ -34,13 +43,13 @@ public class TcpConnection implements ZscriptConnection {
     }
 
     @Override
-    public void onReceive(final Consumer<byte[]> handler) {
-        if (this.handler != null || handler == null) {
+    public void onReceive(final Consumer<byte[]> responseHandler) {
+        if (this.handler != null || responseHandler == null) {
             throw new IllegalStateException("Handler already assigned");
         }
 
-        this.handler = handler;
-        this.future = Executors.newSingleThreadExecutor().submit(this::readAndHandle);
+        this.handler = responseHandler;
+        this.future = executor.submit(this::readAndHandle);
     }
 
     private void readAndHandle() {
@@ -84,15 +93,5 @@ public class TcpConnection implements ZscriptConnection {
     @Override
     public String toString() {
         return socket.toString();
-    }
-
-    public static class TcpConnectionParams implements ConnectorParams {
-        private String address;
-        private int    port;
-
-        public TcpConnectionParams(String address, int port) {
-            this.address = address;
-            this.port = port;
-        }
     }
 }

@@ -8,7 +8,7 @@ import net.zscript.model.modules.base.CoreModule;
 
 public class Main2 {
     public static void main(String[] args) throws IOException {
-        GenericDevice zscriptOut = new CommandResponseQueue(new LocalZscriptConnection());
+        DeviceNode zscriptOut = new CommandResponseQueue(new LocalZscriptConnection());
 
         zscriptOut.send(CoreModule.capabilities()
                 .versionType(PlatformFirmware)
@@ -22,9 +22,9 @@ public class Main2 {
                         .build()));
 
         ZscriptAddress    address           = ZscriptAddress.from(0x50, 0x0, 0x1);
-        ZscriptConnection addressConnection = zscriptOut.getResponseAddressingSystem().getAddressConnection(address);
+        ZscriptConnection addressConnection = zscriptOut.getRemoteConnectors().getAddressConnection(address);
 
-        GenericDevice zscriptOutAddr = new CommandResponseQueue(addressConnection);
+        DeviceNode zscriptOutAddr = new CommandResponseQueue(addressConnection);
 
         //        zscriptOutAddr.send(CoreModule.capabilities()
         //                .versionType(PlatformFirmware)

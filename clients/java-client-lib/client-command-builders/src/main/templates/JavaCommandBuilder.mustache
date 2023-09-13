@@ -50,6 +50,9 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
     }
 
 {{#commands}}
+    /**
+     * Creates a builder for the '{{name}}' command: {{description}}
+     */
     public static {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}() {
         return new {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}}();
     }

@@ -20,7 +20,7 @@ import net.zscript.javareceiver.tokenizer.Tokenizer;
 public class LocalZscriptConnection implements ZscriptConnection {
     private final ExecutorService  exec   = Executors.newSingleThreadExecutor();
     private final Queue<byte[]>    dataIn = new ArrayDeque<>();
-    private       Consumer<byte[]> handler;
+    private       Consumer<byte[]> responseHandler;
 
     private class ProgressForever implements Runnable {
         private final Zscript zscript;
@@ -50,7 +50,7 @@ public class LocalZscriptConnection implements ZscriptConnection {
         final OutStream outStream = new OutputStreamOutStream<>(new ByteArrayOutputStream()) {
             @Override
             public void close() {
-                handler.accept(getOutputStream().toByteArray());
+                responseHandler.accept(getOutputStream().toByteArray());
                 getOutputStream().reset();
             }
         };
@@ -96,13 +96,11 @@ public class LocalZscriptConnection implements ZscriptConnection {
     }
 
     @Override
-    public void onReceive(Consumer<byte[]> handler) {
-        this.handler = handler;
+    public void onReceive(Consumer<byte[]> responseHandler) {
+        this.responseHandler = responseHandler;
     }
 
     @Override
     public void close() {
-
     }
-
 }

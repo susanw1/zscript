@@ -13,16 +13,16 @@ public class CoreModuleTest {
     public void shouldCreateCoreCapabilities() {
         ZscriptCommand c = CoreModule.capabilities()
                 .build();
-        byte[] ztext = c.compile(false);
-        assertThat(ztext).containsExactly('Z');
+        byte[] ztext = c.compile();
+        assertThat(ztext).containsExactly('Z', '\n');
     }
 
     @Test
     public void shouldCreateCoreActivate() {
         ZscriptCommand c = CoreModule.activate()
                 .build();
-        byte[] ztext = c.compile(false);
-        assertThat(ztext).containsExactly('Z', '2');
+        byte[] ztext = c.compile();
+        assertThat(ztext).containsExactly('Z', '2', '\n');
     }
 
     @Test
@@ -30,8 +30,8 @@ public class CoreModuleTest {
         ZscriptCommand c = CoreModule.activate()
                 .challenge(3)
                 .build();
-        byte[] ztext = c.compile(false);
-        assertThat(ztext).containsExactly('Z', '2', 'K', '3');
+        byte[] ztext = c.compile();
+        assertThat(ztext).containsExactly('Z', '2', 'K', '3', '\n');
     }
 
     @Test
@@ -39,8 +39,8 @@ public class CoreModuleTest {
         ZscriptCommand c = CoreModule.echo()
                 .any('J', 123)
                 .build();
-        byte[] ztext = c.compile(false);
-        assertThat(ztext).containsExactly('Z', '1', 'J', '7', 'b');
+        byte[] ztext = c.compile();
+        assertThat(ztext).containsExactly('Z', '1', 'J', '7', 'b', '\n');
     }
 
     @Test
@@ -48,8 +48,8 @@ public class CoreModuleTest {
         ZscriptCommand c = CoreModule.matchCode()
                 .matchCode(0x3a42)
                 .build();
-        byte[] ztext = c.compile(false);
-        assertThat(ztext).containsExactly('Z', 'd', 'C', '3', 'a', '4', '2');
+        byte[] ztext = c.compile();
+        assertThat(ztext).containsExactly('Z', 'd', 'C', '3', 'a', '4', '2', '\n');
     }
 
     @Test

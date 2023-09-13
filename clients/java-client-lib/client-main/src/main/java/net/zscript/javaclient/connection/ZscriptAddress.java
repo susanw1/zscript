@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Simple encapsulation of a Zscript address.
+ * Simple encapsulation of a single Zscript address (ie the 1.2.3 or 4.5.6 part of an address pathway like @1.2.3@4.5.6 Z1).
  */
 public class ZscriptAddress {
     private final int[] addressParts;
@@ -52,10 +52,7 @@ public class ZscriptAddress {
             return false;
         }
         ZscriptAddress other = (ZscriptAddress) obj;
-        if (!Arrays.equals(addressParts, other.addressParts)) {
-            return false;
-        }
-        return true;
+        return Arrays.equals(addressParts, other.addressParts);
     }
 
     /**

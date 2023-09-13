@@ -14,24 +14,20 @@ import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.connection.ResponseParser.ResponseHeader;
 import net.zscript.model.components.Zchars;
 
-public class CommandResponseQueue implements GenericDevice {
+/**
+ * Represents a Device view of a connection.
+ */
+public class CommandResponseQueue implements DeviceNode {
     private static final int MAX_SENT = 10;
 
-    private final ResponseAddressingSystem addrSystem = new ResponseAddressingSystem(this);
-
     private final ZscriptConnection connection;
+    private final RemoteConnectors  addrSystem = new RemoteConnectors(this);
 
     private final Deque<CommandEntry> sent   = new ArrayDeque<>();
     private final Queue<CommandEntry> toSend = new ArrayDeque<>();
 
     private int     currentAutoEchoNumber = 0;
     private boolean canPipeline           = true;
-
-    private interface CommandEntry {
-        byte[] compile();
-
-        boolean canBePipelined();
-    }
 
     public CommandResponseQueue(ZscriptConnection connection) {
         this.connection = connection;
@@ -45,41 +41,51 @@ public class CommandResponseQueue implements GenericDevice {
         });
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void send(final ZscriptAddress addr, final byte[] data) throws IOException {
+    public void send(final ZscriptAddress addr, final byte[] zscriptCommandSequence) throws IOException {
         if (sent.size() < MAX_SENT && canPipeline) {
-            AddrCommandSeqElEntry el = new AddrCommandSeqElEntry(data, addr);
+            AddrCommandSeqElEntry el = new AddrCommandSeqElEntry(addr, zscriptCommandSequence);
             sent.add(el);
             connection.send(el.compile());
         } else {
-            toSend.add(new AddrCommandSeqElEntry(data, addr));
+            toSend.add(new AddrCommandSeqElEntry(addr, zscriptCommandSequence));
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void send(final CommandSequence sequence) throws IOException {
+        CommandSeqElEntry el = new CommandSeqElEntry(sequence, currentAutoEchoNumber);
         if (sent.size() < MAX_SENT && canPipeline) {
-            CommandSeqElEntry el = new CommandSeqElEntry(sequence, currentAutoEchoNumber);
             sent.add(el);
             connection.send(el.compile());
         } else {
-            toSend.add(new CommandSeqElEntry(sequence, currentAutoEchoNumber));
+            toSend.add(el);
         }
+
         currentAutoEchoNumber++;
         if (currentAutoEchoNumber >= 0x10000) {
             currentAutoEchoNumber = 0;
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void send(final byte[] zscript, final Consumer<byte[]> callback) throws IOException {
+    public void send(final byte[] zscriptCommandSequence, final Consumer<byte[]> callback) throws IOException {
+        ByteArrEntry e = new ByteArrEntry(callback, zscriptCommandSequence);
         if (sent.isEmpty()) {
-            ByteArrEntry el = new ByteArrEntry(callback, zscript);
-            sent.add(el);
-            connection.send(el.compile());
+            sent.add(e);
+            connection.send(e.compile());
             canPipeline = false;
         } else {
-            toSend.add(new ByteArrEntry(callback, zscript));
+            toSend.add(e);
         }
     }
 
@@ -122,8 +128,14 @@ public class CommandResponseQueue implements GenericDevice {
     }
 
     @Override
-    public ResponseAddressingSystem getResponseAddressingSystem() {
-        return new ResponseAddressingSystem(this);
+    public RemoteConnectors getRemoteConnectors() {
+        return new RemoteConnectors(this);
+    }
+
+    private interface CommandEntry {
+        byte[] compile();
+
+        boolean canBePipelined();
     }
 
     private class CommandSeqElEntry implements CommandEntry {
@@ -139,13 +151,12 @@ public class CommandResponseQueue implements GenericDevice {
         public byte[] compile() {
             // TODO: decide on how locking will work...
             byte[] echoF     = ZscriptCommandBuilder.formatField(Zchars.Z_ECHO, echo);
-            byte[] startData = cmdSeq.compile(false);
+            byte[] startData = cmdSeq.compile();
 
-            ByteArrayOutputStream str = new ByteArrayOutputStream(startData.length + echoF.length + 1);
+            ByteArrayOutputStream str = new ByteArrayOutputStream(startData.length + echoF.length);
             try {
                 str.write(echoF);
                 str.write(startData);
-                str.write('\n');
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -167,18 +178,18 @@ public class CommandResponseQueue implements GenericDevice {
     }
 
     private class AddrCommandSeqElEntry implements CommandEntry {
-        private final byte[]         cmdSeq;
         private final ZscriptAddress addr;
+        private final byte[]         cmdSeq;
 
-        public AddrCommandSeqElEntry(final byte[] cmdSeq, final ZscriptAddress addr) {
-            this.cmdSeq = cmdSeq;
+        public AddrCommandSeqElEntry(final ZscriptAddress addr, final byte[] cmdSeq) {
             this.addr = addr;
+            this.cmdSeq = cmdSeq;
         }
 
         @Override
         public byte[] compile() {
             // TODO: decide on how locking will work...
-            ByteArrayOutputStream str = new ByteArrayOutputStream(addr.getAsInts().length * 3 + cmdSeq.length);
+            ByteArrayOutputStream str = new ByteArrayOutputStream(addr.size() * 3 + cmdSeq.length);
             try {
                 boolean isFirst = true;
                 for (int i : addr.getAsInts()) {
@@ -187,7 +198,7 @@ public class CommandResponseQueue implements GenericDevice {
                 }
                 str.write(cmdSeq);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedIOException(e);
             }
             return str.toByteArray();
         }

@@ -45,7 +45,6 @@ public class ResponseParser {
         public int getEcho() {
             return echo;
         }
-
     }
 
     public static ResponseHeader parseResponseHeader(byte[] resp) {

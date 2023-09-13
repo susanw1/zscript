@@ -1,5 +1,11 @@
 package net.zscript.javaclient.commandbuilder;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
+import net.zscript.model.components.Zchars;
+
 /**
  * An element of a Command Sequence under construction, representing a node in the Syntax Tree of a sequence during building.
  */
@@ -82,5 +88,18 @@ public abstract class CommandSequence {
 
     abstract CommandSequence reEvaluate();
 
-    public abstract byte[] compile(boolean includeParens);
+    protected abstract byte[] compile(boolean includeParens);
+
+    public final byte[] compile() {
+        byte[]                compiled              = compile(false);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(compiled.length + 1);
+        try {
+            byteArrayOutputStream.write(compiled);
+        } catch (IOException e) {
+            // this should be impossible
+            throw new UncheckedIOException(e);
+        }
+        byteArrayOutputStream.write(Zchars.Z_NEWLINE);
+        return byteArrayOutputStream.toByteArray();
+    }
 }

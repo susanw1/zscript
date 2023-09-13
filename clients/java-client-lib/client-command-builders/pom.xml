@@ -11,6 +11,7 @@
 
     <artifactId>zscript-java-client-command-builders</artifactId>
     <name>Java Client Command Builders</name>
+    <description>Auto-generates Java command-builders for the standard model definitions</description>
 
     <dependencies>
         <dependency>
