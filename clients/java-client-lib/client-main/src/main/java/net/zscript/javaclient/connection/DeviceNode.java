@@ -3,7 +3,7 @@ package net.zscript.javaclient.connection;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.commandbuilder.CommandSequence;
+import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
 
 /**
  * Defines a device which can take a zscript message in low-level form (byte[]), with or without an address, or high level form of a SyntaxTree node (CommandSeqElement)
@@ -15,7 +15,7 @@ public interface DeviceNode {
      * @param sequence
      * @throws IOException
      */
-    void send(CommandSequence sequence) throws IOException;
+    void send(CommandSequenceNode sequence) throws IOException;
 
     /**
      * Sends the supplied data to an immediate child device of this device.

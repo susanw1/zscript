@@ -4,11 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-public class OrSequence extends CommandSequence {
-    final CommandSequence before;
-    final CommandSequence after;
+public class OrSequenceNode extends CommandSequenceNode {
+    final CommandSequenceNode before;
+    final CommandSequenceNode after;
 
-    public OrSequence(CommandSequence before, CommandSequence after) {
+    public OrSequenceNode(CommandSequenceNode before, CommandSequenceNode after) {
         this.before = before;
         this.after = after;
         before.setParent(this);
@@ -26,11 +26,11 @@ public class OrSequence extends CommandSequence {
     }
 
     @Override
-    public CommandSequence reEvaluate() {
+    public CommandSequenceNode reEvaluate() {
         if (!before.canFail()) {
             return before.reEvaluate();
         }
-        return new OrSequence(before.reEvaluate(), after.reEvaluate());
+        return new OrSequenceNode(before.reEvaluate(), after.reEvaluate());
     }
 
     @Override

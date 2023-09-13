@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.commandbuilder.CommandSequence;
+import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.connection.ResponseParser.ResponseHeader;
 import net.zscript.model.components.Zchars;
@@ -59,7 +59,7 @@ public class CommandResponseQueue implements DeviceNode {
      * {@inheritDoc}
      */
     @Override
-    public void send(final CommandSequence sequence) throws IOException {
+    public void send(final CommandSequenceNode sequence) throws IOException {
         CommandSeqElEntry el = new CommandSeqElEntry(sequence, currentAutoEchoNumber);
         if (sent.size() < MAX_SENT && canPipeline) {
             sent.add(el);
@@ -139,10 +139,10 @@ public class CommandResponseQueue implements DeviceNode {
     }
 
     private class CommandSeqElEntry implements CommandEntry {
-        private final CommandSequence cmdSeq;
-        private final int             echo;
+        private final CommandSequenceNode cmdSeq;
+        private final int                 echo;
 
-        public CommandSeqElEntry(final CommandSequence cmdSeq, final int echo) {
+        public CommandSeqElEntry(final CommandSequenceNode cmdSeq, final int echo) {
             this.cmdSeq = cmdSeq;
             this.echo = echo;
         }
@@ -153,10 +153,11 @@ public class CommandResponseQueue implements DeviceNode {
             byte[] echoF     = ZscriptCommandBuilder.formatField(Zchars.Z_ECHO, echo);
             byte[] startData = cmdSeq.compile();
 
-            ByteArrayOutputStream str = new ByteArrayOutputStream(startData.length + echoF.length);
+            ByteArrayOutputStream str = new ByteArrayOutputStream(startData.length + echoF.length + 1);
             try {
                 str.write(echoF);
                 str.write(startData);
+                str.write(Zchars.Z_NEWLINE);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

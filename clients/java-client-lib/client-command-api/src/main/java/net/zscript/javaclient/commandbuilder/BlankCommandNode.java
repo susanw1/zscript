@@ -2,30 +2,30 @@ package net.zscript.javaclient.commandbuilder;
 
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
-public class BlankCommand extends ZscriptCommand {
+public class BlankCommandNode extends ZscriptCommandNode {
 
     @Override
-    public CommandSequence thenFail() {
-        return new FailureCommand();
+    public CommandSequenceNode thenFail() {
+        return new FailureCommandNode();
     }
 
     @Override
-    public CommandSequence thenAbort() {
-        return new AbortCommand();
+    public CommandSequenceNode thenAbort() {
+        return new AbortCommandNode();
     }
 
     @Override
-    public CommandSequence andThen(CommandSequence next) {
+    public CommandSequenceNode andThen(CommandSequenceNode next) {
         return next;
     }
 
     @Override
-    public CommandSequence dropFailureCondition() {
+    public CommandSequenceNode dropFailureCondition() {
         return this;
     }
 
     @Override
-    public CommandSequence abortOnFail() {
+    public CommandSequenceNode abortOnFail() {
         return this;
     }
 
@@ -40,7 +40,7 @@ public class BlankCommand extends ZscriptCommand {
     }
 
     @Override
-    public CommandSequence onFail(CommandSequence next) {
+    public CommandSequenceNode onFail(CommandSequenceNode next) {
         return this;
     }
 
@@ -55,7 +55,7 @@ public class BlankCommand extends ZscriptCommand {
     }
 
     @Override
-    public CommandSequence reEvaluate() {
+    public CommandSequenceNode reEvaluate() {
         return this;
     }
 

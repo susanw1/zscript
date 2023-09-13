@@ -4,30 +4,30 @@ import java.nio.charset.StandardCharsets;
 
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
-public class AbortCommand extends ZscriptCommand {
+public class AbortCommandNode extends ZscriptCommandNode {
 
     @Override
-    public CommandSequence thenFail() {
+    public CommandSequenceNode thenFail() {
         return this;
     }
 
     @Override
-    public CommandSequence thenAbort() {
+    public CommandSequenceNode thenAbort() {
         return this;
     }
 
     @Override
-    public CommandSequence andThen(CommandSequence next) {
+    public CommandSequenceNode andThen(CommandSequenceNode next) {
         return this;
     }
 
     @Override
-    public CommandSequence dropFailureCondition() {
+    public CommandSequenceNode dropFailureCondition() {
         return this;
     }
 
     @Override
-    public CommandSequence abortOnFail() {
+    public CommandSequenceNode abortOnFail() {
         return this;
     }
 
@@ -42,7 +42,7 @@ public class AbortCommand extends ZscriptCommand {
     }
 
     @Override
-    public CommandSequence onFail(CommandSequence next) {
+    public CommandSequenceNode onFail(CommandSequenceNode next) {
         return this;
     }
 
@@ -52,7 +52,7 @@ public class AbortCommand extends ZscriptCommand {
     }
 
     @Override
-    public CommandSequence reEvaluate() {
+    public CommandSequenceNode reEvaluate() {
         return this;
     }
 

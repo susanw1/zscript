@@ -87,7 +87,7 @@ class SerialMain {
                 System.out.println("Response: " + new String(response, StandardCharsets.ISO_8859_1));
             });
             for (int i = 0; i < 10; i++) {
-                byte[] b = CoreModule.echo().any('A', 35).addResponseListener(resp-> System.out.println("Field: ")).build().compile();
+                byte[] b = CoreModule.echo().setAny('A', 35).addResponseListener(resp -> System.out.println("Field: ")).build().compile();
                 conn.send(b);
                 System.out.println("Sending: " + Arrays.toString(b));
                 Thread.sleep(1000);

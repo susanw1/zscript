@@ -11,7 +11,7 @@ public class Main2 {
         DeviceNode zscriptOut = new CommandResponseQueue(new LocalZscriptConnection());
 
         zscriptOut.send(CoreModule.capabilities()
-                .versionType(PlatformFirmware)
+                .setVersionType(PlatformFirmware)
                 .addResponseListener(r -> System.out.println(r.getIdent()))
                 .build()
                 .andThen(CoreModule.activate()

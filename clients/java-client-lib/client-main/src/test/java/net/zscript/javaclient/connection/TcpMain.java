@@ -18,7 +18,7 @@ class TcpMain {
             conn.onReceive((response) -> {
                 System.out.println("Response: " + new String(response, StandardCharsets.ISO_8859_1));
             });
-            conn.send(CoreModule.echo().any('A', 1234).build().compile());
+            conn.send(CoreModule.echo().setAny('A', 1234).build().compile());
         }
     }
 }

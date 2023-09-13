@@ -33,10 +33,10 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     /**
      * A representation of a command, returned by calling {@link #build()} on the builder, ready for amalgamation into a command sequence.
      */
-    public class ZscriptBuiltCommand extends ZscriptCommand {
+    public class ZscriptBuiltCommandNode extends ZscriptCommandNode {
 
         @Override
-        public CommandSequence reEvaluate() {
+        public CommandSequenceNode reEvaluate() {
             return this;
         }
 
@@ -272,13 +272,13 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
      * @return the command that has been built
      * @throws ZscriptMissingFieldException if builder doesn't yet pass validation
      */
-    public ZscriptCommand build() {
+    public ZscriptCommandNode build() {
         if (!isValid()) {
             String fieldList = requiredFields.stream()
                     .mapToObj(b -> "'" + (b == BIGFIELD_REQD_OFFSET ? "+" : String.valueOf((char) (b + 'A'))) + "'")
                     .collect(joining(","));
             throw new ZscriptMissingFieldException("missingKeys=%s", fieldList);
         }
-        return new ZscriptBuiltCommand();
+        return new ZscriptBuiltCommandNode();
     }
 }

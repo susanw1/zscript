@@ -6,17 +6,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class AndSequence extends CommandSequence {
-    private final List<CommandSequence> elements;
+public class AndSequenceNode extends CommandSequenceNode {
+    private final List<CommandSequenceNode> elements;
 
-    AndSequence(List<CommandSequence> elements) {
+    AndSequenceNode(List<CommandSequenceNode> elements) {
         this.elements = elements;
-        for (CommandSequence el : elements) {
+        for (CommandSequenceNode el : elements) {
             el.setParent(this);
         }
     }
 
-    AndSequence(CommandSequence el1, CommandSequence el2) {
+    AndSequenceNode(CommandSequenceNode el1, CommandSequenceNode el2) {
         this.elements = new ArrayList<>();
         elements.add(el1);
         elements.add(el2);
@@ -25,19 +25,19 @@ public class AndSequence extends CommandSequence {
     }
 
     @Override
-    public CommandSequence andThen(CommandSequence next) {
-        List<CommandSequence> newEls = new ArrayList<>(elements);
-        if (next.getClass() == AndSequence.class) {
-            newEls.addAll(((AndSequence) next).elements);
+    public CommandSequenceNode andThen(CommandSequenceNode next) {
+        List<CommandSequenceNode> newEls = new ArrayList<>(elements);
+        if (next.getClass() == AndSequenceNode.class) {
+            newEls.addAll(((AndSequenceNode) next).elements);
         } else {
             newEls.add(next);
         }
-        return new AndSequence(newEls);
+        return new AndSequenceNode(newEls);
     }
 
     @Override
     public boolean canFail() {
-        for (CommandSequence element : elements) {
+        for (CommandSequenceNode element : elements) {
             if (element.canFail()) {
                 return true;
             }
@@ -51,30 +51,30 @@ public class AndSequence extends CommandSequence {
     }
 
     @Override
-    public CommandSequence reEvaluate() {
-        List<CommandSequence> els = new ArrayList<>();
-        for (CommandSequence element : elements) {
-            if (element.getClass() == FailureCommand.class) {
+    public CommandSequenceNode reEvaluate() {
+        List<CommandSequenceNode> els = new ArrayList<>();
+        for (CommandSequenceNode element : elements) {
+            if (element.getClass() == FailureCommandNode.class) {
                 els.add(element);
                 break;
             }
-            if (element.getClass() == AbortCommand.class) {
+            if (element.getClass() == AbortCommandNode.class) {
                 els.add(element);
                 break;
-            } else if (element.getClass() == AndSequence.class) {
-                els.addAll(((AndSequence) element).elements);
-            } else if (element.getClass() == BlankCommand.class) {
+            } else if (element.getClass() == AndSequenceNode.class) {
+                els.addAll(((AndSequenceNode) element).elements);
+            } else if (element.getClass() == BlankCommandNode.class) {
             } else {
                 els.add(element.reEvaluate());
             }
         }
         if (els.size() == 0) {
-            return new BlankCommand();
+            return new BlankCommandNode();
         }
         if (els.size() == 1) {
             return els.get(0);
         }
-        return new AndSequence(els);
+        return new AndSequenceNode(els);
     }
 
     @Override
@@ -82,8 +82,8 @@ public class AndSequence extends CommandSequence {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         boolean useAnd = false;
-        for (Iterator<CommandSequence> iterator = elements.iterator(); iterator.hasNext(); ) {
-            CommandSequence el = iterator.next();
+        for (Iterator<CommandSequenceNode> iterator = elements.iterator(); iterator.hasNext(); ) {
+            CommandSequenceNode el = iterator.next();
             try {
                 byte[] data = el.compile(true);
                 if (useAnd && data.length > 0 && data[0] != '(') {
@@ -100,7 +100,7 @@ public class AndSequence extends CommandSequence {
         return out.toByteArray();
     }
 
-    public List<CommandSequence> getElements() {
+    public List<CommandSequenceNode> getElements() {
         return elements;
     }
 }

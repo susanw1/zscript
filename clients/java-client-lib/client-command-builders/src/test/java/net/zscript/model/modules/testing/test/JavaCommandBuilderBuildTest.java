@@ -28,10 +28,10 @@ public class JavaCommandBuilderBuildTest {
     @Test
     void shouldCreateCommandWithRequiredFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand0()
-                .enumReqTestA(2)
-                .numberReqTestC(35)
-                .bitsetReqTestE(2);
-        assertThat(build(b)).isEqualTo("ZA2C23E2\n");
+                .setEnumReqTestA(2)
+                .setNumberReqTestC(35)
+                .setBitsetReqTestE(2);
+        assertThat(build(b)).isEqualTo("ZA2C23E2");
     }
 
     @Test
@@ -44,7 +44,7 @@ public class JavaCommandBuilderBuildTest {
     @Test
     void shouldFailToCreateCommandWithSomeMissingRequiredFields() {
         assertThatThrownBy(() -> TestingModule.testCommand0()
-                .enumReqTestA(2)
+                .setEnumReqTestA(2)
                 .build())
                 .isInstanceOf(ZscriptMissingFieldException.class)
                 .hasMessage("missingKeys='C','E'");
@@ -53,7 +53,7 @@ public class JavaCommandBuilderBuildTest {
     @Test
     void shouldFailToCreateCommandWithOutOfRangeEnumField() {
         assertThatThrownBy(() -> TestingModule.testCommand0()
-                .enumReqTestA(3))
+                .setEnumReqTestA(3))
                 .isInstanceOf(ZscriptFieldOutOfRangeException.class)
                 .hasMessage("name=EnumReqTestA, key='A', value=0x3, min=0x0, max=0x2");
     }
@@ -61,7 +61,7 @@ public class JavaCommandBuilderBuildTest {
     @Test
     void shouldFailToCreateCommandWithOutOfRangeBitsetField() {
         assertThatThrownBy(() -> TestingModule.testCommand0()
-                .bitsetReqTestE(8))
+                .setBitsetReqTestE(8))
                 .isInstanceOf(ZscriptFieldOutOfRangeException.class)
                 .hasMessage("name=BitsetReqTestE, key='E', value=0x8, min=0x0, max=0x7");
     }
@@ -69,99 +69,99 @@ public class JavaCommandBuilderBuildTest {
     @Test
     void shouldCreateCommandWithRequiredBitsetFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand0()
-                .enumReqTestA(Dog)
-                .numberReqTestC(5)
-                .bitsetReqTestE(BitsetReqTestE.Tiger)
-                .bitsetReqTestE(EnumSet.of(Lion, Tabby)) // this overwrites previous value
-                .bitsetReqTestF(EnumSet.of(Camembert, Cheddar));
-        assertThat(build(b)).isEqualTo("ZA1C5E5F3\n");
+                .setEnumReqTestA(Dog)
+                .setNumberReqTestC(5)
+                .setBitsetReqTestE(BitsetReqTestE.Tiger)
+                .setBitsetReqTestE(EnumSet.of(Lion, Tabby)) // this overwrites previous value
+                .setBitsetReqTestF(EnumSet.of(Camembert, Cheddar));
+        assertThat(build(b)).isEqualTo("ZA1C5E5F3");
     }
 
     @Test
     void shouldCreateCommandWithOptionalFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand0()
-                .enumReqTestB(1)
-                .numberReqTestD(0x2914)
-                .bitsetReqTestF(6)
+                .setEnumReqTestB(1)
+                .setNumberReqTestD(0x2914)
+                .setBitsetReqTestF(6)
 
-                .enumReqTestA(2)
-                .numberReqTestC(35)
-                .bitsetReqTestE(2);
-        assertThat(build(b)).isEqualTo("ZA2B1C23D2914E2F6\n");
+                .setEnumReqTestA(2)
+                .setNumberReqTestC(35)
+                .setBitsetReqTestE(2);
+        assertThat(build(b)).isEqualTo("ZA2B1C23D2914E2F6");
     }
 
     @Test
     void shouldCreateCommandWithOptionalEnumFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand0()
-                .enumReqTestB(Optional.of(Hare))
-                .numberReqTestD(OptionalInt.of(0x21a))
-                .bitsetReqTestF(Optional.of(GreekFeta))
-                .bitsetReqTestF(Optional.of(Cheddar))
+                .setEnumReqTestB(Optional.of(Hare))
+                .setNumberReqTestD(OptionalInt.of(0x21a))
+                .setBitsetReqTestF(Optional.of(GreekFeta))
+                .setBitsetReqTestF(Optional.of(Cheddar))
 
-                .enumReqTestA(2)
-                .numberReqTestC(35)
-                .bitsetReqTestE(1);
-        assertThat(build(b)).isEqualTo("ZA2B1C23D21aE1F5\n");
+                .setEnumReqTestA(2)
+                .setNumberReqTestC(35)
+                .setBitsetReqTestE(1);
+        assertThat(build(b)).isEqualTo("ZA2B1C23D21aE1F5");
     }
 
     @Test
     void shouldCreateCommandWithConditionalFieldsTrue() {
         ZscriptCommandBuilder<?> b1 = TestingModule.testCommand0()
-                .enumReqTestB(true, Rabbit)
-                .numberReqTestD(false, 0x21a)
-                .bitsetReqTestF(true, GreekFeta)
-                .bitsetReqTestF(false, Cheddar)
+                .setEnumReqTestB(true, Rabbit)
+                .setNumberReqTestD(false, 0x21a)
+                .setBitsetReqTestF(true, GreekFeta)
+                .setBitsetReqTestF(false, Cheddar)
 
-                .enumReqTestA(2)
-                .numberReqTestC(35)
-                .bitsetReqTestE(1);
-        assertThat(build(b1)).isEqualTo("ZA2BC23E1F4\n");
+                .setEnumReqTestA(2)
+                .setNumberReqTestC(35)
+                .setBitsetReqTestE(1);
+        assertThat(build(b1)).isEqualTo("ZA2BC23E1F4");
 
         ZscriptCommandBuilder<?> b2 = TestingModule.testCommand0()
-                .enumReqTestB(false, Rabbit)
-                .numberReqTestD(true, 0x21a)
-                .bitsetReqTestF(false, GreekFeta)
-                .bitsetReqTestF(true, Cheddar)
+                .setEnumReqTestB(false, Rabbit)
+                .setNumberReqTestD(true, 0x21a)
+                .setBitsetReqTestF(false, GreekFeta)
+                .setBitsetReqTestF(true, Cheddar)
 
-                .enumReqTestA(2)
-                .numberReqTestC(35)
-                .bitsetReqTestE(1);
-        assertThat(build(b2)).isEqualTo("ZA2C23D21aE1F1\n");
+                .setEnumReqTestA(2)
+                .setNumberReqTestC(35)
+                .setBitsetReqTestE(1);
+        assertThat(build(b2)).isEqualTo("ZA2C23D21aE1F1");
     }
 
     @Test
     void shouldCreateCommandWithOptionalIntFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand0()
-                .enumReqTestB(OptionalInt.of(1))
-                .numberReqTestD(OptionalInt.of(0x1a))
-                .bitsetReqTestF(Optional.of(Camembert)) // should be overwritten
-                .bitsetReqTestF(OptionalInt.of(1))
-                .bitsetReqTestF(Optional.of(GreekFeta))
+                .setEnumReqTestB(OptionalInt.of(1))
+                .setNumberReqTestD(OptionalInt.of(0x1a))
+                .setBitsetReqTestF(Optional.of(Camembert)) // should be overwritten
+                .setBitsetReqTestF(OptionalInt.of(1))
+                .setBitsetReqTestF(Optional.of(GreekFeta))
 
-                .enumReqTestA(2)
-                .numberReqTestC(0xa5)
-                .bitsetReqTestE(1);
-        assertThat(build(b)).isEqualTo("ZA2B1Ca5D1aE1F5\n");
+                .setEnumReqTestA(2)
+                .setNumberReqTestC(0xa5)
+                .setBitsetReqTestE(1);
+        assertThat(build(b)).isEqualTo("ZA2B1Ca5D1aE1F5");
     }
 
     @Test
     void shouldCreateCommandWithMissingOptionalEnumFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand0()
-                .enumReqTestB(Optional.empty())
-                .numberReqTestD(OptionalInt.empty())
-                .bitsetReqTestF(OptionalInt.empty())
+                .setEnumReqTestB(Optional.empty())
+                .setNumberReqTestD(OptionalInt.empty())
+                .setBitsetReqTestF(OptionalInt.empty())
 
-                .enumReqTestA(2)
-                .numberReqTestC(35)
-                .bitsetReqTestE(1);
-        assertThat(build(b)).isEqualTo("ZA2C23E1\n");
+                .setEnumReqTestA(2)
+                .setNumberReqTestC(35)
+                .setBitsetReqTestE(1);
+        assertThat(build(b)).isEqualTo("ZA2C23E1");
     }
 
     @Test
     void shouldCreateCommandWithRequiredTextField() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
-                .textReqTestA("foo");
-        assertThat(build(b)).isEqualTo("Z1\"foo\"\n");
+                .setTextReqTestA("foo");
+        assertThat(build(b)).isEqualTo("Z1\"foo\"");
     }
 
     @Test
@@ -174,23 +174,23 @@ public class JavaCommandBuilderBuildTest {
     @Test
     void shouldCreateCommandWithMultipleRequiredTextFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
-                .textReqTestA("foo")
-                .textReqTestAAsBytes(new byte[] { 0x42, 0x41, 0x52 });
-        assertThat(build(b)).isEqualTo("Z1\"foo\"+424152\n");
+                .setTextReqTestA("foo")
+                .setTextReqTestAAsBytes(new byte[] { 0x42, 0x41, 0x52 });
+        assertThat(build(b)).isEqualTo("Z1\"foo\"+424152");
     }
 
     @Test
     void shouldCreateCommandWithRequiredTextAsEmptyBytes() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand1()
-                .textReqTestAAsBytes(new byte[] {});
-        assertThat(build(b)).isEqualTo("Z1+\n");
+                .setTextReqTestAAsBytes(new byte[] {});
+        assertThat(build(b)).isEqualTo("Z1+");
     }
 
     @Test
     void shouldCreateCommandWithRequiredBytesField() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand2()
-                .textReqTestA(new byte[] { 0x42, 0x41, 0x52 });
-        assertThat(build(b)).isEqualTo("Z2+424152\n");
+                .setTextReqTestA(new byte[] { 0x42, 0x41, 0x52 });
+        assertThat(build(b)).isEqualTo("Z2+424152");
     }
 
     @Test
@@ -203,72 +203,72 @@ public class JavaCommandBuilderBuildTest {
     @Test
     void shouldCreateCommandWithMultipleRequiredBytesFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand2()
-                .textReqTestAAsText("foo")
-                .textReqTestA(new byte[] { 0x42, 0x41, 0x52 });
-        assertThat(build(b)).isEqualTo("Z2\"foo\"+424152\n");
+                .setTextReqTestAAsText("foo")
+                .setTextReqTestA(new byte[] { 0x42, 0x41, 0x52 });
+        assertThat(build(b)).isEqualTo("Z2\"foo\"+424152");
     }
 
     @Test
     void shouldCreateCommandWithRequiredBytesAsEmptyBytes() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand2()
-                .textReqTestA(new byte[] {});
-        assertThat(build(b)).isEqualTo("Z2+\n");
+                .setTextReqTestA(new byte[] {});
+        assertThat(build(b)).isEqualTo("Z2+");
     }
 
     @Test
     void shouldCreateCommandWithOptionalTextField() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand3()
-                .textReqTestA("foo");
-        assertThat(build(b)).isEqualTo("Z3\"foo\"\n");
+                .setTextReqTestA("foo");
+        assertThat(build(b)).isEqualTo("Z3\"foo\"");
     }
 
     @Test
     void shouldCreateCommandWithMissingOptionalTextField() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand3();
-        assertThat(build(b)).isEqualTo("Z3\n");
+        assertThat(build(b)).isEqualTo("Z3");
     }
 
     @Test
     void shouldCreateCommandWithMultipleOptionalTextFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand3()
-                .textReqTestA("foo")
-                .textReqTestAAsBytes(new byte[] { 0x42, 0x41, 0x52 });
-        assertThat(build(b)).isEqualTo("Z3\"foo\"+424152\n");
+                .setTextReqTestA("foo")
+                .setTextReqTestAAsBytes(new byte[] { 0x42, 0x41, 0x52 });
+        assertThat(build(b)).isEqualTo("Z3\"foo\"+424152");
     }
 
     @Test
     void shouldCreateCommandWithOptionalTextAsEmptyBytes() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand3()
-                .textReqTestAAsBytes(new byte[] {});
-        assertThat(build(b)).isEqualTo("Z3+\n");
+                .setTextReqTestAAsBytes(new byte[] {});
+        assertThat(build(b)).isEqualTo("Z3+");
     }
 
     @Test
     void shouldCreateCommandWithOptionalBytesField() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand4()
-                .textReqTestA(new byte[] { 0x42, 0x41, 0x52 });
-        assertThat(build(b)).isEqualTo("Z4+424152\n");
+                .setTextReqTestA(new byte[] { 0x42, 0x41, 0x52 });
+        assertThat(build(b)).isEqualTo("Z4+424152");
     }
 
     @Test
     void shouldCreateCommandWithMissingOptionalBytesField() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand4();
-        assertThat(build(b)).isEqualTo("Z4\n");
+        assertThat(build(b)).isEqualTo("Z4");
     }
 
     @Test
     void shouldCreateCommandWithMultipleOptionalBytesFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand4()
-                .textReqTestAAsText("foo")
-                .textReqTestA(new byte[] { 0x42, 0x41, 0x52 });
-        assertThat(build(b)).isEqualTo("Z4\"foo\"+424152\n");
+                .setTextReqTestAAsText("foo")
+                .setTextReqTestA(new byte[] { 0x42, 0x41, 0x52 });
+        assertThat(build(b)).isEqualTo("Z4\"foo\"+424152");
     }
 
     @Test
     void shouldCreateCommandWithOptionalBytesAsEmptyBytes() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand4()
-                .textReqTestA(new byte[] {});
-        assertThat(build(b)).isEqualTo("Z4+\n");
+                .setTextReqTestA(new byte[] {});
+        assertThat(build(b)).isEqualTo("Z4+");
     }
 
     private String build(ZscriptCommandBuilder<?> b) {

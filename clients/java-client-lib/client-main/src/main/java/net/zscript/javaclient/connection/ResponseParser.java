@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import net.zscript.javaclient.commandbuilder.CommandSequence;
-import net.zscript.javaclient.commandbuilder.ZscriptCommand;
-import net.zscript.javaclient.commandbuilder.ZscriptCommand.ZscriptSequencePath;
+import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.ZscriptCommandNode.ZscriptSequenceLogicPath;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
@@ -116,7 +116,7 @@ public class ResponseParser {
     }
 
     // TODO: Trim the sequence level stuff off of first command
-    public static void parseFullResponse(final CommandSequence command, final byte[] response) {
+    public static void parseFullResponse(final CommandSequenceNode command, final byte[] response) {
         final TokenBuffer buffer = new TokenExtendingBuffer();
         final Tokenizer   in     = new Tokenizer(buffer.getTokenWriter(), 4);
         for (final byte b : response) {
@@ -147,12 +147,12 @@ public class ResponseParser {
         matchMarkers(command, markers, tokenAfterMarkers);
     }
 
-    private static void matchMarkers(final CommandSequence command, final List<Byte> markers, final List<ReadToken> tokenAfterMarkers) {
-        ZscriptCommand      current;
-        ZscriptSequencePath successPath = ZscriptCommand.findFirstCommand(command);
-        ZscriptSequencePath failPath    = ZscriptCommand.findFirstCommand(command);
+    private static void matchMarkers(final CommandSequenceNode command, final List<Byte> markers, final List<ReadToken> tokenAfterMarkers) {
+        ZscriptCommandNode       current;
+        ZscriptSequenceLogicPath successPath = ZscriptCommandNode.findFirstCommand(command);
+        ZscriptSequenceLogicPath failPath    = ZscriptCommandNode.findFirstCommand(command);
 
-        final Set<ZscriptCommand> sentResponses = new HashSet<>();
+        final Set<ZscriptCommandNode> sentResponses = new HashSet<>();
 
         int offset = 0;
 
@@ -200,8 +200,8 @@ public class ResponseParser {
 
             sentResponses.add(current);
         }
-        for (ZscriptSequencePath path = ZscriptCommand.findFirstCommand(command); path != null; path = path.getNext().findNext()) {
-            ZscriptCommand cmd = path.getNext();
+        for (ZscriptSequenceLogicPath path = ZscriptCommandNode.findFirstCommand(command); path != null; path = path.getNext().findNext()) {
+            ZscriptCommandNode cmd = path.getNext();
             if (!sentResponses.contains(cmd)) {
                 cmd.onNotExecuted();
             }
