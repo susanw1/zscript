@@ -12,7 +12,7 @@ import net.zscript.client.modules.test.testing.TestingModule;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.TestCommand0CommandResponse.BitsetRespTestV;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.TestCommand0CommandResponse.EnumRespTestP;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.TestCommand0CommandResponse.EnumRespTestQ;
-import net.zscript.javaclient.commandbuilder.ZscriptCommand;
+import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.ZscriptResponseListener;
@@ -29,9 +29,9 @@ public class JavaCommandBuilderResponseTest {
     @Test
     void shouldCreateResponseWithRequiredFields() {
         checkResponse("S P2 R1b U5\n", TestingModule.testCommand0()
-                        .enumReqTestA(2)
-                        .numberReqTestC(35)
-                        .bitsetReqTestE(1),
+                        .setEnumReqTestA(2)
+                        .setNumberReqTestC(35)
+                        .setBitsetReqTestE(1),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getEnumRespTestPAsInt()).isEqualTo(0x2);
@@ -58,9 +58,9 @@ public class JavaCommandBuilderResponseTest {
     @Test
     void shouldCreateResponseWithAllFields() {
         checkResponse("S P Q1 R1b Tf1 U3 V6 \n", TestingModule.testCommand0()
-                        .enumReqTestA(2)
-                        .numberReqTestC(35)
-                        .bitsetReqTestE(1),
+                        .setEnumReqTestA(2)
+                        .setNumberReqTestC(35)
+                        .setBitsetReqTestE(1),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getEnumRespTestPAsInt()).isEqualTo(0x0);
@@ -87,7 +87,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithTextField() {
-        checkResponse("S \"bar\" \n", TestingModule.testCommand1().textReqTestA("foo"), response -> {
+        checkResponse("S \"bar\" \n", TestingModule.testCommand1().setTextReqTestA("foo"), response -> {
             assertThat(response.isValid()).isTrue();
             assertThat(response.getTextRespTestP()).isEqualTo("bar");
             assertThat(response.getTextRespTestPAsBytes()).containsExactly(0x62, 0x61, 0x72);
@@ -96,7 +96,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithUtf8TextField() {
-        checkResponse("S +c2 a3 c2 b5 \n", TestingModule.testCommand1().textReqTestA("foo"),
+        checkResponse("S +c2 a3 c2 b5 \n", TestingModule.testCommand1().setTextReqTestA("foo"),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getTextRespTestPAsBytes()).containsExactly(0xc2, 0xa3, 0xc2, 0xb5);
@@ -106,7 +106,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithChineseTextField() {
-        checkResponse("S +e6 9c ba e6 a2 b0 e5 a6 96 e5 a7 ac \n", TestingModule.testCommand1().textReqTestA("foo"),
+        checkResponse("S +e6 9c ba e6 a2 b0 e5 a6 96 e5 a7 ac \n", TestingModule.testCommand1().setTextReqTestA("foo"),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getTextRespTestP()).isEqualTo("机械妖姬");
@@ -117,7 +117,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithEmptyTextField() {
-        checkResponse("S +\n", TestingModule.testCommand1().textReqTestA("foo"),
+        checkResponse("S +\n", TestingModule.testCommand1().setTextReqTestA("foo"),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getTextRespTestP()).isEqualTo("");
@@ -127,7 +127,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithMultipleTextFields() {
-        checkResponse("S +41 +42 \"CD\" \n", TestingModule.testCommand1().textReqTestA("foo"),
+        checkResponse("S +41 +42 \"CD\" \n", TestingModule.testCommand1().setTextReqTestA("foo"),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getTextRespTestP()).isEqualTo("ABCD");
@@ -136,7 +136,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithMultipleEmptyTextFields() {
-        checkResponse("S + + + \"\" + \n", TestingModule.testCommand1().textReqTestA("foo"),
+        checkResponse("S + + + \"\" + \n", TestingModule.testCommand1().setTextReqTestA("foo"),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getTextRespTestP()).isEqualTo("");
@@ -146,7 +146,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithMissingTextFields() {
-        checkResponse("S \n", TestingModule.testCommand1().textReqTestA("foo"),
+        checkResponse("S \n", TestingModule.testCommand1().setTextReqTestA("foo"),
                 response -> {
                     assertThat(response.isValid()).isFalse();
                     assertThat(response.getTextRespTestP()).isEqualTo("");
@@ -156,7 +156,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithRequiredBytes() {
-        checkResponse("S \"bar\" \n", TestingModule.testCommand2().textReqTestAAsText("foo"), response -> {
+        checkResponse("S \"bar\" \n", TestingModule.testCommand2().setTextReqTestAAsText("foo"), response -> {
             assertThat(response.isValid()).isTrue();
             assertThat(response.getTextRespTestAAsString()).isEqualTo("bar");
             assertThat(response.getTextRespTestA()).containsExactly(0x62, 0x61, 0x72);
@@ -165,7 +165,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithMissingRequiredBytes() {
-        checkResponse("S \n", TestingModule.testCommand2().textReqTestAAsText("foo"), response -> {
+        checkResponse("S \n", TestingModule.testCommand2().setTextReqTestAAsText("foo"), response -> {
             assertThat(response.isValid()).isFalse();
             assertThat(response.getTextRespTestAAsString()).isEmpty();
             assertThat(response.getTextRespTestA()).isEmpty();
@@ -174,7 +174,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithOptionalTextField() {
-        checkResponse("S \"baz\"\n", TestingModule.testCommand3().textReqTestA("foo"),
+        checkResponse("S \"baz\"\n", TestingModule.testCommand3().setTextReqTestA("foo"),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getTextRespTestP()).isEqualTo("baz");
@@ -185,7 +185,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithOptionalEmptyTextField() {
-        checkResponse("S \"\"\n", TestingModule.testCommand3().textReqTestA("foo"),
+        checkResponse("S \"\"\n", TestingModule.testCommand3().setTextReqTestA("foo"),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getTextRespTestP()).isEmpty();
@@ -195,7 +195,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithOptionalMissingTextField() {
-        checkResponse("S \n", TestingModule.testCommand3().textReqTestA("foo"),
+        checkResponse("S \n", TestingModule.testCommand3().setTextReqTestA("foo"),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getTextRespTestP()).isEmpty();
@@ -205,7 +205,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithOptionalBytes() {
-        checkResponse("S \"bar\" \n", TestingModule.testCommand4().textReqTestAAsText("foo"), response -> {
+        checkResponse("S \"bar\" \n", TestingModule.testCommand4().setTextReqTestAAsText("foo"), response -> {
             assertThat(response.isValid()).isTrue();
             assertThat(response.getTextRespTestAAsString()).isEqualTo("bar");
             assertThat(response.getTextRespTestA()).containsExactly(0x62, 0x61, 0x72);
@@ -214,7 +214,7 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithMissingOptionalBytes() {
-        checkResponse("S \n", TestingModule.testCommand4().textReqTestAAsText("foo"), response -> {
+        checkResponse("S \n", TestingModule.testCommand4().setTextReqTestAAsText("foo"), response -> {
             assertThat(response.isValid()).isTrue();
             assertThat(response.getTextRespTestAAsString()).isEmpty();
             assertThat(response.getTextRespTestA()).isEmpty();
@@ -232,10 +232,10 @@ public class JavaCommandBuilderResponseTest {
             final ZscriptResponseListener<R> listener) {
         responseChars.chars().forEach(c -> tokenizer.accept((byte) c));
 
-        ZscriptCommand cmd = commandBuilder.addResponseListener(listener)
+        ZscriptCommandNode cmd = commandBuilder.addResponseListener(listener)
                 .build();
 
-        cmd.response(new ZscriptTokenExpression(tokenReader::iterator));
+        cmd.onResponse(new ZscriptTokenExpression(tokenReader::iterator));
     }
 
 }

@@ -42,6 +42,7 @@
         <module>acceptance-tests</module>
         <module>simulator</module>
         <module>util</module>
+        <module>demo</module>
     </modules>
 
     <dependencyManagement>

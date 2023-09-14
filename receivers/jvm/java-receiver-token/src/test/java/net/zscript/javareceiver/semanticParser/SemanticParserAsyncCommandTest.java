@@ -46,13 +46,13 @@ class SemanticParserAsyncCommandTest {
     }
 
     static class AsyncTestModule implements ZscriptModule {
-        private final AsyncCommand c2        = new AsyncCommand();
-        private volatile int       someValue = 0;
+        private final    AsyncCommand c2        = new AsyncCommand();
+        private volatile int          someValue = 0;
 
         private AsyncActionNotifier notifier;
 
         @Override
-        public int getModuleID() {
+        public int getModuleId() {
             return 0xf;
         }
 

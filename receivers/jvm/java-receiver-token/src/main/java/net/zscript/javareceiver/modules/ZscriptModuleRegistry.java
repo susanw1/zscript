@@ -13,10 +13,10 @@ public class ZscriptModuleRegistry {
     private final        ZscriptModule[] modules        = new ZscriptModule[0x1000];
 
     public void addModule(ZscriptModule m) {
-        if (modules[m.getModuleID()] != null) {
+        if (modules[m.getModuleId()] != null) {
             throw new IllegalStateException("Two modules have the same ID");
         }
-        modules[m.getModuleID()] = m;
+        modules[m.getModuleId()] = m;
     }
 
     public void execute(CommandContext ctx) {

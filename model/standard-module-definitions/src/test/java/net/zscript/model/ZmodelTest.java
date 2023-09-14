@@ -7,12 +7,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
 import net.zscript.model.loader.ModuleBank;
 
 class ZmodelTest {
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
     }
 
     @Test
@@ -37,7 +38,7 @@ class ZmodelTest {
     void shouldLoadAllBaseModules() {
         ZscriptModel model = ZscriptModel.standardModel();
         ModuleBank   mb    = model.getModuleBank(MODULEBANK_BASE_NAME).orElseThrow();
-        assertThat(mb.modules()).extracting(m -> m.getModuleName())
+        assertThat(mb.modules()).extracting(ModuleModel::getModuleName)
                 .containsExactlyInAnyOrder("Core", "OuterCore", "ScriptSpace", "Pins", "I2C", "Serial", "Servo");
     }
 }

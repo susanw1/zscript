@@ -16,6 +16,10 @@ import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
 import net.zscript.util.OptIterator;
 
+/**
+ * This is the toolkit that is made available to an executing command, allowing access to the command's fields. It also exposes control of the status and command completion and
+ * async execution flow.
+ */
 public class CommandContext extends AbstractContext implements ZscriptExpression {
     private final Zscript                zscript;
     private final OutStream              out;

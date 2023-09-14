@@ -16,7 +16,7 @@ public class ZscriptCoreModule implements ZscriptModule {
     }
 
     @Override
-    public int getModuleID() {
+    public int getModuleId() {
         return 0;
     }
 

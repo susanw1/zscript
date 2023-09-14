@@ -20,7 +20,7 @@ public class ScriptSpaceModule implements ZscriptModule {
     }
 
     @Override
-    public int getModuleID() {
+    public int getModuleId() {
         return 2;
     }
 

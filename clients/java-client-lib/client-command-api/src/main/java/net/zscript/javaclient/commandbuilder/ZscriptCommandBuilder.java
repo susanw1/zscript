@@ -17,6 +17,11 @@ import java.util.stream.Collectors;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 import net.zscript.model.components.Zchars;
 
+/**
+ * The builder for creating a ZscriptBuiltCommand.
+ *
+ * @param <T> the type of response this command would expect to receive
+ */
 public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     private static final int BIGFIELD_REQD_OFFSET = 26;
 
@@ -25,10 +30,13 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     private final Map<Byte, Integer>               fields         = new HashMap<>();
     private final BitSet                           requiredFields = new BitSet();
 
-    public class ZscriptBuiltCommand extends ZscriptCommand {
+    /**
+     * A representation of a command, returned by calling {@link #build()} on the builder, ready for amalgamation into a command sequence.
+     */
+    public class ZscriptBuiltCommandNode extends ZscriptCommandNode {
 
         @Override
-        public CommandSeqElement reEvaluate() {
+        public CommandSequenceNode reEvaluate() {
             return this;
         }
 
@@ -66,7 +74,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
 
         @Override
-        public void response(ZscriptExpression resp) {
+        public void onResponse(ZscriptExpression resp) {
             T parsed = parseResponse(resp);
             for (ZscriptResponseListener<T> listener : listeners) {
                 listener.accept(parsed);
@@ -74,7 +82,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
 
         @Override
-        public void notExecuted() {
+        public void onNotExecuted() {
             for (ZscriptResponseListener<T> listener : listeners) {
                 listener.notExecuted();
             }
@@ -264,13 +272,13 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
      * @return the command that has been built
      * @throws ZscriptMissingFieldException if builder doesn't yet pass validation
      */
-    public ZscriptCommand build() {
+    public ZscriptCommandNode build() {
         if (!isValid()) {
             String fieldList = requiredFields.stream()
                     .mapToObj(b -> "'" + (b == BIGFIELD_REQD_OFFSET ? "+" : String.valueOf((char) (b + 'A'))) + "'")
                     .collect(joining(","));
             throw new ZscriptMissingFieldException("missingKeys=%s", fieldList);
         }
-        return new ZscriptBuiltCommand();
+        return new ZscriptBuiltCommandNode();
     }
 }

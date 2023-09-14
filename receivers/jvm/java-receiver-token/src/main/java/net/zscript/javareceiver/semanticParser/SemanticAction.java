@@ -11,7 +11,7 @@ import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
 
 public class SemanticAction implements ZscriptAction {
-    enum ActionType {
+    public enum ActionType {
         INVALID,
         GO_AROUND,
         WAIT_FOR_TOKENS,
