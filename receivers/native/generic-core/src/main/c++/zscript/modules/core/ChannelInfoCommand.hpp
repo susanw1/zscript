@@ -32,10 +32,11 @@ public:
             return;
         }
         out.writeField('C', Zscript<ZP>::zscript.getChannelCount());
+        out.writeField('M', Zscript<ZP>::zscript.getChannels()[target]->getAssociatedModule());
+        out.writeField('B', Zscript<ZP>::zscript.getChannels()[target]->getBufferLength());
         if (current <= Zscript<ZP>::zscript.getChannelCount()) {
             out.writeField('U', current);
         }
-        Zscript<ZP>::zscript.getChannels()[target]->channelInfo(ctx);
     }
 
 };

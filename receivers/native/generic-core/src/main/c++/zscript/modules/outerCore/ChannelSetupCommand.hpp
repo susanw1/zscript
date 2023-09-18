@@ -30,11 +30,16 @@ public:
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
-        Zscript<ZP>::zscript.getChannels()[target]->channelSetup(ctx);
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         if (ctx.hasField('N')) {
             Zscript<ZP>::zscript.setNotificationChannelIndex((uint8_t) target);
         }
+#ifdef ZSCRIPT_SUPPORT_PERSISTENCE
+        if (ctx.hasField('P')) {
+            Zscript<ZP>::zscript.getChannels()[target]->setupStartupNotificationChannel();
+            ZP::persistStartupNotificationChannel(target);
+        }
+#endif
 #endif
     }
 
