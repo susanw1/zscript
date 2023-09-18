@@ -9,6 +9,7 @@
 #define SRC_MAIN_C___ZSCRIPT_ZSCRIPT_HPP_
 
 #define ZSCRIPT_HPP_INCLUDED
+
 #include "ZscriptIncludes.hpp"
 #include "execution/LockSet.hpp"
 #include "execution/LockSystem.hpp"
@@ -16,7 +17,9 @@
 #include "ZscriptChannel.hpp"
 
 #ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
+
 #include "scriptSpace/ScriptSpace.hpp"
+
 #endif
 
 #ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
@@ -39,10 +42,11 @@ public:
 
 private:
 
-    Zscript<ZP>* operator &() {
+    Zscript<ZP> *operator&() {
         return this;
     }
-    Zscript<ZP> operator *() {
+
+    Zscript<ZP> operator*() {
         return this;
     }
 
@@ -76,17 +80,21 @@ public:
     }
 
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+
     void setNotificationSources(GenericCore::ZscriptNotificationSource<ZP> **notifSources, uint8_t notifSrcCount) {
         this->notifSources = notifSources;
         this->notifSrcCount = notifSrcCount;
     }
+
 #endif
 
 #ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
+
     void setScriptSpaces(ScriptSpace<ZP> **scriptSpaces, uint8_t scriptSpaceCount) {
         this->scriptSpaces = scriptSpaces;
         this->scriptSpaceCount = scriptSpaceCount;
     }
+
 #endif
 
     bool lock(GenericCore::LockSet<ZP> *l) {
@@ -110,16 +118,19 @@ public:
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
                 , notifSources, notifSrcCount
 #endif
-                );
+        );
     }
 
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
-    AbstractOutStream<ZP>* getNotificationOutStream() {
+
+    AbstractOutStream<ZP> *getNotificationOutStream() {
         return channels[notificationChannelIndex]->getOutStream();
     }
+
     bool hasNotificationOutStream() {
         return notificationChannelIndex != 0xFF;
     }
+
     void setNotificationChannelIndex(uint8_t index) {
         if (index < channelCount && channels[index]->canBeNotifChannel()) {
             notificationChannelIndex = index;
@@ -127,28 +138,44 @@ public:
             notificationChannelIndex = 0xFF;
         }
     }
+
     uint8_t getNotificationChannelIndex() {
         return notificationChannelIndex;
     }
+
 #endif
 
 #ifdef ZSCRIPT_SUPPORT_SCRIPT_SPACE
-    ScriptSpace<ZP>** getScriptSpaces() {
+
+    ScriptSpace<ZP> **getScriptSpaces() {
         return scriptSpaces;
     }
+
     uint8_t getScriptSpaceCount() {
         return scriptSpaceCount;
     }
+
 #endif
 
     uint8_t getChannelCount() {
         return channelCount;
     }
-    ZscriptChannel<ZP>** getChannels() {
+
+    ZscriptChannel<ZP> **getChannels() {
         return channels;
     }
 
+    void resetChannel(uint8_t index) {
+        channels[index]->reset();
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+        if (notificationChannelIndex == index) {
+            notificationChannelIndex = 0xFF;
+        }
+#endif
+    }
+
 };
+
 template<class ZP>
 Zscript<ZP> Zscript<ZP>::zscript;
 }

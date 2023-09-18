@@ -19,13 +19,11 @@ class ZscriptChannel {
 protected:
     AbstractOutStream<ZP> *out;
     GenericCore::SemanticParser<ZP> parser;
+    uint16_t moduleNumber;
 
-    virtual bool resetInternal() {
-        return false;
-    }
 public:
-    ZscriptChannel(AbstractOutStream<ZP> *out, GenericCore::TokenRingBuffer<ZP> *buffer, bool canBeNotifChannel) :
-            out(out), parser(buffer) {
+    ZscriptChannel(AbstractOutStream<ZP> *out, GenericCore::TokenRingBuffer<ZP> *buffer, uint16_t moduleNumber, bool canBeNotifChannel) :
+            out(out), parser(buffer), moduleNumber(moduleNumber) {
         parser.freeBool = canBeNotifChannel;
     }
 
@@ -33,11 +31,11 @@ public:
         return parser.freeBool;
     }
 
-    GenericCore::SemanticParser<ZP>* getParser() {
+    GenericCore::SemanticParser<ZP> *getParser() {
         return &parser;
     }
 
-    AbstractOutStream<ZP>* getOutStream() {
+    AbstractOutStream<ZP> *getOutStream() {
         return out;
     }
 
@@ -45,23 +43,25 @@ public:
         parser.setChannelIndex(i);
     }
 
+#ifdef ZSCRIPT_SUPPORT_PERSISTENCE
     virtual bool setupStartupNotificationChannel() {
         return false;
     }
+#endif
 
     virtual void moveAlong() {
     }
 
-    virtual void channelInfo(ZscriptCommandContext<ZP> ctx) {
-        (void) ctx;
+    uint16_t getAssociatedModule() {
+        return moduleNumber;
     }
 
-    virtual void channelSetup(ZscriptCommandContext<ZP> ctx) {
-        (void) ctx;
+    uint16_t getBufferLength() {
+        return parser.getReader().asBuffer()->getLength();
     }
-    bool reset() {
+
+    void reset() {
         parser.deActivate();
-        return resetInternal();
     }
 
 };
