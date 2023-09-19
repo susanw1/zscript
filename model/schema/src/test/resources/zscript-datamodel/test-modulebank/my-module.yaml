@@ -60,4 +60,4 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-        
+notifications:

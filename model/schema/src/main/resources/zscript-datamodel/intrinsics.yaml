@@ -15,229 +15,229 @@ intrinsics:
         required: yes
 
     zchars:
-    -   name: CMD
+    -   name: cmd
         ch: "Z"
         description: "command field to identify the specific command to execute"
-    -   name: NEWLINE
+    -   name: newline
         ch: "\n"
         description: "sequence terminator"
         separator: true
         mustEscape: true
-    -   name: ANDTHEN
+    -   name: andthen
         ch: "&"
         description: "command separator with AND THEN semantics, executes second command only if first succeeded"
         separator: true
-    -   name: ORELSE
+    -   name: orelse
         ch: "|"
         description: "command separator with OR ELSE semantics, executes second command only if first failed"
         separator: true
-    -   name: OPENPAREN
+    -   name: openparen
         ch: "("
         description: "opens parenthesized commands to control logical sequencing"
         separator: true
-    -   name: CLOSEPAREN
+    -   name: closeparen
         ch: ")"
         description: "closes parenthesized commands to control logical sequencing"
         separator: true
-    -   name: RESPONSE_MARK
+    -   name: responseMark
         ch: "!"
         description: "prefixed to all responses and notifications, to indicate notification source"
-    -   name: LOCKS
+    -   name: locks
         ch: "%"
         description: "command sequence prefix to request specific locks to allow some concurrent access to resources"
         nonNumeric: true
-    -   name: BIGFIELD_HEX
+    -   name: bigfieldHex
         ch: "+"
         description: "prefix for sequence of hex pairs to be sent in the big-field"
         nonNumeric: true
         bigField: true
-    -   name: BIGFIELD_QUOTED
+    -   name: bigfieldQuoted
         ch: "\""
         description: "surrounds text to be sent as the big-field"
         nonNumeric: true
         mustEscape: true
         bigField: true
-    -   name: STRING_ESCAPE
+    -   name: stringEscape
         ch: "="
         description: "marks an escaped char within a text field, eg =3b"
         mustEscape: true
-    -   name: COMMENT
+    -   name: comment
         ch: "#"
         description: "starts a comment, which is generally ignored by the receiver"
         nonNumeric: true
-    -   name: ADDRESSING
+    -   name: addressing
         ch: "@"
         description: "marks the start of an address, eg @12.4.3"
-    -   name: ADDRESSING_CONTINUE
+    -   name: addressingContinue
         ch: "."
         description: "separates address components, eg @12.4.3"
-    -   name: ECHO
+    -   name: echo
         ch: "_"
         description: "special sequence-level field assigning a command number, echoed in the response"
-    -   name: STATUS
+    -   name: status
         ch: "S"
         description: "response status field"
-    -   name: NULL_CHAR
+    -   name: nullChar
         ch: "\0"
         description: "nulls are always ignored in command and response stream, so they can be used by channels to pad packets"
         ignoreAlways: true
         ignoreInCode: true
         mustEscape: true
-    -   name: CARRIAGE_RETURN
+    -   name: carriageReturn
         ch: "\r"
         description: "ignored outside of text fields to simplify newline handling"
         ignoreInCode: true
-    -   name: TAB
+    -   name: tab
         ch: "\t"
         description: "may be used to make commands and responses more readable, ignored outside of text fields"
         ignoreInCode: true
-    -   name: COMMA
+    -   name: comma
         ch: ","
         description: "may be used to make commands and responses more readable, ignored outside of text fields"
         ignoreInCode: true
-    -   name: SPACE
+    -   name: space
         ch: " "
         description: "may be used to make commands and responses more readable, ignored outside of text fields"
         ignoreInCode: true
 
 
     status:
-    -   code: SUCCESS
+    -   code: success
         id: 0
         meaning: command success
 
 
 
-    -   code: COMMAND_FAIL
+    -   code: commandFail
         id: 1
         meaning: command failure
 
-    -   code: COMMAND_FAIL_CONTROL
+    -   code: commandFailControl
         id: 2
         meaning: command failed in order to control the program flow
 
-    -   code: COMMAND_NO_TARGET
+    -   code: commandNoTarget
         id: 3
         meaning: target of command either non-existent or not responding
 
-    -   code: COMMAND_TARGET_DOES_NOT_SUPPORT
+    -   code: commandTargetDoesNotSupport
         id: 4
         meaning: target of command does not support the requested functionality
 
 
-    -   code: COMMAND_DATA_NOT_TRANSMITTED
+    -   code: commandDataNotTransmitted
         id: 8
         meaning: data transmission not successful - may have failed or only been partial
 
-    -   code: COMMAND_DATA_NOT_RECEIVED
+    -   code: commandDataNotReceived
         id: 9
         meaning: data reception not successful - may have failed or only been partial
 
 
 
-    -   code: BUFFER_OVR_ERROR
+    -   code: bufferOvrError
         id: 16
         meaning: buffer overflow
 
-    -   code: INTERNAL_ERROR
+    -   code: internalError
         id: 17
         meaning: impossible condition hit
 
-    -   code: NOT_ACTIVATED
+    -   code: notActivated
         id: 18
         meaning: channel not activated for non-core command
 
-    -   code: COMMAND_ERROR_CONTROL
+    -   code: commandErrorControl
         id: 19
         meaning: command error in order to control the program flow
 
 
-    -   code: FIELD_TOO_LONG
+    -   code: fieldTooLong
         id: 32
         meaning: numeric field too long
 
-    -   code: ODD_LENGTH
+    -   code: oddLength
         id: 33
         meaning: odd length big field
 
-    -   code: UNTERMINATED_STRING
+    -   code: unterminatedString
         id: 34
         meaning: missing end quote
 
-    -   code: ESCAPING_ERROR
+    -   code: escapingError
         id: 35
         meaning: string escaping invalid
 
-    -   code: ILLEGAL_KEY
+    -   code: illegalKey
         id: 36
         meaning: illegal character given as token key
 
 
-    -   code: INVALID_LOCKS
+    -   code: invalidLocks
         id: 48
         meaning: locks field too long or repeated
 
-    -   code: INVALID_ECHO
+    -   code: invalidEcho
         id: 49
         meaning: echo field too long or repeated
 
-    -   code: INVALID_COMMENT
+    -   code: invalidComment
         id: 50
         meaning: comment with non-comment fields found
 
 
-    -   code: REPEATED_KEY
+    -   code: repeatedKey
         id: 64
         meaning: two fields (in the same command) with the same key found
 
-    -   code: INVALID_KEY
+    -   code: invalidKey
         id: 65
         meaning: field not valid in this position
 
-    -   code: COMMAND_NOT_FOUND
+    -   code: commandNotFound
         id: 66
         meaning: given command does not exist or not specified
 
-    -   code: ADDRESS_NOT_FOUND
+    -   code: addressNotFound
         id: 67
         meaning: given address does not exist or cannot be addressed
 
 
-    -   code: MISSING_KEY
+    -   code: missingKey
         id: 80
         meaning: a required field was not given
 
-    -   code: VALUE_OUT_OF_RANGE
+    -   code: valueOutOfRange
         id: 81
         meaning: a field or big field was given with a value which is not supported
 
-    -   code: DATA_TOO_LONG
+    -   code: dataTooLong
         id: 82
         meaning: data transmission/reception exceeds maximum transmission length
 
 
 
-    -   code: EXECUTION_ERROR
+    -   code: executionError
         id: 128
         meaning: generic failure mid-execution
 
 
-    -   code: PERIPHERAL_ERROR
+    -   code: peripheralError
         id: 144
         meaning: a peripheral required for the command has failed fatally
 
-    -   code: PERIPHERAL_JAM
+    -   code: peripheralJam
         id: 145
         meaning: a peripheral required for the command is in a state it cannot exit (and may require rebooting)
 
-    -   code: PERIPHERAL_DISABLED
+    -   code: peripheralDisabled
         id: 146
         meaning: a peripheral required for the command is not currently enabled (and may require other commands or activity to enable)
 
-    -   code: PERIPHERAL_DISCONNECTED
+    -   code: peripheralDisconnected
         id: 147
         meaning: a peripheral required for the command is not attached (and may require physical intervention to attach)
 
-    -   code: PERIPHERAL_BROKEN
+    -   code: peripheralBroken
         id: 148
         meaning: a peripheral required for the command has sustained permanent damage (and may require replacement)

@@ -17,7 +17,7 @@ import javax.annotation.processing.Generated;
 public class Zchars {
 {{#zchars}}
     /** {{description}} */
-    public static final byte Z_{{name}} = '{{{chEscapedAsC}}}';
+    public static final byte Z_{{#upperUnderscore}}{{name}}{{/upperUnderscore}} = '{{{chEscapedAsC}}}';
 
 {{/zchars}}
 

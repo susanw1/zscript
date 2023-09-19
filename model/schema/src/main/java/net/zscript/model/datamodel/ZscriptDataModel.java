@@ -35,10 +35,15 @@ public interface ZscriptDataModel {
 
         String getDescription();
 
+        String getLongDescription();
+
         List<String> getPackage();
 
         @JsonManagedReference
         List<CommandModel> getCommands();
+
+        @JsonManagedReference
+        List<NotificationsModel> getNotifications();
     }
 
     /** Characterises commands in quasi-HTTP terms */
@@ -56,7 +61,9 @@ public interface ZscriptDataModel {
     }
 
     enum Extension {
+        /** Supports a command channel, so it can be addressed by an upstream device. */
         CHANNEL,
+        /** Supports a downstream command connector to talk to sub-devices. */
         ADDRESSING
     }
 
@@ -77,6 +84,8 @@ public interface ZscriptDataModel {
 
         String getDescription();
 
+        String getLongDescription();
+
         OperationType getOperation();
 
         Extension getExtension();
@@ -93,8 +102,71 @@ public interface ZscriptDataModel {
         List<StatusModel> getStatus();
 
         default int getFullCommand() {
-            return getModule().getModuleBank().getId() << 8 | getModule().getId() << 4 | getCommand();
+            return getModule().getModuleBank().getId() << 8 | getModule().getId() << 4 | (getCommand() & 0xf);
         }
+    }
+
+    interface NotificationsModel {
+        @JsonBackReference
+        ModuleModel getModule();
+
+        @JsonProperty(required = true)
+        String getName();
+
+        /**
+         * Facilitates disambiguating the name in templating engines. Identical to calling {@link #getName()}.
+         */
+        default String getNotificationName() {
+            return getName();
+        }
+
+        @JsonProperty(required = true)
+        byte getNotification();
+
+        @JsonProperty(required = true)
+        String getDescription();
+
+        String getLongDescription();
+
+        @JsonManagedReference
+        @JsonProperty(required = true)
+        List<NotificationSectionModel> getSections();
+
+        default int getFullNotification() {
+            return getModule().getModuleBank().getId() << 8 | getModule().getId() << 4 | (getNotification() & 0xF);
+        }
+    }
+
+    enum LogicalTermination {
+        NONE,
+        AND,
+        OR
+    }
+
+    interface NotificationSectionModel {
+        @JsonBackReference
+        NotificationsModel getNotification();
+
+        @JsonProperty(required = true)
+        String getName();
+
+        /**
+         * Facilitates disambiguating the name in templating engines. Identical to calling {@link #getName()}.
+         */
+        default String getSectionName() {
+            return getName();
+        }
+
+        @JsonProperty(required = true)
+        String getDescription();
+
+        String getLongDescription();
+
+        @JsonManagedReference
+        @JsonProperty(required = true)
+        NotificationFieldModel getFields();
+
+        LogicalTermination getLogicalTermination();
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
@@ -202,14 +274,13 @@ public interface ZscriptDataModel {
     }
 
     interface GenericField {
-        @JsonBackReference
-        CommandModel getCommand();
-
         char getKey();
 
         String getName();
 
         String getDescription();
+
+        String getLongDescription();
 
         TypeDefinition getTypeDefinition();
 
@@ -217,9 +288,18 @@ public interface ZscriptDataModel {
     }
 
     interface RequestFieldModel extends GenericField {
+        @JsonBackReference
+        CommandModel getCommand();
     }
 
     interface ResponseFieldModel extends GenericField {
+        @JsonBackReference
+        CommandModel getCommand();
+    }
+
+    interface NotificationFieldModel extends GenericField {
+        @JsonBackReference
+        NotificationSectionModel getNotificationSection();
     }
 
     interface StatusModel {
