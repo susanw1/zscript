@@ -11,8 +11,8 @@ public abstract class ZscriptCommandNode extends CommandSequenceNode {
      * Represents the next command from a given point in the Syntax Tree based on the AND/OR logic of a command sequence.
      */
     public static class ZscriptSequenceLogicPath {
-        private final List<Byte>         markers;
         private final ZscriptCommandNode next;
+        private final List<Byte>         markers;
 
         public ZscriptSequenceLogicPath(List<Byte> markers, ZscriptCommandNode next) {
             this.markers = markers;

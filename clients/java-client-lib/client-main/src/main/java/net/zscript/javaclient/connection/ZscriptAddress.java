@@ -1,19 +1,41 @@
 package net.zscript.javaclient.connection;
 
+import static java.lang.Integer.toHexString;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+
+import net.zscript.model.components.Zchars;
 
 /**
  * Simple encapsulation of a single Zscript address (ie the 1.2.3 or 4.5.6 part of an address pathway like @1.2.3@4.5.6 Z1).
  */
-public class ZscriptAddress {
+public final class ZscriptAddress {
     private final int[] addressParts;
 
+    /**
+     * Composes an Address from the
+     *
+     * @param addressParts
+     * @return
+     */
     public static ZscriptAddress from(int... addressParts) {
         return new ZscriptAddress(addressParts.clone());
+    }
+
+    /**
+     * Trivial synonym for {@link #from(int...)} which makes static imports more readable.
+     */
+    public static ZscriptAddress address(int... addressParts) {
+        return from(addressParts);
     }
 
     public static ZscriptAddress from(List<Integer> addressParts) {
@@ -21,6 +43,11 @@ public class ZscriptAddress {
     }
 
     private ZscriptAddress(int[] addr) {
+        for (int a : addr) {
+            if (a < 0 || a > 0xffff) {
+                throw new IllegalArgumentException("address " + Arrays.toString(addr) + " contains out of range element: " + a);
+            }
+        }
         this.addressParts = addr;
     }
 
@@ -34,10 +61,7 @@ public class ZscriptAddress {
 
     @Override
     public int hashCode() {
-        final int prime  = 31;
-        int       result = 1;
-        result = prime * result + Arrays.hashCode(addressParts);
-        return result;
+        return Arrays.hashCode(addressParts);
     }
 
     @Override
@@ -48,7 +72,7 @@ public class ZscriptAddress {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!getClass().isInstance(obj)) {
             return false;
         }
         ZscriptAddress other = (ZscriptAddress) obj;
@@ -62,8 +86,24 @@ public class ZscriptAddress {
      */
     @Override
     public String toString() {
-        return stream(addressParts)
-                .mapToObj(a -> a == 0 ? "" : Integer.toHexString(a))
-                .collect(joining(".", "@", ""));
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            writeTo(baos);
+            return baos.toString(UTF_8);
+        } catch (IOException e) {
+            // this cannot happen with a BAOS, but hey.
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public <T extends OutputStream> T writeTo(final T out) throws IOException {
+        byte pre = Zchars.Z_ADDRESSING;
+        for (int a : addressParts) {
+            out.write(pre);
+            pre = Zchars.Z_ADDRESSING_CONTINUE;
+            if (a != 0) {
+                out.write(toHexString(a).getBytes(UTF_8));
+            }
+        }
+        return out;
     }
 }
