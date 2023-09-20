@@ -17,6 +17,7 @@ namespace Zscript {
 namespace GenericCore {
 template<class ZP>
 class SemanticParser;
+
 template<class ZP>
 class ZscriptNotificationSource;
 }
@@ -24,7 +25,7 @@ class ZscriptNotificationSource;
 template<class ZP>
 class AsyncActionNotifier {
     void *source;
-    #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
     bool isSemantic;
 #endif
 
@@ -33,22 +34,25 @@ public:
             source(parser)
 
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
-    ,isSemantic(true)
+            , isSemantic(true)
 #endif
 
     {
     }
 
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+
     AsyncActionNotifier(GenericCore::ZscriptNotificationSource<ZP> *notification) :
             source(notification), isSemantic(false) {
     }
+
 #endif
+
     AsyncActionNotifier() :
             source(NULL)
 
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
-    ,isSemantic(true)
+            , isSemantic(true)
 #endif
     {
     }
@@ -60,16 +64,18 @@ public:
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         if (isSemantic) {
 #endif
-        ((GenericCore::SemanticParser<ZP>*) source)->notifyNeedsAction();
+            ((GenericCore::SemanticParser<ZP> *) source)->notifyNeedsAction();
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         } else {
-            ((GenericCore::ZscriptNotificationSource<ZP>*) source)->notifyNeedsAction();
+            ((GenericCore::ZscriptNotificationSource<ZP> *) source)->notifyNeedsAction();
         }
 #endif
     }
 };
+
 template<class ZP>
 class Zscript;
+
 template<class ZP>
 class AbstractOutStream;
 
@@ -109,7 +115,8 @@ public:
         if (hasInternal && internal.hasNext(reader.asBuffer())) {
             return true;
         }
-        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(reader.asBuffer()); opt.isPresent; opt = iterator.next(reader.asBuffer())) {
+        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(
+                reader.asBuffer()); opt.isPresent; opt = iterator.next(reader.asBuffer())) {
             GenericCore::RingBufferToken<ZP> token = opt.token;
             if (ZcharsUtils<ZP>::isBigField(token.getKey(reader.asBuffer()))) {
                 internal = token.rawBlockIterator(reader.asBuffer());
@@ -158,6 +165,7 @@ public:
             parseState(parseState), out(out) {
         commandComplete();
     }
+
     ZscriptCommandContext() :
             parseState(NULL), out(NULL) {
     }
@@ -167,10 +175,12 @@ public:
         ret.isPresent = getField(key, &ret.value);
         return ret;
     }
+
     bool getField(uint8_t key, uint16_t *dest) {
         GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getReader().asBuffer();
         CommandTokenIterator<ZP> iterator = iteratorToMarker();
-        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
+        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(
+                buffer)) {
             GenericCore::RingBufferToken<ZP> token = opt.token;
             if (token.getKey(buffer) == key) {
                 *dest = token.getData16(buffer);
@@ -195,7 +205,8 @@ public:
 
         GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getReader().asBuffer();
         CommandTokenIterator<ZP> iterator = iteratorToMarker();
-        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
+        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(
+                buffer)) {
             if (ZcharsUtils<ZP>::isNumericKey(opt.token.getKey())) {
                 count++;
             }
@@ -212,7 +223,8 @@ public:
 
         GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getReader().asBuffer();
         CommandTokenIterator<ZP> iterator = iteratorToMarker();
-        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
+        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(
+                buffer)) {
             GenericCore::RingBufferToken<ZP> token = opt.token;
             if (ZcharsUtils<ZP>::isBigField(token.getKey(buffer))) {
                 size += token.getDataSize(buffer);
@@ -238,7 +250,8 @@ public:
         uint32_t foundCommands = 0;
         GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getReader().asBuffer();
         CommandTokenIterator<ZP> iterator = iteratorToMarker();
-        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
+        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(
+                buffer)) {
             GenericCore::RingBufferToken<ZP> rt = opt.token;
             uint8_t key = rt.getKey(buffer);
             if (ZcharsUtils<ZP>::isNumericKey(key)) {
