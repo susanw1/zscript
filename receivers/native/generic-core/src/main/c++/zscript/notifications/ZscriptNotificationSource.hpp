@@ -7,6 +7,7 @@
 
 #ifndef SRC_MAIN_C___ZSCRIPT_NOTIFICATIONS_ZSCRIPTNOTIFICATIONSOURCE_HPP_
 #define SRC_MAIN_C___ZSCRIPT_NOTIFICATIONS_ZSCRIPTNOTIFICATIONSOURCE_HPP_
+
 #include "../execution/LockSet.hpp"
 
 namespace Zscript {
@@ -34,7 +35,7 @@ class ZscriptAction;
 template<class ZP>
 class ZscriptNotificationSource {
 private:
-    LockSet<ZP> *volatile locks = NULL;
+    const LockSet<ZP> *volatile locks = NULL;
     volatile uint16_t id = 0;
     volatile NotificationSourceState state = NO_NOTIFICATION;
     volatile bool isAddressingB = false;
@@ -43,20 +44,20 @@ private:
 
     NotificationActionType getActionType() {
         switch (state) {
-        case NO_NOTIFICATION:
-            return NotificationActionType::WAIT_FOR_NOTIFICATION;
-        case NOTIFICATION_READY:
-            state = NotificationSourceState::NOTIFICATION_INCOMPLETE;
-            return NotificationActionType::NOTIFICATION_BEGIN;
-        case NOTIFICATION_INCOMPLETE:
-            return NotificationActionType::WAIT_FOR_ASYNC;
-        case NOTIFICATION_NEEDS_ACTION:
-            state = NotificationSourceState::NOTIFICATION_INCOMPLETE;
-            return NotificationActionType::NOTIFICATION_MOVE_ALONG;
-        case NOTIFICATION_COMPLETE:
-            return NotificationActionType::NOTIFICATION_END;
-        default:
-            return NotificationActionType::INVALID;
+            case NO_NOTIFICATION:
+                return NotificationActionType::WAIT_FOR_NOTIFICATION;
+            case NOTIFICATION_READY:
+                state = NotificationSourceState::NOTIFICATION_INCOMPLETE;
+                return NotificationActionType::NOTIFICATION_BEGIN;
+            case NOTIFICATION_INCOMPLETE:
+                return NotificationActionType::WAIT_FOR_ASYNC;
+            case NOTIFICATION_NEEDS_ACTION:
+                state = NotificationSourceState::NOTIFICATION_INCOMPLETE;
+                return NotificationActionType::NOTIFICATION_MOVE_ALONG;
+            case NOTIFICATION_COMPLETE:
+                return NotificationActionType::NOTIFICATION_END;
+            default:
+                return NotificationActionType::INVALID;
         }
 
     }
@@ -69,7 +70,7 @@ public:
         return id;
     }
 
-    LockSet<ZP>* getLocks() {
+    const LockSet<ZP> *getLocks() {
         return locks;
     }
 
@@ -77,7 +78,7 @@ public:
         return isAddressingB;
     }
 
-    bool setNotification(LockSet<ZP> *locks, uint16_t notificationID) {
+    bool setNotification(const LockSet<ZP> *locks, uint16_t notificationID) {
         if (state != NotificationSourceState::NO_NOTIFICATION) {
             return false;
         }
@@ -99,7 +100,7 @@ public:
         return true;
     }
 
-    bool setAddressing(LockSet<ZP> *locks, uint16_t addressingID) {
+    bool setAddressing(const LockSet<ZP> *locks, uint16_t addressingID) {
         if (state != NotificationSourceState::NO_NOTIFICATION) {
             return false;
         }
@@ -121,7 +122,7 @@ public:
         return true;
     }
 
-    bool set(LockSet<ZP> *locks, uint16_t notificationID, bool isAddressingB) {
+    bool set(const LockSet<ZP> *locks, uint16_t notificationID, bool isAddressingB) {
         if (state != NotificationSourceState::NO_NOTIFICATION) {
             return false;
         }
@@ -138,13 +139,14 @@ public:
 
     void setNotificationComplete(bool b) {
         switch (state) {
-        case NOTIFICATION_COMPLETE:
+            case NOTIFICATION_COMPLETE:
             case NOTIFICATION_INCOMPLETE:
-            state = b ? NotificationSourceState::NOTIFICATION_COMPLETE : NotificationSourceState::NOTIFICATION_INCOMPLETE;
-            break;
-        default:
-            //unreachable
-            break;
+                state = b ? NotificationSourceState::NOTIFICATION_COMPLETE
+                          : NotificationSourceState::NOTIFICATION_INCOMPLETE;
+                break;
+            default:
+                //unreachable
+                break;
         }
     }
 
@@ -158,15 +160,16 @@ public:
     bool isNotificationComplete() {
         return state == NotificationSourceState::NOTIFICATION_COMPLETE;
     }
+
     void notifyNeedsAction() {
         switch (state) {
-        case NotificationSourceState::NOTIFICATION_INCOMPLETE:
+            case NotificationSourceState::NOTIFICATION_INCOMPLETE:
             case NotificationSourceState::NOTIFICATION_NEEDS_ACTION:
-            state = NOTIFICATION_NEEDS_ACTION;
-            break;
-        default:
-            //Unreachable
-            break;
+                state = NOTIFICATION_NEEDS_ACTION;
+                break;
+            default:
+                //Unreachable
+                break;
         }
     }
 
@@ -176,9 +179,9 @@ public:
         }
         if (locks == NULL) {
             LockSet<ZP> ls = LockSet<ZP>::allLocked();
-            return Zscript < ZP > ::zscript.canLock(&ls);
+            return Zscript<ZP>::zscript.canLock(&ls);
         }
-        return Zscript < ZP > ::zscript.canLock(locks);
+        return Zscript<ZP>::zscript.canLock(locks);
     }
 
     bool lock() {
@@ -187,10 +190,10 @@ public:
         }
         if (locks == NULL) {
             LockSet<ZP> ls = LockSet<ZP>::allLocked();
-            locked = Zscript < ZP > ::zscript.lock(&ls);
+            locked = Zscript<ZP>::zscript.lock(&ls);
             return locked;
         }
-        locked = Zscript < ZP > ::zscript.lock(locks);
+        locked = Zscript<ZP>::zscript.lock(locks);
         return locked;
     }
 
@@ -200,19 +203,19 @@ public:
         }
         if (locks == NULL) {
             LockSet<ZP> ls = LockSet<ZP>::allLocked();
-            Zscript < ZP > ::zscript.unlock(&ls);
+            Zscript<ZP>::zscript.unlock(&ls);
             locked = false;
             return;
         }
-        Zscript < ZP > ::zscript.unlock(locks);
+        Zscript<ZP>::zscript.unlock(locks);
         locked = false;
         return;
     }
+
     AsyncActionNotifier<ZP> getAsyncActionNotifier() {
         return AsyncActionNotifier<ZP>(this);
     }
-}
-;
+};
 }
 }
 

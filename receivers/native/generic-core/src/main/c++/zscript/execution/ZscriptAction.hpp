@@ -178,7 +178,7 @@ private:
             out->writeField('!', 0);
             //            commandStream.writeField(Zchars.Z_ADDRESSING, (source.getID() >> 4));
         } else {
-            out->writeField('!', (notifSrc->getID() >> 4));
+            out->writeField('!', notifSrc->getID());
         }
     }
 #endif

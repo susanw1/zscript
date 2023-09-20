@@ -70,7 +70,7 @@ public:
     }
 
     ZscriptSerialChannel() :
-            ZscriptChannel<ZP>(&out, &tBuffer, true), tBuffer(buffer, ZP::serialBufferSize), tokenizer(tBuffer.getWriter(), 2) {
+            ZscriptChannel<ZP>(&out, &tBuffer, 0x7, true), tBuffer(buffer, ZP::serialBufferSize), tokenizer(tBuffer.getWriter(), 2) {
     }
 
     bool setupStartupNotificationChannel() {
