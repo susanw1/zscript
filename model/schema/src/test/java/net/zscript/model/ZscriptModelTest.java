@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import net.zscript.model.datamodel.ZscriptDataModel;
+import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
 
 class ZscriptModelTest {
     @Test
@@ -22,7 +22,7 @@ class ZscriptModelTest {
         ZscriptModel model = ZscriptModel.standardModel();
         assertThat(model.getModuleBank("Base")).isPresent();
         assertThat(model.getModuleBank("Banana")).isNotPresent();
-        Optional<ZscriptDataModel.ModuleModel> module = model.getModuleBank("Base").get().getModule("Testing");
+        Optional<ModuleModel> module = model.getModuleBank("Base").orElseThrow().getModule("Testing");
         assertThat(module).isPresent();
 
         assertThat(module.get().getNotifications().get(2).getSections()).hasSize(2);
