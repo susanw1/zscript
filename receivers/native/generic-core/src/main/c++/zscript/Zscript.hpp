@@ -101,11 +101,11 @@ public:
         return locks.lock(l);
     }
 
-    bool canLock(GenericCore::LockSet<ZP> *l) {
+    bool canLock(const GenericCore::LockSet<ZP> *l) {
         return locks.canLock(l);
     }
 
-    void unlock(GenericCore::LockSet<ZP> *l) {
+    void unlock(const GenericCore::LockSet<ZP> *l) {
         locks.unlock(l);
     }
 

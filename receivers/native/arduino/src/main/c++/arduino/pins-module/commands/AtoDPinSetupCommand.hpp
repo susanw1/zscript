@@ -17,8 +17,12 @@ namespace Zscript {
 template<class ZP>
 class AtoDPinSetupCommand {
     static constexpr char ParamPin__P = 'P';
+    static constexpr char ParamEnableNotifications__N = 'N';
+    static constexpr char ParamLowerLimit__L = 'L';
+    static constexpr char ParamUpperLimit__U = 'U';
 
     static constexpr char RespBitCount__B = 'B';
+    static constexpr char RespSupportsNotifications__N = 'N';
 
 public:
 
@@ -32,7 +36,29 @@ public:
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
+#ifdef ZSCRIPT_PIN_SUPPORT_ANALOG_NOTIFICATIONS
+        uint8_t index = PinManager<ZP>::getAnalogIndex(pin);
+        uint16_t enableNotifications;
+        if (ctx.getField(ParamEnableNotifications__N, &enableNotifications)) {
+            if (enableNotifications != 0) {
+                PinManager<ZP>::enableAnalogNotification(index);
+            } else {
+                PinManager<ZP>::disableAnalogNotification(index);
+            }
+        }
+        uint16_t notificationLower;
+        if (ctx.getField(ParamLowerLimit__L, &notificationLower)) {
+            PinManager<ZP>::setAnalogNotificationLower(index, notificationLower);
+        }
+        uint16_t notificationUpper;
+        if (ctx.getField(ParamUpperLimit__U, &notificationUpper)) {
+            PinManager<ZP>::setAnalogNotificationUpper(index, notificationUpper);
+        }
+#endif
         CommandOutStream<ZP> out = ctx.getOutStream();
+#ifdef ZSCRIPT_PIN_SUPPORT_ANALOG_NOTIFICATIONS
+        out.writeField(RespSupportsNotifications__N, 0);
+#endif
         if (PIN_SUPPORTS_ANALOG_READ(pin)) {
             out.writeField(RespBitCount__B, 10);
         } else {

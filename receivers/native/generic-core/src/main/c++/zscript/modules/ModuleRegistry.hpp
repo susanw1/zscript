@@ -64,24 +64,6 @@ public:
         }
 
     }
-//    static void moveAlong(ZscriptCommandContext<ZP> ctx) {
-//        // commands are complete unless explicitly marked otherwise by a command
-//        ctx.commandComplete();
-//        OptInt16 value = ctx.getField(Zchars::Z_CMD);
-//        uint16_t cmd = value.value;
-//        uint8_t commandBottomBits = (uint8_t) (cmd & 0xF);
-//        (void) commandBottomBits;
-//        bool moveAlong = true;
-//        (void) moveAlong;
-//
-//        switch (cmd >> 4) {
-//        MODULE_SWITCH()
-//
-//    default:
-//        ctx.status(ResponseStatus::COMMAND_NOT_FOUND);
-//        break;
-//        }
-//    }
 
 #ifdef ZSCRIPT_SUPPORT_ADDRESSING
     static void execute(ZscriptAddressingContext<ZP> ctx, bool moveAlong) {

@@ -20,21 +20,8 @@ public:
     static constexpr uint8_t CODE = 0x03;
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
-        CommandOutStream<ZP> out = ctx.getOutStream();
-        uint16_t target = 0;
-        if (ctx.getField('C', &target)) {
-            if (target >= Zscript < ZP > ::zscript.getChannelCount()) {
-                ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
-                return;
-            }
-            if (!Zscript < ZP > ::zscript.getChannels()[target]->reset()) {
-                ctx.status(ResponseStatus::COMMAND_FAIL);
-                return;
-            }
-        } else {
-            void (*resetFunc)(void) = 0;
-            resetFunc();
-        }
+        void (*resetFunc)(void) = 0;
+        resetFunc();
     }
 
 };

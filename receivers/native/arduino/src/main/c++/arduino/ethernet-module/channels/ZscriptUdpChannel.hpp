@@ -167,7 +167,7 @@ protected:
 
 public:
     ZscriptUdpChannel() :
-            ZscriptChannel<ZP>(&ZscriptUdpManager<ZP>::out, &tBuffer, true),
+            ZscriptChannel<ZP>(&ZscriptUdpManager<ZP>::out, &tBuffer, 0x11, true),
             tBuffer(buffer, ZP::udpBufferSize),
             tokenizer(tBuffer.getWriter(), 2),
             lastMilliAccess(millis()), remoteAddr(), remotePort(0) {

@@ -26,6 +26,8 @@
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS
 #define ZSCRIPT_SUPPORT_ADDRESSING
 
+#define ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
+#define ZSCRIPT_PIN_SUPPORT_ANALOG_NOTIFICATIONS
 #define ZSCRIPT_HAVE_PIN_MODULE
 //#define ZSCRIPT_HAVE_SERVO_MODULE
 //#define ZSCRIPT_SERVO_MODULE_SLOW_MOVE
@@ -44,6 +46,7 @@ public:
     static uint16_t generateRandom16() {
         return (uint16_t) millis();
     }
+
     typedef uint8_t tokenBufferSize_t;
 
     static const uint8_t tcpChannelCount = 1;
@@ -67,6 +70,7 @@ public:
     static const uint8_t servoCount = 1;
     static const uint8_t servoPins[1];
 };
+
 const uint8_t ZscriptParams::servoPins[1] = {9};
 
 #endif /* SRC_MAIN_CPP_FIRSTARDUINOTEST_ZSCRIPTPARAMETERS_HPP_ */

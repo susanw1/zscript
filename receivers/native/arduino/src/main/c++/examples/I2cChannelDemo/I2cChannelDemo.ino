@@ -7,6 +7,6 @@ void setup() {
 }
 
 void loop() {
-    //Zscript::ZscriptServoModule<ZscriptParams>::moveAlongServos();
+    ZscriptSetup.pollAll();
     Zscript::Zscript<ZscriptParams>::zscript.progress();
 }

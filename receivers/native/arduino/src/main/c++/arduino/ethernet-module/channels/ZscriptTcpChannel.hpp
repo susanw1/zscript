@@ -122,7 +122,7 @@ protected:
 
 public:
     ZscriptTcpChannel() :
-            ZscriptChannel<ZP>(&out, &tBuffer, true),
+            ZscriptChannel<ZP>(&out, &tBuffer, 0x12, true),
             tBuffer(buffer, ZP::tcpBufferSize),
             tokenizer(tBuffer.getWriter(), 2),
             out(&client) {

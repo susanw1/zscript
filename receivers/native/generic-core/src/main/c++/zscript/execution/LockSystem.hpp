@@ -7,6 +7,7 @@
 
 #ifndef SRC_MAIN_C___ZSCRIPT_LOCKSYSTEM_HPP_
 #define SRC_MAIN_C___ZSCRIPT_LOCKSYSTEM_HPP_
+
 #include "../ZscriptIncludes.hpp"
 #include "LockSet.hpp"
 
@@ -24,19 +25,19 @@ public:
         }
     }
 
-    bool lock(LockSet<ZP> *l) {
+    bool lock(const LockSet<ZP> *l) {
         if (!canLock(l)) {
             return false;
         }
-        uint8_t *toApply = l->getLocks();
+        const uint8_t *toApply = l->getLocks();
         for (int i = 0; i < ZP::lockByteCount; i++) {
             locks[i] |= toApply[i];
         }
         return true;
     }
 
-    bool canLock(LockSet<ZP> *l) {
-        uint8_t *toApply = l->getLocks();
+    bool canLock(const LockSet<ZP> *l) {
+        const uint8_t *toApply = l->getLocks();
         for (int i = 0; i < ZP::lockByteCount; i++) {
             if ((locks[i] & toApply[i]) != 0) {
                 return false;
@@ -45,8 +46,8 @@ public:
         return true;
     }
 
-    void unlock(LockSet<ZP> *l) {
-        uint8_t *toApply = l->getLocks();
+    void unlock(const LockSet<ZP> *l) {
+        const uint8_t *toApply = l->getLocks();
         for (int i = 0; i < ZP::lockByteCount; i++) {
             locks[i] &= ~toApply[i];
         }

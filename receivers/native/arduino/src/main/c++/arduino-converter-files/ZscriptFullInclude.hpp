@@ -83,14 +83,15 @@ class ArduinoZscriptBasicSetup {
     ];
 #endif
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
-#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS) || defined(ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS)
     Zscript::GenericCore::ZscriptNotificationSource<ZscriptParams> *notifSrcs[0
-
-#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
-                                                   +1
+                                                                              #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+                                                                              +1
+                                                                              #endif
+                                                                              #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
+                                                                              + 1
 #endif
-
-                                                   ];
+    ];
 #endif
 #endif
 
@@ -116,6 +117,9 @@ public:
         Zscript::PersistenceSystem<ZscriptParams>::reserveNotifChannelData(notifPersistLength);
 #if defined(ZSCRIPT_HAVE_UDP_CHANNEL) || defined(ZSCRIPT_HAVE_TCP_CHANNEL)
         Zscript::EthernetSystem<ZscriptParams>::setup();
+#endif
+#ifdef ZSCRIPT_HAVE_PIN_MODULE
+        Zscript::PinModule<ZscriptParams>::setup();
 #endif
 #ifdef ZSCRIPT_HAVE_SERVO_MODULE
         Zscript::ZscriptServoModule<ZscriptParams>::setup();
@@ -157,10 +161,15 @@ public:
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
         notifSrcs[j++] = &Zscript::I2cModule<ZscriptParams>::notifSrc;
 #endif
-#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
+#ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
+        notifSrcs[j++] = &Zscript::PinModule<ZscriptParams>::notificationSource;
+#endif
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS) || defined(ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS)
         Zscript::Zscript<ZscriptParams>::zscript.setNotificationSources(notifSrcs, j);
 #endif
 #endif
+
+#ifdef ZSCRIPT_SUPPORT_PERSISTENCE
         uint8_t notifChannelIndex = 0xFF;
         if (Zscript::PersistenceSystem<ZscriptParams>::readSection(
                 Zscript::PersistenceSystem<ZscriptParams>::getNotifChannelIdOffset(), 1, &notifChannelIndex) &&
@@ -168,6 +177,16 @@ public:
 
             Zscript::Zscript<ZscriptParams>::zscript.setNotificationChannelIndex(notifChannelIndex);
         }
+#endif
+    }
+
+    void pollAll() {
+#ifdef ZSCRIPT_HAVE_SERVO_MODULE
+        Zscript::ZscriptServoModule<ZscriptParams>::moveAlongServos();
+#endif
+#ifdef ZSCRIPT_HAVE_PIN_MODULE
+        Zscript::PinModule<ZscriptParams>::poll();
+#endif
     }
 };
 
