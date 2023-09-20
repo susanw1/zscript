@@ -48,14 +48,5 @@
 #endif
 #endif
 
-#ifndef I2C_SMBUS_ALERT_IS_EXCLUSIVE_WITH_ADDR
-#if defined(__AVR__)
-#define I2C_SMBUS_ALERT_IS_EXCLUSIVE_WITH_ADDR() true
-#elif defined(ARDUINO_ARCH_NRF52840)
-#define I2C_SMBUS_ALERT_IS_EXCLUSIVE_WITH_ADDR() false
-#else
-#error "Unknown board, cannot implement I2C address set outside of wire library, so cannot use I2C Channel"
-#endif
-#endif
 
 #endif /* SRC_MAIN_C___ARDUINO_I2C_MODULE_I2CMANAGER_HPP_ */

@@ -42,9 +42,8 @@ public:
         if (usingMagicAddr && I2C_WAS_SMBUS_ALERT_READ()) {
             Wire.write(addr << 1);
             Wire.write(0);
-            if (I2C_SMBUS_ALERT_IS_EXCLUSIVE_WITH_ADDR()) {
-                I2C_END_SMBUS_ALERT(addr);
-            }
+            I2C_END_SMBUS_ALERT(addr);
+            pinMode(ZP::i2cAlertOutPin, INPUT);
             usingMagicAddr = false;
             return;
         }
@@ -74,6 +73,7 @@ public:
                     outBuffer[i] = 0x00;
                 }
                 I2C_BEGIN_SMBUS_ALERT();
+                pinMode(ZP::i2cAlertOutPin, OUTPUT);
                 usingMagicAddr = true;
                 return;
             }
@@ -82,12 +82,9 @@ public:
             for (uint8_t i = 0; i < ZP::i2cChannelOutputBufferSize; ++i) {
                 outBuffer[i] = 0x00;
             }
-            if (!I2C_SMBUS_ALERT_IS_EXCLUSIVE_WITH_ADDR()) {
-                I2C_END_SMBUS_ALERT(addr);
-            }
-            pinMode(ZP::i2cAlertOutPin, INPUT);
         } else if (outBuffer[readPos - 1] == '\n') {
             I2C_BEGIN_SMBUS_ALERT();
+            pinMode(ZP::i2cAlertOutPin, OUTPUT);
             usingMagicAddr = true;
         }
     }
@@ -111,7 +108,7 @@ public:
     }
 
     void writeBytes(const uint8_t *bytes, uint16_t count, bool hexMode) {
-        if(writePos == ZP::i2cChannelOutputBufferSize){
+        if (writePos == ZP::i2cChannelOutputBufferSize) {
             return;
         }
         if (hexMode) {
@@ -189,7 +186,7 @@ public:
     }
 
     I2cChannel() :
-            ZscriptChannel<ZP>(&out, &tBuffer, true) {
+            ZscriptChannel<ZP>(&out, &tBuffer, 0x5, true) {
     }
 
     bool setupStartupNotificationChannel() {

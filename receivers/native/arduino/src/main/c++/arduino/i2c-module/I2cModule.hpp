@@ -73,6 +73,15 @@ public:
         pinMode(ZP::i2cAlertInPin, INPUT_PULLUP);
 #endif
     }
+    static void poll(){
+#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+        if(digitalPinToInterrupt(ZP::i2cAlertInPin)==NOT_AN_INTERRUPT){
+            if(digitalRead(ZP::i2cAlertInPin) == LOW){
+                SmBusAlertRecieved();
+            }
+        }
+#endif
+    }
 
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
         switch (bottomBits) {
@@ -155,11 +164,11 @@ public:
             return;
         }
         out.writeField(Zchars::Z_ADDRESSING_CONTINUE, addrFull);
-        uint8_t dataBuffer[ZP::I2cAddressingReadBlockLength];
+        uint8_t dataBuffer[ZP::i2cAddressingReadBlockLength];
         delayMicroseconds(10);
         while (true) {
-            uint8_t len = Wire.requestFrom((uint8_t) addrFull, ZP::I2cAddressingReadBlockLength);
-            if (len != ZP::I2cAddressingReadBlockLength) {
+            uint8_t len = Wire.requestFrom((uint8_t) addrFull, ZP::i2cAddressingReadBlockLength);
+            if (len != ZP::i2cAddressingReadBlockLength) {
                 out.endSequence();
                 out.writeField('!', 0x5);
                 out.writeField('I', (uint8_t) addrFull);
