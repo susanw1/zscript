@@ -20,6 +20,7 @@ public interface ZscriptDataModel {
 
         void setModuleBank(ModuleBank moduleBank);
 
+        @JsonProperty(required = true)
         String getName();
 
         /**
@@ -29,10 +30,13 @@ public interface ZscriptDataModel {
             return getName();
         }
 
+        @JsonProperty(required = true)
         short getId();
 
+        @JsonProperty(required = true)
         String getVersion();
 
+        @JsonProperty(required = true)
         String getDescription();
 
         String getLongDescription();
@@ -43,7 +47,7 @@ public interface ZscriptDataModel {
         List<CommandModel> getCommands();
 
         @JsonManagedReference
-        List<NotificationsModel> getNotifications();
+        List<NotificationModel> getNotifications();
     }
 
     /** Characterises commands in quasi-HTTP terms */
@@ -71,6 +75,7 @@ public interface ZscriptDataModel {
         @JsonBackReference
         ModuleModel getModule();
 
+        @JsonProperty(required = true)
         String getName();
 
         /**
@@ -80,12 +85,15 @@ public interface ZscriptDataModel {
             return getName();
         }
 
+        @JsonProperty(required = true)
         byte getCommand();
 
+        @JsonProperty(required = true)
         String getDescription();
 
         String getLongDescription();
 
+        @JsonProperty(required = true)
         OperationType getOperation();
 
         Extension getExtension();
@@ -106,7 +114,7 @@ public interface ZscriptDataModel {
         }
     }
 
-    interface NotificationsModel {
+    interface NotificationModel {
         @JsonBackReference
         ModuleModel getModule();
 
@@ -124,13 +132,16 @@ public interface ZscriptDataModel {
         byte getNotification();
 
         @JsonProperty(required = true)
+        String getCondition();
+
+        @JsonProperty(required = true)
         String getDescription();
 
         String getLongDescription();
 
         @JsonManagedReference
         @JsonProperty(required = true)
-        List<NotificationSectionModel> getSections();
+        List<NotificationSectionNodeModel> getSections();
 
         default int getFullNotification() {
             return getModule().getModuleBank().getId() << 8 | getModule().getId() << 4 | (getNotification() & 0xF);
@@ -139,13 +150,27 @@ public interface ZscriptDataModel {
 
     enum LogicalTermination {
         NONE,
-        AND,
-        OR
+        ANDTHEN,
+        ORELSE
     }
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
+    interface NotificationSectionNodeModel {
+        @JsonBackReference
+        NotificationModel getNotification();
+
+        @JsonManagedReference
+        @JsonProperty(required = true)
+        NotificationSectionModel getSection();
+
+        @JsonProperty(required = true)
+        LogicalTermination getLogicalTermination();
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
     interface NotificationSectionModel {
         @JsonBackReference
-        NotificationsModel getNotification();
+        NotificationSectionNodeModel getSectionNode();
 
         @JsonProperty(required = true)
         String getName();
@@ -164,13 +189,11 @@ public interface ZscriptDataModel {
 
         @JsonManagedReference
         @JsonProperty(required = true)
-        NotificationFieldModel getFields();
-
-        LogicalTermination getLogicalTermination();
+        List<NotificationFieldModel> getFields();
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, defaultImpl = TypeDefinition.class)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, defaultImpl = TypeDefinition.class)
     @JsonSubTypes({
             @Type(value = EnumTypeDefinition.class, name = "enum"),
             @Type(value = NumberTypeDefinition.class, name = "number"),
@@ -219,9 +242,9 @@ public interface ZscriptDataModel {
             return true;
         }
 
-        int getMin();
+        Integer getMin();
 
-        int getMax();
+        Integer getMax();
     }
 
     /**
@@ -232,9 +255,9 @@ public interface ZscriptDataModel {
             return true;
         }
 
-        int getMinLength();
+        Integer getMinLength();
 
-        int getMaxLength();
+        Integer getMaxLength();
     }
 
     interface BytesTypeDefinition extends BigfieldTypeDefinition {

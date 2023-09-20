@@ -1,8 +1,12 @@
 package net.zscript.model;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+
+import net.zscript.model.datamodel.ZscriptDataModel;
 
 class ZscriptModelTest {
     @Test
@@ -18,7 +22,10 @@ class ZscriptModelTest {
         ZscriptModel model = ZscriptModel.standardModel();
         assertThat(model.getModuleBank("Base")).isPresent();
         assertThat(model.getModuleBank("Banana")).isNotPresent();
-        assertThat(model.getModuleBank("Base").get().getModule("Testing")).isPresent();
+        Optional<ZscriptDataModel.ModuleModel> module = model.getModuleBank("Base").get().getModule("Testing");
+        assertThat(module).isPresent();
+
+        assertThat(module.get().getNotifications().get(2).getSections()).hasSize(2);
     }
 
 }
