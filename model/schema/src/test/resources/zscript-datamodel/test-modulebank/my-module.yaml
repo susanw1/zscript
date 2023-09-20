@@ -16,7 +16,7 @@ commands:
     -   key: V
         name: versionType
         description: selects which ident/version info to return
-        typeDefinition:
+        typeDefinition: &versionTypes
             '@type': enum
             values:
             - UserFirmware
@@ -31,6 +31,11 @@ commands:
         description: which commands are enabled in this module
         typeDefinition:
             '@type': commands
+        required: yes
+    -   key: V
+        name: versionType
+        description: selects which ident/version info to return
+        typeDefinition: *versionTypes
         required: yes
 -   name: echo
     command: 1
@@ -60,4 +65,72 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-        
+notifications:
+-   name: devicePowerOn
+    description: the device has started up
+    condition: on restart
+    notification: 0
+    sections:
+    -   section:
+            name: devicePowerOn
+            description: gives information on device startup
+            fields:
+            -   key: T
+                name: resetType
+                description: reset cause
+                typeDefinition:
+                    '@type': enum
+                    values:
+                    - powerOn
+                    - brownOut
+                    - external
+                    - software
+                    - watchdog
+                    - other
+                required: no
+            -   key: C
+                name: resetCounter
+                description: how many resets have been done (can be done in non-initialised memory)
+                typeDefinition:
+                    '@type': number
+                required: no
+        logicalTermination: none
+
+-   name: packetArrived
+    notification: 0x1
+    description: a UDP packet has been received
+    sections:
+    -   section: &section-packetInfo
+            name: packetInfo
+            description: information on a received UDP packet
+            fields:
+            -   key: U
+                name: udpSystemDescriptor
+                description: which UDP system received the packet
+                typeDefinition:
+                    '@type': number
+                required: yes
+            -   key: +
+                name: remoteAddress
+                description: IP address (IPv4 or IPv6) of the source of the current packet
+                typeDefinition:
+                    '@type': bytes
+                required: yes
+        logicalTermination: none
+-   name: packetData
+    notification: 2
+    description: a UDP packet has been received, and its data is being transmitted via notification
+    sections:
+    -   section: *section-packetInfo
+        logicalTermination: andthen
+    -   section:
+            name: packetData
+            description: data from a received UDP packet
+            fields:
+            -   key: +
+                name: data
+                description: the data contained in the received packet
+                typeDefinition:
+                    '@type': bytes
+                required: yes
+        logicalTermination: none

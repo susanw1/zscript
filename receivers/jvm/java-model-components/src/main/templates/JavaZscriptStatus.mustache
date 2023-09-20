@@ -27,7 +27,7 @@ public class ZscriptStatus {
 
 {{#status}}
     /** {{meaning}} */
-    public static final byte {{code}} = (byte) 0x{{#toHex}}{{id}}{{/toHex}};
+    public static final byte {{#upperUnderscore}}{{code}}{{/upperUnderscore}} = (byte) 0x{{#toHex}}{{id}}{{/toHex}};
 
 {{/status}}
     public static boolean isSuccess(final int code) {

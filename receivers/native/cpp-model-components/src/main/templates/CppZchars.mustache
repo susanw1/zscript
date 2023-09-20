@@ -20,7 +20,7 @@ namespace Zscript {
 enum Zchars {
 {{#zchars}}
     /** {{description}} */
-    Z_{{name}} = '{{{chEscapedAsC}}}',
+    Z_{{#upperUnderscore}}{{name}}{{/upperUnderscore}} = '{{{chEscapedAsC}}}',
 
 {{/zchars}}
 };
