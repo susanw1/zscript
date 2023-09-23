@@ -15,13 +15,21 @@ import net.zscript.model.loader.ModuleBank;
 
 public interface ZscriptDataModel {
 
-    interface ModuleModel {
+    /**  */
+    interface ModelComponent {
+        @JsonProperty(required = true)
+        String getName();
+
+        @JsonProperty(required = true)
+        String getDescription();
+
+        String getLongDescription();
+    }
+
+    interface ModuleModel extends ModelComponent {
         ModuleBank getModuleBank();
 
         void setModuleBank(ModuleBank moduleBank);
-
-        @JsonProperty(required = true)
-        String getName();
 
         /**
          * Facilitates disambiguating the name in templating engines. Identical to calling {@link #getName()}.
@@ -35,11 +43,6 @@ public interface ZscriptDataModel {
 
         @JsonProperty(required = true)
         String getVersion();
-
-        @JsonProperty(required = true)
-        String getDescription();
-
-        String getLongDescription();
 
         List<String> getPackage();
 
@@ -71,12 +74,9 @@ public interface ZscriptDataModel {
         ADDRESSING
     }
 
-    interface CommandModel {
+    interface CommandModel extends ModelComponent {
         @JsonBackReference
         ModuleModel getModule();
-
-        @JsonProperty(required = true)
-        String getName();
 
         /**
          * Facilitates disambiguating the name in templating engines. Identical to calling {@link #getName()}.
@@ -87,11 +87,6 @@ public interface ZscriptDataModel {
 
         @JsonProperty(required = true)
         byte getCommand();
-
-        @JsonProperty(required = true)
-        String getDescription();
-
-        String getLongDescription();
 
         @JsonProperty(required = true)
         OperationType getOperation();
@@ -114,12 +109,9 @@ public interface ZscriptDataModel {
         }
     }
 
-    interface NotificationModel {
+    interface NotificationModel extends ModelComponent {
         @JsonBackReference
         ModuleModel getModule();
-
-        @JsonProperty(required = true)
-        String getName();
 
         /**
          * Facilitates disambiguating the name in templating engines. Identical to calling {@link #getName()}.
@@ -133,11 +125,6 @@ public interface ZscriptDataModel {
 
         @JsonProperty(required = true)
         String getCondition();
-
-        @JsonProperty(required = true)
-        String getDescription();
-
-        String getLongDescription();
 
         @JsonManagedReference
         @JsonProperty(required = true)
@@ -159,7 +146,6 @@ public interface ZscriptDataModel {
         @JsonBackReference
         NotificationModel getNotification();
 
-        @JsonManagedReference
         @JsonProperty(required = true)
         NotificationSectionModel getSection();
 
@@ -168,24 +154,13 @@ public interface ZscriptDataModel {
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
-    interface NotificationSectionModel {
-        @JsonBackReference
-        NotificationSectionNodeModel getSectionNode();
-
-        @JsonProperty(required = true)
-        String getName();
-
+    interface NotificationSectionModel extends ModelComponent {
         /**
          * Facilitates disambiguating the name in templating engines. Identical to calling {@link #getName()}.
          */
         default String getSectionName() {
             return getName();
         }
-
-        @JsonProperty(required = true)
-        String getDescription();
-
-        String getLongDescription();
 
         @JsonManagedReference
         @JsonProperty(required = true)
@@ -224,10 +199,7 @@ public interface ZscriptDataModel {
 
         List<Bit> getBits();
 
-        interface Bit {
-            String getName();
-
-            String getDescription();
+        interface Bit extends ModelComponent {
         }
     }
 
@@ -296,28 +268,33 @@ public interface ZscriptDataModel {
         }
     }
 
-    interface GenericField {
+    interface GenericField extends ModelComponent {
         char getKey();
-
-        String getName();
-
-        String getDescription();
-
-        String getLongDescription();
 
         TypeDefinition getTypeDefinition();
 
         boolean isRequired();
     }
 
-    interface RequestFieldModel extends GenericField {
+    abstract class AbstractCommandFieldModel implements GenericField, Cloneable {
         @JsonBackReference
-        CommandModel getCommand();
+        public abstract CommandModel getCommand();
+
+        public abstract void setCommand(CommandModel commandModel);
+
+        public AbstractCommandFieldModel clone() {
+            try {
+                return (AbstractCommandFieldModel) super.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new InternalError(e);
+            }
+        }
     }
 
-    interface ResponseFieldModel extends GenericField {
-        @JsonBackReference
-        CommandModel getCommand();
+    abstract class RequestFieldModel extends AbstractCommandFieldModel {
+    }
+
+    abstract class ResponseFieldModel extends AbstractCommandFieldModel {
     }
 
     interface NotificationFieldModel extends GenericField {

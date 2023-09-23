@@ -57,7 +57,7 @@ commands:
     -   name: any
         description: any supplied value will be returned
         typeDefinition:
-            '@type': number
+            '@type': any
         required: no
     -   key: S
         name: status
