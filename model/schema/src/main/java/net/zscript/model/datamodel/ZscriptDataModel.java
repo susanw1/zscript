@@ -27,6 +27,7 @@ public interface ZscriptDataModel {
     }
 
     interface ModuleModel extends ModelComponent {
+        @JsonBackReference
         ModuleBank getModuleBank();
 
         void setModuleBank(ModuleBank moduleBank);
@@ -136,7 +137,7 @@ public interface ZscriptDataModel {
     }
 
     enum LogicalTermination {
-        NONE,
+        END,
         ANDTHEN,
         ORELSE
     }
@@ -199,7 +200,11 @@ public interface ZscriptDataModel {
 
         List<Bit> getBits();
 
-        interface Bit extends ModelComponent {
+        abstract class Bit implements ModelComponent {
+            @Override
+            public String toString() {
+                return "Bit:[" + getName() + "]";
+            }
         }
     }
 

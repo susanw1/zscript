@@ -1,5 +1,6 @@
 package net.zscript.model.modules.base;
 
+import static net.zscript.model.modules.base.CoreModule.ReadIdCommandBuilder.IdType.TemporaryId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -45,16 +46,17 @@ public class CoreModuleTest {
 
     @Test
     public void shouldCreateCoreMatchCodeWithRequiredField() {
-        ZscriptCommandNode c = CoreModule.matchCode()
-                .setMatchCode(0x3a42)
+        ZscriptCommandNode c = CoreModule.readId()
+                .setIdType(TemporaryId)
+                .setMatchId(new byte[] { 0x3a, 0x42 })
                 .build();
         byte[] ztext = c.compile();
-        assertThat(ztext).containsExactly('Z', 'd', 'C', '3', 'a', '4', '2');
+        assertThat(ztext).containsExactly('Z', '4', 'I', '+', '3', 'a', '4', '2');
     }
 
     @Test
     public void shouldCreateCoreMatchCodeWithoutRequiredField() {
-        assertThatThrownBy(() -> CoreModule.matchCode().build()).isInstanceOf(ZscriptMissingFieldException.class)
-                .hasMessage("missingKeys='C'");
+        assertThatThrownBy(() -> CoreModule.readId().setMatchId(new byte[] { 0x3a, 0x42 }).build()).isInstanceOf(ZscriptMissingFieldException.class)
+                .hasMessage("missingKeys='I'");
     }
 }

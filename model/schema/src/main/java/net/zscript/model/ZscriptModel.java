@@ -1,8 +1,5 @@
 package net.zscript.model;
 
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
@@ -11,7 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import net.zscript.model.datamodel.IntrinsicsDataModel.Intrinsics;
+import net.zscript.model.datamodel.ModelValidator;
 import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
 import net.zscript.model.loader.ModelLoader;
 import net.zscript.model.loader.ModuleBank;
@@ -21,9 +24,12 @@ public class ZscriptModel {
 
     private final ModelLoader modelLoader;
 
+    private ModelValidator validator;
+
     private ZscriptModel() {
         try {
             modelLoader = new ModelLoader();
+            validator = new ModelValidator(this);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -41,7 +47,12 @@ public class ZscriptModel {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        model.validate();
         return model;
+    }
+
+    private void validate() {
+        validator.check();
     }
 
     public ZscriptModel withModel(final URL moduleListLocation) {
@@ -50,6 +61,7 @@ public class ZscriptModel {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        validate();
         return this;
     }
 
@@ -66,6 +78,7 @@ public class ZscriptModel {
                 .flatMap(mb -> mb.getModule(moduleName));
     }
 
+    @JsonProperty
     public List<ModuleBank> banks() {
         return moduleBanks.values().stream().sorted(comparing(ModuleBank::getId)).collect(toList());
     }

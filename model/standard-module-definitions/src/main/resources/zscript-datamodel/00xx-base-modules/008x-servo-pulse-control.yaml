@@ -253,3 +253,5 @@ commands:
             '@type': flag
         required: no
     status: [ ]
+
+notifications: [ ]

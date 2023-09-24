@@ -3,6 +3,7 @@ package net.zscript.model.datamodel;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 import static java.util.function.Function.identity;
@@ -29,7 +30,7 @@ import net.zscript.model.loader.ModuleBank;
 public class ModelValidator {
     private final ZscriptModel model;
 
-    ModelValidator(ZscriptModel model) {
+    public ModelValidator(ZscriptModel model) {
         this.model = model;
     }
 
@@ -42,14 +43,19 @@ public class ModelValidator {
                 throw new ZscriptModelException("ModuleBank names should be upper-camel-case, eg deviceReset [bank=%s, id=0x%x]", bank.getName(), bank.getId());
             }
 
-            for (String p : bank.getDefaultPackage()) {
-                if (!stringLowerCamel(p)) {
-                    throw new ZscriptModelException("ModuleBank package fields should be lower-camel-case, eg 'i2cInterface' [bank=%s, id=0x%x]", bank.getName(), bank.getId());
+            if (bank.getDefaultPackage() != null) {
+                for (String p : bank.getDefaultPackage()) {
+                    if (!stringLowerCamel(p)) {
+                        throw new ZscriptModelException("ModuleBank package fields should be lower-camel-case, eg 'i2cInterface' [bank=%s, id=0x%x]", bank.getName(), bank.getId());
+                    }
                 }
             }
             for (ModuleModel m : bank.modules()) {
                 if (m.getModuleBank() != bank) {
                     throw new ZscriptModelException("Module must back-reference to its Bank [bank=%s, module=%s, back-ref=%s]", bank.getName(), m.getName(), m.getModuleBank());
+                }
+                if (m.getPackage() == null && bank.getDefaultPackage() == null) {
+                    throw new ZscriptModelException("Module must define package if bank has no default [bank=%s, module=%s]", bank.getName(), m.getName());
                 }
                 checkModule(m);
             }
@@ -57,33 +63,39 @@ public class ModelValidator {
     }
 
     void checkModule(ModuleModel module) {
-        if (!stringUpperCamel(module.getName())) {
-            throw new ZscriptModelException("Module names must be upper-camel-case, eg 'ThisAndThat' [module=%s, id=0x%x]", module.getName(), module.getId());
-        }
-        if (module.getName().matches("[Mm]odule$")) {
-            throw new ZscriptModelException("Module names mustn't end with 'Module' (we generally append that) [module=%s, id=0x%x]", module.getName(), module.getId());
-        }
-        if (!fitsBits(module.getId(), 4)) {
-            throw new ZscriptModelException("Module Id must be 0x0-0xf [module=%s, id=0x%x]", module.getName(), module.getId());
-        }
-        if (module.getCommands() == null) {
-            throw new ZscriptModelException("Module has no 'commands' section (must exist, even if empty) [module=%s, id=0x%x]", module.getName(), module.getId());
-        }
-        for (CommandModel c : module.getCommands()) {
-            if (c.getModule() != module) {
-                throw new ZscriptModelException("Command must back-reference to its Module [module=%s, command=%s, back-ref=%s]", module.getName(), c.getName(), c.getModule());
+        try {
+            if (!stringUpperCamel(module.getName())) {
+                throw new ZscriptModelException("Module names must be upper-camel-case, eg 'ThisAndThat' [module=%s, id=0x%x]", module.getName(), module.getId());
             }
-            checkCommand(c);
-        }
-        if (module.getNotifications() == null) {
-            throw new ZscriptModelException("Module has no 'notifications' section (must exist, even if empty) [module=%s, id=0x%x]", module.getName(), module.getId());
-        }
-        for (NotificationModel n : module.getNotifications()) {
-            if (n.getModule() != module) {
-                throw new ZscriptModelException("Notification definition must back-reference to its Module [module=%s, command=%s, back-ref=%s]", module.getName(), n.getName(),
-                        n.getModule());
+            if (module.getName().matches("[Mm]odule$")) {
+                throw new ZscriptModelException("Module names mustn't end with 'Module' (we generally append that) [module=%s, id=0x%x]", module.getName(), module.getId());
             }
-            checkNotification(n);
+            if (!fitsBits(module.getId(), 4)) {
+                throw new ZscriptModelException("Module Id must be 0x0-0xf [module=%s, id=0x%x]", module.getName(), module.getId());
+            }
+            if (module.getCommands() == null) {
+                throw new ZscriptModelException("Module has no 'commands' section (must exist, even if empty) [module=%s, id=0x%x]", module.getName(), module.getId());
+            }
+            for (CommandModel c : module.getCommands()) {
+                if (c.getModule() != module) {
+                    throw new ZscriptModelException("Command must back-reference to its Module [module=%s, command=%s, back-ref=%s]", module.getName(), c.getName(), c.getModule());
+                }
+                checkCommand(c);
+            }
+            if (module.getNotifications() == null) {
+                throw new ZscriptModelException("Module has no 'notifications' section (must exist, even if empty) [module=%s, id=0x%x]", module.getName(), module.getId());
+            }
+            for (NotificationModel n : module.getNotifications()) {
+                if (n.getModule() != module) {
+                    throw new ZscriptModelException("Notification definition must back-reference to its Module [module=%s, command=%s, back-ref=%s]", module.getName(), n.getName(),
+                            n.getModule());
+                }
+                checkNotification(n);
+            }
+        } catch (ZscriptModelException ex) {
+            throw ex;
+        } catch (RuntimeException ex) {
+            throw new ZscriptModelException(ex, "Error while checking model [module=%s]", module.getName());
         }
     }
 
@@ -114,10 +126,10 @@ public class ModelValidator {
             checkNotificationSection(sNode);
 
             boolean lastOne = (i == sections.size() - 1);
-            if (!lastOne && sNode.getLogicalTermination() == ZscriptDataModel.LogicalTermination.NONE) {
+            if (!lastOne && sNode.getLogicalTermination() == ZscriptDataModel.LogicalTermination.END) {
                 throw new ZscriptModelException("Only final NotificationSectionNode has logicalTermination of NONE [section=%s, notification=%s]",
                         sNode.getSection().getName(), notification.getName());
-            } else if (lastOne && sNode.getLogicalTermination() != ZscriptDataModel.LogicalTermination.NONE) {
+            } else if (lastOne && sNode.getLogicalTermination() != ZscriptDataModel.LogicalTermination.END) {
                 throw new ZscriptModelException("Final NotificationSectionNode must have logicalTermination of NONE [section=%s, notification=%s]",
                         sNode.getSection().getName(), notification.getName());
             }
@@ -207,13 +219,13 @@ public class ModelValidator {
                         parent.getName(), field.getName());
             }
         } else if (field.getTypeDefinition() instanceof BitsetTypeDefinition) {
-            checkCollectiveTypeDefinition(parent, field, ((BitsetTypeDefinition) field.getTypeDefinition()).getBits(), ModelComponent::getName);
+            checkMultivalueTypeDefinition(parent, field, ((BitsetTypeDefinition) field.getTypeDefinition()).getBits(), ModelComponent::getName);
         } else if (field.getTypeDefinition() instanceof EnumTypeDefinition) {
-            checkCollectiveTypeDefinition(parent, field, ((EnumTypeDefinition) field.getTypeDefinition()).getValues(), identity());
+            checkMultivalueTypeDefinition(parent, field, ((EnumTypeDefinition) field.getTypeDefinition()).getValues(), identity());
         }
     }
 
-    <T> void checkCollectiveTypeDefinition(ModelComponent parent, GenericField field, List<T> items, Function<T, String> mapper) {
+    <T> void checkMultivalueTypeDefinition(ModelComponent parent, GenericField field, List<T> items, Function<T, String> mapper) {
         if (items.size() > 16) {
             throw new ZscriptModelException("Field cannot have more that 16 field values [parent=%s, field=%s, key='%c']",
                     parent.getName(), field.getName(), field.getKey());
@@ -227,8 +239,15 @@ public class ModelValidator {
     }
 
     <T> List<String> findDuplicates(Collection<T> collection, Function<T, String> mapper) {
+        if (collection.stream()
+                .map(mapper)
+                .anyMatch(Objects::isNull)) {
+            throw new ZscriptModelException("Null item in collection [items=%s]", collection);
+        }
+
         return collection.stream()
-                .map(mapper).collect(groupingBy(identity(), counting()))
+                .map(mapper)
+                .collect(groupingBy(identity(), counting()))
                 .entrySet().stream()
                 .filter(e -> e.getValue() > 1)
                 .map(Map.Entry::getKey).collect(toList());

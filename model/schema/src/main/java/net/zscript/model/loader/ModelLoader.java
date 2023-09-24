@@ -34,7 +34,6 @@ public class ModelLoader {
 
     public ModelLoader() throws IOException {
         jsonMapper = createJsonMapper();
-
         final InputStream resourceStream = requireNonNull(getClass().getResourceAsStream(ZSCRIPT_DATAMODEL_INTRINSICS_YAML), "intrinsics not found");
         intrinsicsDataModel = jsonMapper.readValue(resourceStream, IntrinsicsDataModel.class);
     }
@@ -72,6 +71,9 @@ public class ModelLoader {
                         mb.getName(), moduleBank.getId(), mb.getId(), moduleListLocation);
             }
 
+            if (mb.getModuleDefinitions() == null) {
+                throw new ZscriptModelException("ModuleBank has no modules [moduleBank=%s]", mb.getName());
+            }
             for (final String moduleDefinitionLocation : mb.getModuleDefinitions()) {
                 final URL moduleDefinition = new URL(moduleListLocation, moduleDefinitionLocation);
 

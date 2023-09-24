@@ -199,3 +199,5 @@ commands:
         typeDefinition:
             '@type': bytes
         required: no
+
+notifications: [ ]

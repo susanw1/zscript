@@ -120,3 +120,21 @@ commands:
         required: yes
     responseFields: [ ]
     status: [ ]
+
+-   name: channelInfo
+    command: 12
+    description: gets detailed information about a script space channel
+    operation: get
+    requestFields: [ ]
+    responseFields: [ ]
+    status: [ ]
+
+-   name: channelSetup
+    command: 13
+    description: sets detailed control variables on a script space channel
+    operation: put
+    requestFields: [ ]
+    responseFields: [ ]
+    status: [ ]
+
+notifications: [ ]

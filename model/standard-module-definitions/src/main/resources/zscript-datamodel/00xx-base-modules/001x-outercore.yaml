@@ -28,8 +28,22 @@ commands:
         typeDefinition:
             '@type': bitset
             bits:
-            -   name:
-                description:
+            - { name: mbx0xx, description: Module Bank x0xx }
+            - { name: mbx1xx, description: Module Bank x1xx }
+            - { name: mbx2xx, description: Module Bank x2xx }
+            - { name: mbx3xx, description: Module Bank x3xx }
+            - { name: mbx4xx, description: Module Bank x4xx }
+            - { name: mbx5xx, description: Module Bank x5xx }
+            - { name: mbx6xx, description: Module Bank x6xx }
+            - { name: mbx7xx, description: Module Bank x7xx }
+            - { name: mbx8xx, description: Module Bank x8xx }
+            - { name: mbx9xx, description: Module Bank x9xx }
+            - { name: mbxaxx, description: Module Bank xaxx }
+            - { name: mbxbxx, description: Module Bank xbxx }
+            - { name: mbxcxx, description: Module Bank xcxx }
+            - { name: mbxdxx, description: Module Bank xdxx }
+            - { name: mbxexx, description: Module Bank xexx }
+            - { name: mbxfxx, description: Module Bank xfxx }
         required: no
     -   key: M
         name: moduleBanksUpper
@@ -37,15 +51,39 @@ commands:
         typeDefinition:
             '@type': bitset
             bits:
-            -   name:
-                description:
+            - { name: mb0xxx, description: Module Bank 0xxx }
+            - { name: mb1xxx, description: Module Bank 1xxx }
+            - { name: mb2xxx, description: Module Bank 2xxx }
+            - { name: mb3xxx, description: Module Bank 3xxx }
+            - { name: mb4xxx, description: Module Bank 4xxx }
+            - { name: mb5xxx, description: Module Bank 5xxx }
+            - { name: mb6xxx, description: Module Bank 6xxx }
+            - { name: mb7xxx, description: Module Bank 7xxx }
+            - { name: mb8xxx, description: Module Bank 8xxx }
+            - { name: mb9xxx, description: Module Bank 9xxx }
+            - { name: mbaxxx, description: Module Bank axxx }
+            - { name: mbbxxx, description: Module Bank bxxx }
+            - { name: mbcxxx, description: Module Bank cxxx }
+            - { name: mbdxxx, description: Module Bank dxxx }
+            - { name: mbexxx, description: Module Bank exxx }
+            - { name: mbfxxx, description: Module Bank fxxx }
         required: yes
     status: [ ]
 
 
+-   name: reset
+    command: 1
+    description: Resets the device(!). Produces no response at all
+    operation: put
+    requestFields: [ ]
+    responseFields: [ ]
+    status:
+    -   code: commandFail
+        meaning: reset failed
+
 -   name: writeGuid
     command: 4
-    description: writes a specified GUID to persistent storage
+    description: writes a specified GUID to the id system
     operation: put
     requestFields:
     -   key: +
@@ -56,7 +94,7 @@ commands:
         required: yes
     responseFields: [ ]
     status:
-    -   code: BAD_PARAM
+    -   code: valueOutOfRange
         meaning: GUID must be 16 bytes
 
 
@@ -73,7 +111,7 @@ commands:
         required: no
     -   key: D
         name: assignDebug
-        description: assigns  debug to specified channel
+        description: assigns debug communication to specified channel
         typeDefinition:
             '@type': flag
         required: no
@@ -83,10 +121,16 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
+    -   key: P
+        name: persistNotification
+        description: persists the specified channel as the notification target for next startup
+        typeDefinition:
+            '@type': flag
+        required: no
     responseFields: [ ]
     extension: channel
     status:
-    -   code: BAD_PARAM
+    -   code: valueOutOfRange
         meaning: channel out of range
 
 
@@ -97,3 +141,34 @@ commands:
     requestFields: [ ]
     responseFields: [ ]
     status: [ ]
+
+notifications:
+-   name: devicePowerOn
+    description: the device has started up
+    condition: on restart
+    notification: 0
+    sections:
+    -   section:
+            name: devicePowerOn
+            description: gives information on device startup
+            fields:
+            -   key: T
+                name: resetType
+                description: reset cause
+                typeDefinition:
+                    '@type': enum
+                    values:
+                    - powerOn
+                    - brownOut
+                    - external
+                    - software
+                    - watchdog
+                    - other
+                required: no
+            -   key: C
+                name: resetCounter
+                description: how many resets have been done (can be done in non-initialised memory)
+                typeDefinition:
+                    '@type': number
+                required: no
+        logicalTermination: end

@@ -302,3 +302,99 @@ commands:
         meaning: write failed in benign way
     -   code: CMD_ERROR
         meaning: write failed in bad way - serious error
+
+
+-   name: channelInfo
+    command: 12
+    description: gets detailed information about an I2C channel
+    operation: get
+    requestFields:
+    -   key: C
+        name: channel
+        description: 'which channel to fetch info about (default: 0)'
+        typeDefinition:
+            '@type': number
+        required: no
+    responseFields:
+    -   key: N
+        name: channelCount
+        description: the number of I2C channels supported by the device
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: C
+        name: channel
+        description: the global channel index of the requested channel
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: A
+        name: address
+        description: which address the channel operates on
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: I
+        name: interface
+        description: which interface the channel operates on
+        typeDefinition:
+            '@type': number
+        required: yes
+    status: [ ]
+
+-   name: channelSetup
+    command: 13
+    description: sets detailed control variables on an I2C channel
+    operation: put
+    requestFields:
+    -   key: C
+        name: channel
+        description: which channel to set up
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: A
+        name: address
+        description: the address the channel should respond on
+        typeDefinition:
+            '@type': number
+        required: no
+    responseFields: [ ]
+    status: [ ]
+
+
+
+notifications:
+-   name: smBusAlert
+    notification: 0
+    description: a notification caused by an SMBus alert line being pulled low
+    condition: on an SMBus style alert
+    sections:
+    -   section:
+            name: smBusAlert
+            description: information on an SMBus alert line being pulled low
+            fields:
+            -   key: I
+                name: interface
+                description: which interface the alert occurred on
+                typeDefinition:
+                    '@type': number
+                required: yes
+        logicalTermination: andthen
+    -   section:
+            name: smBusAlertResolution
+            description: information on an attempted SMBus alert address read
+            fields:
+            -   key: F
+                name: failedAddressResolution
+                description: SMBus alert resolution was attempted but was not acknowledged
+                typeDefinition:
+                    '@type': flag
+                required: no
+            -   key: A
+                name: address
+                description: the address found through SMBus alert resolution
+                typeDefinition:
+                    '@type': number
+                required: no
+        logicalTermination: end
