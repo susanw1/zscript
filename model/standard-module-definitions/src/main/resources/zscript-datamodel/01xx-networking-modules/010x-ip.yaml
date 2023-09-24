@@ -1,0 +1,245 @@
+name: InternetProtocol
+id: 0
+version: 0.0.1
+description: Provides fundamental ip and ethernet commands
+commands:
+-   name: ipCapabilities
+    command: 0
+    description: High level capabilities for ip systems, including interfaces, modules, commands
+    operation: get
+    requestFields: [ ]
+    responseFields:
+    -   key: C
+        name: commandsSet
+        description: which commands are enabled in this module
+        typeDefinition:
+            '@type': commands
+        required: yes
+    -   key: M
+        name: modulesBankSet
+        description: which modules present in this bank (ie given 01mc, return m)
+        typeDefinition:
+            '@type': modules
+        required: yes
+    -   key: I
+        name: interfaceCount
+        description: how many network interfaces are present
+        typeDefinition:
+            '@type': number
+        required: yes
+    status: [ ]
+
+-   name: interfaceSetup
+    command: 1
+    description: setup a given interface
+    operation: put
+    requestFields:
+    -   key: I
+        name: interface
+        description: which interface to query
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: R
+        name: reset
+        description: resets interface
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: +
+        name: macAddress
+        description: the mac address to be set for the interface (will be persisted if possible) (if not using ethernet, then whatever other physical address may be applicable)
+        typeDefinition:
+            '@type': bytes
+        required: no
+    responseFields:
+    -   key: V
+        name: supportsIPv6
+        description: whether the interface can function on IPv6
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: H
+        name: hasHardware
+        description: whether the interface has required hardware to function
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: L
+        name: hasLink
+        description: whether the interface has a link established (cable connected if ethernet)
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: S
+        name: speed
+        description: what speed the current connection can run at
+        typeDefinition:
+            '@type': enum
+            values:
+            - TenMbps
+            - HundredMbps
+            - OneGbps
+            - TenGbps
+        required: no
+    -   key: B
+        name: binaryCapabilities
+        description: a list of possible available capabilities
+        typeDefinition:
+            '@type': bitset
+            bits:
+            -   name: uniqueMacAddress
+                description: whether the device starts with a MAC address which is unlikely to be a duplicate
+            -   name: adjustableMacAddress
+                description: whether the device supports setting the MAC address remotely
+            -   name: persistMacAddress
+                description: whether the device supports persisting the set MAC address
+            -   name: dhcpSupported
+                description: whether the device can use DHCP to find its IP address
+            -   name: dnsSupported
+                description: whether the device can use DNS to resolve hostnames to IP addresses
+        required: no
+    -   key: +
+        name: macAddress
+        description: the mac address of the interface  (if not using ethernet, then whatever other physical address may be applicable)
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    status: [ ]
+
+-   name: interfaceAddressSetup
+    command: 2
+    description: setup a given interface with an IP address, or DHCP
+    operation: put
+    requestFields:
+    -   key: I
+        name: interface
+        description: which interface to query
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: D
+        name: dhcp
+        description: uses dhcp to obtain an ip address
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: T
+        name: addressType
+        description: 'which IP address field is to be set/fetched (default: localIp)'
+        typeDefinition:
+            '@type': enum
+            values:
+            - localIp
+            - subnetMask
+            - gatewayIp
+            - dnsServerIp
+        required: no
+    -   key: +
+        name: ipAddress
+        description: the ip address to be set for the interface (IPv4 or, if supported, IPv6)
+        typeDefinition:
+            '@type': bytes
+        required: no
+    responseFields:
+    -   key: A
+        name: hasIpAddress
+        description: whether the interface has an IP address
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: +
+        name: ipAddress
+        description: the ip address fetched for the interface (IPv4 or IPv6)
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    status: [ ]
+
+-   name: arpInfo
+    command: 3
+    description: use arp on a given interface to get a MAC address
+    operation: get
+    requestFields:
+    -   key: I
+        name: interface
+        description: which interface to query
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: +
+        name: ipAddress
+        description: the ip address to resolve (IPv4 or, if supported, IPv6)
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    responseFields:
+    -   key: +
+        name: macAddress
+        description: the mac address found for the given ip address (or whatever other physical layer address may apply, should the system not be using ethernet).
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    status: [ ]
+
+-   name: dnsInfo
+    command: 4
+    description: use dns on a given interface to get an IP address
+    operation: get
+    requestFields:
+    -   key: I
+        name: interface
+        description: which interface to query
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: +
+        name: hostname
+        description: the hostname string to resolve
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    responseFields:
+    -   key: +
+        name: ipAddress
+        description: the ip address found for the host
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    status: [ ]
+
+-   name: ping
+    command: 5
+    description: send
+    operation: post
+    requestFields:
+    -   key: I
+        name: interface
+        description: which interface to query
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: D
+        name: dnsResolve
+        description: if present, the command is sent to the given hostname, resolved by dns
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: T
+        name: timeout
+        description: 'timeout in ms (default: 1000)'
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: +
+        name: target
+        description: the ip address (IPv4 or IPv6 as supported) or hostname to resolve
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    responseFields: [ ]
+    status:
+    -   code: commandFail
+        meaning: packet lost (no response)
+
+notifications: [ ]

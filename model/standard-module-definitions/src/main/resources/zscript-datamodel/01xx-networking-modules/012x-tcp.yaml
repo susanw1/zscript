@@ -1,0 +1,529 @@
+name: Tcp
+id: 2
+version: 0.0.1
+description: provides TCP commands and channels
+commands:
+-   name: tcpCapabilities
+    command: 0
+    description: capabilities for TCP, including commands and sockets
+    operation: get
+    requestFields: [ ]
+    responseFields:
+    -   key: C
+        name: commandsSet
+        description: which commands are enabled in this module
+        typeDefinition:
+            '@type': commands
+        required: yes
+    -   key: N
+        name: tcpServerMaximum
+        description: how many TCP servers are supported at once
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: T
+        name: tcpSocketMaximum
+        description: how many active TCP sockets are supported at once
+        typeDefinition:
+            '@type': number
+        required: yes
+    status: [ ]
+
+-   name: tcpServerBind
+    command: 1
+    description: sets up a TCP server
+    operation: post
+    requestFields:
+    -   key: I
+        name: interface
+        description: which interface to connect on
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: P
+        name: localPort
+        description: destination port to be used for UDP transmissions
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: T
+        name: tcpServerDescriptor
+        description: 'which TCP server to activate on the port (default: highest available - so that descriptor 0 is generally available)'
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: C
+        name: channel
+        description: whether this TCP server is to be used as a channel
+        typeDefinition:
+            '@type': flag
+        required: no
+    responseFields:
+    -   key: T
+        name: tcpServerDescriptor
+        description: which TCP system the port is active on
+        typeDefinition:
+            '@type': number
+        required: no
+    status:
+    -   code: executionError
+        meaning: UDP descriptor already in use
+
+-   name: tcpServerInfo
+    command: 2
+    description: reads information about a local TCP server
+    operation: get
+    requestFields:
+    -   key: T
+        name: tcpServerDescriptor
+        description: which TCP server is to be queried
+        typeDefinition:
+            '@type': number
+        required: yes
+    responseFields:
+    -   key: C
+        name: channel
+        description: whether this TCP server is being used for channel activity
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: A
+        name: active
+        description: whether this TCP server has been set up
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: I
+        name: interface
+        description: which interface the TCP server is set up on
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: P
+        name: localPort
+        description: which local port the TCP server is set up on
+        typeDefinition:
+            '@type': number
+        required: yes
+    status: [ ]
+
+-   name: tcpServerClose
+    command: 3
+    description: stops a local TCP server from being used
+    operation: put
+    requestFields:
+    -   key: U
+        name: udpSystemDescriptor
+        description: which TCP server is to be queried
+        typeDefinition:
+            '@type': number
+        required: yes
+    responseFields: [ ]
+    status:
+    -   code: peripheralDisabled
+        meaning: TCP server descriptor not in use
+
+
+-   name: tcpServerListen
+    command: 4
+    description: listens for a connection to a TCP server
+    operation: post
+    requestFields:
+    -   key: T
+        name: tcpSystemDescriptor
+        description: which TCP server to accept the connection on
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: D
+        name: socketDescriptor
+        description: 'which socket to connect on (default: highest available - so that descriptor 0 is generally available)'
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: N
+        name: notifications
+        description: enables sending notifications for received data on this socket
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: A
+        name: addressing
+        description: enables addressing on this socket
+        typeDefinition:
+            '@type': flag
+        required: no
+    responseFields:
+    -   key: D
+        name: socketDescriptor
+        description: socket descriptor used to create connection (if not present, no incoming connections present)
+        typeDefinition:
+            '@type': number
+        required: no
+    status:
+    -   code: peripheralDisabled
+        meaning: TCP server descriptor not in use
+    -   code: executionError
+        meaning: socket descriptor already in use
+
+-   name: tcpClientSocket
+    command: 5
+    description: creates a socket connecting to a given server
+    operation: post
+    requestFields:
+    -   key: D
+        name: socketDescriptor
+        description: 'which socket to connect on (default: highest available - so that descriptor 0 is generally available)'
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: I
+        name: interface
+        description: which interface to connect on
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: P
+        name: destinationPort
+        description: destination port to be used for TCP connection
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: H
+        name: hostName
+        description: if present, resolves targetDestination using DNS
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: N
+        name: notifications
+        description: enables sending notifications for received data on this socket
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: A
+        name: addressing
+        description: enables addressing on this socket
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: +
+        name: targetDestination
+        description: IP address (IPv4 or IPv6) of destination, or hostname if DNS is to be used
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    responseFields:
+    -   key: D
+        name: socketDescriptor
+        description: socket descriptor used to create connection
+        typeDefinition:
+            '@type': number
+        required: yes
+    status:
+    -   code: executionError
+        meaning: socket descriptor already in use
+    -   code: commandNoTarget
+        meaning: hostname could not be resolved
+
+-   name: tcpSocketInfo
+    command: 8
+    description: gets info on a given socket
+    operation: read
+    requestFields:
+    -   key: D
+        name: socketDescriptor
+        description: which socket to query
+        typeDefinition:
+            '@type': number
+        required: yes
+    responseFields:
+    -   key: A
+        name: active
+        description: whether this socket has been set up
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: R
+        name: receivedDataAvailable
+        description: length of data received that can be read
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: T
+        name: tcpSystemDescriptor
+        description: which TCP server the socket is from (not present implies this is a client socket)
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: I
+        name: interface
+        description: interface used for communication
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: L
+        name: localPort
+        description: local port used for socket
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: P
+        name: remotePort
+        description: remote port
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: +
+        name: remoteAddress
+        description: IP address (IPv4 or IPv6) of remote system
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    status: [ ]
+
+-   name: socketSend
+    command: 9
+    description: transmits data along a given TCP socket
+    operation: post
+    requestFields:
+    -   key: D
+        name: socketDescriptor
+        description: which socket to send data along
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: +
+        name: data
+        description: the data to be sent
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    responseFields: [ ]
+    status:
+    -   code: peripheralDisabled
+        meaning: TCP socket not in use
+
+-   name: socketReceive
+    command: 10
+    description: receives data from a given TCP socket
+    operation: read
+    requestFields:
+    -   key: D
+        name: socketDescriptor
+        description: which socket to send data along
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: L
+        name: length
+        description: how much data is to be read from the socket
+        typeDefinition:
+            '@type': number
+        required: yes
+    responseFields:
+    -   key: L
+        name: lengthRemaining
+        description: number of bytes available in the buffer
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: +
+        name: data
+        description: the data received
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    status:
+    -   code: peripheralDisabled
+        meaning: TCP socket not in use
+    -   code: commandDataNotReceived
+        meaning: no data has been received to read
+
+-   name: socketSkip
+    command: 11
+    description: skips received data from a given TCP socket
+    operation: read
+    requestFields:
+    -   key: D
+        name: socketDescriptor
+        description: which socket to send data along
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: L
+        name: length
+        description: how much data is to be skipped from the socket
+        typeDefinition:
+            '@type': number
+        required: yes
+    responseFields:
+    -   key: L
+        name: length
+        description: how much data was skipped
+        typeDefinition:
+            '@type': number
+        required: yes
+    status: [ ]
+
+-   name: channelInfo
+    command: 12
+    description: gets detailed information about a TCP channel
+    operation: get
+    requestFields:
+    -   key: C
+        name: channel
+        description: 'which channel to fetch info about (default: 0)'
+        typeDefinition:
+            '@type': number
+        required: no
+    responseFields:
+    -   key: N
+        name: channelCount
+        description: the number of TCP channels supported by the device
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: C
+        name: channel
+        description: the global channel index of this channel
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: T
+        name: tcpServerDescriptor
+        description: the TCP server this channel is associated with
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: A
+        name: assigned
+        description: whether this channel currently has a receiver it is communicating with
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: P
+        name: remotePort
+        description: remote port
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: +
+        name: remoteAddress
+        description: IP address (IPv4 or IPv6) of remote system
+        typeDefinition:
+            '@type': bytes
+        required: no
+    status: [ ]
+
+-   name: channelSetup
+    command: 13
+    description: sets detailed control variables on a TCP channel
+    operation: put
+    requestFields:
+    -   key: C
+        name: channel
+        description: which channel to controlled
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: R
+        name: reset
+        description: closes the connection this channel has, and resets its state.
+        typeDefinition:
+            '@type': flag
+        required: no
+    responseFields: [ ]
+    status: [ ]
+
+
+notifications:
+-   name: socketDataAvailable
+    notification: 0
+    description: a socket has data available
+    condition: on data exceeding some minimum level, or after data received and some timeout passed - not sent until after some kind of read received
+    sections:
+    -   section: &section_socketDataInfo
+            name: socketDataInfo
+            description: information on a socket with available data
+            fields:
+            -   key: D
+                name: socketDescriptor
+                description: which socket data was received along
+                typeDefinition:
+                    '@type': number
+                required: yes
+            -   key: L
+                name: dataLength
+                description: the amount of data the socket has available
+                typeDefinition:
+                    '@type': number
+                required: yes
+        logicalTermination: end
+
+-   name: socketReceiveNearCapacity
+    notification: 1
+    description: a socket is almost overflowing its data capacity
+    condition: on data exceeding some proportion of the buffer (e.g. 75%) - not sent again until after the fullness drops below this level
+    sections:
+    -   section: *section_socketDataInfo
+        logicalTermination: end
+
+-   name: socketReceiveOverflow
+    notification: 2
+    description: a socket has overflowed its receive buffer
+    condition: on data overflowing the buffer - not sent again until after the fullness drops below some level (e.g. 50%)
+    sections:
+    -   section:
+            name: socketInfo
+            description: specifies a socket
+            fields:
+            -   key: D
+                name: socketDescriptor
+                description: which socket data was received along
+                typeDefinition:
+                    '@type': number
+                required: yes
+        logicalTermination: end
+
+-   name: socketReceiveData
+    notification: 3
+    description: a socket has data available, and this notification contains that data
+    condition: 'on any of: X bytes of data having arrived, or Y milliseconds after the first data in the buffer arrived, for reasonable chosen values of X,Y'
+    sections:
+    -   section: *section_socketDataInfo
+        logicalTermination: andthen
+    -   section:
+            name: socketData
+            description: data from a socket
+            fields:
+            -   key: +
+                name: data
+                description: the data received
+                typeDefinition:
+                    '@type': bytes
+                required: yes
+        logicalTermination: end
+
+-   name: serverReceiveConnection
+    notification: 4
+    description: a server has a connection request
+    condition: on a TCP server receiving a connection request
+    sections:
+    -   section:
+            name: connectionIncomingInfo
+            description: data about an incoming connection to a server
+            fields:
+            -   key: T
+                name: tcpSystemDescriptor
+                description: which TCP server accepted the connection
+                typeDefinition:
+                    '@type': number
+                required: yes
+            -   key: D
+                name: socketDescriptor
+                description: which socket was connected
+                typeDefinition:
+                    '@type': number
+                required: yes
+        logicalTermination: end
