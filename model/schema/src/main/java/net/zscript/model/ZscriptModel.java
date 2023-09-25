@@ -24,7 +24,7 @@ public class ZscriptModel {
 
     private final ModelLoader modelLoader;
 
-    private ModelValidator validator;
+    private final ModelValidator validator;
 
     private ZscriptModel() {
         try {

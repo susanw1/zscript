@@ -1,7 +1,5 @@
 package net.zscript.javaclient.commandbuilder;
 
-import static java.util.stream.Collectors.joining;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -13,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.joining;
 
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 import net.zscript.model.components.Zchars;
@@ -136,8 +136,8 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     }
 
     public static byte[] formatField(byte f, int value) {
-        if (value > 0x10000 || value < 0) {
-            throw new IllegalStateException("Command fields must be uint16s");
+        if (value >= 0x10000 || value < 0) {
+            throw new IllegalStateException("Command fields must be uint16s: " + value);
         }
         if (value == 0) {
             return new byte[] { f };

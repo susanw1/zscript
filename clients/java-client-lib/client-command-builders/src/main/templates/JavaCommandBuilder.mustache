@@ -53,10 +53,12 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
     /**
      * Creates a builder for the '{{name}}' command: {{description}}
      */
-    public static {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}() {
+    public static {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}} {{#lowerCamel}}{{name}}{{/lowerCamel}}Builder() {
         return new {{#upperCamel}}{{name}}CommandBuilder{{/upperCamel}}();
     }
 
+{{/commands}}
+{{#commands}}
     /**
      * {{description}}
      * <p>

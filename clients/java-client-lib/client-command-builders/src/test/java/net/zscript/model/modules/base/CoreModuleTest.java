@@ -12,7 +12,7 @@ import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
 public class CoreModuleTest {
     @Test
     public void shouldCreateCoreCapabilities() {
-        ZscriptCommandNode c = CoreModule.capabilities()
+        ZscriptCommandNode c = CoreModule.capabilitiesBuilder()
                 .build();
         byte[] ztext = c.compile();
         assertThat(ztext).containsExactly('Z');
@@ -20,7 +20,7 @@ public class CoreModuleTest {
 
     @Test
     public void shouldCreateCoreActivate() {
-        ZscriptCommandNode c = CoreModule.activate()
+        ZscriptCommandNode c = CoreModule.activateBuilder()
                 .build();
         byte[] ztext = c.compile();
         assertThat(ztext).containsExactly('Z', '2');
@@ -28,7 +28,7 @@ public class CoreModuleTest {
 
     @Test
     public void shouldCreateCoreActivateWithField() {
-        ZscriptCommandNode c = CoreModule.activate()
+        ZscriptCommandNode c = CoreModule.activateBuilder()
                 .setChallenge(3)
                 .build();
         byte[] ztext = c.compile();
@@ -37,7 +37,7 @@ public class CoreModuleTest {
 
     @Test
     public void shouldCreateCoreEcho() {
-        ZscriptCommandNode c = CoreModule.echo()
+        ZscriptCommandNode c = CoreModule.echoBuilder()
                 .setAny('J', 123)
                 .build();
         byte[] ztext = c.compile();
@@ -46,7 +46,7 @@ public class CoreModuleTest {
 
     @Test
     public void shouldCreateCoreMatchCodeWithRequiredField() {
-        ZscriptCommandNode c = CoreModule.readId()
+        ZscriptCommandNode c = CoreModule.readIdBuilder()
                 .setIdType(TemporaryId)
                 .setMatchId(new byte[] { 0x3a, 0x42 })
                 .build();
@@ -56,7 +56,16 @@ public class CoreModuleTest {
 
     @Test
     public void shouldCreateCoreMatchCodeWithoutRequiredField() {
-        assertThatThrownBy(() -> CoreModule.readId().setMatchId(new byte[] { 0x3a, 0x42 }).build()).isInstanceOf(ZscriptMissingFieldException.class)
+        assertThatThrownBy(() -> CoreModule.readIdBuilder().setMatchId(new byte[] { 0x3a, 0x42 }).build()).isInstanceOf(ZscriptMissingFieldException.class)
                 .hasMessage("missingKeys='I'");
+    }
+
+    @Test
+    public void should() {
+        //        ZscriptCommandNode c = CoreModule.echoBuilder()EchoCommandBuilder.EchoCommandResponse.
+        //                .setChallenge(3)
+        //                .build();
+        //        byte[] ztext = c.compile();
+        //        assertThat(ztext).containsExactly('Z', '2', 'K', '3');
     }
 }
