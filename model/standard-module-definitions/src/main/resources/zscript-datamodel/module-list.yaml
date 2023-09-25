@@ -27,3 +27,4 @@ moduleBanks:
     moduleDefinitions:
     - 01xx-networking-modules/010x-ip.yaml
     - 01xx-networking-modules/011x-udp.yaml
+    - 01xx-networking-modules/012x-tcp.yaml
