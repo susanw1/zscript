@@ -75,10 +75,8 @@ public:
     }
     static void poll(){
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
-        if(digitalPinToInterrupt(ZP::i2cAlertInPin)==NOT_AN_INTERRUPT){
-            if(digitalRead(ZP::i2cAlertInPin) == LOW){
-                SmBusAlertRecieved();
-            }
+        if(digitalRead(ZP::i2cAlertInPin) == LOW){
+            SmBusAlertRecieved();
         }
 #endif
     }
@@ -121,57 +119,50 @@ public:
         }
         GeneralI2cAction<ZP>::executeAddressing(ctx);
     }
-
 #endif
 
     static void notification(ZscriptNotificationContext<ZP> ctx, bool moveAlong) {
         (void) moveAlong;
         NotificationOutStream<ZP> out = ctx.getOutStream();
-        uint8_t len = Wire.requestFrom(SMBUS_ALERT_ADDR, (uint8_t) 2);
+        uint8_t len = Wire.requestFrom(SMBUS_ALERT_ADDR, (uint8_t) 1);
         if (len != 2 && len != 1) {
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
             if (isAddressing) {
                 out.writeField(Zchars::Z_ADDRESSING, 0x5);
                 out.writeField(Zchars::Z_ADDRESSING_CONTINUE, 0x0);
                 out.writeField(Zchars::Z_STATUS, ResponseStatus::ADDRESS_NOT_FOUND);
             } else {
+#endif
                 out.writeField('I', 0x0);
+                out.writeAndThen();
+                out.writeField('F', 0);
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
             }
+#endif
             return;
         }
-        uint8_t addr1 = (uint8_t) Wire.read();
-        uint16_t addrFull;
-        bool tenBit;
-        if ((addr1 & 0x7C) == 0x78) {
-            addrFull = (addr1 & 0x3) << 8 | (uint8_t) Wire.read();
-            tenBit = true;
-        } else {
-            addrFull = addr1 >> 1;
-            tenBit = false;
-        }
+        uint8_t addr = ((uint8_t) Wire.read())>>1;
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
         if (!isAddressing) {
+#endif
             out.writeField('I', 0x0);
-            out.writeField('A', addrFull);
-            if (tenBit) {
-                out.writeField('T', 0);
-            }
+            out.writeAndThen();
+            out.writeField('A', addr);
             return;
+#ifdef ZSCRIPT_SUPPORT_ADDRESSING
         }
         out.writeField(Zchars::Z_ADDRESSING, 0x5);
         out.writeField(Zchars::Z_ADDRESSING_CONTINUE, 0x0);
-        if (tenBit) {
-            out.writeField('A', addrFull | 0x8000);
-            out.writeField(Zchars::Z_STATUS, ResponseStatus::ADDRESS_NOT_FOUND);
-            return;
-        }
-        out.writeField(Zchars::Z_ADDRESSING_CONTINUE, addrFull);
+        out.writeField(Zchars::Z_ADDRESSING_CONTINUE, addr);
         uint8_t dataBuffer[ZP::i2cAddressingReadBlockLength];
         delayMicroseconds(10);
         while (true) {
-            uint8_t len = Wire.requestFrom((uint8_t) addrFull, ZP::i2cAddressingReadBlockLength);
+            uint8_t len = Wire.requestFrom((uint8_t) addr, ZP::i2cAddressingReadBlockLength);
             if (len != ZP::i2cAddressingReadBlockLength) {
                 out.endSequence();
                 out.writeField('!', 0x5);
-                out.writeField('I', (uint8_t) addrFull);
+                out.writeField('I', 0);
+                out.writeField('A', (uint8_t) addr);
                 out.writeField('S', ResponseStatus::ADDRESS_NOT_FOUND);
                 return;
             }
@@ -185,12 +176,7 @@ public:
                 break;
             }
         }
-        if(digitalRead(ZP::i2cAlertInPin) == LOW){
-            out.endSequence();
-            out.writeField('!', 0);
-            ctx.notificationNotComplete();
-            ctx.getAsyncActionNotifier().notifyNeedsAction();
-        }
+#endif
     }
 
 #endif
