@@ -1,14 +1,11 @@
 package net.zscript.javaclient.connection;
 
-import com.fazecast.jSerialComm.SerialPort;
-import com.fazecast.jSerialComm.SerialPortEvent;
-import com.fazecast.jSerialComm.SerialPortMessageListener;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+
+import com.fazecast.jSerialComm.SerialPort;
 
 import net.zscript.javaclient.connectors.ZscriptConnectors;
 import net.zscript.javaclient.connectors.serial.SerialConnector;
@@ -87,7 +84,7 @@ class SerialMain {
                 System.out.println("Response: " + new String(response, StandardCharsets.ISO_8859_1));
             });
             for (int i = 0; i < 10; i++) {
-                byte[] b = CoreModule.echo().setAny('A', 35).addResponseListener(resp -> System.out.println("Field: ")).build().compile();
+                byte[] b = CoreModule.echoBuilder().setAny('A', 35).addResponseListener(resp -> System.out.println("Field: ")).build().compile();
                 conn.send(b);
                 System.out.println("Sending: " + Arrays.toString(b));
                 Thread.sleep(1000);

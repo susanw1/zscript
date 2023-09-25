@@ -1,0 +1,480 @@
+name: Udp
+id: 1
+version: 0.0.1
+description: provides UDP commands and channels
+commands:
+-   name: udpCapabilities
+    command: 0
+    description: capabilities for UDP, including commands and sockets
+    operation: get
+    requestFields: [ ]
+    responseFields:
+    -   key: C
+        name: commandsSet
+        description: which commands are enabled in this module
+        typeDefinition:
+            '@type': commands
+        required: yes
+    -   key: P
+        name: udpPortCount
+        description: how many UDP port are supported at once
+        typeDefinition:
+            '@type': number
+        required: yes
+    status: [ ]
+
+-   name: udpSetup
+    command: 1
+    description: sets up a local port for UDP send, receive or channel operations
+    operation: put
+    requestFields:
+    -   key: I
+        name: interface
+        description: which interface to connect on
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: P
+        name: localPort
+        description: destination port to be used for UDP transmissions
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: N
+        name: notifications
+        description: enables sending notifications for received UDP packets on this port
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: A
+        name: addressing
+        description: enables addressing over this UDP port
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: U
+        name: udpSystemDescriptor
+        description: 'which UDP system to activate on the port (default: highest available - so that descriptor 0 is generally available)'
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: C
+        name: channel
+        description: whether this UDP system is to be used as a channel
+        typeDefinition:
+            '@type': flag
+        required: no
+    responseFields:
+    -   key: U
+        name: udpSystemDescriptor
+        description: which UDP system the port is active on
+        typeDefinition:
+            '@type': number
+        required: no
+    status:
+    -   code: executionError
+        meaning: UDP descriptor already in use
+
+-   name: udpInfo
+    command: 2
+    description: reads information about a local port used for UDP send/receive
+    operation: get
+    requestFields:
+    -   key: U
+        name: udpSystemDescriptor
+        description: which UDP system is to be queried
+        typeDefinition:
+            '@type': number
+        required: yes
+    responseFields:
+    -   key: C
+        name: channel
+        description: whether this UDP system is being used for channel activity
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: A
+        name: active
+        description: whether this UDP system has been set up
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: I
+        name: interface
+        description: which interface the UDP system is set up on
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: P
+        name: localPort
+        description: which local port the UDP system is set up on
+        typeDefinition:
+            '@type': number
+        required: yes
+    status: [ ]
+
+-   name: udpClose
+    command: 3
+    description: stops a local port from being used for UDP send/receive
+    operation: put
+    requestFields:
+    -   key: U
+        name: udpSystemDescriptor
+        description: which UDP system is to be queried
+        typeDefinition:
+            '@type': number
+        required: yes
+    responseFields: [ ]
+    status:
+    -   code: peripheralDisabled
+        meaning: UDP descriptor not in use
+
+-   name: udpConnect
+    command: 4
+    description: connects a particular UDP socket (or any available socket) to a destination
+    operation: post
+    requestFields:
+    -   key: D
+        name: socketDescriptor
+        description: 'which socket to connect on (default: highest available - so that descriptor 0 is generally available)'
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: U
+        name: udpSystemDescriptor
+        description: which udp system to connect on
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: P
+        name: destinationPort
+        description: destination port to be used for UDP transmissions
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: H
+        name: hostName
+        description: if present, resolves targetDestination using DNS
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: +
+        name: targetDestination
+        description: IP address (IPv4 or IPv6) of destination, or hostname if DNS is to be used
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    responseFields:
+    -   key: D
+        name: socketDescriptor
+        description: socket descriptor used to create connection
+        typeDefinition:
+            '@type': number
+        required: yes
+    status:
+    -   code: peripheralDisabled
+        meaning: UDP descriptor not in use
+    -   code: executionError
+        meaning: socket descriptor already in use
+    -   code: commandNoTarget
+        meaning: hostname could not be resolved
+
+-   name: udpSocketInfo
+    command: 5
+    description: reads information about a socket used for UDP send
+    operation: get
+    requestFields:
+    -   key: D
+        name: socketDescriptor
+        description: which socket to query
+        typeDefinition:
+            '@type': number
+        required: yes
+    responseFields:
+    -   key: A
+        name: active
+        description: whether this socket has been set up
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: W
+        name: packetWaiting
+        description: whether this socket has a packet which hasn't been sent yet
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: U
+        name: udpSystemDescriptor
+        description: which UDP system the socket is connected on
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: P
+        name: destinationPort
+        description: destination port used for UDP transmissions
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: +
+        name: targetDestination
+        description: IP address (IPv4 or IPv6) of destination
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    status: [ ]
+
+-   name: udpSend
+    command: 6
+    description: sends data along a UDP socket
+    operation: post
+    requestFields:
+    -   key: D
+        name: socketDescriptor
+        description: which interface socket to send data along
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: A
+        name: append
+        description: doesn't send packet after this command, instead leaving the packet open for more data to be appended
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: +
+        name: data
+        description: data to be sent along the socket
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    responseFields: [ ]
+    status:
+    -   code: peripheralDisabled
+        meaning: socket descriptor not in use
+
+#-   name: udpClose
+#    command: 7
+#    description: closes the given socket, and sends any packets which haven't been finished
+#    operation: post
+#    requestFields:
+#    -   key: D
+#        name: socketDescriptor
+#        description: which interface socket to close
+#        typeDefinition:
+#            '@type': number
+#        required: yes
+#    responseFields: [ ]
+#    status:
+#    -   code: peripheralDisabled
+#        meaning: socket descriptor not in use
+
+-   name: udpReadPacket
+    command: 8
+    description: reads a packet from the UDP system
+    operation: read
+    requestFields:
+    -   key: U
+        name: udpSystemDescriptor
+        description: which UDP system to read from
+        typeDefinition:
+            '@type': number
+        required: yes
+    responseFields:
+    -   key: A
+        name: availableData
+        description: number of bytes available in current packet
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: N
+        name: newPacket
+        description: whether this is the first time this command has executed on this packet
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: P
+        name: remotePort
+        description: remote port from which the current packet arrived
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: +
+        name: remoteAddress
+        description: IP address (IPv4 or IPv6) of the source of the current packet
+        typeDefinition:
+            '@type': bytes
+        required: no
+    status:
+    -   code: peripheralDisabled
+        meaning: UDP descriptor not in use
+
+-   name: udpReadPacketData
+    command: 9
+    description: reads data from a packet received by the UDP system (will not start reading a new packet)
+    operation: post
+    requestFields:
+    -   key: U
+        name: udpSystemDescriptor
+        description: which UDP system to read from
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: L
+        name: length
+        description: 'maximum length of data to read from the packet (default: all)'
+        typeDefinition:
+            '@type': number
+        required: no
+    responseFields:
+    -   key: L
+        name: lengthRemaining
+        description: number of bytes available in current packet
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: +
+        name: data
+        description: data read from the packet
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    status:
+    -   code: commandDataNotReceived
+        meaning: no packet has been received to read from
+
+-   name: udpSkipPacketData
+    command: 10
+    description: skips data from a packet received by the UDP system (will not start a new packet)
+    operation: post
+    requestFields:
+    -   key: U
+        name: udpSystemDescriptor
+        description: which UDP system to read from
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: L
+        name: length
+        description: 'maximum length of data to read from the packet (default: all)'
+        typeDefinition:
+            '@type': number
+        required: no
+    responseFields:
+    -   key: L
+        name: length
+        description: length actually skipped
+        typeDefinition:
+            '@type': number
+        required: yes
+    status:
+    -   code: commandDataNotReceived
+        meaning: no packet has been received to read from
+
+-   name: channelInfo
+    command: 12
+    description: gets detailed information about a UDP channel
+    operation: get
+    requestFields:
+    -   key: C
+        name: channel
+        description: 'which channel to fetch info about (default: 0)'
+        typeDefinition:
+            '@type': number
+        required: no
+    responseFields:
+    -   key: N
+        name: channelCount
+        description: the number of UDP channels supported by the device
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: C
+        name: channel
+        description: the global channel index of this channel
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: U
+        name: udpSystemDescriptor
+        description: the UDP system this channel is working on
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: A
+        name: assigned
+        description: whether this channel currently has a receiver it is communicating with
+        typeDefinition:
+            '@type': flag
+        required: no
+    status: [ ]
+
+-   name: channelSetup
+    command: 13
+    description: sets detailed control variables on a UDP channel
+    operation: put
+    requestFields:
+    -   key: C
+        name: channel
+        description: which channel to set up
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: R
+        name: reset
+        description: unassigns the UDP channel, making it available for general use
+        typeDefinition:
+            '@type': flag
+        required: no
+    responseFields: [ ]
+    status: [ ]
+
+notifications:
+-   name: packetArrived
+    notification: 0
+    description: a UDP packet has been received
+    sections:
+    -   section: &section_packetInfo
+            name: packetInfo
+            description: information on a received UDP packet
+            fields:
+            -   key: U
+                name: udpSystemDescriptor
+                description: which UDP system received the packet
+                typeDefinition:
+                    '@type': number
+                required: yes
+            -   key: A
+                name: availableData
+                description: number of bytes available in the packet
+                typeDefinition:
+                    '@type': number
+                required: yes
+            -   key: P
+                name: remotePort
+                description: remote port from which the current packet arrived
+                typeDefinition:
+                    '@type': number
+                required: yes
+            -   key: +
+                name: remoteAddress
+                description: IP address (IPv4 or IPv6) of the source of the current packet
+                typeDefinition:
+                    '@type': bytes
+                required: yes
+        logicalTermination: end
+-   name: packetData
+    notification: 1
+    description: a UDP packet has been received, and its data is being transmitted via notification
+    sections:
+    -   section: *section_packetInfo
+        logicalTermination: andthen
+    -   section:
+            name: packetData
+            description: data from a received UDP packet
+            fields:
+            -   key: +
+                name: data
+                description: the data contained in the received packet
+                typeDefinition:
+                    '@type': bytes
+                required: yes
+        logicalTermination: end

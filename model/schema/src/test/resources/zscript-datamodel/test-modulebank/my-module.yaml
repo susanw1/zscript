@@ -57,7 +57,7 @@ commands:
     -   name: any
         description: any supplied value will be returned
         typeDefinition:
-            '@type': number
+            '@type': any
         required: no
     -   key: S
         name: status
@@ -94,7 +94,7 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: no
-        logicalTermination: none
+        logicalTermination: end
 
 -   name: packetArrived
     notification: 0x1
@@ -116,7 +116,7 @@ notifications:
                 typeDefinition:
                     '@type': bytes
                 required: yes
-        logicalTermination: none
+        logicalTermination: end
 -   name: packetData
     notification: 2
     description: a UDP packet has been received, and its data is being transmitted via notification
@@ -133,4 +133,4 @@ notifications:
                 typeDefinition:
                     '@type': bytes
                 required: yes
-        logicalTermination: none
+        logicalTermination: end

@@ -1,6 +1,9 @@
 package net.zscript.javaclient.commandbuilder;
 
+import java.util.BitSet;
+import java.util.EnumSet;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 
 import net.zscript.javareceiver.tokenizer.BlockIterator;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
@@ -36,5 +39,16 @@ public abstract class ValidatingResponse implements ZscriptResponse {
     @Override
     public BlockIterator getBigField() {
         return expression.getBigField();
+    }
+
+    protected static <E extends Enum<E>> EnumSet<E> bitsetToEnumSet(int bitFields, Class<E> enumClass) {
+        final E[] enumValues = enumClass.getEnumConstants();
+        return BitSet.valueOf(new long[] { bitFields }).stream()
+                .mapToObj(b -> enumValues[b])
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(enumClass)));
+    }
+
+    protected static <E extends Enum<E>> int checkInEnumRange(int value, Class<E> enumClass, char key, boolean isBitset) {
+        return ZscriptCommandBuilder.checkInEnumRange(value, enumClass, key, isBitset);
     }
 }

@@ -1,8 +1,8 @@
 package net.zscript.javaclient.connection;
 
-import static net.zscript.model.modules.base.CoreModule.CapabilitiesCommandBuilder.VersionType.PlatformFirmware;
-
 import java.io.IOException;
+
+import static net.zscript.model.modules.base.CoreModule.CapabilitiesCommand.Builder.VersionType.PlatformFirmware;
 
 import net.zscript.model.modules.base.CoreModule;
 
@@ -10,14 +10,14 @@ public class Main2 {
     public static void main(String[] args) throws IOException {
         DeviceNode zscriptOut = new CommandResponseQueue(new LocalZscriptConnection());
 
-        zscriptOut.send(CoreModule.capabilities()
+        zscriptOut.send(CoreModule.capabilitiesBuilder()
                 .setVersionType(PlatformFirmware)
                 .addResponseListener(r -> System.out.println(r.getIdent()))
                 .build()
-                .andThen(CoreModule.activate()
+                .andThen(CoreModule.activateBuilder()
                         .addResponseListener(r -> System.out.println(r.isPreviousActivationState()))
                         .build())
-                .andThen(CoreModule.activate()
+                .andThen(CoreModule.activateBuilder()
                         .addResponseListener(r -> System.out.println(r.isPreviousActivationState()))
                         .build()));
 

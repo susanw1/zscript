@@ -27,5 +27,4 @@ class ZscriptModelTest {
 
         assertThat(module.get().getNotifications().get(2).getSections()).hasSize(2);
     }
-
 }

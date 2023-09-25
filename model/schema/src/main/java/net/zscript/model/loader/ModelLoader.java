@@ -18,9 +18,10 @@ import net.zscript.model.datamodel.DefinitionResources;
 import net.zscript.model.datamodel.DefinitionResources.ModuleBankDef;
 import net.zscript.model.datamodel.IntrinsicsDataModel;
 import net.zscript.model.datamodel.IntrinsicsDataModel.Intrinsics;
+import net.zscript.model.datamodel.ZscriptDataModel.AbstractCommandFieldModel;
 import net.zscript.model.datamodel.ZscriptDataModel.CommandModel;
-import net.zscript.model.datamodel.ZscriptDataModel.GenericField;
 import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
+import net.zscript.model.datamodel.ZscriptModelException;
 
 /**
  * Loads and presents ModuleBanks model definitions.
@@ -33,7 +34,6 @@ public class ModelLoader {
 
     public ModelLoader() throws IOException {
         jsonMapper = createJsonMapper();
-
         final InputStream resourceStream = requireNonNull(getClass().getResourceAsStream(ZSCRIPT_DATAMODEL_INTRINSICS_YAML), "intrinsics not found");
         intrinsicsDataModel = jsonMapper.readValue(resourceStream, IntrinsicsDataModel.class);
     }
@@ -66,7 +66,14 @@ public class ModelLoader {
 
         for (final ModuleBankDef mb : d.getModuleBanks()) {
             final ModuleBank moduleBank = moduleBanks.computeIfAbsent(mb.getName(), n -> new ModuleBank(mb));
+            if (moduleBank.getId() != mb.getId()) {
+                throw new ZscriptModelException("ModuleBank exists with different ID [moduleBank=%s, old id=%d, new id=%d, url=%s]",
+                        mb.getName(), moduleBank.getId(), mb.getId(), moduleListLocation);
+            }
 
+            if (mb.getModuleDefinitions() == null) {
+                throw new ZscriptModelException("ModuleBank has no modules [moduleBank=%s]", mb.getName());
+            }
             for (final String moduleDefinitionLocation : mb.getModuleDefinitions()) {
                 final URL moduleDefinition = new URL(moduleListLocation, moduleDefinitionLocation);
 
@@ -77,10 +84,10 @@ public class ModelLoader {
                 moduleModel.setModuleBank(moduleBank);
                 moduleBank.add(moduleModel);
 
-                for (final CommandModel c : moduleModel.getCommands()) {
-                    addIntrinsicIfRequired(requireNonNull(c.getRequestFields(), () -> c.getName() + ": requestFields null"),
+                for (final CommandModel cmd : moduleModel.getCommands()) {
+                    addIntrinsicIfRequired(cmd, requireNonNull(cmd.getRequestFields(), () -> cmd.getName() + ": requestFields null"),
                             intrinsicsDataModel.getIntrinsics().getRequestFields());
-                    addIntrinsicIfRequired(requireNonNull(c.getResponseFields(), () -> c.getName() + ": responseFields null"),
+                    addIntrinsicIfRequired(cmd, requireNonNull(cmd.getResponseFields(), () -> cmd.getName() + ": responseFields null"),
                             intrinsicsDataModel.getIntrinsics().getResponseFields());
                 }
             }
@@ -89,14 +96,17 @@ public class ModelLoader {
         return moduleBanks;
     }
 
-    private <F extends GenericField> void addIntrinsicIfRequired(final List<F> fields, final List<F> intrinsics) {
+    private <F extends AbstractCommandFieldModel> void addIntrinsicIfRequired(final CommandModel command, final List<F> fields, final List<F> intrinsics) {
         for (final F intrinsicField : intrinsics) {
             for (final F f : fields) {
                 if (intrinsicField.getKey() == f.getKey()) {
                     return;
                 }
             }
-            fields.add(intrinsicField);
+            @SuppressWarnings("unchecked")
+            F clone = (F) intrinsicField.clone();
+            clone.setCommand(command);
+            fields.add(clone);
         }
     }
 

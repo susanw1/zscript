@@ -4,10 +4,12 @@ import static net.zscript.model.standard.StandardModel.MODULEBANK_BASE_NAME;
 import static net.zscript.model.standard.StandardModel.MODULE_BASE_CORE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
+import net.zscript.model.loader.ModelLoader;
 import net.zscript.model.loader.ModuleBank;
 
 class ZmodelTest {
@@ -39,6 +41,12 @@ class ZmodelTest {
         ZscriptModel model = ZscriptModel.standardModel();
         ModuleBank   mb    = model.getModuleBank(MODULEBANK_BASE_NAME).orElseThrow();
         assertThat(mb.modules()).extracting(ModuleModel::getModuleName)
-                .containsExactlyInAnyOrder("Core", "OuterCore", "ScriptSpace", "Pins", "I2C", "Serial", "Servo");
+                .containsExactlyInAnyOrder("Core", "OuterCore", "ScriptSpace", "Pins", "I2C", "Uart", "Servo");
+    }
+
+    @Test
+    void shouldOutputModules() throws JsonProcessingException {
+        ZscriptModel model = ZscriptModel.standardModel();
+        System.out.println(ModelLoader.createJsonMapper().writeValueAsString(model));
     }
 }

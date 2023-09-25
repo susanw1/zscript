@@ -65,8 +65,7 @@ commands:
         typeDefinition:
             '@type': bytes
         required: no
-    -   key: '*'
-        name: any
+    -   name: any
         description: any supplied value will be returned
         typeDefinition:
             '@type': any
@@ -110,43 +109,73 @@ commands:
             '@type': number
         required: no
     status:
-    -   code: CMD_FAIL
+    -   code: commandFail
         meaning: challenge failure
 
-
--   name: reset
+-   name: cryptographicChallenge
     command: 3
-    description: Resets the device(!) or channels. Device reset and *this channel* reset produces no response at all
-    operation: put
-    requestFields:
-    -   key: C
-        name: channel
-        description: specifies channel to be reset
-        typeDefinition:
-            '@type': number
-        required: no
-    responseFields: [ ]
-    status:
-    -   code: CMD_FAIL
-        meaning: reset failed
-
-
--   name: readGuid
-    command: 4
-    description: Retrieves the system GUID, if set
+    description: Challenges the identity of the device, using a public-private key system. The specific implementation is device specific.
     operation: get
-    requestFields: [ ]
-    responseFields:
+    requestFields:
     -   key: +
-        name: guid
-        description: the previously set system GUID
+        name: challenge
+        description: the challenge given to the device
         typeDefinition:
             '@type': bytes
         required: yes
-    status:
-    -   code: CMD_FAIL
-        meaning: no valid GUID set
+    responseFields:
+    -   key: +
+        name: challenge
+        description: the answer to the challenge from the device
+        typeDefinition:
+            '@type': bytes
+        required: yes
+    status: [ ]
 
+-   name: readId
+    command: 4
+    description: Retrieves any of the various system IDs, if they exist
+    operation: get
+    requestFields:
+    -   key: I
+        name: idType
+        description: which type of id should be given (or checked)
+        typeDefinition:
+            '@type': enum
+            values:
+            - TemporaryId
+            - GUID
+            - HardwareId
+        required: yes
+    -   key: F
+        name: failOnNonMatch
+        description: If present, the command will fail if the id given does not match the one saved.
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: +
+        name: matchId
+        description: The id to be checked against the saved id. Always fails match if this is a different length.
+        typeDefinition:
+            '@type': bytes
+        required: no
+    responseFields:
+    -   key: +
+        name: id
+        description: the id specified, if set validly
+        typeDefinition:
+            '@type': bytes
+        required: no
+    status:
+    -   code: commandFail
+        meaning: fail flag set but ids did not match
+
+-   name: makeCode
+    command: 5
+    description: Generates a random 2 byte temporary id
+    operation: post
+    requestFields: [ ]
+    responseFields: [ ]
 
 -   name: channelInfo
     command: 8
@@ -155,17 +184,23 @@ commands:
     requestFields:
     -   key: C
         name: channel
-        description: 'which channel to configure (default: this channel)'
-        typeDefinition:
-            '@type': number
-        required: no
-    -   key: K
-        name: challenge
-        description: allows the client to challenge the identity of the receiver
+        description: 'which channel to fetch info about (default: this channel)'
         typeDefinition:
             '@type': number
         required: no
     responseFields:
+    -   key: C
+        name: channelCount
+        description: the number of channels the device has
+        typeDefinition:
+            '@type': number
+        required: yes
+    -   key: U
+        name: currentChannel
+        description: the index of the channel being used for this communication
+        typeDefinition:
+            '@type': number
+        required: yes
     -   key: B
         name: bufferLength
         description: the total length of this channels token ring buffer
@@ -178,52 +213,10 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
-        name: name
-        description: channel descriptor
-        typeDefinition:
-            '@type': text
-        required: yes
-    -   key: K
-        name: challenge
-        description: the answer to the identity challenge
-        typeDefinition:
-            '@type': number
-        required: no
     extension: channel
-    status: [ ]
-
-
--   name: makeCode
-    command: 12
-    description: Generates a random match-code
-    operation: post
-    requestFields: [ ]
-    responseFields:
-    -   key: C
-        name: matchCode
-        description: newly generated random match-code
-        typeDefinition:
-            '@type': number
-        required: yes
-
-
--   name: matchCode
-    command: 13
-    description: Returns OK only if supplied code matches the previously generated match-code
-    operation: get
-    requestFields:
-    -   key: C
-        name: matchCode
-        description: a match-code to confirm against previously generated one
-        typeDefinition:
-            '@type': number
-        required: yes
-    responseFields: [ ]
     status:
-    -   code: CMD_FAIL
-        meaning: supplied code didn't match
-
+    -   code: valueOutOfRange
+        meaning: channel out of range
 
 -   name: userDefined
     command: 15
@@ -232,3 +225,5 @@ commands:
     requestFields: [ ]
     responseFields: [ ]
     status: [ ]
+
+notifications: [ ]

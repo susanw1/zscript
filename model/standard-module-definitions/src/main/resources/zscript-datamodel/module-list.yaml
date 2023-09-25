@@ -13,5 +13,18 @@ moduleBanks:
     - 00xx-base-modules/002x-scriptspace.yaml
     - 00xx-base-modules/004x-pins.yaml
     - 00xx-base-modules/005x-i2c.yaml
-    - 00xx-base-modules/007x-serial.yaml
+    - 00xx-base-modules/007x-uart.yaml
     - 00xx-base-modules/008x-servo-pulse-control.yaml
+
+-   name: Network
+    id: 1
+    defaultPackage:
+    - net
+    - zscript
+    - model
+    - modules
+
+    moduleDefinitions:
+    - 01xx-networking-modules/010x-ip.yaml
+    - 01xx-networking-modules/011x-udp.yaml
+    - 01xx-networking-modules/012x-tcp.yaml

@@ -34,6 +34,12 @@ commands:
                 description: whether the device supports AtoDs on the pins
             -   name: DtoA
                 description: whether the device supports DtoAs on the pins
+            -   name: PWM
+                description: whether the device supports PWM on the pins
+            -   name: digitalNotification
+                description: whether the device supports notifications for digital pin control
+            -   name: analogNotification
+                description: whether the device supports notifications for AtoD pin control
         required: yes
     status: [ ]
 
@@ -50,50 +56,80 @@ commands:
         required: yes
     -   key: M
         name: mode
-        description: 'which mode should be selected for the pin (default: DigitalInput)'
+        description: 'which mode should be selected for the pin (default: no change)'
         typeDefinition:
             '@type': enum
             values:
-            - Input
-            - InputPullUp
-            - InputPullDown
-            - Reserved__0
-            - Output
-            - Reserved__1
-            - Reserved__2
-            - Reserved__3
-            - OpenDrain
-            - OpenDrainPullUp
-            - OpenDrainPullDown
-            - Reserved__4
-            - OpenCollector
-            - OpenCollectorPullUp
-            - OpenCollectorPullDown
-            - Reserved__5
+            - input
+            - inputPullUp
+            - inputPullDown
+            - reserved__0
+            - output
+            - reserved__1
+            - reserved__2
+            - reserved__3
+            - openDrain
+            - openDrainPullUp
+            - openDrainPullDown
+            - reserved__4
+            - openCollector
+            - openCollectorPullUp
+            - openCollectorPullDown
+            - reserved__5
+        required: no
+    -   key: N
+        name: notificationMode
+        description: 'which notification mode should be selected for the pin (default: no change)'
+        typeDefinition:
+            '@type': enum
+            values:
+            - none
+            - onHigh
+            - onLow
+            - onRising
+            - onFalling
+            - onChange
         required: no
     responseFields:
     -   key: M
         name: supportedModes
-        description: A bitset of the supported operational modes of the pin
+        description: a bitset of the supported operational modes of the pin
         typeDefinition:
             '@type': bitset
             bits:
-            -   name: Input
-            -   name: InputPullUp
-            -   name: InputPullDown
-            -   name: Reserved__0
-            -   name: Output
-            -   name: Reserved__1
-            -   name: Reserved__2
-            -   name: Reserved__3
-            -   name: OpenDrain
-            -   name: OpenDrainPullUp
-            -   name: OpenDrainPullDown
-            -   name: Reserved__4
-            -   name: OpenCollector
-            -   name: OpenCollectorPullUp
-            -   name: OpenCollectorPullDown
-            -   name: Reserved__5
+            -   name: input
+            -   name: inputPullUp
+            -   name: inputPullDown
+            -   name: reserved__0
+            -   name: output
+            -   name: reserved__1
+            -   name: reserved__2
+            -   name: reserved__3
+            -   name: openDrain
+            -   name: openDrainPullUp
+            -   name: openDrainPullDown
+            -   name: reserved__4
+            -   name: openCollector
+            -   name: openCollectorPullUp
+            -   name: openCollectorPullDown
+            -   name: reserved__5
+        required: yes
+    -   key: N
+        name: supportedNotifications
+        description: a bitset of the supported notification modes of the pin (for modes other than output)
+        typeDefinition:
+            '@type': bitset
+            bits:
+            -   name: onHigh
+                description: produces a notification when the pin is sustained high (may be done by polling - transient high levels may be missed)
+            -   name: onLow
+                description: produces a notification when the pin is sustained low (may be done by polling - transient low levels may be missed)
+            -   name: onRising
+                description: produces a notification when the pin rises from low to high (done via interrupt - transient levels will not be missed, and a floating pin may generate many notifications)
+            -   name: onFalling
+                description: produces a notification when the pin falls from high to low (done via interrupt - transient levels will not be missed, and a floating pin may generate many notifications)
+            -   name: onChange
+                description: produces a notification when the pin changes state (done via interrupt - transient levels will not be missed, and a floating pin may generate many notifications)
         required: no
     status: [ ]
 
@@ -154,6 +190,27 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
+    -   key: N
+        name: enableNotifications
+        description: 'whether to give notifications for analog values out of a specified range (default: no change) - note that analog notifications may be done by polling, so transient values may be missed'
+        typeDefinition:
+            '@type': enum
+            values:
+            - disable
+            - enable
+        required: no
+    -   key: L
+        name: lowerLimitNotify
+        description: 'if notifications are enabled for this pin, one will be generated if the measured value falls below this (default: no change), initial value: 0'
+        typeDefinition:
+            '@type': number
+        required: no
+    -   key: U
+        name: upperLimitNotify
+        description: 'if notifications are enabled for this pin, one will be generated if the measured value rises above this (default: no change), initial value: ffff'
+        typeDefinition:
+            '@type': number
+        required: no
     responseFields:
     -   key: B
         name: bitCount
@@ -161,6 +218,12 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
+    -   key: N
+        name: supportedNotifications
+        description: whether the pin supports notifications for out-of-range analog values
+        typeDefinition:
+            '@type': flag
+        required: no
     status: [ ]
 
 -   name: analogRead
@@ -177,7 +240,7 @@ commands:
     responseFields:
     -   key: V
         name: value
-        description: value read from pin, leftshifted to compensate for precision, so that 8000 is always half
+        description: value read from pin, left-shifted to compensate for precision, so that 8000 is always half
         typeDefinition:
             '@type': number
         required: yes
@@ -255,9 +318,81 @@ commands:
         required: yes
     -   key: V
         name: value
-        description: value to be written, leftshifted to compensate for precision, so that 8000 is always 50%
+        description: value to be written, left-shifted to compensate for precision, so that 8000 is always 50%
         typeDefinition:
             '@type': number
         required: yes
     responseFields: [ ]
     status: [ ]
+
+notifications:
+-   name: digital
+    notification: 0
+    description: a notification configured on a digitally configured pin has triggered
+    condition: on a configured digital notification
+    sections:
+    -   section:
+            name: digital
+            description: information on a digitally configured pin causing a notification
+            fields:
+            -   key: P
+                name: pin
+                description: which pin triggered the notification
+                typeDefinition:
+                    '@type': number
+                required: yes
+            -   key: T
+                name: type
+                description: the type of notification triggered on the pin
+                typeDefinition:
+                    '@type': enum
+                    values:
+                    - reserved
+                    - high
+                    - low
+                    - rising
+                    - falling
+                    - change
+                required: yes
+            -   key: V
+                name: value
+                description: current value on the pin (note that this may not match what would be expected from type, as this value is read after the notification is triggered)
+                typeDefinition:
+                    '@type': enum
+                    values:
+                    - low
+                    - high
+                required: yes
+        logicalTermination: end
+
+-   name: analog
+    notification: 1
+    description: a notification configured on a pin configured in AtoD mode has triggered
+    condition: on a configured digital notification
+    sections:
+    -   section:
+            name: analog
+            description: information on an AtoD configured pin causing a notification
+            fields:
+            -   key: P
+                name: pin
+                description: which pin triggered the notification
+                typeDefinition:
+                    '@type': number
+                required: yes
+            -   key: T
+                name: type
+                description: the type of notification triggered on the pin
+                typeDefinition:
+                    '@type': enum
+                    values:
+                    - belowRange
+                    - aboveRange
+                required: yes
+            -   key: V
+                name: value
+                description: the analog reading from the pin which triggered the notification, left-shifted so that 8000 is always 50% (note that this must be the value which triggered the notification itself, not a later read)
+                typeDefinition:
+                    '@type': number
+                required: yes
+        logicalTermination: end

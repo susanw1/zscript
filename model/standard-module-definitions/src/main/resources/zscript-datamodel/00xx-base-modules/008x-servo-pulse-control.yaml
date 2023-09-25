@@ -1,5 +1,5 @@
 name: Servo
-id: 4
+id: 8
 version: 0.0.1
 description: Basic servo functionality
 
@@ -253,3 +253,5 @@ commands:
             '@type': flag
         required: no
     status: [ ]
+
+notifications: [ ]
