@@ -6,11 +6,9 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
 
@@ -239,13 +237,6 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
             throw new ZscriptFieldOutOfRangeException("name=%s, key='%c', value=0x%x, min=0x%x, max=0x%x", enumClass.getSimpleName(), key, value, 0, max - 1);
         }
         return value;
-    }
-
-    protected static <E extends Enum<E>> EnumSet<E> bitsetToEnumSet(int bitFields, Class<E> enumClass) {
-        final E[] enumValues = enumClass.getEnumConstants();
-        return BitSet.valueOf(new long[] { bitFields }).stream()
-                .mapToObj(b -> enumValues[b])
-                .collect(Collectors.toCollection(() -> EnumSet.noneOf(enumClass)));
     }
 
     protected abstract T parseResponse(ZscriptExpression resp);

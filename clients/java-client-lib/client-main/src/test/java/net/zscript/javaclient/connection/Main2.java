@@ -2,7 +2,7 @@ package net.zscript.javaclient.connection;
 
 import java.io.IOException;
 
-import static net.zscript.model.modules.base.CoreModule.CapabilitiesCommandBuilder.VersionType.PlatformFirmware;
+import static net.zscript.model.modules.base.CoreModule.CapabilitiesCommand.Builder.VersionType.PlatformFirmware;
 
 import net.zscript.model.modules.base.CoreModule;
 

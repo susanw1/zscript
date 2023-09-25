@@ -1,6 +1,6 @@
 package net.zscript.model.modules.base;
 
-import static net.zscript.model.modules.base.CoreModule.ReadIdCommandBuilder.IdType.TemporaryId;
+import static net.zscript.model.modules.base.CoreModule.ReadIdCommand.Builder.IdType.TemporaryId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -28,7 +28,7 @@ public class CoreModuleTest {
 
     @Test
     public void shouldCreateCoreActivateWithField() {
-        ZscriptCommandNode c = CoreModule.activateBuilder()
+        ZscriptCommandNode c = CoreModule.ActivateCommand.builder()
                 .setChallenge(3)
                 .build();
         byte[] ztext = c.compile();
@@ -60,12 +60,4 @@ public class CoreModuleTest {
                 .hasMessage("missingKeys='I'");
     }
 
-    @Test
-    public void should() {
-        //        ZscriptCommandNode c = CoreModule.echoBuilder()EchoCommandBuilder.EchoCommandResponse.
-        //                .setChallenge(3)
-        //                .build();
-        //        byte[] ztext = c.compile();
-        //        assertThat(ztext).containsExactly('Z', '2', 'K', '3');
-    }
 }

@@ -5,21 +5,21 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestE.Lion;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestE.Tabby;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestF.Camembert;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestF.Cheddar;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestF.GreekFeta;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.EnumReqTestA.Dog;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.EnumReqTestB.Hare;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.EnumReqTestB.Rabbit;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.BitsetReqTestE.Lion;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.BitsetReqTestE.Tabby;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.BitsetReqTestF.Camembert;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.BitsetReqTestF.Cheddar;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.BitsetReqTestF.GreekFeta;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.EnumReqTestA.Dog;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.EnumReqTestB.Hare;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.EnumReqTestB.Rabbit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
 import net.zscript.client.modules.test.testing.TestingModule;
-import net.zscript.client.modules.test.testing.TestingModule.TestCommand0CommandBuilder.BitsetReqTestE;
+import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.BitsetReqTestE;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptFieldOutOfRangeException;
 import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
