@@ -8,6 +8,10 @@ class DemoActivateCommand extends ZscriptBuiltCommandNode<DemoActivateCommand.De
         super(builder);
     }
 
+    public static DemoActivateCommandBuilder builder() {
+        return new DemoActivateCommandBuilder();
+    }
+
     @Override
     protected DemoActivateCommandResponse parseResponse(ZscriptExpression resp) {
         return new DemoActivateCommandResponse(resp, new byte[] {}, resp.getField('A').orElse(0) == 1);
