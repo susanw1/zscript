@@ -26,13 +26,14 @@
 
 #include <zscript/notifications/ZscriptNotificationSource.hpp>
 #include <zscript/execution/ZscriptNotificationContext.hpp>
+#include "notifications/I2cNotification.hpp"
 
 #endif
 #endif
 
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
 
-namespace Zscript{
+namespace Zscript {
 template<class ZP>
 class I2cChannel;
 }
@@ -71,7 +72,6 @@ namespace Zscript {
 template<class ZP>
 class I2cModule : public ZscriptModule<ZP> {
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
-    static const uint8_t SMBUS_ALERT_ADDR = 0xC;
     static bool isAddressing;
     static bool giveNotifs;
 #endif
@@ -170,61 +170,7 @@ public:
 #endif
 
     static void notification(ZscriptNotificationContext<ZP> ctx, bool moveAlong) {
-        (void) moveAlong;
-        NotificationOutStream<ZP> out = ctx.getOutStream();
-        uint8_t len = Wire.requestFrom(SMBUS_ALERT_ADDR, (uint8_t) 1);
-        if (len != 2 && len != 1) {
-#ifdef ZSCRIPT_SUPPORT_ADDRESSING
-            if (isAddressing) {
-                out.writeField(Zchars::Z_ADDRESSING, 0x5);
-                out.writeField(Zchars::Z_ADDRESSING_CONTINUE, 0x0);
-                out.writeField(Zchars::Z_STATUS, ResponseStatus::ADDRESS_NOT_FOUND);
-            } else {
-#endif
-                out.writeField('I', 0x0);
-                out.writeAndThen();
-                out.writeField('F', 0);
-#ifdef ZSCRIPT_SUPPORT_ADDRESSING
-            }
-#endif
-            return;
-        }
-        uint8_t addr = ((uint8_t) Wire.read()) >> 1;
-#ifdef ZSCRIPT_SUPPORT_ADDRESSING
-        if (!isAddressing) {
-#endif
-            out.writeField('I', 0x0);
-            out.writeAndThen();
-            out.writeField('A', addr);
-            return;
-#ifdef ZSCRIPT_SUPPORT_ADDRESSING
-        }
-        out.writeField(Zchars::Z_ADDRESSING, 0x5);
-        out.writeField(Zchars::Z_ADDRESSING_CONTINUE, 0x0);
-        out.writeField(Zchars::Z_ADDRESSING_CONTINUE, addr);
-        uint8_t dataBuffer[ZP::i2cAddressingReadBlockLength];
-        delayMicroseconds(10);
-        while (true) {
-            uint8_t len = Wire.requestFrom((uint8_t) addr, ZP::i2cAddressingReadBlockLength);
-            if (len != ZP::i2cAddressingReadBlockLength) {
-                out.endSequence();
-                out.writeField('!', 0x5);
-                out.writeField('I', 0);
-                out.writeField('A', (uint8_t) addr);
-                out.writeField('S', ResponseStatus::ADDRESS_NOT_FOUND);
-                return;
-            }
-            uint8_t c = 0;
-            uint8_t i = 0;
-            while (i < len && (c = Wire.read()) != '\n') {
-                dataBuffer[i++] = c;
-            }
-            out.writeBytes(dataBuffer, i);
-            if (c == '\n') {
-                break;
-            }
-        }
-#endif
+        ZscriptI2cNotification<ZP>::notification(ctx, moveAlong, isAddressing);
     }
 
 #endif
