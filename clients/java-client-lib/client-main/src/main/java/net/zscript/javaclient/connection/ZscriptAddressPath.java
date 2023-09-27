@@ -1,24 +1,20 @@
 package net.zscript.javaclient.connection;
 
-import static java.util.Arrays.stream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Objects;
+
 import static java.util.List.copyOf;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import net.zscript.model.components.Zchars;
+import net.zscript.javaclient.commandbuilder.ByteWritable;
 
 /**
  * Simple encapsulation of a set of Zscript addresses, representing the Zscript location of a device.
  */
-public final class ZscriptAddressPath {
+public final class ZscriptAddressPath implements ByteWritable {
     private final List<ZscriptAddress> addresses;
 
     public static ZscriptAddressPath path(ZscriptAddress... addresses) {
@@ -88,7 +84,7 @@ public final class ZscriptAddressPath {
         return addresses.stream().map(ZscriptAddress::toString).collect(joining());
     }
 
-    public OutputStream writeTo(final OutputStream out) throws IOException {
+    public <T extends OutputStream> T writeTo(final T out) throws IOException {
         for (ZscriptAddress a : addresses) {
             a.writeTo(out);
         }

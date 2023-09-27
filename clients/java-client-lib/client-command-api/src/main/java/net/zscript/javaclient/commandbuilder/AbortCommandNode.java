@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
 public class AbortCommandNode extends ZscriptCommandNode {
+    private static final byte[] ZSCRIPT_BYTES = "Z1S13".getBytes(StandardCharsets.UTF_8);
 
     @Override
     public CommandSequenceNode thenFail() {
@@ -53,7 +54,7 @@ public class AbortCommandNode extends ZscriptCommandNode {
 
     @Override
     byte[] compile(boolean includeParens) {
-        return "Z1S13".getBytes(StandardCharsets.UTF_8);
+        return ZSCRIPT_BYTES;
     }
 
     @Override

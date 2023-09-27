@@ -6,6 +6,8 @@ import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
 public class FailureCommandNode extends ZscriptCommandNode {
 
+    public static final byte[] ZSCRIPT_BYTES = "Z1S2".getBytes(StandardCharsets.UTF_8);
+
     @Override
     public CommandSequenceNode thenFail() {
         return this;
@@ -48,7 +50,7 @@ public class FailureCommandNode extends ZscriptCommandNode {
 
     @Override
     byte[] compile(boolean includeParens) {
-        return "Z1S2".getBytes(StandardCharsets.UTF_8);
+        return ZSCRIPT_BYTES;
     }
 
     @Override

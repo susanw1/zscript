@@ -1,10 +1,10 @@
 package net.zscript.javaclient.connection;
 
-import static net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder.formatField;
-import static net.zscript.model.components.Zchars.Z_NEWLINE;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
+import static net.zscript.javaclient.commandbuilder.Utils.formatField;
+import static net.zscript.model.components.Zchars.Z_NEWLINE;
 
 import net.zscript.model.components.Zchars;
 

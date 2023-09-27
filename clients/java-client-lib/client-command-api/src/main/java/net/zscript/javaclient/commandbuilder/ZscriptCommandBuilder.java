@@ -1,8 +1,7 @@
 package net.zscript.javaclient.commandbuilder;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -132,7 +131,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
      */
     public abstract ZscriptBuiltCommandNode<T> build();
 
-    static class BigField {
+    static class BigField implements ByteWritable {
         private final byte[]  data;
         private final boolean isString;
 
@@ -141,33 +140,26 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
             this.isString = isString;
         }
 
-        public void write(ByteArrayOutputStream out) {
-            try {
-                if (isString) {
-                    out.write('"');
-                    for (byte b : data) {
-                        if (b == '"') {
-                            out.write("=22".getBytes(StandardCharsets.UTF_8));
-                        } else if (b == '=') {
-                            out.write("=3d".getBytes(StandardCharsets.UTF_8));
-                        } else if (b == '\n') {
-                            out.write("=0a".getBytes(StandardCharsets.UTF_8));
-                        } else if (b == '\0') {
-                            out.write("=00".getBytes(StandardCharsets.UTF_8));
-                        } else {
-                            out.write(b);
-                        }
-                    }
-                    out.write('"');
-                } else {
-                    out.write('+');
-                    for (byte b : data) {
-                        out.write(new byte[] { Utils.toHex(b >> 4), Utils.toHex(b & 0xF) });
+        @Override
+        public <T extends OutputStream> T writeTo(T out) throws IOException {
+            if (isString) {
+                out.write(Zchars.Z_BIGFIELD_QUOTED);
+                for (byte b : data) {
+                    if (Zchars.mustStringEscape(b)) {
+                        out.write(Zchars.Z_STRING_ESCAPE);
+                        writeHex(b, out);
+                    } else {
+                        out.write(b);
                     }
                 }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+                out.write(Zchars.Z_BIGFIELD_QUOTED);
+            } else {
+                out.write(Zchars.Z_BIGFIELD_HEX);
+                for (byte b : data) {
+                    writeHex(b, out);
+                }
             }
+            return out;
         }
     }
 }

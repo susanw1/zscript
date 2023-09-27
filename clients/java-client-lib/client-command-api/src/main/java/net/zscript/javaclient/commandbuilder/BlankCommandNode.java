@@ -4,6 +4,8 @@ import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
 public class BlankCommandNode extends ZscriptCommandNode {
 
+    public static final byte[] ZSCRIPT_BYTES = new byte[0];
+
     @Override
     public CommandSequenceNode thenFail() {
         return new FailureCommandNode();
@@ -51,7 +53,7 @@ public class BlankCommandNode extends ZscriptCommandNode {
 
     @Override
     byte[] compile(boolean includeParens) {
-        return new byte[0];
+        return ZSCRIPT_BYTES;
     }
 
     @Override

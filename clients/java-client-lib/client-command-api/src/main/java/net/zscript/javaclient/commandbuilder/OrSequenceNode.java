@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
+import net.zscript.model.components.Zchars;
+
 public class OrSequenceNode extends CommandSequenceNode {
     final CommandSequenceNode before;
     final CommandSequenceNode after;
@@ -26,28 +28,28 @@ public class OrSequenceNode extends CommandSequenceNode {
     }
 
     @Override
-    CommandSequenceNode reEvaluate() {
+    CommandSequenceNode optimize() {
         if (!before.canFail()) {
-            return before.reEvaluate();
+            return before.optimize();
         }
-        return new OrSequenceNode(before.reEvaluate(), after.reEvaluate());
+        return new OrSequenceNode(before.optimize(), after.optimize());
     }
 
     @Override
     public byte[] compile(boolean includeParens) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         if (includeParens) {
-            out.write((byte) '(');
+            out.write(Zchars.Z_OPENPAREN);
         }
         try {
             out.write(before.compile(false));
-            out.write((byte) '|');
+            out.write(Zchars.Z_ORELSE);
             out.write(after.compile(false));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         if (includeParens) {
-            out.write((byte) ')');
+            out.write(Zchars.Z_CLOSEPAREN);
         }
         return out.toByteArray();
     }

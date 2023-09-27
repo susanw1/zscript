@@ -32,6 +32,7 @@ public abstract class ZscriptBuiltCommandNode<T extends ZscriptResponse> extends
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             if (fields.get(Zchars.Z_CMD) != null) {
+
                 out.write(Utils.formatField(Zchars.Z_CMD, fields.get(Zchars.Z_CMD)));
             }
             for (Map.Entry<Byte, Integer> entry : fields.entrySet()) {
@@ -42,7 +43,7 @@ public abstract class ZscriptBuiltCommandNode<T extends ZscriptResponse> extends
                 }
             }
             for (BigField big : bigFields) {
-                big.write(out);
+                big.writeTo(out);
             }
             return out.toByteArray();
         } catch (IOException e) {

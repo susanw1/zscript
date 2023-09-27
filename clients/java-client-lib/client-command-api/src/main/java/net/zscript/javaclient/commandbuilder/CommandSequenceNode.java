@@ -99,7 +99,7 @@ public abstract class CommandSequenceNode {
      *
      * @return a rewritten node.
      */
-    CommandSequenceNode reEvaluate() {
+    CommandSequenceNode optimize() {
         return this;
     }
 
