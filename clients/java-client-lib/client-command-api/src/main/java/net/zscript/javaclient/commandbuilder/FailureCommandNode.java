@@ -47,22 +47,7 @@ public class FailureCommandNode extends ZscriptCommandNode {
     }
 
     @Override
-    public boolean canFail() {
-        return true;
-    }
-
-    @Override
-    public boolean isCommand() {
-        return true;
-    }
-
-    @Override
-    public CommandSequenceNode reEvaluate() {
-        return this;
-    }
-
-    @Override
-    public byte[] compile(boolean includeParens) {
+    byte[] compile(boolean includeParens) {
         return "Z1S2".getBytes(StandardCharsets.UTF_8);
     }
 

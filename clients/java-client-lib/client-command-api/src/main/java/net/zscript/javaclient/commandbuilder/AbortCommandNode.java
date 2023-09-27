@@ -47,23 +47,13 @@ public class AbortCommandNode extends ZscriptCommandNode {
     }
 
     @Override
-    public boolean canFail() {
+    protected boolean canFail() {
         return false;
     }
 
     @Override
-    public CommandSequenceNode reEvaluate() {
-        return this;
-    }
-
-    @Override
-    public byte[] compile(boolean includeParens) {
+    byte[] compile(boolean includeParens) {
         return "Z1S13".getBytes(StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public boolean isCommand() {
-        return true;
     }
 
     @Override

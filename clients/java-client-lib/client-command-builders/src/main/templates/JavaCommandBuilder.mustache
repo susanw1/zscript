@@ -6,6 +6,8 @@ import java.util.stream.*;
 
 import javax.annotation.processing.Generated;
 
+import static net.zscript.javaclient.commandbuilder.Utils.*;
+
 import net.zscript.javaclient.commandbuilder.*;
 import net.zscript.javareceiver.tokenizer.*;
 import net.zscript.model.components.*;
@@ -60,9 +62,27 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
 {{/commands}}
 {{#commands}}
 
-    public static class {{#upperCamel}}{{commandName}}Command{{/upperCamel}} {
+    public static class {{#upperCamel}}{{commandName}}Command{{/upperCamel}}
+            extends ZscriptBuiltCommandNode<{{#upperCamel}}{{commandName}}Command{{/upperCamel}}.{{#upperCamel}}{{name}}{{/upperCamel}}CommandResponse> {
+        public static final byte CMD_ID = {{command}};
+
+        public {{#upperCamel}}{{commandName}}Command{{/upperCamel}}(Builder builder) {
+            super(builder);
+        }
+
         public static Builder builder() {
             return new Builder();
+        }
+
+
+        @Override
+        protected boolean canFail() {
+            return {{#status}}true|{{/status}}{{^status}}false|{{/status}}false;
+        }
+
+        @Override
+        protected {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}} parseResponse(ZscriptExpression resp) {
+            return new {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}}(resp);
         }
 
         /**
@@ -72,14 +92,19 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
          */
         public static class Builder extends ZscriptCommandBuilder<{{#upperCamel}}{{name}}{{/upperCamel}}CommandResponse> {
 
-            public static final byte CMD_ID = {{command}};
-
             private Builder() {
                 setRequiredFields(new byte[] { {{#requestFields}}{{#required}}(byte) '{{key}}', {{/required}}{{/requestFields}} });
                 setField(Zchars.Z_CMD, {{fullCommand}});
             }
 
-            // +++++++++++++ REQUEST FIELDS +++++++++++++
+            @Override
+            public {{#upperCamel}}{{commandName}}Command{{/upperCamel}} build() {
+                failIfInvalid();
+                return new {{#upperCamel}}{{commandName}}Command{{/upperCamel}}(this);
+            }
+
+
+        // +++++++++++++ REQUEST FIELDS +++++++++++++
         {{#requestFields}}
             {{#typeDefinition}}
                 {{#enumType}}
@@ -474,16 +499,6 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
                 {{/anyType}}
             {{/typeDefinition}}
         {{/requestFields}}
-
-            @Override
-            protected boolean commandCanFail() {
-                return {{#status}}true|{{/status}}{{^status}}false|{{/status}}false;
-            }
-
-            @Override
-            protected {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}} parseResponse(ZscriptExpression resp) {
-                return new {{#upperCamel}}{{name}}CommandResponse{{/upperCamel}}(resp);
-            }
         }
 
     // +++++++++++++ RESPONSE FIELDS +++++++++++++

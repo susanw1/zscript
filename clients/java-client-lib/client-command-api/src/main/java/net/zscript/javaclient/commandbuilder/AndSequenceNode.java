@@ -51,7 +51,7 @@ public class AndSequenceNode extends CommandSequenceNode {
     }
 
     @Override
-    public CommandSequenceNode reEvaluate() {
+    CommandSequenceNode reEvaluate() {
         List<CommandSequenceNode> els = new ArrayList<>();
         for (CommandSequenceNode element : elements) {
             if (element.getClass() == FailureCommandNode.class) {
@@ -68,7 +68,7 @@ public class AndSequenceNode extends CommandSequenceNode {
                 els.add(element.reEvaluate());
             }
         }
-        if (els.size() == 0) {
+        if (els.isEmpty()) {
             return new BlankCommandNode();
         }
         if (els.size() == 1) {
@@ -78,7 +78,7 @@ public class AndSequenceNode extends CommandSequenceNode {
     }
 
     @Override
-    public byte[] compile(boolean includeParens) {
+    byte[] compile(boolean includeParens) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         boolean useAnd = false;

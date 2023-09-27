@@ -3,6 +3,8 @@ package net.zscript.javaclient.commandbuilder;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+import net.zscript.javaclient.commandbuilder.DemoActivateCommand.DemoActivateCommandBuilder;
+
 public class Demo {
     public static void main(String[] args) {
         byte[] data = new DemoCapabilitiesCommandBuilder()

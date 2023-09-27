@@ -16,17 +16,17 @@ public class OrSequenceNode extends CommandSequenceNode {
     }
 
     @Override
-    public boolean canFail() {
+    protected boolean canFail() {
         return after.canFail();
     }
 
     @Override
-    public boolean isCommand() {
+    boolean isCommand() {
         return false;
     }
 
     @Override
-    public CommandSequenceNode reEvaluate() {
+    CommandSequenceNode reEvaluate() {
         if (!before.canFail()) {
             return before.reEvaluate();
         }

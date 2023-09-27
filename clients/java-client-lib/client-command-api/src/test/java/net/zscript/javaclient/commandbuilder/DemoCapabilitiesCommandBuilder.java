@@ -2,7 +2,6 @@ package net.zscript.javaclient.commandbuilder;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
-import net.zscript.javaclient.commandbuilder.DemoCapabilitiesCommandBuilder.DemoCapabilitiesCommandResponse;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
 public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> {
@@ -12,39 +11,24 @@ public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCa
     public static final int PLATFORM_HARDWARE = 3;
     public static final int CORE_ZSCRIPT      = 4;
 
-    private int infoType = USER_FIRMWARE;
-
-    public class DemoCapabilitiesCommandResponse extends ValidatingResponse {
-        private final int    version;
-        private final String name;
-
-        public DemoCapabilitiesCommandResponse(ZscriptExpression resp, byte[] bs, int version, String name) {
-            super(resp, bs);
-            this.version = version;
-            this.name = name;
-        }
-
-        public int getVersion() {
-            return version;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public int getVersionType() {
-            return infoType;
-        }
-    }
-
     public DemoCapabilitiesCommandBuilder() {
         setField('Z', 0);
     }
 
     public DemoCapabilitiesCommandBuilder setVersionType(int infoType) {
-        this.infoType = infoType;
         setField('V', infoType);
         return this;
+    }
+
+    @Override
+    public ZscriptBuiltCommandNode<DemoCapabilitiesCommandResponse> build() {
+        return new DemoCapabilities(this);
+    }
+}
+
+class DemoCapabilities extends ZscriptBuiltCommandNode<DemoCapabilitiesCommandResponse> {
+    public DemoCapabilities(DemoCapabilitiesCommandBuilder builder) {
+        super(builder);
     }
 
     @Override
@@ -53,7 +37,31 @@ public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCa
     }
 
     @Override
-    protected boolean commandCanFail() {
+    protected boolean canFail() {
         return false;
+    }
+}
+
+class DemoCapabilitiesCommandResponse extends ValidatingResponse {
+    private       int    infoType = DemoCapabilitiesCommandBuilder.USER_FIRMWARE;
+    private final int    version;
+    private final String name;
+
+    public DemoCapabilitiesCommandResponse(ZscriptExpression resp, byte[] bs, int version, String name) {
+        super(resp, bs);
+        this.version = version;
+        this.name = name;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getVersionType() {
+        return infoType;
     }
 }

@@ -76,13 +76,34 @@ public abstract class CommandSequenceNode {
         return failure -> success -> andThen(success.dropFailureCondition()).onFail(failure);
     }
 
-    public abstract boolean isCommand();
+    /**
+     * Distinguishes an executable syntax-tree node from a logical AND/OR group.
+     *
+     * @return true if this is a Command, false if it's a logic group.
+     */
+    boolean isCommand() {
+        return true;
+    }
 
-    public abstract boolean canFail();
+    /**
+     * Override if command never produces a FAIL (S1-Sf) condition, which allows builder to ignore ORELSE choices (this is an optimization, if in doubt, leave it!).
+     *
+     * @return true if command may fail, false otherwise
+     */
+    protected boolean canFail() {
+        return true;
+    }
 
-    abstract CommandSequenceNode reEvaluate();
+    /**
+     * Allows a node to be optimized to remove unused structured, esp for commands with no "failure" conditions.
+     *
+     * @return a rewritten node.
+     */
+    CommandSequenceNode reEvaluate() {
+        return this;
+    }
 
-    protected abstract byte[] compile(boolean includeParens);
+    abstract byte[] compile(boolean includeParens);
 
     public final byte[] compile() {
         return compile(false);

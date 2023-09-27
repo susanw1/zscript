@@ -12,7 +12,6 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.joining;
 
-import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 import net.zscript.model.components.Zchars;
 
 /**
@@ -23,134 +22,12 @@ import net.zscript.model.components.Zchars;
 public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     private static final int BIGFIELD_REQD_OFFSET = 26;
 
-    private final List<ZscriptResponseListener<T>> listeners      = new ArrayList<>();
-    private final List<BigField>                   bigFields      = new ArrayList<>();
-    private final Map<Byte, Integer>               fields         = new HashMap<>();
-    private final BitSet                           requiredFields = new BitSet();
+    final List<ZscriptResponseListener<T>> listeners = new ArrayList<>();
+    final List<BigField>                   bigFields = new ArrayList<>();
+    final Map<Byte, Integer>               fields    = new HashMap<>();
 
-    /**
-     * A representation of a command, returned by calling {@link #build()} on the builder, ready for amalgamation into a command sequence.
-     */
-    public class ZscriptBuiltCommandNode extends ZscriptCommandNode {
-
-        @Override
-        public CommandSequenceNode reEvaluate() {
-            return this;
-        }
-
-        @Override
-        public boolean canFail() {
-            return commandCanFail();
-        }
-
-        @Override
-        public boolean isCommand() {
-            return true;
-        }
-
-        @Override
-        public byte[] compile(boolean includeParens) {
-            try {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                if (fields.get(Zchars.Z_CMD) != null) {
-                    out.write(formatField(Zchars.Z_CMD, fields.get(Zchars.Z_CMD)));
-                }
-                for (Map.Entry<Byte, Integer> entry : fields.entrySet()) {
-                    Byte key = entry.getKey();
-                    if (key != Zchars.Z_CMD) {
-                        Integer val = entry.getValue();
-                        out.write(formatField(key, val));
-                    }
-                }
-                for (BigField big : bigFields) {
-                    big.write(out);
-                }
-                return out.toByteArray();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-
-        @Override
-        public void onResponse(ZscriptExpression resp) {
-            T parsed = parseResponse(resp);
-            for (ZscriptResponseListener<T> listener : listeners) {
-                listener.accept(parsed);
-            }
-        }
-
-        @Override
-        public void onNotExecuted() {
-            for (ZscriptResponseListener<T> listener : listeners) {
-                listener.notExecuted();
-            }
-        }
-    }
-
-    private static class BigField {
-        private final byte[]  data;
-        private final boolean isString;
-
-        public BigField(byte[] data, boolean isString) {
-            this.data = data;
-            this.isString = isString;
-        }
-
-        public void write(ByteArrayOutputStream out) {
-            try {
-                if (isString) {
-                    out.write('"');
-                    for (byte b : data) {
-                        if (b == '"') {
-                            out.write("=22".getBytes(StandardCharsets.UTF_8));
-                        } else if (b == '=') {
-                            out.write("=3d".getBytes(StandardCharsets.UTF_8));
-                        } else if (b == '\n') {
-                            out.write("=0a".getBytes(StandardCharsets.UTF_8));
-                        } else if (b == '\0') {
-                            out.write("=00".getBytes(StandardCharsets.UTF_8));
-                        } else {
-                            out.write(b);
-                        }
-                    }
-                    out.write('"');
-                } else {
-                    out.write('+');
-                    for (byte b : data) {
-                        out.write(new byte[] { toHex(b >> 4), toHex(b & 0xF) });
-                    }
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    private static byte toHex(int nibble) {
-        if (nibble < 10) {
-            return (byte) (nibble + '0');
-        }
-        return (byte) (nibble + 'a' - 10);
-    }
-
-    public static byte[] formatField(byte f, int value) {
-        if (value >= 0x10000 || value < 0) {
-            throw new IllegalStateException("Command fields must be uint16s: " + value);
-        }
-        if (value == 0) {
-            return new byte[] { f };
-        }
-        if (value < 0x10) {
-            return new byte[] { f, toHex(value) };
-        }
-        if (value < 0x100) {
-            return new byte[] { f, toHex(value >> 4), toHex(value & 0xF) };
-        }
-        if (value < 0x1000) {
-            return new byte[] { f, toHex(value >> 8), toHex((value >> 4) & 0xF), toHex(value & 0xF) };
-        }
-        return new byte[] { f, toHex(value >> 12), toHex((value >> 8) & 0xF), toHex((value >> 4) & 0xF), toHex(value & 0xF) };
-    }
+    /** set of 26 numeric fields, and bigfield. Bits init'd on {@link #setRequiredFields(byte[])} and cleared when fields are set. */
+    private final BitSet requiredFields = new BitSet();
 
     public ZscriptCommandBuilder<T> setField(byte key, int value) {
         if (!Zchars.isNumericKey(key)) {
@@ -218,31 +95,6 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
     }
 
-    /**
-     * Checks that the supplied number can index the supplied Enum type, and throws a ZscriptFieldOutOfRangeException if it isn't.
-     *
-     * @param value     the value to check
-     * @param enumClass the class of the enum to validate against
-     * @param key       the letter key of the field being checked, for error msg purposes
-     * @param isBitset  true if this enum represents a bitset, where values are really powers of 2; false if it's a normal enum
-     * @return the value passed in, for nesting
-     * @throws ZscriptFieldOutOfRangeException if value is out of range
-     */
-    protected static <E extends Enum<E>> int checkInEnumRange(int value, Class<E> enumClass, char key, boolean isBitset) {
-        int max = enumClass.getEnumConstants().length;
-        if (isBitset) {
-            max = 1 << max;
-        }
-        if (value < 0 || value >= max) {
-            throw new ZscriptFieldOutOfRangeException("name=%s, key='%c', value=0x%x, min=0x%x, max=0x%x", enumClass.getSimpleName(), key, value, 0, max - 1);
-        }
-        return value;
-    }
-
-    protected abstract T parseResponse(ZscriptExpression resp);
-
-    protected abstract boolean commandCanFail();
-
     public ZscriptCommandBuilder<T> addResponseListener(ZscriptResponseListener<T> listener) {
         listeners.add(listener);
         return this;
@@ -258,18 +110,64 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     }
 
     /**
-     * Builds the command.
+     * Validates that there are no invalid (missing+required) fields. To be called on {@link #build()}.
      *
      * @return the command that has been built
      * @throws ZscriptMissingFieldException if builder doesn't yet pass validation
      */
-    public ZscriptCommandNode build() {
+    protected void failIfInvalid() {
         if (!isValid()) {
             String fieldList = requiredFields.stream()
                     .mapToObj(b -> "'" + (b == BIGFIELD_REQD_OFFSET ? "+" : String.valueOf((char) (b + 'A'))) + "'")
                     .collect(joining(","));
             throw new ZscriptMissingFieldException("missingKeys=%s", fieldList);
         }
-        return new ZscriptBuiltCommandNode();
+    }
+
+    /**
+     * Builds the command.
+     *
+     * @return the command that has been built
+     * @throws ZscriptMissingFieldException if builder doesn't yet pass validation
+     */
+    public abstract ZscriptBuiltCommandNode<T> build();
+
+    static class BigField {
+        private final byte[]  data;
+        private final boolean isString;
+
+        public BigField(byte[] data, boolean isString) {
+            this.data = data;
+            this.isString = isString;
+        }
+
+        public void write(ByteArrayOutputStream out) {
+            try {
+                if (isString) {
+                    out.write('"');
+                    for (byte b : data) {
+                        if (b == '"') {
+                            out.write("=22".getBytes(StandardCharsets.UTF_8));
+                        } else if (b == '=') {
+                            out.write("=3d".getBytes(StandardCharsets.UTF_8));
+                        } else if (b == '\n') {
+                            out.write("=0a".getBytes(StandardCharsets.UTF_8));
+                        } else if (b == '\0') {
+                            out.write("=00".getBytes(StandardCharsets.UTF_8));
+                        } else {
+                            out.write(b);
+                        }
+                    }
+                    out.write('"');
+                } else {
+                    out.write('+');
+                    for (byte b : data) {
+                        out.write(new byte[] { Utils.toHex(b >> 4), Utils.toHex(b & 0xF) });
+                    }
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
     }
 }

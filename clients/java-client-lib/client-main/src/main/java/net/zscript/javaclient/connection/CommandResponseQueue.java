@@ -10,7 +10,7 @@ import java.util.Queue;
 import java.util.function.Consumer;
 
 import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
+import net.zscript.javaclient.commandbuilder.Utils;
 import net.zscript.javaclient.connection.ResponseParser.ResponseHeader;
 import net.zscript.model.components.Zchars;
 
@@ -150,7 +150,7 @@ public class CommandResponseQueue implements DeviceNode {
         @Override
         public byte[] compile() {
             // TODO: decide on how locking will work...
-            byte[] echoF     = ZscriptCommandBuilder.formatField(Zchars.Z_ECHO, echo);
+            byte[] echoF     = Utils.formatField(Zchars.Z_ECHO, echo);
             byte[] startData = cmdSeq.compile();
 
             ByteArrayOutputStream str = new ByteArrayOutputStream(startData.length + echoF.length + 1);
@@ -192,9 +192,10 @@ public class CommandResponseQueue implements DeviceNode {
             // TODO: decide on how locking will work...
             ByteArrayOutputStream str = new ByteArrayOutputStream(addr.size() * 3 + cmdSeq.length);
             try {
+                // FIXME: use addr's own outputter here
                 boolean isFirst = true;
                 for (int i : addr.getAsInts()) {
-                    str.write(ZscriptCommandBuilder.formatField((byte) (isFirst ? '@' : '.'), i));
+                    str.write(Utils.formatField((byte) (isFirst ? '@' : '.'), i));
                     isFirst = false;
                 }
                 str.write(cmdSeq);
