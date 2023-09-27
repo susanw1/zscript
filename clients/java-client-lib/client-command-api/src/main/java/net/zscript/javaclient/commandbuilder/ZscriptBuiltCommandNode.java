@@ -2,7 +2,6 @@ package net.zscript.javaclient.commandbuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 
@@ -28,31 +27,27 @@ public abstract class ZscriptBuiltCommandNode<T extends ZscriptResponse> extends
     protected abstract T parseResponse(ZscriptExpression resp);
 
     @Override
-    byte[] compile(boolean includeParens) {
-        try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            if (fields.get(Zchars.Z_CMD) != null) {
-                out.write(Utils.formatField(Zchars.Z_CMD, fields.get(Zchars.Z_CMD)));
-            }
-            for (Map.Entry<Byte, Integer> entry : fields.entrySet()) {
-                Byte key = entry.getKey();
-                if (key != Zchars.Z_CMD) {
-                    Integer val = entry.getValue();
-                    out.write(Utils.formatField(key, val));
-                }
-            }
-            for (BigField big : bigFields) {
-                big.write(out);
-            }
-            return out.toByteArray();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+    byte[] compile(boolean includeParens) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        if (fields.get(Zchars.Z_CMD) != null) {
+            out.write(Utils.formatField(Zchars.Z_CMD, fields.get(Zchars.Z_CMD)));
         }
+        for (Map.Entry<Byte, Integer> entry : fields.entrySet()) {
+            Byte key = entry.getKey();
+            if (key != Zchars.Z_CMD) {
+                Integer val = entry.getValue();
+                out.write(Utils.formatField(key, val));
+            }
+        }
+        for (BigField big : bigFields) {
+            big.writeTo(out);
+        }
+        return out.toByteArray();
     }
 
     @Override
-    public void onResponse(ZscriptExpression resp) {
-        T parsed = parseResponse(resp);
+    public void onResponse(ZscriptExpression response) {
+        T parsed = parseResponse(response);
         for (ZscriptResponseListener<T> listener : listeners) {
             listener.accept(parsed);
         }

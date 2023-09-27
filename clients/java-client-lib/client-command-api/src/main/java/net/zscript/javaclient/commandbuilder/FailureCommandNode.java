@@ -2,9 +2,9 @@ package net.zscript.javaclient.commandbuilder;
 
 import java.nio.charset.StandardCharsets;
 
-import net.zscript.javareceiver.tokenizer.ZscriptExpression;
-
 public class FailureCommandNode extends ZscriptCommandNode {
+
+    public static final byte[] ZSCRIPT_BYTES = "Z1S2".getBytes(StandardCharsets.UTF_8);
 
     @Override
     public CommandSequenceNode thenFail() {
@@ -48,14 +48,6 @@ public class FailureCommandNode extends ZscriptCommandNode {
 
     @Override
     byte[] compile(boolean includeParens) {
-        return "Z1S2".getBytes(StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public void onResponse(ZscriptExpression resp) {
-    }
-
-    @Override
-    public void onNotExecuted() {
+        return ZSCRIPT_BYTES;
     }
 }

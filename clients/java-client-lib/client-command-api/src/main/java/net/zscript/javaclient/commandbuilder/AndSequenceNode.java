@@ -3,8 +3,9 @@ package net.zscript.javaclient.commandbuilder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+
+import net.zscript.model.components.Zchars;
 
 public class AndSequenceNode extends CommandSequenceNode {
     private final List<CommandSequenceNode> elements;
@@ -51,7 +52,7 @@ public class AndSequenceNode extends CommandSequenceNode {
     }
 
     @Override
-    CommandSequenceNode reEvaluate() {
+    CommandSequenceNode optimize() {
         List<CommandSequenceNode> els = new ArrayList<>();
         for (CommandSequenceNode element : elements) {
             if (element.getClass() == FailureCommandNode.class) {
@@ -65,7 +66,7 @@ public class AndSequenceNode extends CommandSequenceNode {
                 els.addAll(((AndSequenceNode) element).elements);
             } else if (element.getClass() == BlankCommandNode.class) {
             } else {
-                els.add(element.reEvaluate());
+                els.add(element.optimize());
             }
         }
         if (els.isEmpty()) {
@@ -78,23 +79,18 @@ public class AndSequenceNode extends CommandSequenceNode {
     }
 
     @Override
-    byte[] compile(boolean includeParens) {
+    byte[] compile(boolean includeParens) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         boolean useAnd = false;
-        for (Iterator<CommandSequenceNode> iterator = elements.iterator(); iterator.hasNext(); ) {
-            CommandSequenceNode el = iterator.next();
-            try {
-                byte[] data = el.compile(true);
-                if (useAnd && data.length > 0 && data[0] != '(') {
-                    out.write((byte) '&');
-                }
-                out.write(data);
-                if (data.length == 0 || data[data.length - 1] != ')') {
-                    useAnd = true;
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        for (CommandSequenceNode el : elements) {
+            byte[] data = el.compile(true);
+            if (useAnd && data.length > 0 && data[0] != Zchars.Z_OPENPAREN) {
+                out.write(Zchars.Z_ANDTHEN);
+            }
+            out.write(data);
+            if (data.length == 0 || data[data.length - 1] != Zchars.Z_CLOSEPAREN) {
+                useAnd = true;
             }
         }
         return out.toByteArray();

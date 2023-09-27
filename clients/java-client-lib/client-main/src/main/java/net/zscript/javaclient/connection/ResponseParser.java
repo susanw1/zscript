@@ -47,13 +47,19 @@ public class ResponseParser {
         }
     }
 
-    public static ResponseHeader parseResponseHeader(byte[] resp) {
+    /**
+     * Parses the supplied byte[] into a ResponseSequence representation.
+     *
+     * @param responseZscript the response bytes.
+     * @return
+     */
+    public static ResponseHeader parseResponseHeader(byte[] responseZscript) {
         final TokenBuffer buffer = new TokenExtendingBuffer();
         final Tokenizer   in     = new Tokenizer(buffer.getTokenWriter(), 4);
         final TokenReader reader = buffer.getTokenReader();
 
         ReadToken lastWritten = null;
-        for (final byte b : resp) {
+        for (final byte b : responseZscript) {
             in.accept(b);
             if (lastWritten == null) {
                 if (reader.hasReadToken()) {

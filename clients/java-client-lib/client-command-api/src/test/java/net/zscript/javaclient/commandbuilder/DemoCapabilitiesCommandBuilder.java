@@ -31,6 +31,10 @@ class DemoCapabilities extends ZscriptBuiltCommandNode<DemoCapabilitiesCommandRe
         super(builder);
     }
 
+    public static DemoCapabilitiesCommandBuilder builder() {
+        return new DemoCapabilitiesCommandBuilder();
+    }
+
     @Override
     protected DemoCapabilitiesCommandResponse parseResponse(ZscriptExpression resp) {
         return new DemoCapabilitiesCommandResponse(resp, new byte[] {}, resp.getField('V').getAsInt(), new String(resp.getBigFieldData(), ISO_8859_1));
