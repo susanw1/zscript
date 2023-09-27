@@ -9,7 +9,7 @@ public class Demo {
     public static void main(String[] args) {
         byte[] data = new DemoCapabilitiesCommandBuilder()
                 .setVersionType(DemoCapabilitiesCommandBuilder.PLATFORM_FIRMWARE)
-                .addResponseListener(r -> System.out.println(r.getName()))
+                .addResponseListener(r -> System.out.println("Executed: " + r.getName()))
                 .build()
                 .onFail(new DemoActivateCommandBuilder().build())
                 .compile();

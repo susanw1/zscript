@@ -34,14 +34,20 @@ public abstract class ZscriptCommandNode extends CommandSequenceNode {
         }
     }
 
-    public abstract void onNotExecuted();
+    /**
+     * Performed on a command when no response was found in the received response sequence that corresponds to this command. Indicates the command was skipped due to ANDTHEN/ORELSE
+     * logic.
+     */
+    public void onNotExecuted() {
+    }
 
     /**
      * Performs a command's listener callbacks when given a command's response.
      *
-     * @param resp
+     * @param response the response that we've received corresponding to this command
      */
-    public abstract void onResponse(ZscriptExpression resp);
+    public void onResponse(ZscriptExpression response) {
+    }
 
     public static ZscriptSequenceLogicPath findFirstCommand(final CommandSequenceNode start) {
         CommandSequenceNode current = start;

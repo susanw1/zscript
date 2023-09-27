@@ -46,8 +46,8 @@ public abstract class ZscriptBuiltCommandNode<T extends ZscriptResponse> extends
     }
 
     @Override
-    public void onResponse(ZscriptExpression resp) {
-        T parsed = parseResponse(resp);
+    public void onResponse(ZscriptExpression response) {
+        T parsed = parseResponse(response);
         for (ZscriptResponseListener<T> listener : listeners) {
             listener.accept(parsed);
         }
