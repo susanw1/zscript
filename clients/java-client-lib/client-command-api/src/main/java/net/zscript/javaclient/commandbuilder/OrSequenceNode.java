@@ -5,6 +5,8 @@ import java.io.IOException;
 
 import net.zscript.model.components.Zchars;
 
+import net.zscript.model.components.Zchars;
+
 public class OrSequenceNode extends CommandSequenceNode {
     final CommandSequenceNode before;
     final CommandSequenceNode after;
@@ -41,7 +43,7 @@ public class OrSequenceNode extends CommandSequenceNode {
             out.write(Zchars.Z_OPENPAREN);
         }
         out.write(before.compile(false));
-        out.write(Zchars.Z_ORELSE);
+            out.write(Zchars.Z_ORELSE);
         out.write(after.compile(false));
         if (includeParens) {
             out.write(Zchars.Z_CLOSEPAREN);

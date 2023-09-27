@@ -2,6 +2,7 @@ package net.zscript.javaclient.commandbuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,11 +86,11 @@ public class AndSequenceNode extends CommandSequenceNode {
         boolean useAnd = false;
         for (CommandSequenceNode el : elements) {
             byte[] data = el.compile(true);
-            if (useAnd && data.length > 0 && data[0] != Zchars.Z_OPENPAREN) {
-                out.write(Zchars.Z_ANDTHEN);
+                if (useAnd && data.length > 0 && data[0] != Zchars.Z_OPENPAREN) {
+                    out.write(Zchars.Z_ANDTHEN);
             }
             out.write(data);
-            if (data.length == 0 || data[data.length - 1] != Zchars.Z_CLOSEPAREN) {
+                if (data.length == 0 || data[data.length - 1] != Zchars.Z_CLOSEPAREN) {
                 useAnd = true;
             }
         }
