@@ -111,7 +111,6 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     /**
      * Validates that there are no invalid (missing+required) fields. To be called on {@link #build()}.
      *
-     * @return the command that has been built
      * @throws ZscriptMissingFieldException if builder doesn't yet pass validation
      */
     protected void failIfInvalid() {

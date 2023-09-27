@@ -40,7 +40,7 @@ class ByteWritableTest {
     }
 
     @Test
-    public void shouldThrowOnOutOfRangeNumerValue() throws IOException {
+    public void shouldThrowOnOutOfRangeNumerValue() {
         assertThatThrownBy(() -> testObject.writeNumeric(Zchars.Z_CMD, 123456, new ByteArrayOutputStream()))
                 .isInstanceOf(IllegalArgumentException.class);
     }

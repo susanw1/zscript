@@ -2,7 +2,6 @@ package net.zscript.javaclient.commandbuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 
 import net.zscript.model.components.Zchars;
 
@@ -36,18 +35,14 @@ public class OrSequenceNode extends CommandSequenceNode {
     }
 
     @Override
-    public byte[] compile(boolean includeParens) {
+    public byte[] compile(boolean includeParens) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         if (includeParens) {
             out.write(Zchars.Z_OPENPAREN);
         }
-        try {
-            out.write(before.compile(false));
-            out.write(Zchars.Z_ORELSE);
-            out.write(after.compile(false));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        out.write(before.compile(false));
+        out.write(Zchars.Z_ORELSE);
+        out.write(after.compile(false));
         if (includeParens) {
             out.write(Zchars.Z_CLOSEPAREN);
         }

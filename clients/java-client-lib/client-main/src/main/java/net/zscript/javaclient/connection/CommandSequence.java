@@ -10,8 +10,8 @@ import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
 import net.zscript.model.components.Zchars;
 
 public class CommandSequence extends ExpressionSequence<CommandSequence> {
-    private Integer             locks;
-    private CommandSequenceNode rootNode;
+    private final CommandSequenceNode rootNode;
+    private       Integer             locks;
 
     public CommandSequence(CommandSequenceNode rootNode) {
         this.rootNode = rootNode;

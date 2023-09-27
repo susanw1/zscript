@@ -1,5 +1,8 @@
 package net.zscript.javaclient.commandbuilder;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
 /**
  * An element of a Command Sequence under construction, representing a node in the Syntax Tree of a sequence during building.
  */
@@ -103,9 +106,13 @@ public abstract class CommandSequenceNode {
         return this;
     }
 
-    abstract byte[] compile(boolean includeParens);
+    abstract byte[] compile(boolean includeParens) throws IOException;
 
     public final byte[] compile() {
-        return compile(false);
+        try {
+            return compile(false);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }
