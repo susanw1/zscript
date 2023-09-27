@@ -24,7 +24,7 @@
 #ifdef ZSCRIPT_HAVE_SERVO_MODULE
 #include "arduino/servo-module/ServoModule.hpp"
 #endif
-#ifdef ZSCRIPT_HAVE_I2C_MODULE
+#if defined(ZSCRIPT_HAVE_I2C_MODULE) || defined(ZSCRIPT_HAVE_I2C_CHANNEL)
 
 #include "arduino/i2c-module/I2cModule.hpp"
 
@@ -38,6 +38,10 @@
 #include "ZscriptCoreModule.hpp"
 
 #include "Zscript.hpp"
+
+#ifdef ZSCRIPT_HAVE_I2C_CHANNEL
+#include <arduino/i2c-module/channels/I2cChannel.hpp>
+#endif
 
 #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
 
@@ -54,12 +58,6 @@ Zscript::ZscriptTcpChannel<ZscriptParams> ZscriptTcpChannels[ZscriptParams::tcpC
 #include "arduino/serial-module/channels/ZscriptSerialChannel.hpp"
 
 Zscript::ZscriptSerialChannel<ZscriptParams> ZscriptSerialChannel;
-#endif
-
-#ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-#include "arduino/i2c-module/channels/I2cChannel.hpp"
-
-Zscript::I2cChannel<ZscriptParams> ZscriptI2cChannel;
 #endif
 
 class ArduinoZscriptBasicSetup {
@@ -110,8 +108,8 @@ public:
         }
 #endif
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-        if (Zscript::ZscriptI2cChannel<ZscriptParams>::getNotifChannelPersistMaxLength() > notifPersistLength) {
-            notifPersistLength = Zscript::ZscriptI2cChannel<ZscriptParams>::getNotifChannelPersistMaxLength();
+        if (Zscript::I2cChannel<ZscriptParams>::getNotifChannelPersistMaxLength() > notifPersistLength) {
+            notifPersistLength = Zscript::I2cChannel<ZscriptParams>::getNotifChannelPersistMaxLength();
         }
 #endif
         Zscript::PersistenceSystem<ZscriptParams>::reserveNotifChannelData(notifPersistLength);
@@ -128,17 +126,11 @@ public:
 #ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
         channels[i++] = &ZscriptSerialChannel;
 #endif
-#ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-        channels[i++] = &ZscriptI2cChannel;
-        ZscriptI2cChannel.setup();
-        ZscriptI2cChannel.setAddress(ZscriptParams::i2cChannelAddress);
-#else
-#ifdef ZSCRIPT_HAVE_I2C_MODULE
-        Wire.begin();
-#endif
-#endif
-#ifdef ZSCRIPT_HAVE_I2C_MODULE
+#if defined(ZSCRIPT_HAVE_I2C_MODULE) || defined(ZSCRIPT_HAVE_I2C_CHANNEL)
         Zscript::I2cModule<ZscriptParams>::setup();
+#endif
+#ifdef ZSCRIPT_HAVE_I2C_CHANNEL
+        channels[i++] = &Zscript::I2cModule<ZscriptParams>::channel;
 #endif
 #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
         Zscript::ZscriptUdpManager<ZscriptParams>::setup();

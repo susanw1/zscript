@@ -9,7 +9,6 @@
 #define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_GENERALI2CACTION_HPP_
 
 #include <zscript/modules/ZscriptCommand.hpp>
-#include "../I2cStrings.hpp"
 #include <Wire.h>
 
 #define COMMAND_EXISTS_0052 EXISTENCE_MARKER_UTIL

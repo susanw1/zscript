@@ -8,9 +8,6 @@
 #ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_CHANNELS_ZSCRIPTI2CCHANNEL_HPP_
 #define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_CHANNELS_ZSCRIPTI2CCHANNEL_HPP_
 
-#ifndef ZSCRIPT_HPP_INCLUDED
-#error ZscriptI2cChannel.hpp needs to be included after Zscript.hpp
-#endif
 
 #include <ZscriptChannelBuilder.hpp>
 #include <Wire.h>
@@ -38,6 +35,10 @@ public:
         I2cOutStream<ZP>::addr = addr;
     }
 
+    uint8_t getAddr() {
+        return addr;
+    }
+
     static void requestHandler() {
         if (usingMagicAddr && I2C_WAS_SMBUS_ALERT_READ()) {
             Wire.write(addr << 1);
@@ -48,7 +49,7 @@ public:
             return;
         }
         bool hasHitNewLine = false;
-        for (uint8_t i = 0; i < ZP::I2cAddressingReadBlockLength; ++i) {
+        for (uint8_t i = 0; i < ZP::i2cAddressingReadBlockLength; ++i) {
             if (hasHitNewLine || readPos >= writePos) {
                 Wire.write('\n');
                 hasHitNewLine = true;
@@ -203,6 +204,10 @@ public:
     void setAddress(uint8_t addr) {
         Wire.begin(addr);
         out.setAddr(addr);
+    }
+
+    uint8_t getAddress() {
+        return out.getAddr();
     }
 
     void moveAlong() {

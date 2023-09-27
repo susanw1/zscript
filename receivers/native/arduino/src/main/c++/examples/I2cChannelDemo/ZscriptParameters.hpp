@@ -39,7 +39,7 @@
 #define ZSCRIPT_HAVE_UDP_CHANNEL
 //#define ZSCRIPT_HAVE_TCP_CHANNEL
 #define ZSCRIPT_HAVE_SERIAL_CHANNEL
-//#define ZSCRIPT_HAVE_I2C_CHANNEL
+#define ZSCRIPT_HAVE_I2C_CHANNEL
 
 class ZscriptParams {
 public:
@@ -60,10 +60,12 @@ public:
 
     static const uint8_t lockByteCount = 1;
     static const uint16_t serialBufferSize = 128;
-    static const uint16_t i2cBufferSize = 128;
 
+    static const uint16_t i2cBufferSize = 128;
     static const uint16_t i2cChannelOutputBufferSize = 32;
-    static const uint16_t i2cAlertPin = 4;
+    static const uint16_t i2cAlertInPin = 4;
+    static const uint16_t i2cAlertOutPin = 9;
+    static const uint8_t i2cAddressingReadBlockLength = 8;
     static const uint8_t i2cChannelAddress = 0x61;
 
     static const uint16_t nonActivatedChannelTimeout = 5000;

@@ -36,7 +36,11 @@ public:
         out.writeField(RespCommands__C, MODULE_CAPABILITIES(005));
         out.writeField(RespInterfaceCount__I, 1);
         out.writeField(RespFrequenciesSupported__F, 3);
+#ifdef ZSCRIPT_HAVE_I2C_MODULE
         out.writeField(RespBitsetCapabilities__B, RespBitsetCapabilities__LowSpeedSupported | RespBitsetCapabilities__SmBusAddressResolution);
+#else
+        out.writeField(RespBitsetCapabilities__B, RespBitsetCapabilities__LowSpeedSupported);
+#endif
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
         out.writeField(RespNotificationsSupported__N, 0);
 #ifdef ZSCRIPT_SUPPORT_ADDRESSING
