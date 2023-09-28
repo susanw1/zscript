@@ -25,13 +25,13 @@
         <plugins>
             <plugin>
                 <groupId>net.zscript</groupId>
-                <artifactId>transformer-maven-plugin</artifactId>
+                <artifactId>templating-maven-plugin</artifactId>
                 <version>${project.version}</version>
 
                 <dependencies>
                     <dependency>
                         <groupId>net.zscript</groupId>
-                        <artifactId>zscript-model-transformer-adapter</artifactId>
+                        <artifactId>zscript-model-templating-adapter</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                     <dependency>
@@ -47,12 +47,12 @@
                         <includes>**/JavaCommandBuilder.mustache</includes>
                     </templates>
                     <outputDirectory>${project.build.directory}/generated-sources/zscript</outputDirectory>
-                    <transformMapperClass>net.zscript.model.transformer.adapter.ZscriptModuleTransformerPluginMapper</transformMapperClass>
+                    <templatingMapperClass>net.zscript.model.templating.adapter.ZscriptModuleTemplatingPluginMapper</templatingMapperClass>
                 </configuration>
 
                 <executions>
                     <execution>
-                        <id>transformer-default</id>
+                        <id>templating-default</id>
                         <goals>
                             <goal>transform</goal>
                         </goals>
@@ -64,7 +64,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>transformer-test</id>
+                        <id>templating-test</id>
                         <goals>
                             <goal>test-transform</goal>
                         </goals>

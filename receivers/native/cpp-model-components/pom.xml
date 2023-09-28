@@ -21,13 +21,13 @@
         <plugins>
             <plugin>
                 <groupId>net.zscript</groupId>
-                <artifactId>transformer-maven-plugin</artifactId>
+                <artifactId>templating-maven-plugin</artifactId>
                 <version>${project.version}</version>
 
                 <dependencies>
                     <dependency>
                         <groupId>net.zscript</groupId>
-                        <artifactId>zscript-model-transformer-adapter</artifactId>
+                        <artifactId>zscript-model-templating-adapter</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                     <dependency>
@@ -44,13 +44,13 @@
 
                 <configuration>
                     <outputDirectory>${generated-code-path}</outputDirectory>
-                    <transformMapperClass>net.zscript.model.transformer.adapter.ZscriptModuleTransformerPluginMapper</transformMapperClass>
+                    <templatingMapperClass>net.zscript.model.templating.adapter.ZscriptModuleTemplatingPluginMapper</templatingMapperClass>
                     <fileTypeSuffix>hpp</fileTypeSuffix>
                 </configuration>
 
                 <executions>
                     <execution>
-                        <id>transformer-zchars-cpp</id>
+                        <id>templating-zchars-cpp</id>
                         <goals>
                             <goal>transform</goal>
                         </goals>
@@ -65,7 +65,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>transformer-zstatus-cpp</id>
+                        <id>templating-zstatus-cpp</id>
                         <goals>
                             <goal>transform</goal>
                         </goals>
@@ -80,7 +80,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>transformer-modules-cpp</id>
+                        <id>templating-modules-cpp</id>
                         <goals>
                             <goal>transform</goal>
                         </goals>
