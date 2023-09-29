@@ -28,6 +28,6 @@ public interface TemplatingPluginMapper {
     default Path findRelativePathToOutput(final String relativePathToSource, String suffix) {
         final int    index      = relativePathToSource.lastIndexOf('.');
         final String newUriPath = (index != -1 ? relativePathToSource.substring(0, index) : relativePathToSource) + "." + suffix;
-        return Path.of(relativePathToSource).resolve(newUriPath);
+        return Path.of(newUriPath);
     }
 }

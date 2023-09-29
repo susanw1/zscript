@@ -61,6 +61,14 @@ public class LoadableEntities {
             return rootPath.resolve(relativePath);
         }
 
+        /**
+         * Takes a (list of) content objects associated with this entity. In simple cases, the content may just be the singular  (parsed) file content, but it could also have other
+         * objects to provide additional context to the templating.
+         *
+         * @param contents               list of content objects
+         * @param relativeOutputFilename the location where the result of the template operation be written, relative to the user's specified output directory
+         * @return the loaded entity
+         */
         public LoadedEntityContent withContents(final List<Object> contents, final Path relativeOutputFilename) {
             return new LoadedEntityContent(relativePath, contents, relativeOutputFilename);
         }
