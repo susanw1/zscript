@@ -1,7 +1,9 @@
 package net.zscript.model.templating.plugin;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URI;
@@ -11,6 +13,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.stream;
 
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -197,16 +200,15 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
         return mapper.loadAndMap(contextEntities);
     }
 
-    private List<LoadedEntityContent> loadTemplates(LoadableEntities entities) {
+    private List<LoadedEntityContent> loadTemplates(LoadableEntities templateEntities) {
         final DefaultMustacheFactory mf = new DefaultMustacheFactory();
 
-        return entities.loadEntities(entity -> {
-            final Path fullPath = Path.of(entity.getFullPath());
-            try (final Reader reader = Files.newBufferedReader(fullPath)) {
-                final Mustache template = mf.compile(reader, entity.getRelativePath());
-                return List.of(entity.withContents(List.of(template), Path.of(entity.getRelativePath())));
+        return templateEntities.loadEntities(templateEntity -> {
+            try (final Reader reader = new BufferedReader(new InputStreamReader(templateEntity.getFullPathAsUrl().openStream(), UTF_8))) {
+                final Mustache template = mf.compile(reader, templateEntity.getRelativePath());
+                return List.of(templateEntity.withContents(List.of(template), Path.of(templateEntity.getRelativePath())));
             } catch (final IOException e) {
-                throw new TemplatingMojoFailureException("Cannot open " + entity.getDescription() + ": " + entity.getRelativePath(), e);
+                throw new TemplatingMojoFailureException("Cannot open " + templateEntity.getDescription() + ": " + templateEntity.getRelativePath(), e);
             }
         });
     }

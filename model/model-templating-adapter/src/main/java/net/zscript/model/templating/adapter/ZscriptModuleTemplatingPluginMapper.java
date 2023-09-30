@@ -2,7 +2,6 @@ package net.zscript.model.templating.adapter;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import static java.util.stream.Collectors.toList;
 
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
-import net.zscript.model.loader.ModelLoader;
 import net.zscript.model.loader.ModuleBank;
 
 public class ZscriptModuleTemplatingPluginMapper implements TemplatingPluginMapper {
@@ -28,15 +26,8 @@ public class ZscriptModuleTemplatingPluginMapper implements TemplatingPluginMapp
         List<LoadableEntities.LoadedEntityContent> result = new ArrayList<>();
 
         try {
-            final URI fullPath = entity.getFullPath();
-            final URL url;
-            if ("classpath".equals(fullPath.getScheme())) {
-                url = ModelLoader.class.getResource(fullPath.getPath());
-            } else {
-                url = fullPath.toURL();
-            }
-
-            final ZscriptModel model = ZscriptModel.rawModel().withModel(url);
+            final URL          fullPathAsUrl = entity.getFullPathAsUrl();
+            final ZscriptModel model         = ZscriptModel.rawModel().withModel(fullPathAsUrl);
 
             for (final ModuleBank moduleBank : model.banks()) {
                 final String bankName = requireNonNull(moduleBank.getName(), "moduleBank name not defined");
@@ -46,7 +37,7 @@ public class ZscriptModuleTemplatingPluginMapper implements TemplatingPluginMapp
                     final String           capitalizedBankName = Character.toUpperCase(bankName.charAt(0)) + bankName.substring(1) + "." + entity.getFileTypeSuffix();
                     final ConversionHelper helper              = new ConversionHelper();
 
-                    helper.getAdditional().put("context-source", url);
+                    helper.getAdditional().put("context-source", fullPathAsUrl);
                     final Path targetFileName = determineOutputPath(moduleBank.getDefaultPackage().stream(), capitalizedBankName, helper);
 
                     final List<Object> contents = List.of(helper, model.getIntrinsics());
@@ -57,7 +48,7 @@ public class ZscriptModuleTemplatingPluginMapper implements TemplatingPluginMapp
                         final List<String> packageElements = module.getPackage() != null ? module.getPackage() : moduleBank.getDefaultPackage();
 
                         ConversionHelper helper = new ConversionHelper();
-                        helper.getAdditional().put("context-source", url);
+                        helper.getAdditional().put("context-source", fullPathAsUrl);
 
                         final String capitalizedClassFilename = Character.toUpperCase(moduleName.charAt(0)) + moduleName.substring(1)
                                 + "Module." + entity.getFileTypeSuffix();

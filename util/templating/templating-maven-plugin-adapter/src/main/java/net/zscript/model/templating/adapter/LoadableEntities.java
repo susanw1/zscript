@@ -1,6 +1,8 @@
 package net.zscript.model.templating.adapter;
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Function;
@@ -59,6 +61,11 @@ public class LoadableEntities {
 
         public URI getFullPath() {
             return rootPath.resolve(relativePath);
+        }
+
+        public URL getFullPathAsUrl() throws MalformedURLException {
+            final URI fullPath = getFullPath();
+            return ("classpath".equals(fullPath.getScheme())) ? getClass().getResource(fullPath.getPath()) : fullPath.toURL();
         }
 
         /**
