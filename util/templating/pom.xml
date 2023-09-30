@@ -5,19 +5,17 @@
 
     <parent>
         <groupId>net.zscript</groupId>
-        <artifactId>zscript-receivers</artifactId>
+        <artifactId>zscript-util</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zscript-receivers-jvm</artifactId>
+    <artifactId>zscript-templating</artifactId>
     <packaging>pom</packaging>
-    <name>Zscript JVM Receiver</name>
+    <name>Templating Plugin</name>
 
     <modules>
-        <module>java-receiver</module>
-        <module>java-receiver-token</module>
-        <module>java-receiver-acceptance-tests</module>
-        <module>java-model-components</module>
+        <module>templating-maven-plugin</module>
+        <module>templating-maven-plugin-adapter</module>
     </modules>
 
     <dependencies>

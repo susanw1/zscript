@@ -14,27 +14,31 @@
         <java.source.version>11</java.source.version>
         <java.target.version>11</java.target.version>
 
-        <slf4j.version>2.0.7</slf4j.version>
-        <logback.version>1.4.6</logback.version>
-        <jackson.version>2.15.2</jackson.version>
-        <antlr.version>4.13.0</antlr.version>
-        <junit.version>5.10.0-M1</junit.version>
-        <cucumber.version>7.11.2</cucumber.version>
-        <assertj.version>3.24.2</assertj.version>
-        <mockito.version>5.3.1</mockito.version>
-        <awaitility.version>4.2.0</awaitility.version>
-        <jimfs.version>1.3.0</jimfs.version>
-        <equalsverifier.version>3.15.1</equalsverifier.version>
-        <apachecommons.version>2.13.0</apachecommons.version>
+        <version.slf4j>2.0.7</version.slf4j>
+        <version.logback>1.4.6</version.logback>
+        <version.jackson>2.15.2</version.jackson>
+        <version.antlr>4.13.0</version.antlr>
 
-        <nar-maven-plugin.version>3.10.2-SNAPSHOT</nar-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
-        <m2e-nar.version>1.0.5</m2e-nar.version>
-        <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
-        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
-        <maven-assembly-plugin.version>3.4.2</maven-assembly-plugin.version>
+        <!-- test dependency versions -->
+        <version.junit>5.10.0-M1</version.junit>
+        <version.cucumber>7.11.2</version.cucumber>
+        <version.assertj>3.24.2</version.assertj>
+        <version.mockito>5.3.1</version.mockito>
+        <version.awaitility>4.2.0</version.awaitility>
+        <version.jimfs>1.3.0</version.jimfs>
+        <version.equalsverifier>3.15.1</version.equalsverifier>
+        <version.apachecommons>2.13.0</version.apachecommons>
+        <version.snakeyaml>2.2</version.snakeyaml>
+
+        <!-- plugin dependency versions -->
+        <version.nar-maven-plugin>3.10.2-SNAPSHOT</version.nar-maven-plugin>
+        <version.jacoco-maven-plugin>0.8.7</version.jacoco-maven-plugin>
+        <version.m2e-nar>1.0.5</version.m2e-nar>
+        <version.exec-maven-plugin>3.0.0</version.exec-maven-plugin>
+        <version.maven-compiler-plugin>3.10.1</version.maven-compiler-plugin>
+        <version.maven-surefire-plugin>3.0.0-M5</version.maven-surefire-plugin>
+        <version.maven-failsafe-plugin>3.0.0-M5</version.maven-failsafe-plugin>
+        <version.maven-assembly-plugin>3.4.2</version.maven-assembly-plugin>
     </properties>
 
     <modules>
@@ -55,106 +59,38 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
+                <version>${version.slf4j}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <version>${version.jackson}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-mrbean</artifactId>
-                <version>${jackson.version}</version>
+                <version>${version.jackson}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>${jackson.version}</version>
+                <version>${version.jackson}</version>
             </dependency>
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
-                <version>${antlr.version}</version>
+                <version>${version.antlr}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${version.snakeyaml}</version>
             </dependency>
 
             <!-- Test Dependencies -->
             <!-- ================= -->
+            <!-- See util/java-testing-deps pom.xml for testing dependency definitions -->
 
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.vintage</groupId>
-                <artifactId>junit-vintage-engine</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.assertj</groupId>
-                <artifactId>assertj-core</artifactId>
-                <version>${assertj.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>${mockito.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-junit-jupiter</artifactId>
-                <version>${mockito.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.awaitility</groupId>
-                <artifactId>awaitility</artifactId>
-                <version>${awaitility.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.cucumber</groupId>
-                <artifactId>cucumber-java</artifactId>
-                <version>${cucumber.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.cucumber</groupId>
-                <artifactId>cucumber-junit</artifactId>
-                <version>${cucumber.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${apachecommons.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.jimfs</groupId>
-                <artifactId>jimfs</artifactId>
-                <version>${jimfs.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>nl.jqno.equalsverifier</groupId>
-                <artifactId>equalsverifier</artifactId>
-                <version>${equalsverifier.version}</version>
-                <scope>test</scope>
-            </dependency>
-
-            <!-- Logging impl for tests -->
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>${logback.version}</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -164,7 +100,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${maven-compiler-plugin.version}</version>
+                    <version>${version.maven-compiler-plugin}</version>
                     <configuration>
                         <source>${java.source.version}</source>
                         <target>${java.target.version}</target>
@@ -173,7 +109,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${maven-surefire-plugin.version}</version>
+                    <version>${version.maven-surefire-plugin}</version>
                     <configuration>
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     </configuration>
@@ -181,18 +117,18 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>${maven-failsafe-plugin.version}</version>
+                    <version>${version.maven-failsafe-plugin}</version>
                 </plugin>
                 <plugin>
                     <groupId>com.github.maven-nar</groupId>
                     <artifactId>nar-maven-plugin</artifactId>
-                    <version>${nar-maven-plugin.version}</version>
+                    <version>${version.nar-maven-plugin}</version>
                     <extensions>true</extensions>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco-maven-plugin.version}</version>
+                    <version>${version.jacoco-maven-plugin}</version>
                     <executions>
                         <execution>
                             <goals>
@@ -211,17 +147,17 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>${exec-maven-plugin.version}</version>
+                    <version>${version.exec-maven-plugin}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>${maven-assembly-plugin.version}</version>
+                    <version>${version.maven-assembly-plugin}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-maven-plugin</artifactId>
-                    <version>${antlr.version}</version>
+                    <version>${version.antlr}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
