@@ -18,6 +18,8 @@
         <version.logback>1.4.6</version.logback>
         <version.jackson>2.15.2</version.jackson>
         <version.antlr>4.13.0</version.antlr>
+
+        <!-- test dependency versions -->
         <version.junit>5.10.0-M1</version.junit>
         <version.cucumber>7.11.2</version.cucumber>
         <version.assertj>3.24.2</version.assertj>
@@ -28,6 +30,7 @@
         <version.apachecommons>2.13.0</version.apachecommons>
         <version.snakeyaml>2.2</version.snakeyaml>
 
+        <!-- plugin dependency versions -->
         <version.nar-maven-plugin>3.10.2-SNAPSHOT</version.nar-maven-plugin>
         <version.jacoco-maven-plugin>0.8.7</version.jacoco-maven-plugin>
         <version.m2e-nar>1.0.5</version.m2e-nar>
@@ -86,81 +89,8 @@
 
             <!-- Test Dependencies -->
             <!-- ================= -->
+            <!-- See util/java-testing-deps pom.xml for testing dependency definitions -->
 
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>${version.junit}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.vintage</groupId>
-                <artifactId>junit-vintage-engine</artifactId>
-                <version>${version.junit}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.assertj</groupId>
-                <artifactId>assertj-core</artifactId>
-                <version>${version.assertj}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>${version.mockito}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-junit-jupiter</artifactId>
-                <version>${version.mockito}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.awaitility</groupId>
-                <artifactId>awaitility</artifactId>
-                <version>${version.awaitility}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.cucumber</groupId>
-                <artifactId>cucumber-java</artifactId>
-                <version>${version.cucumber}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.cucumber</groupId>
-                <artifactId>cucumber-junit</artifactId>
-                <version>${version.cucumber}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${version.apachecommons}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.jimfs</groupId>
-                <artifactId>jimfs</artifactId>
-                <version>${version.jimfs}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>nl.jqno.equalsverifier</groupId>
-                <artifactId>equalsverifier</artifactId>
-                <version>${version.equalsverifier}</version>
-                <scope>test</scope>
-            </dependency>
-
-            <!-- Logging impl for tests -->
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>${version.logback}</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 

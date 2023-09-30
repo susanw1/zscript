@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -25,11 +26,11 @@ public class LoadableEntities {
         this.fileTypeSuffix = fileTypeSuffix;
     }
 
-    public <T> List<LoadedEntityContent> loadEntities(Function<LoadableEntity, List<LoadedEntityContent>> loader) {
+    public List<LoadedEntityContent> loadEntities(Function<LoadableEntity, List<LoadedEntityContent>> loader) {
         return relativePaths.stream()
                 .map(LoadableEntity::new)
-                .map(loader::apply)
-                .flatMap(list -> list.stream())
+                .map(loader)
+                .flatMap(Collection::stream)
                 .collect(toList());
     }
 

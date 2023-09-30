@@ -13,69 +13,88 @@
     <packaging>pom</packaging>
 
     <name>Java Test Dependencies</name>
-    <description>An aggregated collection of dependencies used in tests across the Zscript project. Just include this artifact in 'test' scope.</description>
+    <description>
+        An aggregated collection of dependencies used in tests across the Zscript project. Include this artifact in 'test' scope.
+        Use it like this:
+        <!--
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>java-testing-deps</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+            <type>pom</type>
+        </dependency>
+        -->
+    </description>
 
     <dependencies>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>compile</scope>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${version.slf4j}</version>
         </dependency>
         <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <scope>compile</scope>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${version.junit}</version>
         </dependency>
+        <!--        Removing this seems to stop the cucumber tests from running. Investigate! -->
+        <!--        <dependency>-->
+        <!--            <groupId>org.junit.vintage</groupId>-->
+        <!--            <artifactId>junit-vintage-engine</artifactId>-->
+        <!--            <version>${version.junit}</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <scope>compile</scope>
+            <version>${version.assertj}</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <scope>compile</scope>
+            <version>${version.mockito}</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <scope>compile</scope>
+            <version>${version.mockito}</version>
         </dependency>
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <scope>compile</scope>
+            <version>${version.awaitility}</version>
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
-            <scope>compile</scope>
+            <version>${version.cucumber}</version>
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-junit</artifactId>
-            <scope>compile</scope>
+            <version>${version.cucumber}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <scope>compile</scope>
+            <version>${version.apachecommons}</version>
         </dependency>
         <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
-            <scope>compile</scope>
+            <version>${version.jimfs}</version>
         </dependency>
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <scope>compile</scope>
+            <version>${version.equalsverifier}</version>
         </dependency>
 
         <!-- Logging impl for tests -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
+            <version>${version.logback}</version>
         </dependency>
     </dependencies>
 </project>

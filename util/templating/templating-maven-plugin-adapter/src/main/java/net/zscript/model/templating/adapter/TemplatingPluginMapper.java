@@ -16,7 +16,7 @@ public interface TemplatingPluginMapper {
      * @param entities the entities to map
      * @return a list of mapped contexts to be transformed
      */
-    <T> List<LoadedEntityContent> loadAndMap(final LoadableEntities entities);
+    List<LoadedEntityContent> loadAndMap(final LoadableEntities entities);
 
     /**
      * Utility method for converting a relative path with a dot-suffixed filename into the same path with a different suffix.

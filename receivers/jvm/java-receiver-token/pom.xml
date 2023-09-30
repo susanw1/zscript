@@ -23,16 +23,6 @@
             <artifactId>zscript-java-model-components</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

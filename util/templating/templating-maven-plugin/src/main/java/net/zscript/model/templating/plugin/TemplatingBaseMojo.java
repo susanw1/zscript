@@ -35,7 +35,7 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
     /**
      * A fileset describing a set of templates (ie mustache files) to apply for each context file.
      */
-    @Parameter(required = false)
+    @Parameter
     protected FileSet templates;
 
     /**
@@ -43,7 +43,7 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
      * an existing directory, then it will be checked as a URL, allowing "classpath:" scheme. Note, only specific &lt;include> tags with relative paths are supported with URLs - no
      * wildcards, no excludes etc.
      */
-    @Parameter(required = false)
+    @Parameter
     protected FileSet contexts;
 
     /**
@@ -74,7 +74,7 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
     /**
      * Specifies whether sources are added to the {@code compile} scope, or not. If unset, sources will be generated if fileTypeSuffix is ".java".
      */
-    @Parameter(defaultValue = "")
+    @Parameter
     protected String generateSources;
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
@@ -151,9 +151,8 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
     private LoadableEntities extractFileList(String description, final FileSet fileSet) throws MojoExecutionException {
         final String directoryString = fileSet.getDirectory();
 
-        URI rootUri;
         try {
-            rootUri = new URI(directoryString);
+            URI rootUri = new URI(directoryString);
             if (rootUri.getScheme() != null) {
                 getLog().debug(description + ": directory is valid URI, so assuming using limited includes paths: " + directoryString);
                 return new LoadableEntities(description, rootUri, fileSet.getIncludes(), fileTypeSuffix);

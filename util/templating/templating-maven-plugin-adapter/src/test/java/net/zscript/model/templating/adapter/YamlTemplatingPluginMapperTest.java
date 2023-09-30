@@ -3,7 +3,6 @@ package net.zscript.model.templating.adapter;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +19,7 @@ class YamlTemplatingPluginMapperTest {
     private final FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
 
     @Test
-    public void shouldProductListOfLoadedEntities() throws IOException, URISyntaxException {
+    public void shouldProductListOfLoadedEntities() throws IOException {
         // Dir must exist before creating URI, otherwise no trailing '/', https://github.com/google/jimfs/issues/16
         final Path rootDirPath = Files.createDirectory(fs.getPath("/foo"));
 
