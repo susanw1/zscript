@@ -22,8 +22,12 @@
         <dependency>
             <groupId>net.zscript</groupId>
             <artifactId>zscript-model-schema</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-model-standard-module-definitions</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

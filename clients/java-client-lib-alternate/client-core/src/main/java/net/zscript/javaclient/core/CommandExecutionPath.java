@@ -1,11 +1,12 @@
 package net.zscript.javaclient.core;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,80 +19,31 @@ import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
-import net.zscript.model.datamodel.ZscriptDataModel;
 
 public class CommandExecutionPath {
-    public static int hexchar(byte nibble) {
-        if (nibble > 9) {
-            return 'a' + nibble - 10;
-        } else {
-            return '0' + nibble;
-        }
-    }
 
-    public static void hexString(OutputStream out, int value) {
-        try {
-            if (value > 0xFFFF) {
-                throw new IllegalStateException();
-            }
-            if (value > 0xFFF) {
-                out.write(hexchar((byte) ((value >> 12) & 0xF)));
-            }
-            if (value > 0xFF) {
-                out.write(hexchar((byte) ((value >> 8) & 0xF)));
-            }
-            if (value > 0xF) {
-                out.write(hexchar((byte) ((value >> 4) & 0xF)));
-            }
-            if (value > 0) {
-                out.write(hexchar((byte) (value & 0xF)));
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    public static class Command {
+        private final CommandEndLink  endLink;
+        private final ZscriptFieldSet fieldSet;
 
-    static class Command {
-        private final CommandEndLink endLink;
-
-        private final Map<Byte, Integer> fields;
-        private final List<byte[]>       bigFields;
-
-        private final boolean hasClash;
-
-        Command(CommandEndLink endLink, Map<Byte, Integer> fields, List<byte[]> bigFields, boolean hasClash) {
+        Command(CommandEndLink endLink, ZscriptFieldSet fieldSet) {
             this.endLink = endLink;
-            this.fields = fields;
-            this.bigFields = bigFields;
-            this.hasClash = hasClash;
-        }
-
-        public void toBytes(OutputStream out) {
-            try {
-                if (fields.containsKey((Byte) (byte) 'Z')) {
-                    out.write('Z');
-                    hexString(out, fields.get((Byte) (byte) 'Z'));
-                }
-                for (Map.Entry<Byte, Integer> entry : fields.entrySet()) {
-                    if (entry.getKey() != (Byte) (byte) 'Z') {
-                        out.write(entry.getKey());
-                        hexString(out, entry.getValue());
-                    }
-                }
-                for (byte[] bytes : bigFields) {
-                    out.write('+');
-                    for (byte b : bytes) {
-                        out.write(hexchar((byte) (b >> 4)));
-                        out.write(hexchar((byte) (b & 0xF)));
-                    }
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            this.fieldSet = fieldSet;
         }
 
         public CommandEndLink getEndLink() {
             return endLink;
+        }
+
+        public void toBytes(OutputStream out) {
+            fieldSet.toBytes(out);
+        }
+
+        @Override
+        public String toString() {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            toBytes(outputStream);
+            return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(outputStream.toByteArray())).toString();
         }
     }
 
@@ -169,32 +121,7 @@ public class CommandExecutionPath {
         }
 
         public Command generateCommand(Map<CommandBuilder, Command> otherCommands) {
-            CommandEndLink     link      = generateLinks(otherCommands);
-            Map<Byte, Integer> fields    = new HashMap<>();
-            List<byte[]>       bigFields = new ArrayList<>();
-
-            boolean hasClash = false;
-
-            TokenBufferIterator iterator = start.getNextTokens();
-            for (Optional<TokenBuffer.TokenReader.ReadToken> opt = iterator.next(); opt.filter(t -> !t.isMarker()).isPresent(); opt = iterator.next()) {
-                TokenBuffer.TokenReader.ReadToken token = opt.get();
-                if (Zchars.isBigField(token.getKey())) {
-                    byte[] data = new byte[token.getDataSize()];
-
-                    int i = 0;
-                    for (Iterator<Byte> iter = token.blockIterator(); iter.hasNext(); ) {
-                        data[i++] = iter.next();
-                    }
-                    bigFields.add(data);
-                } else {
-                    if (fields.containsKey(token.getKey()) || token.getDataSize() > 2) {
-                        hasClash = true;
-                    } else {
-                        fields.put(token.getKey(), token.getData16());
-                    }
-                }
-            }
-            return new Command(link, Collections.unmodifiableMap(fields), Collections.unmodifiableList(bigFields), hasClash);
+            return new Command(generateLinks(otherCommands), ZscriptFieldSet.fromTokens(start));
         }
     }
 
@@ -273,7 +200,7 @@ public class CommandExecutionPath {
     }
 
     public static CommandExecutionPath parse(TokenBuffer.TokenReader.ReadToken start) {
-        return parse(null, start);
+        return parse(ZscriptModel.standardModel(), start);
     }
 
     public static CommandExecutionPath parse(ZscriptModel model, TokenBuffer.TokenReader.ReadToken start) {
@@ -295,6 +222,26 @@ public class CommandExecutionPath {
     private CommandExecutionPath(ZscriptModel model, Command firstCommand) {
         this.model = model;
         this.firstCommand = firstCommand;
+    }
+
+    public List<Command> compareResponses(ResponseExecutionPath resps) {
+        List<Command>                  cmds        = new ArrayList<>();
+        Command                        current     = firstCommand;
+        ResponseExecutionPath.Response currentResp = resps.getFirstResponse();
+        while (currentResp != null) {
+            if (current == null) {
+                throw new IllegalArgumentException("Response doesn't match command seq");
+            } else {
+                cmds.add(current);
+            }
+            if (currentResp.wasSuccess()) {
+                current = current.getEndLink().getOnSuccess();
+            } else {
+                current = current.getEndLink().getOnFail();
+            }
+            currentResp = currentResp.getNext();
+        }
+        return cmds;
     }
 
     public byte[] toSequence() {
@@ -325,6 +272,82 @@ public class CommandExecutionPath {
             }
         }
         return out.toByteArray();
+    }
+
+    public String graphPrint(CommandGrapher grapher) {
+        return graphPrint(grapher, List.of());
+    }
+
+    public String graphPrint(CommandGrapher grapher, List<Command> toHighlight) {
+        CommandGrapher.CommandDepth        startDepth = new CommandGrapher.CommandDepth(0);
+        CommandGrapher.CommandGraphElement start      = new CommandGrapher.CommandGraphElement(firstCommand, startDepth);
+
+        Map<Command, CommandGrapher.CommandGraphElement> commands = new HashMap<>();
+
+        Deque<CommandGrapher.CommandGraphElement> openedTrees  = new ArrayDeque<>();
+        Deque<CommandGrapher.CommandGraphElement> workingTrees = new ArrayDeque<>();
+        List<CommandGrapher.CommandGraphElement>  elements     = new ArrayList<>();
+
+        commands.put(firstCommand, start);
+        workingTrees.push(start);
+        CommandGrapher.CommandDepth maxDepth = new CommandGrapher.CommandDepth(0);
+        while (!workingTrees.isEmpty()) {
+            CommandGrapher.CommandGraphElement current = workingTrees.peek();
+            CommandEndLink                     links   = current.getCommand().getEndLink();
+
+            CommandGrapher.CommandGraphElement latestOpenTree = openedTrees.peek();
+            if (latestOpenTree != null && links.getOnFail() != latestOpenTree.getCommand()) {
+                // if there are opened trees, and this command doesn't add to the top open tree,
+                //   check if it closes the top open tree
+                //   which we can do by iterating forward to see if the top open tree re-merges here
+                // this operation makes our graph drawing O(n^2)
+                Command tmp        = latestOpenTree.getCommand();
+                boolean mergesHere = false;
+                while (tmp != null) {
+                    if (tmp == current.getCommand()) {
+                        mergesHere = true;
+                        break;
+                    }
+                    tmp = tmp.getEndLink().getOnSuccess();
+                }
+                if (mergesHere) {
+                    openedTrees.pop();
+                    workingTrees.push(latestOpenTree);
+                    if (!openedTrees.isEmpty()) {
+                        openedTrees.peek().getDepth().depthGreaterThan(latestOpenTree.getDepth());
+                        maxDepth.depthGreaterThan(latestOpenTree.getDepth());
+                    }
+                    // if it closes the top open tree, process that tree first
+                    continue;
+                }
+            }
+            if (links.getOnFail() != null && (latestOpenTree == null || links.getOnFail() != latestOpenTree.getCommand())) {
+                // the command opens a new open tree
+                CommandGrapher.CommandGraphElement opened = new CommandGrapher.CommandGraphElement(links.getOnFail(), new CommandGrapher.CommandDepth(current.getDepth()));
+                maxDepth.depthGreaterThan(current.getDepth());
+                commands.put(opened.getCommand(), opened);
+                openedTrees.push(opened);
+                latestOpenTree = opened;
+            }
+
+            elements.add(workingTrees.pop()); // only put elements into the list when we're done processing them
+            if (links.getOnSuccess() != null) {
+                if (workingTrees.isEmpty() || links.getOnSuccess() != workingTrees.peek().getCommand()) {
+                    // check we're not on a close parent, dropping out of failure
+                    CommandGrapher.CommandGraphElement next = new CommandGrapher.CommandGraphElement(links.getOnSuccess(), current.getDepth());
+                    commands.put(next.getCommand(), next);
+                    workingTrees.push(next);
+                }
+            } else if (latestOpenTree != null) {
+                openedTrees.pop();
+                workingTrees.push(latestOpenTree);
+                if (!openedTrees.isEmpty()) {
+                    openedTrees.peek().getDepth().depthGreaterThan(latestOpenTree.getDepth());
+                    maxDepth.depthGreaterThan(latestOpenTree.getDepth());
+                }
+            }
+        }
+        return grapher.graph(commands, elements, maxDepth, toHighlight);
     }
 
 }

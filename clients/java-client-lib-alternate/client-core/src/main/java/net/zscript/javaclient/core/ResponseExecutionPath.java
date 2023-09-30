@@ -1,7 +1,10 @@
 package net.zscript.javaclient.core;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,35 +21,41 @@ import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
 
 public class ResponseExecutionPath {
-    static class Response {
-        private final Response next;
 
-        private final byte separator;
+    public static class Response {
+        private final ZscriptFieldSet fieldSet;
+        private final Response        next;
+        private final boolean         wasSuccess;
 
-        private final Map<Byte, Integer> fields;
-        private final List<byte[]>       bigFields;
-
-        private final boolean hasClash;
-
-        Response(Response next, byte separator, Map<Byte, Integer> fields, List<byte[]> bigFields, boolean hasClash) {
+        Response(Response next, boolean wasSuccess, ZscriptFieldSet fieldSet) {
             this.next = next;
-            this.separator = separator;
-            this.fields = fields;
-            this.bigFields = bigFields;
-            this.hasClash = hasClash;
+            this.wasSuccess = wasSuccess;
+            this.fieldSet = fieldSet;
         }
 
+        public boolean wasSuccess() {
+            return wasSuccess;
+        }
+
+        public Response getNext() {
+            return next;
+        }
+
+        public void toBytes(OutputStream out) {
+            fieldSet.toBytes(out);
+        }
+
+        @Override
+        public String toString() {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(outputStream.toByteArray())).toString();
+        }
     }
 
     static class ResponseBuilder {
         TokenBuffer.TokenReader.ReadToken start = null;
 
-        ResponseBuilder next      = null;
-        byte            seperator = 0;
-
-        public void setNext(ResponseBuilder next) {
-            this.next = next;
-        }
+        byte seperator = 0;
 
         public TokenBuffer.TokenReader.ReadToken getStart() {
             return start;
@@ -56,32 +65,16 @@ public class ResponseExecutionPath {
             this.start = token;
         }
 
-        public Response generateResponse(Map<ResponseBuilder, Response> otherResponses) {
-            Map<Byte, Integer> fields    = new HashMap<>();
-            List<byte[]>       bigFields = new ArrayList<>();
+        public boolean isEmpty() {
+            return start.isMarker();
+        }
 
-            boolean hasClash = false;
+        public boolean isUnexplainedFail() {
+            return seperator == Zchars.Z_ORELSE && isEmpty();
+        }
 
-            TokenBufferIterator iterator = start.getNextTokens();
-            for (Optional<TokenBuffer.TokenReader.ReadToken> opt = iterator.next(); opt.filter(t -> !t.isMarker()).isPresent(); opt = iterator.next()) {
-                TokenBuffer.TokenReader.ReadToken token = opt.get();
-                if (Zchars.isBigField(token.getKey())) {
-                    byte[] data = new byte[token.getDataSize()];
-
-                    int i = 0;
-                    for (Iterator<Byte> iter = token.blockIterator(); iter.hasNext(); ) {
-                        data[i++] = iter.next();
-                    }
-                    bigFields.add(data);
-                } else {
-                    if (fields.containsKey(token.getKey()) || token.getDataSize() > 2) {
-                        hasClash = true;
-                    } else {
-                        fields.put(token.getKey(), token.getData16());
-                    }
-                }
-            }
-            return new Response(otherResponses.get(next), seperator, Collections.unmodifiableMap(fields), Collections.unmodifiableList(bigFields), hasClash);
+        public Response generateResponse(Response next, boolean unexplainedFail) {
+            return new Response(next, !(unexplainedFail || seperator == Zchars.Z_ORELSE), ZscriptFieldSet.fromTokens(start));
         }
     }
 
@@ -112,7 +105,6 @@ public class ResponseExecutionPath {
                 } else {
                     throw new IllegalStateException("Unknown separator: " + Integer.toHexString(Byte.toUnsignedInt(token.getKey())));
                 }
-                last.next = next;
                 last = next;
             }
         }
@@ -122,20 +114,38 @@ public class ResponseExecutionPath {
     public static ResponseExecutionPath parse(TokenBuffer.TokenReader.ReadToken start) {
         List<ResponseBuilder> builders = createLinkedPath(start);
 
-        Map<ResponseBuilder, Response> commands = new HashMap<>();
+        Response first = null;
+
+        Response prev               = null;
+        boolean  hasUnexplainedFail = false;
         for (ListIterator<ResponseBuilder> iter = builders.listIterator(builders.size()); iter.hasPrevious(); ) {
             ResponseBuilder b = iter.previous();
             if (b.start != null) {
-                commands.put(b, b.generateResponse(commands));
+                if (hasUnexplainedFail) {
+                    if (!b.isEmpty()) {
+                        prev = b.generateResponse(prev, hasUnexplainedFail);
+                        hasUnexplainedFail = false;
+                    }
+                } else {
+                    if (b.isUnexplainedFail()) {
+                        hasUnexplainedFail = true;
+                    } else {
+                        prev = b.generateResponse(prev, hasUnexplainedFail);
+                    }
+                }
             }
         }
-        return new ResponseExecutionPath(commands.get(builders.get(0)));
+        return new ResponseExecutionPath(prev);
     }
 
     private final Response firstResponse;
 
     private ResponseExecutionPath(Response firstResponse) {
         this.firstResponse = firstResponse;
+    }
+
+    public Response getFirstResponse() {
+        return firstResponse;
     }
 
 }
