@@ -14,4 +14,69 @@
 
     <dependencies>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.zscript</groupId>
+                <artifactId>templating-maven-plugin</artifactId>
+                <version>${project.version}</version>
+
+                <configuration>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>templating-test-1-default-dirs</id>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${generated-code-path}/test1</outputDirectory>
+                            <fileTypeSuffix>txt</fileTypeSuffix>
+                            <templates>
+                                <includes>sample1.mustache</includes>
+                            </templates>
+                            <contexts>
+                                <includes>**/s*1?.yaml</includes>
+                            </contexts>
+                        </configuration>
+                    </execution>
+                    <!--                    <execution>-->
+                    <!--                        <id>templating-zstatus-cpp</id>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>transform</goal>-->
+                    <!--                        </goals>-->
+                    <!--                        <configuration>-->
+                    <!--                            <outputDirectory>${generated-code-path}/test1</outputDirectory>-->
+                    <!--                            <templates>-->
+                    <!--                                <directory>${project.basedir}/src/main/templates</directory>-->
+                    <!--                                <includes>CppZscriptStatus.mustache</includes>-->
+                    <!--                            </templates>-->
+                    <!--                            <contexts>-->
+                    <!--                                <includes>zstatus-list.yaml</includes>-->
+                    <!--                            </contexts>-->
+                    <!--                        </configuration>-->
+                    <!--                    </execution>-->
+                    <!--                    <execution>-->
+                    <!--                        <id>templating-modules-cpp</id>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>transform</goal>-->
+                    <!--                        </goals>-->
+                    <!--                        <configuration>-->
+                    <!--                            <templates>-->
+                    <!--                                <directory>${project.basedir}/src/main/templates</directory>-->
+                    <!--                                <includes>CppCommandKeyDefs.mustache</includes>-->
+                    <!--                            </templates>-->
+                    <!--                            <contexts>-->
+                    <!--                                <directory>classpath:/zscript-datamodel/</directory>-->
+                    <!--                                <includes>module-list.yaml</includes>-->
+                    <!--                            </contexts>-->
+                    <!--                        </configuration>-->
+                    <!--                    </execution>-->
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
 </project>
