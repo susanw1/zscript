@@ -1,6 +1,5 @@
 package net.zscript.javaclient.core;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -42,8 +41,8 @@ public class StandardCommandGrapher implements CommandGrapher {
         output.append(ANSI_RESET);
     }
 
-    public String graph(Map<CommandExecutionPath.Command, CommandGraphElement> commands, List<CommandGraphElement> elements,
-            CommandDepth maxDepth, List<CommandExecutionPath.Command> toHighlight, boolean skipImpossiblePaths) {
+    public String graph(Map<Command, CommandGraphElement> commands, List<CommandGraphElement> elements,
+            CommandDepth maxDepth, List<Command> toHighlight, boolean skipImpossiblePaths) {
         StringBuilder output        = new StringBuilder();
         boolean[]     hasLane       = new boolean[maxDepth.getDepth() + 1];
         int           highlightLane = -1;
@@ -53,7 +52,7 @@ public class StandardCommandGrapher implements CommandGrapher {
             // Set up variables
             int elementDepth = element.getDepth().getDepth();
 
-            CommandExecutionPath.Command successCmd = element.getCommand().getEndLink().getOnSuccess();
+            Command successCmd = element.getCommand().getEndLink().getOnSuccess();
             if (successCmd == null || skipImpossiblePaths && !element.getCommand().canSucceed()) {
                 successCmd = null;
             } else if (skipImpossiblePaths && !elements.contains(commands.get(successCmd))) {
@@ -72,7 +71,7 @@ public class StandardCommandGrapher implements CommandGrapher {
                 successDepth = commands.get(successCmd).getDepth();
                 successDepthI = successDepth.getDepth();
             }
-            CommandExecutionPath.Command failCmd = element.getCommand().getEndLink().getOnFail();
+            Command failCmd = element.getCommand().getEndLink().getOnFail();
 
             if (failCmd == null || skipImpossiblePaths && !element.getCommand().canFail()) {
                 failCmd = null;

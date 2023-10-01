@@ -1,13 +1,8 @@
 package net.zscript.javaclient.core;
 
-import javax.lang.model.element.Element;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,93 +18,6 @@ import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
 
 public class CommandExecutionPath {
-
-    public static class Command {
-        private final CommandEndLink  endLink;
-        private final ZscriptFieldSet fieldSet;
-
-        Command(CommandEndLink endLink, ZscriptFieldSet fieldSet) {
-            this.endLink = endLink;
-            this.fieldSet = fieldSet;
-        }
-
-        public CommandEndLink getEndLink() {
-            return endLink;
-        }
-
-        public void toBytes(OutputStream out) {
-            fieldSet.toBytes(out);
-        }
-
-        public boolean isEmpty() {
-            return fieldSet.isEmpty();
-        }
-
-        public boolean canFail() {
-            if (isEmpty()) {
-                return false;
-            }
-            if (fieldSet.getFieldValue('Z') == 1) {
-                int sVal = fieldSet.getFieldValue('S');
-                if (sVal > 0x00 && sVal < 0x10) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public boolean canSucceed() {
-            if (fieldSet.getFieldValue('Z') == 1) {
-                int sVal = fieldSet.getFieldValue('S');
-                if (sVal == 0 || sVal == -1) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            toBytes(outputStream);
-            return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(outputStream.toByteArray())).toString();
-        }
-    }
-
-    public static class CommandEndLink {
-        private final Command onSuccess;
-        private final byte[]  successSeparators;
-        private final Command onFail;
-        private final byte[]  failSeparators;
-
-        CommandEndLink(Command onSuccess, byte[] successSeparators, Command onFail, byte[] failSeparators) {
-            this.onSuccess = onSuccess;
-            this.successSeparators = successSeparators;
-            this.onFail = onFail;
-            this.failSeparators = failSeparators;
-        }
-
-        public Command getOnSuccess() {
-            return onSuccess;
-        }
-
-        public byte[] getSuccessSeparators() {
-            return successSeparators;
-        }
-
-        public Command getOnFail() {
-            return onFail;
-        }
-
-        public byte[] getFailSeparators() {
-            return failSeparators;
-        }
-
-    }
 
     static class CommandBuilder {
         TokenBuffer.TokenReader.ReadToken start = null;
@@ -138,7 +46,7 @@ public class CommandExecutionPath {
             this.start = token;
         }
 
-        private CommandEndLink generateLinks(Map<CommandBuilder, Command> commands) {
+        private Command.CommandEndLink generateLinks(Map<CommandBuilder, Command> commands) {
             byte[] successSepArr = new byte[successSeparators.size()];
 
             int i = 0;
@@ -150,7 +58,7 @@ public class CommandExecutionPath {
             for (byte b : failSeparators) {
                 failSepArr[i++] = b;
             }
-            return new CommandEndLink(commands.get(onSuccess), successSepArr, commands.get(onFail), failSepArr);
+            return new Command.CommandEndLink(commands.get(onSuccess), successSepArr, commands.get(onFail), failSepArr);
         }
 
         public Command generateCommand(Map<CommandBuilder, Command> otherCommands) {
@@ -259,9 +167,9 @@ public class CommandExecutionPath {
     }
 
     public List<Command> compareResponses(ResponseExecutionPath resps) {
-        List<Command>                  cmds        = new ArrayList<>();
-        Command                        current     = firstCommand;
-        ResponseExecutionPath.Response currentResp = resps.getFirstResponse();
+        List<Command> cmds        = new ArrayList<>();
+        Command       current     = firstCommand;
+        Response      currentResp = resps.getFirstResponse();
         while (currentResp != null) {
             if (current == null) {
                 throw new IllegalArgumentException("Response doesn't match command seq");
@@ -284,7 +192,7 @@ public class CommandExecutionPath {
         Command current = firstCommand;
         while (true) {
             current.toBytes(out);
-            CommandEndLink link = current.getEndLink();
+            Command.CommandEndLink link = current.getEndLink();
             if (link.getOnSuccess() == null) {
                 if (link.getOnFail() == null) {
                     break;
@@ -327,7 +235,7 @@ public class CommandExecutionPath {
         CommandGrapher.CommandDepth maxDepth = new CommandGrapher.CommandDepth(0);
         while (!workingTrees.isEmpty()) {
             CommandGrapher.CommandGraphElement current = workingTrees.peek();
-            CommandEndLink                     links   = current.getCommand().getEndLink();
+            Command.CommandEndLink             links   = current.getCommand().getEndLink();
 
             CommandGrapher.CommandGraphElement latestOpenTree = openedTrees.peek();
             if (latestOpenTree != null && links.getOnFail() != latestOpenTree.getCommand()) {
@@ -384,6 +292,11 @@ public class CommandExecutionPath {
         }
         if (skipImpossiblePaths) {
             elements = skipEmpty(commands, elements);
+            for (Iterator<Command> iter = toHighlight.iterator(); iter.hasNext(); ) {
+                if (!elements.contains(commands.get(iter.next()))) {
+                    iter.remove();
+                }
+            }
             //then trim depths which aren't used...
             int offset = 0;
             for (int i = 0; i < maxDepth.getDepth() + 1; i++) {
@@ -402,7 +315,7 @@ public class CommandExecutionPath {
         return grapher.graph(commands, elements, maxDepth, toHighlight, skipImpossiblePaths);
     }
 
-    private List<CommandGrapher.CommandGraphElement> skipEmpty(Map<CommandExecutionPath.Command, CommandGrapher.CommandGraphElement> commands,
+    private List<CommandGrapher.CommandGraphElement> skipEmpty(Map<Command, CommandGrapher.CommandGraphElement> commands,
             List<CommandGrapher.CommandGraphElement> elements) {
         List<CommandGrapher.CommandGraphElement> compactedElements = new ArrayList<>();
         for (CommandGrapher.CommandGraphElement element : elements) {

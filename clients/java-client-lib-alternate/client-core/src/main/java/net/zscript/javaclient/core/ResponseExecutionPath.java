@@ -1,56 +1,16 @@
 package net.zscript.javaclient.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Optional;
 
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
-import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
 
 public class ResponseExecutionPath {
-
-    public static class Response {
-        private final ZscriptFieldSet fieldSet;
-        private final Response        next;
-        private final boolean         wasSuccess;
-
-        Response(Response next, boolean wasSuccess, ZscriptFieldSet fieldSet) {
-            this.next = next;
-            this.wasSuccess = wasSuccess;
-            this.fieldSet = fieldSet;
-        }
-
-        public boolean wasSuccess() {
-            return wasSuccess;
-        }
-
-        public Response getNext() {
-            return next;
-        }
-
-        public void toBytes(OutputStream out) {
-            fieldSet.toBytes(out);
-        }
-
-        @Override
-        public String toString() {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(outputStream.toByteArray())).toString();
-        }
-    }
 
     static class ResponseBuilder {
         TokenBuffer.TokenReader.ReadToken start = null;

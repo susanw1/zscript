@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface CommandGrapher {
-    String graph(Map<CommandExecutionPath.Command, CommandGraphElement> commands, List<CommandGraphElement> elements,
-            CommandDepth maxDepth, List<CommandExecutionPath.Command> toHighlight, boolean skipImpossiblePaths);
+    String graph(Map<Command, CommandGraphElement> commands, List<CommandGraphElement> elements,
+            CommandDepth maxDepth, List<Command> toHighlight, boolean skipImpossiblePaths);
 
     public class CommandDepth {
         private int depth;
@@ -34,16 +34,16 @@ public interface CommandGrapher {
     }
 
     public class CommandGraphElement {
-        private final CommandExecutionPath.Command command;
+        private final Command command;
 
         private final CommandDepth depth;
 
-        CommandGraphElement(CommandExecutionPath.Command command, CommandDepth depth) {
+        CommandGraphElement(Command command, CommandDepth depth) {
             this.command = command;
             this.depth = depth;
         }
 
-        public CommandExecutionPath.Command getCommand() {
+        public Command getCommand() {
             return command;
         }
 
