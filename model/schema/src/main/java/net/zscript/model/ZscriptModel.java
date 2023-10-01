@@ -98,6 +98,18 @@ public class ZscriptModel {
                 .flatMap(m -> m.getNotificationById((id & 0xF)));
     }
 
+    public Optional<ZscriptDataModel.StatusModel> getStatus(int value) {
+        Intrinsics intrinsics = getIntrinsics();
+        for (ZscriptDataModel.StatusModel status : intrinsics.getStatus()) {
+            if (status.getId() == value) {
+                return Optional.of(status);
+            } else if (status.getId() > value) {
+                break;
+            }
+        }
+        return Optional.empty();
+    }
+
     @JsonProperty
     public List<ModuleBank> banks() {
         return moduleBanks.values().stream().sorted(comparing(ModuleBank::getId)).collect(toList());

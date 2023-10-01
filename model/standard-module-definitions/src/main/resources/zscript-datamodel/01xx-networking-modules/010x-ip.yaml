@@ -197,7 +197,7 @@ commands:
         name: hostname
         description: the hostname string to resolve
         typeDefinition:
-            '@type': bytes
+            '@type': text
         required: yes
     responseFields:
     -   key: +
