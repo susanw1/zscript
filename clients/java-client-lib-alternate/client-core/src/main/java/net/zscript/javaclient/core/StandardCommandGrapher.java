@@ -1,5 +1,6 @@
 package net.zscript.javaclient.core;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,7 @@ public class StandardCommandGrapher implements CommandGrapher {
     }
 
     public String graph(Map<CommandExecutionPath.Command, CommandGraphElement> commands, List<CommandGraphElement> elements,
-            CommandDepth maxDepth, List<CommandExecutionPath.Command> toHighlight) {
+            CommandDepth maxDepth, List<CommandExecutionPath.Command> toHighlight, boolean skipImpossiblePaths) {
         StringBuilder output        = new StringBuilder();
         boolean[]     hasLane       = new boolean[maxDepth.getDepth() + 1];
         int           highlightLane = -1;
@@ -53,7 +54,15 @@ public class StandardCommandGrapher implements CommandGrapher {
             int elementDepth = element.getDepth().getDepth();
 
             CommandExecutionPath.Command successCmd = element.getCommand().getEndLink().getOnSuccess();
-            CommandGrapher.CommandDepth  successDepth;
+            if (successCmd == null || skipImpossiblePaths && !element.getCommand().canSucceed()) {
+                successCmd = null;
+            } else if (skipImpossiblePaths && !elements.contains(commands.get(successCmd))) {
+                successCmd = successCmd.canSucceed() ? successCmd.getEndLink().getOnSuccess() : successCmd.getEndLink().getOnFail();
+                while (successCmd != null && !elements.contains(commands.get(successCmd))) {
+                    successCmd = successCmd.canSucceed() ? successCmd.getEndLink().getOnSuccess() : successCmd.getEndLink().getOnFail();
+                }
+            }
+            CommandGrapher.CommandDepth successDepth;
 
             int successDepthI;
             if (successCmd == null) {
@@ -64,7 +73,16 @@ public class StandardCommandGrapher implements CommandGrapher {
                 successDepthI = successDepth.getDepth();
             }
             CommandExecutionPath.Command failCmd = element.getCommand().getEndLink().getOnFail();
-            CommandGrapher.CommandDepth  failDepth;
+
+            if (failCmd == null || skipImpossiblePaths && !element.getCommand().canFail()) {
+                failCmd = null;
+            } else if (skipImpossiblePaths && !elements.contains(commands.get(failCmd))) {
+                failCmd = failCmd.canSucceed() ? failCmd.getEndLink().getOnSuccess() : failCmd.getEndLink().getOnFail();
+                while (failCmd != null && !elements.contains(commands.get(failCmd))) {
+                    failCmd = failCmd.canSucceed() ? failCmd.getEndLink().getOnSuccess() : failCmd.getEndLink().getOnFail();
+                }
+            }
+            CommandGrapher.CommandDepth failDepth;
 
             int failDepthI;
             if (failCmd == null) {
@@ -100,7 +118,11 @@ public class StandardCommandGrapher implements CommandGrapher {
 
             // Begin the actual outputting
             addLanes(output, hasLane, highlightLane, 0, elementDepth, true, ANSI_GREEN);
-            output.append('O');
+            if (element.getCommand().isEmpty()) {
+                output.append('|');
+            } else {
+                output.append('O');
+            }
             addLanes(output, hasLane, highlightLane, elementDepth + 1, hasLane.length, false, ANSI_RED);
             if (highlightElement) {
                 output.append(actualPath);
@@ -109,7 +131,9 @@ public class StandardCommandGrapher implements CommandGrapher {
             } else {
                 output.append("   ");
             }
-            output.append("Command description");
+            if (!element.getCommand().isEmpty()) {
+                output.append("Command description");
+            }
             output.append("\n");
 
             // first moving round...
@@ -150,7 +174,7 @@ public class StandardCommandGrapher implements CommandGrapher {
             }
             output.append(ANSI_RESET);
             if (failDepth == null) {
-                addLanes(output, hasLane, highlightLane, elementDepth + 1, hasLane.length, true, ANSI_RED);
+                addLanes(output, hasLane, highlightLane, elementDepth + 1, hasLane.length, false, ANSI_RED);
             } else {
                 if (highlightFail) {
                     output.append(actualPath);
@@ -219,7 +243,7 @@ public class StandardCommandGrapher implements CommandGrapher {
             }
             output.append(ANSI_RED);
             if (failDepth == null) {
-                addLanes(output, hasLane, highlightLane, elementDepth + 1, hasLane.length, true, ANSI_RED);
+                addLanes(output, hasLane, highlightLane, elementDepth + 1, hasLane.length, false, ANSI_RED);
             } else {
                 if (highlightFail) {
                     output.append(actualPath);

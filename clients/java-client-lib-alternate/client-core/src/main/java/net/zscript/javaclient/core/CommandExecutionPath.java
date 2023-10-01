@@ -1,11 +1,13 @@
 package net.zscript.javaclient.core;
 
+import javax.lang.model.element.Element;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,6 +41,37 @@ public class CommandExecutionPath {
             fieldSet.toBytes(out);
         }
 
+        public boolean isEmpty() {
+            return fieldSet.isEmpty();
+        }
+
+        public boolean canFail() {
+            if (isEmpty()) {
+                return false;
+            }
+            if (fieldSet.getFieldValue('Z') == 1) {
+                int sVal = fieldSet.getFieldValue('S');
+                if (sVal > 0x00 && sVal < 0x10) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public boolean canSucceed() {
+            if (fieldSet.getFieldValue('Z') == 1) {
+                int sVal = fieldSet.getFieldValue('S');
+                if (sVal == 0 || sVal == -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         @Override
         public String toString() {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -47,7 +80,7 @@ public class CommandExecutionPath {
         }
     }
 
-    static class CommandEndLink {
+    public static class CommandEndLink {
         private final Command onSuccess;
         private final byte[]  successSeparators;
         private final Command onFail;
@@ -83,11 +116,11 @@ public class CommandExecutionPath {
 
         CommandBuilder onSuccess           = null;
         int            successBracketCount = 0;
-        List<Byte>     successSeperators   = new ArrayList<>();
+        List<Byte>     successSeparators   = new ArrayList<>();
 
         CommandBuilder onFail           = null;
         int            failBracketCount = 0;
-        List<Byte>     failSeperators   = new ArrayList<>();
+        List<Byte>     failSeparators   = new ArrayList<>();
 
         public void setOnSuccess(CommandBuilder onSuccess) {
             this.onSuccess = onSuccess;
@@ -106,15 +139,15 @@ public class CommandExecutionPath {
         }
 
         private CommandEndLink generateLinks(Map<CommandBuilder, Command> commands) {
-            byte[] successSepArr = new byte[successSeperators.size()];
+            byte[] successSepArr = new byte[successSeparators.size()];
 
             int i = 0;
-            for (byte b : successSeperators) {
+            for (byte b : successSeparators) {
                 successSepArr[i++] = b;
             }
-            byte[] failSepArr = new byte[failSeperators.size()];
+            byte[] failSepArr = new byte[failSeparators.size()];
             i = 0;
-            for (byte b : failSeperators) {
+            for (byte b : failSeparators) {
                 failSepArr[i++] = b;
             }
             return new CommandEndLink(commands.get(onSuccess), successSepArr, commands.get(onFail), failSepArr);
@@ -144,24 +177,24 @@ public class CommandExecutionPath {
                 builders.add(next);
                 if (token.getKey() == Tokenizer.CMD_END_ANDTHEN) {
                     last.setOnSuccess(next);
-                    last.successSeperators.add(Zchars.Z_ANDTHEN);
+                    last.successSeparators.add(Zchars.Z_ANDTHEN);
                     needFailPath.add(last);
                 } else if (token.getKey() == Tokenizer.CMD_END_ORELSE) {
                     needSuccessPath.add(last);
                     last.setOnFail(next);
-                    last.failSeperators.add(Zchars.Z_ORELSE);
+                    last.failSeparators.add(Zchars.Z_ORELSE);
                     for (Iterator<CommandBuilder> iter = needFailPath.iterator(); iter.hasNext(); ) {
                         CommandBuilder b = iter.next();
                         if (b.failBracketCount == 0) {
                             b.setOnFail(next);
-                            b.failSeperators.add(Zchars.Z_ORELSE);
+                            b.failSeparators.add(Zchars.Z_ORELSE);
                             iter.remove();
                         }
                     }
                 } else if (token.getKey() == Tokenizer.CMD_END_OPEN_PAREN) {
                     last.setOnSuccess(next);
                     needFailPath.add(last);
-                    last.successSeperators.add(Zchars.Z_OPENPAREN);
+                    last.successSeparators.add(Zchars.Z_OPENPAREN);
                     for (CommandBuilder b : needFailPath) {
                         b.failBracketCount++;
                     }
@@ -171,18 +204,19 @@ public class CommandExecutionPath {
                 } else if (token.getKey() == Tokenizer.CMD_END_CLOSE_PAREN) {
                     last.setOnSuccess(next);
                     needFailPath.add(last);
-                    last.successSeperators.add(Zchars.Z_CLOSEPAREN);
+                    last.successSeparators.add(Zchars.Z_CLOSEPAREN);
                     for (CommandBuilder b : needFailPath) {
                         if (b.failBracketCount > 0) {
                             b.failBracketCount--;
-                            b.failSeperators.add(Zchars.Z_CLOSEPAREN);
+                        } else {
+                            b.failSeparators.add(Zchars.Z_CLOSEPAREN);
                         }
                     }
                     for (Iterator<CommandBuilder> iter = needSuccessPath.iterator(); iter.hasNext(); ) {
                         CommandBuilder b = iter.next();
                         if (b.successBracketCount == 0) {
                             b.setOnSuccess(next);
-                            b.successSeperators.add(Zchars.Z_CLOSEPAREN);
+                            b.successSeparators.add(Zchars.Z_CLOSEPAREN);
                             iter.remove();
                         } else {
                             b.successBracketCount--;
@@ -274,11 +308,11 @@ public class CommandExecutionPath {
         return out.toByteArray();
     }
 
-    public String graphPrint(CommandGrapher grapher) {
-        return graphPrint(grapher, List.of());
+    public String graphPrint(CommandGrapher grapher, boolean skipImpossiblePaths) {
+        return graphPrint(grapher, skipImpossiblePaths, List.of());
     }
 
-    public String graphPrint(CommandGrapher grapher, List<Command> toHighlight) {
+    public String graphPrint(CommandGrapher grapher, boolean skipImpossiblePaths, List<Command> toHighlight) {
         CommandGrapher.CommandDepth        startDepth = new CommandGrapher.CommandDepth(0);
         CommandGrapher.CommandGraphElement start      = new CommandGrapher.CommandGraphElement(firstCommand, startDepth);
 
@@ -321,7 +355,8 @@ public class CommandExecutionPath {
                     continue;
                 }
             }
-            if (links.getOnFail() != null && (latestOpenTree == null || links.getOnFail() != latestOpenTree.getCommand())) {
+            if (links.getOnFail() != null && (!skipImpossiblePaths || current.getCommand().canFail()) && (latestOpenTree == null
+                    || links.getOnFail() != latestOpenTree.getCommand())) {
                 // the command opens a new open tree
                 CommandGrapher.CommandGraphElement opened = new CommandGrapher.CommandGraphElement(links.getOnFail(), new CommandGrapher.CommandDepth(current.getDepth()));
                 maxDepth.depthGreaterThan(current.getDepth());
@@ -331,7 +366,7 @@ public class CommandExecutionPath {
             }
 
             elements.add(workingTrees.pop()); // only put elements into the list when we're done processing them
-            if (links.getOnSuccess() != null) {
+            if (links.getOnSuccess() != null && (!skipImpossiblePaths || current.getCommand().canSucceed())) {
                 if (workingTrees.isEmpty() || links.getOnSuccess() != workingTrees.peek().getCommand()) {
                     // check we're not on a close parent, dropping out of failure
                     CommandGrapher.CommandGraphElement next = new CommandGrapher.CommandGraphElement(links.getOnSuccess(), current.getDepth());
@@ -347,7 +382,45 @@ public class CommandExecutionPath {
                 }
             }
         }
-        return grapher.graph(commands, elements, maxDepth, toHighlight);
+        if (skipImpossiblePaths) {
+            elements = skipEmpty(commands, elements);
+            //then trim depths which aren't used...
+            int offset = 0;
+            for (int i = 0; i < maxDepth.getDepth() + 1; i++) {
+                boolean hasAtDepth = false;
+                for (CommandGrapher.CommandGraphElement element : elements) {
+                    if (element.getDepth().getDepth() == i) {
+                        hasAtDepth = true;
+                        element.getDepth().setDepth(i - offset);
+                    }
+                }
+                if (!hasAtDepth) {
+                    offset++;
+                }
+            }
+        }
+        return grapher.graph(commands, elements, maxDepth, toHighlight, skipImpossiblePaths);
+    }
+
+    private List<CommandGrapher.CommandGraphElement> skipEmpty(Map<CommandExecutionPath.Command, CommandGrapher.CommandGraphElement> commands,
+            List<CommandGrapher.CommandGraphElement> elements) {
+        List<CommandGrapher.CommandGraphElement> compactedElements = new ArrayList<>();
+        for (CommandGrapher.CommandGraphElement element : elements) {
+            if (element.getCommand().isEmpty()) {
+                CommandGrapher.CommandGraphElement tmp = element;
+                while (tmp.getCommand().isEmpty() && tmp.getCommand().getEndLink().getOnSuccess() != null) {
+                    tmp = commands.get(tmp.getCommand().getEndLink().getOnSuccess());
+                }
+                if ((!tmp.getCommand().isEmpty() || tmp.getCommand().getEndLink().getOnSuccess() != null) && element.getDepth().getDepth() != commands.get(
+                                element.getCommand().getEndLink().getOnSuccess())
+                        .getDepth().getDepth()) {
+                    compactedElements.add(element);
+                }
+            } else {
+                compactedElements.add(element);
+            }
+        }
+        return compactedElements;
     }
 
 }

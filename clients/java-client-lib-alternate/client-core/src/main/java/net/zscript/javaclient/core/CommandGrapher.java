@@ -5,7 +5,7 @@ import java.util.Map;
 
 public interface CommandGrapher {
     String graph(Map<CommandExecutionPath.Command, CommandGraphElement> commands, List<CommandGraphElement> elements,
-            CommandDepth maxDepth, List<CommandExecutionPath.Command> toHighlight);
+            CommandDepth maxDepth, List<CommandExecutionPath.Command> toHighlight, boolean skipImpossiblePaths);
 
     public class CommandDepth {
         private int depth;
@@ -26,6 +26,10 @@ public interface CommandGrapher {
 
         public int getDepth() {
             return depth;
+        }
+
+        public void setDepth(int depth) {
+            this.depth = depth;
         }
     }
 
