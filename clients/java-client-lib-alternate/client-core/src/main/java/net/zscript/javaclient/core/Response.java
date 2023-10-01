@@ -31,6 +31,11 @@ public class Response {
     @Override
     public String toString() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        toBytes(outputStream);
         return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(outputStream.toByteArray())).toString();
+    }
+
+    public ZscriptFieldSet getFields() {
+        return fieldSet;
     }
 }

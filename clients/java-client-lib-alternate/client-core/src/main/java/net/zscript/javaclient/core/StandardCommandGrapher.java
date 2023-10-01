@@ -1,7 +1,14 @@
 package net.zscript.javaclient.core;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import net.zscript.model.ZscriptModel;
+import net.zscript.model.datamodel.ZscriptDataModel;
 
 public class StandardCommandGrapher implements CommandGrapher {
     public static final String ANSI_RESET  = "\u001B[0m";
@@ -16,6 +23,351 @@ public class StandardCommandGrapher implements CommandGrapher {
     public static final String ANSI_WHITE  = "\u001B[37m";
 
     public static final String actualPath = ANSI_BOLD + ANSI_CYAN;
+
+    public static class CommandPrintSettings {
+        private final int              lineWidth;
+        private final String           indentString;
+        private final VerbositySetting verbosity;
+
+        public CommandPrintSettings(int lineWidth, String indentString, VerbositySetting verbosity) {
+            this.lineWidth = lineWidth;
+            this.indentString = indentString;
+            this.verbosity = verbosity;
+            if (lineWidth - indentString.length() * 4 < 20) {
+                throw new IllegalArgumentException("Line width too short for given indent");
+            }
+        }
+
+        public VerbositySetting getVerbosity() {
+            return verbosity;
+        }
+
+        public String lineWrap(List<String> lines, List<Integer> indents) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < lines.size(); i++) {
+                String line     = lines.get(i);
+                String indent   = indentString.repeat(indents.get(i));
+                int    progress = lineWidth - indent.length();
+                for (int currentPos = 0; currentPos < line.length(); ) {
+                    while (Character.isWhitespace(line.charAt(currentPos))) {
+                        currentPos++;
+                    }
+                    boolean needsHyphen = false;
+                    int     nextPos     = Math.min(currentPos + progress, line.length());
+                    while (!(nextPos == 0 || nextPos == line.length() || Character.isWhitespace(line.charAt(nextPos)))) {
+                        nextPos--;
+                    }
+                    if (nextPos == currentPos) {
+                        nextPos = currentPos + progress - 1;
+                        needsHyphen = true;
+                    }
+                    builder.append(indent);
+                    builder.append(line, currentPos, nextPos);
+                    if (needsHyphen) {
+                        builder.append('-');
+                    }
+                    builder.append('\n');
+                    currentPos = nextPos;
+                }
+            }
+            return builder.toString();
+        }
+    }
+
+    private String toSentence(String desc) {
+        return desc.substring(0, 1).toUpperCase() + desc.substring(1) + '.';
+    }
+
+    private String upperFirst(String name) {
+        return name.substring(0, 1).toUpperCase() + name.substring(1);
+    }
+
+    private void explainBigField(List<String> lines, List<Integer> indents, ZscriptDataModel.GenericField field, ZscriptFieldSet fieldSet,
+            CommandPrintSettings settings, StringBuilder builder) {
+        byte[] bigFields = fieldSet.getBigFieldTotal();
+        if (bigFields.length == 0) {
+            builder.append("No data");
+        } else {
+            if (field.getTypeDefinition() instanceof ZscriptDataModel.TextTypeDefinition) {
+                builder.append('"');
+                builder.append(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(bigFields)));
+                builder.append('"');
+            } else {
+                builder.append("(Hex) ");
+                for (byte b : bigFields) {
+                    builder.append((char) ZscriptFieldSet.hexchar((byte) (b >> 4)));
+                    builder.append((char) ZscriptFieldSet.hexchar((byte) (b & 0xF)));
+                    builder.append(" ");
+                }
+            }
+        }
+
+        lines.add(builder.toString());
+        if (settings.getVerbosity().compareTo(VerbositySetting.DESCRIPTIONS) >= 0) {
+            indents.add(3);
+            lines.add(toSentence(field.getDescription()));
+        }
+    }
+
+    private void explainBitField(List<String> lines, List<Integer> indents, ZscriptDataModel.GenericField field, CommandPrintSettings settings, int value) {
+        StringBuilder builder;
+        if (field.getTypeDefinition() instanceof ZscriptDataModel.BitsetTypeDefinition) {
+            List<ZscriptDataModel.BitsetTypeDefinition.Bit> bits = ((ZscriptDataModel.BitsetTypeDefinition) field.getTypeDefinition()).getBits();
+            int                                             i    = 0;
+            for (ZscriptDataModel.BitsetTypeDefinition.Bit bit : bits) {
+                indents.add(2);
+                builder = new StringBuilder();
+                builder.append(upperFirst(bit.getName()));
+                if (value != -1) {
+                    builder.append(": ");
+                    if ((value & (1 << i)) != 0) {
+                        builder.append("True");
+                    } else {
+                        builder.append("False");
+                    }
+                }
+                lines.add(builder.toString());
+                if (settings.getVerbosity().compareTo(VerbositySetting.DESCRIPTIONS) >= 0) {
+                    indents.add(4);
+                    lines.add(toSentence(bit.getDescription()));
+                }
+                i++;
+            }
+        }
+    }
+
+    private void explainField(List<String> lines, List<Integer> indents, ZscriptDataModel.GenericField field, boolean[] doneFields,
+            ZscriptFieldSet fieldSet, CommandPrintSettings settings) {
+        indents.add(1);
+        StringBuilder builder = new StringBuilder();
+
+        char key = field.getKey();
+        builder.append(upperFirst(field.getName()));
+        builder.append(": ");
+        if (field.getTypeDefinition() instanceof ZscriptDataModel.BigfieldTypeDefinition) {
+            explainBigField(lines, indents, field, fieldSet, settings, builder);
+        } else {
+            doneFields[key - 'A'] = true;
+            int value = fieldSet.getFieldValue(key);
+            if (value == -1) {
+                if (field.isRequired()) {
+                    builder.append("Is required but missing");
+                } else {
+                    builder.append("Not present");
+                }
+            } else {
+                if (field.getTypeDefinition() instanceof ZscriptDataModel.FlagTypeDefinition) {
+                    builder.append("Present");
+                } else {
+                    builder.append("0x");
+                    ZscriptFieldSet.hexString(builder, value, 1);
+                }
+                if (field.getTypeDefinition() instanceof ZscriptDataModel.AnyTypeDefinition
+                        || field.getTypeDefinition() instanceof ZscriptDataModel.NumberTypeDefinition) {
+                    builder.append(" (");
+                    builder.append(value);
+                    builder.append(")");
+                } else if (field.getTypeDefinition() instanceof ZscriptDataModel.EnumTypeDefinition) {
+                    builder.append(" (");
+                    List<String> values = ((ZscriptDataModel.EnumTypeDefinition) field.getTypeDefinition()).getValues();
+                    if (value >= values.size()) {
+                        builder.append("Out of range");
+                    } else {
+                        builder.append(upperFirst(values.get(value)));
+                    }
+                    builder.append(")");
+                }
+            }
+            lines.add(builder.toString());
+            if (settings.getVerbosity().compareTo(VerbositySetting.DESCRIPTIONS) >= 0) {
+                indents.add(3);
+                lines.add(toSentence(field.getDescription()));
+            }
+            if (settings.getVerbosity().compareTo(VerbositySetting.BITFIELDS) >= 0) {
+                explainBitField(lines, indents, field, settings, value);
+            }
+        }
+    }
+
+    private void explainStatus(ZscriptModel model, CommandPrintSettings settings, ZscriptDataModel.ResponseFieldModel field, List<Integer> indents, boolean[] doneFields,
+            ZscriptFieldSet fieldSet, List<String> lines, ZscriptDataModel.CommandModel command) {
+        StringBuilder builder;
+        indents.add(1);
+        builder = new StringBuilder();
+
+        char key = field.getKey();
+        builder.append(upperFirst(field.getName()));
+        builder.append(": ");
+        doneFields[key - 'A'] = true;
+        int value = fieldSet.getFieldValue(key);
+        if (value == -1) {
+            if (field.isRequired()) {
+                builder.append("Is required but missing");
+            } else {
+                builder.append("Not present");
+            }
+        } else {
+            builder.append("0x");
+            ZscriptFieldSet.hexString(builder, value, 1);
+            builder.append(" (");
+            Optional<ZscriptDataModel.StatusModel> optStatus = model.getStatus(value);
+            if (optStatus.isPresent()) {
+                builder.append(upperFirst(optStatus.get().getCode()));
+            } else {
+                builder.append("Unknown");
+            }
+            builder.append(")");
+
+        }
+        lines.add(builder.toString());
+        if (settings.getVerbosity().compareTo(VerbositySetting.DESCRIPTIONS) >= 0) {
+            indents.add(3);
+            boolean hasSpecificDesc = false;
+            if (value != -1) {
+                Optional<ZscriptDataModel.StatusModel> optStatus = model.getStatus(value);
+                if (optStatus.isPresent()) {
+                    for (ZscriptDataModel.StatusModel specific : command.getStatus()) {
+                        if (specific.getCode().equals(optStatus.get().getCode())) {
+                            hasSpecificDesc = true;
+                            lines.add(toSentence(specific.getMeaning()));
+                        }
+                    }
+                    if (!hasSpecificDesc) {
+                        lines.add(toSentence(optStatus.get().getMeaning()));
+                        hasSpecificDesc = true;
+                    }
+                }
+            }
+            if (!hasSpecificDesc) {
+                lines.add(toSentence(field.getDescription()));
+            }
+        }
+    }
+
+    private String explainUnknownFields(CommandPrintSettings settings, ZscriptFieldSet fieldSet, List<String> lines, List<Integer> indents,
+            boolean[] doneFields) {
+        StringBuilder builder;
+        for (int i = 0; i < 26; i++) {
+            if (!doneFields[i] && fieldSet.getFieldValue((byte) ('A' + i)) != -1) {
+                indents.add(1);
+                builder = new StringBuilder();
+                builder.append("Unknown Field ");
+                builder.append((char) ('A' + i));
+                builder.append(" with value: ");
+                builder.append("0x");
+                ZscriptFieldSet.hexString(builder, fieldSet.getFieldValue((byte) ('A' + i)), 1);
+                lines.add(builder.toString());
+            }
+        }
+        return settings.lineWrap(lines, indents);
+    }
+
+    public String explainCommand(Command target, ZscriptModel model, CommandPrintSettings settings) {
+        ZscriptFieldSet fieldSet = target.getFields();
+        List<String>    lines    = new ArrayList<>();
+        List<Integer>   indents  = new ArrayList<>();
+
+        int           commandValue = fieldSet.getFieldValue('Z');
+        StringBuilder builder      = new StringBuilder();
+        indents.add(0);
+        if (fieldSet.isEmpty()) {
+            builder.append("Empty Command");
+            lines.add(builder.toString());
+            return settings.lineWrap(lines, indents);
+        }
+        builder.append(target);
+        if (settings.getVerbosity().compareTo(VerbositySetting.MINIMAL) <= 0) {
+            lines.add(builder.toString());
+            return settings.lineWrap(lines, indents);
+        }
+        builder.append(": ");
+        if (commandValue == -1) {
+            builder.append("No command field - Z expected");
+            lines.add(builder.toString());
+            return settings.lineWrap(lines, indents);
+        }
+        Optional<ZscriptDataModel.CommandModel> commandOpt = model.getCommand(commandValue);
+        if (commandOpt.isEmpty()) {
+            builder.append("Command not recognised");
+            lines.add(builder.toString());
+            return settings.lineWrap(lines, indents);
+        }
+        ZscriptDataModel.CommandModel command = commandOpt.get();
+        builder.append(upperFirst(command.getModule().getName()));
+        builder.append(' ');
+        builder.append(upperFirst(command.getCommandName()));
+        if (settings.getVerbosity().compareTo(VerbositySetting.NAME) <= 0) {
+            lines.add(builder.toString());
+            return settings.lineWrap(lines, indents);
+        }
+        lines.add(builder.toString());
+
+        if (settings.getVerbosity().compareTo(VerbositySetting.DESCRIPTIONS) >= 0) {
+            indents.add(2);
+            lines.add(toSentence(command.getDescription()));
+        }
+
+        boolean[] doneFields = new boolean[26];
+        for (ZscriptDataModel.RequestFieldModel field : command.getRequestFields()) {
+            explainField(lines, indents, field, doneFields, fieldSet, settings);
+        }
+        return explainUnknownFields(settings, fieldSet, lines, indents, doneFields);
+    }
+
+    public String explainResponse(Command source, Response target, ZscriptModel model, CommandPrintSettings settings) {
+        int             commandValue = source.getFields().getFieldValue('Z');
+        ZscriptFieldSet fieldSet     = target.getFields();
+        List<String>    lines        = new ArrayList<>();
+        List<Integer>   indents      = new ArrayList<>();
+
+        StringBuilder builder = new StringBuilder();
+        indents.add(0);
+        if (fieldSet.isEmpty()) {
+            builder.append("Empty Response");
+            lines.add(builder.toString());
+            return settings.lineWrap(lines, indents);
+        }
+        builder.append(target);
+        if (settings.getVerbosity().compareTo(VerbositySetting.MINIMAL) <= 0) {
+            lines.add(builder.toString());
+            return settings.lineWrap(lines, indents);
+        }
+        builder.append(": ");
+        if (commandValue == -1) {
+            builder.append("No command field - Z expected");
+            lines.add(builder.toString());
+            return settings.lineWrap(lines, indents);
+        }
+        Optional<ZscriptDataModel.CommandModel> commandOpt = model.getCommand(commandValue);
+        if (commandOpt.isEmpty()) {
+            builder.append("Command not recognised");
+            lines.add(builder.toString());
+            return settings.lineWrap(lines, indents);
+        }
+        ZscriptDataModel.CommandModel command = commandOpt.get();
+        builder.append(upperFirst(command.getModule().getName()));
+        builder.append(' ');
+        builder.append(upperFirst(command.getCommandName()));
+        builder.append(" Response");
+        if (settings.getVerbosity().compareTo(VerbositySetting.NAME) <= 0) {
+            lines.add(builder.toString());
+            return settings.lineWrap(lines, indents);
+        }
+        lines.add(builder.toString());
+        boolean[] doneFields = new boolean[26];
+        for (ZscriptDataModel.ResponseFieldModel field : command.getResponseFields()) {
+            if (field.getKey() == 'S') {
+                explainStatus(model, settings, field, indents, doneFields, fieldSet, lines, command);
+                break;
+            }
+        }
+        for (ZscriptDataModel.ResponseFieldModel field : command.getResponseFields()) {
+            if (field.getKey() != 'S') {
+                explainField(lines, indents, field, doneFields, fieldSet, settings);
+            }
+        }
+        return explainUnknownFields(settings, fieldSet, lines, indents, doneFields);
+    }
 
     private void addLanes(StringBuilder output, boolean[] presentLanes, int highlightLane, int start, int end, boolean leftAlign, String outputSettings) {
         output.append(outputSettings);
