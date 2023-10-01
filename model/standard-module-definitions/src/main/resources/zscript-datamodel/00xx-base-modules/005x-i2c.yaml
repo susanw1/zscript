@@ -88,7 +88,7 @@ commands:
         required: no
     -   key: R
         name: resolveSMBus
-        description: whether the I2C system should resolve addresses when sending notifications for SMBus alerts.
+        description: whether the I2C system should resolve addresses when sending notifications for SMBus alerts
         typeDefinition:
             '@type': flag
         required: no

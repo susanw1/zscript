@@ -1,5 +1,6 @@
 package net.zscript.javaclient.core;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -41,6 +42,24 @@ public class ZscriptFieldSet {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void hexString(StringBuilder out, int value, int minLength) {
+        if (value > 0xFFFF) {
+            throw new IllegalStateException();
+        }
+        if (value > 0xFFF || minLength > 3) {
+            out.append((char) hexchar((byte) ((value >> 12) & 0xF)));
+        }
+        if (value > 0xFF || minLength > 2) {
+            out.append((char) hexchar((byte) ((value >> 8) & 0xF)));
+        }
+        if (value > 0xF || minLength > 1) {
+            out.append((char) hexchar((byte) ((value >> 4) & 0xF)));
+        }
+        if (value > 0 || minLength > 0) {
+            out.append((char) hexchar((byte) (value & 0xF)));
         }
     }
 
@@ -153,6 +172,18 @@ public class ZscriptFieldSet {
 
     public List<BigField> getBigFields() {
         return bigFields;
+    }
+
+    public byte[] getBigFieldTotal() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            for (BigField big : bigFields) {
+                out.write(big.getData());
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return out.toByteArray();
     }
 
     public void toBytes(OutputStream out) {

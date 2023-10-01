@@ -311,6 +311,7 @@ public class CommandExecutionPath {
                     offset++;
                 }
             }
+            maxDepth.setDepth(maxDepth.getDepth() - offset);
         }
         return grapher.graph(commands, elements, maxDepth, toHighlight, skipImpossiblePaths);
     }
