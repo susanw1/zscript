@@ -6,7 +6,10 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
+
+import net.zscript.util.ByteString.ImmutableByteString;
 
 class ByteStringTest {
     @Test
@@ -22,6 +25,9 @@ class ByteStringTest {
         strBuilder.writeTo(byteArrayOutputStream2);
         assertThat(strBuilder.toByteArray()).containsExactly('a', 'b');
         assertThat(byteArrayOutputStream2.toByteArray()).containsExactly('a', 'b');
+
+        assertThatThrownBy(() -> ByteString.builder().appendByte('Z').appendByte(257).toByteArray())
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -45,8 +51,22 @@ class ByteStringTest {
     @Test
     public void shouldWriteHex() {
         ByteString.ByteStringBuilder builder = ByteString.builder();
-        assertThat(builder.appendHexValue(0).toByteArray()).containsExactly('0', '0');
-        assertThat(builder.appendHexValue(0x3d).toByteArray()).containsExactly('0', '0', '3', 'd');
-        assertThat(builder.appendHexValue(0xff).toByteArray()).containsExactly('0', '0', '3', 'd', 'f', 'f');
+        assertThat(builder.appendHexPair(0).toByteArray()).containsExactly('0', '0');
+        assertThat(builder.appendHexPair(0x3d).toByteArray()).containsExactly('0', '0', '3', 'd');
+        assertThat(builder.appendHexPair(0xff).toByteArray()).containsExactly('0', '0', '3', 'd', 'f', 'f');
+
+        assertThatThrownBy(() -> builder.appendHexPair(123456))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void equalsContract() {
+        EqualsVerifier.forClass(ImmutableByteString.class).verify();
+    }
+
+    @Test
+    public void toStringContract() {
+        assertThat(ByteString.builder().appendByte('Z').appendNumeric(0x12).build().toString())
+                .isEqualTo("ImmutableByteString[Z12]");
     }
 }
