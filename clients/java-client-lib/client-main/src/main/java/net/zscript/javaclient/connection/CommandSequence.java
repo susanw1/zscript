@@ -1,12 +1,9 @@
 package net.zscript.javaclient.connection;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import static net.zscript.javaclient.commandbuilder.Utils.formatField;
 import static net.zscript.model.components.Zchars.Z_NEWLINE;
 
 import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.model.components.Zchars;
 
 public class CommandSequence extends ExpressionSequence<CommandSequence> {
@@ -24,20 +21,17 @@ public class CommandSequence extends ExpressionSequence<CommandSequence> {
 
     @Override
     public byte[] asZscriptBytes() {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            getAddressPath().writeTo(baos);
-            if (echoNumber != null) {
-                baos.write(formatField(Zchars.Z_ECHO, echoNumber));
-            }
-            if (locks != null) {
-                baos.write(formatField(Zchars.Z_LOCKS, locks));
-            }
-            baos.write(rootNode.compile());
-            baos.write(Z_NEWLINE);
-            return baos.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        ZscriptByteString.ZscriptByteStringBuilder zbsb = ZscriptByteString.builder();
+        getAddressPath().writeTo(zbsb);
+        if (echoNumber != null) {
+            zbsb.appendField(Zchars.Z_ECHO, echoNumber);
         }
+        if (locks != null) {
+            zbsb.appendField(Zchars.Z_LOCKS, locks);
+        }
+        zbsb.appendRaw(rootNode.compile());
+        zbsb.appendByte(Z_NEWLINE);
+        return zbsb.toByteArray();
     }
 
 }

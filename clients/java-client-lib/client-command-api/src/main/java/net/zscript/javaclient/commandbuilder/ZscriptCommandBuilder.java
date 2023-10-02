@@ -1,7 +1,5 @@
 package net.zscript.javaclient.commandbuilder;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -11,6 +9,7 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.joining;
 
+import net.zscript.javaclient.commandbuilder.ZscriptByteString.ZscriptByteStringBuilder;
 import net.zscript.model.components.Zchars;
 
 /**
@@ -140,25 +139,13 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
 
         @Override
-        public <T extends OutputStream> T writeTo(T out) throws IOException {
+        public ByteWritable writeTo(ZscriptByteStringBuilder out) {
             if (isString) {
-                out.write(Zchars.Z_BIGFIELD_QUOTED);
-                for (byte b : data) {
-                    if (Zchars.mustStringEscape(b)) {
-                        out.write(Zchars.Z_STRING_ESCAPE);
-                        writeHex(b, out);
-                    } else {
-                        out.write(b);
-                    }
-                }
-                out.write(Zchars.Z_BIGFIELD_QUOTED);
+                out.appendBigfieldText(data);
             } else {
-                out.write(Zchars.Z_BIGFIELD_HEX);
-                for (byte b : data) {
-                    writeHex(b, out);
-                }
+                out.appendBigfieldBytes(data);
             }
-            return out;
+            return this;
         }
     }
 }

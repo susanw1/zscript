@@ -2,15 +2,15 @@ package net.zscript.javaclient.connection;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.lang.Integer.toHexString;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import net.zscript.javaclient.commandbuilder.ByteWritable;
+import net.zscript.javaclient.commandbuilder.ZscriptByteString;
+import net.zscript.javaclient.commandbuilder.ZscriptByteString.ZscriptByteStringBuilder;
 import net.zscript.model.components.Zchars;
 
 /**
@@ -85,7 +85,10 @@ public final class ZscriptAddress implements ByteWritable {
     @Override
     public String toString() {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            return writeTo(baos).toString(UTF_8);
+            final ZscriptByteStringBuilder builder = ZscriptByteString.builder();
+            writeTo(builder);
+            builder.writeTo(baos);
+            return baos.toString(UTF_8);
         } catch (IOException e) {
             // this cannot happen with a BAOS, but hey.
             throw new UncheckedIOException(e);
@@ -93,15 +96,12 @@ public final class ZscriptAddress implements ByteWritable {
     }
 
     @Override
-    public <T extends OutputStream> T writeTo(final T out) throws IOException {
+    public ZscriptAddress writeTo(final ZscriptByteStringBuilder out) {
         byte pre = Zchars.Z_ADDRESSING;
         for (int a : addressParts) {
-            out.write(pre);
+            out.appendField(pre, a);
             pre = Zchars.Z_ADDRESSING_CONTINUE;
-            if (a != 0) {
-                out.write(toHexString(a).getBytes(UTF_8));
-            }
         }
-        return out;
+        return this;
     }
 }

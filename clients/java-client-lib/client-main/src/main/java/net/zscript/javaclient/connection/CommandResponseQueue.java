@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 
 import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.Utils;
+import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.javaclient.connection.ResponseParser.ResponseHeader;
 import net.zscript.model.components.Zchars;
 
@@ -150,18 +151,11 @@ public class CommandResponseQueue implements DeviceNode {
         @Override
         public byte[] compile() {
             // TODO: decide on how locking will work...
-            byte[] echoF     = Utils.formatField(Zchars.Z_ECHO, echo);
-            byte[] startData = cmdSeq.compile();
-
-            ByteArrayOutputStream str = new ByteArrayOutputStream(startData.length + echoF.length + 1);
-            try {
-                str.write(echoF);
-                str.write(startData);
-                str.write(Zchars.Z_NEWLINE);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-            return str.toByteArray();
+            return ZscriptByteString.builder()
+                    .appendField(Zchars.Z_ECHO, echo)
+                    .appendRaw(cmdSeq.compile())
+                    .appendByte(Zchars.Z_NEWLINE)
+                    .toByteArray();
         }
 
         public void callback(final byte[] received) {
