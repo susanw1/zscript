@@ -16,6 +16,8 @@
     <modules>
         <module>templating-maven-plugin</module>
         <module>templating-maven-plugin-adapter</module>
+        <module>templating-tests</module>
+        <module>templating-tests-2</module>
     </modules>
 
     <dependencies>

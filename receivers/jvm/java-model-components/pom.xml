@@ -47,10 +47,7 @@
                             <goal>transform</goal>
                         </goals>
                         <configuration>
-                            <templates>
-                                <directory>${project.basedir}/src/main/templates</directory>
-                                <includes>JavaZchars.mustache</includes>
-                            </templates>
+                            <mainTemplate>JavaZchars.mustache</mainTemplate>
                             <contexts>
                                 <includes>zchars-list.yaml</includes>
                             </contexts>
@@ -62,10 +59,7 @@
                             <goal>transform</goal>
                         </goals>
                         <configuration>
-                            <templates>
-                                <directory>${project.basedir}/src/main/templates</directory>
-                                <includes>JavaZscriptStatus.mustache</includes>
-                            </templates>
+                            <mainTemplate>JavaZscriptStatus.mustache</mainTemplate>
                             <contexts>
                                 <includes>zstatus-list.yaml</includes>
                             </contexts>

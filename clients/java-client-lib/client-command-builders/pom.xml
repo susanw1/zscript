@@ -42,10 +42,7 @@
                 </dependencies>
 
                 <configuration>
-                    <templates>
-                        <directory>${project.basedir}/src/main/templates</directory>
-                        <includes>**/JavaCommandBuilder.mustache</includes>
-                    </templates>
+                    <mainTemplate>JavaCommandBuilder.mustache</mainTemplate>
                     <outputDirectory>${project.build.directory}/generated-sources/zscript</outputDirectory>
                     <templatingMapperClass>net.zscript.model.templating.adapter.ZscriptModuleTemplatingPluginMapper</templatingMapperClass>
                 </configuration>

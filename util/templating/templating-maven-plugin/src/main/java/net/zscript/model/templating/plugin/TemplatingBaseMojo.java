@@ -6,10 +6,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +21,7 @@ import static java.util.Arrays.stream;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -32,11 +36,13 @@ import net.zscript.model.templating.adapter.TemplatingPluginMapper;
 abstract class TemplatingBaseMojo extends AbstractMojo {
     private static final String FILE_TYPE_SUFFIX_DEFAULT = "java";
 
+    @Parameter(required = true)
+    protected String  mainTemplate;
     /**
      * A fileset describing a set of templates (ie mustache files) to apply for each context file.
      */
     @Parameter
-    protected FileSet templates;
+    protected FileSet additionalTemplates;
 
     /**
      * A fileset describing a set of context files (ie JSON/YAML files for the default transformer). Defaults to src/main/contexts. If the directory element does not correspond to
@@ -80,16 +86,22 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     protected MavenProject project;
 
-    public String executeBase(String templateDefaultDir, String contextDefaultDir, String outputDefaultDir) throws MojoExecutionException {
+    protected final List<String> templateDefaultDirs = new ArrayList<>();
 
-        final FileSet          templateFileSet  = initFileSet(templates, templateDefaultDir);
-        final LoadableEntities templateEntities = extractFileList("Template", templateFileSet);
-        final FileSet          contextFileSet   = initFileSet(contexts, contextDefaultDir);
-        final LoadableEntities contextEntities  = extractFileList("Context", contextFileSet);
+    public String executeBase(String contextDefaultDir, String outputDefaultDir) throws MojoExecutionException {
+        final URL mainTemplateUrl = getMainTemplateUrl(project.getBasedir().toPath(), templateDefaultDirs, mainTemplate);
+
+        if (additionalTemplates != null && !templateDefaultDirs.isEmpty()) {
+            final FileSet                   templateFileSet           = initFileSet(additionalTemplates, templateDefaultDirs.get(0));
+            final LoadableEntities          templateEntities          = extractFileList("AdditionalTemplate", templateFileSet);
+            final List<LoadedEntityContent> additionalLoadedTemplates = loadTemplates(templateEntities);
+            getLog().info("additionalLoadedTemplates.size: " + additionalLoadedTemplates.size());
+        }
+        final FileSet          contextFileSet  = initFileSet(contexts, contextDefaultDir);
+        final LoadableEntities contextEntities = extractFileList("Context", contextFileSet);
 
         // read in context files as YAML and perform any field mapping as required. Read in templates ready to use Mustache.
         final List<LoadedEntityContent> loadedMappedContexts = loadMappedContexts(contextEntities);
-        final List<LoadedEntityContent> loadedTemplates      = loadTemplates(templateEntities);
         getLog().info("outputDir: " + outputDirectory);
 
         if (outputDirectory == null) {
@@ -100,22 +112,19 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
         final Path outputDirectoryPath = outputDirectory.toPath();
         createDirIfRequired(outputDirectoryPath);
 
-        for (LoadedEntityContent template : loadedTemplates) {
-            for (LoadedEntityContent context : loadedMappedContexts) {
-                try {
-                    final Path outputFileFullPath = outputDirectoryPath.resolve(context.getRelativeOutputPath());
-                    final Path outputParentDir    = outputFileFullPath.getParent();
-                    createDirIfRequired(outputParentDir);
+        for (LoadedEntityContent context : loadedMappedContexts) {
+            try {
+                final Path outputFileFullPath = outputDirectoryPath.resolve(context.getRelativeOutputPath());
+                final Path outputParentDir    = outputFileFullPath.getParent();
+                createDirIfRequired(outputParentDir);
 
-                    final Mustache mustache = (Mustache) template.getContents().get(0);
-
-                    getLog().info("Applying context " + context.getRelativePath() + " with template " + template.getRelativePath() + " to " + outputFileFullPath);
-                    try (final Writer out = Files.newBufferedWriter(outputFileFullPath)) {
-                        mustache.execute(out, context.getContents());
-                    }
-                } catch (final IOException e) {
-                    throw new MojoExecutionException("Cannot write output file: " + outputDirectoryPath, e);
+                final Mustache mustache = loadTemplate(new DefaultMustacheFactory(), mainTemplateUrl, mainTemplateUrl.getPath());
+                getLog().info("Applying context " + context.getRelativePath() + " with template " + mainTemplateUrl + " to " + outputFileFullPath);
+                try (final Writer out = Files.newBufferedWriter(outputFileFullPath)) {
+                    mustache.execute(out, context.getContents());
                 }
+            } catch (final IOException e) {
+                throw new MojoExecutionException("Failed to generate output file: " + outputDirectoryPath, e);
             }
         }
 
@@ -124,6 +133,35 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
         }
 
         return null;
+    }
+
+    private URL getMainTemplateUrl(Path baseDir, List<String> templateDefaultDirs, String mainTemplatePath) {
+        try {
+            final URI mainTemplateUri = new URI(mainTemplatePath);
+            if (mainTemplateUri.getScheme() == null) {
+                // Template is a local file
+                for (String defaultDir : templateDefaultDirs) {
+                    final Path resolvedDir = baseDir.resolve(defaultDir);
+                    if (!Files.isDirectory(resolvedDir)) {
+                        continue;
+                    }
+                    final Path resolvedPath = resolvedDir.resolve(mainTemplatePath);
+                    if (Files.isRegularFile(resolvedPath)) {
+                        System.out.println("mainTemplatePath: " + mainTemplatePath + ", Resolved path: " + resolvedPath);
+                        return resolvedPath.toUri().toURL();
+                    }
+                }
+                throw new TemplatingMojoFailureException("Cannot locate template: " + mainTemplatePath);
+            } else if (mainTemplateUri.getScheme().equals("classpath")) {
+                // Template is a classpath resource
+                return getClass().getResource(mainTemplateUri.getPath());
+            } else {
+                // Template is some other kind of URL
+                return mainTemplateUri.toURL();
+            }
+        } catch (URISyntaxException | MalformedURLException e) {
+            throw new TemplatingMojoFailureException("Bad URI: " + mainTemplatePath, e);
+        }
     }
 
     private void createDirIfRequired(final Path outputDirectoryPath) throws MojoExecutionException {
@@ -199,14 +237,22 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
         return mapper.loadAndMap(contextEntities);
     }
 
+    private Mustache loadTemplate(MustacheFactory mustacheFactory, URL fullTemplateUrl, String relativePath) throws IOException {
+        try (final Reader reader = new BufferedReader(new InputStreamReader(fullTemplateUrl.openStream(), UTF_8))) {
+            return mustacheFactory.compile(reader, relativePath);
+        }
+    }
+
     private List<LoadedEntityContent> loadTemplates(LoadableEntities templateEntities) {
         final DefaultMustacheFactory mf = new DefaultMustacheFactory();
 
         return templateEntities.loadEntities(templateEntity -> {
-            try (final Reader reader = new BufferedReader(new InputStreamReader(templateEntity.getFullPathAsUrl().openStream(), UTF_8))) {
-                final Mustache template = mf.compile(reader, templateEntity.getRelativePath());
+            try {
+                Mustache template = loadTemplate(mf, templateEntity.getFullPathAsUrl(), templateEntity.getRelativePath());
                 return List.of(templateEntity.withContents(List.of(template), Path.of(templateEntity.getRelativePath())));
-            } catch (final IOException e) {
+            } catch (MalformedURLException e) {
+                throw new TemplatingMojoFailureException("URL error " + templateEntity.getFullPath() + ": " + templateEntity.getRelativePath(), e);
+            } catch (IOException e) {
                 throw new TemplatingMojoFailureException("Cannot open " + templateEntity.getDescription() + ": " + templateEntity.getRelativePath(), e);
             }
         });
