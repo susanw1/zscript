@@ -37,13 +37,19 @@ class ByteStringTest {
     }
 
     @Test
-    public void shouldWriteNumberZero() {
+    public void shouldOmitNumberZero() {
         assertThat(ByteString.builder().appendByte('Z').appendNumeric(0).toByteArray())
                 .containsExactly('Z');
     }
 
     @Test
-    public void shouldThrowOnOutOfRangeNumerValue() {
+    public void shouldWriteNumberZero() {
+        assertThat(ByteString.builder().appendByte('Z').appendNumericKeepZero(0).toByteArray())
+                .containsExactly('Z', '0');
+    }
+
+    @Test
+    public void shouldThrowOnOutOfRangeNumericValue() {
         assertThatThrownBy(() -> ByteString.builder().appendByte('Z').appendNumeric(123456).toByteArray())
                 .isInstanceOf(IllegalArgumentException.class);
     }

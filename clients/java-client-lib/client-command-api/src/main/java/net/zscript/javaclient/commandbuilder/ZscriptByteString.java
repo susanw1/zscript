@@ -15,7 +15,7 @@ public interface ZscriptByteString extends ByteString {
             return appendByte(field).appendNumeric(value);
         }
 
-        public ZscriptByteStringBuilder appendText(byte[] bytes) {
+        public ZscriptByteStringBuilder appendBigfieldText(byte[] bytes) {
             appendByte(Zchars.Z_BIGFIELD_QUOTED);
             for (byte b : bytes) {
                 if (Zchars.mustStringEscape(b)) {
@@ -28,11 +28,11 @@ public interface ZscriptByteString extends ByteString {
             return this;
         }
 
-        public ZscriptByteStringBuilder appendText(String text) {
-            return appendText(strToBytes(text));
+        public ZscriptByteStringBuilder appendBigfieldText(String text) {
+            return appendBigfieldText(strToBytes(text));
         }
 
-        public ZscriptByteStringBuilder appendBytes(byte[] bytes) {
+        public ZscriptByteStringBuilder appendBigfieldBytes(byte[] bytes) {
             appendByte(Zchars.Z_BIGFIELD_HEX);
             for (byte b : bytes) {
                 appendHexPair(b);
@@ -40,8 +40,8 @@ public interface ZscriptByteString extends ByteString {
             return this;
         }
 
-        public ZscriptByteStringBuilder appendBytes(String text) {
-            return appendBytes(strToBytes(text));
+        public ZscriptByteStringBuilder appendBigfieldBytes(String text) {
+            return appendBigfieldBytes(strToBytes(text));
         }
 
         private static byte[] strToBytes(String value) {

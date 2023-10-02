@@ -1,7 +1,5 @@
 package net.zscript.javaclient.connection;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,6 +8,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
 import net.zscript.javaclient.commandbuilder.ByteWritable;
+import net.zscript.javaclient.commandbuilder.ZscriptByteString.ZscriptByteStringBuilder;
 
 /**
  * Simple encapsulation of a set of Zscript addresses, representing the Zscript location of a device.
@@ -84,10 +83,11 @@ public final class ZscriptAddressPath implements ByteWritable {
         return addresses.stream().map(ZscriptAddress::toString).collect(joining());
     }
 
-    public <T extends OutputStream> T writeTo(final T out) throws IOException {
+    @Override
+    public ZscriptAddressPath writeTo(ZscriptByteStringBuilder out) {
         for (ZscriptAddress a : addresses) {
             a.writeTo(out);
         }
-        return out;
+        return this;
     }
 }

@@ -1,10 +1,9 @@
 package net.zscript.javaclient.commandbuilder;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import net.zscript.javaclient.commandbuilder.ZscriptByteString.ZscriptByteStringBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder.BigField;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 import net.zscript.model.components.Zchars;
@@ -27,22 +26,22 @@ public abstract class ZscriptBuiltCommandNode<T extends ZscriptResponse> extends
     protected abstract T parseResponse(ZscriptExpression resp);
 
     @Override
-    byte[] compile(boolean includeParens) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+    byte[] compile(boolean includeParens) {
+        ZscriptByteStringBuilder bsb = ZscriptByteString.builder();
         if (fields.get(Zchars.Z_CMD) != null) {
-            out.write(Utils.formatField(Zchars.Z_CMD, fields.get(Zchars.Z_CMD)));
+            bsb.appendField(Zchars.Z_CMD, fields.get(Zchars.Z_CMD));
         }
         for (Map.Entry<Byte, Integer> entry : fields.entrySet()) {
             Byte key = entry.getKey();
             if (key != Zchars.Z_CMD) {
                 Integer val = entry.getValue();
-                out.write(Utils.formatField(key, val));
+                bsb.appendField(key, val);
             }
         }
         for (BigField big : bigFields) {
-            big.writeTo(out);
+            big.writeTo(bsb);
         }
-        return out.toByteArray();
+        return bsb.toByteArray();
     }
 
     @Override
