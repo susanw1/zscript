@@ -17,14 +17,6 @@ public class TextBox implements AsciiFrame {
             this.startIndent = startIndent;
         }
 
-        public int getLength() {
-            int total = 0;
-            for (StyledTextSegment segment : segments) {
-                total += segment.getLength();
-            }
-            return total;
-        }
-
         public Iterator<StyledTextSegment> iterator() {
             return segments.iterator();
         }
@@ -87,18 +79,20 @@ public class TextBox implements AsciiFrame {
         builder = new StringBuilder();
     }
 
-    public void setStyle(CharacterStyle style) {
+    public TextBox setStyle(CharacterStyle style) {
         emptyBuilder();
         lastStyle = style;
+        return this;
     }
 
-    public void startNewLine(int indent) {
+    public TextBox startNewLine(int indent) {
         emptyBuilder();
         lastStyle = CharacterStyle.standardStyle();
         lines.add(new TextLine(indent));
+        return this;
     }
 
-    public void startNewLine() {
+    public TextBox startNewLine() {
         emptyBuilder();
         lastStyle = CharacterStyle.standardStyle();
         if (lines.isEmpty()) {
@@ -106,6 +100,7 @@ public class TextBox implements AsciiFrame {
         } else {
             lines.add(new TextLine(lastLine().startIndent));
         }
+        return this;
     }
 
     @Override
@@ -115,6 +110,7 @@ public class TextBox implements AsciiFrame {
 
     @Override
     public int getHeight() {
+        emptyBuilder();
         int height = 0;
         for (TextRow ignored : this) {
             height++;
@@ -124,8 +120,9 @@ public class TextBox implements AsciiFrame {
 
     @Override
     public boolean setWidth(int width) {
+        emptyBuilder();
         for (TextLine l : lines) {
-            if (l.startIndent * indentString.length() - width < 10) {
+            if (width - l.startIndent * indentString.length() < 10) {
                 return false;
             }
         }
@@ -192,8 +189,10 @@ public class TextBox implements AsciiFrame {
                 int remainingLineLen = width - dataIndex;
 
                 while (true) {
-                    while (currentPos < last.getLength() && Character.isWhitespace(last.string.charAt(currentPos))) {
-                        currentPos++;
+                    if (currentPos != 0) {
+                        while (currentPos < last.getLength() && Character.isWhitespace(last.string.charAt(currentPos))) {
+                            currentPos++;
+                        }
                     }
                     if (last.getLength() - currentPos <= remainingLineLen) {
                         for (char c : last.string.substring(currentPos).toCharArray()) {
@@ -209,15 +208,16 @@ public class TextBox implements AsciiFrame {
                             nextPos--;
                         }
                         if (nextPos <= currentPos) {
-                            nextPos = currentPos + remainingLineLen;
+                            nextPos = currentPos + remainingLineLen - 1;
                             while (nextPos > currentPos && Character.isLetterOrDigit(last.string.charAt(nextPos))) {
                                 nextPos--;
+                            }
+                            if (nextPos != currentPos) {
+                                nextPos++;
                             }
                             if (nextPos == currentPos) {
                                 needsHyphen = true;
                                 nextPos = currentPos + remainingLineLen - 1;
-                            } else if (nextPos != currentPos + remainingLineLen) {
-                                nextPos++;
                             }
                         }
                         for (char c : last.string.substring(currentPos, nextPos).toCharArray()) {

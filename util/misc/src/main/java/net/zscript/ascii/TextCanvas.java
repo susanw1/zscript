@@ -11,13 +11,13 @@ public class TextCanvas implements AsciiFrame {
         void apply();
     }
 
-    class TextBoxElement implements CanvasElement {
-        private final TextBox box;
+    class AsciiFrameElement implements CanvasElement {
+        private final AsciiFrame box;
 
         private final int leftHorizontalPos;
         private final int topVerticalPos;
 
-        TextBoxElement(TextBox box, int leftHorizontalPos, int topVerticalPos) {
+        AsciiFrameElement(AsciiFrame box, int leftHorizontalPos, int topVerticalPos) {
             this.box = box;
             this.leftHorizontalPos = leftHorizontalPos;
             this.topVerticalPos = topVerticalPos;
@@ -66,6 +66,11 @@ public class TextCanvas implements AsciiFrame {
         LineDrawingStrategy(VerticalLineDrawingStrategy vertical, HorizontalLineDrawingStrategy horizontal) {
             this.vertical = vertical;
             this.horizontal = horizontal;
+        }
+
+        LineDrawingStrategy(boolean isHStart, boolean isHEnd, boolean isTop, boolean isBottom) {
+            this.vertical = new VerticalLineDrawingStrategy(isHStart, isHEnd);
+            this.horizontal = new HorizontalLineDrawingStrategy(isTop, isBottom);
         }
     }
 
@@ -305,8 +310,6 @@ public class TextCanvas implements AsciiFrame {
     private int width;
     private int height;
 
-    private final List<CanvasElement> elements = new ArrayList<>();
-
     public TextCanvas(int width, int height) {
         this.width = width;
         this.height = height;
@@ -342,21 +345,18 @@ public class TextCanvas implements AsciiFrame {
         return false;
     }
 
-    public void addBox(TextBox box, int leftHorizontalPos, int topVerticalPos) {
-        CanvasElement element = new TextBoxElement(box, leftHorizontalPos, topVerticalPos);
-        elements.add(element);
+    public void addFrame(AsciiFrame box, int leftHorizontalPos, int topVerticalPos) {
+        CanvasElement element = new AsciiFrameElement(box, leftHorizontalPos, topVerticalPos);
         element.apply();
     }
 
     public void addCharacter(CharacterStyle style, char c, int hPos, int vPos) {
         CanvasElement element = new CharacterElement(c, style, hPos, vPos);
-        elements.add(element);
         element.apply();
     }
 
     public void addLine(CharacterStyle style, int hStartPos, int vStartPos, int hEndPos, int vEndPos, LineDrawingStrategy strategy) {
         CanvasElement element = new LineElement(style, hStartPos, vStartPos, hEndPos, vEndPos, strategy);
-        elements.add(element);
         element.apply();
     }
 
