@@ -88,7 +88,7 @@ commands:
         required: no
     -   key: R
         name: resolveSMBus
-        description: whether the I2C system should resolve addresses when sending notifications for SMBus alerts.
+        description: whether the I2C system should resolve addresses when sending notifications for SMBus alerts
         typeDefinition:
             '@type': flag
         required: no
@@ -158,9 +158,9 @@ commands:
             '@type': number
         required: yes
     status:
-    -   code: CMD_FAIL
+    -   code: commandFail
         meaning: write failed in benign way
-    -   code: CMD_ERROR
+    -   code: executionError
         meaning: write failed in bad way - serious error
 
 -   name: i2cReceive
@@ -224,11 +224,11 @@ commands:
             '@type': bytes
         required: no
     status:
-    -   code: TOO_BIG
+    -   code: tooBig
         meaning: the length requested exceeded the buffer size
-    -   code: CMD_FAIL
+    -   code: commandFail
         meaning: write failed in benign way
-    -   code: CMD_ERROR
+    -   code: executionError
         meaning: write failed in bad way - serious error
 
 -   name: i2cSendReceive

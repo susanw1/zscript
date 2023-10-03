@@ -15,12 +15,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.zscript.model.datamodel.IntrinsicsDataModel.Intrinsics;
 import net.zscript.model.datamodel.ModelValidator;
+import net.zscript.model.datamodel.ZscriptDataModel;
 import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
 import net.zscript.model.loader.ModelLoader;
 import net.zscript.model.loader.ModuleBank;
 
 public class ZscriptModel {
-    private final Map<String, ModuleBank> moduleBanks = new HashMap<>();
+    private final Map<String, ModuleBank>  moduleBanks     = new HashMap<>();
+    private final Map<Integer, ModuleBank> moduleBanksById = new HashMap<>();
 
     private final ModelLoader modelLoader;
 
@@ -78,6 +80,36 @@ public class ZscriptModel {
                 .flatMap(mb -> mb.getModule(moduleName));
     }
 
+    public Optional<ZscriptDataModel.CommandModel> getCommand(int id) {
+        if (id < 0 || id > 0xFFFF) {
+            throw new IllegalArgumentException("Command IDs must be valid 16 bit unsigned ints");
+        }
+        return Optional.ofNullable(moduleBanksById.get((id >> 8) & 0xFF))
+                .flatMap(b -> b.getModule((id >> 4) & 0xF))
+                .flatMap(m -> m.getCommandById((id & 0xF)));
+    }
+
+    public Optional<ZscriptDataModel.NotificationModel> getNotification(int id) {
+        if (id < 0 || id > 0xFFFF) {
+            throw new IllegalArgumentException("Command IDs must be valid 16 bit unsigned ints");
+        }
+        return Optional.ofNullable(moduleBanksById.get((id >> 8) & 0xFF))
+                .flatMap(b -> b.getModule((id >> 4) & 0xF))
+                .flatMap(m -> m.getNotificationById((id & 0xF)));
+    }
+
+    public Optional<ZscriptDataModel.StatusModel> getStatus(int value) {
+        Intrinsics intrinsics = getIntrinsics();
+        for (ZscriptDataModel.StatusModel status : intrinsics.getStatus()) {
+            if (status.getId() == value) {
+                return Optional.of(status);
+            } else if (status.getId() > value) {
+                break;
+            }
+        }
+        return Optional.empty();
+    }
+
     @JsonProperty
     public List<ModuleBank> banks() {
         return moduleBanks.values().stream().sorted(comparing(ModuleBank::getId)).collect(toList());
@@ -85,5 +117,8 @@ public class ZscriptModel {
 
     private void addBanks(Map<String, ModuleBank> banks) {
         moduleBanks.putAll(banks);
+        for (ModuleBank bank : banks.values()) {
+            moduleBanksById.put(bank.getId(), bank);
+        }
     }
 }

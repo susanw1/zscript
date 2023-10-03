@@ -1,6 +1,7 @@
 package net.zscript.model.datamodel;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -52,6 +53,24 @@ public interface ZscriptDataModel {
 
         @JsonManagedReference
         List<NotificationModel> getNotifications();
+
+        default Optional<? extends CommandModel> getCommandById(int id) {
+            for (CommandModel c : getCommands()) {
+                if (c.getCommand() == id) {
+                    return Optional.of(c);
+                }
+            }
+            return Optional.empty();
+        }
+
+        default Optional<? extends NotificationModel> getNotificationById(int id) {
+            for (NotificationModel n : getNotifications()) {
+                if (n.getNotification() == id) {
+                    return Optional.of(n);
+                }
+            }
+            return Optional.empty();
+        }
     }
 
     /** Characterises commands in quasi-HTTP terms */

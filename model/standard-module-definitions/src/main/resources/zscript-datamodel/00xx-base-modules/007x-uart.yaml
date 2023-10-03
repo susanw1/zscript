@@ -128,7 +128,7 @@ commands:
         name: baudRate
         description: the baud rate requested, in Hz
         typeDefinition:
-            '@type': number
+            '@type': bytes
         required: no
     responseFields:
     -   key: L
