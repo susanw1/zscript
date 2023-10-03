@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
-public class ClasspathTest {
+public class Test2ClasspathTest {
     @Test
     public void shouldCreateOutputFile() throws IOException {
         String      expectedContent = "Test-2 (classpath): Test mustache file: receipt is Classpath example on Thu Mar 16 00:00:00 GMT 2023\n";

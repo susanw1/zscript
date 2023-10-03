@@ -37,12 +37,12 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
     private static final String FILE_TYPE_SUFFIX_DEFAULT = "java";
 
     @Parameter(required = true)
-    protected String  mainTemplate;
-    /**
-     * A fileset describing a set of templates (ie mustache files) to apply for each context file.
-     */
-    @Parameter
-    protected FileSet additionalTemplates;
+    protected String mainTemplate;
+    //    /**
+    //     * A fileset describing a set of templates (ie mustache files) to apply for each context file.
+    //     */
+    //    @Parameter
+    //    protected FileSet additionalTemplates;
 
     /**
      * A fileset describing a set of context files (ie JSON/YAML files for the default transformer). Defaults to src/main/contexts. If the directory element does not correspond to
@@ -91,12 +91,12 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
     public String executeBase(String contextDefaultDir, String outputDefaultDir) throws MojoExecutionException {
         final URL mainTemplateUrl = getMainTemplateUrl(project.getBasedir().toPath(), templateDefaultDirs, mainTemplate);
 
-        if (additionalTemplates != null && !templateDefaultDirs.isEmpty()) {
-            final FileSet                   templateFileSet           = initFileSet(additionalTemplates, templateDefaultDirs.get(0));
-            final LoadableEntities          templateEntities          = extractFileList("AdditionalTemplate", templateFileSet);
-            final List<LoadedEntityContent> additionalLoadedTemplates = loadTemplates(templateEntities);
-            getLog().info("additionalLoadedTemplates.size: " + additionalLoadedTemplates.size());
-        }
+        //        if (additionalTemplates != null && !templateDefaultDirs.isEmpty()) {
+        //            final FileSet                   templateFileSet           = initFileSet(additionalTemplates, templateDefaultDirs.get(0));
+        //            final LoadableEntities          templateEntities          = extractFileList("AdditionalTemplate", templateFileSet);
+        //            final List<LoadedEntityContent> additionalLoadedTemplates = loadTemplates(templateEntities);
+        //            getLog().info("additionalLoadedTemplates.size: " + additionalLoadedTemplates.size());
+        //        }
         final FileSet          contextFileSet  = initFileSet(contexts, contextDefaultDir);
         final LoadableEntities contextEntities = extractFileList("Context", contextFileSet);
 
@@ -243,20 +243,20 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
         }
     }
 
-    private List<LoadedEntityContent> loadTemplates(LoadableEntities templateEntities) {
-        final DefaultMustacheFactory mf = new DefaultMustacheFactory();
-
-        return templateEntities.loadEntities(templateEntity -> {
-            try {
-                Mustache template = loadTemplate(mf, templateEntity.getFullPathAsUrl(), templateEntity.getRelativePath());
-                return List.of(templateEntity.withContents(List.of(template), Path.of(templateEntity.getRelativePath())));
-            } catch (MalformedURLException e) {
-                throw new TemplatingMojoFailureException("URL error " + templateEntity.getFullPath() + ": " + templateEntity.getRelativePath(), e);
-            } catch (IOException e) {
-                throw new TemplatingMojoFailureException("Cannot open " + templateEntity.getDescription() + ": " + templateEntity.getRelativePath(), e);
-            }
-        });
-    }
+    //    private List<LoadedEntityContent> loadTemplates(LoadableEntities templateEntities) {
+    //        final DefaultMustacheFactory mf = new DefaultMustacheFactory();
+    //
+    //        return templateEntities.loadEntities(templateEntity -> {
+    //            try {
+    //                Mustache template = loadTemplate(mf, templateEntity.getFullPathAsUrl(), templateEntity.getRelativePath());
+    //                return List.of(templateEntity.withContents(List.of(template), Path.of(templateEntity.getRelativePath())));
+    //            } catch (MalformedURLException e) {
+    //                throw new TemplatingMojoFailureException("URL error " + templateEntity.getFullPath() + ": " + templateEntity.getRelativePath(), e);
+    //            } catch (IOException e) {
+    //                throw new TemplatingMojoFailureException("Cannot open " + templateEntity.getDescription() + ": " + templateEntity.getRelativePath(), e);
+    //            }
+    //        });
+    //    }
 
     static class TemplatingMojoFailureException extends RuntimeException {
         public TemplatingMojoFailureException(String msg, Exception e) {
