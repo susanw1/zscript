@@ -10,23 +10,17 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.zscript.ascii.AnsiCharacterStylePrinter;
 import net.zscript.javareceiver.semanticParser.SemanticAction;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 
 public class CompleteCommandGrapherTest {
-    public static final String ANSI_RESET  = "\u001B[0m";
-    public static final String ANSI_BOLD   = "\u001B[1m";
-    public static final String ANSI_BLACK  = "\u001B[30m";
-    public static final String ANSI_RED    = "\u001B[31m";
-    public static final String ANSI_GREEN  = "\u001B[32m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
-    public static final String ANSI_BLUE   = "\u001B[34m";
-    public static final String ANSI_PURPLE = "\u001B[35m";
-    public static final String ANSI_CYAN   = "\u001B[36m";
-    public static final String ANSI_WHITE  = "\u001B[37m";
+    CommandGraph.GraphPrintSettings basicSettings = new CommandGraph.GraphPrintSettings(new StandardCommandGrapher.CommandPrintSettings("  ", VerbositySetting.NAME), true, 2,
+            60);
 
     @ParameterizedTest
     @MethodSource
@@ -38,112 +32,115 @@ public class CompleteCommandGrapherTest {
         }
         CommandExecutionPath path = CommandExecutionPath.parse(bufferCmd.getTokenReader().getFirstReadToken());
 
-        String ANSI_ANYTHING = "(\u001B[\\[\\dm]*)*";
-        assertThat(path.graphPrint(new StandardCommandGrapher(), false).replaceAll(ANSI_ANYTHING, "")).isEqualTo(output);
+        String ANSI_ANYTHING = "(\u001B[\\[\\d;]*m)*";
+        assertThat(path.graphPrint(new StandardCommandGrapher(), basicSettings).generateString(new AnsiCharacterStylePrinter()).replaceAll(ANSI_ANYTHING, "").lines()
+                .map(s -> s.stripTrailing() + "\n").collect(
+                        Collectors.joining())).
+                isEqualTo(output);
     }
 
     private static Stream<Arguments> shouldProduceGoodGraphs() {
         return Stream.of(
-                of("A\n", "O" + "   Command description\n"
-                        + " \n"
-                        + " \n"
+                of("A\n", "O" + " - No command field - Z expected: A\n"
+                        + "  ---------------------------------------------------------\n"
+                        + "\n"
                 ),
-                of("A&B\n", "O   Command description\n"
+                of("A&B\n", "O - No command field - Z expected: A\n"
+                        + "| ---------------------------------------------------------\n"
                         + "|\n"
-                        + "|\n"
-                        + "O   Command description\n"
-                        + " \n"
-                        + " \n"
+                        + "O - No command field - Z expected: B\n"
+                        + "  ---------------------------------------------------------\n"
+                        + "\n"
                 ),
-                of("A|B\n", "O      Command description\n"
-                        + " \\  \n"
-                        + "  \\ \n"
-                        + "   O   Command description\n"
-                        + "    \n"
-                        + "    \n"
+                of("A|B\n", "O    - No command field - Z expected: A\n"
+                        + " \\   ------------------------------------------------------\n"
+                        + "  \\\n"
+                        + "   O - No command field - Z expected: B\n"
+                        + "     ------------------------------------------------------\n"
+                        + "\n"
                 ),
-                of("A&B|C\n", "O      Command description\n"
-                        + "|\\  \n"
-                        + "| \\ \n"
-                        + "O  |   Command description\n"
-                        + " \\ |\n"
+                of("A&B|C\n", "O    - No command field - Z expected: A\n"
+                        + "|\\   ------------------------------------------------------\n"
+                        + "| \\\n"
+                        + "O  | - No command field - Z expected: B\n"
+                        + " \\ | ------------------------------------------------------\n"
                         + "  \\|\n"
-                        + "   O   Command description\n"
-                        + "    \n"
-                        + "    \n"
+                        + "   O - No command field - Z expected: C\n"
+                        + "     ------------------------------------------------------\n"
+                        + "\n"
                 ),
-                of("X(A&B|C)Y\n", "O      Command description\n"
-                        + "|   \n"
-                        + "|   \n"
-                        + "O      Command description\n"
-                        + "|\\  \n"
-                        + "| \\ \n"
-                        + "O  |   Command description\n"
-                        + "|\\ |\n"
+                of("X(A&B|C)Y\n", "O    - No command field - Z expected: X\n"
+                        + "|    ------------------------------------------------------\n"
+                        + "|\n"
+                        + "O    - No command field - Z expected: A\n"
+                        + "|\\   ------------------------------------------------------\n"
+                        + "| \\\n"
+                        + "O  | - No command field - Z expected: B\n"
+                        + "|\\ | ------------------------------------------------------\n"
                         + "| \\|\n"
-                        + "|  O   Command description\n"
-                        + "| / \n"
-                        + "|/  \n"
-                        + "O      Command description\n"
-                        + "    \n"
-                        + "    \n"
+                        + "|  O - No command field - Z expected: C\n"
+                        + "| /  ------------------------------------------------------\n"
+                        + "|/\n"
+                        + "O    - No command field - Z expected: Y\n"
+                        + "     ------------------------------------------------------\n"
+                        + "\n"
                 ),
-                of("X(A|B&C)Y\n", "O      Command description\n"
-                        + "|   \n"
-                        + "|   \n"
-                        + "O      Command description\n"
-                        + "|\\  \n"
-                        + "| \\ \n"
-                        + "|  O   Command description\n"
+                of("X(A|B&C)Y\n", "O    - No command field - Z expected: X\n"
+                        + "|    ------------------------------------------------------\n"
+                        + "|\n"
+                        + "O    - No command field - Z expected: A\n"
+                        + "|\\   ------------------------------------------------------\n"
+                        + "| \\\n"
+                        + "|  O - No command field - Z expected: B\n"
+                        + "|  | ------------------------------------------------------\n"
                         + "|  |\n"
-                        + "|  |\n"
-                        + "|  O   Command description\n"
-                        + "| / \n"
-                        + "|/  \n"
-                        + "O      Command description\n"
-                        + "    \n"
-                        + "    \n"
+                        + "|  O - No command field - Z expected: C\n"
+                        + "| /  ------------------------------------------------------\n"
+                        + "|/\n"
+                        + "O    - No command field - Z expected: Y\n"
+                        + "     ------------------------------------------------------\n"
+                        + "\n"
                 ),
-                of("X(A|B&C)Y|Z\n", "O         Command description\n"
-                        + "|\\___  \n"
-                        + "|    \\ \n"
-                        + "O     |   Command description\n"
-                        + "|\\    |\n"
+                of("X(A|B&C)Y|Z\n", "O       - No command field - Z expected: X\n"
+                        + "|\\___   ---------------------------------------------------\n"
+                        + "|    \\\n"
+                        + "O     | - No command field - Z expected: A\n"
+                        + "|\\    | ---------------------------------------------------\n"
                         + "| \\   |\n"
-                        + "|  O  |   Command description\n"
-                        + "|  |\\ |\n"
+                        + "|  O  | - No command field - Z expected: B\n"
+                        + "|  |\\ | ---------------------------------------------------\n"
                         + "|  | \\|\n"
-                        + "|  O  |   Command description\n"
-                        + "| / \\ |\n"
+                        + "|  O  | - No command field - Z expected: C\n"
+                        + "| / \\ | ---------------------------------------------------\n"
                         + "|/   \\|\n"
-                        + "O     |   Command description\n"
-                        + " \\___ |\n"
+                        + "O     | - No command field - Z expected: Y\n"
+                        + " \\___ | ---------------------------------------------------\n"
                         + "     \\|\n"
-                        + "      O   Command description\n"
-                        + "       \n"
-                        + "       \n"
+                        + "      O - Core Capabilities: Z\n"
+                        + "        ---------------------------------------------------\n"
+                        + "\n"
                 ),
-                of("X(A|B&C)Y|Z)W\n", "O         Command description\n"
-                        + "|\\___  \n"
-                        + "|    \\ \n"
-                        + "O     |   Command description\n"
-                        + "|\\    |\n"
+                of("X(A|B&C)Y|Z)W\n", "O       - No command field - Z expected: X\n"
+                        + "|\\___   ---------------------------------------------------\n"
+                        + "|    \\\n"
+                        + "O     | - No command field - Z expected: A\n"
+                        + "|\\    | ---------------------------------------------------\n"
                         + "| \\   |\n"
-                        + "|  O  |   Command description\n"
-                        + "|  |\\ |\n"
+                        + "|  O  | - No command field - Z expected: B\n"
+                        + "|  |\\ | ---------------------------------------------------\n"
                         + "|  | \\|\n"
-                        + "|  O  |   Command description\n"
-                        + "| / \\ |\n"
+                        + "|  O  | - No command field - Z expected: C\n"
+                        + "| / \\ | ---------------------------------------------------\n"
                         + "|/   \\|\n"
-                        + "O     |   Command description\n"
-                        + "|\\___ |\n"
+                        + "O     | - No command field - Z expected: Y\n"
+                        + "|\\___ | ---------------------------------------------------\n"
                         + "|    \\|\n"
-                        + "|     O   Command description\n"
-                        + "| ___/ \n"
-                        + "|/     \n"
-                        + "O         Command description\n"
-                        + "       \n"
-                        + "       \n"
+                        + "|     O - Core Capabilities: Z\n"
+                        + "| ___/  ---------------------------------------------------\n"
+                        + "|/\n"
+                        + "O       - No command field - Z expected: W\n"
+                        + "        ---------------------------------------------------\n"
+                        + "\n"
                 )
         );
 

@@ -7,17 +7,17 @@ import java.util.List;
 
 public class TextCanvas implements AsciiFrame {
 
-    interface CanvasElement {
+    protected interface CanvasElement {
         void apply();
     }
 
-    class AsciiFrameElement implements CanvasElement {
+    protected class AsciiFrameElement implements CanvasElement {
         private final AsciiFrame box;
 
         private final int leftHorizontalPos;
         private final int topVerticalPos;
 
-        AsciiFrameElement(AsciiFrame box, int leftHorizontalPos, int topVerticalPos) {
+        public AsciiFrameElement(AsciiFrame box, int leftHorizontalPos, int topVerticalPos) {
             this.box = box;
             this.leftHorizontalPos = leftHorizontalPos;
             this.topVerticalPos = topVerticalPos;
@@ -68,13 +68,13 @@ public class TextCanvas implements AsciiFrame {
             this.horizontal = horizontal;
         }
 
-        LineDrawingStrategy(boolean isHStart, boolean isHEnd, boolean isTop, boolean isBottom) {
+        public LineDrawingStrategy(boolean isHStart, boolean isHEnd, boolean isTop, boolean isBottom) {
             this.vertical = new VerticalLineDrawingStrategy(isHStart, isHEnd);
             this.horizontal = new HorizontalLineDrawingStrategy(isTop, isBottom);
         }
     }
 
-    class LineElement implements CanvasElement {
+    protected class LineElement implements CanvasElement {
         private final CharacterStyle style;
 
         private final int hStartPos;
@@ -85,7 +85,7 @@ public class TextCanvas implements AsciiFrame {
 
         private final LineDrawingStrategy strategy;
 
-        LineElement(CharacterStyle style, int hStartPos, int vStartPos, int hEndPos, int vEndPos, LineDrawingStrategy strategy) {
+        public LineElement(CharacterStyle style, int hStartPos, int vStartPos, int hEndPos, int vEndPos, LineDrawingStrategy strategy) {
             this.style = style;
             if (vEndPos >= vStartPos) {
                 this.hStartPos = hStartPos;
@@ -283,14 +283,14 @@ public class TextCanvas implements AsciiFrame {
         }
     }
 
-    class CharacterElement implements CanvasElement {
+    protected class CharacterElement implements CanvasElement {
         private final CharacterStyle style;
 
         private final char c;
         private final int  hPos;
         private final int  vPos;
 
-        CharacterElement(char c, CharacterStyle style, int hPos, int vPos) {
+        public CharacterElement(char c, CharacterStyle style, int hPos, int vPos) {
             this.c = c;
             this.style = style;
             this.hPos = hPos;

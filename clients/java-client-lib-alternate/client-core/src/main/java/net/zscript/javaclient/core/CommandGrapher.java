@@ -3,9 +3,12 @@ package net.zscript.javaclient.core;
 import java.util.List;
 import java.util.Map;
 
+import net.zscript.ascii.AsciiFrame;
+import net.zscript.model.ZscriptModel;
+
 public interface CommandGrapher {
-    String graph(Map<Command, CommandGraphElement> commands, List<CommandGraphElement> elements,
-            CommandDepth maxDepth, List<Command> toHighlight, boolean skipImpossiblePaths);
+    AsciiFrame graph(ZscriptModel model, Map<Command, CommandGraphElement> commands, List<CommandGraphElement> elements,
+            CommandDepth maxDepth, List<Command> toHighlight, List<Response> responses, CommandGraph.GraphPrintSettings settings);
 
     public class CommandDepth {
         private int depth;

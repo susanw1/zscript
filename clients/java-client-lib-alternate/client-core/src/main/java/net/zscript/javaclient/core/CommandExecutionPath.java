@@ -11,6 +11,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 
+import net.zscript.ascii.AsciiFrame;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
@@ -216,11 +217,17 @@ public class CommandExecutionPath {
         return out.toByteArray();
     }
 
-    public String graphPrint(CommandGrapher grapher, boolean skipImpossiblePaths) {
-        return graphPrint(grapher, skipImpossiblePaths, List.of());
+    public AsciiFrame graphPrint(CommandGrapher grapher) {
+        return graphPrint(grapher, CommandGraph.getDefaultSettings(), null);
     }
 
-    public String graphPrint(CommandGrapher grapher, boolean skipImpossiblePaths, List<Command> toHighlight) {
+    public AsciiFrame graphPrint(CommandGrapher grapher, CommandGraph.GraphPrintSettings settings) {
+        return graphPrint(grapher, settings, null);
+    }
+
+    public AsciiFrame graphPrint(CommandGrapher grapher, CommandGraph.GraphPrintSettings settings, ResponseExecutionPath resps) {
+        boolean skipImpossiblePaths = settings.skipImpossiblePaths();
+
         CommandGrapher.CommandDepth        startDepth = new CommandGrapher.CommandDepth(0);
         CommandGrapher.CommandGraphElement start      = new CommandGrapher.CommandGraphElement(firstCommand, startDepth);
 
@@ -290,11 +297,28 @@ public class CommandExecutionPath {
                 }
             }
         }
+        List<Response> responses;
+        List<Command>  toHighlight = List.of();
+        if (resps != null) {
+            responses = resps.getResponses();
+            toHighlight = this.compareResponses(resps);
+        } else {
+            responses = List.of();
+        }
         if (skipImpossiblePaths) {
             elements = skipEmpty(commands, elements);
+            toHighlight = new ArrayList<>(toHighlight);
+            Iterator<Response> respIter = responses.iterator();
             for (Iterator<Command> iter = toHighlight.iterator(); iter.hasNext(); ) {
+
                 if (!elements.contains(commands.get(iter.next()))) {
                     iter.remove();
+                    if (respIter.hasNext()) {
+                        respIter.next();
+                        respIter.remove();
+                    }
+                } else if (respIter.hasNext()) {
+                    respIter.next();
                 }
             }
             //then trim depths which aren't used...
@@ -313,7 +337,7 @@ public class CommandExecutionPath {
             }
             maxDepth.setDepth(maxDepth.getDepth() - offset);
         }
-        return grapher.graph(commands, elements, maxDepth, toHighlight, skipImpossiblePaths);
+        return grapher.graph(model, commands, elements, maxDepth, toHighlight, responses, settings);
     }
 
     private List<CommandGrapher.CommandGraphElement> skipEmpty(Map<Command, CommandGrapher.CommandGraphElement> commands,

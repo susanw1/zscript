@@ -108,4 +108,11 @@ public class ResponseExecutionPath {
         return firstResponse;
     }
 
+    public List<Response> getResponses() {
+        List<Response> resps = new ArrayList<>();
+        for (Response r = firstResponse; r != null; r = r.getNext()) {
+            resps.add(r);
+        }
+        return resps;
+    }
 }
