@@ -27,7 +27,7 @@ public class YamlTemplatingPluginMapper implements TemplatingPluginMapper {
         final int dotIndex = relativePathToSource.lastIndexOf('.');
         final String newUriPath = (dotIndex != -1 ? relativePathToSource.substring(0, dotIndex) : relativePathToSource)
                 + "." + entity.getFileTypeSuffix();
-        final Path relativePathToOutput = Path.of(newUriPath);
+        final Path relativePathToOutput = entity.getFileSystem().getPath(newUriPath);
 
         try (final Reader r = new BufferedReader(new InputStreamReader(entity.getFullPathAsUrl().openStream(), UTF_8))) {
             final Map<?, ?> value = yamlMapper.load(r);

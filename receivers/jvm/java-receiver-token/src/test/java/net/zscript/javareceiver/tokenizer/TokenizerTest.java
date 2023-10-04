@@ -1,5 +1,7 @@
 package net.zscript.javareceiver.tokenizer;
 
+import java.util.stream.Stream;
+
 import static net.zscript.javareceiver.tokenizer.Tokenizer.NORMAL_SEQUENCE_END;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -18,8 +20,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.stream.Stream;
 
 import net.zscript.model.components.Zchars;
 
@@ -91,7 +91,7 @@ class TokenizerTest {
         return Stream.of(
                 Arguments.of("Illegal low-value key check", "A5\f1\n", "tAn5f" + (char) Tokenizer.ERROR_CODE_ILLEGAL_TOKEN + "----"),
                 Arguments.of("Illegal high-value key check x80", "A5\u0080a\n", "tAn5f" + (char) Tokenizer.ERROR_CODE_ILLEGAL_TOKEN + "------"),
-                Arguments.of("Illegal high-value key check xf0", "A5\u00f0a\n", "tAn5f" + (char) Tokenizer.ERROR_CODE_ILLEGAL_TOKEN + "------"),
+                Arguments.of("Illegal high-value key check xf0", "A5ða\n", "tAn5f" + (char) Tokenizer.ERROR_CODE_ILLEGAL_TOKEN + "------"),
                 Arguments.of("Illegal hex key check 'a'", "A5\"\"a\n", "tAn5s\"--f" + (char) Tokenizer.ERROR_CODE_ILLEGAL_TOKEN + "------"),
                 Arguments.of("Illegal hex key check 'f'", "A5\"\"f\n", "tAn5s\"--f" + (char) Tokenizer.ERROR_CODE_ILLEGAL_TOKEN + "------"),
                 Arguments.of("Illegal hex key check '7'", "A5\"\"7\n", "tAn5s\"--f" + (char) Tokenizer.ERROR_CODE_ILLEGAL_TOKEN + "------"),

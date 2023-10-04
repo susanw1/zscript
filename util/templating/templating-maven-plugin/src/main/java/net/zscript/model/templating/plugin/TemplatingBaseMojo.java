@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -32,7 +34,8 @@ import net.zscript.model.templating.adapter.LoadableEntities.LoadedEntityContent
 import net.zscript.model.templating.adapter.TemplatingPluginMapper;
 
 abstract class TemplatingBaseMojo extends AbstractMojo {
-    private static final String FILE_TYPE_SUFFIX_DEFAULT = "java";
+    private static final String     FILE_TYPE_SUFFIX_DEFAULT = "java";
+    private static final FileSystem FS                       = FileSystems.getDefault();
 
     @Parameter
     protected String templateDirectory;
@@ -201,13 +204,13 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
             URI rootUri = new URI(directoryString);
             if (rootUri.getScheme() != null) {
                 getLog().debug(description + ": directory is valid URI, so assuming using limited includes paths: " + directoryString);
-                return new LoadableEntities(description, rootUri, fileSet.getIncludes(), fileTypeSuffix);
+                return new LoadableEntities(description, rootUri, fileSet.getIncludes(), fileTypeSuffix, FS);
             }
         } catch (URISyntaxException e) {
             getLog().debug(description + ": directory isn't valid URI, so assuming local directory: " + directoryString);
         }
 
-        return extractFileListAsLocalFiles(description, fileSet, Path.of(directoryString));
+        return extractFileListAsLocalFiles(description, fileSet, FS.getPath(directoryString));
     }
 
     private LoadableEntities extractFileListAsLocalFiles(String description, final FileSet fileSet, Path rootPath) throws MojoExecutionException {
@@ -232,7 +235,7 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
         getLog().debug("    #files = " + files.size());
         files.forEach(f -> getLog().debug("    " + f));
 
-        return new LoadableEntities(description, rootUri, files, fileTypeSuffix);
+        return new LoadableEntities(description, rootUri, files, fileTypeSuffix, rootPath.getFileSystem());
     }
 
     private List<LoadedEntityContent> loadMappedContexts(LoadableEntities contextEntities) throws MojoExecutionException {
