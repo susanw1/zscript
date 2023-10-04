@@ -9,10 +9,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.stream.Stream;
 
-import net.zscript.javareceiver.semanticParser.SemanticAction;
+import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 
@@ -28,7 +27,7 @@ public class CommandExecutionPathRegenerationTest {
         }
         CommandExecutionPath path = CommandExecutionPath.parse(bufferCmd.getTokenReader().getFirstReadToken());
 
-        assertThat(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(path.toSequence())).toString()).isEqualTo(output);
+        assertThat(path.toSequence().asString()).isEqualTo(output);
     }
 
     private static Stream<Arguments> shouldProduceActionsForLogicalCommandSeries() {

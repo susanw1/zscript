@@ -1,4 +1,4 @@
-package net.zscript.javaclient.core;
+package net.zscript.javaclient.commandPrinting;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,6 +10,8 @@ import net.zscript.ascii.AsciiFrame;
 import net.zscript.ascii.CharacterStyle;
 import net.zscript.ascii.TextCanvas;
 import net.zscript.ascii.TextColor;
+import net.zscript.javaclient.commandPaths.Command;
+import net.zscript.javaclient.commandPaths.Response;
 import net.zscript.model.ZscriptModel;
 
 public class CommandGraph extends TextCanvas {

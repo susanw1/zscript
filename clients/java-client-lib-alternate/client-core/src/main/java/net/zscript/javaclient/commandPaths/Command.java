@@ -1,15 +1,6 @@
-package net.zscript.javaclient.core;
+package net.zscript.javaclient.commandPaths;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import net.zscript.model.ZscriptModel;
-import net.zscript.model.datamodel.ZscriptDataModel;
+import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 
 public class Command {
 
@@ -55,7 +46,7 @@ public class Command {
         return endLink;
     }
 
-    public void toBytes(OutputStream out) {
+    public void toBytes(ZscriptByteString.ZscriptByteStringBuilder out) {
         fieldSet.toBytes(out);
     }
 
@@ -92,9 +83,9 @@ public class Command {
 
     @Override
     public String toString() {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        toBytes(outputStream);
-        return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(outputStream.toByteArray())).toString();
+        ZscriptByteString.ZscriptByteStringBuilder out = ZscriptByteString.builder();
+        toBytes(out);
+        return out.asString();
     }
 
     public ZscriptFieldSet getFields() {

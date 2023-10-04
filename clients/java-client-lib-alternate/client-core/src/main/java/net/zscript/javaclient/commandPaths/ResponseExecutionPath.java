@@ -1,4 +1,4 @@
-package net.zscript.javaclient.core;
+package net.zscript.javaclient.commandPaths;
 
 import java.util.ArrayList;
 import java.util.List;

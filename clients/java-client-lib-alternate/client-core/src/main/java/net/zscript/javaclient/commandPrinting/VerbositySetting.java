@@ -1,4 +1,4 @@
-package net.zscript.javaclient.core;
+package net.zscript.javaclient.commandPrinting;
 
 public enum VerbositySetting implements Comparable<VerbositySetting> {
     MINIMAL,
