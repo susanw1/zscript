@@ -16,8 +16,8 @@ public class TemplatingTestMojo extends TemplatingBaseMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        templateDefaultDirs.add(TEMPLATE_DEFAULT_DIR);
-        templateDefaultDirs.add(TemplatingMojo.TEMPLATE_DEFAULT_DIR);
+        templateRootDirs.add(TEMPLATE_DEFAULT_DIR);
+        templateRootDirs.add(TemplatingMojo.TEMPLATE_DEFAULT_DIR);
 
         String outputDirectoryPath = executeBase(CONTEXT_DEFAULT_DIR, OUTPUT_DEFAULT_DIR);
         getLog().info("Test: generateSources: " + generateSources + ", fileTypeSuffix: " + fileTypeSuffix + ", outputDirectoryPath: " + outputDirectoryPath);

@@ -60,7 +60,8 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${generated-text-path}/test2</outputDirectory>
-                            <mainTemplate>classpath:/template-cp/test-2-cp.mustache</mainTemplate>
+                            <templateDirectory>classpath:/template-cp</templateDirectory>
+                            <mainTemplate>test-2-cp.mustache</mainTemplate>
                             <fileTypeSuffix>txt</fileTypeSuffix>
                             <contexts>
                                 <directory>classpath:/contexts-cp/</directory>
