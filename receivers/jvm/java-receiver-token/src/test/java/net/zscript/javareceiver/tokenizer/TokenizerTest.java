@@ -1,5 +1,6 @@
 package net.zscript.javareceiver.tokenizer;
 
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 import static net.zscript.javareceiver.tokenizer.Tokenizer.NORMAL_SEQUENCE_END;
@@ -169,7 +170,8 @@ class TokenizerTest {
             fail("bufferActions length is too short (trimmed?) + zscript='" + zscript + "', actions='" + bufferActions + "'");
         }
         int index = 0;
-        for (byte c : zscript.getBytes()) {
+        // ISO8859 to ensure chars are fed as just bytes
+        for (byte c : zscript.getBytes(StandardCharsets.ISO_8859_1)) {
             tokenizer.accept(c);
             //            System.out.println("c = " + c);
             char action = bufferActions.charAt(index * 2);
