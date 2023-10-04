@@ -33,7 +33,6 @@
         <!-- plugin dependency versions -->
         <version.nar-maven-plugin>3.10.2-SNAPSHOT</version.nar-maven-plugin>
         <version.jacoco-maven-plugin>0.8.7</version.jacoco-maven-plugin>
-        <version.m2e-nar>1.0.5</version.m2e-nar>
         <version.exec-maven-plugin>3.0.0</version.exec-maven-plugin>
         <version.maven-compiler-plugin>3.10.1</version.maven-compiler-plugin>
         <version.maven-surefire-plugin>3.0.0-M5</version.maven-surefire-plugin>

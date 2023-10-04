@@ -3,6 +3,7 @@ package net.zscript.model.templating.adapter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class ZscriptModuleTemplatingPluginMapper implements TemplatingPluginMapp
                     final ConversionHelper helper              = new ConversionHelper();
 
                     helper.getAdditional().put("context-source", fullPathAsUrl);
-                    final Path targetFileName = determineOutputPath(moduleBank.getDefaultPackage().stream(), capitalizedBankName, helper);
+                    final Path targetFileName = determineOutputPath(moduleBank.getDefaultPackage().stream(), capitalizedBankName, helper, entity.getFileSystem());
 
                     final List<Object> contents = List.of(helper, model.getIntrinsics());
                     result.add(entity.withContents(contents, targetFileName));
@@ -52,8 +53,9 @@ public class ZscriptModuleTemplatingPluginMapper implements TemplatingPluginMapp
 
                         final String capitalizedClassFilename = Character.toUpperCase(moduleName.charAt(0)) + moduleName.substring(1)
                                 + "Module." + entity.getFileTypeSuffix();
-                        final Path         targetFileName = determineOutputPath(Stream.concat(packageElements.stream(), Stream.of(bankName)), capitalizedClassFilename, helper);
-                        final List<Object> contents       = List.of(helper, model.getIntrinsics(), module);
+                        final Path targetFileName = determineOutputPath(Stream.concat(packageElements.stream(), Stream.of(bankName)), capitalizedClassFilename, helper,
+                                entity.getFileSystem());
+                        final List<Object> contents = List.of(helper, model.getIntrinsics(), module);
                         result.add(entity.withContents(contents, targetFileName));
                     }
                 }
@@ -64,12 +66,12 @@ public class ZscriptModuleTemplatingPluginMapper implements TemplatingPluginMapp
         return result;
     }
 
-    private static Path determineOutputPath(Stream<String> packageElementStream, String fileName, ConversionHelper helper) {
+    private static Path determineOutputPath(Stream<String> packageElementStream, String fileName, ConversionHelper helper, FileSystem fs) {
         final List<String> fqcn = packageElementStream
                 .map(p -> p.toLowerCase().replaceAll("- ", "_"))
                 .collect(toList());
         helper.getAdditional().put("package-elements", String.join(".", fqcn));
-        final Path packagePath = Path.of(fqcn.get(0), fqcn.subList(1, fqcn.size()).toArray(new String[0]));
+        final Path packagePath = fs.getPath(fqcn.get(0), fqcn.subList(1, fqcn.size()).toArray(new String[0]));
         return packagePath.resolve(fileName);
     }
 }

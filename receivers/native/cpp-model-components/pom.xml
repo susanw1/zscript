@@ -55,10 +55,7 @@
                             <goal>transform</goal>
                         </goals>
                         <configuration>
-                            <templates>
-                                <directory>${project.basedir}/src/main/templates</directory>
-                                <includes>CppZchars.mustache</includes>
-                            </templates>
+                            <mainTemplate>CppZchars.mustache</mainTemplate>
                             <contexts>
                                 <includes>zchars-list.yaml</includes>
                             </contexts>
@@ -70,10 +67,7 @@
                             <goal>transform</goal>
                         </goals>
                         <configuration>
-                            <templates>
-                                <directory>${project.basedir}/src/main/templates</directory>
-                                <includes>CppZscriptStatus.mustache</includes>
-                            </templates>
+                            <mainTemplate>CppZscriptStatus.mustache</mainTemplate>
                             <contexts>
                                 <includes>zstatus-list.yaml</includes>
                             </contexts>
@@ -85,10 +79,7 @@
                             <goal>transform</goal>
                         </goals>
                         <configuration>
-                            <templates>
-                                <directory>${project.basedir}/src/main/templates</directory>
-                                <includes>CppCommandKeyDefs.mustache</includes>
-                            </templates>
+                            <mainTemplate>CppCommandKeyDefs.mustache</mainTemplate>
                             <contexts>
                                 <directory>classpath:/zscript-datamodel/</directory>
                                 <includes>module-list.yaml</includes>
