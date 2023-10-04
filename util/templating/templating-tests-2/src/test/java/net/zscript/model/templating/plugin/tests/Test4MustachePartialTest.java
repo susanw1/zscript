@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.util.Map;
 
+import static java.lang.System.lineSeparator;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -16,9 +17,9 @@ import org.yaml.snakeyaml.Yaml;
 public class Test4MustachePartialTest {
     @Test
     public void shouldRenderClasspathTemplatesWithPartials() throws IOException {
-        final String expected = "Test-4 (classpath, partials): Test mustache file: receipt is Classpath example on Thu Mar 16 00:00:00 GMT 2023\n"
-                + "Testing partials:\n"
-                + "foo-4.mustache: - Ship-to: 31 Cat Road&#10;Suite 16&#10;\n\n";
+        final String expected = "Test-4 (classpath, partials): Test mustache file: receipt is Classpath example on Thu Mar 16 00:00:00 GMT 2023" + lineSeparator()
+                + "Testing partials:" + lineSeparator()
+                + "foo-4.mustache: - Ship-to: 31 Cat Road&#10;Suite 16&#10;" + lineSeparator() + lineSeparator();
 
         //        final String templateResource = "/template-cp/test-4-cp-part.mustache";
         //                final URL    templateUrl      = getClass().getResource(templateResource);
