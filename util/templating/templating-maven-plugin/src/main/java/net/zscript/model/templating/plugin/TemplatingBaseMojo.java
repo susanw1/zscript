@@ -99,7 +99,7 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
         final MustacheFactory mustacheFactory = createMustacheFactory();
 
         final FileSet          contextFileSet  = initFileSet(contexts, contextDefaultDir);
-        final LoadableEntities contextEntities = extractFileList("Context", contextFileSet);
+        final LoadableEntities contextEntities = extractContextFileList(contextFileSet);
 
         // read in context files as YAML and perform any field mapping as required. Read in templates ready to use Mustache.
         final List<LoadedEntityContent> loadedMappedContexts = loadMappedContexts(contextEntities);
@@ -136,25 +136,24 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
     }
 
     private MustacheFactory createMustacheFactory() {
+        final String messagePrefix = "Main Template resolution for \"" + mainTemplate + "\": ";
+
         MustacheResolver mustacheResolver = null;
         try {
             URI dirUri;
-            if (templateDirectory == null || templateDirectory.isEmpty() || (dirUri = new URI(templateDirectory)).getScheme() == null) {
-                for (String defaultDir : templateRootDirs) {
-                    final Path resolvedDir = project.getBasedir().toPath().resolve(defaultDir);
-                    if (!Files.isDirectory(resolvedDir)) {
-                        continue;
-                    }
-                    final Path resolvedTemplateDir = templateDirectory == null ? resolvedDir : resolvedDir.resolve(templateDirectory);
-                    if (!Files.isDirectory(resolvedTemplateDir)) {
-                        continue;
-                    }
-                    final Path mainTemplateFullPath = resolvedDir.resolve(mainTemplate);
-
-                    if (Files.isRegularFile(mainTemplateFullPath)) {
-                        mustacheResolver = new FileSystemResolver(resolvedDir.toFile());
-                        System.out.println("mainTemplatePath: " + resolvedTemplateDir + ", mainTemplate: " + mainTemplate);
-                        break;
+            if (templateDirectory == null || templateDirectory.isEmpty()
+                    || FS.getPath(templateDirectory).isAbsolute()
+                    || (dirUri = new URI(templateDirectory)).getScheme() == null) {
+                if (templateDirectory != null && !templateDirectory.isEmpty()) {
+                    mustacheResolver = createFileResolver(FS.getPath(templateDirectory));
+                }
+                if (mustacheResolver == null) {
+                    for (String defaultDir : templateRootDirs) {
+                        final Path resolvedDir = project.getBasedir().toPath().resolve(defaultDir);
+                        mustacheResolver = createFileResolver(resolvedDir);
+                        if (mustacheResolver != null) {
+                            break;
+                        }
                     }
                 }
                 if (mustacheResolver == null) {
@@ -163,16 +162,38 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
             } else if (dirUri.getScheme().equals("classpath")) {
                 final String path         = dirUri.getPath();
                 final String resourceRoot = path.startsWith("/") ? path.substring(1) : path;
-                System.out.println("resourceRoot: " + resourceRoot + ", mainTemplate: " + mainTemplate);
                 mustacheResolver = new ClasspathResolver(resourceRoot);
+                getLog().info(messagePrefix + ": use ClasspathResolver with resourceRoot: " + resourceRoot);
             } else {
                 mustacheResolver = new DefaultResolver(dirUri.getPath());
+                getLog().info(messagePrefix + ": use DefaultResolver with resourceRoot: " + dirUri.getPath());
             }
         } catch (URISyntaxException e1) {
             throw new TemplatingMojoFailureException("Bad URI: " + mainTemplate, e1);
         }
 
         return new DefaultMustacheFactory(mustacheResolver);
+    }
+
+    private MustacheResolver createFileResolver(Path templateRootCandidate) {
+        if (!Files.isDirectory(templateRootCandidate)) {
+            getLog().info("  checked possible base dir (doesn't exist): " + templateRootCandidate);
+            return null;
+        }
+        final Path resolvedTemplateDir = templateDirectory == null ? templateRootCandidate : templateRootCandidate.resolve(templateDirectory);
+        if (!Files.isDirectory(resolvedTemplateDir)) {
+            getLog().info("  checked possible template root dir (doesn't exist): " + templateRootCandidate);
+            return null;
+        }
+        final Path mainTemplateFullPath = templateRootCandidate.resolve(mainTemplate);
+
+        if (!Files.isRegularFile(mainTemplateFullPath)) {
+            getLog().info("  possible template root dir exists: " + templateRootCandidate);
+            getLog().info("  but template doesn't: " + mainTemplateFullPath);
+            return null;
+        }
+        getLog().info("Template found in dir: " + templateRootCandidate);
+        return new FileSystemResolver(resolvedTemplateDir.toFile());
     }
 
     private void createDirIfRequired(final Path outputDirectoryPath) throws MojoExecutionException {
@@ -197,45 +218,44 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
         return fileSet;
     }
 
-    private LoadableEntities extractFileList(String description, final FileSet fileSet) throws MojoExecutionException {
+    private LoadableEntities extractContextFileList(final FileSet fileSet) throws MojoExecutionException {
         final String directoryString = fileSet.getDirectory();
-
         try {
             URI rootUri = new URI(directoryString);
             if (rootUri.getScheme() != null) {
-                getLog().debug(description + ": directory is valid URI, so assuming using limited includes paths: " + directoryString);
-                return new LoadableEntities(description, rootUri, fileSet.getIncludes(), fileTypeSuffix, FS);
+                getLog().debug("Context: directory is valid URI, so assuming using limited includes paths: " + directoryString);
+                return new LoadableEntities("Context", rootUri, fileSet.getIncludes(), fileTypeSuffix, FS);
             }
         } catch (URISyntaxException e) {
-            getLog().debug(description + ": directory isn't valid URI, so assuming local directory: " + directoryString);
+            getLog().debug("Context: directory isn't valid URI, so assuming local directory: " + directoryString);
         }
 
-        return extractFileListAsLocalFiles(description, fileSet, FS.getPath(directoryString));
+        return extractFileListAsLocalFiles(fileSet, FS.getPath(directoryString));
     }
 
-    private LoadableEntities extractFileListAsLocalFiles(String description, final FileSet fileSet, Path rootPath) throws MojoExecutionException {
+    private LoadableEntities extractFileListAsLocalFiles(final FileSet fileSet, Path rootPath) throws MojoExecutionException {
         URI rootUri;
         if (!Files.isDirectory(rootPath)) {
-            throw new MojoExecutionException(description + " directory not found: " + rootPath);
+            throw new MojoExecutionException("Context directory not found: " + rootPath);
         }
         if (!Files.isReadable(rootPath)) {
-            throw new MojoExecutionException(description + " directory not readable: " + rootPath);
+            throw new MojoExecutionException("Context directory not readable: " + rootPath);
         }
         rootUri = rootPath.toUri();
 
-        getLog().debug("    " + description + ": fileSet.getDirectory: " + rootPath + "; rootUri: " + rootUri);
+        getLog().debug("    Context: fileSet.getDirectory: " + rootPath + "; rootUri: " + rootUri);
 
         final FileSetManager fileSetManager = new FileSetManager();
         final List<String>   files          = stream(fileSetManager.getIncludedFiles(fileSet)).collect(Collectors.toList());
 
         if (failIfNoFiles && files.isEmpty()) {
-            throw new MojoExecutionException("No matching " + description + " files found in: " + rootPath);
+            throw new MojoExecutionException("No matching Context files found in: " + rootPath);
         }
 
         getLog().debug("    #files = " + files.size());
         files.forEach(f -> getLog().debug("    " + f));
 
-        return new LoadableEntities(description, rootUri, files, fileTypeSuffix, rootPath.getFileSystem());
+        return new LoadableEntities("Context", rootUri, files, fileTypeSuffix, rootPath.getFileSystem());
     }
 
     private List<LoadedEntityContent> loadMappedContexts(LoadableEntities contextEntities) throws MojoExecutionException {

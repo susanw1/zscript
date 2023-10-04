@@ -42,6 +42,7 @@
                 </dependencies>
 
                 <configuration>
+                    <templateDirectory>${project.resources[0].directory}/templates/commands</templateDirectory>
                     <mainTemplate>JavaCommandBuilder.mustache</mainTemplate>
                     <outputDirectory>${project.build.directory}/generated-sources/zscript</outputDirectory>
                     <templatingMapperClass>net.zscript.model.templating.adapter.ZscriptModuleTemplatingPluginMapper</templatingMapperClass>
