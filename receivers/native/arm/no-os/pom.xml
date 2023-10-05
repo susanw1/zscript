@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -16,9 +17,13 @@
         <module>stm32g4</module>
         <module>stm32g484</module>
         <module>stm32f0</module>
-        <module>stm32f030x8</module> 
+        <module>stm32f030x8</module>
     </modules>
-    
+
+    <properties>
+        <build-arm-gcc.skip>true</build-arm-gcc.skip>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -26,6 +31,7 @@
                 <artifactId>nar-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
+                    <skip>${build-arm-gcc.skip}</skip>
                     <cpp>
                         <name>gcc</name>
                         <exceptions>false</exceptions>

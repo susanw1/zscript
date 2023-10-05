@@ -50,6 +50,30 @@
         <module>demo</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>arm</id>
+            <properties>
+                <build-arm-gcc.skip>false</build-arm-gcc.skip>
+                <!--                <path.arm-gcc></path.arm-gcc>-->
+            </properties>
+        </profile>
+        <profile>
+            <id>arduino</id>
+            <properties>
+                <build-avr-gcc.skip>false</build-avr-gcc.skip>
+                <path.arduino-deploy>${user.home}/.arduino15/packages/arduino</path.arduino-deploy>
+                <path.avr-gcc>${path.arduino-deploy}/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin</path.avr-gcc>
+            </properties>
+        </profile>
+        <profile>
+            <id>device-acceptance-tests</id>
+            <properties>
+                <device-acceptance-tests.skip>false</device-acceptance-tests.skip>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencyManagement>
         <dependencies>
             <!-- Compile-time Dependencies -->

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -13,17 +14,17 @@
 
     <properties>
         <generic-core-version>${project.version}</generic-core-version>
-        <arduino-build-test-skip>true</arduino-build-test-skip>
+        <build-avr-gcc.skip>true</build-avr-gcc.skip>
 
         <cpu>atmega328p</cpu>
         <cpp-warnings>-Wall -Wno-long-long -Wpointer-arith</cpp-warnings>
         <cpp-optimizations>-Os</cpp-optimizations>
 
-        <arduino-deploy-path>${user.home}/.arduino15/packages/arduino</arduino-deploy-path>
-        <arduino-gcc-path>${arduino-deploy-path}/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin</arduino-gcc-path>
-        <arduino-cores-path>${arduino-deploy-path}/hardware/avr/1.8.6/cores/arduino</arduino-cores-path>
-        <arduino-libraries-path>${arduino-deploy-path}/hardware/avr/1.8.6/libraries</arduino-libraries-path>
-        <arduino-variants-path>${arduino-deploy-path}/hardware/avr/1.8.6/variants</arduino-variants-path>
+        <path.arduino-deploy>${user.home}/.arduino15/packages/arduino</path.arduino-deploy>
+        <path.avr-gcc>${path.arduino-deploy}/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin</path.avr-gcc>
+        <path.arduino-cores>${path.arduino-deploy}/hardware/avr/1.8.6/cores/arduino</path.arduino-cores>
+        <path.arduino-libraries>${path.arduino-deploy}/hardware/avr/1.8.6/libraries</path.arduino-libraries>
+        <path.arduino-variants>${path.arduino-deploy}/hardware/avr/1.8.6/variants</path.arduino-variants>
     </properties>
 
     <dependencies>
@@ -42,13 +43,13 @@
                 <artifactId>nar-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <skip>${arduino-build-test-skip}</skip>
+                    <skip>${build-avr-gcc.skip}</skip>
                     <architecture>avr</architecture>
                     <os>arduino</os>
                     <cpp>
                         <name>g++</name>
                         <prefix>avr-</prefix>
-                        <toolPath>${arduino-gcc-path}</toolPath>
+                        <toolPath>${path.avr-gcc}</toolPath>
                         <exceptions>false</exceptions>
                         <debug>false</debug>
                         <sourceDirectory>src/main/c++</sourceDirectory>
@@ -65,13 +66,13 @@
                                 <path>${project.basedir}/src/main/c++/arduino-converter-files</path>
                             </includePath>
                             <includePath>
-                                <path>${arduino-cores-path}</path>
+                                <path>${path.arduino-cores}</path>
                             </includePath>
                             <includePath>
-                                <path>${arduino-libraries-path}/Wire/src</path>
+                                <path>${path.arduino-libraries}/Wire/src</path>
                             </includePath>
                             <includePath>
-                                <path>${arduino-variants-path}/eightanaloginputs</path>
+                                <path>${path.arduino-variants}/eightanaloginputs</path>
                             </includePath>
                         </testIncludePaths>
 
@@ -94,8 +95,8 @@
 
                     <linker>
                         <name>ld</name>
-                        <prefix>${arduino-gcc-path}/avr-</prefix>
-<!--                        <toolPath>${arduino-gcc-path}</toolPath>-->
+                        <prefix>${path.avr-gcc}/avr-</prefix>
+                        <!--                        <toolPath>${path.avr-gcc}</toolPath>-->
                     </linker>
 
                     <tests>
@@ -107,7 +108,7 @@
                     </tests>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
