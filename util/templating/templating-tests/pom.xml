@@ -11,6 +11,12 @@
 
     <artifactId>templating-maven-plugin-tests</artifactId>
     <name>Maven Templating Plugin Tests</name>
+    
+    <description>
+        Testing only - don't make this a dependency of any other projects!
+        The goal of this project is to ensure that executions of the plugin can find their resources properly
+        from both the filesystem and from the classpath.
+    </description>
 
     <properties>
         <generated-code-path>${project.build.directory}/generated-sources/zscript</generated-code-path>

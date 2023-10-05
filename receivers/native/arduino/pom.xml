@@ -129,4 +129,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>arduino</id>
+            <properties>
+                <build-avr-gcc.skip>false</build-avr-gcc.skip>
+            </properties>
+        </profile>
+    </profiles>
 </project>

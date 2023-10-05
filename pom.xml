@@ -7,7 +7,12 @@
     <artifactId>zscript-all</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
+
     <name>Zscript</name>
+
+    <prerequisites>
+        <maven>3.6.3</maven>
+    </prerequisites>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -38,6 +43,7 @@
         <version.maven-surefire-plugin>3.0.0-M5</version.maven-surefire-plugin>
         <version.maven-failsafe-plugin>3.0.0-M5</version.maven-failsafe-plugin>
         <version.maven-assembly-plugin>3.4.2</version.maven-assembly-plugin>
+        <version.maven-enforcer-plugin>3.4.2</version.maven-enforcer-plugin>
     </properties>
 
     <modules>
@@ -50,29 +56,6 @@
         <module>demo</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>arm</id>
-            <properties>
-                <build-arm-gcc.skip>false</build-arm-gcc.skip>
-                <!--                <path.arm-gcc></path.arm-gcc>-->
-            </properties>
-        </profile>
-        <profile>
-            <id>arduino</id>
-            <properties>
-                <build-avr-gcc.skip>false</build-avr-gcc.skip>
-                <path.arduino-deploy>${user.home}/.arduino15/packages/arduino</path.arduino-deploy>
-                <path.avr-gcc>${path.arduino-deploy}/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin</path.avr-gcc>
-            </properties>
-        </profile>
-        <profile>
-            <id>device-acceptance-tests</id>
-            <properties>
-                <device-acceptance-tests.skip>false</device-acceptance-tests.skip>
-            </properties>
-        </profile>
-    </profiles>
 
     <dependencyManagement>
         <dependencies>
@@ -110,10 +93,26 @@
                 <version>${version.snakeyaml}</version>
             </dependency>
 
+
             <!-- Test Dependencies -->
             <!-- ================= -->
-            <!-- See util/java-testing-deps pom.xml for testing dependency definitions -->
-
+            <!-- See util/java-testing-deps pom.xml for common testing dependency definitions -->
+            <!-- Special purpose ones defined below... -->
+            <dependency>
+                <groupId>org.junit.vintage</groupId>
+                <artifactId>junit-vintage-engine</artifactId>
+                <version>${version.junit}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-java</artifactId>
+                <version>${version.cucumber}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-junit</artifactId>
+                <version>${version.cucumber}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -178,6 +177,11 @@
                     <version>${version.maven-assembly-plugin}</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>${version.maven-enforcer-plugin}</version>
+                </plugin>
+                <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${version.antlr}</version>
@@ -220,18 +224,31 @@
         </developer>
     </developers>
 
-    <issueManagement>
-        <system>GitHub Issues</system>
-        <url>https://github.com/susanw1/zscript/issues/</url>
-    </issueManagement>
-
     <scm>
         <url>https://github.com/susanw1/zscript</url>
         <connection>scm:git:git://github.com/susanw1/zscript.git</connection>
         <developerConnection>scm:git:git@github.com:susanw1/zscript.git</developerConnection>
     </scm>
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/susanw1/zscript/issues/</url>
+    </issueManagement>
 
-    <prerequisites>
-        <maven>3.6.3</maven>
-    </prerequisites>
+    <profiles>
+        <profile>
+            <id>native</id>
+            <properties>
+                <build-native.skip>false</build-native.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>arm</id>
+        </profile>
+        <profile>
+            <id>arduino</id>
+        </profile>
+        <profile>
+            <id>acceptance</id>
+        </profile>
+    </profiles>
 </project>

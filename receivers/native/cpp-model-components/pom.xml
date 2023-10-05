@@ -15,6 +15,7 @@
 
     <properties>
         <generated-code-path>${project.build.directory}/generated-sources/zscript/c++</generated-code-path>
+        <build-native.skip>true</build-native.skip>
     </properties>
 
     <build>
@@ -94,6 +95,7 @@
                 <artifactId>nar-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
+                    <skipNar>${build-native.skip}</skipNar>
                     <cpp>
                         <name>gcc</name>
                         <debug>true</debug>
