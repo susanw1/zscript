@@ -142,7 +142,7 @@ abstract class TemplatingBaseMojo extends AbstractMojo {
         try {
             URI dirUri;
             if (templateDirectory == null || templateDirectory.isEmpty()
-                    || FS.getPath(templateDirectory).isAbsolute()
+                    || new File(templateDirectory).isAbsolute()
                     || (dirUri = new URI(templateDirectory)).getScheme() == null) {
                 if (templateDirectory != null && !templateDirectory.isEmpty()) {
                     mustacheResolver = createFileResolver(FS.getPath(templateDirectory));
