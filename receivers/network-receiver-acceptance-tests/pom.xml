@@ -15,6 +15,7 @@
     <properties>
         <device-acceptance-tests.skip>true</device-acceptance-tests.skip>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>net.zscript</groupId>
@@ -42,7 +43,7 @@
 
     <profiles>
         <profile>
-            <id>acceptance</id>
+            <id>device-acceptance</id>
             <properties>
                 <device-acceptance-tests.skip>false</device-acceptance-tests.skip>
             </properties>

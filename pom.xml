@@ -248,7 +248,7 @@
             <id>arduino</id>
         </profile>
         <profile>
-            <id>acceptance</id>
+            <id>device-acceptance</id>
         </profile>
     </profiles>
 </project>

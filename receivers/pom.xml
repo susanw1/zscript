@@ -18,6 +18,14 @@
     <modules>
         <module>jvm</module>
         <module>native</module>
-        <module>network-receiver-acceptance-tests</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>device-acceptance</id>
+            <modules>
+                <module>network-receiver-acceptance-tests</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
