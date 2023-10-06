@@ -1,0 +1,31 @@
+name: Java Build
+
+on: [ push ]
+
+jobs:
+    build:
+        name: Maven Build
+        runs-on: ubuntu-latest
+
+        steps:
+        -   uses: actions/checkout@v3
+
+        -   name: Set up JDK 1.11
+            uses: actions/setup-java@v3
+            with:
+                java-version: 11
+                distribution: temurin
+                cache: maven
+
+        -   name: Build with Maven
+            run: mvn -B verify --file pom.xml -fn -Pnative
+
+#        - name: Java code coverage
+#          uses: codecov/codecov-action@v1
+#          with:
+#              token: ${{ secrets.CODECOV_TOKEN }} #required
+#              flags: unittests
+#        file: jacoco.xml #optional
+#        name: codecov-umbrella #optional
+#        yml: ./codecov.yml #optional
+#        fail_ci_if_error: true #optional (default = false)
