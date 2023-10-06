@@ -95,7 +95,7 @@
                 <artifactId>nar-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <skipNar>${build-native.skip}</skipNar>
+                    <skip>${build-native.skip}</skip>
                     <cpp>
                         <name>gcc</name>
                         <debug>true</debug>
