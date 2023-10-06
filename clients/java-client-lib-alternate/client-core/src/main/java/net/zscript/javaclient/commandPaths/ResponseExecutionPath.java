@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
 
+import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
@@ -13,15 +15,15 @@ import net.zscript.model.components.Zchars;
 public class ResponseExecutionPath {
 
     static class ResponseBuilder {
-        TokenBuffer.TokenReader.ReadToken start = null;
+        ReadToken start = null;
 
         byte seperator = 0;
 
-        public TokenBuffer.TokenReader.ReadToken getStart() {
+        public ReadToken getStart() {
             return start;
         }
 
-        public void setStart(TokenBuffer.TokenReader.ReadToken token) {
+        public void setStart(ReadToken token) {
             this.start = token;
         }
 
@@ -38,14 +40,14 @@ public class ResponseExecutionPath {
         }
     }
 
-    private static List<ResponseBuilder> createLinkedPath(TokenBuffer.TokenReader.ReadToken start) {
+    private static List<ResponseBuilder> createLinkedPath(ReadToken start) {
         List<ResponseBuilder> builders = new ArrayList<>();
 
         ResponseBuilder last = new ResponseBuilder();
         builders.add(last);
         TokenBufferIterator iterator = start.getNextTokens();
-        for (Optional<TokenBuffer.TokenReader.ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
-            TokenBuffer.TokenReader.ReadToken token = opt.get();
+        for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
+            ReadToken token = opt.get();
             if (last.getStart() == null) {
                 last.setStart(token);
             }
@@ -71,7 +73,7 @@ public class ResponseExecutionPath {
         return builders;
     }
 
-    public static ResponseExecutionPath parse(TokenBuffer.TokenReader.ReadToken start) {
+    public static ResponseExecutionPath parse(ReadToken start) {
         List<ResponseBuilder> builders = createLinkedPath(start);
 
         Response first = null;

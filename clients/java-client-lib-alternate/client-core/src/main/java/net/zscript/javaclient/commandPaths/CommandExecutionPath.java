@@ -8,6 +8,8 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 
+import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
@@ -19,7 +21,7 @@ import net.zscript.util.ByteString;
 public class CommandExecutionPath {
 
     static class CommandBuilder {
-        TokenBuffer.TokenReader.ReadToken start = null;
+        ReadToken start = null;
 
         CommandBuilder onSuccess           = null;
         int            successBracketCount = 0;
@@ -37,11 +39,11 @@ public class CommandExecutionPath {
             this.onFail = onFail;
         }
 
-        public TokenBuffer.TokenReader.ReadToken getStart() {
+        public ReadToken getStart() {
             return start;
         }
 
-        public void setStart(TokenBuffer.TokenReader.ReadToken token) {
+        public void setStart(ReadToken token) {
             this.start = token;
         }
 
@@ -65,17 +67,20 @@ public class CommandExecutionPath {
         }
     }
 
-    private static List<CommandBuilder> createLinkedPaths(TokenBuffer.TokenReader.ReadToken start) {
+    private static List<CommandBuilder> createLinkedPaths(ReadToken start) {
         List<CommandBuilder> needSuccessPath = new ArrayList<>();
         List<CommandBuilder> needFailPath    = new ArrayList<>();
         List<CommandBuilder> builders        = new ArrayList<>();
 
         CommandBuilder last = new CommandBuilder();
         builders.add(last);
+        if (start == null) {
+            return builders;
+        }
 
         TokenBufferIterator iterator = start.getNextTokens();
-        for (Optional<TokenBuffer.TokenReader.ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
-            TokenBuffer.TokenReader.ReadToken token = opt.get();
+        for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
+            ReadToken token = opt.get();
             if (last.getStart() == null) {
                 last.setStart(token);
             }
@@ -140,11 +145,11 @@ public class CommandExecutionPath {
         return builders;
     }
 
-    public static CommandExecutionPath parse(TokenBuffer.TokenReader.ReadToken start) {
+    public static CommandExecutionPath parse(ReadToken start) {
         return parse(ZscriptModel.standardModel(), start);
     }
 
-    public static CommandExecutionPath parse(ZscriptModel model, TokenBuffer.TokenReader.ReadToken start) {
+    public static CommandExecutionPath parse(ZscriptModel model, ReadToken start) {
         List<CommandBuilder> builders = createLinkedPaths(start);
 
         Map<CommandBuilder, Command> commands = new HashMap<>();

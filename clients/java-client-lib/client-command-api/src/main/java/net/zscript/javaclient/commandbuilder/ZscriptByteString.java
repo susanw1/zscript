@@ -15,6 +15,10 @@ public interface ZscriptByteString extends ByteString {
             return appendByte(field).appendNumeric(value);
         }
 
+        public ZscriptByteStringBuilder appendField32(byte field, long value) {
+            return appendByte(field).appendNumeric32(value);
+        }
+
         public ZscriptByteStringBuilder appendBigfieldText(byte[] bytes) {
             appendByte(Zchars.Z_BIGFIELD_QUOTED);
             for (byte b : bytes) {
