@@ -130,19 +130,19 @@
 
     <profiles>
         <profile>
-            <id>native</id>
+            <id>build-native</id>
             <properties>
                 <build-native.skip>false</build-native.skip>
             </properties>
         </profile>
         <profile>
-            <id>arduino</id>
+            <id>build-arduino</id>
             <properties>
                 <build-native.skip>false</build-native.skip>
             </properties>
         </profile>
         <profile>
-            <id>arm</id>
+            <id>build-arm</id>
             <properties>
                 <build-native.skip>false</build-native.skip>
             </properties>

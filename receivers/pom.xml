@@ -22,7 +22,7 @@
 
     <profiles>
         <profile>
-            <id>device-acceptance</id>
+            <id>run-device-acceptance</id>
             <modules>
                 <module>network-receiver-acceptance-tests</module>
             </modules>

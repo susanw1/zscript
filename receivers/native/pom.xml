@@ -14,14 +14,14 @@
 
     <profiles>
         <profile>
-            <id>native</id>
+            <id>build-native</id>
             <modules>
                 <module>cpp-model-components</module>
                 <module>generic-core</module>
             </modules>
         </profile>
         <profile>
-            <id>arduino</id>
+            <id>build-arduino</id>
             <modules>
                 <module>cpp-model-components</module>
                 <module>generic-core</module>
@@ -29,7 +29,7 @@
             </modules>
         </profile>
         <profile>
-            <id>arm</id>
+            <id>build-arm</id>
             <modules>
                 <module>cpp-model-components</module>
                 <module>generic-core</module>

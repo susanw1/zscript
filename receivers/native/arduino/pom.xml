@@ -132,7 +132,7 @@
 
     <profiles>
         <profile>
-            <id>arduino</id>
+            <id>build-arduino</id>
             <properties>
                 <build-avr-gcc.skip>false</build-avr-gcc.skip>
             </properties>

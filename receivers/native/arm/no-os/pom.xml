@@ -58,10 +58,10 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <profiles>
         <profile>
-            <id>arm</id>
+            <id>build-arm</id>
             <properties>
                 <build-arm-gcc.skip>false</build-arm-gcc.skip>
             </properties>
