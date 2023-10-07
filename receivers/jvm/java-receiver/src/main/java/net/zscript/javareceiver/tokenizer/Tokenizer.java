@@ -56,6 +56,7 @@ public class Tokenizer {
 
     private final TokenWriter writer;
     private final int         maxNumericBytes;
+    private final boolean     parseOutAddressing;
 
     private boolean skipToNL;
     private boolean bufferOvr;
@@ -70,6 +71,13 @@ public class Tokenizer {
     public Tokenizer(final TokenWriter writer, final int maxNumericBytes) {
         this.writer = writer;
         this.maxNumericBytes = maxNumericBytes;
+        this.parseOutAddressing = false;
+        resetFlags();
+    }
+    public Tokenizer(final TokenWriter writer, final int maxNumericBytes, final boolean parseOutAddressing) {
+        this.writer = writer;
+        this.maxNumericBytes = maxNumericBytes;
+        this.parseOutAddressing = parseOutAddressing;
         resetFlags();
     }
 
@@ -235,7 +243,7 @@ public class Tokenizer {
             return;
         }
 
-        if (addressing && b != Zchars.Z_ADDRESSING_CONTINUE) {
+        if (!parseOutAddressing && addressing && b != Zchars.Z_ADDRESSING_CONTINUE) {
             writer.startToken(ADDRESSING_FIELD_KEY, false);
             writer.continueTokenByte(b);
             addressing = false;
