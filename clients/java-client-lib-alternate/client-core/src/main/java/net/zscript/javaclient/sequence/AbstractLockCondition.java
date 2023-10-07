@@ -1,4 +1,4 @@
-package net.zscript.javaclient.commandSequence;
+package net.zscript.javaclient.sequence;
 
 import java.util.HashSet;
 import java.util.Set;

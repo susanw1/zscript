@@ -1,4 +1,4 @@
-package net.zscript.javaclient.commandSequence;
+package net.zscript.javaclient.sequence;
 
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 

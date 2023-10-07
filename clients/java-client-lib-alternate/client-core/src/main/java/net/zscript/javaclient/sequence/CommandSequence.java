@@ -1,4 +1,4 @@
-package net.zscript.javaclient.commandSequence;
+package net.zscript.javaclient.sequence;
 
 import java.util.Collection;
 
@@ -6,7 +6,6 @@ import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadTok
 
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
-import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString;

@@ -45,6 +45,9 @@ public class ResponseExecutionPath {
 
         ResponseBuilder last = new ResponseBuilder();
         builders.add(last);
+        if (start == null) {
+            return builders;
+        }
         TokenBufferIterator iterator = start.getNextTokens();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ReadToken token = opt.get();
