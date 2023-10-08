@@ -1,24 +1,29 @@
 package net.zscript.javaclient.commandPaths;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
+import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString;
+import net.zscript.util.OptIterator;
 
-public class CommandExecutionPath {
+public class CommandExecutionPath implements Iterable<Command> {
 
     static class CommandBuilder {
         ReadToken start = null;
@@ -162,6 +167,14 @@ public class CommandExecutionPath {
         return new CommandExecutionPath(model, commands.get(builders.get(0)));
     }
 
+    public static CommandExecutionPath blank() {
+        return blank(ZscriptModel.standardModel());
+    }
+
+    public static CommandExecutionPath blank(ZscriptModel model) {
+        return new CommandExecutionPath(model, null);
+    }
+
     private final ZscriptModel model;
     private final Command      firstCommand;
 
@@ -197,6 +210,9 @@ public class CommandExecutionPath {
     }
 
     public void toSequence(ZscriptByteString.ZscriptByteStringBuilder out) {
+        if (firstCommand == null) {
+            return;
+        }
         Command current = firstCommand;
         while (true) {
             current.toBytes(out);
@@ -221,6 +237,51 @@ public class CommandExecutionPath {
                 current = link.getOnSuccess();
             }
         }
+    }
+
+    public Iterator<Command> iterator() {
+        if (firstCommand == null) {
+            return Collections.emptyListIterator();
+        }
+        return new OptIterator<Command>() {
+            Set<Command> visited = new HashSet<>();
+            Iterator<Command> toVisit = Set.of(firstCommand).iterator();
+            Set<Command> next = new HashSet<>();
+
+            @Override
+            public Optional<Command> next() {
+                while (true) {
+                    while (toVisit.hasNext()) {
+                        Command c = toVisit.next();
+                        if (!visited.contains(c)) {
+                            visited.add(c);
+                            Command s = c.getEndLink().getOnSuccess();
+                            if (!visited.contains(s)) {
+                                next.add(s);
+                            }
+                            Command f = c.getEndLink().getOnFail();
+                            if (!visited.contains(f)) {
+                                next.add(f);
+                            }
+                            return Optional.of(c);
+                        }
+                    }
+                    if (next.isEmpty()) {
+                        return Optional.empty();
+                    }
+                    toVisit = next.iterator();
+                    next = new HashSet<>();
+                }
+            }
+        }.stream().iterator();
+    }
+
+    public int getBufferLength() {
+        int length = 0;
+        for (Command c : this) {
+            length += c.getBufferLength() + 1;
+        }
+        return length;
     }
 
     public Command getFirstCommand() {

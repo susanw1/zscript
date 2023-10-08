@@ -55,11 +55,33 @@ public class ZscriptLockSet {
     }
 
     public void toBytes(ZscriptByteString.ZscriptByteStringBuilder builder) {
-        if (locks.nextClearBit(0) >= (supports32 ? 32 : 16)) {
+        if (isAllSet()) {
             return;
         }
         long data = locks.toLongArray()[0];
         builder.appendField32(Zchars.Z_LOCKS, data);
 
+    }
+
+    public boolean isAllSet() {
+        return locks.nextClearBit(0) >= (supports32 ? 32 : 16);
+    }
+
+    public int getBufferLength() {
+        if (isAllSet()) {
+            return 0;
+        }
+        long value = locks.toLongArray()[0];
+        if (value > 0xFFFFFF) {
+            return 6;
+        } else if (value > 0xFFFF) {
+            return 5;
+        } else if (value > 0xFF) {
+            return 4;
+        } else if (value > 0) {
+            return 3;
+        } else {
+            return 2;
+        }
     }
 }

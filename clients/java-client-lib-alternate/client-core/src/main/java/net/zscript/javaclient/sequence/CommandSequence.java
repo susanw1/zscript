@@ -16,27 +16,32 @@ public class CommandSequence {
     private final int                  echoField;
     private final ZscriptLockSet       locks;
 
-    public CommandSequence from(CommandExecutionPath path, int echoField) {
+    public static CommandSequence from(CommandExecutionPath path, int echoField) {
         return from(path, echoField, false);
     }
 
-    public CommandSequence from(CommandExecutionPath path, int echoField, boolean supports32Locks) {
+    public static CommandSequence from(CommandExecutionPath path, int echoField, boolean supports32Locks) {
         return new CommandSequence(path, echoField, ZscriptLockSet.allLocked(supports32Locks));
     }
 
-    public CommandSequence from(CommandExecutionPath path, int echoField, boolean supports32Locks, Collection<LockCondition> lockConditions) {
-        ZscriptLockSet locks = ZscriptLockSet.noneLocked(supports32Locks);
-        for (LockCondition c : lockConditions) {
-            c.apply(path, locks);
+    public static CommandSequence from(CommandExecutionPath path, int echoField, boolean supports32Locks, Collection<LockCondition> lockConditions) {
+        ZscriptLockSet locks;
+        if (lockConditions.isEmpty()) {
+            locks = ZscriptLockSet.allLocked(supports32Locks);
+        } else {
+            locks = ZscriptLockSet.noneLocked(supports32Locks);
+            for (LockCondition c : lockConditions) {
+                c.apply(path, locks);
+            }
         }
         return new CommandSequence(path, echoField, locks);
     }
 
-    public CommandSequence from(CommandExecutionPath path, int echoField, ZscriptLockSet locks) {
+    public static CommandSequence from(CommandExecutionPath path, int echoField, ZscriptLockSet locks) {
         return new CommandSequence(path, echoField, locks);
     }
 
-    public CommandSequence parse(ReadToken start, boolean supports32Locks) {
+    public static CommandSequence parse(ReadToken start, boolean supports32Locks) {
         ZscriptLockSet      locks     = null;
         int                 echoField = -1;
         TokenBufferIterator iter      = start.getNextTokens();
@@ -80,5 +85,13 @@ public class CommandSequence {
 
     public CommandExecutionPath getExecutionPath() {
         return executionPath;
+    }
+
+    public int getEchoValue() { //-1 if there isn't one
+        return echoField;
+    }
+
+    public int getBufferLength() {
+        return executionPath.getBufferLength() + (echoField > 0xff ? 4 : 3) + locks.getBufferLength();
     }
 }

@@ -41,4 +41,11 @@ public class ResponseSequence {
         return executionPath;
     }
 
+    public int getEchoValue() {
+        return echoField;
+    }
+
+    public int getResponseValue() {
+        return responseField;
+    }
 }

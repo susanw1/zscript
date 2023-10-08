@@ -5,6 +5,7 @@ import java.util.Queue;
 
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.javaclient.sequence.CommandSequence;
+import net.zscript.javareceiver.semanticParser.ParseState;
 import net.zscript.util.ByteString;
 
 public class AddressedCommand {
@@ -28,8 +29,24 @@ public class AddressedCommand {
 
     public void toBytes(ZscriptByteString.ZscriptByteStringBuilder builder) {
         for (ZscriptAddress address : addressSections) {
-            address.toBytes(builder);
+            address.writeTo(builder);
         }
         content.toBytes(builder);
+    }
+
+    public CommandSequence getContent() {
+        return content;
+    }
+
+    public boolean hasAddressLayer() {
+        return !addressSections.isEmpty();
+    }
+
+    public int getBufferLength() {
+        int length = content.getBufferLength();
+        for (ZscriptAddress addr : addressSections) {
+            length += addr.getBufferLength();
+        }
+        return length;
     }
 }

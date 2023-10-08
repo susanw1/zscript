@@ -9,4 +9,6 @@ public interface Connection {
     void send(AddressedCommand cmd);
 
     void onReceive(Consumer<AddressedResponse> resp);
+
+    void responseReceived(AddressedCommand found);
 }

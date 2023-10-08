@@ -336,17 +336,18 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
 
         boolean skipImpossiblePaths = settings.skipImpossiblePaths();
 
-        CommandGrapher.CommandDepth        startDepth = new CommandGrapher.CommandDepth(0);
-        CommandGrapher.CommandGraphElement start      = new CommandGrapher.CommandGraphElement(firstCommand, startDepth);
+        CommandGrapher.CommandDepth startDepth = new CommandGrapher.CommandDepth(0);
 
         Map<Command, CommandGrapher.CommandGraphElement> commands = new HashMap<>();
 
         Deque<CommandGraphElement>                openedTrees  = new ArrayDeque<>();
         Deque<CommandGrapher.CommandGraphElement> workingTrees = new ArrayDeque<>();
         List<CommandGrapher.CommandGraphElement>  elements     = new ArrayList<>();
-
-        commands.put(firstCommand, start);
-        workingTrees.push(start);
+        if (firstCommand != null) {
+            CommandGrapher.CommandGraphElement start = new CommandGrapher.CommandGraphElement(firstCommand, startDepth);
+            commands.put(firstCommand, start);
+            workingTrees.push(start);
+        }
         CommandGrapher.CommandDepth maxDepth = new CommandGrapher.CommandDepth(0);
         while (!workingTrees.isEmpty()) {
             CommandGrapher.CommandGraphElement current = workingTrees.peek();

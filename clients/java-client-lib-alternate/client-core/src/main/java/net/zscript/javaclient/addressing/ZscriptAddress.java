@@ -125,4 +125,19 @@ public class ZscriptAddress implements ByteWritable {
         }
         return this;
     }
+
+    public int getBufferLength() {
+        int length = 0;
+        for (int addressPart : addressParts) {
+            if (addressPart == 0) {
+                length += 2;
+            } else if (addressPart < 0x100) {
+                length += 3;
+            } else {
+                length += 4;
+            }
+        }
+        return length;
+    }
+
 }

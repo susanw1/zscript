@@ -33,6 +33,11 @@ public class AddressingSystem {
                 respConsumer.accept(resp);
             }
         }
+
+        @Override
+        public void responseReceived(AddressedCommand found) {
+            node.responseReceived(found);
+        }
     }
 
     private final Map<ZscriptAddress, AddressingConnection> connections = new HashMap<>();

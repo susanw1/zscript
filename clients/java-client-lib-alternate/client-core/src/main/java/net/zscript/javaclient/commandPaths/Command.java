@@ -82,6 +82,10 @@ public class Command {
         return true;
     }
 
+    public int getBufferLength() {
+        return fieldSet.getBufferLength();
+    }
+
     @Override
     public String toString() {
         ZscriptByteString.ZscriptByteStringBuilder out = ZscriptByteString.builder();

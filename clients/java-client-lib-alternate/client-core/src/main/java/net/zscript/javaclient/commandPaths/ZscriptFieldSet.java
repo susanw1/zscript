@@ -126,4 +126,23 @@ public class ZscriptFieldSet {
         }
     }
 
+    public int getBufferLength() {
+        int length = 0;
+        for (int field : fields) {
+            if (field != -1) {
+                if (field == 0) {
+                    length += 2;
+                } else if (field < 0x100) {
+                    length += 3;
+                } else {
+                    length += 4;
+                }
+            }
+        }
+        for (BigField big : bigFields) {
+            length += big.data.length + 2;
+        }
+        return length;
+    }
+
 }
