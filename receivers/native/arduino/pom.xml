@@ -39,11 +39,11 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.github.maven-nar</groupId>
+                <groupId>net.zscript.maven-nar</groupId>
                 <artifactId>nar-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <skip>${build-avr-gcc.skip}</skip>
+                    <!--                    <skip>${build-avr-gcc.skip}</skip>-->
                     <architecture>avr</architecture>
                     <os>arduino</os>
                     <cpp>

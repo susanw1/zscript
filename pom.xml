@@ -36,7 +36,8 @@
         <version.snakeyaml>2.2</version.snakeyaml>
 
         <!-- plugin dependency versions -->
-        <version.nar-maven-plugin>3.10.2-SNAPSHOT</version.nar-maven-plugin>
+        <!--        <version.nar-maven-plugin>3.10.2-SNAPSHOT</version.nar-maven-plugin>-->
+        <version.nar-maven-plugin>3.10.2-alpha</version.nar-maven-plugin>
         <version.jacoco-maven-plugin>0.8.7</version.jacoco-maven-plugin>
         <version.exec-maven-plugin>3.0.0</version.exec-maven-plugin>
         <version.maven-compiler-plugin>3.10.1</version.maven-compiler-plugin>
@@ -141,8 +142,14 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${version.maven-failsafe-plugin}</version>
                 </plugin>
+                <!--                <plugin>-->
+                <!--                    <groupId>com.github.maven-nar</groupId>-->
+                <!--                    <artifactId>nar-maven-plugin</artifactId>-->
+                <!--                    <version>3.10.2-SNAPSHOT</version>-->
+                <!--                    <extensions>true</extensions>-->
+                <!--                </plugin>-->
                 <plugin>
-                    <groupId>com.github.maven-nar</groupId>
+                    <groupId>net.zscript.maven-nar</groupId>
                     <artifactId>nar-maven-plugin</artifactId>
                     <version>${version.nar-maven-plugin}</version>
                     <extensions>true</extensions>

@@ -15,7 +15,7 @@
 
     <properties>
         <generated-code-path>${project.build.directory}/generated-sources/zscript/c++</generated-code-path>
-        <build-native.skip>true</build-native.skip>
+        <build-native-gcc.skip>true</build-native-gcc.skip>
     </properties>
 
     <build>
@@ -91,11 +91,11 @@
             </plugin>
 
             <plugin>
-                <groupId>com.github.maven-nar</groupId>
+                <groupId>net.zscript.maven-nar</groupId>
                 <artifactId>nar-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <skip>${build-native.skip}</skip>
+                    <skip>${build-native-gcc.skip}</skip>
                     <cpp>
                         <name>gcc</name>
                         <debug>true</debug>
@@ -141,4 +141,24 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>build-native</id>
+            <properties>
+                <build-native-gcc.skip>false</build-native-gcc.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>build-arduino</id>
+            <properties>
+                <build-native-gcc.skip>false</build-native-gcc.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>build-arm</id>
+            <properties>
+                <build-native-gcc.skip>false</build-native-gcc.skip>
+            </properties>
+        </profile>
+    </profiles>
 </project>

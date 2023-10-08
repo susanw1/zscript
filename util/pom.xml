@@ -18,5 +18,4 @@
         <module>templating</module>
         <module>java-testing-deps</module>
     </modules>
-
 </project>
