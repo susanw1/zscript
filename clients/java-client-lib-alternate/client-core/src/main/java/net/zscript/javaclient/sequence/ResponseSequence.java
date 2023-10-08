@@ -10,11 +10,15 @@ public class ResponseSequence {
     private final int                   echoField;
     private final int                   responseField;
 
-    public ResponseSequence parse(TokenBuffer.TokenReader.ReadToken start) {
-        int                               echoField     = -1;
-        int                               responseField = -1;
-        TokenBufferIterator               iter          = start.getNextTokens();
-        TokenBuffer.TokenReader.ReadToken current       = iter.next().orElse(null);
+    public static ResponseSequence parse(TokenBuffer.TokenReader.ReadToken start) {
+        if (start == null) {
+            return new ResponseSequence(ResponseExecutionPath.parse(null), -1, -1);
+        }
+        int                 echoField     = -1;
+        int                 responseField = -1;
+        TokenBufferIterator iter          = start.getNextTokens();
+
+        TokenBuffer.TokenReader.ReadToken current = iter.next().orElse(null);
         if (current == null || current.getKey() != Zchars.Z_RESPONSE_MARK) {
             throw new IllegalArgumentException("Invalid response sequence without response mark");
         }

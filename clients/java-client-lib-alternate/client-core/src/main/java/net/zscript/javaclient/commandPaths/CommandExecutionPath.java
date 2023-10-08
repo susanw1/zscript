@@ -192,7 +192,11 @@ public class CommandExecutionPath {
 
     public ByteString toSequence() {
         ZscriptByteString.ZscriptByteStringBuilder out = ZscriptByteString.builder();
+        toSequence(out);
+        return out.build();
+    }
 
+    public void toSequence(ZscriptByteString.ZscriptByteStringBuilder out) {
         Command current = firstCommand;
         while (true) {
             current.toBytes(out);
@@ -217,7 +221,6 @@ public class CommandExecutionPath {
                 current = link.getOnSuccess();
             }
         }
-        return out.build();
     }
 
     public Command getFirstCommand() {

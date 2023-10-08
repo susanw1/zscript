@@ -1,6 +1,7 @@
 package net.zscript.javaclient.commandPaths;
 
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
+import net.zscript.util.ByteString;
 
 public class Command {
 

@@ -1,6 +1,7 @@
 package net.zscript.javaclient.sequence;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
@@ -65,12 +66,16 @@ public class CommandSequence {
 
     public ByteString toBytes() {
         ZscriptByteString.ZscriptByteStringBuilder builder = ZscriptByteString.builder();
+        toBytes(builder);
+        return builder.build();
+    }
+
+    public void toBytes(ZscriptByteString.ZscriptByteStringBuilder builder) {
         locks.toBytes(builder);
         if (echoField != -1) {
             builder.appendField(Zchars.Z_ECHO, echoField);
         }
-        builder.append(executionPath.toSequence());
-        return builder.build();
+        executionPath.toSequence(builder);
     }
 
     public CommandExecutionPath getExecutionPath() {
