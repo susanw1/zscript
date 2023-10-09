@@ -12,10 +12,29 @@
     <packaging>pom</packaging>
     <name>Zscript Native Receivers</name>
 
-    <modules>
-        <module>cpp-model-components</module>
-        <module>generic-core</module>
-        <module>arduino</module>
-        <module>arm</module>
-    </modules>
+    <profiles>
+        <profile>
+            <id>build-native</id>
+            <modules>
+                <module>cpp-model-components</module>
+                <module>generic-core</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>build-arduino</id>
+            <modules>
+                <module>cpp-model-components</module>
+                <module>generic-core</module>
+                <module>arduino</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>build-arm</id>
+            <modules>
+                <module>cpp-model-components</module>
+                <module>generic-core</module>
+                <module>arm</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

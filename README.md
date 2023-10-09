@@ -3,7 +3,12 @@ ZSCRIPT
 
 ##### What Is It?
 
-Zscript ("zed-script", and formerly Zcode) is a simple text-based command/response system, designed to make it easy to control microcontrollers (MCUs) over various communications protocols, eg ethernet, serial ports or I2C. It is loosely inspired by G-code, the control language used by many automated machine tools.
+Zscript ("zed-script", and formerly Zcode) is a simple text-based command/response system, designed to make it easy to control microcontrollers (MCUs) over various communications
+protocols, eg ethernet, serial ports or I2C. It is loosely inspired by G-code, the control language used by many automated machine tools.
+
+##### Project Status
+
+Pre-alpha! We're still putting it together. Release before end of 2023.
 
 ##### Key points
 
@@ -24,7 +29,6 @@ Zscript ("zed-script", and formerly Zcode) is a simple text-based command/respon
 * Interactive - simple REPL (read-eval-print-loop) supported.
 
 * Client libraries - in Java (and Python, to come).
- 
 
 ##### Purpose
 

@@ -7,7 +7,12 @@
     <artifactId>zscript-all</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
+
     <name>Zscript</name>
+
+    <prerequisites>
+        <maven>3.6.3</maven>
+    </prerequisites>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -31,13 +36,15 @@
         <version.snakeyaml>2.2</version.snakeyaml>
 
         <!-- plugin dependency versions -->
-        <version.nar-maven-plugin>3.10.2-SNAPSHOT</version.nar-maven-plugin>
+        <!--        <version.nar-maven-plugin>3.10.2-SNAPSHOT</version.nar-maven-plugin>-->
+        <version.nar-maven-plugin>3.10.2-alpha</version.nar-maven-plugin>
         <version.jacoco-maven-plugin>0.8.7</version.jacoco-maven-plugin>
         <version.exec-maven-plugin>3.0.0</version.exec-maven-plugin>
         <version.maven-compiler-plugin>3.10.1</version.maven-compiler-plugin>
         <version.maven-surefire-plugin>3.0.0-M5</version.maven-surefire-plugin>
         <version.maven-failsafe-plugin>3.0.0-M5</version.maven-failsafe-plugin>
         <version.maven-assembly-plugin>3.4.2</version.maven-assembly-plugin>
+        <version.maven-enforcer-plugin>3.4.2</version.maven-enforcer-plugin>
     </properties>
 
     <modules>
@@ -49,6 +56,7 @@
         <module>util</module>
         <module>demo</module>
     </modules>
+
 
     <dependencyManagement>
         <dependencies>
@@ -86,10 +94,26 @@
                 <version>${version.snakeyaml}</version>
             </dependency>
 
+
             <!-- Test Dependencies -->
             <!-- ================= -->
-            <!-- See util/java-testing-deps pom.xml for testing dependency definitions -->
-
+            <!-- See util/java-testing-deps pom.xml for common testing dependency definitions -->
+            <!-- Special purpose ones defined below... -->
+            <dependency>
+                <groupId>org.junit.vintage</groupId>
+                <artifactId>junit-vintage-engine</artifactId>
+                <version>${version.junit}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-java</artifactId>
+                <version>${version.cucumber}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-junit</artifactId>
+                <version>${version.cucumber}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -118,8 +142,14 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${version.maven-failsafe-plugin}</version>
                 </plugin>
+                <!--                <plugin>-->
+                <!--                    <groupId>com.github.maven-nar</groupId>-->
+                <!--                    <artifactId>nar-maven-plugin</artifactId>-->
+                <!--                    <version>3.10.2-SNAPSHOT</version>-->
+                <!--                    <extensions>true</extensions>-->
+                <!--                </plugin>-->
                 <plugin>
-                    <groupId>com.github.maven-nar</groupId>
+                    <groupId>net.zscript.maven-nar</groupId>
                     <artifactId>nar-maven-plugin</artifactId>
                     <version>${version.nar-maven-plugin}</version>
                     <extensions>true</extensions>
@@ -152,6 +182,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${version.maven-assembly-plugin}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>${version.maven-enforcer-plugin}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.antlr</groupId>
@@ -196,18 +231,31 @@
         </developer>
     </developers>
 
-    <issueManagement>
-        <system>GitHub Issues</system>
-        <url>https://github.com/susanw1/zscript/issues/</url>
-    </issueManagement>
-
     <scm>
         <url>https://github.com/susanw1/zscript</url>
         <connection>scm:git:git://github.com/susanw1/zscript.git</connection>
         <developerConnection>scm:git:git@github.com:susanw1/zscript.git</developerConnection>
     </scm>
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/susanw1/zscript/issues/</url>
+    </issueManagement>
 
-    <prerequisites>
-        <maven>3.6.3</maven>
-    </prerequisites>
+    <profiles>
+        <profile>
+            <id>build-native</id>
+            <properties>
+                <build-native.skip>false</build-native.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>build-arm</id>
+        </profile>
+        <profile>
+            <id>build-arduino</id>
+        </profile>
+        <profile>
+            <id>run-device-acceptance</id>
+        </profile>
+    </profiles>
 </project>
