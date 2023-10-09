@@ -24,14 +24,14 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>net.zscript</groupId>
-                <artifactId>templating-maven-plugin</artifactId>
+                <groupId>net.zscript.maven</groupId>
+                <artifactId>mustache-templating-maven-plugin</artifactId>
                 <version>${project.version}</version>
 
                 <dependencies>
                     <dependency>
                         <groupId>net.zscript</groupId>
-                        <artifactId>zscript-model-templating-adapter</artifactId>
+                        <artifactId>zscript-model-mustache-templating-adapter</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                     <dependency>

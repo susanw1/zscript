@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.zscript</groupId>
-        <artifactId>zscript-templating</artifactId>
+        <groupId>net.zscript.maven</groupId>
+        <artifactId>mustache-templating</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>templating-maven-plugin-tests-2</artifactId>
+    <artifactId>mustache-templating-maven-plugin-tests-2</artifactId>
     <name>Maven Templating Plugin Classpath Tests</name>
 
     <description>
@@ -34,8 +34,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.zscript</groupId>
-            <artifactId>templating-maven-plugin-tests</artifactId>
+            <groupId>net.zscript.maven</groupId>
+            <artifactId>mustache-templating-maven-plugin-tests</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -44,13 +44,13 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>net.zscript</groupId>
-                <artifactId>templating-maven-plugin</artifactId>
+                <groupId>net.zscript.maven</groupId>
+                <artifactId>mustache-templating-maven-plugin</artifactId>
                 <version>${project.version}</version>
                 <dependencies>
                     <dependency>
-                        <groupId>net.zscript</groupId>
-                        <artifactId>templating-maven-plugin-tests</artifactId>
+                        <groupId>net.zscript.maven</groupId>
+                        <artifactId>mustache-templating-maven-plugin-tests</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>

@@ -4,19 +4,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.zscript</groupId>
-        <artifactId>zscript-templating</artifactId>
+        <groupId>net.zscript.maven</groupId>
+        <artifactId>mustache-templating</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>templating-maven-plugin</artifactId>
+    <artifactId>mustache-templating-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <name>Maven Templating Plugin</name>
 
     <dependencies>
         <dependency>
-            <groupId>net.zscript</groupId>
-            <artifactId>templating-maven-plugin-adapter</artifactId>
+            <groupId>net.zscript.maven</groupId>
+            <artifactId>mustache-templating-maven-plugin-adapter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -60,7 +60,7 @@
         </dependency>
     </dependencies>
 
-    <!-- Useful: run mvn help:describe -Dplugin=net.zscript:templating-maven-plugin  -Ddetail -->
+    <!-- Useful: run mvn help:describe -Dplugin=net.zscript.maven:mustache-templating-maven-plugin  -Ddetail -->
     <build>
         <plugins>
             <plugin>
@@ -68,7 +68,7 @@
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>3.9.0</version>
                 <configuration>
-                    <goalPrefix>templating</goalPrefix>
+                    <goalPrefix>mustache-templating</goalPrefix>
                     <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                 </configuration>
                 <executions>

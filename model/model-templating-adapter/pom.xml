@@ -9,8 +9,8 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zscript-model-templating-adapter</artifactId>
-    <name>Zscript Model Generator Templating Adapter</name>
+    <artifactId>zscript-model-mustache-templating-adapter</artifactId>
+    <name>Zscript Model Generator Mustache Templating Adapter</name>
 
     <properties>
         <version.guava>32.1.2-jre</version.guava>
@@ -18,8 +18,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.zscript</groupId>
-            <artifactId>templating-maven-plugin-adapter</artifactId>
+            <groupId>net.zscript.maven</groupId>
+            <artifactId>mustache-templating-maven-plugin-adapter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

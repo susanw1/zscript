@@ -4,13 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.zscript</groupId>
-        <artifactId>zscript-templating</artifactId>
+        <groupId>net.zscript.maven</groupId>
+        <artifactId>mustache-templating</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>templating-maven-plugin-adapter</artifactId>
-    <name>Maven Templating Plugin Adapter</name>
+    <artifactId>mustache-templating-maven-plugin-adapter</artifactId>
+    <name>Maven Mustache Templating Plugin Adapter</name>
 
     <dependencies>
         <dependency>

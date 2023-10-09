@@ -4,14 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.zscript</groupId>
-        <artifactId>zscript-templating</artifactId>
+        <groupId>net.zscript.maven</groupId>
+        <artifactId>mustache-templating</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>templating-maven-plugin-tests</artifactId>
+    <artifactId>mustache-templating-maven-plugin-tests</artifactId>
     <name>Maven Templating Plugin Tests</name>
-    
+
     <description>
         Testing only - don't make this a dependency of any other projects!
         The goal of this project is to ensure that executions of the plugin can find their resources properly
@@ -26,8 +26,8 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>net.zscript</groupId>
-                <artifactId>templating-maven-plugin</artifactId>
+                <groupId>net.zscript.maven</groupId>
+                <artifactId>mustache-templating-maven-plugin</artifactId>
                 <version>${project.version}</version>
 
                 <executions>

@@ -9,19 +9,20 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zscript-templating</artifactId>
+    <groupId>net.zscript.maven</groupId>
+    <artifactId>mustache-templating</artifactId>
     <packaging>pom</packaging>
-    <name>Templating Plugin</name>
+    <name>Mustache Templating Plugin Package</name>
 
     <properties>
         <version.mustache>0.9.10</version.mustache>
     </properties>
-    
+
     <modules>
-        <module>templating-maven-plugin</module>
-        <module>templating-maven-plugin-adapter</module>
-        <module>templating-tests</module>
-        <module>templating-tests-2</module>
+        <module>mustache-templating-maven-plugin</module>
+        <module>mustache-templating-maven-plugin-adapter</module>
+        <module>mustache-templating-tests</module>
+        <module>mustache-templating-tests-2</module>
     </modules>
 
     <dependencyManagement>
