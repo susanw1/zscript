@@ -17,6 +17,10 @@ jobs:
                 distribution: temurin
                 cache: maven
 
+        -   uses: carlosperate/arm-none-eabi-gcc-action@v1
+        -   run: arm-none-eabi-gcc --version
+        -   run: gcc --version
+
         -   name: Build with Maven
             run: mvn -B verify --file pom.xml
 
@@ -25,11 +29,6 @@ jobs:
             env:
                 CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-#        - name: Java code coverage
-#          uses: codecov/codecov-action@v1
-#          with:
-#              token: ${{ secrets.CODECOV_TOKEN }} #required
-#              flags: unittests
 #        file: jacoco.xml #optional
 #        name: codecov-umbrella #optional
 #        yml: ./codecov.yml #optional
