@@ -18,7 +18,7 @@ jobs:
                 cache: maven
 
         -   name: Build with Maven
-            run: mvn -B verify --file pom.xml -fn
+            run: mvn -B verify --file pom.xml
 
         -   name: Upload Java code coverage reports to Codecov
             uses: codecov/codecov-action@v3
