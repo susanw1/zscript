@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 public class Test2ClasspathTest {
     @Test
     public void shouldCreateOutputFile() throws IOException {
-        String      expectedContent = "Test-2 (classpath): Test mustache file: receipt is Classpath example on Thu Mar 16 00:00:00 GMT 2023" + lineSeparator();
+        String      expectedContent = "Test-2 (classpath): Test mustache file: receipt is Classpath example for Joe Bloggs" + lineSeparator();
         InputStream input           = getClass().getResourceAsStream("/templates-out/test2/example-2.txt");
         String      content         = IOUtils.toString(input, StandardCharsets.UTF_8);
         assertThat(content).isEqualTo(expectedContent);

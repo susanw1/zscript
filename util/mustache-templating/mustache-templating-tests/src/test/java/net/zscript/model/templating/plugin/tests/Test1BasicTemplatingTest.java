@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 public class Test1BasicTemplatingTest {
     @Test
     public void shouldCreateFirstOutputFile() throws IOException {
-        String      expectedContent = "Test-1: Test mustache file: receipt is Oz-Ware Purchase Invoice on Mon Aug 06 01:00:00 BST 2012" + lineSeparator();
+        String      expectedContent = "Test-1: Test mustache file: receipt is Oz-Ware Purchase Invoice for Dorothy Gale" + lineSeparator();
         InputStream input           = getClass().getResourceAsStream("/templates-out/test1/exampleA-1.txt");
         assertThat(input).isNotNull();
 
@@ -26,7 +26,7 @@ public class Test1BasicTemplatingTest {
 
     @Test
     public void shouldCreateSecondOutputFile() throws IOException {
-        String      expectedContent = "Test-1: Test mustache file: receipt is Something Else on Sun Jan 06 00:00:00 GMT 2013" + lineSeparator();
+        String      expectedContent = "Test-1: Test mustache file: receipt is Something Else for Joe Bloggs" + lineSeparator();
         InputStream input           = getClass().getResourceAsStream("/templates-out/test1/exampleB-1.txt");
         assertThat(input).isNotNull();
 

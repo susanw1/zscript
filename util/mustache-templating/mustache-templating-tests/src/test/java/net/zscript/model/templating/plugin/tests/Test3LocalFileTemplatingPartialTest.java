@@ -17,7 +17,7 @@ public class Test3LocalFileTemplatingPartialTest {
 
     @Test
     public void shouldCreateFileUsingPartials() throws IOException {
-        String expectedContent = "Test-3: Test mustache file: receipt is Oz-Ware Purchase Invoice on Mon Aug 06 01:00:00 BST 2012" + lineSeparator()
+        String expectedContent = "Test-3: Test mustache file: receipt is Oz-Ware Purchase Invoice for Dorothy Gale" + lineSeparator()
                 + "Partial#1: Test-3a: Bill-to: 123 Tornado Alley&#10;Suite 16&#10;" + lineSeparator() + lineSeparator()
                 + "Partial#2: Test-3b: - Ship-to: 123 Tornado Alley&#10;Suite 16&#10;" + lineSeparator() + lineSeparator();
 
