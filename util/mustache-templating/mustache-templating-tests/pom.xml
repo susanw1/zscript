@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.zscript.maven</groupId>
+        <groupId>net.zscript.maven-templates</groupId>
         <artifactId>mustache-templating</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
@@ -35,7 +35,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.zscript.maven</groupId>
+            <groupId>net.zscript.maven-templates</groupId>
             <artifactId>mustache-templating-maven-plugin-test-resources</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -45,12 +45,12 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>net.zscript.maven</groupId>
+                <groupId>net.zscript.maven-templates</groupId>
                 <artifactId>mustache-templating-maven-plugin</artifactId>
                 <version>${project.version}</version>
                 <dependencies>
                     <dependency>
-                        <groupId>net.zscript.maven</groupId>
+                        <groupId>net.zscript.maven-templates</groupId>
                         <artifactId>mustache-templating-maven-plugin-test-resources</artifactId>
                         <version>${project.version}</version>
                     </dependency>

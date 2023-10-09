@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>net.zscript.maven</groupId>
+    <groupId>net.zscript.maven-templates</groupId>
     <artifactId>mustache-templating</artifactId>
     <packaging>pom</packaging>
     <name>Mustache Templating Plugin Package</name>

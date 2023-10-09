@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.zscript.maven</groupId>
+        <groupId>net.zscript.maven-templates</groupId>
         <artifactId>mustache-templating</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
@@ -15,7 +15,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.zscript.maven</groupId>
+            <groupId>net.zscript.maven-templates</groupId>
             <artifactId>mustache-templating-maven-plugin-adapter</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -60,7 +60,7 @@
         </dependency>
     </dependencies>
 
-    <!-- Useful: run mvn help:describe -Dplugin=net.zscript.maven:mustache-templating-maven-plugin  -Ddetail -->
+    <!-- Useful: run mvn help:describe -Dplugin=net.zscript.maven-templates:mustache-templating-maven-plugin  -Ddetail -->
     <build>
         <plugins>
             <plugin>

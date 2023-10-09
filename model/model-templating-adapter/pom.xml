@@ -18,9 +18,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.zscript.maven</groupId>
+            <groupId>net.zscript.maven-templates</groupId>
             <artifactId>mustache-templating-maven-plugin-adapter</artifactId>
-            <version>${project.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.zscript</groupId>
