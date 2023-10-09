@@ -22,7 +22,7 @@
         <module>mustache-templating-maven-plugin</module>
         <module>mustache-templating-maven-plugin-adapter</module>
         <module>mustache-templating-tests</module>
-        <module>mustache-templating-tests-2</module>
+        <module>mustache-templating-test-resources</module>
     </modules>
 
     <dependencyManagement>

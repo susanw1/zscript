@@ -23,12 +23,38 @@
         <generated-text-path>${project.build.directory}/classes/templates-out</generated-text-path>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.github.spullara.mustache.java</groupId>
+            <artifactId>compiler</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.zscript.maven</groupId>
+            <artifactId>mustache-templating-maven-plugin-test-resources</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>net.zscript.maven</groupId>
                 <artifactId>mustache-templating-maven-plugin</artifactId>
                 <version>${project.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.zscript.maven</groupId>
+                        <artifactId>mustache-templating-maven-plugin-test-resources</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
 
                 <executions>
                     <execution>
@@ -45,6 +71,24 @@
                             </contexts>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>templating-test-2-classpath</id>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${generated-text-path}/test2</outputDirectory>
+                            <templateDirectory>classpath:/template-cp</templateDirectory>
+                            <mainTemplate>test-2-cp.mustache</mainTemplate>
+                            <fileTypeSuffix>txt</fileTypeSuffix>
+                            <contexts>
+                                <directory>classpath:/contexts-cp/</directory>
+                                <includes>example-2.yaml</includes>
+                            </contexts>
+                        </configuration>
+                    </execution>
+
                     <execution>
                         <id>templating-test-3-additional-templates</id>
                         <goals>
