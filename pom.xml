@@ -45,6 +45,12 @@
         <version.maven-assembly-plugin>3.4.2</version.maven-assembly-plugin>
         <version.maven-enforcer-plugin>3.4.2</version.maven-enforcer-plugin>
         <version.mustache-templating-maven-plugin>0.0.1</version.mustache-templating-maven-plugin>
+
+        <version.maven-javadoc-plugin>3.6.0</version.maven-javadoc-plugin>
+        <version.maven-source-plugin>2.2.1</version.maven-source-plugin>
+        <version.maven-gpg-plugin>1.5</version.maven-gpg-plugin>
+        <version.maven-release-plugin>3.0.1</version.maven-release-plugin>
+        <version.maven-nexus-staging-plugin>1.6.13</version.maven-nexus-staging-plugin>
     </properties>
 
     <modules>
@@ -56,7 +62,6 @@
         <module>util</module>
         <module>demo</module>
     </modules>
-
 
     <dependencyManagement>
         <dependencies>
@@ -155,7 +160,7 @@
                     <extensions>true</extensions>
                 </plugin>
                 <plugin>
-                    <groupId>net.zscript.maven-templating</groupId>
+                    <groupId>net.zscript.maven-templates</groupId>
                     <artifactId>mustache-templating-maven-plugin</artifactId>
                     <version>${version.mustache-templating-maven-plugin}</version>
                 </plugin>
@@ -198,6 +203,73 @@
                     <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${version.antlr}</version>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${version.maven-javadoc-plugin}</version>
+                    <configuration>
+                        <detectLinks/>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${version.maven-source-plugin}</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${version.maven-gpg-plugin}</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>${version.maven-release-plugin}</version>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <tagNameFormat>@{project.version}</tagNameFormat>
+                        <releaseProfiles>release</releaseProfiles>
+                        <goals>deploy</goals>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>${version.maven-nexus-staging-plugin}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <serverId>ossrh</serverId>
+                        <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        <stagingProgressTimeoutMinutes>60</stagingProgressTimeoutMinutes>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -221,14 +293,15 @@
 
     <developers>
         <developer>
+            <id>susanw1</id>
             <name>Susan Witts</name>
-            <id>SusanW</id>
             <url>https://www.linkedin.com/in/susan-witts/</url>
             <timezone>Europe/London</timezone>
             <email>susanwitts1@gmail.com</email>
             <organization>Zscript Team</organization>
         </developer>
         <developer>
+            <id>More-Wrong</id>
             <name>More-Wrong</name>
             <url>https://github.com/More-Wrong/</url>
             <timezone>Europe/London</timezone>
@@ -238,13 +311,25 @@
 
     <scm>
         <url>https://github.com/susanw1/zscript</url>
-        <connection>scm:git:git://github.com/susanw1/zscript.git</connection>
-        <developerConnection>scm:git:git@github.com:susanw1/zscript.git</developerConnection>
+        <connection>scm:git:https://github.com/susanw1/zscript.git</connection>
+        <developerConnection>scm:git:https://github.com/susanw1/zscript.git</developerConnection>
+        <tag>HEAD</tag>
     </scm>
     <issueManagement>
         <system>GitHub Issues</system>
         <url>https://github.com/susanw1/zscript/issues/</url>
     </issueManagement>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
     <profiles>
         <profile>
@@ -261,6 +346,26 @@
         </profile>
         <profile>
             <id>run-device-acceptance</id>
+        </profile>
+
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>
