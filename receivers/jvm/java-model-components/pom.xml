@@ -20,12 +20,11 @@
             <plugin>
                 <groupId>net.zscript.maven-templates</groupId>
                 <artifactId>mustache-templating-maven-plugin</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
 
                 <dependencies>
                     <dependency>
                         <groupId>net.zscript</groupId>
-                        <artifactId>zscript-model-mustache-templating-adapter</artifactId>
+                        <artifactId>zscript-model-mustache-templating-context-loader</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                     <dependency>
@@ -37,7 +36,7 @@
 
                 <configuration>
                     <outputDirectory>${project.build.directory}/generated-sources/zscript</outputDirectory>
-                    <templatingMapperClass>net.zscript.model.templating.adapter.ZscriptModuleTemplatingPluginMapper</templatingMapperClass>
+                    <contextLoaderClass>net.zscript.model.templating.contextloader.ZscriptModuleTemplatingContextLoader</contextLoaderClass>
                 </configuration>
 
                 <executions>

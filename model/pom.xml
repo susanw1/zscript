@@ -17,7 +17,7 @@
         <module>language-definition</module>
         <module>schema</module>
         <module>standard-module-definitions</module>
-        <module>model-templating-adapter</module>
+        <module>model-templating-context-loader</module>
     </modules>
 
     <dependencies>
