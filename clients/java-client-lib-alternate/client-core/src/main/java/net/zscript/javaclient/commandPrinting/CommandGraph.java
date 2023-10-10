@@ -1,5 +1,6 @@
 package net.zscript.javaclient.commandPrinting;
 
+import javax.lang.model.element.Element;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -152,10 +153,26 @@ public class CommandGraph extends TextCanvas {
                 toApply.add(new LineElement(failStyle, depth.getDepth() * spacing, currentVert,
                         depth.getDepth() * spacing, nextVert, strategy));
             }
-            boolean drawSuccess = (!skipImpossiblePaths || cmd.canSucceed()) && cmd.getEndLink().getOnSuccess() != null &&
-                    elements.contains(commands.get(cmd.getEndLink().getOnSuccess()));
-            boolean drawFail = (!skipImpossiblePaths || cmd.canFail()) && cmd.getEndLink().getOnFail() != null &&
-                    elements.contains(commands.get(cmd.getEndLink().getOnFail()));
+            boolean drawSuccess = (!skipImpossiblePaths || cmd.canSucceed()) && cmd.getEndLink().getOnSuccess() != null;
+            if (!skipImpossiblePaths && drawSuccess) {
+                Command tmp = cmd.getEndLink().getOnSuccess();
+                while (!elements.contains(commands.get(tmp)) && tmp.canSucceed() && tmp.getEndLink().getOnSuccess() != null && tmp.isEmpty()) {
+                    tmp = tmp.getEndLink().getOnSuccess();
+                }
+                if (!elements.contains(commands.get(tmp))) {
+                    drawSuccess = false;
+                }
+            }
+            boolean drawFail = (!skipImpossiblePaths || cmd.canFail()) && cmd.getEndLink().getOnFail() != null;
+            if (!skipImpossiblePaths && drawFail) {
+                Command tmp = cmd.getEndLink().getOnFail();
+                while (!elements.contains(commands.get(tmp)) && tmp.canSucceed() && tmp.getEndLink().getOnSuccess() != null && tmp.isEmpty()) {
+                    tmp = tmp.getEndLink().getOnSuccess();
+                }
+                if (!elements.contains(commands.get(tmp))) {
+                    drawSuccess = false;
+                }
+            }
             if (highlightIndex < toHighlight.size() - 1 && toHighlight.get(highlightIndex) == cmd) {
                 if (drawSuccess && toHighlight.get(highlightIndex + 1) == cmd.getEndLink().getOnSuccess()) {
                     toApply.add(new LineElement(highlightStyle, element.getDepth().getDepth() * spacing, currentVert,

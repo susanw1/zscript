@@ -11,6 +11,14 @@
 
     <artifactId>client-core</artifactId>
     <name>Java Client Core</name>
+    <dependencies>
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-java-client-command-builders</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 
 </project>

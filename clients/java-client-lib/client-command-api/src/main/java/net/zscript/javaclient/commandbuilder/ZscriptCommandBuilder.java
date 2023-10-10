@@ -129,7 +129,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
      */
     public abstract ZscriptBuiltCommandNode<T> build();
 
-    static class BigField implements ByteWritable {
+    public static class BigField implements ByteWritable {
         private final byte[]  data;
         private final boolean isString;
 
@@ -146,6 +146,14 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
                 out.appendBigfieldBytes(data);
             }
             return this;
+        }
+
+        public byte[] getData() {
+            return data;
+        }
+
+        public boolean isString() {
+            return isString;
         }
     }
 }

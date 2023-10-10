@@ -2,6 +2,8 @@ package net.zscript.javaclient.nodes;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.function.Consumer;
 
@@ -9,6 +11,7 @@ import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.addressing.AddressedResponse;
 import net.zscript.javaclient.addressing.ZscriptAddress;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
+import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.ResponseSequence;
 
@@ -18,8 +21,16 @@ public class ZscriptNode {
     private final ConnectionBuffer connectionBuffer;
     private final Connection       parentConnection;
 
-    private QueuingStrategy             strategy = new StandardQueuingStrategy();
-    private Consumer<AddressedResponse> unknownResponseHandler;
+    private QueuingStrategy strategy = new StandardQueuingStrategy();
+
+    private Consumer<AddressedResponse> unknownResponseHandler = r -> {
+        throw new IllegalStateException("Unknown response received: " + r);
+    };
+
+    private final Map<Integer, Consumer<ResponseSequence>> notificationHandlers = new HashMap<>();
+
+    private final Map<CommandExecutionPath, Consumer<ResponseExecutionPath>> pathCallbacks         = new HashMap<>();
+    private final Map<CommandSequence, Consumer<ResponseSequence>>           fullSequenceCallbacks = new HashMap<>();
 
     public ZscriptNode(AddressingSystem addressingSystem, Connection parentConnection, int bufferSize) {
         this.addressingSystem = addressingSystem;
@@ -52,11 +63,13 @@ public class ZscriptNode {
         return addressingSystem.detach(address);
     }
 
-    public void send(CommandSequence seq) {
+    public void send(CommandSequence seq, Consumer<ResponseSequence> callback) {
+        fullSequenceCallbacks.put(seq, callback);
         strategy.send(seq);
     }
 
-    public void send(CommandExecutionPath path) {
+    public void send(CommandExecutionPath path, Consumer<ResponseExecutionPath> callback) {
+        pathCallbacks.put(path, callback);
         strategy.send(path);
     }
 
@@ -66,7 +79,13 @@ public class ZscriptNode {
 
     private void response(AddressedResponse resp) {
         if (resp.getContent().getResponseValue() != 0) {
-            // TODO: Notification handlers
+            Consumer<ResponseSequence> handler = notificationHandlers.get(resp.getContent().getResponseValue());
+            if (handler != null) {
+                handler.accept(resp.getContent());
+            } else {
+                unknownResponseHandler.accept(resp);
+            }
+            return;
         }
         AddressedCommand found = connectionBuffer.match(resp.getContent());
         if (found == null) {
@@ -75,7 +94,18 @@ public class ZscriptNode {
         }
         strategy.mayHaveSpace();
         parentConnection.responseReceived(found);
-        // TODO: Response callbacks
+        Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getContent());
+        if (seqCallback != null) {
+            seqCallback.accept(resp.getContent());
+        } else {
+            Consumer<ResponseExecutionPath> pathCallback = pathCallbacks.remove(found.getContent().getExecutionPath());
+            if (pathCallback != null) {
+                pathCallback.accept(resp.getContent().getExecutionPath());
+            } else {
+                unknownResponseHandler.accept(resp);
+            }
+        }
+
     }
 
     public Connection getParentConnection() {
@@ -87,5 +117,13 @@ public class ZscriptNode {
             strategy.mayHaveSpace();
         }
         parentConnection.responseReceived(found);
+    }
+
+    public void setNotificationHandler(int notification, Consumer<ResponseSequence> handler) {
+        notificationHandlers.put(notification, handler);
+    }
+
+    public void removeNotificationHandler(int notification) {
+        notificationHandlers.remove(notification);
     }
 }

@@ -2,6 +2,7 @@ package net.zscript.javaclient.commandbuilder;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 
 /**
  * An element of a Command Sequence under construction, representing a node in the Syntax Tree of a sequence during building.
@@ -115,4 +116,6 @@ public abstract class CommandSequenceNode {
             throw new UncheckedIOException(e);
         }
     }
+
+    public abstract List<CommandSequenceNode> getChildren();
 }

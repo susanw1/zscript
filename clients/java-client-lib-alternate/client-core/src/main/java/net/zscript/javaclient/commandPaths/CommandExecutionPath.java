@@ -1,7 +1,9 @@
 package net.zscript.javaclient.commandPaths;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,7 +15,11 @@ import java.util.Set;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
+import net.zscript.javaclient.commandbuilder.AndSequenceNode;
+import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.OrSequenceNode;
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
+import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
@@ -165,6 +171,123 @@ public class CommandExecutionPath implements Iterable<Command> {
             }
         }
         return new CommandExecutionPath(model, commands.get(builders.get(0)));
+    }
+
+    public static CommandExecutionPath convert(CommandSequenceNode cmdSeq) {
+        cmdSeq.compile();
+        class Layer {
+            Command success;
+            Command failure;
+            int     failBracketCount;
+            boolean onSuccessHasOpenParen;
+            boolean onSuccessHasCloseParen;
+            byte    successSep;
+
+            byte[] failSeperators() {
+                byte[] seps = new byte[failBracketCount + 1];
+                for (int i = 0; i < failBracketCount; i++) {
+                    seps[i] = Zchars.Z_CLOSEPAREN;
+                }
+                seps[seps.length - 1] = Zchars.Z_ORELSE;
+                return seps;
+            }
+        }
+        if (cmdSeq instanceof ZscriptCommandNode) {
+            //Cope with...
+        }
+        Deque<ListIterator<CommandSequenceNode>> stack = new ArrayDeque<>();
+        Deque<CommandSequenceNode>               nodes = new ArrayDeque<>();
+
+        Deque<Layer> destinations = new ArrayDeque<>();
+        stack.push(List.of(cmdSeq).listIterator(1));
+
+        Layer first = new Layer();
+        first.success = null;
+        first.failure = null;
+        first.failBracketCount = 0;
+        first.onSuccessHasOpenParen = false;
+        first.successSep = Zchars.Z_ANDTHEN;
+        destinations.push(first);
+
+        while (true) {
+            if (stack.peek().hasPrevious()) {
+                Layer               layer = destinations.peek();
+                CommandSequenceNode next  = stack.peek().previous();
+                if (next instanceof ZscriptCommandNode) {
+                    Command cmd = new Command(new Command.CommandEndLink(layer.success, new byte[] { layer.successSep }, layer.failure, layer.failSeperators()),
+                            ZscriptFieldSet.from((ZscriptCommandNode) next));
+                    if (nodes.peek() instanceof OrSequenceNode && stack.peek().hasPrevious()) {
+                        layer.failure = cmd;
+                        layer.failBracketCount = 0;
+                    } else {
+                        layer.success = cmd;
+                        layer.onSuccessHasOpenParen = false;
+                        layer.onSuccessHasCloseParen = false;
+                        layer.successSep = Zchars.Z_ANDTHEN;
+                    }
+                } else if (next instanceof OrSequenceNode) {
+                    Layer nextLayer = new Layer();
+                    nextLayer.failBracketCount = layer.failBracketCount;
+                    if (nodes.peek() instanceof AndSequenceNode) {
+                        if (layer.onSuccessHasCloseParen) {
+                            layer.success = new Command(new Command.CommandEndLink(layer.success, new byte[] { layer.successSep }, layer.failure, layer.failSeperators()),
+                                    ZscriptFieldSet.blank());
+                        }
+                        nextLayer.failBracketCount++;
+                        layer.successSep = Zchars.Z_CLOSEPAREN;
+                        layer.onSuccessHasCloseParen = true;
+                    }
+                    nextLayer.onSuccessHasCloseParen = true;
+                    nextLayer.failure = layer.failure;
+                    nextLayer.success = layer.success;
+                    nextLayer.onSuccessHasOpenParen = false;
+                    nextLayer.successSep = layer.successSep;
+                    stack.push(next.getChildren().listIterator(next.getChildren().size()));
+                    nodes.push(next);
+                    destinations.push(nextLayer);
+                } else if (next instanceof AndSequenceNode) {
+                    Layer nextLayer = new Layer();
+                    nextLayer.failBracketCount = layer.failBracketCount;
+                    nextLayer.failure = layer.failure;
+                    nextLayer.success = layer.success;
+                    nextLayer.onSuccessHasOpenParen = false;
+                    nextLayer.onSuccessHasCloseParen = layer.onSuccessHasCloseParen;
+                    nextLayer.successSep = layer.successSep;
+                    stack.push(next.getChildren().listIterator(next.getChildren().size()));
+                    nodes.push(next);
+                    destinations.push(nextLayer);
+                } else {
+                    throw new IllegalStateException("Unknown type: " + next);
+                }
+            } else {
+                stack.pop();
+                if (nodes.isEmpty()) {
+                    break;
+                }
+                CommandSequenceNode prev      = nodes.pop();
+                Layer               prevLayer = destinations.pop();
+                Layer               layer     = destinations.peek();
+                layer.onSuccessHasOpenParen = prevLayer.onSuccessHasOpenParen;
+                if (nodes.peek() instanceof AndSequenceNode) {
+                    layer.success = prevLayer.success;
+                    if (prev instanceof OrSequenceNode) {
+                        if (prevLayer.onSuccessHasOpenParen) {
+                            layer.success = new Command(
+                                    new Command.CommandEndLink(prevLayer.success, new byte[] { Zchars.Z_OPENPAREN }, prevLayer.failure, prevLayer.failSeperators()),
+                                    ZscriptFieldSet.blank());
+                        }
+                        layer.successSep = Zchars.Z_OPENPAREN;
+                        layer.onSuccessHasOpenParen = true;
+                    }
+                } else if (stack.peek().hasPrevious()) {
+                    layer.failure = prevLayer.success;
+                    layer.failBracketCount = 0;
+                } else {
+                    layer.success = prevLayer.success;
+                }
+            }
+        }
+        return new CommandExecutionPath(ZscriptModel.standardModel(), destinations.peek().success);
     }
 
     public static CommandExecutionPath blank() {

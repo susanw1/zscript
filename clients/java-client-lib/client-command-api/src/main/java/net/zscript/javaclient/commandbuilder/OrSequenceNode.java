@@ -2,6 +2,8 @@ package net.zscript.javaclient.commandbuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import net.zscript.model.components.Zchars;
 
@@ -47,5 +49,9 @@ public class OrSequenceNode extends CommandSequenceNode {
             out.write(Zchars.Z_CLOSEPAREN);
         }
         return out.toByteArray();
+    }
+
+    public List<CommandSequenceNode> getChildren() {
+        return List.of(before, after);
     }
 }

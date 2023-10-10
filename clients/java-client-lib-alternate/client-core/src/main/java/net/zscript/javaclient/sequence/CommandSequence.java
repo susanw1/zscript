@@ -8,6 +8,7 @@ import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadTok
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
+import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString;
 
@@ -41,7 +42,7 @@ public class CommandSequence {
         return new CommandSequence(path, echoField, locks);
     }
 
-    public static CommandSequence parse(ReadToken start, boolean supports32Locks) {
+    public static CommandSequence parse(ZscriptModel model, ReadToken start, boolean supports32Locks) {
         ZscriptLockSet      locks     = null;
         int                 echoField = -1;
         TokenBufferIterator iter      = start.getNextTokens();
@@ -60,7 +61,7 @@ public class CommandSequence {
             }
             current = iter.next().orElse(null);
         }
-        return new CommandSequence(CommandExecutionPath.parse(current), echoField, locks);
+        return new CommandSequence(CommandExecutionPath.parse(model, current), echoField, locks);
     }
 
     private CommandSequence(CommandExecutionPath executionPath, int echoField, ZscriptLockSet locks) {

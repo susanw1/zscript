@@ -58,4 +58,12 @@ public abstract class ZscriptBuiltCommandNode<T extends ZscriptResponse> extends
             listener.notExecuted();
         }
     }
+
+    public Map<Byte, Integer> getFields() {
+        return fields;
+    }
+
+    public List<BigField> getBigFields() {
+        return bigFields;
+    }
 }

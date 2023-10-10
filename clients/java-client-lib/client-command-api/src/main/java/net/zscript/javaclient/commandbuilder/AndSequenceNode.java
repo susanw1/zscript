@@ -96,7 +96,7 @@ public class AndSequenceNode extends CommandSequenceNode {
         return out.toByteArray();
     }
 
-    public List<CommandSequenceNode> getElements() {
+    public List<CommandSequenceNode> getChildren() {
         return elements;
     }
 }

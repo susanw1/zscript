@@ -4,12 +4,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import net.zscript.javaclient.commandbuilder.AbortCommandNode;
+import net.zscript.javaclient.commandbuilder.BlankCommandNode;
+import net.zscript.javaclient.commandbuilder.FailureCommandNode;
+import net.zscript.javaclient.commandbuilder.ZscriptBuiltCommandNode;
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
+import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
+import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.model.components.Zchars;
+import net.zscript.model.components.ZscriptStatus;
 import net.zscript.util.ByteString;
 
 public class ZscriptFieldSet {
@@ -71,6 +79,37 @@ public class ZscriptFieldSet {
             }
         }
         return new ZscriptFieldSet(bigFields, fields, hasClash);
+    }
+
+    public static ZscriptFieldSet from(ZscriptCommandNode node) {
+        int[] fields = new int[26];
+        Arrays.fill(fields, -1);
+        List<BigField> bigFields = new ArrayList<>();
+        if (node instanceof ZscriptBuiltCommandNode) {
+            ZscriptBuiltCommandNode<?> source = (ZscriptBuiltCommandNode<?>) node;
+            for (Map.Entry<Byte, Integer> e : source.getFields().entrySet()) {
+                fields[e.getKey() - 'A'] = e.getValue();
+            }
+            for (ZscriptCommandBuilder.BigField b : source.getBigFields()) {
+                bigFields.add(new BigField(b.getData(), b.isString()));
+            }
+        } else if (node instanceof BlankCommandNode) {
+        } else if (node instanceof FailureCommandNode) {
+            fields[Zchars.Z_CMD - 'A'] = 1;
+            fields[Zchars.Z_STATUS - 'A'] = ZscriptStatus.COMMAND_FAIL_CONTROL;
+        } else if (node instanceof AbortCommandNode) {
+            fields[Zchars.Z_CMD - 'A'] = 1;
+            fields[Zchars.Z_STATUS - 'A'] = ZscriptStatus.COMMAND_ERROR_CONTROL;
+        } else {
+            throw new IllegalStateException("Unknown ZscriptCommandNode type: " + node);
+        }
+        return new ZscriptFieldSet(bigFields, fields, false);
+    }
+
+    public static ZscriptFieldSet blank() {
+        int[] fields = new int[26];
+        Arrays.fill(fields, -1);
+        return new ZscriptFieldSet(new ArrayList<>(), fields, false);
     }
 
     private ZscriptFieldSet(List<BigField> bigFields, int[] fields, boolean hasClash) {
