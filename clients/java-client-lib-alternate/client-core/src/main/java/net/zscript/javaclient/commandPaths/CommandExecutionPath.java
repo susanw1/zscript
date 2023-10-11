@@ -15,6 +15,7 @@ import java.util.Set;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
+import net.zscript.javaclient.commandPrinting.CommandGrapher;
 import net.zscript.javaclient.commandbuilder.AndSequenceNode;
 import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.OrSequenceNode;
@@ -34,11 +35,8 @@ public class CommandExecutionPath implements Iterable<Command> {
 
         CommandBuilder onSuccess           = null;
         int            successBracketCount = 0;
-        List<Byte>     successSeparators   = new ArrayList<>();
-
-        CommandBuilder onFail           = null;
-        int            failBracketCount = 0;
-        List<Byte>     failSeparators   = new ArrayList<>();
+        CommandBuilder onFail              = null;
+        int            failBracketCount    = 0;
 
         public void setOnSuccess(CommandBuilder onSuccess) {
             this.onSuccess = onSuccess;
@@ -57,18 +55,7 @@ public class CommandExecutionPath implements Iterable<Command> {
         }
 
         private Command.CommandEndLink generateLinks(Map<CommandBuilder, Command> commands) {
-            byte[] successSepArr = new byte[successSeparators.size()];
-
-            int i = 0;
-            for (byte b : successSeparators) {
-                successSepArr[i++] = b;
-            }
-            byte[] failSepArr = new byte[failSeparators.size()];
-            i = 0;
-            for (byte b : failSeparators) {
-                failSepArr[i++] = b;
-            }
-            return new Command.CommandEndLink(commands.get(onSuccess), successSepArr, commands.get(onFail), failSepArr);
+            return new Command.CommandEndLink(commands.get(onSuccess), commands.get(onFail));
         }
 
         public Command generateCommand(Map<CommandBuilder, Command> otherCommands) {
@@ -98,24 +85,20 @@ public class CommandExecutionPath implements Iterable<Command> {
                 builders.add(next);
                 if (token.getKey() == Tokenizer.CMD_END_ANDTHEN) {
                     last.setOnSuccess(next);
-                    last.successSeparators.add(Zchars.Z_ANDTHEN);
                     needFailPath.add(last);
                 } else if (token.getKey() == Tokenizer.CMD_END_ORELSE) {
                     needSuccessPath.add(last);
                     last.setOnFail(next);
-                    last.failSeparators.add(Zchars.Z_ORELSE);
                     for (Iterator<CommandBuilder> iter = needFailPath.iterator(); iter.hasNext(); ) {
                         CommandBuilder b = iter.next();
                         if (b.failBracketCount == 0) {
                             b.setOnFail(next);
-                            b.failSeparators.add(Zchars.Z_ORELSE);
                             iter.remove();
                         }
                     }
                 } else if (token.getKey() == Tokenizer.CMD_END_OPEN_PAREN) {
                     last.setOnSuccess(next);
                     needFailPath.add(last);
-                    last.successSeparators.add(Zchars.Z_OPENPAREN);
                     for (CommandBuilder b : needFailPath) {
                         b.failBracketCount++;
                     }
@@ -125,19 +108,15 @@ public class CommandExecutionPath implements Iterable<Command> {
                 } else if (token.getKey() == Tokenizer.CMD_END_CLOSE_PAREN) {
                     last.setOnSuccess(next);
                     needFailPath.add(last);
-                    last.successSeparators.add(Zchars.Z_CLOSEPAREN);
                     for (CommandBuilder b : needFailPath) {
                         if (b.failBracketCount > 0) {
                             b.failBracketCount--;
-                        } else {
-                            b.failSeparators.add(Zchars.Z_CLOSEPAREN);
                         }
                     }
                     for (Iterator<CommandBuilder> iter = needSuccessPath.iterator(); iter.hasNext(); ) {
                         CommandBuilder b = iter.next();
                         if (b.successBracketCount == 0) {
                             b.setOnSuccess(next);
-                            b.successSeparators.add(Zchars.Z_CLOSEPAREN);
                             iter.remove();
                         } else {
                             b.successBracketCount--;
@@ -197,19 +176,9 @@ public class CommandExecutionPath implements Iterable<Command> {
         class Layer {
             Command success;
             Command failure;
-            int     failBracketCount;
             boolean onSuccessHasOpenParen;
             boolean onSuccessHasCloseParen;
-            byte    successSep;
 
-            byte[] failSeperators() {
-                byte[] seps = new byte[failBracketCount + 1];
-                for (int i = 0; i < failBracketCount; i++) {
-                    seps[i] = Zchars.Z_CLOSEPAREN;
-                }
-                seps[seps.length - 1] = Zchars.Z_ORELSE;
-                return seps;
-            }
         }
         Map<Command, ZscriptCommandNode> commandMap = new HashMap<>();
 
@@ -222,9 +191,7 @@ public class CommandExecutionPath implements Iterable<Command> {
         Layer first = new Layer();
         first.success = null;
         first.failure = null;
-        first.failBracketCount = 0;
         first.onSuccessHasOpenParen = false;
-        first.successSep = Zchars.Z_ANDTHEN;
         destinations.push(first);
 
         while (true) {
@@ -232,46 +199,38 @@ public class CommandExecutionPath implements Iterable<Command> {
                 Layer               layer = destinations.peek();
                 CommandSequenceNode next  = stack.peek().previous();
                 if (next instanceof ZscriptCommandNode) {
-                    Command cmd = new Command(new Command.CommandEndLink(layer.success, new byte[] { layer.successSep }, layer.failure, layer.failSeperators()),
+                    Command cmd = new Command(new Command.CommandEndLink(layer.success, layer.failure),
                             ZscriptFieldSet.from((ZscriptCommandNode) next));
                     commandMap.put(cmd, (ZscriptCommandNode) next);
                     if (nodes.peek() instanceof OrSequenceNode && stack.peek().hasPrevious()) {
                         layer.failure = cmd;
-                        layer.failBracketCount = 0;
                     } else {
                         layer.success = cmd;
                         layer.onSuccessHasOpenParen = false;
                         layer.onSuccessHasCloseParen = false;
-                        layer.successSep = Zchars.Z_ANDTHEN;
                     }
                 } else if (next instanceof OrSequenceNode) {
                     Layer nextLayer = new Layer();
-                    nextLayer.failBracketCount = layer.failBracketCount;
                     if (nodes.peek() instanceof AndSequenceNode) {
                         if (layer.onSuccessHasCloseParen) {
-                            layer.success = new Command(new Command.CommandEndLink(layer.success, new byte[] { layer.successSep }, layer.failure, layer.failSeperators()),
+                            layer.success = new Command(new Command.CommandEndLink(layer.success, layer.failure),
                                     ZscriptFieldSet.blank());
                         }
-                        nextLayer.failBracketCount++;
-                        layer.successSep = Zchars.Z_CLOSEPAREN;
                         layer.onSuccessHasCloseParen = true;
                     }
                     nextLayer.onSuccessHasCloseParen = true;
                     nextLayer.failure = layer.failure;
                     nextLayer.success = layer.success;
                     nextLayer.onSuccessHasOpenParen = false;
-                    nextLayer.successSep = layer.successSep;
                     stack.push(next.getChildren().listIterator(next.getChildren().size()));
                     nodes.push(next);
                     destinations.push(nextLayer);
                 } else if (next instanceof AndSequenceNode) {
                     Layer nextLayer = new Layer();
-                    nextLayer.failBracketCount = layer.failBracketCount;
                     nextLayer.failure = layer.failure;
                     nextLayer.success = layer.success;
                     nextLayer.onSuccessHasOpenParen = false;
                     nextLayer.onSuccessHasCloseParen = layer.onSuccessHasCloseParen;
-                    nextLayer.successSep = layer.successSep;
                     stack.push(next.getChildren().listIterator(next.getChildren().size()));
                     nodes.push(next);
                     destinations.push(nextLayer);
@@ -292,15 +251,13 @@ public class CommandExecutionPath implements Iterable<Command> {
                     if (prev instanceof OrSequenceNode) {
                         if (prevLayer.onSuccessHasOpenParen) {
                             layer.success = new Command(
-                                    new Command.CommandEndLink(prevLayer.success, new byte[] { Zchars.Z_OPENPAREN }, prevLayer.failure, prevLayer.failSeperators()),
+                                    new Command.CommandEndLink(prevLayer.success, prevLayer.failure),
                                     ZscriptFieldSet.blank());
                         }
-                        layer.successSep = Zchars.Z_OPENPAREN;
                         layer.onSuccessHasOpenParen = true;
                     }
                 } else if (stack.peek().hasPrevious()) {
                     layer.failure = prevLayer.success;
-                    layer.failBracketCount = 0;
                 } else {
                     layer.success = prevLayer.success;
                 }
@@ -325,6 +282,80 @@ public class CommandExecutionPath implements Iterable<Command> {
         this.firstCommand = firstCommand;
     }
 
+    public ByteString toSequence() {
+        ZscriptByteString.ZscriptByteStringBuilder out = ZscriptByteString.builder();
+        toSequence(out);
+        return out.build();
+    }
+
+    public void toSequence(ZscriptByteString.ZscriptByteStringBuilder out) {
+        Deque<Command> openedTrees  = new ArrayDeque<>();
+        Deque<Command> workingTrees = new ArrayDeque<>();
+        if (firstCommand != null) {
+            workingTrees.push(firstCommand);
+        }
+        boolean needsAnd  = false;
+        boolean needsOpen = false;
+        while (!workingTrees.isEmpty()) {
+            Command                current = workingTrees.peek();
+            Command.CommandEndLink links   = current.getEndLink();
+
+            Command latestOpenTree = openedTrees.peek();
+            if (latestOpenTree != null && links.getOnFail() != latestOpenTree) {
+                // if there are opened trees, and this command doesn't add to the top open tree,
+                //   check if it closes the top open tree
+                //   which we can do by iterating forward to see if the top open tree re-merges here
+                // this operation makes our graph drawing O(n^2)
+                Command tmp        = latestOpenTree;
+                boolean mergesHere = false;
+                while (tmp != null) {
+                    if (tmp == current) {
+                        mergesHere = true;
+                        break;
+                    }
+                    tmp = tmp.getEndLink().getOnSuccess();
+                }
+                if (mergesHere) {
+                    openedTrees.pop();
+                    workingTrees.push(latestOpenTree);
+                    out.appendByte(Zchars.Z_ORELSE);
+                    needsOpen = false;
+                    needsAnd = false;
+                    // if it closes the top open tree, process that tree first
+                    continue;
+                }
+            }
+            if (links.getOnFail() != null && links.getOnFail() != latestOpenTree) {
+                // the command opens a new open tree
+                if (needsOpen) {
+                    out.appendByte(Zchars.Z_OPENPAREN);
+                }
+                openedTrees.push(links.getOnFail());
+                latestOpenTree = links.getOnFail();
+            } else if (needsAnd) {
+                out.appendByte(Zchars.Z_ANDTHEN);
+            }
+
+            workingTrees.pop().toBytes(out); // only put elements into the list when we're done processing them
+            needsAnd = false;
+            needsOpen = true;
+            if (links.getOnSuccess() != null) {
+                if (workingTrees.isEmpty() || links.getOnSuccess() != workingTrees.peek()) {
+                    // check we're not on a close parent, dropping out of failure
+                    workingTrees.push(links.getOnSuccess());
+                    needsAnd = true;
+                } else {
+                    out.appendByte(Zchars.Z_CLOSEPAREN);
+                }
+            } else if (latestOpenTree != null) {
+                openedTrees.pop();
+                workingTrees.push(latestOpenTree);
+                out.appendByte(Zchars.Z_ORELSE);
+                needsOpen = false;
+            }
+        }
+    }
+
     public List<MatchedCommandResponse> compareResponses(ResponseExecutionPath resps) {
         List<MatchedCommandResponse> cmds        = new ArrayList<>();
         Command                      current     = firstCommand;
@@ -345,48 +376,12 @@ public class CommandExecutionPath implements Iterable<Command> {
         return cmds;
     }
 
-    public ByteString toSequence() {
-        ZscriptByteString.ZscriptByteStringBuilder out = ZscriptByteString.builder();
-        toSequence(out);
-        return out.build();
-    }
-
-    public void toSequence(ZscriptByteString.ZscriptByteStringBuilder out) {
-        if (firstCommand == null) {
-            return;
-        }
-        Command current = firstCommand;
-        while (true) {
-            current.toBytes(out);
-            Command.CommandEndLink link = current.getEndLink();
-            if (link.getOnSuccess() == null) {
-                if (link.getOnFail() == null) {
-                    break;
-                } else {
-                    out.appendByte(link.getFailSeparators()[0]);
-                    current = link.getOnFail();
-                }
-            } else if (link.getSuccessSeparators()[0] == Zchars.Z_CLOSEPAREN) {
-                if (link.getOnFail() == null || link.getFailSeparators()[0] == Zchars.Z_CLOSEPAREN) {
-                    out.appendByte(Zchars.Z_CLOSEPAREN);
-                    current = link.getOnSuccess();
-                } else {
-                    out.appendByte(Zchars.Z_ORELSE);
-                    current = link.getOnFail();
-                }
-            } else {
-                out.appendByte(link.getSuccessSeparators()[0]);
-                current = link.getOnSuccess();
-            }
-        }
-    }
-
     public Iterator<Command> iterator() {
         if (firstCommand == null) {
             return Collections.emptyListIterator();
         }
         return new OptIterator<Command>() {
-            Set<Command> visited = new HashSet<>();
+            final Set<Command> visited = new HashSet<>();
             Iterator<Command> toVisit = Set.of(firstCommand).iterator();
             Set<Command> next = new HashSet<>();
 

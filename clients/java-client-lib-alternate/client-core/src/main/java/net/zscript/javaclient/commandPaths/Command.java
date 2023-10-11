@@ -7,32 +7,21 @@ public class Command {
 
     public static class CommandEndLink {
         private final Command onSuccess;
-        private final byte[]  successSeparators;
         private final Command onFail;
-        private final byte[]  failSeparators;
 
-        CommandEndLink(Command onSuccess, byte[] successSeparators, Command onFail, byte[] failSeparators) {
+        CommandEndLink(Command onSuccess, Command onFail) {
             this.onSuccess = onSuccess;
-            this.successSeparators = successSeparators;
             this.onFail = onFail;
-            this.failSeparators = failSeparators;
         }
 
         public Command getOnSuccess() {
             return onSuccess;
         }
 
-        public byte[] getSuccessSeparators() {
-            return successSeparators;
-        }
-
         public Command getOnFail() {
             return onFail;
         }
 
-        public byte[] getFailSeparators() {
-            return failSeparators;
-        }
     }
 
     private final CommandEndLink  endLink;

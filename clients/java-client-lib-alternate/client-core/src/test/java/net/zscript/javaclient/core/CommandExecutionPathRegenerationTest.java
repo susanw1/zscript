@@ -45,12 +45,12 @@ public class CommandExecutionPathRegenerationTest {
                 of("A&&&&B\n", "A&&&&B"),
                 of("A|B\n", "A|B"),
                 of("A&B&C|D&E&F|G&H&I\n", "A&B&C|D&E&F|G&H&I"),
-                of("A(B)C\n", "A(B)C"),
-                of("A(B&D)C\n", "A(B&D)C"),
+                of("A(B)C\n", "A&B&C"),
+                of("A(B&D)C\n", "A&B&D&C"),
                 of("A(B|D)C\n", "A(B|D)C"),
                 of("A(B|D)C|E\n", "A(B|D)C|E"),
                 of("A&B|D)C|E\n", "A&B|D)C|E"),
-                of("A(B|C)|D)X)Y)E|F\n", "A(B|C)|D)X)Y)E|F")
+                of("A(B|C)|D)X)Y)E|F\n", "A(B|C)|D)X&Y&E|F")
         );
     }
 }
