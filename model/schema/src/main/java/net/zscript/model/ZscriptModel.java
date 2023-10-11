@@ -14,6 +14,7 @@ import static java.util.stream.Collectors.toList;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.zscript.model.datamodel.IntrinsicsDataModel.Intrinsics;
+import net.zscript.model.datamodel.IntrinsicsDataModel.StatusModel;
 import net.zscript.model.datamodel.ModelValidator;
 import net.zscript.model.datamodel.ZscriptDataModel;
 import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
@@ -98,9 +99,9 @@ public class ZscriptModel {
                 .flatMap(m -> m.getNotificationById((id & 0xF)));
     }
 
-    public Optional<ZscriptDataModel.StatusModel> getStatus(int value) {
+    public Optional<StatusModel> getStatus(int value) {
         Intrinsics intrinsics = getIntrinsics();
-        for (ZscriptDataModel.StatusModel status : intrinsics.getStatus()) {
+        for (StatusModel status : intrinsics.getStatus()) {
             if (status.getId() == value) {
                 return Optional.of(status);
             } else if (status.getId() > value) {

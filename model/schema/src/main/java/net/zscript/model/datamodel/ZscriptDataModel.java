@@ -16,7 +16,9 @@ import net.zscript.model.loader.ModuleBank;
 
 public interface ZscriptDataModel {
 
-    /**  */
+    /**
+     * Most components of the Model have a name/description/longDescription - this defines them in one place.
+     */
     interface ModelComponent {
         @JsonProperty(required = true)
         String getName();
@@ -122,7 +124,7 @@ public interface ZscriptDataModel {
         List<ResponseFieldModel> getResponseFields();
 
         @JsonManagedReference
-        List<StatusModel> getStatus();
+        List<CommandStatusModel> getStatus();
 
         default int getFullCommand() {
             return getModule().getModuleBank().getId() << 8 | getModule().getId() << 4 | (getCommand() & 0xf);
@@ -326,14 +328,11 @@ public interface ZscriptDataModel {
         NotificationSectionModel getNotificationSection();
     }
 
-    interface StatusModel {
+    /**
+     * Specifically a Status object that is associated with a Command, as opposed to an intrinsic one
+     */
+    interface CommandStatusModel extends IntrinsicsDataModel.StatusModel {
         @JsonBackReference
         CommandModel getCommand();
-
-        String getCode();
-
-        int getId();
-
-        String getMeaning();
     }
 }

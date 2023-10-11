@@ -26,8 +26,8 @@ namespace Zscript {
 */
 enum ResponseStatus {
 {{#status}}
-    /** {{meaning}} */
-    {{#upperUnderscore}}{{code}}{{/upperUnderscore}} = 0x{{#toHex}}{{id}}{{/toHex}},
+    /** {{description}} */
+    {{#upperUnderscore}}{{name}}{{/upperUnderscore}} = 0x{{#toHex}}{{id}}{{/toHex}},
 
 {{/status}}
 };

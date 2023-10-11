@@ -2,9 +2,11 @@ package net.zscript.model.datamodel;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import net.zscript.model.datamodel.ZscriptDataModel.RequestFieldModel;
 import net.zscript.model.datamodel.ZscriptDataModel.ResponseFieldModel;
-import net.zscript.model.datamodel.ZscriptDataModel.StatusModel;
 
 public interface IntrinsicsDataModel {
     Intrinsics getIntrinsics();
@@ -17,11 +19,11 @@ public interface IntrinsicsDataModel {
         List<ZcharDefs> getZchars();
 
         List<StatusModel> getStatus();
+
+        List<StatusCategoryModel> getStatusCategories();
     }
 
-    interface ZcharDefs {
-        String getName();
-
+    interface ZcharDefs extends ZscriptDataModel.ModelComponent {
         char getCh();
 
         default String getChEscapedAsC() {
@@ -39,8 +41,6 @@ public interface IntrinsicsDataModel {
             return String.valueOf(ch);
         }
 
-        String getDescription();
-
         boolean isSeparator();
 
         boolean isMustEscape();
@@ -52,5 +52,16 @@ public interface IntrinsicsDataModel {
         boolean isIgnoreInCode();
 
         boolean isBigField();
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
+    interface StatusCategoryModel extends ZscriptDataModel.ModelComponent {
+        int getBaseId();
+    }
+
+    interface StatusModel extends ZscriptDataModel.ModelComponent {
+        int getId();
+
+        StatusCategoryModel getCategory();
     }
 }

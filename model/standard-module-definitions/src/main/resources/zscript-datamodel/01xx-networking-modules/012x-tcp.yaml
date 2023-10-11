@@ -66,8 +66,8 @@ commands:
             '@type': number
         required: no
     status:
-    -   code: executionError
-        meaning: UDP descriptor already in use
+    -   name: executionError
+        description: UDP descriptor already in use
 
 -   name: tcpServerInfo
     command: 2
@@ -120,8 +120,8 @@ commands:
         required: yes
     responseFields: [ ]
     status:
-    -   code: peripheralDisabled
-        meaning: TCP server descriptor not in use
+    -   name: peripheralDisabled
+        description: TCP server descriptor not in use
 
 
 -   name: tcpServerListen
@@ -161,10 +161,10 @@ commands:
             '@type': number
         required: no
     status:
-    -   code: peripheralDisabled
-        meaning: TCP server descriptor not in use
-    -   code: executionError
-        meaning: socket descriptor already in use
+    -   name: peripheralDisabled
+        description: TCP server descriptor not in use
+    -   name: executionError
+        description: socket descriptor already in use
 
 -   name: tcpClientSocket
     command: 5
@@ -221,10 +221,10 @@ commands:
             '@type': number
         required: yes
     status:
-    -   code: executionError
-        meaning: socket descriptor already in use
-    -   code: commandNoTarget
-        meaning: hostname could not be resolved
+    -   name: executionError
+        description: socket descriptor already in use
+    -   name: commandNoTarget
+        description: hostname could not be resolved
 
 -   name: tcpSocketInfo
     command: 8
@@ -301,8 +301,8 @@ commands:
         required: yes
     responseFields: [ ]
     status:
-    -   code: peripheralDisabled
-        meaning: TCP socket not in use
+    -   name: peripheralDisabled
+        description: TCP socket not in use
 
 -   name: socketReceive
     command: 10
@@ -335,10 +335,10 @@ commands:
             '@type': bytes
         required: yes
     status:
-    -   code: peripheralDisabled
-        meaning: TCP socket not in use
-    -   code: commandDataNotReceived
-        meaning: no data has been received to read
+    -   name: peripheralDisabled
+        description: TCP socket not in use
+    -   name: commandDataNotReceived
+        description: no data has been received to read
 
 -   name: socketSkip
     command: 11
