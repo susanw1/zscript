@@ -27,4 +27,19 @@ class ZscriptModelTest {
 
         assertThat(module.get().getNotifications().get(2).getSections()).hasSize(2);
     }
+
+    @Test
+    void shouldFindCommands() {
+        ZscriptModel model = ZscriptModel.standardModel();
+        assertThat(model.getCommand(0x0000)).isPresent();
+        assertThat(model.getCommand(0x7b9d)).isPresent();
+    }
+
+    @Test
+    void shouldFindNotifications() {
+        ZscriptModel model = ZscriptModel.standardModel();
+        assertThat(model.getNotification(0x0001)).isPresent();
+        assertThat(model.getNotification(0x7b94)).isPresent();
+    }
+
 }
