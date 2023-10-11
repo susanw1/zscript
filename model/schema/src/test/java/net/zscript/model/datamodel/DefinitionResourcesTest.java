@@ -1,16 +1,15 @@
 package net.zscript.model.datamodel;
 
-import static java.util.Objects.requireNonNull;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static java.util.Objects.requireNonNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.datamodel.DefinitionResources.ModuleBankDef;
@@ -34,7 +33,7 @@ public class DefinitionResourcesTest {
     @Test
     public void shouldLoadDefinitionResources() throws IOException {
         final List<ModuleBankDef> moduleBanks = model.getModuleBanks();
-        assertThat(moduleBanks).hasSize(1);
+        assertThat(moduleBanks).hasSize(2);
         assertThat(moduleBanks.get(0).getModuleDefinitions()).hasSize(1);
     }
 

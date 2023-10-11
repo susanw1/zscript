@@ -1,0 +1,33 @@
+name: AnotherModule
+id: 0x9
+version: 0.0.1
+description: More testing
+commands:
+-   name: capabilities
+    command: 0xd
+    description: Top level identification, for hardware, software, modules, versions
+    operation: get
+    requestFields: [ ]
+    responseFields: [ ]
+notifications:
+-   name: packetArrived
+    notification: 0x4
+    description: a UDP packet has been received
+    sections:
+    -   section:
+            name: packetInfo
+            description: information on a received UDP packet
+            fields:
+            -   key: U
+                name: udpSystemDescriptor
+                description: which UDP system received the packet
+                typeDefinition:
+                    '@type': number
+                required: yes
+            -   key: +
+                name: remoteAddress
+                description: IP address (IPv4 or IPv6) of the source of the current packet
+                typeDefinition:
+                    '@type': bytes
+                required: yes
+        logicalTermination: end

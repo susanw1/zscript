@@ -1,9 +1,18 @@
 moduleBanks:
 -   name: Base
-    id: 0
+    id: 0x00
     defaultPackage:
     - a
     - b
     - c
     moduleDefinitions:
     - test-modulebank/my-module.yaml
+
+-   name: Another
+    id: 0x7b
+    defaultPackage:
+    - a
+    - b
+    - c
+    moduleDefinitions:
+    - test-modulebank/my-module-2.yaml
