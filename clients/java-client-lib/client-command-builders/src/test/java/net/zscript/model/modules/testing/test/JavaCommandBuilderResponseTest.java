@@ -1,17 +1,17 @@
 package net.zscript.model.modules.testing.test;
 
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0CommandResponse.BitsetRespTestU.Lion;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0CommandResponse.BitsetRespTestU.Tabby;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0CommandResponse.BitsetRespTestU.Tiger;
-import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0CommandResponse.EnumRespTestP.Monkey;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.BitsetRespTestU.Lion;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.BitsetRespTestU.Tabby;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.BitsetRespTestU.Tiger;
+import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.EnumRespTestP.Monkey;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
 import net.zscript.client.modules.test.testing.TestingModule;
-import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0CommandResponse.BitsetRespTestV;
-import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0CommandResponse.EnumRespTestP;
-import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0CommandResponse.EnumRespTestQ;
+import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.BitsetRespTestV;
+import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.EnumRespTestP;
+import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.EnumRespTestQ;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
