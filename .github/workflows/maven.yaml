@@ -22,7 +22,7 @@ jobs:
         -   run: gcc --version
 
         -   name: Build with Maven
-            run: mvn -B verify --file pom.xml
+            run: mvn -B verify --file pom.xml -Pbuild-native
 
         -   name: Upload Java code coverage reports to Codecov
             uses: codecov/codecov-action@v3
