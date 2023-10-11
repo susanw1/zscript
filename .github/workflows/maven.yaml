@@ -19,6 +19,9 @@ jobs:
 
         -   uses: carlosperate/arm-none-eabi-gcc-action@v1
         -   run: arm-none-eabi-gcc --version
+
+        -   run: sudo apt-get update
+        -   run: sudo apt-get install gcc-multilib g++-multilib
         -   run: gcc --version
 
         -   name: Build with Maven
