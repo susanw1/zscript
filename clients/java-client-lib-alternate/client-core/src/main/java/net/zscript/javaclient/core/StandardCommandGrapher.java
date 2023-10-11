@@ -2,19 +2,17 @@ package net.zscript.javaclient.core;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import net.zscript.ascii.AnsiCharacterStylePrinter;
 import net.zscript.ascii.AsciiFrame;
 import net.zscript.ascii.CharacterStyle;
 import net.zscript.ascii.TextBox;
-import net.zscript.ascii.TextCanvas;
 import net.zscript.ascii.TextColor;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
+import net.zscript.model.datamodel.IntrinsicsDataModel.StatusModel;
 import net.zscript.model.datamodel.ZscriptDataModel;
 
 public class StandardCommandGrapher implements CommandGrapher {
@@ -182,9 +180,9 @@ public class StandardCommandGrapher implements CommandGrapher {
             box.append("0x");
             box.appendHex(value, 1);
             box.append(" (");
-            Optional<ZscriptDataModel.StatusModel> optStatus = model.getStatus(value);
+            Optional<StatusModel> optStatus = model.getStatus(value);
             if (optStatus.isPresent()) {
-                box.append(upperFirst(optStatus.get().getCode()));
+                box.append(upperFirst(optStatus.get().getName()));
             } else {
                 box.append("Unknown");
             }
@@ -195,16 +193,16 @@ public class StandardCommandGrapher implements CommandGrapher {
             box.startNewLine(3);
             boolean hasSpecificDesc = false;
             if (value != -1) {
-                Optional<ZscriptDataModel.StatusModel> optStatus = model.getStatus(value);
+                Optional<StatusModel> optStatus = model.getStatus(value);
                 if (optStatus.isPresent()) {
-                    for (ZscriptDataModel.StatusModel specific : command.getStatus()) {
-                        if (specific.getCode().equals(optStatus.get().getCode())) {
+                    for (ZscriptDataModel.CommandStatusModel specific : command.getStatus()) {
+                        if (specific.getName().equals(optStatus.get().getName())) {
                             hasSpecificDesc = true;
-                            box.append(toSentence(specific.getMeaning()));
+                            box.append(toSentence(specific.getDescription()));
                         }
                     }
                     if (!hasSpecificDesc) {
-                        box.append(toSentence(optStatus.get().getMeaning()));
+                        box.append(toSentence(optStatus.get().getDescription()));
                         hasSpecificDesc = true;
                     }
                 }

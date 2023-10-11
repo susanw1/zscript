@@ -109,8 +109,8 @@ commands:
             '@type': number
         required: no
     status:
-    -   code: commandFail
-        meaning: challenge failure
+    -   name: commandFail
+        description: challenge failure, no matching value supplied
 
 -   name: cryptographicChallenge
     command: 3
@@ -167,8 +167,8 @@ commands:
             '@type': bytes
         required: no
     status:
-    -   code: commandFail
-        meaning: fail flag set but ids did not match
+    -   name: commandFail
+        description: fail flag set but IDs did not match
 
 -   name: makeCode
     command: 5
@@ -215,8 +215,8 @@ commands:
         required: yes
     extension: channel
     status:
-    -   code: valueOutOfRange
-        meaning: channel out of range
+    -   name: valueOutOfRange
+        description: channel out of range
 
 -   name: userDefined
     command: 15

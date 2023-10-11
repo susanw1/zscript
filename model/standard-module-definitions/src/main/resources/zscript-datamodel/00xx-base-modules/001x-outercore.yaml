@@ -78,8 +78,8 @@ commands:
     requestFields: [ ]
     responseFields: [ ]
     status:
-    -   code: commandFail
-        meaning: reset failed
+    -   name: commandFail
+        description: reset failed
 
 -   name: writeGuid
     command: 4
@@ -94,8 +94,8 @@ commands:
         required: yes
     responseFields: [ ]
     status:
-    -   code: valueOutOfRange
-        meaning: GUID must be 16 bytes
+    -   name: valueOutOfRange
+        description: GUID must be 16 bytes
 
 
 -   name: channelSetup
@@ -130,8 +130,8 @@ commands:
     responseFields: [ ]
     extension: channel
     status:
-    -   code: valueOutOfRange
-        meaning: channel out of range
+    -   name: valueOutOfRange
+        description: channel out of range
 
 
 -   name: userDefined

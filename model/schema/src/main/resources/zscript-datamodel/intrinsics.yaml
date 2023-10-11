@@ -14,6 +14,9 @@ intrinsics:
             '@type': number
         required: yes
 
+    ### ------------------------------
+    # Defines the names, characters and purpose of all the magic syntactic chars in Zscript
+    # This allows client libraries to use code-generation to produce complete constant definitions with correct comments
     zchars:
     -   name: cmd
         ch: "Z"
@@ -100,144 +103,223 @@ intrinsics:
         description: "may be used to make commands and responses more readable, ignored outside of text fields"
         ignoreInCode: true
 
+    ### ------------------------------
+    statusCategories:
+    - &statusCategory_success
+        name: success
+        description: command completed successfully wither failure or error
+        baseId: 0x00
+
+    - &statusCategory_failure
+        name: failure
+        description: command indicates non-success, allowing a skip to a failure handler
+        baseId: 0x01
+
+    - &statusCategory_generalError
+        name: generalError
+        description: command processing is interrupted due to a bad internal state
+        baseId: 0x10
+
+    - &statusCategory_syntaxError
+        name: syntaxError
+        description: command syntax rules have been broken
+        baseId: 0x20
+
+    - &statusCategory_sequenceStructureError
+        name: sequenceStructureError
+        description:
+        baseId: 0x30
+
+    - &statusCategory_sequenceElementError
+        name: sequenceElementError
+        description:
+        baseId: 0x40
+
+    - &statusCategory_commandFieldError
+        name: commandFieldError
+        description:
+        baseId: 0x50
+
+    - &statusCategory_executionError
+        name: executionError
+        description: command execution is no longer possible without intervention
+        baseId: 0x80
+
+    - &statusCategory_peripheralError
+        name: peripheralError
+        description: peripheral device or comms interface is in an unusable state and needs intervention
+        baseId: 0x90
+
 
     status:
-    -   code: success
-        id: 0
-        meaning: command success
+    -   name: success
+        id: 0x00
+        description: command success
+        category: *statusCategory_success
+
+
+    -   name: commandFail
+        id: 0x01
+        description: command failure
+        category: *statusCategory_failure
+
+    -   name: commandFailControl
+        id: 0x02
+        description: command failed in order to control the program flow
+        category: *statusCategory_failure
+
+    -   name: commandNoTarget
+        id: 0x03
+        description: target of command either non-existent or not responding
+        category: *statusCategory_failure
+
+    -   name: commandTargetDoesNotSupport
+        id: 0x04
+        description: target of command does not support the requested functionality
+        category: *statusCategory_failure
+
+    -   name: commandDataNotTransmitted
+        id: 0x08
+        description: data transmission not successful - may have failed or only been partial
+        category: *statusCategory_failure
+
+    -   name: commandDataNotReceived
+        id: 0x09
+        description: data reception not successful - may have failed or only been partial
+        category: *statusCategory_failure
+
+
+    -   name: bufferOvrError
+        id: 0x10
+        description: buffer overflow
+        category: *statusCategory_generalError
+
+    -   name: internalError
+        id: 0x11
+        description: impossible condition hit
+        category: *statusCategory_generalError
+
+    -   name: notActivated
+        id: 0x12
+        description: channel not activated for non-core command
+        category: *statusCategory_generalError
+
+    -   name: commandErrorControl
+        id: 0x13
+        description: command raised error condition in order to control the program flow
+        longDescription: >
+            Any command may raise this explicitly in order to abort the command sequence. It should imply a failed assert condition. 
+            Commands should use this sparingly.
+        category: *statusCategory_generalError
+
+
+    -   name: fieldTooLong
+        id: 0x20
+        description: numeric field too long
+        category: *statusCategory_syntaxError
+
+    -   name: oddLength
+        id: 0x21
+        description: odd length big field
+        category: *statusCategory_syntaxError
+
+    -   name: unterminatedString
+        id: 0x22
+        description: missing end quote
+        category: *statusCategory_syntaxError
+
+    -   name: escapingError
+        id: 0x23
+        description: string escaping invalid
+        category: *statusCategory_syntaxError
+
+    -   name: illegalKey
+        id: 0x24
+        description: illegal character given as token key
+        category: *statusCategory_syntaxError
+
+
+    -   name: invalidLocks
+        id: 0x30
+        description: locks field too long or repeated
+        category: *statusCategory_sequenceStructureError
+
+    -   name: invalidEcho
+        id: 0x31
+        description: echo field too long or repeated
+        category: *statusCategory_sequenceStructureError
+
+    -   name: invalidComment
+        id: 0x32
+        description: comment with non-comment fields found
+        category: *statusCategory_sequenceStructureError
+
+
+    -   name: repeatedKey
+        id: 0x40
+        description: two fields (in the same command) with the same key found
+        category: *statusCategory_sequenceElementError
+
+    -   name: invalidKey
+        id: 0x41
+        description: field not valid in this position
+        category: *statusCategory_sequenceElementError
+
+    -   name: commandNotFound
+        id: 0x42
+        description: given command does not exist or not specified
+        category: *statusCategory_sequenceElementError
+
+    -   name: addressNotFound
+        id: 0x43
+        description: given address does not exist or cannot be addressed
+        category: *statusCategory_sequenceElementError
+
+
+    -   name: missingKey
+        id: 0x50
+        description: a required field was not given
+        category: *statusCategory_commandFieldError
+
+    -   name: valueOutOfRange
+        id: 0x51
+        description: a field or big field was given with a value which is not supported
+        category: *statusCategory_commandFieldError
+
+    -   name: dataTooLong
+        id: 0x52
+        description: data transmission/reception exceeds maximum transmission length
+        category: *statusCategory_commandFieldError
 
 
 
-    -   code: commandFail
-        id: 1
-        meaning: command failure
-
-    -   code: commandFailControl
-        id: 2
-        meaning: command failed in order to control the program flow
-
-    -   code: commandNoTarget
-        id: 3
-        meaning: target of command either non-existent or not responding
-
-    -   code: commandTargetDoesNotSupport
-        id: 4
-        meaning: target of command does not support the requested functionality
+    -   name: executionError
+        id: 0x80
+        description: generic failure mid-execution
+        category: *statusCategory_executionError
 
 
-    -   code: commandDataNotTransmitted
-        id: 8
-        meaning: data transmission not successful - may have failed or only been partial
+    -   name: peripheralError
+        id: 0x90
+        description: a peripheral required for the command has failed fatally
+        category: *statusCategory_peripheralError
 
-    -   code: commandDataNotReceived
-        id: 9
-        meaning: data reception not successful - may have failed or only been partial
+    -   name: peripheralJam
+        id: 0x91
+        description: a peripheral required for the command is in a state it cannot exit (and may require rebooting)
+        category: *statusCategory_peripheralError
 
+    -   name: peripheralDisabled
+        id: 0x92
+        description: a peripheral required for the command is not currently enabled (and may require other commands or activity to enable)
+        category: *statusCategory_peripheralError
 
+    -   name: peripheralDisconnected
+        id: 0x93
+        description: a peripheral required for the command is not attached (and may require physical intervention to attach)
+        category: *statusCategory_peripheralError
 
-    -   code: bufferOvrError
-        id: 16
-        meaning: buffer overflow
-
-    -   code: internalError
-        id: 17
-        meaning: impossible condition hit
-
-    -   code: notActivated
-        id: 18
-        meaning: channel not activated for non-core command
-
-    -   code: commandErrorControl
-        id: 19
-        meaning: command error in order to control the program flow
-
-
-    -   code: fieldTooLong
-        id: 32
-        meaning: numeric field too long
-
-    -   code: oddLength
-        id: 33
-        meaning: odd length big field
-
-    -   code: unterminatedString
-        id: 34
-        meaning: missing end quote
-
-    -   code: escapingError
-        id: 35
-        meaning: string escaping invalid
-
-    -   code: illegalKey
-        id: 36
-        meaning: illegal character given as token key
-
-
-    -   code: invalidLocks
-        id: 48
-        meaning: locks field too long or repeated
-
-    -   code: invalidEcho
-        id: 49
-        meaning: echo field too long or repeated
-
-    -   code: invalidComment
-        id: 50
-        meaning: comment with non-comment fields found
-
-
-    -   code: repeatedKey
-        id: 64
-        meaning: two fields (in the same command) with the same key found
-
-    -   code: invalidKey
-        id: 65
-        meaning: field not valid in this position
-
-    -   code: commandNotFound
-        id: 66
-        meaning: given command does not exist or not specified
-
-    -   code: addressNotFound
-        id: 67
-        meaning: given address does not exist or cannot be addressed
-
-
-    -   code: missingKey
-        id: 80
-        meaning: a required field was not given
-
-    -   code: valueOutOfRange
-        id: 81
-        meaning: a field or big field was given with a value which is not supported
-
-    -   code: dataTooLong
-        id: 82
-        meaning: data transmission/reception exceeds maximum transmission length
-
-
-
-    -   code: executionError
-        id: 128
-        meaning: generic failure mid-execution
-
-
-    -   code: peripheralError
-        id: 144
-        meaning: a peripheral required for the command has failed fatally
-
-    -   code: peripheralJam
-        id: 145
-        meaning: a peripheral required for the command is in a state it cannot exit (and may require rebooting)
-
-    -   code: peripheralDisabled
-        id: 146
-        meaning: a peripheral required for the command is not currently enabled (and may require other commands or activity to enable)
-
-    -   code: peripheralDisconnected
-        id: 147
-        meaning: a peripheral required for the command is not attached (and may require physical intervention to attach)
-
-    -   code: peripheralBroken
-        id: 148
-        meaning: a peripheral required for the command has sustained permanent damage (and may require replacement)
+    -   name: peripheralBroken
+        id: 0x94
+        description: a peripheral required for the command has sustained permanent damage (and may require replacement)
+        category: *statusCategory_peripheralError

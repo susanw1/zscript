@@ -26,8 +26,8 @@ public class ZscriptStatus {
     public static final int BITMASK_ERROR = ~0xf;
 
 {{#status}}
-    /** {{meaning}} */
-    public static final byte {{#upperUnderscore}}{{code}}{{/upperUnderscore}} = (byte) 0x{{#toHex}}{{id}}{{/toHex}};
+    /** {{description}} */
+    public static final byte {{#upperUnderscore}}{{name}}{{/upperUnderscore}} = (byte) 0x{{#toHex}}{{id}}{{/toHex}};
 
 {{/status}}
     public static boolean isSuccess(final int code) {

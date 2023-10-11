@@ -239,7 +239,7 @@ commands:
         required: yes
     responseFields: [ ]
     status:
-    -   code: commandFail
-        meaning: packet lost (no response)
+    -   name: commandFail
+        description: packet lost (no response)
 
 notifications: [ ]

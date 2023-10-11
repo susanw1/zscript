@@ -102,10 +102,10 @@ commands:
             '@type': number
         required: yes
     status:
-    -   code: FAIL
-        meaning: The script space is running
-    -   code: ERROR
-        meaning: The write would exceed the boundaries of the space
+    -   name: commandFail
+        description: The script space is running
+    -   name: ERROR
+        description: The write would exceed the boundaries of the space
 
 -   name: sleep
     command: 8
