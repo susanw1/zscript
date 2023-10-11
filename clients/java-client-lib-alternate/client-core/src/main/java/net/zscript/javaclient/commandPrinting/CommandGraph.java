@@ -12,6 +12,7 @@ import net.zscript.ascii.CharacterStyle;
 import net.zscript.ascii.TextCanvas;
 import net.zscript.ascii.TextColor;
 import net.zscript.javaclient.commandPaths.Command;
+import net.zscript.javaclient.commandPaths.MatchedCommandResponse;
 import net.zscript.javaclient.commandPaths.Response;
 import net.zscript.model.ZscriptModel;
 
@@ -40,8 +41,7 @@ public class CommandGraph extends TextCanvas {
     private final Map<Command, CommandGrapher.CommandGraphElement> commands;
     private final List<CommandGrapher.CommandGraphElement>         elements;
     private final CommandGrapher.CommandDepth                      maxDepth;
-    private final List<Command>                                    toHighlight;
-    private final List<Response>                                   responses;
+    private final List<MatchedCommandResponse>                     toHighlight;
     private       StandardCommandGrapher.CommandPrintSettings      settings;
     private       int                                              spacing;
     private       boolean                                          skipImpossiblePaths;
@@ -51,7 +51,7 @@ public class CommandGraph extends TextCanvas {
     }
 
     public CommandGraph(ZscriptModel model, Map<Command, CommandGrapher.CommandGraphElement> commands,
-            List<CommandGrapher.CommandGraphElement> elements, CommandGrapher.CommandDepth maxDepth, List<Command> toHighlight, List<Response> responses,
+            List<CommandGrapher.CommandGraphElement> elements, CommandGrapher.CommandDepth maxDepth, List<MatchedCommandResponse> toHighlight,
             GraphPrintSettings settings) {
         super(settings.width, 2);
         this.model = model;
@@ -59,7 +59,6 @@ public class CommandGraph extends TextCanvas {
         this.elements = elements;
         this.maxDepth = maxDepth;
         this.toHighlight = toHighlight;
-        this.responses = responses;
         this.skipImpossiblePaths = settings.skipImpossiblePaths;
         this.settings = settings.settings;
         this.spacing = settings.spacing + 1;
@@ -112,13 +111,13 @@ public class CommandGraph extends TextCanvas {
                 cmdExp.setWidth(width - textHorizontal);
                 toApply.add(new AsciiFrameElement(cmdExp, textHorizontal, currentVert));
                 nextVert += cmdExp.getHeight() + 1;
-                if (highlightIndex < responses.size() && toHighlight.get(highlightIndex) == cmd && !responses.isEmpty()) {
-                    AsciiFrame respExp = g.explainResponse(cmd, responses.get(highlightIndex), model, settings);
+                if (highlightIndex < toHighlight.size() && toHighlight.get(highlightIndex).getCommand() == cmd && !toHighlight.isEmpty()) {
+                    AsciiFrame respExp = g.explainResponse(cmd, toHighlight.get(highlightIndex).getResponse(), model, settings);
                     respExp.setWidth(width - textHorizontal);
                     toApply.add(new AsciiFrameElement(respExp, textHorizontal, currentVert + cmdExp.getHeight() + 1));
                     nextVert += respExp.getHeight() + 1;
                 }
-                if (highlightIndex < responses.size() && toHighlight.get(highlightIndex) == cmd) {
+                if (highlightIndex < toHighlight.size() && toHighlight.get(highlightIndex).getCommand() == cmd) {
                     //toApply.add(new LineElement(highlightStyle, textHorizontal - 2, currentVert, textHorizontal - 2, nextVert - 2, strategy));
                     //toApply.add(new CharacterElement('\\', highlightStyle, textHorizontal - 2, nextVert - 2));
                     toApply.add(new CharacterElement('>', highlightStyle, textHorizontal - 2, currentVert));
@@ -173,13 +172,13 @@ public class CommandGraph extends TextCanvas {
                     drawSuccess = false;
                 }
             }
-            if (highlightIndex < toHighlight.size() - 1 && toHighlight.get(highlightIndex) == cmd) {
-                if (drawSuccess && toHighlight.get(highlightIndex + 1) == cmd.getEndLink().getOnSuccess()) {
+            if (highlightIndex < toHighlight.size() - 1 && toHighlight.get(highlightIndex).getCommand() == cmd) {
+                if (drawSuccess && toHighlight.get(highlightIndex + 1).getCommand() == cmd.getEndLink().getOnSuccess()) {
                     toApply.add(new LineElement(highlightStyle, element.getDepth().getDepth() * spacing, currentVert,
                             commands.get(cmd.getEndLink().getOnSuccess()).getDepth().getDepth() * spacing, nextVert, strategy));
                     currentHighlightDepth = commands.get(cmd.getEndLink().getOnSuccess()).getDepth();
                     drawSuccess = false;
-                } else if (drawFail && toHighlight.get(highlightIndex + 1) == cmd.getEndLink().getOnFail()) {
+                } else if (drawFail && toHighlight.get(highlightIndex + 1).getCommand() == cmd.getEndLink().getOnFail()) {
                     toApply.add(new LineElement(highlightStyle, element.getDepth().getDepth() * spacing, currentVert,
                             commands.get(cmd.getEndLink().getOnFail()).getDepth().getDepth() * spacing, nextVert, strategy));
                     currentHighlightDepth = commands.get(cmd.getEndLink().getOnFail()).getDepth();

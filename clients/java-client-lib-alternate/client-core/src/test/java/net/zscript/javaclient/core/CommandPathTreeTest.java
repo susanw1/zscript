@@ -20,7 +20,7 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForSingleCommands(final CommandSequenceNode input, final String output) {
-        CommandExecutionPath path = CommandExecutionPath.convert(input);
+        CommandExecutionPath path = CommandExecutionPath.convert(input).getPath();
 
         assertThat(path.toSequence().asString()).isEqualTo(output);
     }
@@ -37,7 +37,7 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForAndSequences(final CommandSequenceNode input, final String output) {
-        CommandExecutionPath path = CommandExecutionPath.convert(input);
+        CommandExecutionPath path = CommandExecutionPath.convert(input).getPath();
 
         assertThat(path.toSequence().asString()).isEqualTo(output);
     }
@@ -61,7 +61,7 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForOrSequences(final CommandSequenceNode input, final String output) {
-        CommandExecutionPath path = CommandExecutionPath.convert(input);
+        CommandExecutionPath path = CommandExecutionPath.convert(input).getPath();
 
         assertThat(path.toSequence().asString()).isEqualTo(output);
     }
@@ -85,7 +85,7 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForMixedSequences(final CommandSequenceNode input, final String output) {
-        CommandExecutionPath path = CommandExecutionPath.convert(input);
+        CommandExecutionPath path = CommandExecutionPath.convert(input).getPath();
 
         assertThat(path.toSequence().asString()).isEqualTo(output);
     }

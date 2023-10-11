@@ -20,8 +20,6 @@ import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.OrSequenceNode;
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
-import net.zscript.javaclient.sequence.CommandSequence;
-import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.ZscriptModel;
@@ -173,8 +171,29 @@ public class CommandExecutionPath implements Iterable<Command> {
         return new CommandExecutionPath(model, commands.get(builders.get(0)));
     }
 
-    public static CommandExecutionPath convert(CommandSequenceNode cmdSeq) {
-        cmdSeq.compile();
+    public static class CommandNodeToExecutionPath {
+        private final CommandExecutionPath             path;
+        private final Map<Command, ZscriptCommandNode> commandMap;
+
+        public CommandNodeToExecutionPath(CommandExecutionPath path, Map<Command, ZscriptCommandNode> commandMap) {
+            this.path = path;
+            this.commandMap = commandMap;
+        }
+
+        public CommandExecutionPath getPath() {
+            return path;
+        }
+
+        public Map<Command, ZscriptCommandNode> getCommandMap() {
+            return commandMap;
+        }
+    }
+
+    public static CommandNodeToExecutionPath convert(CommandSequenceNode cmdSeq) {
+        return convert(ZscriptModel.standardModel(), cmdSeq);
+    }
+
+    public static CommandNodeToExecutionPath convert(ZscriptModel model, CommandSequenceNode cmdSeq) {
         class Layer {
             Command success;
             Command failure;
@@ -192,9 +211,8 @@ public class CommandExecutionPath implements Iterable<Command> {
                 return seps;
             }
         }
-        if (cmdSeq instanceof ZscriptCommandNode) {
-            //Cope with...
-        }
+        Map<Command, ZscriptCommandNode> commandMap = new HashMap<>();
+
         Deque<ListIterator<CommandSequenceNode>> stack = new ArrayDeque<>();
         Deque<CommandSequenceNode>               nodes = new ArrayDeque<>();
 
@@ -216,6 +234,7 @@ public class CommandExecutionPath implements Iterable<Command> {
                 if (next instanceof ZscriptCommandNode) {
                     Command cmd = new Command(new Command.CommandEndLink(layer.success, new byte[] { layer.successSep }, layer.failure, layer.failSeperators()),
                             ZscriptFieldSet.from((ZscriptCommandNode) next));
+                    commandMap.put(cmd, (ZscriptCommandNode) next);
                     if (nodes.peek() instanceof OrSequenceNode && stack.peek().hasPrevious()) {
                         layer.failure = cmd;
                         layer.failBracketCount = 0;
@@ -287,7 +306,7 @@ public class CommandExecutionPath implements Iterable<Command> {
                 }
             }
         }
-        return new CommandExecutionPath(ZscriptModel.standardModel(), destinations.peek().success);
+        return new CommandNodeToExecutionPath(new CommandExecutionPath(model, destinations.peek().success), commandMap);
     }
 
     public static CommandExecutionPath blank() {
@@ -306,15 +325,15 @@ public class CommandExecutionPath implements Iterable<Command> {
         this.firstCommand = firstCommand;
     }
 
-    public List<Command> compareResponses(ResponseExecutionPath resps) {
-        List<Command> cmds        = new ArrayList<>();
-        Command       current     = firstCommand;
-        Response      currentResp = resps.getFirstResponse();
+    public List<MatchedCommandResponse> compareResponses(ResponseExecutionPath resps) {
+        List<MatchedCommandResponse> cmds        = new ArrayList<>();
+        Command                      current     = firstCommand;
+        Response                     currentResp = resps.getFirstResponse();
         while (currentResp != null) {
             if (current == null) {
                 throw new IllegalArgumentException("Response doesn't match command seq");
             } else {
-                cmds.add(current);
+                cmds.add(new MatchedCommandResponse(current, currentResp));
             }
             if (currentResp.wasSuccess()) {
                 current = current.getEndLink().getOnSuccess();

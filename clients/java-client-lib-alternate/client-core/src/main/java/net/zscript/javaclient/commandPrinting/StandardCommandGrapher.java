@@ -17,6 +17,7 @@ import net.zscript.ascii.TextBox;
 import net.zscript.ascii.TextColor;
 import net.zscript.javaclient.commandPaths.Command;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
+import net.zscript.javaclient.commandPaths.MatchedCommandResponse;
 import net.zscript.javaclient.commandPaths.Response;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
@@ -406,28 +407,16 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
                 }
             }
         }
-        List<Response> responses;
-        List<Command>  toHighlight = List.of();
+        List<MatchedCommandResponse> toHighlight = List.of();
         if (resps != null) {
-            responses = resps.getResponses();
             toHighlight = path.compareResponses(resps);
-        } else {
-            responses = List.of();
         }
         if (skipImpossiblePaths) {
             elements = skipEmpty(commands, elements);
             toHighlight = new ArrayList<>(toHighlight);
-            Iterator<Response> respIter = responses.iterator();
-            for (Iterator<Command> iter = toHighlight.iterator(); iter.hasNext(); ) {
-
-                if (!elements.contains(commands.get(iter.next()))) {
+            for (Iterator<MatchedCommandResponse> iter = toHighlight.iterator(); iter.hasNext(); ) {
+                if (!elements.contains(commands.get(iter.next().getCommand()))) {
                     iter.remove();
-                    if (respIter.hasNext()) {
-                        respIter.next();
-                        respIter.remove();
-                    }
-                } else if (respIter.hasNext()) {
-                    respIter.next();
                 }
             }
             //then trim depths which aren't used...
@@ -446,7 +435,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
             }
             maxDepth.setDepth(maxDepth.getDepth() - offset);
         }
-        return new CommandGraph(path.getModel(), commands, elements, maxDepth, toHighlight, responses, settings);
+        return new CommandGraph(path.getModel(), commands, elements, maxDepth, toHighlight, settings);
     }
 
     private List<CommandGrapher.CommandGraphElement> skipEmpty(Map<Command, CommandGrapher.CommandGraphElement> commands, List<CommandGrapher.CommandGraphElement> elements) {

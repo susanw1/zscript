@@ -13,9 +13,6 @@ import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString;
 
 public class CommandSequence {
-    private final CommandExecutionPath executionPath;
-    private final int                  echoField;
-    private final ZscriptLockSet       locks;
 
     public static CommandSequence from(CommandExecutionPath path, int echoField) {
         return from(path, echoField, false);
@@ -64,6 +61,10 @@ public class CommandSequence {
         return new CommandSequence(CommandExecutionPath.parse(model, current), echoField, locks);
     }
 
+    private final CommandExecutionPath executionPath;
+    private final int                  echoField;
+    private final ZscriptLockSet       locks;
+
     private CommandSequence(CommandExecutionPath executionPath, int echoField, ZscriptLockSet locks) {
         this.executionPath = executionPath;
         this.echoField = echoField;
@@ -88,8 +89,20 @@ public class CommandSequence {
         return executionPath;
     }
 
+    public boolean hasEchoField() {
+        return echoField != -1;
+    }
+
+    public boolean hasLockField() {
+        return locks != null;
+    }
+
     public int getEchoValue() { //-1 if there isn't one
         return echoField;
+    }
+
+    public ZscriptLockSet getLocks() {
+        return locks;
     }
 
     public int getBufferLength() {
