@@ -4,36 +4,23 @@ import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.util.ByteString;
 
 public class Command {
-
-    public static class CommandEndLink {
-        private final Command onSuccess;
-        private final Command onFail;
-
-        CommandEndLink(Command onSuccess, Command onFail) {
-            this.onSuccess = onSuccess;
-            this.onFail = onFail;
-        }
-
-        public Command getOnSuccess() {
-            return onSuccess;
-        }
-
-        public Command getOnFail() {
-            return onFail;
-        }
-
-    }
-
-    private final CommandEndLink  endLink;
     private final ZscriptFieldSet fieldSet;
 
-    Command(CommandEndLink endLink, ZscriptFieldSet fieldSet) {
-        this.endLink = endLink;
+    private final Command onSuccess;
+    private final Command onFail;
+
+    Command(Command onSuccess, Command onFail, ZscriptFieldSet fieldSet) {
+        this.onSuccess = onSuccess;
+        this.onFail = onFail;
         this.fieldSet = fieldSet;
     }
 
-    public CommandEndLink getEndLink() {
-        return endLink;
+    public Command getOnSuccess() {
+        return onSuccess;
+    }
+
+    public Command getOnFail() {
+        return onFail;
     }
 
     public void toBytes(ZscriptByteString.ZscriptByteStringBuilder out) {

@@ -152,49 +152,49 @@ public class CommandGraph extends TextCanvas {
                 toApply.add(new LineElement(failStyle, depth.getDepth() * spacing, currentVert,
                         depth.getDepth() * spacing, nextVert, strategy));
             }
-            boolean drawSuccess = (!skipImpossiblePaths || cmd.canSucceed()) && cmd.getEndLink().getOnSuccess() != null;
+            boolean drawSuccess = (!skipImpossiblePaths || cmd.canSucceed()) && cmd.getOnSuccess() != null;
             if (!skipImpossiblePaths && drawSuccess) {
-                Command tmp = cmd.getEndLink().getOnSuccess();
-                while (!elements.contains(commands.get(tmp)) && tmp.canSucceed() && tmp.getEndLink().getOnSuccess() != null && tmp.isEmpty()) {
-                    tmp = tmp.getEndLink().getOnSuccess();
+                Command tmp = cmd.getOnSuccess();
+                while (!elements.contains(commands.get(tmp)) && tmp.canSucceed() && tmp.getOnSuccess() != null && tmp.isEmpty()) {
+                    tmp = tmp.getOnSuccess();
                 }
                 if (!elements.contains(commands.get(tmp))) {
                     drawSuccess = false;
                 }
             }
-            boolean drawFail = (!skipImpossiblePaths || cmd.canFail()) && cmd.getEndLink().getOnFail() != null;
+            boolean drawFail = (!skipImpossiblePaths || cmd.canFail()) && cmd.getOnFail() != null;
             if (!skipImpossiblePaths && drawFail) {
-                Command tmp = cmd.getEndLink().getOnFail();
-                while (!elements.contains(commands.get(tmp)) && tmp.canSucceed() && tmp.getEndLink().getOnSuccess() != null && tmp.isEmpty()) {
-                    tmp = tmp.getEndLink().getOnSuccess();
+                Command tmp = cmd.getOnFail();
+                while (!elements.contains(commands.get(tmp)) && tmp.canSucceed() && tmp.getOnSuccess() != null && tmp.isEmpty()) {
+                    tmp = tmp.getOnSuccess();
                 }
                 if (!elements.contains(commands.get(tmp))) {
                     drawSuccess = false;
                 }
             }
             if (highlightIndex < toHighlight.size() - 1 && toHighlight.get(highlightIndex).getCommand() == cmd) {
-                if (drawSuccess && toHighlight.get(highlightIndex + 1).getCommand() == cmd.getEndLink().getOnSuccess()) {
+                if (drawSuccess && toHighlight.get(highlightIndex + 1).getCommand() == cmd.getOnSuccess()) {
                     toApply.add(new LineElement(highlightStyle, element.getDepth().getDepth() * spacing, currentVert,
-                            commands.get(cmd.getEndLink().getOnSuccess()).getDepth().getDepth() * spacing, nextVert, strategy));
-                    currentHighlightDepth = commands.get(cmd.getEndLink().getOnSuccess()).getDepth();
+                            commands.get(cmd.getOnSuccess()).getDepth().getDepth() * spacing, nextVert, strategy));
+                    currentHighlightDepth = commands.get(cmd.getOnSuccess()).getDepth();
                     drawSuccess = false;
-                } else if (drawFail && toHighlight.get(highlightIndex + 1).getCommand() == cmd.getEndLink().getOnFail()) {
+                } else if (drawFail && toHighlight.get(highlightIndex + 1).getCommand() == cmd.getOnFail()) {
                     toApply.add(new LineElement(highlightStyle, element.getDepth().getDepth() * spacing, currentVert,
-                            commands.get(cmd.getEndLink().getOnFail()).getDepth().getDepth() * spacing, nextVert, strategy));
-                    currentHighlightDepth = commands.get(cmd.getEndLink().getOnFail()).getDepth();
+                            commands.get(cmd.getOnFail()).getDepth().getDepth() * spacing, nextVert, strategy));
+                    currentHighlightDepth = commands.get(cmd.getOnFail()).getDepth();
                     drawFail = false;
                 }
                 highlightIndex++;
             }
             if (drawSuccess) {
                 toApply.add(new LineElement(successStyle, element.getDepth().getDepth() * spacing, currentVert,
-                        commands.get(cmd.getEndLink().getOnSuccess()).getDepth().getDepth() * spacing, nextVert, strategy));
-                currentSuccessDepths.add(commands.get(cmd.getEndLink().getOnSuccess()).getDepth());
+                        commands.get(cmd.getOnSuccess()).getDepth().getDepth() * spacing, nextVert, strategy));
+                currentSuccessDepths.add(commands.get(cmd.getOnSuccess()).getDepth());
             }
             if (drawFail) {
                 toApply.add(new LineElement(failStyle, element.getDepth().getDepth() * spacing, currentVert,
-                        commands.get(cmd.getEndLink().getOnFail()).getDepth().getDepth() * spacing, nextVert, strategy));
-                currentFailDepths.add(commands.get(cmd.getEndLink().getOnFail()).getDepth());
+                        commands.get(cmd.getOnFail()).getDepth().getDepth() * spacing, nextVert, strategy));
+                currentFailDepths.add(commands.get(cmd.getOnFail()).getDepth());
             }
             if (oldHLDepth != null && element.getDepth() != oldHLDepth) {
                 toApply.add(new CharacterElement('|', highlightStyle, oldHLDepth.getDepth() * spacing, currentVert));

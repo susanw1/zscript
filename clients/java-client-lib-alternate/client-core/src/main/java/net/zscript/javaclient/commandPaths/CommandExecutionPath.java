@@ -54,12 +54,8 @@ public class CommandExecutionPath implements Iterable<Command> {
             this.start = token;
         }
 
-        private Command.CommandEndLink generateLinks(Map<CommandBuilder, Command> commands) {
-            return new Command.CommandEndLink(commands.get(onSuccess), commands.get(onFail));
-        }
-
-        public Command generateCommand(Map<CommandBuilder, Command> otherCommands) {
-            return new Command(generateLinks(otherCommands), ZscriptFieldSet.fromTokens(start));
+        public Command generateCommand(Map<CommandBuilder, Command> commands) {
+            return new Command(commands.get(onSuccess), commands.get(onFail), ZscriptFieldSet.fromTokens(start));
         }
     }
 
@@ -199,8 +195,7 @@ public class CommandExecutionPath implements Iterable<Command> {
                 Layer               layer = destinations.peek();
                 CommandSequenceNode next  = stack.peek().previous();
                 if (next instanceof ZscriptCommandNode) {
-                    Command cmd = new Command(new Command.CommandEndLink(layer.success, layer.failure),
-                            ZscriptFieldSet.from((ZscriptCommandNode) next));
+                    Command cmd = new Command(layer.success, layer.failure, ZscriptFieldSet.from((ZscriptCommandNode) next));
                     commandMap.put(cmd, (ZscriptCommandNode) next);
                     if (nodes.peek() instanceof OrSequenceNode && stack.peek().hasPrevious()) {
                         layer.failure = cmd;
@@ -213,8 +208,7 @@ public class CommandExecutionPath implements Iterable<Command> {
                     Layer nextLayer = new Layer();
                     if (nodes.peek() instanceof AndSequenceNode) {
                         if (layer.onSuccessHasCloseParen) {
-                            layer.success = new Command(new Command.CommandEndLink(layer.success, layer.failure),
-                                    ZscriptFieldSet.blank());
+                            layer.success = new Command(layer.success, layer.failure, ZscriptFieldSet.blank());
                         }
                         layer.onSuccessHasCloseParen = true;
                     }
@@ -250,8 +244,7 @@ public class CommandExecutionPath implements Iterable<Command> {
                     layer.success = prevLayer.success;
                     if (prev instanceof OrSequenceNode) {
                         if (prevLayer.onSuccessHasOpenParen) {
-                            layer.success = new Command(
-                                    new Command.CommandEndLink(prevLayer.success, prevLayer.failure),
+                            layer.success = new Command(prevLayer.success, prevLayer.failure,
                                     ZscriptFieldSet.blank());
                         }
                         layer.onSuccessHasOpenParen = true;
@@ -297,11 +290,10 @@ public class CommandExecutionPath implements Iterable<Command> {
         boolean needsAnd  = false;
         boolean needsOpen = false;
         while (!workingTrees.isEmpty()) {
-            Command                current = workingTrees.peek();
-            Command.CommandEndLink links   = current.getEndLink();
+            Command current = workingTrees.peek();
 
             Command latestOpenTree = openedTrees.peek();
-            if (latestOpenTree != null && links.getOnFail() != latestOpenTree) {
+            if (latestOpenTree != null && current.getOnFail() != latestOpenTree) {
                 // if there are opened trees, and this command doesn't add to the top open tree,
                 //   check if it closes the top open tree
                 //   which we can do by iterating forward to see if the top open tree re-merges here
@@ -313,7 +305,7 @@ public class CommandExecutionPath implements Iterable<Command> {
                         mergesHere = true;
                         break;
                     }
-                    tmp = tmp.getEndLink().getOnSuccess();
+                    tmp = tmp.getOnSuccess();
                 }
                 if (mergesHere) {
                     openedTrees.pop();
@@ -325,13 +317,13 @@ public class CommandExecutionPath implements Iterable<Command> {
                     continue;
                 }
             }
-            if (links.getOnFail() != null && links.getOnFail() != latestOpenTree) {
+            if (current.getOnFail() != null && current.getOnFail() != latestOpenTree) {
                 // the command opens a new open tree
                 if (needsOpen) {
                     out.appendByte(Zchars.Z_OPENPAREN);
                 }
-                openedTrees.push(links.getOnFail());
-                latestOpenTree = links.getOnFail();
+                openedTrees.push(current.getOnFail());
+                latestOpenTree = current.getOnFail();
             } else if (needsAnd) {
                 out.appendByte(Zchars.Z_ANDTHEN);
             }
@@ -339,10 +331,10 @@ public class CommandExecutionPath implements Iterable<Command> {
             workingTrees.pop().toBytes(out); // only put elements into the list when we're done processing them
             needsAnd = false;
             needsOpen = true;
-            if (links.getOnSuccess() != null) {
-                if (workingTrees.isEmpty() || links.getOnSuccess() != workingTrees.peek()) {
+            if (current.getOnSuccess() != null) {
+                if (workingTrees.isEmpty() || current.getOnSuccess() != workingTrees.peek()) {
                     // check we're not on a close parent, dropping out of failure
-                    workingTrees.push(links.getOnSuccess());
+                    workingTrees.push(current.getOnSuccess());
                     needsAnd = true;
                 } else {
                     out.appendByte(Zchars.Z_CLOSEPAREN);
@@ -367,9 +359,9 @@ public class CommandExecutionPath implements Iterable<Command> {
                 cmds.add(new MatchedCommandResponse(current, currentResp));
             }
             if (currentResp.wasSuccess()) {
-                current = current.getEndLink().getOnSuccess();
+                current = current.getOnSuccess();
             } else {
-                current = current.getEndLink().getOnFail();
+                current = current.getOnFail();
             }
             currentResp = currentResp.getNext();
         }
@@ -392,11 +384,11 @@ public class CommandExecutionPath implements Iterable<Command> {
                         Command c = toVisit.next();
                         if (!visited.contains(c)) {
                             visited.add(c);
-                            Command s = c.getEndLink().getOnSuccess();
+                            Command s = c.getOnSuccess();
                             if (!visited.contains(s)) {
                                 next.add(s);
                             }
-                            Command f = c.getEndLink().getOnFail();
+                            Command f = c.getOnFail();
                             if (!visited.contains(f)) {
                                 next.add(f);
                             }

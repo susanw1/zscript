@@ -352,10 +352,10 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         CommandGrapher.CommandDepth maxDepth = new CommandGrapher.CommandDepth(0);
         while (!workingTrees.isEmpty()) {
             CommandGrapher.CommandGraphElement current = workingTrees.peek();
-            Command.CommandEndLink             links   = current.getCommand().getEndLink();
+            Command             cmd   = current.getCommand();
 
             CommandGrapher.CommandGraphElement latestOpenTree = openedTrees.peek();
-            if (latestOpenTree != null && links.getOnFail() != latestOpenTree.getCommand()) {
+            if (latestOpenTree != null && cmd.getOnFail() != latestOpenTree.getCommand()) {
                 // if there are opened trees, and this command doesn't add to the top open tree,
                 //   check if it closes the top open tree
                 //   which we can do by iterating forward to see if the top open tree re-merges here
@@ -367,7 +367,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
                         mergesHere = true;
                         break;
                     }
-                    tmp = tmp.getEndLink().getOnSuccess();
+                    tmp = tmp.getOnSuccess();
                 }
                 if (mergesHere) {
                     openedTrees.pop();
@@ -380,10 +380,10 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
                     continue;
                 }
             }
-            if (links.getOnFail() != null && (!skipImpossiblePaths || current.getCommand().canFail()) && (latestOpenTree == null
-                    || links.getOnFail() != latestOpenTree.getCommand())) {
+            if (cmd.getOnFail() != null && (!skipImpossiblePaths || current.getCommand().canFail()) && (latestOpenTree == null
+                    || cmd.getOnFail() != latestOpenTree.getCommand())) {
                 // the command opens a new open tree
-                CommandGrapher.CommandGraphElement opened = new CommandGrapher.CommandGraphElement(links.getOnFail(), new CommandGrapher.CommandDepth(current.getDepth()));
+                CommandGrapher.CommandGraphElement opened = new CommandGrapher.CommandGraphElement(cmd.getOnFail(), new CommandGrapher.CommandDepth(current.getDepth()));
                 maxDepth.depthGreaterThan(current.getDepth());
                 commands.put(opened.getCommand(), opened);
                 openedTrees.push(opened);
@@ -391,10 +391,10 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
             }
 
             elements.add(workingTrees.pop()); // only put elements into the list when we're done processing them
-            if (links.getOnSuccess() != null && (!skipImpossiblePaths || current.getCommand().canSucceed())) {
-                if (workingTrees.isEmpty() || links.getOnSuccess() != workingTrees.peek().getCommand()) {
+            if (cmd.getOnSuccess() != null && (!skipImpossiblePaths || current.getCommand().canSucceed())) {
+                if (workingTrees.isEmpty() || cmd.getOnSuccess() != workingTrees.peek().getCommand()) {
                     // check we're not on a close parent, dropping out of failure
-                    CommandGrapher.CommandGraphElement next = new CommandGrapher.CommandGraphElement(links.getOnSuccess(), current.getDepth());
+                    CommandGrapher.CommandGraphElement next = new CommandGrapher.CommandGraphElement(cmd.getOnSuccess(), current.getDepth());
                     commands.put(next.getCommand(), next);
                     workingTrees.push(next);
                 }
@@ -443,11 +443,11 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         for (CommandGrapher.CommandGraphElement element : elements) {
             if (element.getCommand().isEmpty()) {
                 CommandGrapher.CommandGraphElement tmp = element;
-                while (tmp.getCommand().isEmpty() && tmp.getCommand().getEndLink().getOnSuccess() != null) {
-                    tmp = commands.get(tmp.getCommand().getEndLink().getOnSuccess());
+                while (tmp.getCommand().isEmpty() && tmp.getCommand().getOnSuccess() != null) {
+                    tmp = commands.get(tmp.getCommand().getOnSuccess());
                 }
-                if ((!tmp.getCommand().isEmpty() || tmp.getCommand().getEndLink().getOnSuccess() != null) && element.getDepth().getDepth() != commands.get(
-                        element.getCommand().getEndLink().getOnSuccess()).getDepth().getDepth()) {
+                if ((!tmp.getCommand().isEmpty() || tmp.getCommand().getOnSuccess() != null) && element.getDepth().getDepth() != commands.get(
+                        element.getCommand().getOnSuccess()).getDepth().getDepth()) {
                     compactedElements.add(element);
                 }
             } else {
