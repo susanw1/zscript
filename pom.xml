@@ -308,6 +308,15 @@
             <organization>Zscript Team</organization>
         </developer>
     </developers>
+    <mailingLists>
+        <mailingList>
+            <name>Zscript</name>
+            <subscribe>https://groups.google.com/g/zscript</subscribe>
+            <unsubscribe>zscript+unsubscribe@googlegroups.com</unsubscribe>
+            <post>zscript@googlegroups.com</post>
+            <archive>https://groups.google.com/g/zscript</archive>
+        </mailingList>
+    </mailingLists>
 
     <scm>
         <url>https://github.com/susanw1/zscript</url>
