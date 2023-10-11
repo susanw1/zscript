@@ -35,7 +35,6 @@
         <version.apachecommons>2.13.0</version.apachecommons>
 
         <!-- plugin dependency versions -->
-        <!--        <version.nar-maven-plugin>3.10.2-SNAPSHOT</version.nar-maven-plugin>-->
         <version.nar-maven-plugin>3.10.2-alpha</version.nar-maven-plugin>
         <version.jacoco-maven-plugin>0.8.10</version.jacoco-maven-plugin>
         <version.exec-maven-plugin>3.0.0</version.exec-maven-plugin>
@@ -147,12 +146,6 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${version.maven-failsafe-plugin}</version>
                 </plugin>
-                <!--                <plugin>-->
-                <!--                    <groupId>com.github.maven-nar</groupId>-->
-                <!--                    <artifactId>nar-maven-plugin</artifactId>-->
-                <!--                    <version>3.10.2-SNAPSHOT</version>-->
-                <!--                    <extensions>true</extensions>-->
-                <!--                </plugin>-->
                 <plugin>
                     <groupId>net.zscript.maven-nar</groupId>
                     <artifactId>nar-maven-plugin</artifactId>

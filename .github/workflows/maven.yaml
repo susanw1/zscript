@@ -19,10 +19,13 @@ jobs:
 
         -   uses: carlosperate/arm-none-eabi-gcc-action@v1
         -   run: arm-none-eabi-gcc --version
+
+        -   run: sudo apt-get update
+        -   run: sudo apt-get install gcc-multilib g++-multilib
         -   run: gcc --version
 
         -   name: Build with Maven
-            run: mvn -B verify --file pom.xml
+            run: mvn -B verify --file pom.xml -Pbuild-arm
 
         -   name: Upload Java code coverage reports to Codecov
             uses: codecov/codecov-action@v3
