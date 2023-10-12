@@ -104,7 +104,7 @@ class NotificationTest {
 
     public:
         EmptyChannel(BufferOutStream<zp> *outStream) :
-                ZscriptChannel<zp>(outStream, &emptyBuffer, true), emptyBuffer(NULL, 0) {
+                ZscriptChannel<zp>(outStream, &emptyBuffer, 0, true), emptyBuffer(NULL, 0) {
         }
 
     };
@@ -160,7 +160,7 @@ public:
         for (int i = 0; i < 20; i++) {
             Zscript<zp>::zscript.progress();
         }
-        checkAgainstOut("!f\"data\"\n");
+        checkAgainstOut("!f0\"data\"\n");
         outStream.reset();
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
@@ -180,7 +180,7 @@ public:
         for (int i = 0; i < 20; i++) {
             Zscript<zp>::zscript.progress();
         }
-        checkAgainstOut("!f\"data\"");
+        checkAgainstOut("!f0\"data\"");
         outStream.reset();
         if (!outStream.isOpen()) {
             std::cerr << "Out stream closed unexpectedly\n";

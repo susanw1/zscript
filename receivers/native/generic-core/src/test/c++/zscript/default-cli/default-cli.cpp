@@ -62,7 +62,7 @@ class LocalChannel: public ZscriptChannel<ZP> {
 
 public:
     LocalChannel() :
-            ZscriptChannel<ZP>(&outStr, &buffer, true), buffer(data, 128), tokenizer(buffer.getWriter(), 2) {
+            ZscriptChannel<ZP>(&outStr, &buffer, 0, true), buffer(data, 128), tokenizer(buffer.getWriter(), 2) {
     }
     void moveAlong() {
         if (waitForTheBlockingInput++ < 10000) {

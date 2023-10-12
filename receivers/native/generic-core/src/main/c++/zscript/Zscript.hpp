@@ -97,7 +97,7 @@ public:
 
 #endif
 
-    bool lock(GenericCore::LockSet<ZP> *l) {
+    bool lock(const GenericCore::LockSet<ZP> *l) {
         return locks.lock(l);
     }
 

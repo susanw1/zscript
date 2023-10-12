@@ -46,7 +46,7 @@ class ScriptSpaceTest {
 
     public:
         EmptyChannel(BufferOutStream<zp> *outStream) :
-                ZscriptChannel<zp>(outStream, &emptyBuffer, true), emptyBuffer(NULL, 0) {
+                ZscriptChannel<zp>(outStream, &emptyBuffer, 0, true), emptyBuffer(NULL, 0) {
         }
 
     };

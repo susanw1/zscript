@@ -21,11 +21,11 @@ class ScriptSpace: public ZscriptChannel<ZP> {
 
 public:
     ScriptSpace(uint8_t *scriptSpace, uint16_t spaceLength, uint8_t *outBuffer, uint16_t outBufferSize) :
-            ZscriptChannel<ZP>(&out, buffer.getReadBuffer(), false), buffer(scriptSpace, spaceLength), out(&this->parser, outBuffer, outBufferSize), canBeWrittenToB(true) {
+            ZscriptChannel<ZP>(&out, buffer.getReadBuffer(), 0, false), buffer(scriptSpace, spaceLength), out(&this->parser, outBuffer, outBufferSize), canBeWrittenToB(true) {
         stop();
     }
     ScriptSpace(uint8_t *scriptSpace, uint16_t spaceLength, uint16_t initialDataLength, bool canWrite, uint8_t *outBuffer, uint16_t outBufferSize) :
-            ZscriptChannel<ZP>(&out, buffer.getReadBuffer(), false), buffer(scriptSpace, spaceLength, initialDataLength, canWrite), out(&this->parser, outBuffer, outBufferSize), canBeWrittenToB(
+            ZscriptChannel<ZP>(&out, buffer.getReadBuffer(), 0, false), buffer(scriptSpace, spaceLength, initialDataLength, canWrite), out(&this->parser, outBuffer, outBufferSize), canBeWrittenToB(
                     canWrite) {
     }
     void channelInfo(ZscriptCommandContext<ZP> ctx) {
