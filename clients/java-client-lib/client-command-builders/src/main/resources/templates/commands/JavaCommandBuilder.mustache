@@ -30,8 +30,10 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
         // prevent instantiation
     }
 
+    {{! ============ COMMAND PROCESSING ============= }}
+
     /**
-     * Defines the set of all commands defined in this module.
+     * Defines the set of all commands defined in the '{{#upperCamel}}{{moduleName}}{{/upperCamel}}' module.
      */
     public static enum {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands {
 {{#commands}}
@@ -46,6 +48,11 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
             this.command = (byte) command;
         }
 
+        /**
+         * Returns the 4-bit command id code (associated with the 'Z' command field).
+         *
+         * @return command id (0x0-0xf)
+         */
         public byte getCommand() {
             return command;
         }
@@ -61,12 +68,11 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
 
 {{/commands}}
 {{#commands}}
-
     public static class {{#upperCamel}}{{commandName}}Command{{/upperCamel}}
             extends ZscriptBuiltCommandNode<{{#upperCamel}}{{commandName}}Command{{/upperCamel}}.{{#upperCamel}}{{name}}{{/upperCamel}}Response> {
-        public static final byte CMD_ID = {{command}};
+        public static final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands CMD = {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands.{{#upperCamel}}{{commandName}}{{/upperCamel}};
 
-        public {{#upperCamel}}{{commandName}}Command{{/upperCamel}}(Builder builder) {
+        private {{#upperCamel}}{{commandName}}Command{{/upperCamel}}(Builder builder) {
             super(builder);
         }
 
@@ -124,4 +130,57 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
     }
 
     {{/commands}}
+
+    {{! ============ NOTIFICATION PROCESSING ============= }}
+
+    /**
+     * Defines the set of all notifications defined in the '{{#upperCamel}}{{moduleName}}{{/upperCamel}}' module.
+     */
+    public static enum {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications {
+        {{#notifications}}
+        /** {{description}} */
+        {{#upperCamel}}{{notificationName}}{{/upperCamel}}({{notification}}),
+        {{/notifications}}
+        ;
+
+        private final byte notification;
+
+        private {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications(int notification) {
+            this.notification = (byte) notification;
+        }
+
+        /**
+         * Returns the 4-bit notification id code (associated with the '!' response sequence field).
+         *
+         * @return notification id (0x0-0xf)
+         */
+        public byte getNotification() {
+            return notification;
+        }
+    }
+
+    {{#notifications}}
+    /** {{description}} */
+    public static class {{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification {
+        public static final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications NTFN = {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications.{{#upperCamel}}{{notificationName}}{{/upperCamel}};
+
+        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification(String zscriptResponse) {
+        }
+
+        {{#sections}}
+            {{#section}}
+        /** {{description}} */
+        public static class {{#upperCamel}}{{sectionName}}{{/upperCamel}}Section extends ValidatingResponse {
+            public {{#upperCamel}}{{sectionName}}{{/upperCamel}}Section(final ZscriptExpression response) {
+                super(response, new byte[] { {{#responseFields}}{{#required}}(byte) '{{key}}', {{/required}}{{/responseFields}} });
+            }
+                {{#responseFields}}
+                    {{>responseField.mustache}}
+                {{/responseFields}}
+        }
+
+            {{/section}}
+        {{/sections}}
+    }
+    {{/notifications}}
 }

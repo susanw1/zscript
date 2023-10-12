@@ -2,7 +2,7 @@
     {{#enumType}}
     {{! ============ ENUM GETTERS ============= }}
             /**
-             * Enum of acceptable values for {@link #{{name}} } field.
+             * Enum of acceptable values for the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' enum field.
              */
             public static enum {{#upperCamel}}{{name}}{{/upperCamel}} {
             {{#values}}
@@ -12,7 +12,7 @@
 
         {{#required}}
             /**
-             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Gets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @return the value of this required field
              * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available values
@@ -25,7 +25,7 @@
             }
 
             /**
-             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Gets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @return the value of this required field
              * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available values
@@ -36,7 +36,7 @@
         {{/required}}
         {{^required}}
             /**
-             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Gets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @return the value of this non-required field
              * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available values
@@ -50,7 +50,7 @@
             }
 
             /**
-             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Gets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @return the value of this non-required field as enum
              * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available values
@@ -61,7 +61,7 @@
             }
 
             /**
-             * Determines if the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field is set: {{description}}
+             * Determines if the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field is set: {{description}}
              *
              * @return true if this field is set, false otherwise
              */
@@ -74,7 +74,7 @@
         {{! ============ NUMBER-TYPE GETTERS ============= }}
         {{#required}}
             /**
-             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Gets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @return the value of this required field
              * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}
@@ -86,7 +86,7 @@
         {{/required}}
         {{^required}}
             /**
-             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Gets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @return the value of this non-required field, or empty if not set
              */
@@ -95,7 +95,7 @@
             }
 
             /**
-             * Determines if the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field is set: {{description}}
+             * Determines if the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field is set: {{description}}
              *
              * @return true if this field is set, false otherwise
              */
@@ -107,7 +107,7 @@
     {{#flagType}}
         {{! ============ FLAG-TYPE GETTERS ============= }}
             /**
-             * Checks if the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field is set: {{description}}
+             * Checks if the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field is set: {{description}}
              *
              * @return true if this field is set, false otherwise
              */
@@ -118,7 +118,7 @@
     {{#bitsetType}}
         {{! ============ BITSET-TYPE GETTERS ============= }}
             /**
-             * Enum of acceptable values for {@link #{{name}} } field.
+             * Enum of acceptable values for the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' bitset field.
              */
             public static enum {{#upperCamel}}{{name}}{{/upperCamel}} {
             {{#bits}}
@@ -129,7 +129,7 @@
 
         {{#required}}
             /**
-             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Gets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @return the value of this required field as a int, with bits OR'ed together
              * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available bit values
@@ -142,7 +142,7 @@
             }
 
             /**
-             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Gets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @return the value of this required field, with the bits represented as an EnumSet
              * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available bit values
@@ -154,7 +154,7 @@
         {{/required}}
         {{^required}}
             /**
-             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Gets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @return the value of this non-required field, or empty if not set
              */
@@ -163,7 +163,7 @@
             }
 
             /**
-             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Gets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @return the value of this required field, with the bits represented as an EnumSet; if field is missing, the EnumSet is empty.
              * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available bit values
@@ -173,7 +173,7 @@
             }
 
             /**
-             * Determines if the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field is set: {{description}}
+             * Determines if the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field is set: {{description}}
              *
              * @return true if this field is set, false otherwise
              */
@@ -242,7 +242,7 @@
     {{#commandsType}}
         {{! ============ COMMANDS-TYPE GETTERS ============= }}
             /**
-             * Gets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Gets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @return the value of this required field
              * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}

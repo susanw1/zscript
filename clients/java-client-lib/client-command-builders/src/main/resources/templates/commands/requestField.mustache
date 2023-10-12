@@ -2,14 +2,14 @@
     {{#enumType}}
     {{! ============ ENUM-TYPE SETTERS ============= }}
             /**
-             * Enum of acceptable values for {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field.
+             * Enum of acceptable values for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field.
              */
             public static enum {{#upperCamel}}{{name}}{{/upperCamel}} {
                 {{#values}}{{#upperCamel}}{{.}}{{/upperCamel}},{{/values}}
             }
 
             /**
-             * Sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, using the supplied numerical value.
              * @return this builder, to facilitate method chaining
@@ -22,7 +22,7 @@
             }
 
             /**
-             * Sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an enum (never null)
              * @return this builder, to facilitate method chaining
@@ -33,7 +33,7 @@
 
             {{^required}}
             /**
-             * Optionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Optionally sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an OptionalInt
              * @return this builder, to facilitate method chaining
@@ -43,7 +43,7 @@
             }
 
             /**
-             * Optionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Optionally sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an Optional enum
              * @return this builder, to facilitate method chaining
@@ -53,7 +53,7 @@
             }
 
             /**
-             * Conditionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Conditionally sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @param set       if true, then set the field; otherwise, ignore it
              * @param value     the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set
@@ -67,7 +67,7 @@
                             {{#numberType}}
                 {{! ============ NUMBER-TYPE SETTERS ============= }}
             /**
-             * Sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, using the supplied numerical value
              * @return this builder, to facilitate method chaining
@@ -79,7 +79,7 @@
 
             {{^required}}
             /**
-             * Optionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Optionally sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @param value  the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set, as an OptionalInt
              * @return this builder, to facilitate method chaining
@@ -89,7 +89,7 @@
             }
 
             /**
-             * Conditionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Conditionally sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @param set       if true, then set the field; otherwise, ignore
              * @param value     the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set
@@ -103,7 +103,7 @@
                             {{#flagType}}
                 {{! ============ FLAG-TYPE SETTERS ============= }}
             /**
-             * Sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @return this builder, to facilitate method chaining
              */
@@ -113,7 +113,7 @@
             }
 
             /**
-             * Sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
              * @param set       if true, then set the field; otherwise, ignore it
              * @return this builder, to facilitate method chaining
@@ -126,7 +126,7 @@
             {{#bitsetType}}
                 {{! ============ BITSET-TYPE SETTERS ============= }}
             /**
-             * Enum of acceptable values for {@link #{{name}} } field.
+             * Enum of acceptable values for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field.
              */
             public static enum {{#upperCamel}}{{name}}{{/upperCamel}} {
             {{#bits}}
@@ -136,7 +136,7 @@
             }
 
             /**
-             * Sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              * <p>
              * This sets the field, overwriting any previously set bits.
              *
@@ -151,7 +151,7 @@
             }
 
             /**
-             * Sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              * <p>
              * This sets the field, overwriting any previously set bits (even if the Set is empty). This method is aimed at facilitating use of EnumSet.of().
              *
@@ -164,11 +164,11 @@
             }
 
             /**
-             * Sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              * <p>
              * This ORs the supplied bit onto the field's existing value - it does NOT overwrite.
              *
-             * @param bit    the bit in the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field to set, as a single enum (never null)
+             * @param bit    the bit in the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field to set, as a single enum (never null)
              * @return this builder, to facilitate method chaining
              */
             public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}(final {{#upperCamel}}{{name}}{{/upperCamel}} bit) {
@@ -177,7 +177,7 @@
 
             {{^required}}
             /**
-             * Optionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Optionally sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              * <p>
              * If 'bits' is non-empty, this sets the whole field, overwriting any previously set bits.
              *
@@ -189,7 +189,7 @@
             }
 
             /**
-             * Optionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Optionally sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              * <p>
              * If 'bit' is non-empty, then this ORs the supplied bit onto the field's existing value - it does NOT overwrite.
              *
@@ -201,7 +201,7 @@
             }
 
             /**
-             * Conditionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Conditionally sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              * <p>
              * If 'set' is true, then this ORs the supplied bit onto the field's existing value - it does NOT overwrite.
              *
@@ -217,7 +217,7 @@
                         {{#textType}}
             {{! ============ TEXT-TYPE SETTERS ============= }}
             /**
-             * Appends the supplied text for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } big-field: {{description}}
+             * Appends the supplied text for the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' big-field: {{description}}
              * <p>
              * The string is encoded as UTF-8.
              *
@@ -230,7 +230,7 @@
             }
 
             /**
-             * Appends the supplied bytes for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } big-field: {{description}}
+             * Appends the supplied bytes for the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' big-field: {{description}}
              * <p>
              * This field is defined as 'text' and will normally use the "..." form. This method overrides that, and uses the +1a2b... form.
              *
@@ -243,7 +243,7 @@
             }
 
             /**
-             * Appends the supplied bytes for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } big-field: {{description}}
+             * Appends the supplied bytes for the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' big-field: {{description}}
              * <p>
              * This field is defined as 'text' and will normally use the "..." form. This method overrides that, and uses whichever form uses least bytes.
              *
@@ -257,7 +257,7 @@
 
             {{^required}}
             /**
-             * Optionally appends the supplied text for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } big-field: {{description}}
+             * Optionally appends the supplied text for the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' big-field: {{description}}
              * <p>
              * The string is encoded as UTF-8.
              *
@@ -269,7 +269,7 @@
             }
 
             /**
-             * Conditionally appends the supplied text for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } big-field: {{description}}
+             * Conditionally appends the supplied text for the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' big-field: {{description}}
              * <p>
              * The string is encoded as UTF-8.
              *
@@ -286,7 +286,7 @@
         {{#bytesType}}
         {{! ============ BYTES-TYPE SETTERS ============= }}
             /**
-             * Appends the supplied bytes for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } big-field: {{description}}
+             * Appends the supplied bytes for the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' big-field: {{description}}
              *
              * @param bytes     the bytes to add to the big-field
              * @return this builder, to facilitate method chaining
@@ -297,7 +297,7 @@
             }
 
             /**
-             * Appends the supplied text for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } big-field: {{description}}
+             * Appends the supplied text for the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' big-field: {{description}}
              * <p>
              * This field is defined as 'bytes' and will normally use the +1a2b... form. This method overrides that, and uses the "..." form.
              * <p>
@@ -312,7 +312,7 @@
             }
 
             /**
-             * Appends the supplied bytes for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } big-field: {{description}}
+             * Appends the supplied bytes for the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' big-field: {{description}}
              * <p>
              * This field is defined as 'bytes' and will normally use the +1a2b... form. This method overrides that, and uses whichever form uses least bytes.
              *
@@ -326,7 +326,7 @@
 
             {{^required}}
             /**
-             * Optionally appends the supplied bytes for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } big-field: {{description}}
+             * Optionally appends the supplied bytes for the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' big-field: {{description}}
              *
              * @param bytes      the bytes to append, if present
              * @return this builder, to facilitate method chaining
@@ -336,7 +336,7 @@
             }
 
             /**
-             * Conditionally appends the supplied bytes for the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } big-field: {{description}}
+             * Conditionally appends the supplied bytes for the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' big-field: {{description}}
              * <p>
              * The string is encoded as UTF-8.
              *
@@ -375,7 +375,7 @@
             }
 
             /**
-             * Conditionally sets the {@code {{#lowerCamel}}{{name}}{{/lowerCamel}} } field: {{description}}
+             * Conditionally sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}} field: {{description}}
              *
              * @param set    if true, then set the field; otherwise, ignore
              * @param key    the key to set, 'A'-'Z'
