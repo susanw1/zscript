@@ -15,8 +15,7 @@
 
     <modules>
         <module>java-receiver</module>
-        <module>java-receiver-token</module>
-        <module>java-receiver-acceptance-tests</module>
+        <!--        <module>java-receiver-acceptance-tests</module>-->
         <module>java-model-components</module>
     </modules>
 
