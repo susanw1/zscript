@@ -20,7 +20,7 @@ public abstract class ZscriptCommandNode extends CommandSequenceNode {
      * @param response the response that we've received corresponding to this command
      */
     public ZscriptResponse onResponse(ZscriptExpression response) {
-
+        return null;
     }
 
     public List<CommandSequenceNode> getChildren() {

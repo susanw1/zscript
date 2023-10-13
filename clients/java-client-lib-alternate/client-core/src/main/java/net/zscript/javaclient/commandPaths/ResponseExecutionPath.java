@@ -40,8 +40,8 @@ public class ResponseExecutionPath implements Iterable<Response> {
             return seperator == Zchars.Z_ORELSE && isEmpty();
         }
 
-        public Response generateResponse(Response next, boolean unexplainedFail) {
-            return new Response(next, !(unexplainedFail || seperator == Zchars.Z_ORELSE), ZscriptFieldSet.fromTokens(start));
+        public Response generateResponse(Response next, boolean unexplainedFail, int priorBrackets) {
+            return new Response(next, !(unexplainedFail || seperator == Zchars.Z_ORELSE), seperator == '(', seperator == ')', priorBrackets, ZscriptFieldSet.fromTokens(start));
         }
     }
 
@@ -84,23 +84,24 @@ public class ResponseExecutionPath implements Iterable<Response> {
     public static ResponseExecutionPath parse(ReadToken start) {
         List<ResponseBuilder> builders = createLinkedPath(start);
 
-        Response first = null;
-
         Response prev               = null;
         boolean  hasUnexplainedFail = false;
+        int      bracketCount       = 0;
         for (ListIterator<ResponseBuilder> iter = builders.listIterator(builders.size()); iter.hasPrevious(); ) {
             ResponseBuilder b = iter.previous();
             if (b.start != null) {
                 if (hasUnexplainedFail) {
                     if (!b.isEmpty()) {
-                        prev = b.generateResponse(prev, hasUnexplainedFail);
+                        prev = b.generateResponse(prev, hasUnexplainedFail, bracketCount);
                         hasUnexplainedFail = false;
+                        bracketCount = 0;
                     }
                 } else {
                     if (b.isUnexplainedFail()) {
+                        bracketCount++;
                         hasUnexplainedFail = true;
                     } else {
-                        prev = b.generateResponse(prev, hasUnexplainedFail);
+                        prev = b.generateResponse(prev, hasUnexplainedFail, 0);
                     }
                 }
             }
@@ -142,6 +143,22 @@ public class ResponseExecutionPath implements Iterable<Response> {
                 return tmp;
             }
         };
+    }
+
+    public ByteString toSequence() {
+        ZscriptByteString.ZscriptByteStringBuilder out = ZscriptByteString.builder();
+        toSequence(out);
+        return out.build();
+    }
+
+    public void toSequence(ZscriptByteString.ZscriptByteStringBuilder out) {
+        for (Iterator<Response> iter = iterator(); iter.hasNext(); ) {
+            Response r = iter.next();
+            r.toBytes(out);
+            if (iter.hasNext()) {
+                r.seperatorBytes(out);
+            }
+        }
     }
 
 }

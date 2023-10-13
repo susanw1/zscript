@@ -38,11 +38,11 @@ public class Device {
         CommandSequence sequence = CommandSequence.parse(model, buffer.getTokenReader().getFirstReadToken(), false);
         if (sequence.hasEchoField() || sequence.hasLockField()) {
             node.send(sequence, r -> {
-                callback.accept(r.toBytes());
+                callback.accept(r.toSequence().toByteArray());
             });
         } else {
             node.send(sequence.getExecutionPath(), r -> {
-                callback.accept(r.toBytes());
+                callback.accept(r.toSequence().toByteArray());
             });
         }
     }

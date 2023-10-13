@@ -51,7 +51,6 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
         return expression.hasBigField();
     }
 
-    @Override
     public BlockIterator getBigField() {
         return expression.getBigField();
     }

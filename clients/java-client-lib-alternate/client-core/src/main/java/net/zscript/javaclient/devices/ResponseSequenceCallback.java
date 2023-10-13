@@ -58,7 +58,7 @@ public class ResponseSequenceCallback {
 
         for (MatchedCommandResponse cr : matchedCRs) {
             ZscriptCommandNode      node    = nodeMap.get(cr.getCommand());
-            ZscriptResponse         resp    = node.parseResponse(cr.getResponse());
+            ZscriptResponse         resp    = node.onResponse(cr.getResponse().getFields());
             CommandExecutionSummary summary = new CommandExecutionSummary(node, resp);
             responses.put(node, resp);
             if (cr.getResponse().wasSuccess()) {

@@ -1,9 +1,15 @@
 package net.zscript.javaclient.sequence;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+import net.zscript.javaclient.commandPaths.Command;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
+import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.model.components.Zchars;
+import net.zscript.util.ByteString;
 
 public class ResponseSequence {
     private final ResponseExecutionPath executionPath;
@@ -48,4 +54,21 @@ public class ResponseSequence {
     public int getResponseValue() {
         return responseField;
     }
+
+    public ByteString toSequence() {
+        ZscriptByteString.ZscriptByteStringBuilder out = ZscriptByteString.builder();
+        toSequence(out);
+        return out.build();
+    }
+
+    public void toSequence(ZscriptByteString.ZscriptByteStringBuilder out) {
+        if (responseField != -1) {
+            out.appendField(Zchars.Z_RESPONSE_MARK, responseField);
+        }
+        if (echoField != -1) {
+            out.appendField(Zchars.Z_ECHO, echoField);
+        }
+        executionPath.toSequence(out);
+    }
+
 }

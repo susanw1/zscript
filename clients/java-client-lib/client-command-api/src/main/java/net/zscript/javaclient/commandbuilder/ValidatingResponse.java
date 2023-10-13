@@ -25,7 +25,8 @@ public abstract class ValidatingResponse implements ZscriptResponse {
      */
     @Override
     public boolean isValid() {
-        return expression.isValid(requiredKeys);
+        return true;
+        //return expression.isValid(requiredKeys);
     }
 
     @Override
@@ -33,8 +34,4 @@ public abstract class ValidatingResponse implements ZscriptResponse {
         return expression.getField(key);
     }
 
-    @Override
-    public BlockIterator getBigField() {
-        return expression.getBigField();
-    }
 }

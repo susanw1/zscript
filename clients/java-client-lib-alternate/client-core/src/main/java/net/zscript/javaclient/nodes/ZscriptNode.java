@@ -32,8 +32,8 @@ public class ZscriptNode {
     private final Map<CommandExecutionPath, Consumer<ResponseExecutionPath>> pathCallbacks         = new HashMap<>();
     private final Map<CommandSequence, Consumer<ResponseSequence>>           fullSequenceCallbacks = new HashMap<>();
 
-    public ZscriptNode(AddressingSystem addressingSystem, Connection parentConnection, int bufferSize) {
-        this.addressingSystem = addressingSystem;
+    public ZscriptNode(Connection parentConnection, int bufferSize) {
+        this.addressingSystem = new AddressingSystem(this);
         this.parentConnection = parentConnection;
         this.connectionBuffer = new ConnectionBuffer(parentConnection, bufferSize);
         parentConnection.onReceive(r -> {
