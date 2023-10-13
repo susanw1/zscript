@@ -2,12 +2,15 @@ package net.zscript.javaclient.commandbuilder;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * An element of a Command Sequence under construction, representing a node in the Syntax Tree of a sequence during building.
  */
-public abstract class CommandSequenceNode {
+public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode> {
     protected CommandSequenceNode parent = null;
 
     void setParent(CommandSequenceNode parent) {
@@ -118,4 +121,35 @@ public abstract class CommandSequenceNode {
     }
 
     public abstract List<CommandSequenceNode> getChildren();
+
+    @Override
+    public Iterator<ZscriptCommandNode> iterator() {
+        if (this instanceof ZscriptCommandNode) {
+            return Collections.singletonList((ZscriptCommandNode) this).iterator();
+        }
+        return new Iterator<ZscriptCommandNode>() {
+            Iterator<CommandSequenceNode> children = getChildren().iterator();
+            Iterator<ZscriptCommandNode> childIter = null;
+
+            @Override
+            public boolean hasNext() {
+                return (childIter != null && childIter.hasNext()) || children.hasNext();
+            }
+
+            @Override
+            public ZscriptCommandNode next() {
+                while (childIter == null || !childIter.hasNext()) {
+                    if (!children.hasNext()) {
+                        throw new NoSuchElementException();
+                    }
+                    CommandSequenceNode node = children.next();
+                    if (node instanceof ZscriptCommandNode) {
+                        return (ZscriptCommandNode) node;
+                    }
+                    childIter = node.iterator();
+                }
+                return childIter.next();
+            }
+        };
+    }
 }

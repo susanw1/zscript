@@ -1,6 +1,8 @@
 package net.zscript.javaclient.commandPaths;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -8,10 +10,12 @@ import java.util.Optional;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
+import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.components.Zchars;
+import net.zscript.util.ByteString;
 
 public class ResponseExecutionPath implements Iterable<Response> {
 
@@ -139,4 +143,5 @@ public class ResponseExecutionPath implements Iterable<Response> {
             }
         };
     }
+
 }

@@ -12,6 +12,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
@@ -21,6 +22,8 @@ import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.OrSequenceNode;
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.ZscriptResponse;
+import net.zscript.javaclient.devices.ResponseSequenceCallback;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.ZscriptModel;
@@ -146,29 +149,29 @@ public class CommandExecutionPath implements Iterable<Command> {
         return new CommandExecutionPath(model, commands.get(builders.get(0)));
     }
 
-    public static class CommandNodeToExecutionPath {
-        private final CommandExecutionPath             path;
-        private final Map<Command, ZscriptCommandNode> commandMap;
+    public static class CommandExecutionTask {
+        private final CommandExecutionPath            path;
+        private final Consumer<ResponseExecutionPath> callback;
 
-        public CommandNodeToExecutionPath(CommandExecutionPath path, Map<Command, ZscriptCommandNode> commandMap) {
+        public CommandExecutionTask(CommandExecutionPath path, Consumer<ResponseExecutionPath> callback) {
             this.path = path;
-            this.commandMap = commandMap;
+            this.callback = callback;
         }
 
         public CommandExecutionPath getPath() {
             return path;
         }
 
-        public Map<Command, ZscriptCommandNode> getCommandMap() {
-            return commandMap;
+        public Consumer<ResponseExecutionPath> getCallback() {
+            return callback;
         }
     }
 
-    public static CommandNodeToExecutionPath convert(CommandSequenceNode cmdSeq) {
-        return convert(ZscriptModel.standardModel(), cmdSeq);
+    public static CommandExecutionTask convert(CommandSequenceNode cmdSeq, Consumer<ResponseSequenceCallback> callback) {
+        return convert(ZscriptModel.standardModel(), cmdSeq, callback);
     }
 
-    public static CommandNodeToExecutionPath convert(ZscriptModel model, CommandSequenceNode cmdSeq) {
+    public static CommandExecutionTask convert(ZscriptModel model, CommandSequenceNode cmdSeq, Consumer<ResponseSequenceCallback> callback) {
         class Layer {
             Command success;
             Command failure;
@@ -176,7 +179,7 @@ public class CommandExecutionPath implements Iterable<Command> {
             boolean onSuccessHasCloseParen;
 
         }
-        Map<Command, ZscriptCommandNode> commandMap = new HashMap<>();
+        Map<ZscriptCommandNode, Command> commandMap = new HashMap<>();
 
         Deque<ListIterator<CommandSequenceNode>> stack = new ArrayDeque<>();
         Deque<CommandSequenceNode>               nodes = new ArrayDeque<>();
@@ -196,7 +199,11 @@ public class CommandExecutionPath implements Iterable<Command> {
                 CommandSequenceNode next  = stack.peek().previous();
                 if (next instanceof ZscriptCommandNode) {
                     Command cmd = new Command(layer.success, layer.failure, ZscriptFieldSet.from((ZscriptCommandNode) next));
-                    commandMap.put(cmd, (ZscriptCommandNode) next);
+                    if (commandMap.containsKey(next)) {
+                        throw new IllegalArgumentException(
+                                "Repeated use of CommandNode detected - this is not supported. Instead share the builder, and call it twice, or create the commands seperately.");
+                    }
+                    commandMap.put((ZscriptCommandNode) next, cmd);
                     if (nodes.peek() instanceof OrSequenceNode && stack.peek().hasPrevious()) {
                         layer.failure = cmd;
                     } else {
@@ -256,7 +263,12 @@ public class CommandExecutionPath implements Iterable<Command> {
                 }
             }
         }
-        return new CommandNodeToExecutionPath(new CommandExecutionPath(model, destinations.peek().success), commandMap);
+        CommandExecutionPath path = new CommandExecutionPath(model, destinations.peek().success);
+        return new CommandExecutionTask(path, resps -> {
+            ResponseSequenceCallback rsCallback = ResponseSequenceCallback.from(path.compareResponses(resps), cmdSeq, commandMap);;
+            rsCallback.getExecutionSummary().forEach(s -> s.getCommand().responseArrived(s.getResponse()));
+            callback.accept(rsCallback);
+        });
     }
 
     public static CommandExecutionPath blank() {

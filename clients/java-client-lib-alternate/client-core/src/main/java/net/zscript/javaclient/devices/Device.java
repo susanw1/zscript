@@ -19,23 +19,14 @@ public class Device {
     private final ZscriptModel model;
     private final ZscriptNode  node;
 
-    public Device(ZscriptNode node) {
+    public Device(ZscriptModel model, ZscriptNode node) {
+        this.model = model;
         this.node = node;
     }
 
     public void send(final CommandSequenceNode cmdSeq, final Consumer<ResponseSequenceCallback> callback) {
-        CommandExecutionPath.CommandNodeToExecutionPath nodeToPath = CommandExecutionPath.convert(model, cmdSeq);
-
-        CommandExecutionPath             path       = nodeToPath.getPath();
-        Map<Command, ZscriptCommandNode> commandMap = nodeToPath.getCommandMap();
-
-        node.send(path, resps -> {
-            List<MatchedCommandResponse> matchedCRs = path.compareResponses(resps);
-            for (MatchedCommandResponse cr : matchedCRs) {
-                commandMap.get(cr.getCommand()).onResponse(cr.getResponse());
-            }
-            callback.accept();
-        });
+        CommandExecutionPath.CommandExecutionTask nodeToPath = CommandExecutionPath.convert(model, cmdSeq, callback);
+        node.send(nodeToPath.getPath(), nodeToPath.getCallback());
     }
 
     public void send(final byte[] cmdSeq, final Consumer<byte[]> callback) {

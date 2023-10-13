@@ -54,7 +54,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
     }
 
     private void explainBigField(TextBox box, ZscriptDataModel.GenericField field, ZscriptFieldSet fieldSet, CommandPrintSettings settings) {
-        byte[] bigFields = fieldSet.getBigFieldTotal();
+        byte[] bigFields = fieldSet.getBigFieldData();
         if (bigFields.length == 0) {
             box.append("No data");
         } else {

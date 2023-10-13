@@ -1,5 +1,6 @@
 package net.zscript.javareceiver.tokenizer;
 
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -58,6 +59,15 @@ public class ZscriptTokenExpression implements ZscriptExpression {
     }
 
     @Override
+    public byte[] getBigFieldData() {
+        byte[] data = new byte[getBigFieldSize()];
+        int    i    = 0;
+        for (Iterator<Byte> iterator = getBigField(); iterator.hasNext(); ) {
+            data[i++] = iterator.next();
+        }
+        return data;
+    }
+
     public BlockIterator getBigField() {
         return new BlockIterator() {
             final OptIterator<ReadToken> it = iteratorToMarker();

@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import net.zscript.javaclient.commandbuilder.AbortCommandNode;
 import net.zscript.javaclient.commandbuilder.BlankCommandNode;
@@ -14,13 +15,15 @@ import net.zscript.javaclient.commandbuilder.ZscriptBuiltCommandNode;
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
+import net.zscript.javareceiver.tokenizer.BlockIterator;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
+import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
 import net.zscript.util.ByteString;
 
-public class ZscriptFieldSet {
+public class ZscriptFieldSet implements ZscriptExpression {
 
     static class BigField {
         private final byte[]  data;
@@ -138,11 +141,7 @@ public class ZscriptFieldSet {
         return fields[key - 'A'];
     }
 
-    public List<BigField> getBigFields() {
-        return bigFields;
-    }
-
-    public byte[] getBigFieldTotal() {
+    public byte[] getBigFieldData() {
         ByteString.ByteStringBuilder out = ByteString.builder();
         for (BigField big : bigFields) {
             out.appendRaw(big.getData());
@@ -182,6 +181,33 @@ public class ZscriptFieldSet {
             length += big.data.length + 2;
         }
         return length;
+    }
+
+    public OptionalInt getField(byte f) {
+        return fields[f - 'A'] == -1 ? OptionalInt.empty() : OptionalInt.of(fields[f - 'A']);
+    }
+
+    public int getFieldCount() {
+        int count = 0;
+        for (int i = 0; i < fields.length; i++) {
+            if (fields[i] != -1) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public boolean hasBigField() {
+        return !bigFields.isEmpty();
+    }
+
+    public int getBigFieldSize() {
+        int len = 0;
+        for (BigField big : bigFields) {
+            len += big.getData().length;
+        }
+        return len;
+
     }
 
 }
