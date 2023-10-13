@@ -7,7 +7,6 @@
 target/
 RemoteSystemTempFiles/
 .recommenders/
-.cproject
 .autotools
 .externalToolBuilders
 *.iml
@@ -30,6 +29,11 @@ RemoteSystemTempFiles/
 *.zip
 *.tar.gz
 *.rar
+
+# C/C++ IDE
+.cproject
+CMakeLists.txt
+cmake-build-debug
 
 # C/C++ output
 **/obj
