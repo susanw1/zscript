@@ -10,10 +10,10 @@
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS
 
 #include "../test-defines.hpp"
-#include "../../../../main/c++/zscript/ZscriptIncludes.hpp"
-#include "../../../../main/c++/zscript/execution/ZscriptCommandContext.hpp"
-#include "../../../../main/c++/zscript/execution/ZscriptNotificationContext.hpp"
-#include "../../../../main/c++/zscript/modules/ZscriptModule.hpp"
+#include "zscript/ZscriptIncludes.hpp"
+#include "zscript/execution/ZscriptCommandContext.hpp"
+#include "zscript/execution/ZscriptNotificationContext.hpp"
+#include "zscript/modules/ZscriptModule.hpp"
 
 /**
  * Test command with async behaviour: supply 'E' ("end") value - if 0, just writes B=0; otherwise requires attention every time its value is incremented. When value reaches
@@ -75,12 +75,13 @@ public:
 
 }
 
-#include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
-#include "../../../../main/c++/zscript/semanticParser/SemanticParser.hpp"
-#include "../../../../main/c++/zscript/notifications/ZscriptNotificationSource.hpp"
-#include "../../../../main/c++/zscript/tokenizer/ZscriptTokenizer.hpp"
-#include "../../../../main/c++/zscript/Zscript.hpp"
+#include "zscript/modules/core/CoreModule.hpp"
+#include "zscript/semanticParser/SemanticParser.hpp"
+#include "zscript/notifications/ZscriptNotificationSource.hpp"
+#include "zscript/tokenizer/ZscriptTokenizer.hpp"
+#include "zscript/Zscript.hpp"
 #include "../semanticParser/BufferOutStream.hpp"
+
 namespace Zscript {
 GenericCore::ZscriptNotificationSource<zp> source;
 GenericCore::ZscriptNotificationSource<zp> *sourceP = &source;

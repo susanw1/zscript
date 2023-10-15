@@ -12,14 +12,14 @@
 #define ZSCRIPT_SUPPORT_ADDRESSING
 
 #include "../test-defines.hpp"
-#include "../../../../main/c++/zscript/modules/scriptSpace/ScriptSpaceModule.hpp"
-#include "../../../../main/c++/zscript/modules/outerCore/OuterCoreModule.hpp"
-#include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
-#include "../../../../main/c++/zscript/Zscript.hpp"
+#include "zscript/modules/scriptSpace/ScriptSpaceModule.hpp"
+#include "zscript/modules/outerCore/OuterCoreModule.hpp"
+#include "zscript/modules/core/CoreModule.hpp"
+#include "zscript/Zscript.hpp"
 
 namespace Zscript {
 template<class ZP>
-class LocalOutStream: public AbstractOutStream<ZP> {
+class LocalOutStream : public AbstractOutStream<ZP> {
 public:
     bool openB = false;
 
@@ -50,8 +50,9 @@ public:
     }
 
 };
+
 template<class ZP>
-class LocalChannel: public ZscriptChannel<ZP> {
+class LocalChannel : public ZscriptChannel<ZP> {
     uint8_t data[128];
     LocalOutStream<ZP> outStr;                              // 8 bytes
     GenericCore::TokenRingBuffer<ZP> buffer;                // 20 bytes
@@ -64,6 +65,7 @@ public:
     LocalChannel() :
             ZscriptChannel<ZP>(&outStr, &buffer, 0, true), buffer(data, 128), tokenizer(buffer.getWriter(), 2) {
     }
+
     void moveAlong() {
         if (waitForTheBlockingInput++ < 10000) {
             return;
@@ -102,6 +104,7 @@ public:
         return currentRnd;
     }
 };
+
 uint16_t zp::currentRnd = 1249;
 
 int main(int argc, char **argv) {

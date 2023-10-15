@@ -75,8 +75,10 @@ public:
 
 template<class ZP>
 bool EthernetSystem<ZP>::hasLink = false;
+
 template<class ZP>
 uint8_t EthernetSystem<ZP>::macAddrOffset = 0;
+
 template<class ZP>
 uint8_t EthernetSystem<ZP>::macAddress[6] = {0xde, 0xad, 0xbe, 0xef, 0xfe, 0xed};
 }
