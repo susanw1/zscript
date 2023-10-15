@@ -7,8 +7,10 @@
 
 #ifndef SRC_TEST_C___ZSCRIPT_SCRIPTSPACE_STRINGCHANNEL_HPP_
 #define SRC_TEST_C___ZSCRIPT_SCRIPTSPACE_STRINGCHANNEL_HPP_
-#include "../../../../main/c++/zscript/ZscriptIncludes.hpp"
-#include "../../../../main/c++/zscript/ZscriptChannel.hpp"
+
+#include "zscript/ZscriptIncludes.hpp"
+#include "zscript/ZscriptChannel.hpp"
+
 namespace Zscript {
 namespace GenericCore {
 

@@ -11,13 +11,14 @@
 #define ZSCRIPT_SUPPORT_SCRIPT_SPACE
 
 #include "../test-defines.hpp"
-#include "../../../../main/c++/zscript/modules/scriptSpace/ScriptSpaceModule.hpp"
-#include "../../../../main/c++/zscript/modules/core/CoreModule.hpp"
+#include "zscript/modules/scriptSpace/ScriptSpaceModule.hpp"
+#include "zscript/modules/core/CoreModule.hpp"
 #include "StringChannel.hpp"
-#include "../../../../main/c++/zscript/Zscript.hpp"
+#include "zscript/Zscript.hpp"
 
-#include "../../../../main/c++/zscript/scriptSpace/ScriptSpace.hpp"
+#include "zscript/scriptSpace/ScriptSpace.hpp"
 #include "../semanticParser/BufferOutStream.hpp"
+
 namespace Zscript {
 namespace GenericCore {
 class zp {
