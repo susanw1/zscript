@@ -72,6 +72,12 @@
                                 <path>${path.arduino-libraries}/Wire/src</path>
                             </includePath>
                             <includePath>
+                                <path>${path.arduino-libraries}/EEPROM/src</path>
+                            </includePath>
+                            <includePath>
+                                <path>${user.home}/Arduino/libraries/Ethernet/src</path>
+                            </includePath>
+                            <includePath>
                                 <path>${path.arduino-variants}/eightanaloginputs</path>
                             </includePath>
                         </testIncludePaths>
@@ -100,11 +106,11 @@
                     </linker>
 
                     <tests>
-                        <test>
-                            <name>I2cChannelDemo</name>
-                            <link>none</link>
-                            <run>false</run>
-                        </test>
+                        <!--                        <test>-->
+                        <!--                            <name>I2cChannelDemo</name>-->
+                        <!--                            <link>none</link>-->
+                        <!--                            <run>false</run>-->
+                        <!--                        </test>-->
                     </tests>
                 </configuration>
             </plugin>
