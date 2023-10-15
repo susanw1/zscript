@@ -18,7 +18,7 @@
 namespace Zscript {
 
 template<class ZP>
-class ZscriptSerialOutStream: public AbstractOutStream<ZP> {
+class ZscriptSerialOutStream : public AbstractOutStream<ZP> {
 private:
     bool openB = false;
 
@@ -42,8 +42,8 @@ public:
     void writeBytes(const uint8_t *bytes, uint16_t count, bool hexMode) {
         if (hexMode) {
             for (uint16_t i = 0; i < count; i++) {
-                Serial.print((char) AbstractOutStream < ZP > ::toHexChar(bytes[i] >> 4));
-                Serial.print((char) AbstractOutStream < ZP > ::toHexChar(bytes[i] & 0xf));
+                Serial.print((char) AbstractOutStream<ZP>::toHexChar(bytes[i] >> 4));
+                Serial.print((char) AbstractOutStream<ZP>::toHexChar(bytes[i] & 0xf));
             }
         } else {
             for (uint16_t i = 0; i < count; ++i) {
@@ -55,7 +55,7 @@ public:
 };
 
 template<class ZP>
-class ZscriptSerialChannel: public ZscriptChannel<ZP> {
+class ZscriptSerialChannel : public ZscriptChannel<ZP> {
     ZscriptSerialOutStream<ZP> out;
     GenericCore::TokenRingBuffer<ZP> tBuffer;
     ZscriptTokenizer<ZP> tokenizer;
@@ -78,7 +78,7 @@ public:
     }
 
     void channelInfo(ZscriptCommandContext<ZP> ctx) {
-        CommandOutStream < ZP > out = ctx.getOutStream();
+        CommandOutStream<ZP> out = ctx.getOutStream();
         out.writeField('N', 0);
         out.writeField('M', 0x7);
         out.writeField('I', 0);

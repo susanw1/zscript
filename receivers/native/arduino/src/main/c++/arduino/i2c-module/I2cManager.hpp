@@ -10,9 +10,9 @@
 
 #ifndef I2C_ADDRESS_AND_GENERAL_CALL
 #if defined(__AVR__)
-#define I2C_ADDRESS_AND_GENERAL_CALL(addr) TWAR = (addr<<1) | 1
+#define I2C_ADDRESS_AND_GENERAL_CALL(addr) do { TWAR = (addr<<1) | 1; } while(0)
 #elif defined(ARDUINO_ARCH_NRF52840)
-#define I2C_ADDRESS_AND_GENERAL_CALL(addr) NRF_TWIS0->ADDRESS[0] = addr; NRF_TWIS0->ADDRESS[1] = 0; NRF_TWIS0->CONFIG = 0x3;
+#define I2C_ADDRESS_AND_GENERAL_CALL(addr) do { NRF_TWIS0->ADDRESS[0] = addr; NRF_TWIS0->ADDRESS[1] = 0; NRF_TWIS0->CONFIG = 0x3; } while(0)
 #else
 #error "Unknown board, cannot implement I2C address set outside of wire library, so cannot use I2C Channel"
 #endif
@@ -20,9 +20,9 @@
 
 #ifndef I2C_BEGIN_SMBUS_ALERT
 #if defined(__AVR__)
-#define I2C_BEGIN_SMBUS_ALERT() TWAR = (0xC<<1) | 1
+#define I2C_BEGIN_SMBUS_ALERT() do { TWAR = (0xC<<1) | 1; } while(0)
 #elif defined(ARDUINO_ARCH_NRF52840)
-#define I2C_BEGIN_SMBUS_ALERT(addr) NRF_TWIS0->ADDRESS[1] = 0xC;
+#define I2C_BEGIN_SMBUS_ALERT(addr) do { NRF_TWIS0->ADDRESS[1] = 0xC; } while(0)
 #else
 #error "Unknown board, cannot implement I2C address set outside of wire library, so cannot use I2C Channel"
 #endif
@@ -30,9 +30,9 @@
 
 #ifndef I2C_END_SMBUS_ALERT
 #if defined(__AVR__)
-#define I2C_END_SMBUS_ALERT(addr) TWAR = (addr<<1) | 1
+#define I2C_END_SMBUS_ALERT(addr) do { TWAR = (addr<<1) | 1; } while(0)
 #elif defined(ARDUINO_ARCH_NRF52840)
-#define I2C_END_SMBUS_ALERT(addr) NRF_TWIS0->ADDRESS[1] = 0x0;
+#define I2C_END_SMBUS_ALERT(addr) do { NRF_TWIS0->ADDRESS[1] = 0x0; } while(0)
 #else
 #error "Unknown board, cannot implement I2C address set outside of wire library, so cannot use I2C Channel"
 #endif
