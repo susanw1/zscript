@@ -1,12 +1,13 @@
-<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.1 http://maven.apache.org/xsd/assembly-2.1.1.xsd">
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
     <id>for-arduino</id>
     <formats>
         <format>zip</format>
         <format>dir</format>
     </formats>
 
-    <includeBaseDirectory>false</includeBaseDirectory>
-    
+    <baseDirectory>/Zscript</baseDirectory>
+
     <fileSets>
         <fileSet>
             <directory>${project.build.resources[0].directory}/library-setup</directory>
@@ -15,19 +16,23 @@
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}/nar/${artifact.artifactId}-${artifact.version}-noarch/include/arduino-converter-files</directory>
-            <outputDirectory>/src/</outputDirectory>
+            <outputDirectory>src/</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}/nar/${artifact.artifactId}-${artifact.version}-noarch/include/examples</directory>
-            <outputDirectory>/examples</outputDirectory>
+            <outputDirectory>examples</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}/nar/${artifact.artifactId}-${artifact.version}-noarch/include/arduino</directory>
-            <outputDirectory>/src/arduino</outputDirectory>
+            <outputDirectory>src/arduino</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}/nar/generic-receiver-core-${generic-core-version}-noarch/include/zcode</directory>
-            <outputDirectory>/src/zcode</outputDirectory>
+            <directory>${project.build.directory}/nar/generic-receiver-core-${generic-core-version}-noarch/include/zscript</directory>
+            <outputDirectory>src/zscript</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/nar/zscript-cpp-model-components-${generic-core-version}-noarch/include/zscript</directory>
+            <outputDirectory>src/zscript</outputDirectory>
         </fileSet>
     </fileSets>
 

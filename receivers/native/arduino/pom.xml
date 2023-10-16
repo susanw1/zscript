@@ -10,7 +10,7 @@
 
     <artifactId>zscript-receivers-arduino</artifactId>
     <packaging>nar</packaging>
-    <name>Zscript Arduino Receiver</name>
+    <name>Zscript Receiver for Arduino</name>
 
     <properties>
         <generic-core-version>${project.version}</generic-core-version>
