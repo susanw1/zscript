@@ -10,17 +10,18 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
-import net.zscript.javaclient.commandbuilder.AbortCommandNode;
-import net.zscript.javaclient.commandbuilder.BlankCommandNode;
-import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.FailureCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultCommands.AbortCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultCommands.BlankCommandNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.defaultCommands.FailureCommandNode;
 import net.zscript.model.modules.base.CoreModule;
 
 public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForSingleCommands(final CommandSequenceNode input, final String output) {
-        CommandExecutionPath path = CommandExecutionPath.convert(input).getPath();
+        CommandExecutionPath path = CommandExecutionPath.convert(input, r -> {
+        }).getPath();
 
         assertThat(path.toSequence().asString()).isEqualTo(output);
     }
@@ -37,7 +38,8 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForAndSequences(final CommandSequenceNode input, final String output) {
-        CommandExecutionPath path = CommandExecutionPath.convert(input).getPath();
+        CommandExecutionPath path = CommandExecutionPath.convert(input, r -> {
+        }).getPath();
 
         assertThat(path.toSequence().asString()).isEqualTo(output);
     }
@@ -61,7 +63,8 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForOrSequences(final CommandSequenceNode input, final String output) {
-        CommandExecutionPath path = CommandExecutionPath.convert(input).getPath();
+        CommandExecutionPath path = CommandExecutionPath.convert(input, r -> {
+        }).getPath();
 
         assertThat(path.toSequence().asString()).isEqualTo(output);
     }

@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import net.zscript.client.modules.test.testing.TestingModule;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.BitsetReqTestE;
-import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptFieldOutOfRangeException;
 import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
 

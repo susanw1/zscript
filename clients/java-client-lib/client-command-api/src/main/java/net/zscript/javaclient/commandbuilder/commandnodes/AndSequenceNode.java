@@ -1,10 +1,14 @@
-package net.zscript.javaclient.commandbuilder;
+package net.zscript.javaclient.commandbuilder.commandnodes;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import net.zscript.javaclient.commandbuilder.defaultCommands.AbortCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultCommands.BlankCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultCommands.FailureCommandNode;
 import net.zscript.model.components.Zchars;
 
 public class AndSequenceNode extends CommandSequenceNode {
@@ -78,25 +82,11 @@ public class AndSequenceNode extends CommandSequenceNode {
         return new AndSequenceNode(els);
     }
 
-    @Override
-    byte[] compile(boolean includeParens) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        boolean useAnd = false;
-        for (CommandSequenceNode el : elements) {
-            byte[] data = el.compile(true);
-            if (useAnd && data.length > 0 && data[0] != Zchars.Z_OPENPAREN) {
-                out.write(Zchars.Z_ANDTHEN);
-            }
-            out.write(data);
-            if (data.length == 0 || data[data.length - 1] != Zchars.Z_CLOSEPAREN) {
-                useAnd = true;
-            }
-        }
-        return out.toByteArray();
-    }
-
     public List<CommandSequenceNode> getChildren() {
         return elements;
+    }
+
+    public String asString() {
+        return elements.stream().map(CommandSequenceNode::asString).collect(Collectors.joining("" + (char) Zchars.Z_ANDTHEN));
     }
 }

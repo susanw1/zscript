@@ -1,8 +1,12 @@
-package net.zscript.javaclient.commandbuilder;
+package net.zscript.javaclient.commandbuilder.defaultCommands;
 
-public class BlankCommandNode extends ZscriptCommandNode {
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.ZscriptResponse;
+import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
-    public static final byte[] ZSCRIPT_BYTES = new byte[0];
+public class BlankCommandNode extends ZscriptCommandNode<DefaultResponse> {
 
     @Override
     public CommandSequenceNode thenFail() {
@@ -50,7 +54,12 @@ public class BlankCommandNode extends ZscriptCommandNode {
     }
 
     @Override
-    byte[] compile(boolean includeParens) {
-        return ZSCRIPT_BYTES;
+    public DefaultResponse parseResponse(ZscriptExpression response) {
+        return new DefaultResponse(response);
+    }
+
+    @Override
+    public Class<DefaultResponse> getResponseType() {
+        return DefaultResponse.class;
     }
 }

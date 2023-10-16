@@ -1,9 +1,12 @@
-package net.zscript.javaclient.commandbuilder;
+package net.zscript.javaclient.commandbuilder.defaultCommands;
 
 import java.nio.charset.StandardCharsets;
 
-public class AbortCommandNode extends ZscriptCommandNode {
-    private static final byte[] ZSCRIPT_BYTES = "Z1S13".getBytes(StandardCharsets.UTF_8);
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+
+public class AbortCommandNode extends ZscriptCommandNode<DefaultResponse> {
 
     @Override
     public CommandSequenceNode thenFail() {
@@ -51,7 +54,12 @@ public class AbortCommandNode extends ZscriptCommandNode {
     }
 
     @Override
-    byte[] compile(boolean includeParens) {
-        return ZSCRIPT_BYTES;
+    public DefaultResponse parseResponse(ZscriptExpression response) {
+        return new DefaultResponse(response);
+    }
+
+    @Override
+    public Class<DefaultResponse> getResponseType() {
+        return DefaultResponse.class;
     }
 }

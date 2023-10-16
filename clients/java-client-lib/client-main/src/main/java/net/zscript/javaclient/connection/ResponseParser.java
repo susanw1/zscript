@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
-import net.zscript.javaclient.commandbuilder.ZscriptCommandNode.ZscriptSequenceLogicPath;
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode.ZscriptSequenceLogicPath;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;

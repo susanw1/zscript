@@ -1,4 +1,4 @@
-package net.zscript.javaclient.commandbuilder;
+package net.zscript.javaclient.commandbuilder.commandnodes;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -9,7 +9,10 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.joining;
 
+import net.zscript.javaclient.commandbuilder.ByteWritable;
 import net.zscript.javaclient.commandbuilder.ZscriptByteString.ZscriptByteStringBuilder;
+import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
+import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.model.components.Zchars;
 
 /**
@@ -20,14 +23,14 @@ import net.zscript.model.components.Zchars;
 public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     private static final int BIGFIELD_REQD_OFFSET = 26;
 
-    final List<ZscriptResponseListener<T>> listeners = new ArrayList<>();
-    final List<BigField>                   bigFields = new ArrayList<>();
-    final Map<Byte, Integer>               fields    = new HashMap<>();
+    ResponseCaptor<T> captor = null;
+    final List<BigField>     bigFields = new ArrayList<>();
+    final Map<Byte, Integer> fields    = new HashMap<>();
 
     /** set of 26 numeric fields, and bigfield. Bits init'd on {@link #setRequiredFields(byte[])} and cleared when fields are set. */
     private final BitSet requiredFields = new BitSet();
 
-    public ZscriptCommandBuilder<T> setField(byte key, int value) {
+    protected ZscriptCommandBuilder<T> setField(byte key, int value) {
         if (!Zchars.isNumericKey(key)) {
             throw new IllegalArgumentException("Key not a valid Zscript Command key: " + (char) key);
         }
@@ -93,8 +96,8 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
     }
 
-    public ZscriptCommandBuilder<T> addResponseListener(ZscriptResponseListener<T> listener) {
-        listeners.add(listener);
+    public ZscriptCommandBuilder<T> capture(ResponseCaptor<T> captor) {
+        this.captor = captor;
         return this;
     }
 
@@ -127,7 +130,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
      * @return the command that has been built
      * @throws ZscriptMissingFieldException if builder doesn't yet pass validation
      */
-    public abstract ZscriptBuiltCommandNode<T> build();
+    public abstract ZscriptCommandNode<T> build();
 
     public static class BigField implements ByteWritable {
         private final byte[]  data;

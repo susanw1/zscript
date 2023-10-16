@@ -1,14 +1,9 @@
 package net.zscript.javaclient.devices;
 
-import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.commandPaths.Command;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
-import net.zscript.javaclient.commandPaths.MatchedCommandResponse;
-import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 import net.zscript.javaclient.nodes.ZscriptNode;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;

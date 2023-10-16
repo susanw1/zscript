@@ -1,8 +1,10 @@
 package net.zscript.javaclient.commandbuilder;
 
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
-class DemoActivateCommand extends ZscriptBuiltCommandNode<DemoActivateCommand.DemoActivateCommandResponse> {
+public class DemoActivateCommand extends ZscriptCommandNode<DemoActivateCommand.DemoActivateCommandResponse> {
     //    private final boolean alreadyActivated;
     DemoActivateCommand(DemoActivateCommandBuilder builder) {
         super(builder);
@@ -13,16 +15,21 @@ class DemoActivateCommand extends ZscriptBuiltCommandNode<DemoActivateCommand.De
     }
 
     @Override
-    protected DemoActivateCommandResponse parseResponse(ZscriptExpression resp) {
+    public DemoActivateCommandResponse parseResponse(ZscriptExpression resp) {
         return new DemoActivateCommandResponse(resp, new byte[] {}, resp.getField('A').orElse(0) == 1);
     }
 
     @Override
-    protected boolean canFail() {
+    public Class<DemoActivateCommandResponse> getResponseType() {
+        return DemoActivateCommandResponse.class;
+    }
+
+    @Override
+    public boolean canFail() {
         return false;
     }
 
-    static class DemoActivateCommandBuilder extends ZscriptCommandBuilder<DemoActivateCommandResponse> {
+    public static class DemoActivateCommandBuilder extends ZscriptCommandBuilder<DemoActivateCommandResponse> {
 
         public DemoActivateCommandBuilder() {
             setField('Z', 2);
@@ -31,6 +38,10 @@ class DemoActivateCommand extends ZscriptBuiltCommandNode<DemoActivateCommand.De
         @Override
         public DemoActivateCommand build() {
             return new DemoActivateCommand(this);
+        }
+
+        public ZscriptCommandBuilder<DemoActivateCommandResponse> setField(char key, int value) {
+            return super.setField(key, value);
         }
     }
 

@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
 
 public class CoreModuleTest {

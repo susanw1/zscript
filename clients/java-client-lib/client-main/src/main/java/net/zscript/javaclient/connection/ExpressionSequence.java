@@ -4,8 +4,6 @@ import static net.zscript.javaclient.connection.ZscriptAddressPath.path;
 
 import java.util.List;
 
-import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
-
 abstract class ExpressionSequence<S extends ExpressionSequence<S>> {
     /**
      * Addresses in top-down hierarchical order.

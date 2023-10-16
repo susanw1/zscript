@@ -16,13 +16,11 @@ import java.util.function.Consumer;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
-import net.zscript.javaclient.commandPrinting.CommandGrapher;
-import net.zscript.javaclient.commandbuilder.AndSequenceNode;
-import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.OrSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.AndSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.OrSequenceNode;
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
-import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
-import net.zscript.javaclient.commandbuilder.ZscriptResponse;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javaclient.devices.ResponseSequenceCallback;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
@@ -179,7 +177,7 @@ public class CommandExecutionPath implements Iterable<Command> {
             boolean onSuccessHasCloseParen;
 
         }
-        Map<ZscriptCommandNode, Command> commandMap = new HashMap<>();
+        Map<ZscriptCommandNode<?>, Command> commandMap = new HashMap<>();
 
         Deque<ListIterator<CommandSequenceNode>> stack = new ArrayDeque<>();
         Deque<CommandSequenceNode>               nodes = new ArrayDeque<>();
@@ -198,12 +196,12 @@ public class CommandExecutionPath implements Iterable<Command> {
                 Layer               layer = destinations.peek();
                 CommandSequenceNode next  = stack.peek().previous();
                 if (next instanceof ZscriptCommandNode) {
-                    Command cmd = new Command(layer.success, layer.failure, ZscriptFieldSet.from((ZscriptCommandNode) next));
+                    Command cmd = new Command(layer.success, layer.failure, ZscriptFieldSet.from((ZscriptCommandNode<?>) next));
                     if (commandMap.containsKey(next)) {
                         throw new IllegalArgumentException(
                                 "Repeated use of CommandNode detected - this is not supported. Instead share the builder, and call it twice, or create the commands seperately.");
                     }
-                    commandMap.put((ZscriptCommandNode) next, cmd);
+                    commandMap.put((ZscriptCommandNode<?>) next, cmd);
                     if (nodes.peek() instanceof OrSequenceNode && stack.peek().hasPrevious()) {
                         layer.failure = cmd;
                     } else {
@@ -386,7 +384,7 @@ public class CommandExecutionPath implements Iterable<Command> {
 
             if (lastSucceeded) {
                 if (lastEndedClose) {
-                    if(parenStarts.peek().getOnFail() == current.getOnFail()){
+                    if (parenStarts.peek().getOnFail() == current.getOnFail()) {
                         throw new IllegalStateException("Response has ')' without valid opening '('");
                     }
                     Command tmp2 = parenStarts.pop().getOnFail();

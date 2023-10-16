@@ -4,6 +4,7 @@ import java.util.OptionalInt;
 
 import net.zscript.javareceiver.tokenizer.BlockIterator;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.model.components.Zchars;
 
 public abstract class ValidatingResponse implements ZscriptResponse {
     protected final ZscriptExpression expression;
@@ -25,8 +26,12 @@ public abstract class ValidatingResponse implements ZscriptResponse {
      */
     @Override
     public boolean isValid() {
+        for (byte b : requiredKeys) {
+            if (Zchars.isNumericKey(b) && !expression.hasField(b) || Zchars.isBigField(b) && !expression.hasBigField()) {
+                return false;
+            }
+        }
         return true;
-        //return expression.isValid(requiredKeys);
     }
 
     @Override

@@ -2,7 +2,7 @@ package net.zscript.javaclient.connection;
 
 import static net.zscript.model.components.Zchars.Z_NEWLINE;
 
-import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.model.components.Zchars;
 

@@ -13,54 +13,62 @@ import java.util.stream.Collectors;
 
 import net.zscript.javaclient.commandPaths.Command;
 import net.zscript.javaclient.commandPaths.MatchedCommandResponse;
-import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
+import net.zscript.javaclient.commandPaths.Response;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.model.components.Zchars;
 
 public class ResponseSequenceCallback {
 
-    public static class CommandExecutionSummary {
-        private final ZscriptCommandNode command;
-        private final ZscriptResponse    response;
+    public static class CommandExecutionSummary<T extends ZscriptResponse> {
+        private final ZscriptCommandNode<T> command;
+        private final T                     response;
 
-        public CommandExecutionSummary(ZscriptCommandNode command, ZscriptResponse response) {
+        public static <T extends ZscriptResponse> CommandExecutionSummary<T> generateExecutionSummary(ZscriptCommandNode<T> command, Response response) {
+            return new CommandExecutionSummary<>(command, command.parseResponse(response.getFields()));
+        }
+
+        public CommandExecutionSummary(ZscriptCommandNode<T> command, T response) {
             this.command = command;
             this.response = response;
         }
 
-        public ZscriptCommandNode getCommand() {
+        public ZscriptCommandNode<T> getCommand() {
             return command;
         }
 
-        public ZscriptResponse getResponse() {
+        public T getResponse() {
             return response;
+        }
+
+        public Class<T> getResponseType() {
+            return command.getResponseType();
         }
     }
 
-    public static ResponseSequenceCallback from(List<MatchedCommandResponse> matchedCRs, Iterable<ZscriptCommandNode> nodes, Map<ZscriptCommandNode, Command> commandMap) {
-        Map<Command, ZscriptCommandNode> nodeMap = new HashMap<>();
-        for (Map.Entry<ZscriptCommandNode, Command> e : commandMap.entrySet()) {
+    public static ResponseSequenceCallback from(List<MatchedCommandResponse> matchedCRs, Iterable<ZscriptCommandNode<?>> nodes, Map<ZscriptCommandNode<?>, Command> commandMap) {
+        Map<Command, ZscriptCommandNode<?>> nodeMap = new HashMap<>();
+        for (Map.Entry<ZscriptCommandNode<?>, Command> e : commandMap.entrySet()) {
             nodeMap.put(e.getValue(), e.getKey());
         }
-        Set<ZscriptCommandNode> notExecuted = new HashSet<>();
-        for (ZscriptCommandNode node : nodes) {
+        Set<ZscriptCommandNode<?>> notExecuted = new HashSet<>();
+        for (ZscriptCommandNode<?> node : nodes) {
             if (!notExecuted.add(node)) {
                 throw new IllegalStateException(
                         "Command tree contains duplicate ZscriptCommandNode - this is not supported. Instead share the builder, and call it twice, or create the commands seperately.");
             }
         }
 
-        LinkedHashMap<ZscriptCommandNode, ZscriptResponse> responses = new LinkedHashMap<>();
+        LinkedHashMap<ZscriptCommandNode<?>, ZscriptResponse> responses = new LinkedHashMap<>();
 
-        Set<CommandExecutionSummary> succeeded = new HashSet<>();
-        Set<CommandExecutionSummary> failed    = new HashSet<>();
-        CommandExecutionSummary      abort     = null;
+        Set<CommandExecutionSummary<?>> succeeded = new HashSet<>();
+        Set<CommandExecutionSummary<?>> failed    = new HashSet<>();
+        CommandExecutionSummary<?>      abort     = null;
 
         for (MatchedCommandResponse cr : matchedCRs) {
-            ZscriptCommandNode      node    = nodeMap.get(cr.getCommand());
-            ZscriptResponse         resp    = node.onResponse(cr.getResponse().getFields());
-            CommandExecutionSummary summary = new CommandExecutionSummary(node, resp);
-            responses.put(node, resp);
+            ZscriptCommandNode<?>      node    = nodeMap.get(cr.getCommand());
+            CommandExecutionSummary<?> summary = CommandExecutionSummary.generateExecutionSummary(node, cr.getResponse());
+            responses.put(node, summary.getResponse());
             if (cr.getResponse().wasSuccess()) {
                 succeeded.add(summary);
             } else if (cr.getResponse().getFields().getField(Zchars.Z_STATUS).orElse(0) < 0x10) {
@@ -76,16 +84,17 @@ public class ResponseSequenceCallback {
         return new ResponseSequenceCallback(responses, notExecuted, succeeded, failed, abort);
     }
 
-    private final LinkedHashMap<ZscriptCommandNode, ZscriptResponse> responses;
+    private final LinkedHashMap<ZscriptCommandNode<?>, ZscriptResponse> responses;
 
-    private final Set<ZscriptCommandNode>      notExecuted;
-    private final Set<CommandExecutionSummary> succeeded;
-    private final Set<CommandExecutionSummary> failed;
+    private final Set<ZscriptCommandNode<?>>      notExecuted;
+    private final Set<CommandExecutionSummary<?>> succeeded;
+    private final Set<CommandExecutionSummary<?>> failed;
 
-    private final CommandExecutionSummary abort;
+    private final CommandExecutionSummary<?> abort;
 
-    private ResponseSequenceCallback(LinkedHashMap<ZscriptCommandNode, ZscriptResponse> responses, Set<ZscriptCommandNode> notExecuted, Set<CommandExecutionSummary> succeeded,
-            Set<CommandExecutionSummary> failed, CommandExecutionSummary abort) {
+    private ResponseSequenceCallback(LinkedHashMap<ZscriptCommandNode<?>, ZscriptResponse> responses, Set<ZscriptCommandNode<?>> notExecuted,
+            Set<CommandExecutionSummary<?>> succeeded,
+            Set<CommandExecutionSummary<?>> failed, CommandExecutionSummary<?> abort) {
         this.responses = responses;
         this.notExecuted = notExecuted;
         this.succeeded = succeeded;
@@ -97,31 +106,35 @@ public class ResponseSequenceCallback {
         return new ArrayList<>(responses.values());
     }
 
-    public Collection<ZscriptCommandNode> getNotExecuted() {
+    public Collection<ZscriptCommandNode<?>> getNotExecuted() {
         return notExecuted;
     }
 
-    public Collection<CommandExecutionSummary> getSucceeded() {
+    public Collection<CommandExecutionSummary<?>> getSucceeded() {
         return succeeded;
     }
 
-    public Collection<CommandExecutionSummary> getFailed() {
+    public Collection<CommandExecutionSummary<?>> getFailed() {
         return failed;
     }
 
-    public Optional<CommandExecutionSummary> getAborted() {
+    public Optional<CommandExecutionSummary<?>> getAborted() {
         return Optional.ofNullable(abort);
     }
 
-    public List<ZscriptCommandNode> getExecuted() {
+    public List<ZscriptCommandNode<?>> getExecuted() {
         return new ArrayList<>(responses.keySet());
     }
 
-    public List<CommandExecutionSummary> getExecutionSummary() {
-        return responses.entrySet().stream().map(e -> new CommandExecutionSummary(e.getKey(), e.getValue())).collect(Collectors.toList());
+    public List<CommandExecutionSummary<?>> getExecutionSummary() {
+        return responses.entrySet().stream().map(e -> matchExecutionSummary(e.getKey(), e.getValue())).collect(Collectors.toList());
     }
 
-    public Optional<ZscriptResponse> getResponseFor(ZscriptCommandNode node) {
+    private <T extends ZscriptResponse> CommandExecutionSummary<T> matchExecutionSummary(ZscriptCommandNode<T> node, ZscriptResponse resp) {
+        return new CommandExecutionSummary<>(node, node.getResponseType().cast(resp));
+    }
+
+    public Optional<ZscriptResponse> getResponseFor(ZscriptCommandNode<?> node) {
         return Optional.ofNullable(responses.get(node));
     }
 }

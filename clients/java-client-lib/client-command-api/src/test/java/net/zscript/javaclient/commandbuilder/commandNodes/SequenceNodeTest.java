@@ -1,10 +1,13 @@
-package net.zscript.javaclient.commandbuilder;
+package net.zscript.javaclient.commandbuilder.commandNodes;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+
+import net.zscript.javaclient.commandbuilder.DemoActivateCommand;
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 
 public class SequenceNodeTest {
     @Test
@@ -13,7 +16,7 @@ public class SequenceNodeTest {
                 .setVersionType(DemoCapabilitiesCommandBuilder.PLATFORM_FIRMWARE)
                 .addBigField("abc")
                 .build();
-        assertThat(build(seq)).isEqualTo("ZV2\"abc\"");
+        assertThat(seq.asString()).isEqualTo("V2Z\"abc\"");
     }
 
     @Test
@@ -25,12 +28,7 @@ public class SequenceNodeTest {
                 .andThen(DemoActivateCommand.builder()
                         .setField('A', 0x1234)
                         .build());
-        assertThat(build(seq)).isEqualTo("ZV2+0506077f&Z2A1234");
-    }
-
-    private String build(CommandSequenceNode node) {
-        // ISO8859, because we want an 8-bit byte in each char, and they *could* be non-printing / non-ascii if they're in Text
-        return new String(node.compile(), StandardCharsets.ISO_8859_1);
+        assertThat(seq.asString()).isEqualTo("V2Z+0506077f&A1234Z2");
     }
 
 }

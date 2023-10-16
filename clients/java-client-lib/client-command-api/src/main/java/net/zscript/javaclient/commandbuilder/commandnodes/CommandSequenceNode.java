@@ -1,4 +1,4 @@
-package net.zscript.javaclient.commandbuilder;
+package net.zscript.javaclient.commandbuilder.commandnodes;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -7,10 +7,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import net.zscript.javaclient.commandbuilder.defaultCommands.AbortCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultCommands.BlankCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultCommands.FailureCommandNode;
+
 /**
  * An element of a Command Sequence under construction, representing a node in the Syntax Tree of a sequence during building.
  */
-public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode> {
+public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode<?>> {
     protected CommandSequenceNode parent = null;
 
     void setParent(CommandSequenceNode parent) {
@@ -110,26 +114,30 @@ public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode
         return this;
     }
 
-    abstract byte[] compile(boolean includeParens) throws IOException;
-
-    public final byte[] compile() {
-        try {
-            return compile(false);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     public abstract List<CommandSequenceNode> getChildren();
 
     @Override
-    public Iterator<ZscriptCommandNode> iterator() {
+    public Iterator<ZscriptCommandNode<?>> iterator() {
         if (this instanceof ZscriptCommandNode) {
-            return Collections.singletonList((ZscriptCommandNode) this).iterator();
+            ZscriptCommandNode<?> cmd = (ZscriptCommandNode<?>) this;
+            return new Iterator<>() {
+                boolean has = true;
+
+                @Override
+                public boolean hasNext() {
+                    return has;
+                }
+
+                @Override
+                public ZscriptCommandNode<?> next() {
+                    has = false;
+                    return cmd;
+                }
+            };
         }
-        return new Iterator<ZscriptCommandNode>() {
+        return new Iterator<ZscriptCommandNode<?>>() {
             Iterator<CommandSequenceNode> children = getChildren().iterator();
-            Iterator<ZscriptCommandNode> childIter = null;
+            Iterator<ZscriptCommandNode<?>> childIter = null;
 
             @Override
             public boolean hasNext() {
@@ -137,14 +145,14 @@ public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode
             }
 
             @Override
-            public ZscriptCommandNode next() {
+            public ZscriptCommandNode<?> next() {
                 while (childIter == null || !childIter.hasNext()) {
                     if (!children.hasNext()) {
                         throw new NoSuchElementException();
                     }
                     CommandSequenceNode node = children.next();
                     if (node instanceof ZscriptCommandNode) {
-                        return (ZscriptCommandNode) node;
+                        return (ZscriptCommandNode<?>) node;
                     }
                     childIter = node.iterator();
                 }
@@ -152,4 +160,6 @@ public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode
             }
         };
     }
+
+    public abstract String asString();
 }

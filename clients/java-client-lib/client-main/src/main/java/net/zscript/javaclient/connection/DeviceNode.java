@@ -3,7 +3,7 @@ package net.zscript.javaclient.connection;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 
 /**
  * Defines a device which can take a zscript message in low-level form (byte[]), with or without an address, or high level form of a SyntaxTree node (CommandSeqElement)

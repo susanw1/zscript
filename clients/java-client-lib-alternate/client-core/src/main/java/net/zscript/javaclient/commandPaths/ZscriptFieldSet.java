@@ -8,14 +8,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import net.zscript.javaclient.commandbuilder.AbortCommandNode;
-import net.zscript.javaclient.commandbuilder.BlankCommandNode;
-import net.zscript.javaclient.commandbuilder.FailureCommandNode;
-import net.zscript.javaclient.commandbuilder.ZscriptBuiltCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultCommands.AbortCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultCommands.BlankCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultCommands.FailureCommandNode;
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
-import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
-import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
-import net.zscript.javareceiver.tokenizer.BlockIterator;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
@@ -84,27 +82,15 @@ public class ZscriptFieldSet implements ZscriptExpression {
         return new ZscriptFieldSet(bigFields, fields, hasClash);
     }
 
-    public static ZscriptFieldSet from(ZscriptCommandNode node) {
+    public static ZscriptFieldSet from(ZscriptCommandNode<?> node) {
         int[] fields = new int[26];
         Arrays.fill(fields, -1);
         List<BigField> bigFields = new ArrayList<>();
-        if (node instanceof ZscriptBuiltCommandNode) {
-            ZscriptBuiltCommandNode<?> source = (ZscriptBuiltCommandNode<?>) node;
-            for (Map.Entry<Byte, Integer> e : source.getFields().entrySet()) {
-                fields[e.getKey() - 'A'] = e.getValue();
-            }
-            for (ZscriptCommandBuilder.BigField b : source.getBigFields()) {
-                bigFields.add(new BigField(b.getData(), b.isString()));
-            }
-        } else if (node instanceof BlankCommandNode) {
-        } else if (node instanceof FailureCommandNode) {
-            fields[Zchars.Z_CMD - 'A'] = 1;
-            fields[Zchars.Z_STATUS - 'A'] = ZscriptStatus.COMMAND_FAIL_CONTROL;
-        } else if (node instanceof AbortCommandNode) {
-            fields[Zchars.Z_CMD - 'A'] = 1;
-            fields[Zchars.Z_STATUS - 'A'] = ZscriptStatus.COMMAND_ERROR_CONTROL;
-        } else {
-            throw new IllegalStateException("Unknown ZscriptCommandNode type: " + node);
+        for (Map.Entry<Byte, Integer> e : node.getFields().entrySet()) {
+            fields[e.getKey() - 'A'] = e.getValue();
+        }
+        for (ZscriptCommandBuilder.BigField b : node.getBigFields()) {
+            bigFields.add(new BigField(b.getData(), b.isString()));
         }
         return new ZscriptFieldSet(bigFields, fields, false);
     }

@@ -1,8 +1,12 @@
-package net.zscript.javaclient.commandbuilder;
+package net.zscript.javaclient.commandbuilder.defaultCommands;
 
 import java.nio.charset.StandardCharsets;
 
-public class FailureCommandNode extends ZscriptCommandNode {
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+
+public class FailureCommandNode extends ZscriptCommandNode<DefaultResponse> {
 
     public static final byte[] ZSCRIPT_BYTES = "Z1S2".getBytes(StandardCharsets.UTF_8);
 
@@ -47,7 +51,12 @@ public class FailureCommandNode extends ZscriptCommandNode {
     }
 
     @Override
-    byte[] compile(boolean includeParens) {
-        return ZSCRIPT_BYTES;
+    public DefaultResponse parseResponse(ZscriptExpression response) {
+        return new DefaultResponse(response);
+    }
+
+    @Override
+    public Class<DefaultResponse> getResponseType() {
+        return DefaultResponse.class;
     }
 }

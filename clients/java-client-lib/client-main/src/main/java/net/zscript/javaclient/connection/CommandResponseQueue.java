@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Queue;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.commandbuilder.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.Utils;
 import net.zscript.javaclient.commandbuilder.ZscriptByteString;
 import net.zscript.javaclient.connection.ResponseParser.ResponseHeader;
