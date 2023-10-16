@@ -15,6 +15,16 @@
     <properties>
         <build-native-gcc.skip>true</build-native-gcc.skip>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-cpp-model-components</artifactId>
+            <version>${project.version}</version>
+            <type>nar</type>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
