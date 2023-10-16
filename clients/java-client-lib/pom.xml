@@ -16,7 +16,6 @@
     <modules>
         <module>client-command-api</module>
         <module>client-command-builders</module>
-        <module>client-main</module>
     </modules>
 
     <dependencies>

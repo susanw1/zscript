@@ -31,7 +31,7 @@ public class JavaCommandBuilderBuildTest {
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
                 .setBitsetReqTestE(2);
-        assertThat(build(b)).isEqualTo("ZA2C23E2");
+        assertThat(build(b)).isEqualTo("A2C23E2Z");
     }
 
     @Test
@@ -74,7 +74,7 @@ public class JavaCommandBuilderBuildTest {
                 .setBitsetReqTestE(BitsetReqTestE.Tiger)
                 .setBitsetReqTestE(EnumSet.of(Lion, Tabby)) // this overwrites previous value
                 .setBitsetReqTestF(EnumSet.of(Camembert, Cheddar));
-        assertThat(build(b)).isEqualTo("ZA1C5E5F3");
+        assertThat(build(b)).isEqualTo("A1C5E5F3Z");
     }
 
     @Test
@@ -87,7 +87,7 @@ public class JavaCommandBuilderBuildTest {
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
                 .setBitsetReqTestE(2);
-        assertThat(build(b)).isEqualTo("ZA2B1C23D2914E2F6");
+        assertThat(build(b)).isEqualTo("A2B1C23D2914E2F6Z");
     }
 
     @Test
@@ -101,7 +101,7 @@ public class JavaCommandBuilderBuildTest {
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
                 .setBitsetReqTestE(1);
-        assertThat(build(b)).isEqualTo("ZA2B1C23D21aE1F5");
+        assertThat(build(b)).isEqualTo("A2B1C23D21aE1F5Z");
     }
 
     @Test
@@ -115,7 +115,7 @@ public class JavaCommandBuilderBuildTest {
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
                 .setBitsetReqTestE(1);
-        assertThat(build(b1)).isEqualTo("ZA2BC23E1F4");
+        assertThat(build(b1)).isEqualTo("A2BC23E1F4Z");
 
         ZscriptCommandBuilder<?> b2 = TestingModule.testCommand0Builder()
                 .setEnumReqTestB(false, Rabbit)
@@ -126,7 +126,7 @@ public class JavaCommandBuilderBuildTest {
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
                 .setBitsetReqTestE(1);
-        assertThat(build(b2)).isEqualTo("ZA2C23D21aE1F1");
+        assertThat(build(b2)).isEqualTo("A2C23D21aE1F1Z");
     }
 
     @Test
@@ -141,7 +141,7 @@ public class JavaCommandBuilderBuildTest {
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(0xa5)
                 .setBitsetReqTestE(1);
-        assertThat(build(b)).isEqualTo("ZA2B1Ca5D1aE1F5");
+        assertThat(build(b)).isEqualTo("A2B1Ca5D1aE1F5Z");
     }
 
     @Test
@@ -154,7 +154,7 @@ public class JavaCommandBuilderBuildTest {
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
                 .setBitsetReqTestE(1);
-        assertThat(build(b)).isEqualTo("ZA2C23E1");
+        assertThat(build(b)).isEqualTo("A2C23E1Z");
     }
 
     @Test
@@ -273,6 +273,6 @@ public class JavaCommandBuilderBuildTest {
 
     private String build(ZscriptCommandBuilder<?> b) {
         // ISO8859, because we want an 8-bit byte in each char, and they *could* be non-printing / non-ascii if they're in Text
-        return new String(b.build().compile(), StandardCharsets.ISO_8859_1);
+        return b.build().asString();
     }
 }

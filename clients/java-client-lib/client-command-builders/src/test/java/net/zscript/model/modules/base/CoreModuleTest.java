@@ -14,16 +14,16 @@ public class CoreModuleTest {
     public void shouldCreateCoreCapabilities() {
         ZscriptCommandNode c = CoreModule.capabilitiesBuilder()
                 .build();
-        byte[] ztext = c.compile();
-        assertThat(ztext).containsExactly('Z');
+        String ztext = c.asString();
+        assertThat(ztext).isEqualTo("Z");
     }
 
     @Test
     public void shouldCreateCoreActivate() {
         ZscriptCommandNode c = CoreModule.activateBuilder()
                 .build();
-        byte[] ztext = c.compile();
-        assertThat(ztext).containsExactly('Z', '2');
+        String ztext = c.asString();
+        assertThat(ztext).isEqualTo("Z2");
     }
 
     @Test
@@ -31,8 +31,8 @@ public class CoreModuleTest {
         ZscriptCommandNode c = CoreModule.ActivateCommand.builder()
                 .setChallenge(3)
                 .build();
-        byte[] ztext = c.compile();
-        assertThat(ztext).containsExactly('Z', '2', 'K', '3');
+        String ztext = c.asString();
+        assertThat(ztext).isEqualTo("K3Z2");
     }
 
     @Test
@@ -40,8 +40,8 @@ public class CoreModuleTest {
         ZscriptCommandNode c = CoreModule.echoBuilder()
                 .setAny('J', 123)
                 .build();
-        byte[] ztext = c.compile();
-        assertThat(ztext).containsExactly('Z', '1', 'J', '7', 'b');
+        String ztext = c.asString();
+        assertThat(ztext).isEqualTo("J7bZ1");
     }
 
     @Test
@@ -50,8 +50,8 @@ public class CoreModuleTest {
                 .setIdType(TemporaryId)
                 .setMatchId(new byte[] { 0x3a, 0x42 })
                 .build();
-        byte[] ztext = c.compile();
-        assertThat(ztext).containsExactly('Z', '4', 'I', '+', '3', 'a', '4', '2');
+        String ztext = c.asString();
+        assertThat(ztext).isEqualTo("IZ4+3a42");
     }
 
     @Test

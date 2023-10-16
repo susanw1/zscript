@@ -1,14 +1,21 @@
 package net.zscript.javaclient.commandbuilder.defaultCommands;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Map;
 
+import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.model.components.Zchars;
+import net.zscript.model.components.ZscriptStatus;
 
 public class FailureCommandNode extends ZscriptCommandNode<DefaultResponse> {
 
-    public static final byte[] ZSCRIPT_BYTES = "Z1S2".getBytes(StandardCharsets.UTF_8);
+    public FailureCommandNode() {
+        super(null, Collections.emptyList(), Map.of(Zchars.Z_CMD, 1, Zchars.Z_STATUS, (int) ZscriptStatus.COMMAND_FAIL_CONTROL));
+    }
 
     @Override
     public CommandSequenceNode thenFail() {

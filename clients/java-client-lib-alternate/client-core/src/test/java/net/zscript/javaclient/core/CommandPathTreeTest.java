@@ -88,7 +88,8 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForMixedSequences(final CommandSequenceNode input, final String output) {
-        CommandExecutionPath path = CommandExecutionPath.convert(input).getPath();
+        CommandExecutionPath path = CommandExecutionPath.convert(input, r -> {
+        }).getPath();
 
         assertThat(path.toSequence().asString()).isEqualTo(output);
     }
