@@ -22,11 +22,6 @@
     <dependencies>
         <dependency>
             <groupId>net.zscript</groupId>
-            <artifactId>client-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.zscript</groupId>
             <artifactId>zscript-model-standard-module-definitions</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -13,8 +13,6 @@
 
     <modules>
         <module>java-client-lib</module>
-        <module>java-client-lib-alternate</module>
-        <module>java-client-lib-alternate/client-core</module>
     </modules>
 
 </project>
