@@ -21,12 +21,11 @@ import net.zscript.javaclient.commandPaths.MatchedCommandResponse;
 import net.zscript.javaclient.commandPaths.Response;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
-import net.zscript.javaclient.commandbuilder.ZscriptByteString;
+import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.datamodel.IntrinsicsDataModel.StatusModel;
 import net.zscript.model.datamodel.ZscriptDataModel;
-import net.zscript.util.ByteString;
 
 public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, StandardCommandGrapher.CommandPrintSettings, CommandGraph.GraphPrintSettings> {
 

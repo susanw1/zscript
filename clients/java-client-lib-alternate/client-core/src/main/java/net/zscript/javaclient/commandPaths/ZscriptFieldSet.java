@@ -8,26 +8,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import net.zscript.javaclient.commandbuilder.defaultCommands.AbortCommandNode;
-import net.zscript.javaclient.commandbuilder.defaultCommands.BlankCommandNode;
-import net.zscript.javaclient.commandbuilder.defaultCommands.FailureCommandNode;
-import net.zscript.javaclient.commandbuilder.ZscriptByteString;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 import net.zscript.model.components.Zchars;
-import net.zscript.model.components.ZscriptStatus;
 import net.zscript.util.ByteString;
 
 public class ZscriptFieldSet implements ZscriptExpression {
 
-    static class BigField {
+    public static class BigField {
         private final byte[]  data;
         private final boolean isString;
 
-        BigField(byte[] data, boolean isString) {
+        public BigField(byte[] data, boolean isString) {
             this.data = data;
             this.isString = isString;
         }
@@ -82,15 +76,18 @@ public class ZscriptFieldSet implements ZscriptExpression {
         return new ZscriptFieldSet(bigFields, fields, hasClash);
     }
 
-    public static ZscriptFieldSet from(ZscriptCommandNode<?> node) {
+    public static ZscriptFieldSet fromMap(List<byte[]> inBigFields, List<Boolean> bigFieldStrings, Map<Byte, Integer> inFields) {
         int[] fields = new int[26];
         Arrays.fill(fields, -1);
-        List<BigField> bigFields = new ArrayList<>();
-        for (Map.Entry<Byte, Integer> e : node.getFields().entrySet()) {
+        for (Map.Entry<Byte, Integer> e : inFields.entrySet()) {
             fields[e.getKey() - 'A'] = e.getValue();
         }
-        for (ZscriptCommandBuilder.BigField b : node.getBigFields()) {
-            bigFields.add(new BigField(b.getData(), b.isString()));
+        if (inBigFields.size() != bigFieldStrings.size()) {
+            throw new IllegalArgumentException();
+        }
+        List<BigField> bigFields = new ArrayList<>();
+        for (int i = 0; i < inBigFields.size(); i++) {
+            bigFields.add(new BigField(inBigFields.get(i), bigFieldStrings.get(i)));
         }
         return new ZscriptFieldSet(bigFields, fields, false);
     }

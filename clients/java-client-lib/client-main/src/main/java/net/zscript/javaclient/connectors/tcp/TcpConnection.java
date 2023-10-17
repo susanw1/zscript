@@ -8,15 +8,14 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.connection.ZscriptConnection;
+import net.zscript.javaclient.connectors.RawConnection;
 
-public class TcpConnection implements ZscriptConnection {
+public class TcpConnection extends RawConnection {
     private final Socket          socket;
     private final ExecutorService executor;
 
@@ -43,7 +42,7 @@ public class TcpConnection implements ZscriptConnection {
     }
 
     @Override
-    public void onReceive(final Consumer<byte[]> responseHandler) {
+    public void onReceiveBytes(final Consumer<byte[]> responseHandler) {
         if (this.handler != null || responseHandler == null) {
             throw new IllegalStateException("Handler already assigned");
         }

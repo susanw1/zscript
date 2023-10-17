@@ -1,10 +1,13 @@
 package net.zscript.javaclient.commandbuilder.commandnodes;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import net.zscript.javaclient.commandbuilder.ZscriptByteString;
+import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
+import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder.BigField;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
@@ -53,12 +56,9 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
         }
     }
 
-    public Map<Byte, Integer> getFields() {
-        return fields;
-    }
-
-    public List<BigField> getBigFields() {
-        return bigFields;
+    public ZscriptFieldSet asFieldSet() {
+        return ZscriptFieldSet.fromMap(bigFields.stream().map(BigField::getData).collect(Collectors.toList()),
+                bigFields.stream().map(BigField::isString).collect(Collectors.toList()), fields);
     }
 
     @Override

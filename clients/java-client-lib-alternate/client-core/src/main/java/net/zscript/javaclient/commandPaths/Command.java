@@ -1,7 +1,6 @@
 package net.zscript.javaclient.commandPaths;
 
-import net.zscript.javaclient.commandbuilder.ZscriptByteString;
-import net.zscript.util.ByteString;
+import net.zscript.javaclient.ZscriptByteString;
 
 public class Command {
     private final ZscriptFieldSet fieldSet;
@@ -9,7 +8,7 @@ public class Command {
     private final Command onSuccess;
     private final Command onFail;
 
-    Command(Command onSuccess, Command onFail, ZscriptFieldSet fieldSet) {
+    public Command(Command onSuccess, Command onFail, ZscriptFieldSet fieldSet) {
         this.onSuccess = onSuccess;
         this.onFail = onFail;
         this.fieldSet = fieldSet;

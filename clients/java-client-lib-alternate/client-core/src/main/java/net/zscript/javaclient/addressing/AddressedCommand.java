@@ -3,9 +3,8 @@ package net.zscript.javaclient.addressing;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import net.zscript.javaclient.commandbuilder.ZscriptByteString;
+import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.javaclient.sequence.CommandSequence;
-import net.zscript.javareceiver.semanticParser.ParseState;
 import net.zscript.util.ByteString;
 
 public class AddressedCommand {

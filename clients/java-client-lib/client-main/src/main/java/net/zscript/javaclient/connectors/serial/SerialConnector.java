@@ -7,8 +7,8 @@ import com.fazecast.jSerialComm.SerialPort;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.connection.ZscriptConnection;
 import net.zscript.javaclient.connectors.ZscriptConnectors;
+import net.zscript.javaclient.nodes.Connection;
 
 public class SerialConnector implements ZscriptConnectors.ZscriptConnector<SerialPort> {
     public SerialConnector() {
@@ -16,7 +16,7 @@ public class SerialConnector implements ZscriptConnectors.ZscriptConnector<Seria
     }
 
     @Override
-    public ZscriptConnection connect(SerialPort commPort) throws IOException {
+    public SerialConnection connect(SerialPort commPort) throws IOException {
         return new SerialConnection(commPort);
     }
 

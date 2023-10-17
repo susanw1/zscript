@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
+import net.zscript.javaclient.connectors.RawConnection;
 import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.OutputStreamOutStream;
 import net.zscript.javareceiver.core.Zscript;
@@ -17,7 +18,7 @@ import net.zscript.javareceiver.modules.outerCore.ZscriptOuterCoreModule;
 import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 
-public class LocalZscriptConnection implements ZscriptConnection {
+public class LocalZscriptConnection extends RawConnection {
     private final ExecutorService  exec   = Executors.newSingleThreadExecutor();
     private final Queue<byte[]>    dataIn = new ArrayDeque<>();
     private       Consumer<byte[]> responseHandler;
@@ -96,11 +97,10 @@ public class LocalZscriptConnection implements ZscriptConnection {
     }
 
     @Override
-    public void onReceive(Consumer<byte[]> responseHandler) {
+    public void onReceiveBytes(Consumer<byte[]> responseHandler) {
         this.responseHandler = responseHandler;
     }
 
-    @Override
     public void close() {
     }
 }

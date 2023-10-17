@@ -1,11 +1,7 @@
 package net.zscript.javaclient.sequence;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-
-import net.zscript.javaclient.commandPaths.Command;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
-import net.zscript.javaclient.commandbuilder.ZscriptByteString;
+import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.model.components.Zchars;

@@ -7,7 +7,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javaclient.commandbuilder.ZscriptByteString.ZscriptByteStringBuilder;
+import net.zscript.javaclient.ByteWritable;
+import net.zscript.javaclient.ZscriptByteString;
+import net.zscript.javaclient.ZscriptByteString.ZscriptByteStringBuilder;
 
 class ByteWritableTest {
     ByteWritable testObject = new ByteWritable() {

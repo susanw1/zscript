@@ -12,16 +12,10 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
-import net.zscript.javaclient.commandbuilder.commandnodes.AndSequenceNode;
-import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.commandnodes.OrSequenceNode;
-import net.zscript.javaclient.commandbuilder.ZscriptByteString;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
-import net.zscript.javaclient.devices.ResponseSequenceCallback;
+import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.ZscriptModel;
@@ -147,127 +141,8 @@ public class CommandExecutionPath implements Iterable<Command> {
         return new CommandExecutionPath(model, commands.get(builders.get(0)));
     }
 
-    public static class CommandExecutionTask {
-        private final CommandExecutionPath            path;
-        private final Consumer<ResponseExecutionPath> callback;
-
-        public CommandExecutionTask(CommandExecutionPath path, Consumer<ResponseExecutionPath> callback) {
-            this.path = path;
-            this.callback = callback;
-        }
-
-        public CommandExecutionPath getPath() {
-            return path;
-        }
-
-        public Consumer<ResponseExecutionPath> getCallback() {
-            return callback;
-        }
-    }
-
-    public static CommandExecutionTask convert(CommandSequenceNode cmdSeq, Consumer<ResponseSequenceCallback> callback) {
-        return convert(ZscriptModel.standardModel(), cmdSeq, callback);
-    }
-
-    public static CommandExecutionTask convert(ZscriptModel model, CommandSequenceNode cmdSeq, Consumer<ResponseSequenceCallback> callback) {
-        class Layer {
-            Command success;
-            Command failure;
-            boolean onSuccessHasOpenParen;
-            boolean onSuccessHasCloseParen;
-
-        }
-        Map<ZscriptCommandNode<?>, Command> commandMap = new HashMap<>();
-
-        Deque<ListIterator<CommandSequenceNode>> stack = new ArrayDeque<>();
-        Deque<CommandSequenceNode>               nodes = new ArrayDeque<>();
-
-        Deque<Layer> destinations = new ArrayDeque<>();
-        stack.push(List.of(cmdSeq).listIterator(1));
-
-        Layer first = new Layer();
-        first.success = null;
-        first.failure = null;
-        first.onSuccessHasOpenParen = false;
-        destinations.push(first);
-
-        while (true) {
-            if (stack.peek().hasPrevious()) {
-                Layer               layer = destinations.peek();
-                CommandSequenceNode next  = stack.peek().previous();
-                if (next instanceof ZscriptCommandNode) {
-                    Command cmd = new Command(layer.success, layer.failure, ZscriptFieldSet.from((ZscriptCommandNode<?>) next));
-                    if (commandMap.containsKey(next)) {
-                        throw new IllegalArgumentException(
-                                "Repeated use of CommandNode detected - this is not supported. Instead share the builder, and call it twice, or create the commands seperately.");
-                    }
-                    commandMap.put((ZscriptCommandNode<?>) next, cmd);
-                    if (nodes.peek() instanceof OrSequenceNode && stack.peek().hasPrevious()) {
-                        layer.failure = cmd;
-                    } else {
-                        layer.success = cmd;
-                        layer.onSuccessHasOpenParen = false;
-                        layer.onSuccessHasCloseParen = false;
-                    }
-                } else if (next instanceof OrSequenceNode) {
-                    Layer nextLayer = new Layer();
-                    if (nodes.peek() instanceof AndSequenceNode) {
-                        if (layer.onSuccessHasCloseParen) {
-                            layer.success = new Command(layer.success, layer.failure, ZscriptFieldSet.blank());
-                        }
-                        layer.onSuccessHasCloseParen = true;
-                    }
-                    nextLayer.onSuccessHasCloseParen = true;
-                    nextLayer.failure = layer.failure;
-                    nextLayer.success = layer.success;
-                    nextLayer.onSuccessHasOpenParen = false;
-                    stack.push(next.getChildren().listIterator(next.getChildren().size()));
-                    nodes.push(next);
-                    destinations.push(nextLayer);
-                } else if (next instanceof AndSequenceNode) {
-                    Layer nextLayer = new Layer();
-                    nextLayer.failure = layer.failure;
-                    nextLayer.success = layer.success;
-                    nextLayer.onSuccessHasOpenParen = false;
-                    nextLayer.onSuccessHasCloseParen = layer.onSuccessHasCloseParen;
-                    stack.push(next.getChildren().listIterator(next.getChildren().size()));
-                    nodes.push(next);
-                    destinations.push(nextLayer);
-                } else {
-                    throw new IllegalStateException("Unknown type: " + next);
-                }
-            } else {
-                stack.pop();
-                if (nodes.isEmpty()) {
-                    break;
-                }
-                CommandSequenceNode prev      = nodes.pop();
-                Layer               prevLayer = destinations.pop();
-                Layer               layer     = destinations.peek();
-                layer.onSuccessHasOpenParen = prevLayer.onSuccessHasOpenParen;
-                if (nodes.peek() instanceof AndSequenceNode) {
-                    layer.success = prevLayer.success;
-                    if (prev instanceof OrSequenceNode) {
-                        if (prevLayer.onSuccessHasOpenParen) {
-                            layer.success = new Command(prevLayer.success, prevLayer.failure,
-                                    ZscriptFieldSet.blank());
-                        }
-                        layer.onSuccessHasOpenParen = true;
-                    }
-                } else if (stack.peek().hasPrevious()) {
-                    layer.failure = prevLayer.success;
-                } else {
-                    layer.success = prevLayer.success;
-                }
-            }
-        }
-        CommandExecutionPath path = new CommandExecutionPath(model, destinations.peek().success);
-        return new CommandExecutionTask(path, resps -> {
-            ResponseSequenceCallback rsCallback = ResponseSequenceCallback.from(path.compareResponses(resps), cmdSeq, commandMap);
-            ;
-            rsCallback.getExecutionSummary().forEach(s -> s.getCommand().responseArrived(s.getResponse()));
-            callback.accept(rsCallback);
-        });
+    public static CommandExecutionPath from(ZscriptModel model, Command success) {
+        return new CommandExecutionPath(model, success);
     }
 
     public static CommandExecutionPath blank() {

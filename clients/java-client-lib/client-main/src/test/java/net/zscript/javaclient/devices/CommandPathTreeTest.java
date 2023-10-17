@@ -1,4 +1,4 @@
-package net.zscript.javaclient.core;
+package net.zscript.javaclient.devices;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.of;
@@ -14,13 +14,15 @@ import net.zscript.javaclient.commandbuilder.defaultCommands.AbortCommandNode;
 import net.zscript.javaclient.commandbuilder.defaultCommands.BlankCommandNode;
 import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.defaultCommands.FailureCommandNode;
+import net.zscript.model.ZscriptModel;
 import net.zscript.model.modules.base.CoreModule;
 
 public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForSingleCommands(final CommandSequenceNode input, final String output) {
-        CommandExecutionPath path = CommandExecutionPath.convert(input, r -> {
+        Device d = new Device(ZscriptModel.standardModel(), null);
+        CommandExecutionPath path = d.convert(input, r -> {
         }).getPath();
 
         assertThat(path.toSequence().asString()).isEqualTo(output);
@@ -38,7 +40,8 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForAndSequences(final CommandSequenceNode input, final String output) {
-        CommandExecutionPath path = CommandExecutionPath.convert(input, r -> {
+        Device d = new Device(ZscriptModel.standardModel(), null);
+        CommandExecutionPath path = d.convert(input, r -> {
         }).getPath();
 
         assertThat(path.toSequence().asString()).isEqualTo(output);
@@ -63,7 +66,8 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForOrSequences(final CommandSequenceNode input, final String output) {
-        CommandExecutionPath path = CommandExecutionPath.convert(input, r -> {
+        Device d = new Device(ZscriptModel.standardModel(), null);
+        CommandExecutionPath path = d.convert(input, r -> {
         }).getPath();
 
         assertThat(path.toSequence().asString()).isEqualTo(output);
@@ -88,7 +92,8 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForMixedSequences(final CommandSequenceNode input, final String output) {
-        CommandExecutionPath path = CommandExecutionPath.convert(input, r -> {
+        Device d = new Device(ZscriptModel.standardModel(), null);
+        CommandExecutionPath path = d.convert(input, r -> {
         }).getPath();
 
         assertThat(path.toSequence().asString()).isEqualTo(output);

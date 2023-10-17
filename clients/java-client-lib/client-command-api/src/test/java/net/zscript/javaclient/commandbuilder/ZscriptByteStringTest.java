@@ -5,7 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javaclient.commandbuilder.ZscriptByteString.ZscriptByteStringBuilder;
+import net.zscript.javaclient.ZscriptByteString;
+import net.zscript.javaclient.ZscriptByteString.ZscriptByteStringBuilder;
 import net.zscript.model.components.Zchars;
 
 class ZscriptByteStringTest {

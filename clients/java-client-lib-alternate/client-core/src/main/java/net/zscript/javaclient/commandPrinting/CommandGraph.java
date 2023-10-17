@@ -1,6 +1,5 @@
 package net.zscript.javaclient.commandPrinting;
 
-import javax.lang.model.element.Element;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,7 +12,6 @@ import net.zscript.ascii.TextCanvas;
 import net.zscript.ascii.TextColor;
 import net.zscript.javaclient.commandPaths.Command;
 import net.zscript.javaclient.commandPaths.MatchedCommandResponse;
-import net.zscript.javaclient.commandPaths.Response;
 import net.zscript.model.ZscriptModel;
 
 public class CommandGraph extends TextCanvas {

@@ -22,18 +22,6 @@
         </dependency>
         <dependency>
             <groupId>net.zscript</groupId>
-            <artifactId>zscript-java-client-commandapi</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.zscript</groupId>
-            <artifactId>zscript-java-client-command-builders</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.zscript</groupId>
             <artifactId>zscript-model-standard-module-definitions</artifactId>
             <version>${project.version}</version>
         </dependency>

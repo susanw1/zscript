@@ -11,13 +11,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.connection.ZscriptConnection;
+import net.zscript.javaclient.connectors.RawConnection;
 
 /**
  *
  */
 // Note: SerialPort is hard to use in tests as it contains Android references which cause Mocking failure.
-public class SerialConnection implements ZscriptConnection {
+public class SerialConnection extends RawConnection {
     private final SerialPort   commPort;
     private final OutputStream out;
 
@@ -40,7 +40,7 @@ public class SerialConnection implements ZscriptConnection {
      * {@inheritDoc}
      */
     @Override
-    public void onReceive(final Consumer<byte[]> responseHandler) {
+    public void onReceiveBytes(final Consumer<byte[]> responseHandler) {
         if (this.handler != null) {
             throw new IllegalStateException("Handler already assigned");
         }

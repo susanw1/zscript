@@ -1,4 +1,4 @@
-package net.zscript.javaclient.commandbuilder;
+package net.zscript.javaclient;
 
 import java.nio.charset.StandardCharsets;
 
