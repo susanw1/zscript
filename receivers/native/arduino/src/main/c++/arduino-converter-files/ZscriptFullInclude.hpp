@@ -21,9 +21,11 @@
 #include "arduino/pins-module/PinModule.hpp"
 
 #endif
+
 #ifdef ZSCRIPT_HAVE_SERVO_MODULE
 #include "arduino/servo-module/ServoModule.hpp"
 #endif
+
 #if defined(ZSCRIPT_HAVE_I2C_MODULE) || defined(ZSCRIPT_HAVE_I2C_CHANNEL)
 
 #include "arduino/i2c-module/I2cModule.hpp"
@@ -40,7 +42,9 @@
 #include "Zscript.hpp"
 
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
+
 #include <arduino/i2c-module/channels/I2cChannel.hpp>
+
 #endif
 
 #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
@@ -48,28 +52,29 @@
 #include <arduino/ethernet-module/channels/ZscriptUdpChannel.hpp>
 
 #endif
+
 #ifdef ZSCRIPT_HAVE_TCP_CHANNEL
 #include <arduino/ethernet-module/channels/ZscriptTcpChannel.hpp>
 Zscript::ZscriptTcpChannel<ZscriptParams> ZscriptTcpChannels[ZscriptParams::tcpChannelCount];
 #endif
 
-#ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
+#ifdef ZSCRIPT_HAVE_UART_CHANNEL
 
-#include "arduino/serial-module/channels/ZscriptSerialChannel.hpp"
+#include "arduino/uart-module/channels/UartChannel.hpp"
 
-Zscript::ZscriptSerialChannel<ZscriptParams> ZscriptSerialChannel;
+Zscript::UartChannel<ZscriptParams> ZscriptSerialChannel;
 #endif
 
 class ArduinoZscriptBasicSetup {
-#if defined(ZSCRIPT_HAVE_SERIAL_CHANNEL) or defined(ZSCRIPT_HAVE_I2C_CHANNEL) or defined(ZSCRIPT_HAVE_UDP_CHANNEL) or defined(ZSCRIPT_HAVE_TCP_CHANNEL)
+#if defined(ZSCRIPT_HAVE_UART_CHANNEL) or defined(ZSCRIPT_HAVE_I2C_CHANNEL) or defined(ZSCRIPT_HAVE_UDP_CHANNEL) or defined(ZSCRIPT_HAVE_TCP_CHANNEL)
     Zscript::ZscriptChannel<ZscriptParams> *channels[0
 
-                                                     #ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
+                                                     #ifdef ZSCRIPT_HAVE_UART_CHANNEL
                                                      + 1
                                                      #endif
 
                                                      #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-                                                     +1
+                                                     + 1
                                                      #endif
                                                      #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
                                                      + ZscriptParams::udpChannelCount
@@ -84,7 +89,7 @@ class ArduinoZscriptBasicSetup {
 #if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS) || defined(ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS)
     Zscript::GenericCore::ZscriptNotificationSource<ZscriptParams> *notifSrcs[0
                                                                               #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
-                                                                              +1
+                                                                              + 1
                                                                               #endif
                                                                               #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
                                                                               + 1
@@ -102,9 +107,10 @@ public:
             notifPersistLength = Zscript::ZscriptUdpManager<ZscriptParams>::getNotifChannelPersistMaxLength();
         }
 #endif
-#ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
-        if (Zscript::ZscriptSerialChannel<ZscriptParams>::getNotifChannelPersistMaxLength() > notifPersistLength) {
-            notifPersistLength = Zscript::ZscriptSerialChannel<ZscriptParams>::getNotifChannelPersistMaxLength();
+
+#ifdef ZSCRIPT_HAVE_UART_CHANNEL
+        if (Zscript::UartChannel<ZscriptParams>::getNotifChannelPersistMaxLength() > notifPersistLength) {
+            notifPersistLength = Zscript::UartChannel<ZscriptParams>::getNotifChannelPersistMaxLength();
         }
 #endif
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
@@ -123,7 +129,7 @@ public:
         Zscript::ZscriptServoModule<ZscriptParams>::setup();
 #endif
         uint8_t i = 0;
-#ifdef ZSCRIPT_HAVE_SERIAL_CHANNEL
+#ifdef ZSCRIPT_HAVE_UART_CHANNEL
         channels[i++] = &ZscriptSerialChannel;
 #endif
 #if defined(ZSCRIPT_HAVE_I2C_MODULE) || defined(ZSCRIPT_HAVE_I2C_CHANNEL)
@@ -145,7 +151,7 @@ public:
             channels[i++] = ZscriptTcpChannels+j;
         }
 #endif
-#if defined(ZSCRIPT_HAVE_SERIAL_CHANNEL) or defined(ZSCRIPT_HAVE_I2C_CHANNEL) or defined(ZSCRIPT_HAVE_UDP_CHANNEL) or defined(ZSCRIPT_HAVE_TCP_CHANNEL)
+#if defined(ZSCRIPT_HAVE_UART_CHANNEL) or defined(ZSCRIPT_HAVE_I2C_CHANNEL) or defined(ZSCRIPT_HAVE_UDP_CHANNEL) or defined(ZSCRIPT_HAVE_TCP_CHANNEL)
         Zscript::Zscript<ZscriptParams>::zscript.setChannels(channels, i);
 #endif
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
@@ -172,7 +178,7 @@ public:
 #endif
     }
 
-    void pollAll() {
+    static void pollAll() {
 #ifdef ZSCRIPT_HAVE_SERVO_MODULE
         Zscript::ZscriptServoModule<ZscriptParams>::moveAlongServos();
 #endif

@@ -9,7 +9,7 @@
 #define SRC_MAIN_CPP_ARDUINO_SERIAL_MODULE_CHANNELS_ZSCRIPTSERIALCHANNEL_HPP_
 
 #ifndef ZSCRIPT_HPP_INCLUDED
-#error ZscriptSerialChannel.hpp needs to be included after Zscript.hpp
+#   error UartChannel.hpp needs to be included after Zscript.hpp
 #endif
 
 #include <ZscriptChannelBuilder.hpp>
@@ -55,7 +55,7 @@ public:
 };
 
 template<class ZP>
-class ZscriptSerialChannel : public ZscriptChannel<ZP> {
+class UartChannel : public ZscriptChannel<ZP> {
     ZscriptSerialOutStream<ZP> out;
     GenericCore::TokenRingBuffer<ZP> tBuffer;
     ZscriptTokenizer<ZP> tokenizer;
@@ -69,7 +69,7 @@ public:
         return 0;
     }
 
-    ZscriptSerialChannel() :
+    UartChannel() :
             ZscriptChannel<ZP>(&out, &tBuffer, 0x7, true), tBuffer(buffer, ZP::serialBufferSize), tokenizer(tBuffer.getWriter(), 2) {
     }
 

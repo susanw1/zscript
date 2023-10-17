@@ -34,6 +34,7 @@
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
 
 namespace Zscript {
+
 template<class ZP>
 class I2cChannel;
 }
@@ -78,7 +79,7 @@ class I2cModule : public ZscriptModule<ZP> {
 
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
 
-    static void SmBusAlertRecieved() {
+    static void SmBusAlertReceived() {
         if (giveNotifs) {
             notifSrc.set(NULL, 0x50, isAddressing);
         }
@@ -99,7 +100,7 @@ public:
     static void setup() {
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
         pinMode(ZP::i2cAlertInPin, INPUT_PULLUP);
-        attachInterrupt(digitalPinToInterrupt(ZP::i2cAlertInPin), &SmBusAlertRecieved, FALLING);
+        attachInterrupt(digitalPinToInterrupt(ZP::i2cAlertInPin), &SmBusAlertReceived, FALLING);
         pinMode(ZP::i2cAlertInPin, INPUT_PULLUP);
 #endif
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
@@ -113,7 +114,7 @@ public:
     static void poll() {
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
         if (digitalRead(ZP::i2cAlertInPin) == LOW) {
-            SmBusAlertRecieved();
+            SmBusAlertReceived();
         }
 #endif
     }
