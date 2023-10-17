@@ -20,7 +20,7 @@
 
 #include <ZscriptIncludes.hpp>
 
-// Please note that ZscriptFullInclude will set any #defines necessary to other set #defines - so ZSCRIPT_USE_DEBUG_ADDRESSING_SYSTEM enables ZSCRIPT_SUPPORT_DEBUG
+// Please note that ZscriptFullInclude will set any #defines necessary to other set #defines - eg ZSCRIPT_USE_DEBUG_ADDRESSING_SYSTEM enables ZSCRIPT_SUPPORT_DEBUG
 
 //#define ZSCRIPT_SUPPORT_SCRIPT_SPACE
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS
@@ -39,7 +39,7 @@
 
 #define ZSCRIPT_HAVE_UDP_CHANNEL
 //#define ZSCRIPT_HAVE_TCP_CHANNEL
-#define ZSCRIPT_HAVE_SERIAL_CHANNEL
+#define ZSCRIPT_HAVE_UART_CHANNEL
 
 class ZscriptParams {
 public:
