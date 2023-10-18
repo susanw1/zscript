@@ -15,6 +15,11 @@
     <dependencies>
         <dependency>
             <groupId>net.zscript</groupId>
+            <artifactId>client-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.zscript</groupId>
             <artifactId>zscript-java-client-commandapi</artifactId>
             <version>${project.version}</version>
         </dependency>

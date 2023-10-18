@@ -14,5 +14,4 @@ public interface ZscriptResponse {
 
     OptionalInt getField(char key);
 
-    BlockIterator getBigField();
 }

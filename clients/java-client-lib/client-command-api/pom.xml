@@ -13,4 +13,11 @@
     <name>Java Client Command API</name>
     <description>Defines the API available to the auto-generated model-based command builders</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>client-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

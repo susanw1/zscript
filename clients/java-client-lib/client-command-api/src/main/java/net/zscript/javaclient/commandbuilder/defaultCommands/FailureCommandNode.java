@@ -1,0 +1,69 @@
+package net.zscript.javaclient.commandbuilder.defaultCommands;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Map;
+
+import net.zscript.javaclient.commandbuilder.ZscriptResponse;
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.model.components.Zchars;
+import net.zscript.model.components.ZscriptStatus;
+
+public class FailureCommandNode extends ZscriptCommandNode<DefaultResponse> {
+
+    public FailureCommandNode() {
+        super(null, Collections.emptyList(), Map.of(Zchars.Z_CMD, 1, Zchars.Z_STATUS, (int) ZscriptStatus.COMMAND_FAIL_CONTROL));
+    }
+
+    @Override
+    public CommandSequenceNode thenFail() {
+        return this;
+    }
+
+    @Override
+    public CommandSequenceNode thenAbort() {
+        return this;
+    }
+
+    @Override
+    public CommandSequenceNode andThen(CommandSequenceNode next) {
+        return this;
+    }
+
+    @Override
+    public CommandSequenceNode dropFailureCondition() {
+        return new BlankCommandNode();
+    }
+
+    @Override
+    public CommandSequenceNode abortOnFail() {
+        return new AbortCommandNode();
+    }
+
+    @Override
+    public SuccessConditional ifSucceeds() {
+        return success -> failure -> failure;
+    }
+
+    @Override
+    public FailureConditional ifFails() {
+        return failure -> success -> failure;
+    }
+
+    @Override
+    public CommandSequenceNode onFail(CommandSequenceNode next) {
+        return next;
+    }
+
+    @Override
+    public DefaultResponse parseResponse(ZscriptExpression response) {
+        return new DefaultResponse(response);
+    }
+
+    @Override
+    public Class<DefaultResponse> getResponseType() {
+        return DefaultResponse.class;
+    }
+}

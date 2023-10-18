@@ -8,7 +8,10 @@ import javax.annotation.processing.Generated;
 
 import static net.zscript.javaclient.commandbuilder.Utils.*;
 
+import net.zscript.javaclient.commandbuilder.commandnodes.*;
+import net.zscript.javaclient.commandbuilder.defaultCommands.*;
 import net.zscript.javaclient.commandbuilder.*;
+import net.zscript.javaclient.commandbuilder.commandnodes.*;
 import net.zscript.javareceiver.tokenizer.*;
 import net.zscript.model.components.*;
 
@@ -69,7 +72,7 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
 {{/commands}}
 {{#commands}}
     public static class {{#upperCamel}}{{commandName}}Command{{/upperCamel}}
-            extends ZscriptBuiltCommandNode<{{#upperCamel}}{{commandName}}Command{{/upperCamel}}.{{#upperCamel}}{{name}}{{/upperCamel}}Response> {
+            extends ZscriptCommandNode<{{#upperCamel}}{{commandName}}Command{{/upperCamel}}.{{#upperCamel}}{{name}}{{/upperCamel}}Response> {
         public static final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands CMD = {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands.{{#upperCamel}}{{commandName}}{{/upperCamel}};
 
         private {{#upperCamel}}{{commandName}}Command{{/upperCamel}}(Builder builder) {
@@ -80,6 +83,10 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
             return new Builder();
         }
 
+        @Override
+        public Class<{{#upperCamel}}{{name}}{{/upperCamel}}Response> getResponseType() {
+            return {{#upperCamel}}{{name}}{{/upperCamel}}Response.class;
+        }
 
         @Override
         protected boolean canFail() {
@@ -87,7 +94,7 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
         }
 
         @Override
-        protected {{#upperCamel}}{{name}}Response{{/upperCamel}} parseResponse(ZscriptExpression resp) {
+        public {{#upperCamel}}{{name}}Response{{/upperCamel}} parseResponse(ZscriptExpression resp) {
             return new {{#upperCamel}}{{name}}Response{{/upperCamel}}(resp);
         }
 

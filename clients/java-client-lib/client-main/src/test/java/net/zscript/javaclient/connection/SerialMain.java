@@ -7,8 +7,14 @@ import java.util.Arrays;
 
 import com.fazecast.jSerialComm.SerialPort;
 
+import net.zscript.javaclient.addressing.AddressedCommand;
+import net.zscript.javaclient.commandPaths.CommandExecutionPath;
+import net.zscript.javaclient.connectors.RawConnection;
 import net.zscript.javaclient.connectors.ZscriptConnectors;
 import net.zscript.javaclient.connectors.serial.SerialConnector;
+import net.zscript.javaclient.sequence.CommandSequence;
+import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
+import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.modules.base.CoreModule;
 
 class SerialMain {
@@ -79,16 +85,22 @@ class SerialMain {
         //            Thread.sleep(1000);
         //        }
 
-        try (ZscriptConnection conn = connector.connect(commPort)) {
+        try (RawConnection conn = connector.connect(commPort)) {
             conn.onReceive((response) -> {
-                System.out.println("Response: " + new String(response, StandardCharsets.ISO_8859_1));
+                System.out.println("Response: " + response.toString());
             });
             for (int i = 0; i < 10; i++) {
-                byte[] b = CoreModule.echoBuilder().setAny('A', 35).addResponseListener(resp -> System.out.println("Field: ")).build().compile();
-                conn.send(b);
-                System.out.println("Sending: " + Arrays.toString(b));
+                byte[]               ba     = CoreModule.echoBuilder().setAny('A', 35).build().asString().getBytes(StandardCharsets.UTF_8);
+                TokenExtendingBuffer buffer = new TokenExtendingBuffer();
+                Tokenizer            t      = new Tokenizer(buffer.getTokenWriter(), 2);
+                for (byte b : ba) {
+                    t.accept(b);
+                }
+                conn.send(new AddressedCommand(CommandSequence.from(CommandExecutionPath.parse(buffer.getTokenReader().getFirstReadToken()), -1)));
+                System.out.println("Sending: " + Arrays.toString(ba));
                 Thread.sleep(1000);
             }
+        } catch (Exception e) {
         }
 
         Thread.sleep(1000);

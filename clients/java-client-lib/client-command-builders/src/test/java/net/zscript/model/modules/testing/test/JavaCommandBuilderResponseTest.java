@@ -8,14 +8,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Consumer;
+
 import net.zscript.client.modules.test.testing.TestingModule;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.BitsetRespTestV;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.EnumRespTestP;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.EnumRespTestQ;
-import net.zscript.javaclient.commandbuilder.ZscriptCommandBuilder;
-import net.zscript.javaclient.commandbuilder.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javaclient.commandbuilder.ZscriptResponseListener;
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
@@ -229,13 +231,15 @@ public class JavaCommandBuilderResponseTest {
      * @param listener       the action to perform when the response is synthesized
      */
     private <R extends ZscriptResponse> void checkResponse(final String responseChars, final ZscriptCommandBuilder<R> commandBuilder,
-            final ZscriptResponseListener<R> listener) {
+            final Consumer<R> listener) {
         responseChars.chars().forEach(c -> tokenizer.accept((byte) c));
 
-        ZscriptCommandNode cmd = commandBuilder.addResponseListener(listener)
+        ResponseCaptor<R> captor = ResponseCaptor.create();
+        ZscriptCommandNode cmd = commandBuilder.capture(captor)
                 .build();
 
-        cmd.onResponse(new ZscriptTokenExpression(tokenReader::iterator));
+        cmd.responseArrived(cmd.parseResponse(new ZscriptTokenExpression(tokenReader::iterator)));
+        listener.accept(captor.get());
     }
 
 }

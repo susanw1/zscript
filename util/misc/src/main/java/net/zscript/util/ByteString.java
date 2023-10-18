@@ -179,6 +179,34 @@ public interface ByteString {
         }
 
         /**
+         * Appends a number as up to 8 nibbles of hex. ALL leading zeroes are suppressed.
+         *
+         * @param value the value to append
+         * @return this builder, to facilitate chaining
+         * @throws IllegalArgumentException if value is out of range
+         */
+        public <B extends ByteStringBuilder> B appendNumeric32(long value) {
+            return (value == 0) ? asTypeB() : appendNumeric32KeepZero(value);
+        }
+
+        /**
+         * Appends a number as up to 4 nibbles of hex. All leading zeroes EXCEPT ONE are suppressed.
+         *
+         * @param value the value to append
+         * @return this builder, to facilitate chaining
+         * @throws IllegalArgumentException if value is out of range
+         */
+        public <B extends ByteStringBuilder> B appendNumeric32KeepZero(long value) {
+            if (value > 0x10000) {
+                appendNumericKeepZero((int) (value >>> 16));
+                appendHexPair((byte) (value >>> 8));
+                return appendHexPair((byte) (value));
+            } else {
+                return appendNumericKeepZero((int) (value & 0xffff));
+            }
+        }
+
+        /**
          * Appends a number as up to 4 nibbles of hex. ALL leading zeroes are suppressed.
          *
          * @param value the value to append
@@ -198,7 +226,7 @@ public interface ByteString {
          */
         public <B extends ByteStringBuilder> B appendNumericKeepZero(int value) {
             if ((value & ~0xffff) != 0) {
-                throw new IllegalArgumentException("Numeric fields must be 0x0-0xffff: " + value);
+                throw new IllegalArgumentException("Numeric fields must be 0x0-0xffffffff: " + value);
             }
             if (value >= 0x1000) {
                 baos.write(toHex(value >>> 12));
@@ -233,6 +261,7 @@ public interface ByteString {
         public ByteString build() {
             return new ImmutableByteString(toByteArray());
         }
+
     }
 
     /**
