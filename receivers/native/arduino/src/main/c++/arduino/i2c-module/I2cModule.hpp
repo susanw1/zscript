@@ -22,6 +22,7 @@
 #include <zscript/execution/ZscriptAddressingContext.hpp>
 
 #endif
+
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
 
 #include <zscript/notifications/ZscriptNotificationSource.hpp>
@@ -61,25 +62,23 @@ class I2cChannel;
 #define MODULE_SWITCH_005 MODULE_SWITCH_UTIL(I2cModule<ZP>::execute)
 
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
-#ifdef ZSCRIPT_SUPPORT_ADDRESSING
-#define MODULE_ADDRESS_EXISTS_005 EXISTENCE_MARKER_UTIL
-#define MODULE_ADDRESS_SWITCH_005 ADDRESS_SWITCH_UTIL(I2cModule<ZP>::address)
-#endif
-#define MODULE_NOTIFICATION_EXISTS_005 EXISTENCE_MARKER_UTIL
-#define MODULE_NOTIFICATION_SWITCH_005 NOTIFICATION_SWITCH_UTIL(I2cModule<ZP>::notification)
+#   ifdef ZSCRIPT_SUPPORT_ADDRESSING
+#       define MODULE_ADDRESS_EXISTS_005 EXISTENCE_MARKER_UTIL
+#       define MODULE_ADDRESS_SWITCH_005 ADDRESS_SWITCH_UTIL(I2cModule<ZP>::address)
+#   endif
+#   define MODULE_NOTIFICATION_EXISTS_005 EXISTENCE_MARKER_UTIL
+#   define MODULE_NOTIFICATION_SWITCH_005 NOTIFICATION_SWITCH_UTIL(I2cModule<ZP>::notification)
 #endif
 
 namespace Zscript {
+
 template<class ZP>
 class I2cModule : public ZscriptModule<ZP> {
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
     static bool isAddressing;
     static bool giveNotifs;
-#endif
 
-#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
-
-    static void SmBusAlertReceived() {
+    static void smBusAlertReceived() {
         if (giveNotifs) {
             notifSrc.set(NULL, 0x50, isAddressing);
         }
@@ -100,7 +99,7 @@ public:
     static void setup() {
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
         pinMode(ZP::i2cAlertInPin, INPUT_PULLUP);
-        attachInterrupt(digitalPinToInterrupt(ZP::i2cAlertInPin), &SmBusAlertReceived, FALLING);
+        attachInterrupt(digitalPinToInterrupt(ZP::i2cAlertInPin), &smBusAlertReceived, FALLING);
         pinMode(ZP::i2cAlertInPin, INPUT_PULLUP);
 #endif
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
@@ -114,7 +113,7 @@ public:
     static void poll() {
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
         if (digitalRead(ZP::i2cAlertInPin) == LOW) {
-            SmBusAlertReceived();
+            smBusAlertReceived();
         }
 #endif
     }
@@ -181,11 +180,14 @@ public:
 template<class ZP>
 I2cChannel<ZP> I2cModule<ZP>::channel;
 #endif
+
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
 template<class ZP>
 bool I2cModule<ZP>::isAddressing = false;
+
 template<class ZP>
 bool I2cModule<ZP>::giveNotifs = false;
+
 template<class ZP>
 GenericCore::ZscriptNotificationSource<ZP> I2cModule<ZP>::notifSrc;
 #endif

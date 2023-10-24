@@ -13,6 +13,7 @@
 #include <Wire.h>
 
 namespace Zscript {
+
 template<class ZP>
 class ZscriptI2cNotification {
     static const uint8_t SMBUS_ALERT_ADDR = 0xC;

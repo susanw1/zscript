@@ -1,8 +1,8 @@
 /*
- * I2cManager.hpp
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
  *
- *  Created on: 20 Aug 2023
- *      Author: alicia
+ * SPDX-License-Identifier: MIT
  */
 
 #ifndef SRC_MAIN_C___ARDUINO_I2C_MODULE_I2CMANAGER_HPP_

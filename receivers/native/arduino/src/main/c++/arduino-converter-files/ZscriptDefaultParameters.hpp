@@ -16,26 +16,36 @@
 
 #include <ArduinoPlatformVersion.hpp>
 #include <arduino/arduino-core-module/commands/ZscriptResetCommand.hpp>
+#include <arduino/arduino-core-module/commands/ZscriptIdCommand.hpp>
 
 #include <ZscriptIncludes.hpp>
 
 // Please note that ZscriptFullInclude will set any #defines necessary to other set #defines - so ZSCRIPT_USE_DEBUG_ADDRESSING_SYSTEM enables ZSCRIPT_SUPPORT_DEBUG
 
-#define ZSCRIPT_SUPPORT_SCRIPT_SPACE
-#define ZSCRIPT_SUPPORT_NOTIFICATIONS
+//#define ZSCRIPT_SUPPORT_SCRIPT_SPACE
+//#define ZSCRIPT_SUPPORT_NOTIFICATIONS
 //#define ZSCRIPT_SUPPORT_ADDRESSING
 
 //#define ZSCRIPT_HAVE_PIN_MODULE
+//#define ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
+//#define ZSCRIPT_PIN_SUPPORT_ANALOG_NOTIFICATIONS
+
+//#define ZSCRIPT_HAVE_I2C_MODULE
+//#define ZSCRIPT_HAVE_I2C_CHANNEL
+//#define ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+
+#define ZSCRIPT_HAVE_UART_MODULE
+#define ZSCRIPT_HAVE_UART_CHANNEL
+
 //#define ZSCRIPT_HAVE_SERVO_MODULE
 //#define ZSCRIPT_SERVO_MODULE_SLOW_MOVE
-//#define ZSCRIPT_HAVE_I2C_MODULE
 
 //#define ZSCRIPT_HAVE_UDP_CHANNEL
-#define ZSCRIPT_HAVE_UART_CHANNEL
-//#define ZSCRIPT_HAVE_I2C_CHANNEL
+//#define ZSCRIPT_HAVE_TCP_CHANNEL
 
-#define I2C_ENABLE_GENERAL_CALL() (TWAR |= 1)
-#define I2C_SET_ADDRESS(addr) (TWAR = addr<<1)
+// This is where device-specific macros can be defined for devices that aren't otherwise supported. Eg
+//#define I2C_ENABLE_GENERAL_CALL() (TWAR |= 1)
+//#define I2C_SET_ADDRESS(addr) (TWAR = addr<<1)
 
 class ZscriptParams {
 public:

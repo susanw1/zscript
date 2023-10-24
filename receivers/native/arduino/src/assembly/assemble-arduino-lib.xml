@@ -27,12 +27,12 @@
             <outputDirectory>src/arduino</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}/nar/generic-receiver-core-${generic-core-version}-noarch/include/zscript</directory>
-            <outputDirectory>src/zscript</outputDirectory>
+            <directory>${project.build.directory}/nar/generic-receiver-core-${generic-core-version}-noarch/include</directory>
+            <outputDirectory>src</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}/nar/zscript-cpp-model-components-${generic-core-version}-noarch/include/zscript</directory>
-            <outputDirectory>src/zscript</outputDirectory>
+            <directory>${project.build.directory}/nar/zscript-cpp-model-components-${generic-core-version}-noarch/include</directory>
+            <outputDirectory>src</outputDirectory>
         </fileSet>
     </fileSets>
 

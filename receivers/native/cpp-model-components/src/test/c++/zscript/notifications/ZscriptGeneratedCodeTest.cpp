@@ -12,6 +12,7 @@
 #include <net/zscript/model/components/ZscriptStatus.hpp>
 
 #include <net/zscript/model/modules/base/CoreModule.hpp>
+#include <net/zscript/model/modules/base/UartModule.hpp>
 
 namespace Zscript {
 
