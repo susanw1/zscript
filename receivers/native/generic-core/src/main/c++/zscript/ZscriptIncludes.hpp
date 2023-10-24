@@ -8,6 +8,7 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_ZSCRIPTINCLUDES_HPP_
 #define SRC_MAIN_C___ZSCRIPT_ZSCRIPTINCLUDES_HPP_
 
+// Retained rather than cstdint etc (not supported on Arduino env)
 #include <stdint.h>
 #include <stdlib.h>
 

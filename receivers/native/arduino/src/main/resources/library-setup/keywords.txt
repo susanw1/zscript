@@ -19,7 +19,7 @@ ZscriptModuleAddressRouter	KEYWORD1
 ZscriptMappingAddressRouter	KEYWORD1
 ZscriptAddressRouter	KEYWORD1
 ZscriptCommand	KEYWORD1
-ZscriptUartChannel	KEYWORD1
+zscriptUartChannel	KEYWORD1
 ZscriptSetup	KEYWORD1
 ZscriptStrings	KEYWORD1
 

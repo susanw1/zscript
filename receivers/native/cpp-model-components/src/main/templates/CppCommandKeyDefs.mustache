@@ -30,27 +30,27 @@ namespace cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}} {
         {{#typeDefinition}}
             {{#enumType}}
     /** Enum ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+    static constexpr uint8_t Req{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/enumType}}
             {{#numberType}}
     /** Number ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+    static constexpr uint8_t Req{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/numberType}}
             {{#bitsetType}}
     /** Bitset ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+    static constexpr uint8_t Req{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/bitsetType}}
             {{#flagType}}
     /** Flag ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+    static constexpr uint8_t Req{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/flagType}}
             {{#textType}}
     /** Text ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__Txt = '{{key}}';
+    static constexpr uint8_t Req{{#upperCamel}}{{name}}{{/upperCamel}}__Txt = '{{key}}';
             {{/textType}}
             {{#bytesType}}
     /** Bytes ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    constexpr uint8_t Req_{{#upperCamel}}{{name}}{{/upperCamel}}__Bytes = '{{key}}';
+    static constexpr uint8_t Req{{#upperCamel}}{{name}}{{/upperCamel}}__Bytes = '{{key}}';
             {{/bytesType}}
         {{/typeDefinition}}
     {{/requestFields}}
@@ -59,28 +59,52 @@ namespace cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}} {
             {{#typeDefinition}}
             {{#enumType}}
     /** Enum ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+    static constexpr uint8_t Resp{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+
+    /** Enum of acceptable values for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field. */
+    enum class Resp{{#upperCamel}}{{name}}{{/upperCamel}}Values : uint8_t {
+        /** Enum value: {{description}} */
+        {{#values}}{{#lowerCamel}}{{.}}Value{{/lowerCamel}},{{/values}}
+    };
             {{/enumType}}
             {{#numberType}}
     /** Number ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+    static constexpr uint8_t Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/numberType}}
             {{#bitsetType}}
     /** Bitset ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+    static constexpr uint8_t Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}__{{key}} = '{{key}}';
+
+    /** Enum of bit-positions for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field. */
+    enum class Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions : uint8_t {
+                {{#bits}}
+        {{#lowerCamel}}{{name}}{{/lowerCamel}}_BitPosition,
+                {{/bits}}
+    };
+    /** Enum of bit fields (ie 1<<posn) for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field. */
+    enum class Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_Values : uint16_t {
+        /** Bit field: {{description}} */
+                {{#bits}}
+        {{#lowerCamel}}{{name}}{{/lowerCamel}}_field = (1 << (int) Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions::{{#lowerCamel}}{{name}}{{/lowerCamel}}_BitPosition),
+                {{/bits}}
+    };
             {{/bitsetType}}
             {{#flagType}}
     /** Flag ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+    static constexpr uint8_t Resp{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/flagType}}
             {{#textType}}
     /** Text ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__Txt = '{{key}}';
+    static constexpr uint8_t Resp{{#upperCamel}}{{name}}{{/upperCamel}}__Txt = '{{key}}';
             {{/textType}}
             {{#bytesType}}
     /** Bytes ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    constexpr uint8_t Resp_{{#upperCamel}}{{name}}{{/upperCamel}}__Bytes = '{{key}}';
+    static constexpr uint8_t Resp{{#upperCamel}}{{name}}{{/upperCamel}}__Bytes = '{{key}}';
             {{/bytesType}}
+            {{#commandsType}}
+    /** Commands ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
+    static constexpr uint8_t Resp{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+            {{/commandsType}}
         {{/typeDefinition}}
     {{/responseFields}}
 }   // cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}}

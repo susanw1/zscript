@@ -295,6 +295,13 @@ public interface ZscriptDataModel {
     }
 
     interface GenericField extends ModelComponent {
+        /**
+         * Facilitates disambiguating the name in templating engines. Identical to calling {@link #getName()}.
+         */
+        default String getFieldName() {
+            return getName();
+        }
+
         char getKey();
 
         TypeDefinition getTypeDefinition();
