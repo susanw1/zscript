@@ -9,6 +9,8 @@ import com.fazecast.jSerialComm.SerialPortMessageListener;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 import net.zscript.javaclient.connectors.RawConnection;
@@ -44,7 +46,6 @@ public class SerialConnection extends RawConnection {
         if (this.handler != null) {
             throw new IllegalStateException("Handler already assigned");
         }
-
         this.handler = requireNonNull(responseHandler, "handler");
 
         commPort.addDataListener(new SerialPortMessageListener() {
@@ -55,7 +56,6 @@ public class SerialConnection extends RawConnection {
 
             @Override
             public void serialEvent(SerialPortEvent serialPortEvent) {
-                System.out.println("Event: " + serialPortEvent);
                 if (serialPortEvent.getEventType() == SerialPort.LISTENING_EVENT_DATA_RECEIVED) {
                     responseHandler.accept(serialPortEvent.getReceivedData());
                 }

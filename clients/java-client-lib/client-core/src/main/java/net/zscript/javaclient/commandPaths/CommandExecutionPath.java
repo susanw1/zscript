@@ -335,7 +335,7 @@ public class CommandExecutionPath implements Iterable<Command> {
                 while (true) {
                     while (toVisit.hasNext()) {
                         Command c = toVisit.next();
-                        if (!visited.contains(c)) {
+                        if (c != null && !visited.contains(c)) {
                             visited.add(c);
                             Command s = c.getOnSuccess();
                             if (!visited.contains(s)) {

@@ -33,6 +33,7 @@ public class ZscriptNode {
         this.addressingSystem = new AddressingSystem(this);
         this.parentConnection = parentConnection;
         this.connectionBuffer = new ConnectionBuffer(parentConnection, bufferSize);
+        this.strategy.setBuffer(connectionBuffer);
         parentConnection.onReceive(r -> {
             if (r.hasAddress()) {
                 if (!addressingSystem.response(r)) {
@@ -50,6 +51,7 @@ public class ZscriptNode {
 
     public void setStrategy(QueuingStrategy strategy) {
         this.strategy = strategy;
+        this.strategy.setBuffer(connectionBuffer);
     }
 
     public Connection attach(ZscriptAddress address) {
