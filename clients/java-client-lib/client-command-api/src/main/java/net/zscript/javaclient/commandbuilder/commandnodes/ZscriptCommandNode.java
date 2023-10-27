@@ -36,24 +36,16 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
         }
     }
 
+    public ResponseCaptor<T> getCaptor() {
+        return captor;
+    }
+
     public abstract T parseResponse(ZscriptExpression response);
 
     public abstract Class<T> getResponseType();
 
     public List<CommandSequenceNode> getChildren() {
         return Collections.emptyList();
-    }
-
-    public void responseArrived(ZscriptResponse response) {
-        if (captor != null) {
-            captor.responseReceived(getResponseType().cast(response));
-        }
-    }
-
-    public void resetResponseParsing() {
-        if (captor != null) {
-            captor.resetResponseParsing();
-        }
     }
 
     public ZscriptFieldSet asFieldSet() {

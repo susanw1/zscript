@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import net.zscript.javaclient.commandPaths.Command;
 import net.zscript.javaclient.commandPaths.MatchedCommandResponse;
 import net.zscript.javaclient.commandPaths.Response;
+import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.model.components.Zchars;
@@ -136,5 +137,9 @@ public class ResponseSequenceCallback {
 
     public Optional<ZscriptResponse> getResponseFor(ZscriptCommandNode<?> node) {
         return Optional.ofNullable(responses.get(node));
+    }
+
+    public <T extends ZscriptResponse> Optional<T> getResponseFor(ResponseCaptor<T> captor) {
+        return getResponseFor(captor.getCommand()).map(r -> captor.getCommand().getResponseType().cast(r));
     }
 }

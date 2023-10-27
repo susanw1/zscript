@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
@@ -17,7 +22,6 @@ import net.zscript.javaclient.commandPaths.Command;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
-import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 import net.zscript.javaclient.nodes.ZscriptNode;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
@@ -33,9 +37,73 @@ public class Device {
         this.node = node;
     }
 
-    public void send(final CommandSequenceNode cmdSeq, final Consumer<ResponseSequenceCallback> callback) {
+    public void sendAsync(final CommandSequenceNode cmdSeq, final Consumer<ResponseSequenceCallback> callback) {
         CommandExecutionTask nodeToPath = convert(cmdSeq, callback);
         node.send(nodeToPath.getPath(), nodeToPath.getCallback());
+    }
+
+    public Future<ResponseSequenceCallback> send(final CommandSequenceNode cmdSeq) {
+        CompletableFuture<ResponseSequenceCallback> future = new CompletableFuture<>();
+
+        CommandExecutionTask nodeToPath = convert(cmdSeq, future::complete);
+        node.send(nodeToPath.getPath(), nodeToPath.getCallback());
+        return future;
+    }
+
+    public Future<ResponseSequenceCallback> sendExpectSuccess(final CommandSequenceNode cmdSeq) {
+        CompletableFuture<ResponseSequenceCallback> future = new CompletableFuture<>();
+
+        CommandExecutionTask nodeToPath = convert(cmdSeq, resp -> {
+            List<ResponseSequenceCallback.CommandExecutionSummary<?>> l = resp.getExecutionSummary();
+            if (l.get(l.size() - 1).getResponse().succeeded()) {
+                future.complete(resp);
+            } else {
+                future.completeExceptionally(new CommandFailedException(resp));
+            }
+        });
+        node.send(nodeToPath.getPath(), nodeToPath.getCallback());
+        return future;
+    }
+
+    public ResponseSequenceCallback sendAndWait(final CommandSequenceNode cmdSeq) throws InterruptedException {
+        try {
+            return send(cmdSeq).get();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e.getCause());
+        }
+    }
+
+    public ResponseSequenceCallback sendAndWaitExpectSuccess(final CommandSequenceNode cmdSeq) throws InterruptedException {
+        try {
+            return sendExpectSuccess(cmdSeq).get();
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            } else {
+                throw new RuntimeException(e.getCause());
+            }
+        }
+    }
+
+    public ResponseSequenceCallback sendAndWait(final CommandSequenceNode cmdSeq, final long timeout, final TimeUnit unit) throws TimeoutException, InterruptedException {
+        try {
+            return send(cmdSeq).get(timeout, unit);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e.getCause());
+        }
+    }
+
+    public ResponseSequenceCallback sendAndWaitExpectSuccess(final CommandSequenceNode cmdSeq, final long timeout, final TimeUnit unit)
+            throws TimeoutException, InterruptedException {
+        try {
+            return sendExpectSuccess(cmdSeq).get(timeout, unit);
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            } else {
+                throw new RuntimeException(e.getCause());
+            }
+        }
     }
 
     public void send(final byte[] cmdSeq, final Consumer<byte[]> callback) {
@@ -154,8 +222,7 @@ public class Device {
                     layer.success = prevLayer.success;
                     if (prev instanceof OrSequenceNode) {
                         if (prevLayer.onSuccessHasOpenParen) {
-                            layer.success = new Command(prevLayer.success, prevLayer.failure,
-                                    ZscriptFieldSet.blank());
+                            layer.success = new Command(prevLayer.success, prevLayer.failure, ZscriptFieldSet.blank());
                         }
                         layer.onSuccessHasOpenParen = true;
                     }
@@ -169,8 +236,6 @@ public class Device {
         CommandExecutionPath path = CommandExecutionPath.from(model, destinations.peek().success);
         return new CommandExecutionTask(path, resps -> {
             ResponseSequenceCallback rsCallback = ResponseSequenceCallback.from(path.compareResponses(resps), cmdSeq, commandMap);
-            ;
-            rsCallback.getExecutionSummary().forEach(s -> s.getCommand().responseArrived(s.getResponse()));
             callback.accept(rsCallback);
         });
     }

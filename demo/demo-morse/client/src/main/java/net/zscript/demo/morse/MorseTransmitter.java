@@ -22,15 +22,12 @@ public class MorseTransmitter {
 
     public void transmit(List<MorseElement> elements) {
         try {
-            device.send(PinsModule.digitalSetupBuilder().setPin(pin).setMode(Mode.Output).build(), r -> {
-            });
-            Thread.sleep(100);
+            device.sendAndWaitExpectSuccess(PinsModule.digitalSetupBuilder().setPin(pin).setMode(Mode.Output).build());
             for (MorseElement element : elements) {
                 sendElement(element.getLength(), element.isHigh());
                 sendElement(1, false);
             }
-            device.send(PinsModule.digitalSetupBuilder().setPin(pin).setMode(Mode.Input).build(), r -> {
-            });
+            device.sendAndWaitExpectSuccess(PinsModule.digitalSetupBuilder().setPin(pin).setMode(Mode.Input).build());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -39,15 +36,10 @@ public class MorseTransmitter {
     private void sendElement(int length, boolean isHigh) throws InterruptedException {
         long msStart = System.currentTimeMillis();
         if (isHigh) {
-            device.send(digitalWriteBuilder().setPin(pin).setValue(Value.High).build(), r -> {
-            });
+            device.sendAndWaitExpectSuccess(digitalWriteBuilder().setPin(pin).setValue(Value.High).build());
         } else {
-            device.send(digitalWriteBuilder().setPin(pin).setValue(Value.Low).build(), r -> {
-            });
+            device.sendAndWaitExpectSuccess(digitalWriteBuilder().setPin(pin).setValue(Value.Low).build());
         }
-        while (System.currentTimeMillis() - msStart < ditPeriodMs * length) {
-            //move-along...
-            Thread.sleep(1);
-        }
+        Thread.sleep(ditPeriodMs * length - (System.currentTimeMillis() - msStart));
     }
 }
