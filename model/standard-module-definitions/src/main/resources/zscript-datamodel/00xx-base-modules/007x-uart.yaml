@@ -372,21 +372,7 @@ notifications:
     description: a serial interface is almost overflowing its data capacity
     condition: on data exceeding some proportion of the buffer (e.g. 75%) - not sent again until after the fullness drops below this level
     sections:
-    -   section: &section_serialData
-            name: serialData
-            description: data from a serial system
-            fields:
-            -   key: M
-                name: serialMarker
-                description: the type of terminator ending the data
-                typeDefinition: *receive_markers
-                required: yes
-            -   key: +
-                name: data
-                description: the data in the buffer
-                typeDefinition:
-                    '@type': bytes
-                required: yes
+    -   section: *section_serialDataInfo
         logicalTermination: end
 
 -   name: serialReceiveOverflow
@@ -413,5 +399,26 @@ notifications:
     sections:
     -   section: *section_serialDataInfo
         logicalTermination: andthen
-    -   section: *section_serialData
+    -   section:
+            name: serialData
+            description: data from a serial system
+            fields:
+            -   key: M
+                name: serialMarker
+                description: the type of terminator ending the data
+                typeDefinition:
+                    '@type': enum
+                    values:
+                    - Nothing
+                    - Break
+                    - ParityError
+                    - NoiseError
+                    - BufferOverflow
+                required: yes
+            -   key: +
+                name: data
+                description: the data in the buffer
+                typeDefinition:
+                    '@type': bytes
+                required: yes
         logicalTermination: end
