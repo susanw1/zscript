@@ -1,6 +1,9 @@
 package net.zscript.model.datamodel;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -69,6 +72,16 @@ public interface ZscriptDataModel {
 
         @JsonManagedReference
         List<NotificationModel> getNotifications();
+
+        default Collection<NotificationSectionModel> getNotificationSections() {
+            Map<String, NotificationSectionModel> sections = new HashMap<>();
+            for (NotificationModel model : getNotifications()) {
+                for (NotificationSectionNodeModel node : model.getSections()) {
+                    sections.put(node.getSection().getSectionName(), node.getSection());
+                }
+            }
+            return sections.values();
+        }
 
         default Optional<? extends CommandModel> getCommandById(int id) {
             for (CommandModel c : getCommands()) {

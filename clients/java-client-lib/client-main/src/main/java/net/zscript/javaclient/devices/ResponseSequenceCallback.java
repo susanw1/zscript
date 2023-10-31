@@ -140,6 +140,6 @@ public class ResponseSequenceCallback {
     }
 
     public <T extends ZscriptResponse> Optional<T> getResponseFor(ResponseCaptor<T> captor) {
-        return getResponseFor(captor.getCommand()).map(r -> captor.getCommand().getResponseType().cast(r));
+        return getResponseFor((ZscriptCommandNode<T>) captor.getSource()).map(r -> ((ZscriptCommandNode<T>) captor.getSource()).getResponseType().cast(r));
     }
 }

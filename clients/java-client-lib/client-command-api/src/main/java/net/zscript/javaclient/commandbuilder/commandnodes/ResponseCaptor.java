@@ -2,6 +2,7 @@ package net.zscript.javaclient.commandbuilder.commandnodes;
 
 import java.util.NoSuchElementException;
 
+import net.zscript.javaclient.commandbuilder.Respondable;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 
 public class ResponseCaptor<T extends ZscriptResponse> {
@@ -9,13 +10,13 @@ public class ResponseCaptor<T extends ZscriptResponse> {
         return new ResponseCaptor<>();
     }
 
-    private ZscriptCommandNode<T> command;
+    private Respondable<T> source;
 
-    public void setCommand(ZscriptCommandNode<T> command) {
-        this.command = command;
+    public void setSource(Respondable<T> source) {
+        this.source = source;
     }
 
-    public ZscriptCommandNode<T> getCommand() {
-        return command;
+    public Respondable<T> getSource() {
+        return source;
     }
 }

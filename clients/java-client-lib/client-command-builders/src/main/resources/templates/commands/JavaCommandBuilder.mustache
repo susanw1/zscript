@@ -12,6 +12,7 @@ import net.zscript.javaclient.commandbuilder.commandnodes.*;
 import net.zscript.javaclient.commandbuilder.defaultCommands.*;
 import net.zscript.javaclient.commandbuilder.*;
 import net.zscript.javaclient.commandbuilder.commandnodes.*;
+import net.zscript.javaclient.commandbuilder.notifications.*;
 import net.zscript.javareceiver.tokenizer.*;
 import net.zscript.model.components.*;
 
@@ -166,28 +167,78 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
         }
     }
 
+    {{#notificationSections}}
+    /** {{description}} */
+    public static class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId extends NotificationSectionId<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> {
+        private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId id = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId();
+
+        public static {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId {{#lowerCamel}}{{name}}{{/lowerCamel}}NotificationSectionId(){
+            return id;
+        }
+        public static {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId get(){
+            return id;
+        }
+        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId(){
+        }
+    }
+    public static class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSection extends NotificationSection<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> {
+        @Override
+        public Class<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> getResponseType(){
+            return {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent.class;
+        }
+
+        @Override
+        public {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent parseResponse(ZscriptExpression expression){
+            return new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent(expression);
+        }
+    }
+
+    public static class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent extends ValidatingResponse {
+        public {{#upperCamel}}{{name}}NotificationSectionContent{{/upperCamel}}(ZscriptExpression response) {
+            super(response, new byte[] { {{#responseFields}}{{#required}}(byte) '{{key}}', {{/required}}{{/responseFields}} });
+        }
+        {{#fields}}
+            {{>responseField.mustache}}
+        {{/fields}}
+    }
+    {{/notificationSections}}
+
     {{#notifications}}
     /** {{description}} */
-    public static class {{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification {
+    public static class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId extends NotificationId<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle>{
         public static final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications NTFN = {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications.{{#upperCamel}}{{notificationName}}{{/upperCamel}};
 
-        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification(String zscriptResponse) {
+        @Override
+        public int getId(){
+            return (MODULE_ID << 4) | (int) NTFN.getNotification();
         }
 
-        {{#sections}}
-            {{#section}}
-        /** {{description}} */
-        public static class {{#upperCamel}}{{sectionName}}{{/upperCamel}}Section extends ValidatingResponse {
-            public {{#upperCamel}}{{sectionName}}{{/upperCamel}}Section(final ZscriptExpression response) {
-                super(response, new byte[] { {{#responseFields}}{{#required}}(byte) '{{key}}', {{/required}}{{/responseFields}} });
-            }
-                {{#responseFields}}
-                    {{>responseField.mustache}}
-                {{/responseFields}}
+        @Override
+        public Class<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle> getHandleType(){
+            return {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle.class;
         }
 
-            {{/section}}
-        {{/sections}}
+        @Override
+        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle newHandle(){
+            return new {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle();
+        }
     }
+    public static class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle extends NotificationHandle{
+        private final Map<NotificationSectionId<?>, NotificationSection<?>> sections = new HashMap<>();
+
+        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle() {
+        {{#sections}}
+        {{#section}}
+            sections.put({{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId.get(), new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSection());
+        {{/section}}
+        {{/sections}}
+        }
+        @Override
+        public <T extends ZscriptResponse> NotificationSection<T> getSection(NotificationSectionId<T> response) {
+            return (NotificationSection<T>) sections.get(response);
+        }
+    }
+
     {{/notifications}}
+
 }

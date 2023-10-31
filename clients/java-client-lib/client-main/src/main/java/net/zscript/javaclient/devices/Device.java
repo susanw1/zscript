@@ -22,6 +22,8 @@ import net.zscript.javaclient.commandPaths.Command;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
+import net.zscript.javaclient.commandbuilder.notifications.NotificationHandle;
+import net.zscript.javaclient.commandbuilder.notifications.NotificationId;
 import net.zscript.javaclient.nodes.ZscriptNode;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
@@ -32,9 +34,24 @@ public class Device {
     private final ZscriptModel model;
     private final ZscriptNode  node;
 
+    private final Map<NotificationId<?>, NotificationHandle> handles = new HashMap<>();
+
     public Device(ZscriptModel model, ZscriptNode node) {
         this.model = model;
         this.node = node;
+    }
+
+    public <T extends NotificationHandle> T getNotificationHandle(NotificationId<T> id) {
+        if (handles.get(id) == null) {
+            handles.put(id, id.newHandle());
+        }
+        return id.getHandleType().cast(handles.get(id));
+    }
+
+    public <T extends NotificationHandle> void setNotificationListener(NotificationId<T> id, Consumer<NotificationSequenceCallback> listener) {
+        node.setNotificationHandler(id.getId(), respSeq -> {
+
+        });
     }
 
     public void sendAsync(final CommandSequenceNode cmdSeq, final Consumer<ResponseSequenceCallback> callback) {

@@ -8,11 +8,12 @@ import java.util.stream.Collectors;
 
 import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
 import net.zscript.javaclient.ZscriptByteString;
+import net.zscript.javaclient.commandbuilder.Respondable;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder.BigField;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
-public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends CommandSequenceNode {
+public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends CommandSequenceNode implements Respondable<T> {
 
     private final ResponseCaptor<T> captor;
 
@@ -32,7 +33,7 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
         this.bigFields = bigFields;
         this.fields = fields;
         if (captor != null) {
-            captor.setCommand(this);
+            captor.setSource(this);
         }
     }
 
