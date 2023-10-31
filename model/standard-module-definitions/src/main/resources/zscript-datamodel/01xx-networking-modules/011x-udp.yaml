@@ -460,13 +460,11 @@ notifications:
                 typeDefinition:
                     '@type': bytes
                 required: yes
-        logicalTermination: end
 -   name: packetData
     notification: 1
     description: a UDP packet has been received, and its data is being transmitted via notification
     sections:
     -   section: *section_packetInfo
-        logicalTermination: andthen
     -   section:
             name: packetData
             description: data from a received UDP packet
@@ -477,4 +475,3 @@ notifications:
                 typeDefinition:
                     '@type': bytes
                 required: yes
-        logicalTermination: end

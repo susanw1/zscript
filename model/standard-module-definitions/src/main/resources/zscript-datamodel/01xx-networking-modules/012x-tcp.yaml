@@ -459,7 +459,6 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: yes
-        logicalTermination: end
 
 -   name: socketReceiveNearCapacity
     notification: 1
@@ -467,7 +466,6 @@ notifications:
     condition: on data exceeding some proportion of the buffer (e.g. 75%) - not sent again until after the fullness drops below this level
     sections:
     -   section: *section_socketDataInfo
-        logicalTermination: end
 
 -   name: socketReceiveOverflow
     notification: 2
@@ -484,7 +482,6 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: yes
-        logicalTermination: end
 
 -   name: socketReceiveData
     notification: 3
@@ -492,7 +489,6 @@ notifications:
     condition: 'on any of: X bytes of data having arrived, or Y milliseconds after the first data in the buffer arrived, for reasonable chosen values of X,Y'
     sections:
     -   section: *section_socketDataInfo
-        logicalTermination: andthen
     -   section:
             name: socketData
             description: data from a socket
@@ -503,7 +499,6 @@ notifications:
                 typeDefinition:
                     '@type': bytes
                 required: yes
-        logicalTermination: end
 
 -   name: serverReceiveConnection
     notification: 4
@@ -526,4 +521,3 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: yes
-        logicalTermination: end

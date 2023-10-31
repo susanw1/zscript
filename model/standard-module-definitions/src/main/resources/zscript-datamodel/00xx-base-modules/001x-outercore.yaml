@@ -171,4 +171,3 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: no
-        logicalTermination: end

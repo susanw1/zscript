@@ -184,12 +184,6 @@ public interface ZscriptDataModel {
         }
     }
 
-    enum LogicalTermination {
-        END,
-        ANDTHEN,
-        ORELSE
-    }
-
     @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
     interface NotificationSectionNodeModel {
         @JsonBackReference
@@ -197,9 +191,6 @@ public interface ZscriptDataModel {
 
         @JsonProperty(required = true)
         NotificationSectionModel getSection();
-
-        @JsonProperty(required = true)
-        LogicalTermination getLogicalTermination();
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)

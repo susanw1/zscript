@@ -365,7 +365,6 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: yes
-        logicalTermination: end
 
 -   name: serialReceiveNearCapacity
     notification: 0x1
@@ -373,7 +372,6 @@ notifications:
     condition: on data exceeding some proportion of the buffer (e.g. 75%) - not sent again until after the fullness drops below this level
     sections:
     -   section: *section_serialDataInfo
-        logicalTermination: end
 
 -   name: serialReceiveOverflow
     notification: 0x2
@@ -390,7 +388,6 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: yes
-        logicalTermination: end
 
 -   name: serialReceiveData
     notification: 0x3
@@ -398,7 +395,6 @@ notifications:
     condition: 'on any of: X bytes of data having arrived, Y milliseconds after the first data in the buffer arrived, or when a serial marker arrives, for reasonable chosen values of X,Y'
     sections:
     -   section: *section_serialDataInfo
-        logicalTermination: andthen
     -   section:
             name: serialData
             description: data from a serial system
@@ -421,4 +417,3 @@ notifications:
                 typeDefinition:
                     '@type': bytes
                 required: yes
-        logicalTermination: end
