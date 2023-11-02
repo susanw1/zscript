@@ -207,6 +207,16 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
     /** {{description}} */
     public static class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId extends NotificationId<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle>{
         public static final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications NTFN = {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications.{{#upperCamel}}{{notificationName}}{{/upperCamel}};
+        private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId id = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId();
+
+        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId(){}
+
+        public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId {{#lowerCamel}}{{notificationName}}{{/lowerCamel}}NotificationId(){
+            return id;
+        }
+        public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId get(){
+            return id;
+        }
 
         @Override
         public int getId(){
@@ -224,7 +234,7 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
         }
     }
     public static class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle extends NotificationHandle{
-        private final Map<NotificationSectionId<?>, NotificationSection<?>> sections = new HashMap<>();
+        private final LinkedHashMap<NotificationSectionId<?>, NotificationSection<?>> sections = new LinkedHashMap<>();
 
         public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle() {
         {{#sections}}
@@ -236,6 +246,10 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
         @Override
         public <T extends ZscriptResponse> NotificationSection<T> getSection(NotificationSectionId<T> response) {
             return (NotificationSection<T>) sections.get(response);
+        }
+        @Override
+        public List<NotificationSection<?>> getSections() {
+            return new ArrayList<>(sections.values());
         }
     }
 

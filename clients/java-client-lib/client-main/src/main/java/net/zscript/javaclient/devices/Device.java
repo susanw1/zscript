@@ -50,7 +50,7 @@ public class Device {
 
     public <T extends NotificationHandle> void setNotificationListener(NotificationId<T> id, Consumer<NotificationSequenceCallback> listener) {
         node.setNotificationHandler(id.getId(), respSeq -> {
-
+            listener.accept(NotificationSequenceCallback.from(id.newHandle().getSections(), respSeq.getExecutionPath().getResponses()));
         });
     }
 

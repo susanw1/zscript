@@ -1,18 +1,26 @@
 package net.zscript.javaclient.devices;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.zscript.javaclient.commandPaths.Command;
+import net.zscript.javaclient.commandPaths.MatchedCommandResponse;
 import net.zscript.javaclient.commandPaths.Response;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationSection;
+import net.zscript.model.components.Zchars;
 
 public class NotificationSequenceCallback {
 
@@ -42,42 +50,30 @@ public class NotificationSequenceCallback {
         }
     }
 
+    public static NotificationSequenceCallback from(List<NotificationSection<?>> sections, List<Response> responses) {
+        LinkedHashMap<NotificationSection<?>, ZscriptResponse> map = new LinkedHashMap<>();
+
+        Iterator<NotificationSection<?>> sectionIt = sections.iterator();
+        Iterator<Response>               respIt    = responses.iterator();
+
+        while (sectionIt.hasNext() && respIt.hasNext()) {
+            NotificationSection<?> section = sectionIt.next();
+            map.put(section, section.parseResponse(respIt.next().getFields()));
+        }
+        if (respIt.hasNext()) {
+            throw new IllegalStateException("Responses received longer than notification");
+        }
+        return new NotificationSequenceCallback(map);
+    }
+
     private final LinkedHashMap<NotificationSection<?>, ZscriptResponse> responses;
 
-    private final Set<NotificationSection<?>>        notExecuted;
-    private final Set<NotificationSectionSummary<?>> succeeded;
-    private final Set<NotificationSectionSummary<?>> failed;
-
-    private final NotificationSectionSummary<?> abort;
-
-    private NotificationSequenceCallback(LinkedHashMap<NotificationSection<?>, ZscriptResponse> responses, Set<NotificationSection<?>> notExecuted,
-            Set<NotificationSectionSummary<?>> succeeded,
-            Set<NotificationSectionSummary<?>> failed, NotificationSectionSummary<?> abort) {
+    private NotificationSequenceCallback(LinkedHashMap<NotificationSection<?>, ZscriptResponse> responses) {
         this.responses = responses;
-        this.notExecuted = notExecuted;
-        this.succeeded = succeeded;
-        this.failed = failed;
-        this.abort = abort;
     }
 
     public List<ZscriptResponse> getResponses() {
         return new ArrayList<>(responses.values());
-    }
-
-    public Collection<NotificationSection<?>> getNotExecuted() {
-        return notExecuted;
-    }
-
-    public Collection<NotificationSectionSummary<?>> getSucceeded() {
-        return succeeded;
-    }
-
-    public Collection<NotificationSectionSummary<?>> getFailed() {
-        return failed;
-    }
-
-    public Optional<NotificationSectionSummary<?>> getAborted() {
-        return Optional.ofNullable(abort);
     }
 
     public List<NotificationSection<?>> getExecuted() {

@@ -6,6 +6,7 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortIOException;
 import com.fazecast.jSerialComm.SerialPortMessageListener;
+import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -48,7 +49,12 @@ public class SerialConnection extends RawConnection {
         }
         this.handler = requireNonNull(responseHandler, "handler");
 
-        commPort.addDataListener(new SerialPortMessageListener() {
+        commPort.addDataListener(new SerialPortMessageListenerWithExceptions() {
+            @Override
+            public void catchException(Exception e) {
+                e.printStackTrace();
+            }
+
             @Override
             public int getListeningEvents() {
                 return SerialPort.LISTENING_EVENT_DATA_RECEIVED;
@@ -70,6 +76,7 @@ public class SerialConnection extends RawConnection {
             public boolean delimiterIndicatesEndOfMessage() {
                 return true;
             }
+
         });
     }
 
