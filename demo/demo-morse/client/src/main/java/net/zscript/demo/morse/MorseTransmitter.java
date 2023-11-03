@@ -11,12 +11,12 @@ import net.zscript.model.modules.base.PinsModule.DigitalWriteCommand.Builder.Val
 
 public class MorseTransmitter {
     private final Device device;
-    private final long   ditPeriodMs;
+    private final long   ditPeriodUs;
     private final int    pin;
 
-    public MorseTransmitter(Device device, long ditPeriodMs, int pin) {
+    public MorseTransmitter(Device device, long ditPeriodUs, int pin) {
         this.device = device;
-        this.ditPeriodMs = ditPeriodMs;
+        this.ditPeriodUs = ditPeriodUs;
         this.pin = pin;
     }
 
@@ -34,15 +34,13 @@ public class MorseTransmitter {
     }
 
     private void sendElement(int length, boolean isHigh) throws InterruptedException {
-        long msStart = System.currentTimeMillis();
+        long nsStart = System.nanoTime();
         if (isHigh) {
             device.sendAndWaitExpectSuccess(digitalWriteBuilder().setPin(pin).setValue(Value.High).build());
         } else {
             device.sendAndWaitExpectSuccess(digitalWriteBuilder().setPin(pin).setValue(Value.Low).build());
         }
-        long wait = ditPeriodMs * length - (System.currentTimeMillis() - msStart);
-        if (wait > 0) {
-            Thread.sleep(wait);
+        while (ditPeriodUs * length - (System.nanoTime() - nsStart) / 1000 > 0) {
         }
     }
 }

@@ -2,6 +2,7 @@ package net.zscript.demo.morse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MorseTranslator {
     private final List<MorseElement> morseA = MorseElement.translate(".-");
@@ -30,6 +31,7 @@ public class MorseTranslator {
     private final List<MorseElement> morseX = MorseElement.translate("-..-");
     private final List<MorseElement> morseY = MorseElement.translate("-.--");
     private final List<MorseElement> morseZ = MorseElement.translate("--..");
+
     private final List<MorseElement> morse1 = MorseElement.translate(".----");
     private final List<MorseElement> morse2 = MorseElement.translate("..---");
     private final List<MorseElement> morse3 = MorseElement.translate("...--");
@@ -41,124 +43,80 @@ public class MorseTranslator {
     private final List<MorseElement> morse9 = MorseElement.translate("----.");
     private final List<MorseElement> morse0 = MorseElement.translate("-----");
 
+    private final List<MorseElement> morsePeriod = MorseElement.translate(".-.-.-");
+    private final List<MorseElement> morseComma  = MorseElement.translate("--..--");
+    private final List<MorseElement> morseQMark  = MorseElement.translate("..--..");
+    private final List<MorseElement> morseApos   = MorseElement.translate(".----.");
+    private final List<MorseElement> morseSlash  = MorseElement.translate("-..-.");
+    private final List<MorseElement> morseOpenP  = MorseElement.translate("-.--.");
+    private final List<MorseElement> morseCloseP = MorseElement.translate("-.--.-");
+    private final List<MorseElement> morseColon  = MorseElement.translate("---...");
+    private final List<MorseElement> morseEquals = MorseElement.translate("-...-");
+    private final List<MorseElement> morsePlus   = MorseElement.translate(".-.-.");
+    private final List<MorseElement> morseMinus  = MorseElement.translate("-....-");
+    private final List<MorseElement> morseQuote  = MorseElement.translate(".-..-.");
+    private final List<MorseElement> morseAt     = MorseElement.translate(".--.-.");
+
+    private final List<MorseElement> morseError      = MorseElement.translate("........");
+    private final List<MorseElement> morseMessageSep = MorseElement.translate("-.-.-");
+
+    private final List<MorseElement> morseSpace = List.of(MorseElement.WORD_SPACE);
+
+    private final List<MorseElement>[] morseElArray = new List[] {
+            morseA, morseB, morseC, morseD, morseE,
+            morseF, morseG, morseH, morseI, morseJ,
+            morseK, morseL, morseM, morseN, morseO,
+            morseP, morseQ, morseR, morseS, morseT,
+            morseU, morseV, morseW, morseX, morseY,
+            morseZ,
+            morse0, morse1, morse2, morse3, morse4,
+            morse5, morse6, morse7, morse8, morse9,
+            morsePeriod, morseComma, morseQMark, morseApos, morseSlash,
+            morseOpenP, morseCloseP, morseColon, morseEquals, morsePlus,
+            morseMinus, morseQuote, morseAt,
+            morseError, morseMessageSep,
+            morseSpace
+    };
+
+    private final char[] morseChArray = new char[] {
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+            'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+            'U', 'V', 'W', 'X', 'Y', 'Z',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '.', ',', '?', '\'', '/', '(', ')', ':', '=', '+',
+            '-', '"', '@',
+            '�', '\n',
+            ' '
+    };
+
     public List<MorseElement> translate(String s) {
         List<MorseElement> elements = new ArrayList<>();
         for (char c : s.toCharArray()) {
-            char effective = Character.toUpperCase(c);
-            switch (effective) {
-            case 'A':
-                elements.addAll(morseA);
-                break;
-            case 'B':
-                elements.addAll(morseB);
-                break;
-            case 'C':
-                elements.addAll(morseC);
-                break;
-            case 'D':
-                elements.addAll(morseD);
-                break;
-            case 'E':
-                elements.addAll(morseE);
-                break;
-            case 'F':
-                elements.addAll(morseF);
-                break;
-            case 'G':
-                elements.addAll(morseG);
-                break;
-            case 'H':
-                elements.addAll(morseH);
-                break;
-            case 'I':
-                elements.addAll(morseI);
-                break;
-            case 'J':
-                elements.addAll(morseJ);
-                break;
-            case 'K':
-                elements.addAll(morseK);
-                break;
-            case 'L':
-                elements.addAll(morseL);
-                break;
-            case 'M':
-                elements.addAll(morseM);
-                break;
-            case 'N':
-                elements.addAll(morseN);
-                break;
-            case 'O':
-                elements.addAll(morseO);
-                break;
-            case 'P':
-                elements.addAll(morseP);
-                break;
-            case 'Q':
-                elements.addAll(morseQ);
-                break;
-            case 'R':
-                elements.addAll(morseR);
-                break;
-            case 'S':
-                elements.addAll(morseS);
-                break;
-            case 'T':
-                elements.addAll(morseT);
-                break;
-            case 'U':
-                elements.addAll(morseU);
-                break;
-            case 'V':
-                elements.addAll(morseV);
-                break;
-            case 'W':
-                elements.addAll(morseW);
-                break;
-            case 'X':
-                elements.addAll(morseX);
-                break;
-            case 'Y':
-                elements.addAll(morseY);
-                break;
-            case 'Z':
-                elements.addAll(morseZ);
-                break;
-            case '1':
-                elements.addAll(morse1);
-                break;
-            case '2':
-                elements.addAll(morse2);
-                break;
-            case '3':
-                elements.addAll(morse3);
-                break;
-            case '4':
-                elements.addAll(morse4);
-                break;
-            case '5':
-                elements.addAll(morse5);
-                break;
-            case '6':
-                elements.addAll(morse6);
-                break;
-            case '7':
-                elements.addAll(morse7);
-                break;
-            case '8':
-                elements.addAll(morse8);
-                break;
-            case '9':
-                elements.addAll(morse9);
-                break;
-            case '0':
-                elements.addAll(morse0);
-                break;
-            default:
-                elements.add(MorseElement.WORD_SPACE);
+            boolean found     = false;
+            char    effective = Character.toUpperCase(c);
+            for (int i = 0; i < morseChArray.length; i++) {
+                if (effective == morseChArray[i]) {
+                    elements.addAll(morseElArray[i]);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                elements.addAll(morseError);
             }
             elements.add(MorseElement.LETTER_SPACE);
         }
         return elements;
+    }
+
+    public char translate(List<MorseElement> element) {
+        List<MorseElement> elementClean = element.stream().filter(e -> e != MorseElement.LETTER_SPACE && e != MorseElement.WORD_SPACE).collect(Collectors.toList());
+        for (int i = 0; i < morseElArray.length; i++) {
+            List<MorseElement> match = morseElArray[i];
+            if (match.equals(elementClean)) {
+                return morseChArray[i];
+            }
+        }
+        return '�';
     }
 }
