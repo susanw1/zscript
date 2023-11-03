@@ -40,6 +40,9 @@ public class MorseTransmitter {
         } else {
             device.sendAndWaitExpectSuccess(digitalWriteBuilder().setPin(pin).setValue(Value.Low).build());
         }
-        Thread.sleep(ditPeriodMs * length - (System.currentTimeMillis() - msStart));
+        long wait = ditPeriodMs * length - (System.currentTimeMillis() - msStart);
+        if (wait > 0) {
+            Thread.sleep(wait);
+        }
     }
 }

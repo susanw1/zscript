@@ -16,14 +16,20 @@ import net.zscript.model.modules.base.CoreModule;
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         System.out.println(Arrays.toString(SerialPort.getCommPorts()));
-        SerialPort serialPort = SerialPort.getCommPorts()[1];
+        SerialPort serialPort1 = SerialPort.getCommPorts()[1];
+        SerialPort serialPort2 = SerialPort.getCommPorts()[2];
 
-        Device device = new Device(ZscriptModel.standardModel(), new ZscriptNode(new SerialConnection(serialPort), 128));
+        int ditPeriod = 20;
+        Device device1 = new Device(ZscriptModel.standardModel(), new ZscriptNode(new SerialConnection(serialPort1), 128));
+        Device device2 = new Device(ZscriptModel.standardModel(), new ZscriptNode(new SerialConnection(serialPort2), 128));
         Thread.sleep(2000);
-        device.sendAndWaitExpectSuccess(CoreModule.activateBuilder().build());
-        MorseTransmitter transmitter = new MorseTransmitter(device, 150, 13);
-        MorseTranslator  translator  = new MorseTranslator();
-        transmitter.transmit(translator.translate("Best bent wire best ben"));
-        serialPort.closePort();
+        device1.sendAndWaitExpectSuccess(CoreModule.activateBuilder().build());
+        MorseTransmitter transmitter = new MorseTransmitter(device1, ditPeriod, 13);
+        MorseReceiver    receiver    = new MorseReceiver(device2, ditPeriod, 2);
+        receiver.startReceiving();
+        MorseTranslator translator = new MorseTranslator();
+        transmitter.transmit(translator.translate("Hello how are you doing"));
+        serialPort1.closePort();
+        serialPort2.closePort();
     }
 }
