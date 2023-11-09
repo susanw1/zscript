@@ -90,7 +90,7 @@ class ArduinoZscriptBasicSetup {
                                                      + ZscriptParams::udpChannelCount
                                                     #endif
                                                     #ifdef ZSCRIPT_HAVE_TCP_CHANNEL
-                                                                +ZscriptParams::tcpChannelCount
+                                                     + ZscriptParams::tcpChannelCount
                                                     #endif
     ];
 #endif

@@ -2,6 +2,12 @@ name: Uart
 id: 7
 version: 0.0.1
 description: UART Connectivity for Serial communication
+longDescription: >
+    This module supports configuring and using multiple device UARTs, either as plain p2p data send/receive connection,
+    or as a Zscript channel (for receiving commands from upstream), or as a downstream address connection. 
+    
+    It supports two mechanisms for baud-rate configuration: a menu set of options (0-n), or actual frequency (using the big
+    field). 
 
 commands:
 -   name: capabilities
@@ -75,7 +81,7 @@ commands:
         required: yes
     -   key: +
         name: baudRate
-        description: the baud rate option requested in Hz (or maximum rate supported if not given)
+        description: the baud rate menu option requested in Hz (or maximum rate supported if not given)
         typeDefinition:
             '@type': bytes
         required: yes
@@ -320,7 +326,7 @@ commands:
             '@type': number
         required: yes
     -   key: F
-        name: frequency
+        name: frequencySelection
         description: which frequency option should be selected from the 'menu'
         typeDefinition:
             '@type': number

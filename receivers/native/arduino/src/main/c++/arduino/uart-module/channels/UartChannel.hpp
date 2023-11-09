@@ -18,12 +18,12 @@
 namespace Zscript {
 
 template<class ZP>
-class ZscriptSerialOutStream : public AbstractOutStream<ZP> {
+class ZscriptUartOutStream : public AbstractOutStream<ZP> {
 private:
     bool openB = false;
 
 public:
-    ZscriptSerialOutStream() {
+    ZscriptUartOutStream() {
     }
 
     void open(uint8_t source) {
@@ -56,11 +56,11 @@ public:
 
 template<class ZP>
 class UartChannel : public ZscriptChannel<ZP> {
-    ZscriptSerialOutStream<ZP> out;
+    ZscriptUartOutStream<ZP> out;
     GenericCore::TokenRingBuffer<ZP> tBuffer;
     ZscriptTokenizer<ZP> tokenizer;
 
-    uint8_t buffer[ZP::serialBufferSize];
+    uint8_t buffer[ZP::uartChannelBufferSize];
     uint8_t tmp = 0;
     bool usingTmp = false;
 
@@ -70,7 +70,7 @@ public:
     }
 
     UartChannel() :
-            ZscriptChannel<ZP>(&out, &tBuffer, 0x7, true), tBuffer(buffer, ZP::serialBufferSize), tokenizer(tBuffer.getWriter(), 2) {
+            ZscriptChannel<ZP>(&out, &tBuffer, 0x7, true), tBuffer(buffer, ZP::uartChannelBufferSize), tokenizer(tBuffer.getWriter(), 2) {
     }
 
     bool setupStartupNotificationChannel() {
@@ -78,10 +78,12 @@ public:
     }
 
     void channelInfo(ZscriptCommandContext<ZP> ctx) {
-        CommandOutStream<ZP> out = ctx.getOutStream();
-        out.writeField('N', 0);
-        out.writeField('M', 0x7);
-        out.writeField('I', 0);
+        CommandOutStream<ZP> ctxOut = ctx.getOutStream();
+        // RespChannelCount__N
+        ctxOut.writeField('N', 0);
+        // ??
+        ctxOut.writeField('M', 0x7);
+        ctxOut.writeField('I', 0);
     }
 
     void channelSetup(ZscriptCommandContext<ZP> ctx) {

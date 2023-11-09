@@ -33,9 +33,24 @@ struct DataArrayWLeng32 {
     uint8_t *data;
     uint32_t length;
 };
+
 struct OptInt16 {
     uint16_t value;
     bool isPresent;
+
+    OptInt16() : value(0), isPresent(false) {
+    }
+
+    OptInt16(uint16_t value, bool isPresent) : value(value), isPresent(isPresent){
+    }
+
+    static OptInt16 empty() {
+        return {};
+    }
+
+    static OptInt16 of(uint16_t value) {
+        return {value, true};
+    }
 };
 
 }

@@ -170,17 +170,29 @@ public:
             parseState(NULL), out(NULL) {
     }
 
+    /**
+     * Utility method that fetches a field as an OptInt16.
+     *
+     * @param key the field to fetch
+     * @return the value, or isPresent == false
+     */
     OptInt16 getField(uint8_t key) {
-        OptInt16 ret;
-        ret.isPresent = getField(key, &ret.value);
-        return ret;
+        uint16_t value;
+        bool isPresent = getField(key, &value);
+        return {value, isPresent};
     }
 
+    /**
+     * Determines the value of a field.
+     *
+     * @param key the field to fetch
+     * @param dest the place to put the value; only written if field is present
+     * @return true if field was present in the command, false otherwise
+     */
     bool getField(uint8_t key, uint16_t *dest) {
         GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getReader().asBuffer();
         CommandTokenIterator<ZP> iterator = iteratorToMarker();
-        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(
-                buffer)) {
+        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
             GenericCore::RingBufferToken<ZP> token = opt.token;
             if (token.getKey(buffer) == key) {
                 *dest = token.getData16(buffer);
@@ -190,23 +202,81 @@ public:
         return false;
     }
 
+    /**
+     * Determines whether this command has a specific field.
+     *
+     * @param key the field to check
+     * @return true if presne t; false otherwise
+     */
     bool hasField(uint8_t key) {
         return getField(key).isPresent;
     }
 
-    uint16_t getField(uint8_t key, uint16_t def) {
+    /**
+     * Utility method that fetches a field, using the supplied default if it's absent.
+     *
+     * @param key the field to fetch
+     * @param def the default to use if field is absent
+     * @return the field's value
+     */
+    uint16_t getField(const uint8_t key, const uint16_t def) {
         uint16_t val = def;
         getField(key, &val);
         return val;
     }
 
+    /**
+     * Utility method that fetches a field, using the supplied default if required, and setting VALUE_OUT_OF_RANGE if the
+     * resulting value is >= limit.
+     *
+     * @param key the field to fetch
+     * @param limit the limit to check - note the value must be < limit!
+     * @param def the default to use if field is absent
+     * @param dest the place to put the value (and may be written to even if the value is out of range)
+     * @return true if the value is returned within the limit, false otherwise (and response status is therefore set)
+     */
+    bool getFieldCheckLimit(const uint8_t key, const uint16_t limit, const uint16_t def, uint16_t *dest) {
+        if (!getField(key, dest)) {
+            *dest = def;
+        }
+        if (*dest >= limit) {
+            status(ResponseStatus::VALUE_OUT_OF_RANGE);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Utility method that fetches a *required* field and sets MISSING_KEY if absent or VALUE_OUT_OF_RANGE if the resulting value is >= limit.
+     *
+     * @param key the (numeric) field to fetch, from
+     * @param limit the limit to check - note the value must be < limit!
+     * @param dest the place to put the value
+     * @return true if the value is returned and within the limit, false otherwise (and response status is therefore set)
+     */
+    bool getReqdFieldCheckLimit(const uint8_t key, const uint16_t limit, uint16_t *dest) {
+        if (!getField(key, dest)) {
+            status(ResponseStatus::MISSING_KEY);
+            return false;
+        }
+        if (*dest >= limit) {
+            status(ResponseStatus::VALUE_OUT_OF_RANGE);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Determines the total number of (numeric) fields in this command.
+     *
+     * @return the total number of fields
+     */
     uint8_t getFieldCount() {
         int count = 0;
 
         GenericCore::TokenRingBuffer<ZP> *buffer = parseState->getReader().asBuffer();
         CommandTokenIterator<ZP> iterator = iteratorToMarker();
-        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(
-                buffer)) {
+        for (GenericCore::OptionalRingBufferToken<ZP> opt = iterator.next(buffer); opt.isPresent; opt = iterator.next(buffer)) {
             if (ZcharsUtils<ZP>::isNumericKey(opt.token.getKey())) {
                 count++;
             }

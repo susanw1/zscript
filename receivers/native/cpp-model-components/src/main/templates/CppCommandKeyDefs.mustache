@@ -53,6 +53,7 @@ namespace cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}} {
     static constexpr uint8_t Req{{#upperCamel}}{{name}}{{/upperCamel}}__Bytes = '{{key}}';
             {{/bytesType}}
         {{/typeDefinition}}
+
     {{/requestFields}}
 
     {{#responseFields}}
@@ -62,9 +63,8 @@ namespace cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}} {
     static constexpr uint8_t Resp{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
 
     /** Enum of acceptable values for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field. */
-    enum class Resp{{#upperCamel}}{{name}}{{/upperCamel}}Values : uint8_t {
-        /** Enum value: {{description}} */
-        {{#values}}{{#lowerCamel}}{{.}}Value{{/lowerCamel}},{{/values}}
+    enum class Resp{{#upperCamel}}{{name}}{{/upperCamel}}_Values : uint8_t {
+        {{#values}}{{#lowerCamel}}{{.}}{{/lowerCamel}}_value, {{/values}}
     };
             {{/enumType}}
             {{#numberType}}
@@ -78,14 +78,14 @@ namespace cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}} {
     /** Enum of bit-positions for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field. */
     enum class Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions : uint8_t {
                 {{#bits}}
-        {{#lowerCamel}}{{name}}{{/lowerCamel}}_BitPosition,
+        {{#lowerCamel}}{{name}}{{/lowerCamel}}_bitPosition,
                 {{/bits}}
     };
     /** Enum of bit fields (ie 1<<posn) for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field. */
     enum class Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_Values : uint16_t {
-        /** Bit field: {{description}} */
                 {{#bits}}
-        {{#lowerCamel}}{{name}}{{/lowerCamel}}_field = (1 << (int) Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions::{{#lowerCamel}}{{name}}{{/lowerCamel}}_BitPosition),
+        /** Bit field: {{description}} */
+        {{#lowerCamel}}{{name}}{{/lowerCamel}}_field = (1 << (int) Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions::{{#lowerCamel}}{{name}}{{/lowerCamel}}_bitPosition),
                 {{/bits}}
     };
             {{/bitsetType}}
@@ -106,6 +106,7 @@ namespace cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}} {
     static constexpr uint8_t Resp{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/commandsType}}
         {{/typeDefinition}}
+
     {{/responseFields}}
 }   // cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}}
 

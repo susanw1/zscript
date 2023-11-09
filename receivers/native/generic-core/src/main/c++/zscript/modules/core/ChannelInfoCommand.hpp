@@ -11,12 +11,14 @@
 #include "../../ZscriptIncludes.hpp"
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../../LanguageVersion.hpp"
+#include <net/zscript/model/modules/base/CoreModule.hpp>
 
 #define COMMAND_EXISTS_0008 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
 template<class ZP>
 class ZscriptChannel;
+
 namespace GenericCore {
 template<class ZP>
 class ChannelInfoCommand {
@@ -25,18 +27,16 @@ public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
         uint8_t current = ctx.getChannelIndex();
+        uint16_t channelCount = Zscript<ZP>::zscript.getChannelCount();
 
-        uint16_t target = ctx.getField('C', current);
-        if (target >= Zscript<ZP>::zscript.getChannelCount()) {
-            ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+        uint16_t channelIndex;
+        if (!ctx.getFieldCheckLimit(core_module::cmd_channel_info::ReqChannel__C, channelCount, current, &channelIndex)) {
             return;
         }
-        out.writeField('C', Zscript<ZP>::zscript.getChannelCount());
-        out.writeField('M', Zscript<ZP>::zscript.getChannels()[target]->getAssociatedModule());
-        out.writeField('B', Zscript<ZP>::zscript.getChannels()[target]->getBufferLength());
-        if (current <= Zscript<ZP>::zscript.getChannelCount()) {
-            out.writeField('U', current);
-        }
+        out.writeField(core_module::cmd_channel_info::RespChannelCount__N, channelCount);
+        out.writeField(core_module::cmd_channel_info::RespAssociatedModule__M, Zscript<ZP>::zscript.getChannels()[channelIndex]->getAssociatedModule());
+        out.writeField(core_module::cmd_channel_info::RespBufferLength__B, Zscript<ZP>::zscript.getChannels()[channelIndex]->getBufferLength());
+        out.writeField(core_module::cmd_channel_info::RespCurrentChannel__U, current);
     }
 
 };
