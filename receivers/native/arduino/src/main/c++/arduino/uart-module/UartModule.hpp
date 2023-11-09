@@ -52,9 +52,9 @@ public:
     static void setup() {
 #ifdef ZSCRIPT_HAVE_UART_CHANNEL
         channel.setup();
-        channel.setAddress(ZscriptParams::i2cChannelAddress);
+        channel.setBananaAddress(ZscriptParams::i2cChannelAddress);
 #else
-        Serial.begin(9600);
+        Serial.begin(ZP::uartSupportedFreqs[0]);
 #endif
     }
 

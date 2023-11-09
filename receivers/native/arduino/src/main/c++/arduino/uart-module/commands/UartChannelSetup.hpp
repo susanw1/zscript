@@ -24,21 +24,23 @@ class UartModule;
 namespace uart_module {
 namespace cmd_channel_setup {
 
-using namespace uart_module;
-
 template<class ZP>
 class ZscriptUartChannelSetupCommand {
 public:
     static constexpr uint8_t CODE = 0xd;
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
-        uint16_t channel;
-        if (ctx.getField(ReqChannel__C, &channel)) {
-            if (channel != 0) {
-                ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
-                return;
-            }
+        uint16_t channelIndex;
+        if (!ctx.getFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), ctx.getChannelIndex(), &channelIndex)) {
+            return;
         }
+        constexpr uint8_t freqCount = sizeof(ZP::uartSupportedFreqs) / sizeof(ZP::uartSupportedFreqs[0]);
+        uint16_t freqIndex;
+        if (!ctx.getFieldCheckLimit(ReqFrequencySelection__F, freqCount, freqCount - 1, &freqIndex)) {
+            return;
+        }
+
+
         uint16_t address;
 //        if (ctx.getField(ReqAddress__A, &address)) {
 //            if (channel > 0x80) {

@@ -29,16 +29,16 @@ public:
 
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
-        uint16_t channel;
-        if (ctx.getField(ParamChannel__C, &channel)) {
-            if (channel != 0) {
+        uint16_t channelIndex;
+        if (ctx.getField(ParamChannel__C, &channelIndex)) {
+            if (channelIndex != 0) {
                 ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
                 return;
             }
         }
         uint16_t address;
         if (ctx.getField(ParamAddress__A, &address)) {
-            if (channel > 0x80) {
+            if (address > 0x80) {
                 ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
                 return;
             }

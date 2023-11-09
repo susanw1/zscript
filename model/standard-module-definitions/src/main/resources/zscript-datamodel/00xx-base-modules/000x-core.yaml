@@ -189,7 +189,7 @@ commands:
             '@type': number
         required: no
     responseFields:
-    -   key: C
+    -   key: N
         name: channelCount
         description: the number of channels the device has
         typeDefinition:

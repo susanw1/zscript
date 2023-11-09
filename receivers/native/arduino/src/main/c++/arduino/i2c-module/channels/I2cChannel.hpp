@@ -227,26 +227,26 @@ public:
         }
     }
 
-    void channelInfo(ZscriptCommandContext<ZP> ctx) {
-        CommandOutStream<ZP> out = ctx.getOutStream();
-        out.writeField('N', 0);
-        out.writeField('M', 0x5);
-    }
-
-    void channelSetup(ZscriptCommandContext<ZP> ctx) {
-        uint16_t addr;
-        if (ctx.getField('A', &addr)) {
-            if (addr >= 128) {
-                ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
-                return;
-            }
-            out.setAddr((uint8_t) addr);
-        }
-        if (ctx.hasField('P')) {
-            uint8_t index = this->parser.getChannelIndex();
-            PersistenceSystem<ZP>::writeSection(PersistenceSystem<ZP>::getNotifChannelIdOffset(), 1, &index);
-        }
-    }
+//    void channelInfo(ZscriptCommandContext<ZP> ctx) {
+//        CommandOutStream<ZP> ctxOut = ctx.getOutStream();
+//        ctxOut.writeField('N', 0);
+//        ctxOut.writeField('M', 0x5);
+//    }
+//
+//    void channelSetup(ZscriptCommandContext<ZP> ctx) {
+//        uint16_t addr;
+//        if (ctx.getField('A', &addr)) {
+//            if (addr >= 128) {
+//                ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+//                return;
+//            }
+//            out.setAddr((uint8_t) addr);
+//        }
+//        if (ctx.hasField('P')) {
+//            uint8_t index = this->parser.getChannelIndex();
+//            PersistenceSystem<ZP>::writeSection(PersistenceSystem<ZP>::getNotifChannelIdOffset(), 1, &index);
+//        }
+//    }
 
 };
 

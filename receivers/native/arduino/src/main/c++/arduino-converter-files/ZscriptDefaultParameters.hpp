@@ -55,33 +55,42 @@ public:
         return (uint16_t) millis();
     }
     typedef uint8_t tokenBufferSize_t;
+    static constexpr uint8_t lockByteCount = 1;
 
-    static const uint8_t tcpChannelCount = 1;
-    static const uint16_t tcpLocalPort = 23;
-    static const uint8_t tcpBufferSize = 128;
+    static constexpr uint8_t pinCount = 21;
 
-    static const uint8_t udpChannelCount = 1;
-    static const uint16_t udpLocalPort = 8888;
-    static const uint8_t udpBufferSize = 128;
+    static constexpr uint16_t i2cBufferSize = 128;
+    static constexpr uint16_t i2cChannelOutputBufferSize = 32;
+    static constexpr uint16_t i2cAddressingReadBlockLength = 8;
+    static constexpr uint16_t i2cAlertInPin = 2;
+    static constexpr uint16_t i2cAlertOutPin = 9;
+    static constexpr uint8_t i2cChannelAddress = 0x60;
 
-    static const uint8_t lockByteCount = 1;
-    static const uint16_t serialBufferSize = 128;
-    static const uint16_t i2cBufferSize = 128;
+    static constexpr uint16_t uartCount = 1;
+    static constexpr uint16_t uartRxBufferSize = 0;
+    static constexpr uint16_t uartTxBufferSize = 0;
+    static constexpr uint32_t uartSupportedFreqs[] = {9600, 115200};
+    static constexpr uint16_t uartChannelCount = 1;
+    static constexpr uint16_t uartChannelInterface = 0;
+    static constexpr uint16_t uartChannelBufferSize = 128;
 
-    static const uint16_t i2cChannelOutputBufferSize = 32;
-    static const uint16_t I2cAddressingReadBlockLength = 8;
-    static const uint16_t i2cAlertInPin = 2;
-    static const uint16_t i2cAlertOutPin = 9;
-    static const uint8_t i2cChannelAddress = 0x60;
 
-    static const uint16_t nonActivatedChannelTimeout = 5000;
+    static constexpr uint8_t servoCount = 1;
+    //static constexpr uint8_t servoPins[1];
 
-    static const uint8_t pinCount = 21;
+    static constexpr uint8_t udpChannelCount = 1;
+    static constexpr uint16_t udpLocalPort = 8888;
+    static constexpr uint8_t udpBufferSize = 128;
 
-    static const uint8_t servoCount = 1;
-    //static const uint8_t servoPins[1];
+    static constexpr uint8_t tcpChannelCount = 1;
+    static constexpr uint16_t tcpLocalPort = 23;
+    static constexpr uint8_t tcpBufferSize = 128;
+
+    static constexpr uint16_t nonActivatedChannelTimeout = 5000;
 };
-//const uint8_t ZscriptParams::servoPins[1] = {9};
+
+constexpr uint32_t ZscriptParams::uartSupportedFreqs[];
+//constexpr uint8_t ZscriptParams::servoPins[1];
 
 #endif /* SRC_MAIN_CPP_ARDUINO_CONVERTER_FILES_ZSCRIPTDEFAULTPARAMETERS_HPP_ */
 
