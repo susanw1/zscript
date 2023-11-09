@@ -25,7 +25,12 @@ namespace {{#lowerUnderscore}}{{moduleName}}{{/lowerUnderscore}}_module {
 /**
  * {{description}}
  */
-namespace cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}} {
+class {{#upperCamel}}{{commandName}}{{/upperCamel}}_CommandDefs {
+public:
+    static constexpr uint8_t CODE = {{command}};
+
+protected:
+
     {{#requestFields}}
         {{#typeDefinition}}
             {{#enumType}}
@@ -108,7 +113,7 @@ namespace cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}} {
         {{/typeDefinition}}
 
     {{/responseFields}}
-}   // cmd_{{#lowerUnderscore}}{{commandName}}{{/lowerUnderscore}}
+};  // {{#upperCamel}}{{commandName}}{{/upperCamel}}_CommandDefs
 
 {{/commands}}
 

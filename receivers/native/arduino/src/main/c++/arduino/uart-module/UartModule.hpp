@@ -52,6 +52,7 @@ public:
     static void setup() {
 #ifdef ZSCRIPT_HAVE_UART_CHANNEL
         channel.setup();
+        // how does this even compile, it doesn't exist...!? Remove when figured out...
         channel.setBananaAddress(ZscriptParams::i2cChannelAddress);
 #else
         Serial.begin(ZP::uartSupportedFreqs[0]);
@@ -63,15 +64,15 @@ public:
 
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
         switch (bottomBits) {
-            case uart_module::cmd_capabilities::ZscriptUartCapabilitiesCommand<ZP>::CODE:
-                uart_module::cmd_capabilities::ZscriptUartCapabilitiesCommand<ZP>::execute(ctx);
+            case uart_module::ZscriptUartCapabilitiesCommand<ZP>::CODE:
+                uart_module::ZscriptUartCapabilitiesCommand<ZP>::execute(ctx);
                 break;
 #ifdef ZSCRIPT_HAVE_UART_CHANNEL
-            case uart_module::cmd_channel_info::ZscriptUartChannelInfoCommand<ZP>::CODE:
-                uart_module::cmd_channel_info::ZscriptUartChannelInfoCommand<ZP>::execute(ctx);
+            case uart_module::ZscriptUartChannelInfoCommand<ZP>::CODE:
+                uart_module::ZscriptUartChannelInfoCommand<ZP>::execute(ctx);
                 break;
-            case uart_module::cmd_channel_setup::ZscriptUartChannelSetupCommand<ZP>::CODE:
-                uart_module::cmd_channel_setup::ZscriptUartChannelSetupCommand<ZP>::execute(ctx);
+            case uart_module::ZscriptUartChannelSetupCommand<ZP>::CODE:
+                uart_module::ZscriptUartChannelSetupCommand<ZP>::execute(ctx);
                 break;
 #endif
             default:

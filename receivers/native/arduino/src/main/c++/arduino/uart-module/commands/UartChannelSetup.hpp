@@ -22,13 +22,10 @@ template<class ZP>
 class UartModule;
 
 namespace uart_module {
-namespace cmd_channel_setup {
 
 template<class ZP>
-class ZscriptUartChannelSetupCommand {
+class ZscriptUartChannelSetupCommand: public ChannelSetup_CommandDefs {
 public:
-    static constexpr uint8_t CODE = 0xd;
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t channelIndex;
         if (!ctx.getFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), ctx.getChannelIndex(), &channelIndex)) {
@@ -53,7 +50,7 @@ public:
     }
 
 };
-}
+
 }
 }
 
