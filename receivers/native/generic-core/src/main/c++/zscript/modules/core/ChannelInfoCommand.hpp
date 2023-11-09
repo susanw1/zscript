@@ -21,7 +21,7 @@ class ZscriptChannel;
 
 namespace GenericCore {
 template<class ZP>
-class ChannelInfoCommand {
+class ChannelInfoCommand: public core_module::ChannelInfo_CommandDefs {
 
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
@@ -30,13 +30,13 @@ public:
         uint16_t channelCount = Zscript<ZP>::zscript.getChannelCount();
 
         uint16_t channelIndex;
-        if (!ctx.getFieldCheckLimit(core_module::cmd_channel_info::ReqChannel__C, channelCount, current, &channelIndex)) {
+        if (!ctx.getFieldCheckLimit(ReqChannel__C, channelCount, current, &channelIndex)) {
             return;
         }
-        out.writeField(core_module::cmd_channel_info::RespChannelCount__N, channelCount);
-        out.writeField(core_module::cmd_channel_info::RespAssociatedModule__M, Zscript<ZP>::zscript.getChannels()[channelIndex]->getAssociatedModule());
-        out.writeField(core_module::cmd_channel_info::RespBufferLength__B, Zscript<ZP>::zscript.getChannels()[channelIndex]->getBufferLength());
-        out.writeField(core_module::cmd_channel_info::RespCurrentChannel__U, current);
+        out.writeField(RespChannelCount__N, channelCount);
+        out.writeField(RespAssociatedModule__M, Zscript<ZP>::zscript.getChannels()[channelIndex]->getAssociatedModule());
+        out.writeField(RespBufferLength__B, Zscript<ZP>::zscript.getChannels()[channelIndex]->getBufferLength());
+        out.writeField(RespCurrentChannel__U, current);
     }
 
 };

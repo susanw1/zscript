@@ -18,13 +18,10 @@
 namespace Zscript {
 
 namespace uart_module {
-namespace cmd_capabilities {
 
 template<class ZP>
-class ZscriptUartCapabilitiesCommand {
+class ZscriptUartCapabilitiesCommand: public Capabilities_CommandDefs {
 public:
-    static constexpr uint8_t CODE = 0x0;
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
 
@@ -54,7 +51,7 @@ public:
     }
 
 };
-}
+
 }
 }
 
