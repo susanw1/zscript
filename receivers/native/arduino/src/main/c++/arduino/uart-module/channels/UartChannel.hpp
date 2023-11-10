@@ -73,25 +73,29 @@ public:
             ZscriptChannel<ZP>(&out, &tBuffer, 0x7, true), tBuffer(buffer, ZP::uartChannelBufferSize), tokenizer(tBuffer.getWriter(), 2) {
     }
 
+    void setup() {
+        Serial.begin(ZP::uartSupportedFreqs[0]);
+    }
+
     bool setupStartupNotificationChannel() {
         return true;
     }
 
-    void channelInfo(ZscriptCommandContext<ZP> ctx) {
-        CommandOutStream<ZP> ctxOut = ctx.getOutStream();
-        // RespChannelCount__N
-        ctxOut.writeField('N', 0);
-        // ??
-        ctxOut.writeField('M', 0x7);
-        ctxOut.writeField('I', 0);
-    }
-
-    void channelSetup(ZscriptCommandContext<ZP> ctx) {
-        if (ctx.hasField('P')) {
-            uint8_t index = this->parser.getChannelIndex();
-            PersistenceSystem<ZP>::writeSection(PersistenceSystem<ZP>::getNotifChannelIdOffset(), 1, &index);
-        }
-    }
+//    void channelInfo(ZscriptCommandContext<ZP> ctx) {
+//        CommandOutStream<ZP> ctxOut = ctx.getOutStream();
+//        // RespChannelCount__N
+//        ctxOut.writeField('N', 0);
+//        // ??
+//        ctxOut.writeField('M', 0x7);
+//        ctxOut.writeField('I', 0);
+//    }
+//
+//    void channelSetup(ZscriptCommandContext<ZP> ctx) {
+//        if (ctx.hasField('P')) {
+//            uint8_t index = this->parser.getChannelIndex();
+//            PersistenceSystem<ZP>::writeSection(PersistenceSystem<ZP>::getNotifChannelIdOffset(), 1, &index);
+//        }
+//    }
 
     void moveAlong() {
         while (usingTmp || Serial.available() > 0) {

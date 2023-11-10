@@ -27,8 +27,8 @@ template<class ZP>
 class ZscriptUartChannelInfoCommand: public ChannelInfo_CommandDefs {
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
-        uint16_t localChannelIndex;
-        if (!ctx.getFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), ctx.getChannelIndex(), &localChannelIndex)) {
+        uint16_t channelIndex;
+        if (!ctx.getFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), ctx.getChannelIndex(), &channelIndex)) {
             return;
         }
 
