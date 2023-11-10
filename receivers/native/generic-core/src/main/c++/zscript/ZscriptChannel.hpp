@@ -8,6 +8,10 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_ZSCRIPTCHANNEL_HPP_
 #define SRC_MAIN_C___ZSCRIPT_ZSCRIPTCHANNEL_HPP_
 
+#ifndef ZSCRIPT_HPP_INCLUDED
+#   error Channels must be included only after Zscript.hpp
+#endif
+
 #include "semanticParser/SemanticParser.hpp"
 #include "execution/ZscriptCommandContext.hpp"
 #include "AbstractOutStream.hpp"

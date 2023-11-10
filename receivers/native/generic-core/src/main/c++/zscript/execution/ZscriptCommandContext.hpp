@@ -30,7 +30,7 @@ class AsyncActionNotifier {
 #endif
 
 public:
-    AsyncActionNotifier(GenericCore::SemanticParser<ZP> *parser) :
+    explicit AsyncActionNotifier(GenericCore::SemanticParser<ZP> *parser) :
             source(parser)
 
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
@@ -42,7 +42,7 @@ public:
 
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
 
-    AsyncActionNotifier(GenericCore::ZscriptNotificationSource<ZP> *notification) :
+    explicit AsyncActionNotifier(GenericCore::ZscriptNotificationSource<ZP> *notification) :
             source(notification), isSemantic(false) {
     }
 
