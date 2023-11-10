@@ -494,8 +494,7 @@ public class MorseFullCli implements Callable<Integer> {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        String[] demoArgs = new String[] { "-r", "-t", "-d", "50", "-b", "115200" };
-        int      exitCode = new CommandLine(new MorseFullCli()).execute(demoArgs);
+        int      exitCode = new CommandLine(new MorseFullCli()).execute(args);
         System.exit(exitCode);
     }
 }
