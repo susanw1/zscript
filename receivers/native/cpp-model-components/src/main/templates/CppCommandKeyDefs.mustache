@@ -28,6 +28,7 @@ namespace {{#lowerUnderscore}}{{moduleName}}{{/lowerUnderscore}}_module {
 class {{#upperCamel}}{{commandName}}{{/upperCamel}}_CommandDefs {
 public:
     static constexpr uint8_t CODE = {{command}};
+    static constexpr uint8_t MODULE = {{#module}}{{id}}{{/module}};
 
 protected:
 

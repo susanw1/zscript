@@ -52,8 +52,6 @@ public:
     static void setup() {
 #ifdef ZSCRIPT_HAVE_UART_CHANNEL
         channel.setup();
-        // how does this even compile, it doesn't exist...!? Remove when figured out...
-        channel.setBananaAddress(ZscriptParams::i2cChannelAddress);
 #else
         Serial.begin(ZP::uartSupportedFreqs[0]);
 #endif
