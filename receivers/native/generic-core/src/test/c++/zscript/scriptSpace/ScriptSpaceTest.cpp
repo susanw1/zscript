@@ -13,8 +13,8 @@
 #include "../test-defines.hpp"
 #include "zscript/modules/scriptSpace/ScriptSpaceModule.hpp"
 #include "zscript/modules/core/CoreModule.hpp"
-#include "StringChannel.hpp"
 #include "zscript/Zscript.hpp"
+#include "StringChannel.hpp"
 
 #include "zscript/scriptSpace/ScriptSpace.hpp"
 #include "../semanticParser/BufferOutStream.hpp"

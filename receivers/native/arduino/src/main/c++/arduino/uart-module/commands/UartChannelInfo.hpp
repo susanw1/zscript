@@ -10,25 +10,34 @@
 
 #include <zscript/modules/ZscriptCommand.hpp>
 #include <net/zscript/model/modules/base/UartModule.hpp>
+#include "UartUtil.hpp"
 
 #define COMMAND_EXISTS_007c EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
 
 template<class ZP>
-class UartChannel;
+class UartModule;
 
 template<class ZP>
-class UartModule;
+class ZscriptChannel;
+
+template<class ZP>
+class UartChannel;
 
 namespace uart_module {
 
 template<class ZP>
-class ZscriptUartChannelInfoCommand: public ChannelInfo_CommandDefs {
+class ZscriptUartChannelInfoCommand : public ChannelInfo_CommandDefs {
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t channelIndex;
         if (!ctx.getFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), ctx.getChannelIndex(), &channelIndex)) {
+            return;
+        }
+        UartChannel<ZP> *selectedChannel = Zscript<ZP>::zscript.getChannels()[channelIndex];
+        if (selectedChannel->getAssociatedModule() != MODULE) {
+            ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
 
@@ -43,6 +52,11 @@ public:
         out.writeField(RespChannelCount__N, 1);
         out.writeField(RespChannel__C, UartModule<ZP>::channel.getParser()->getChannelIndex());
         out.writeField(RespInterface__I, 0);
+        out.writeField(RespFrequenciesSupported__F, freqCount);
+        UartUtil<ZP>::writeFrequencySelection(out, freqIndex);
+        out.writeField(RespBitsetCapabilities__B, static_cast<uint16_t>(RespBitsetCapabilities_Values::parityOn_field)
+                                                  | static_cast<uint16_t>(RespBitsetCapabilities_Values::doubleStop_field));
+
     }
 };
 

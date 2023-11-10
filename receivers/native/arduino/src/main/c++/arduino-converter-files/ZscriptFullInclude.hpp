@@ -59,26 +59,20 @@
 // INCLUDE ALL CHANNELS BELOW HERE!
 
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-
 #include <arduino/i2c-module/channels/I2cChannel.hpp>
+#endif
 
+#if defined(ZSCRIPT_HAVE_UART_CHANNEL)
+#include "arduino/uart-module/channels/UartChannel.hpp"
 #endif
 
 #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
-
 #include <arduino/ethernet-module/channels/ZscriptUdpChannel.hpp>
-
 #endif
 
 #ifdef ZSCRIPT_HAVE_TCP_CHANNEL
 #include <arduino/ethernet-module/channels/ZscriptTcpChannel.hpp>
 Zscript::ZscriptTcpChannel<ZscriptParams> ZscriptTcpChannels[ZscriptParams::tcpChannelCount];
-#endif
-
-#if defined(ZSCRIPT_HAVE_UART_CHANNEL)
-
-#include "arduino/uart-module/channels/UartChannel.hpp"
-
 #endif
 
 class ArduinoZscriptBasicSetup {

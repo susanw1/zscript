@@ -31,21 +31,21 @@ public:
         if (!ctx.getFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), ctx.getChannelIndex(), &channelIndex)) {
             return;
         }
+        ZscriptChannel<ZP> *selectedChannel = Zscript<ZP>::zscript.getChannels()[channelIndex];
+        if (selectedChannel->getAssociatedModule() != MODULE) {
+            ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+            return;
+        }
+
+        if (ctx.hasField(ReqFrequencySelection__F)) {
+
+        }
         constexpr uint8_t freqCount = sizeof(ZP::uartSupportedFreqs) / sizeof(ZP::uartSupportedFreqs[0]);
         uint16_t freqIndex;
         if (!ctx.getFieldCheckLimit(ReqFrequencySelection__F, freqCount, freqCount - 1, &freqIndex)) {
             return;
         }
 
-
-        uint16_t address;
-//        if (ctx.getField(ReqAddress__A, &address)) {
-//            if (channel > 0x80) {
-//                ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
-//                return;
-//            }
-//            UartModule<ZP>::channel.setAddress(address & 0x7F);
-//        }
 
     }
 

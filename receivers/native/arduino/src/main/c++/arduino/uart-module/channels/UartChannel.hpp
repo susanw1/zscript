@@ -8,10 +8,6 @@
 #ifndef SRC_MAIN_CPP_ARDUINO_SERIAL_MODULE_CHANNELS_ZSCRIPTSERIALCHANNEL_HPP_
 #define SRC_MAIN_CPP_ARDUINO_SERIAL_MODULE_CHANNELS_ZSCRIPTSERIALCHANNEL_HPP_
 
-#ifndef ZSCRIPT_HPP_INCLUDED
-#   error UartChannel.hpp needs to be included after Zscript.hpp
-#endif
-
 #include <ZscriptChannelBuilder.hpp>
 #include "../../arduino-core-module/persistence/PersistenceSystem.hpp"
 
@@ -63,6 +59,8 @@ class UartChannel : public ZscriptChannel<ZP> {
     uint8_t buffer[ZP::uartChannelBufferSize];
     uint8_t tmp = 0;
     bool usingTmp = false;
+    uint8_t currentFrequencyIndex;
+    uint8_t currentSerialMode;
 
 public:
     static uint8_t getNotifChannelPersistMaxLength() {
@@ -76,6 +74,11 @@ public:
     void setup() {
         Serial.begin(ZP::uartSupportedFreqs[0]);
     }
+
+    uint8_t getCurrentFrequencyIndex() {
+        return currentFrequencyIndex;
+    }
+
 
     bool setupStartupNotificationChannel() {
         return true;

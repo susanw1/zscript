@@ -9,9 +9,9 @@
 #define SRC_MAIN_CPP_ARDUINO_UART_MODULE_COMMANDS_ZSCRIPTUARTCAPABILITIESCOMMAND_HPP_
 
 #include <zscript/modules/ZscriptCommand.hpp>
-#include "UartUtil.hpp"
 #include <net/zscript/model/components/ZscriptStatus.hpp>
 #include <net/zscript/model/modules/base/UartModule.hpp>
+#include "UartUtil.hpp"
 
 #define COMMAND_EXISTS_0070 EXISTENCE_MARKER_UTIL
 
@@ -32,10 +32,10 @@ public:
             return;
         }
 
+        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(007));
         UartUtil<ZP>::writeFrequencySelection(out, freqIndex);
 
         // implements just a single Serial port at this time. Should be expanded to more...
-        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(007));
         out.writeField(RespInterfaceCount__I, ZP::uartCount);
         out.writeField(RespFrequenciesSupported__F, freqCount);
         out.writeField(RespBitsetCapabilities__B, static_cast<uint16_t>(RespBitsetCapabilities_Values::parityOn_field)
