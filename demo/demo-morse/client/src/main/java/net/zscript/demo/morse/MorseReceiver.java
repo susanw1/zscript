@@ -83,7 +83,6 @@ public class MorseReceiver {
     }
 
     private void checkReceive() {
-
         double time = (System.nanoTime() - lastTimeNano) / 1000.0 / ditPeriodMaxUs;
         if (!isHigh && time > 4) {
             emptyBuffer();
