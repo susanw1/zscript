@@ -48,6 +48,7 @@ public class ModuleBank {
         return mbDef.getDefaultPackage();
     }
 
+    /** The module bank ID of this Module Bank (defines upper byte of the (2-byte) command id). Value 0x00-0xff */
     public int getId() {
         return mbDef.getId();
     }

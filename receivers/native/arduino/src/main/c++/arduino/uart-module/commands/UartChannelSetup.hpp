@@ -32,7 +32,7 @@ public:
             return;
         }
         ZscriptChannel<ZP> *selectedChannel = Zscript<ZP>::zscript.getChannels()[channelIndex];
-        if (selectedChannel->getAssociatedModule() != MODULE) {
+        if (selectedChannel->getAssociatedModule() != MODULE_FULL_ID) {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }

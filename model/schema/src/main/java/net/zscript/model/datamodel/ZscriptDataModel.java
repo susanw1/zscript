@@ -42,8 +42,22 @@ public interface ZscriptDataModel {
             return getName();
         }
 
+        /** The module ID of this Module, within this module's bank. Value 0x0-0xf */
         @JsonProperty(required = true)
         short getId();
+
+        /** The full module ID of this Module, including the module's bank. Value 0x000-0xfff */
+        default int getFullModuleId() {
+            return (getModuleBank().getId() << 4) | getId();
+        }
+
+        /** Utility to calculate full ID of a member of this Module (eg command or notification), given its code. Value 0x0000-0xffff */
+        default int getMemberId(int code) {
+            if ((code & ~0xf) != 0) {
+                throw new IllegalArgumentException("out of range 0-15: " + code);
+            }
+            return (getFullModuleId() << 4) | code;
+        }
 
         @JsonProperty(required = true)
         String getVersion();
@@ -127,7 +141,7 @@ public interface ZscriptDataModel {
         List<CommandStatusModel> getStatus();
 
         default int getFullCommand() {
-            return getModule().getModuleBank().getId() << 8 | getModule().getId() << 4 | (getCommand() & 0xf);
+            return getModule().getMemberId(getCommand());
         }
     }
 
@@ -153,7 +167,7 @@ public interface ZscriptDataModel {
         List<NotificationSectionNodeModel> getSections();
 
         default int getFullNotification() {
-            return getModule().getModuleBank().getId() << 8 | getModule().getId() << 4 | (getNotification() & 0xF);
+            return getModule().getMemberId(getNotification());
         }
     }
 
