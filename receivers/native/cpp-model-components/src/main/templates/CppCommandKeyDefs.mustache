@@ -21,14 +21,23 @@ namespace Zscript {
  */
 namespace {{#lowerUnderscore}}{{moduleName}}{{/lowerUnderscore}}_module {
 
+/** This command's module id within the module-bank (0x0-0xf) */
+constexpr uint8_t MODULE_ID = {{id}};
+
+/** The full module ID of this Module, including the module's bank. Value 0x000-0xfff. */
+constexpr uint16_t MODULE_FULL_ID = {{fullModuleId}};
+
 {{#commands}}
 /**
  * {{description}}
  */
 class {{#upperCamel}}{{commandName}}{{/upperCamel}}_CommandDefs {
 public:
+    /** This command's code within the module (0x0-0xf) */
     static constexpr uint8_t CODE = {{command}};
-    static constexpr uint8_t MODULE = {{#module}}{{id}}{{/module}};
+
+    /** The full command code of this command, including the module's bank. Value 0x0000-0xffff. */
+    static constexpr uint16_t FULL_CODE = (MODULE_FULL_ID << 4) | CODE;
 
 protected:
 
