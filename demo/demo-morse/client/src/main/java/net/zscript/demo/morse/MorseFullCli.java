@@ -14,14 +14,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
@@ -405,7 +403,7 @@ public class MorseFullCli implements Callable<Integer> {
         Device rxDevice = null;
         if (rx != null) {
             rx.setBaudRate(receiveBaud == -1 ? generalBaud : receiveBaud);
-            rxDevice = new Device(ZscriptModel.standardModel(), new ZscriptNode(new SerialConnection(rx), 128));
+            rxDevice = new Device(ZscriptModel.standardModel(), new ZscriptNode(new SerialConnection(rx)));
             Thread.sleep(2000);
             rxDevice.sendAndWaitExpectSuccess(CoreModule.activateBuilder().build());
             if (negotiateBaud(rx, rxDevice, receiveBaudNegotiate == -1 ? generalBaudNegotiate : receiveBaudNegotiate, "Receive device") != 0) {
@@ -429,7 +427,7 @@ public class MorseFullCli implements Callable<Integer> {
                 txDevice = rxDevice;
             } else {
                 tx.setBaudRate(transmitBaud == -1 ? generalBaud : transmitBaud);
-                txDevice = new Device(ZscriptModel.standardModel(), new ZscriptNode(new SerialConnection(tx), 128));
+                txDevice = new Device(ZscriptModel.standardModel(), new ZscriptNode(new SerialConnection(tx)));
                 Thread.sleep(2000);
                 txDevice.sendAndWaitExpectSuccess(CoreModule.activateBuilder().build());
                 if (negotiateBaud(tx, txDevice, transmitBaudNegotiate == -1 ? generalBaudNegotiate : transmitBaudNegotiate, "Transmit device") != 0) {
