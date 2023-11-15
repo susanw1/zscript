@@ -31,6 +31,7 @@ import net.zscript.javaclient.nodes.ZscriptNode;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.modules.base.CoreModule;
 import net.zscript.model.modules.base.PinsModule;
+import net.zscript.model.modules.base.PinsModule.DigitalSetupCommand.DigitalSetupResponse;
 import net.zscript.model.modules.base.UartModule;
 
 @Command(mixinStandardHelpOptions = true, version = "Morse code Zscript demo 0.1")
@@ -278,25 +279,38 @@ public class MorseFullCli implements Callable<Integer> {
         return baudInt;
     }
 
-    private int parsePin(Device device, String name, String verb, Predicate<PinsModule.DigitalSetupCommand.DigitalSetupResponse> requirements, int toIgnore, String requirementName)
+    private int parsePin(Device device, String name, String verb, Predicate<DigitalSetupResponse> requirements, int toIgnore, String requirementName)
             throws InterruptedException {
-        ResponseCaptor<PinsModule.CapabilitiesCommand.CapabilitiesResponse> captor = new ResponseCaptor<>();
+        ResponseCaptor<PinsModule.CapabilitiesCommand.CapabilitiesResponse> captor = ResponseCaptor.create();
 
         int pinCount = device.sendAndWaitExpectSuccess(
                 PinsModule.capabilitiesBuilder().capture(captor).build()).getResponseFor(captor).orElseThrow().getPinCount();
         System.out.println(name + " has " + pinCount + " pins");
         Set<Integer> pinsSupporting = new HashSet<>();
-        for (int i = 0; i < pinCount; i++) {
-            if (i == toIgnore) {
-                continue;
+        // assemble a big command sequence to check pins in batches...
+        final int batchSize = 8;
+        for (int batchStart = 0; batchStart < pinCount; batchStart += batchSize) {
+            CommandSequenceNode                        sequence = new BlankCommandNode();
+            List<ResponseCaptor<DigitalSetupResponse>> captors  = new ArrayList<>();
+            for (int i = batchStart; i < pinCount && i < batchStart + batchSize; i++) {
+                if (i == toIgnore) {
+                    captors.add(ResponseCaptor.create());
+                    continue;
+                }
+                ResponseCaptor<DigitalSetupResponse> digitalCaptor = ResponseCaptor.create();
+                sequence = sequence.andThen(PinsModule.digitalSetupBuilder().setPin(i).capture(digitalCaptor).build());
+                captors.add(digitalCaptor);
             }
-            // check each pin to see if it supports "OnChange" notifications - these are required for receive
-            ResponseCaptor<PinsModule.DigitalSetupCommand.DigitalSetupResponse> digitalCaptor = new ResponseCaptor<>();
-
-            PinsModule.DigitalSetupCommand.DigitalSetupResponse pinResp = device.sendAndWaitExpectSuccess(
-                    PinsModule.digitalSetupBuilder().setPin(i).capture(digitalCaptor).build()).getResponseFor(digitalCaptor).orElseThrow();
-            if (requirements.test(pinResp)) {
-                pinsSupporting.add(i);
+            ResponseSequenceCallback resp = device.sendAndWaitExpectSuccess(sequence);
+            // check each pin to see if it supports required functions
+            for (int i = 0; i < captors.size(); i++) {
+                if (i + batchStart == toIgnore) {
+                    continue;
+                }
+                DigitalSetupResponse pinResp = resp.getResponseFor(captors.get(i)).orElseThrow();
+                if (requirements.test(pinResp)) {
+                    pinsSupporting.add(i + batchStart);
+                }
             }
         }
         if (pinsSupporting.isEmpty()) {
@@ -413,8 +427,8 @@ public class MorseFullCli implements Callable<Integer> {
             if (receivePin == -1) {
                 // ask user to specify receive pin
                 receivePin = parsePin(rxDevice, "Receive", "Receiving", d -> d.hasSupportedNotifications() && d.getSupportedNotifications().contains(
-                        PinsModule.DigitalSetupCommand.DigitalSetupResponse.SupportedNotifications.OnChange) && d.getSupportedModes().contains(
-                        PinsModule.DigitalSetupCommand.DigitalSetupResponse.SupportedModes.Input), -1, "OnChange notifications");
+                        DigitalSetupResponse.SupportedNotifications.OnChange) && d.getSupportedModes().contains(
+                        DigitalSetupResponse.SupportedModes.Input), -1, "OnChange notifications");
                 if (receivePin == -1) {
                     rx.closePort();
                     return 1;
@@ -442,7 +456,7 @@ public class MorseFullCli implements Callable<Integer> {
                 // ask user to specify receive pin
                 boolean txRxSamePinAllowed = txDevice != rxDevice;
                 transmitPin = parsePin(txDevice, "Transmit", "Transmitting", d -> d.getSupportedModes().contains(
-                        PinsModule.DigitalSetupCommand.DigitalSetupResponse.SupportedModes.Output), txRxSamePinAllowed ? -1 : receivePin, "Output");
+                        DigitalSetupResponse.SupportedModes.Output), txRxSamePinAllowed ? -1 : receivePin, "Output");
                 if (transmitPin == -1) {
                     tx.closePort();
                     if (rx != null) {
