@@ -23,6 +23,6 @@ public class IntrinsicsTest {
         assertThat(dataModel.getIntrinsics().getRequestFields()).hasSize(1);
         assertThat(dataModel.getIntrinsics().getResponseFields()).hasSize(1);
         assertThat(dataModel.getIntrinsics().getZchars()).hasSize(21);
-        assertThat(dataModel.getIntrinsics().getStatus()).hasSize(32);
+        assertThat(dataModel.getIntrinsics().getStatus()).hasSize(33);
     }
 }

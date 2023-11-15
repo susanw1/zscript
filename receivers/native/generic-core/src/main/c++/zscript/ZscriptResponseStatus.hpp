@@ -66,10 +66,12 @@ enum ResponseStatus {
 
     /** a required field was not given */
     MISSING_KEY = 0x50,
-    /** a field or big field was given with a value which is not supported */
+    /** a field or big field value is out of range (category: commandFieldError) */
     VALUE_OUT_OF_RANGE = 0x51,
     /** data transmission/reception exceeds maximum transmission length */
     DATA_TOO_LONG = 0x52,
+    /** a field or big field value is unsupported or invalid (category: commandFieldError) */
+    VALUE_UNSUPPORTED = 0x53,
 
     /** generic failure mid-execution */
     EXECUTION_ERROR = 0x80,
