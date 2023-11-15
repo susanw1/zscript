@@ -283,12 +283,17 @@ intrinsics:
 
     -   name: valueOutOfRange
         id: 0x51
-        description: a field or big field was given with a value which is not supported
+        description: a field or big field value is out of range
         category: *statusCategory_commandFieldError
 
     -   name: dataTooLong
         id: 0x52
         description: data transmission/reception exceeds maximum transmission length
+        category: *statusCategory_commandFieldError
+
+    -   name: valueUnsupported
+        id: 0x53
+        description: a field or big field value is unsupported or invalid
         category: *statusCategory_commandFieldError
 
 

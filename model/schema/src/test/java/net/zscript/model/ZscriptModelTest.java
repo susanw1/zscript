@@ -12,7 +12,7 @@ class ZscriptModelTest {
     @Test
     void shouldLoadRaw() {
         ZscriptModel model = ZscriptModel.rawModel();
-        assertThat(model.getIntrinsics().getStatus()).hasSize(32);
+        assertThat(model.getIntrinsics().getStatus()).hasSize(33);
         assertThat(model.getIntrinsics().getRequestFields()).hasSize(1);
         assertThat(model.getIntrinsics().getResponseFields()).hasSize(1);
     }
