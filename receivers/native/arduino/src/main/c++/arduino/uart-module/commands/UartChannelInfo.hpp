@@ -20,10 +20,10 @@ template<class ZP>
 class UartModule;
 
 template<class ZP>
-class ZscriptChannel;
+class UartChannel;
 
 template<class ZP>
-class UartChannel;
+class ZscriptUartOutStream;
 
 namespace uart_module {
 
@@ -32,7 +32,7 @@ class ZscriptUartChannelInfoCommand : public ChannelInfo_CommandDefs {
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t channelIndex;
-        if (!ctx.getFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), ctx.getChannelIndex(), &channelIndex)) {
+        if (!ctx.getReqdFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), &channelIndex)) {
             return;
         }
         UartChannel<ZP> *selectedChannel = Zscript<ZP>::zscript.getChannels()[channelIndex];
@@ -51,11 +51,19 @@ public:
         // Just one UART channel supported currently, always on Serial #0
         out.writeField(RespChannelCount__N, 1);
         out.writeField(RespInterface__I, 0);
-        out.writeField(RespChannel__C, UartModule<ZP>::channel.getParser()->getChannelIndex());
         out.writeField(RespFrequenciesSupported__F, freqCount);
         UartUtil<ZP>::writeFrequencySelection(out, freqIndex);
-        out.writeField(RespBitsetCapabilities__B, static_cast<uint16_t>(RespBitsetCapabilities_Values::parityOn_field)
-                                                  | static_cast<uint16_t>(RespBitsetCapabilities_Values::doubleStop_field));
+
+        ZscriptUartOutStream<ZP> *channelOut = selectedChannel->getUartOutStream();
+        uint8_t parity = channelOut->getConfigParity(); // 0 = off, 2 = even, 3 = odd
+        uint8_t stopBits = channelOut->getConfigStopBits();
+
+        out.writeField(RespBitsetCapabilities__B, (parity & 0x2 ? RespBitsetCapabilities_Values::parityOn_field : 0)
+                                                  | (parity & 0x1 ? RespBitsetCapabilities_Values::parityOdd_field : 0)
+                                                  | (stopBits? RespBitsetCapabilities_Values::doubleStop_field : 0)
+        );
+
+        out.writeField(RespBitsetCapabilities__B, RespBitsetCapabilities_Values::parityOn_field | RespBitsetCapabilities_Values::doubleStop_field);
     }
 };
 

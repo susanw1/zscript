@@ -1,11 +1,11 @@
-name: I2C
+name: I2c
 id: 5
 version: 0.0.1
 description: I2C Connectivity
 
 commands:
 -   name: capabilities
-    command: 0
+    command: 0x0
     description: I2C capabilities
     operation: get
     requestFields: [ ]
@@ -58,7 +58,7 @@ commands:
     status: [ ]
 
 -   name: i2cSetup
-    command: 1
+    command: 0x1
     description: configures the I2C subsystem
     operation: put
     requestFields:
@@ -104,7 +104,7 @@ commands:
         description: port or frequency out of range
 
 -   name: i2cSend
-    command: 2
+    command: 0x2
     description: Sends data to a specified I2C device
     operation: post
     requestFields:
@@ -142,7 +142,7 @@ commands:
     -   key: I
         name: resultInfo
         description: detailed status info for I2C activity
-        typeDefinition:
+        typeDefinition: &result_status_bits
             '@type': enum
             values:
             - Ok
@@ -164,7 +164,7 @@ commands:
         description: write failed in bad way - serious error
 
 -   name: i2cReceive
-    command: 3
+    command: 0x3
     description: Receives data from a specified I2C device
     operation: post
     requestFields:
@@ -202,14 +202,7 @@ commands:
     -   key: I
         name: resultInfo
         description: detailed status info for I2C activity
-        typeDefinition:
-            '@type': enum
-            values:
-            - Ok
-            - BufferOverrun
-            - AddrNack
-            - DataNack
-            - Other
+        typeDefinition: *result_status_bits
         required: yes
     -   key: R
         name: attempts
@@ -232,7 +225,7 @@ commands:
         description: write failed in bad way - serious error
 
 -   name: i2cSendReceive
-    command: 4
+    command: 0x4
     description: Sends a message to a specified I2C device, then performs a receive without an intervening stop bit
     operation: post
     requestFields:
@@ -276,14 +269,7 @@ commands:
     -   key: I
         name: resultInfo
         description: detailed status info for I2C activity
-        typeDefinition:
-            '@type': enum
-            values:
-            - Ok
-            - BufferOverrun
-            - AddrNack
-            - DataNack
-            - Other
+        typeDefinition: *result_status_bits
         required: yes
     -   key: R
         name: attempts
@@ -305,26 +291,20 @@ commands:
 
 
 -   name: channelInfo
-    command: 12
+    command: 0xc
     description: gets detailed information about an I2C channel
     operation: get
     requestFields:
     -   key: C
         name: channel
-        description: 'which channel to fetch info about (default: 0)'
+        description: 'which channel to fetch info about'
         typeDefinition:
             '@type': number
-        required: no
+        required: yes
     responseFields:
     -   key: N
         name: channelCount
         description: the number of I2C channels supported by the device
-        typeDefinition:
-            '@type': number
-        required: yes
-    -   key: C
-        name: channel
-        description: the global channel index of the requested channel
         typeDefinition:
             '@type': number
         required: yes
@@ -343,7 +323,7 @@ commands:
     status: [ ]
 
 -   name: channelSetup
-    command: 13
+    command: 0xd
     description: sets detailed control variables on an I2C channel
     operation: put
     requestFields:
@@ -366,7 +346,7 @@ commands:
 
 notifications:
 -   name: smBusAlert
-    notification: 0
+    notification: 0x0
     description: a notification caused by an SMBus alert line being pulled low
     condition: on an SMBus style alert
     sections:

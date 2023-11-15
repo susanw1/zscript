@@ -16,11 +16,15 @@ namespace Zscript {
 
 template<class ZP>
 class ZscriptUartOutStream : public AbstractOutStream<ZP> {
-private:
+public:
     static constexpr uint8_t MODE_DATABITS = 0x06;
     static constexpr uint8_t MODE_STOPBITS = 0x08;
-    static constexpr uint8_t MODE_PARITY = 0x30;
 
+    static constexpr uint8_t MODE_PARITY_ON = 0x20;
+    static constexpr uint8_t MODE_PARITY_ODD = 0x10;
+    static constexpr uint8_t MODE_PARITY_MASK = MODE_PARITY_ON | MODE_PARITY_ODD;
+
+private:
     // index into the ZP::uartSupportedFreqs array
     uint8_t currentFrequencyIndex;
     // represents Arduino config: 00pp_sdd0 (pp=N,E,O parity; s=2 stop bits; dd=5,6,7,8 bits)
@@ -94,13 +98,14 @@ public:
         return (currentSerialMode & MODE_DATABITS) >> 1;
     }
 
-    /** 0 => parity disabled, 2 => Odd parity, 3 => Even parity */
+    /** 0 => parity disabled, 2 => Even parity, 3 => Odd parity */
     uint8_t getConfigParity() {
-        return (currentSerialMode & MODE_PARITY) >> 4;
+        return (currentSerialMode & MODE_PARITY_MASK) >> 4;
     }
 
     void setConfigParityMode(bool enabled, bool oddParity) {
-        currentSerialMode = (currentSerialMode & ~MODE_PARITY) | (enabled ? 0x20 : 0) | (oddParity ? 0x10 : 0);
+        currentSerialMode = (currentSerialMode & ~MODE_PARITY_MASK) | (enabled ? MODE_PARITY_ON : 0)
+                | (oddParity ? MODE_PARITY_ODD : 0);
         configToChange = true;
     }
 };

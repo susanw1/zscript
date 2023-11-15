@@ -38,8 +38,7 @@ public:
         // implements just a single Serial port at this time. Should be expanded to more...
         out.writeField(RespInterfaceCount__I, ZP::uartCount);
         out.writeField(RespFrequenciesSupported__F, freqCount);
-        out.writeField(RespBitsetCapabilities__B, static_cast<uint16_t>(RespBitsetCapabilities_Values::parityOn_field)
-                                                  | static_cast<uint16_t>(RespBitsetCapabilities_Values::doubleStop_field));
+        out.writeField(RespBitsetCapabilities__B, RespBitsetCapabilities_Values::parity_field | RespBitsetCapabilities_Values::doubleStop_field);
         out.writeField(RespRxBufferSize__R, ZP::uartRxBufferSize);
         out.writeField(RespTxBufferSize__T, ZP::uartTxBufferSize);
 #ifdef ZSCRIPT_UART_SUPPORT_NOTIFICATIONS
