@@ -17,7 +17,7 @@ public class MorseSimple {
         SerialPort rxPort = SerialPort.getCommPorts()[1];
         // SerialPort txPort = SerialPort.getCommPorts()[2];
 
-        rxPort.setBaudRate(115200);
+        rxPort.setBaudRate(9600);
         //txPort.setBaudRate(9600);
 
         Device rxDevice = new Device(ZscriptModel.standardModel(), new ZscriptNode(new SerialConnection(rxPort)));
@@ -33,10 +33,12 @@ public class MorseSimple {
         MorseTranslator  translator  = new MorseTranslator();
         MorseReceiver    receiver    = new MorseReceiver(translator, rxDevice, ditPeriodUs, 2);
         MorseTransmitter transmitter = new MorseTransmitter(txDevice, ditPeriodUs, 13);
+        transmitter.start();
         receiver.startReceiving();
         transmitter.transmit(translator.translate("Hello world."));
 
         receiver.close();
+        transmitter.close();
         rxPort.closePort();
         // txPort.closePort();
     }

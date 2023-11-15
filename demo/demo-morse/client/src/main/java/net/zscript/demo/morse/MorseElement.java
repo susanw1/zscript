@@ -6,8 +6,8 @@ import java.util.List;
 public enum MorseElement {
     DIT(1, true),
     DAR(3, true),
-    LETTER_SPACE(1, false),
-    WORD_SPACE(1, false);
+    LETTER_SPACE(3, false),
+    WORD_SPACE(7, false);
     //Space is implied between all other elements, so LETTER_SPACE only requires 1 dit of blank
     // WORD_SPACE is put in for the space character, so only one dit of blank is required (since there is a letter space either side)
 

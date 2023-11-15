@@ -20,14 +20,33 @@ public class MorseTransmitter {
         this.pin = pin;
     }
 
-    public void transmit(List<MorseElement> elements) {
+    public void start() {
         try {
             device.sendAndWaitExpectSuccess(PinsModule.digitalSetupBuilder().setPin(pin).setMode(Mode.Output).build());
-            for (MorseElement element : elements) {
-                sendElement(element.getLength(), element.isHigh());
-                sendElement(1, false);
-            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void close() {
+        try {
             device.sendAndWaitExpectSuccess(PinsModule.digitalSetupBuilder().setPin(pin).setMode(Mode.Input).build());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void transmit(List<MorseElement> elements) {
+        try {
+            boolean lastHigh = false;
+            for (MorseElement element : elements) {
+                if (lastHigh && element.isHigh()) {
+                    sendElement(1, false);
+                }
+                lastHigh = element.isHigh();
+                sendElement(element.getLength(), element.isHigh());
+            }
+            sendElement(10, false);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

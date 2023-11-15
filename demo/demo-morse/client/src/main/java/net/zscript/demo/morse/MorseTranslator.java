@@ -90,10 +90,14 @@ public class MorseTranslator {
     };
 
     public List<MorseElement> translate(String s) {
-        List<MorseElement> elements = new ArrayList<>();
+        List<MorseElement> elements         = new ArrayList<>();
+        boolean            needsLetterSpace = false; // is needed to avoid letter spaces on word spaces.
         for (char c : s.toCharArray()) {
             boolean found     = false;
             char    effective = Character.toUpperCase(c);
+            if (needsLetterSpace && effective != ' ') {
+                elements.add(MorseElement.LETTER_SPACE);
+            }
             for (int i = 0; i < morseChArray.length; i++) {
                 if (effective == morseChArray[i]) {
                     elements.addAll(morseElArray[i]);
@@ -102,15 +106,16 @@ public class MorseTranslator {
                 }
             }
             if (!found) {
+                elements.add(MorseElement.LETTER_SPACE);
                 elements.addAll(morseError);
             }
-            elements.add(MorseElement.LETTER_SPACE);
+            needsLetterSpace = effective != ' ';
         }
         return elements;
     }
 
     public char translate(List<MorseElement> element) {
-        List<MorseElement> elementClean = element.stream().filter(e -> e != MorseElement.LETTER_SPACE && e != MorseElement.WORD_SPACE).collect(Collectors.toList());
+        List<MorseElement> elementClean = element.stream().filter(e -> e != MorseElement.LETTER_SPACE).collect(Collectors.toList());
         for (int i = 0; i < morseElArray.length; i++) {
             List<MorseElement> match = morseElArray[i];
             if (match.equals(elementClean)) {

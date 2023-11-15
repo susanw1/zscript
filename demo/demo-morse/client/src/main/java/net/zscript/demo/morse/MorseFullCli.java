@@ -341,7 +341,7 @@ public class MorseFullCli implements Callable<Integer> {
         }
         System.out.println();
 
-        System.out.print("Please select a pin for: ");
+        System.out.print("Please select a pin for " + verb.toLowerCase() + ": ");
         int chosen = getInputNumber(pinCount);
         System.out.println();
         if (!pinsSupporting.contains(chosen)) {
@@ -461,6 +461,7 @@ public class MorseFullCli implements Callable<Integer> {
         }
         if (txDevice != null) {
             MorseTransmitter transmitter = new MorseTransmitter(txDevice, ditPeriod * 1000L, 13);
+            transmitter.start();
             if (message != null) {
                 transmitter.transmit(translator.translate(message));
             }
@@ -471,13 +472,12 @@ public class MorseFullCli implements Callable<Integer> {
                     in.close();
                 }
             }
-
             if (message == null && data == null) {
                 while (true) {
                     transmitter.transmit(translator.translate(stdInScanner.nextLine()));
                 }
-
             }
+            transmitter.close();
         }
         if (receiver != null) {
             receiver.close();
@@ -492,7 +492,7 @@ public class MorseFullCli implements Callable<Integer> {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        int      exitCode = new CommandLine(new MorseFullCli()).execute(args);
+        int exitCode = new CommandLine(new MorseFullCli()).execute(args);
         System.exit(exitCode);
     }
 }
