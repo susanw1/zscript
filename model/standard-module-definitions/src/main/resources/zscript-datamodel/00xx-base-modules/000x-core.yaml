@@ -191,7 +191,7 @@ commands:
     responseFields:
     -   key: N
         name: channelCount
-        description: the number of channels the device has
+        description: the total number of channels the device has
         typeDefinition:
             '@type': number
         required: yes
