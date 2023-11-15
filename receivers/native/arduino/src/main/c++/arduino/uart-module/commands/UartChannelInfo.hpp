@@ -48,15 +48,14 @@ public:
         }
 
         CommandOutStream<ZP> out = ctx.getOutStream();
-        // Just one UART channel supported currently
+        // Just one UART channel supported currently, always on Serial #0
         out.writeField(RespChannelCount__N, 1);
-        out.writeField(RespChannel__C, UartModule<ZP>::channel.getParser()->getChannelIndex());
         out.writeField(RespInterface__I, 0);
+        out.writeField(RespChannel__C, UartModule<ZP>::channel.getParser()->getChannelIndex());
         out.writeField(RespFrequenciesSupported__F, freqCount);
         UartUtil<ZP>::writeFrequencySelection(out, freqIndex);
         out.writeField(RespBitsetCapabilities__B, static_cast<uint16_t>(RespBitsetCapabilities_Values::parityOn_field)
                                                   | static_cast<uint16_t>(RespBitsetCapabilities_Values::doubleStop_field));
-
     }
 };
 

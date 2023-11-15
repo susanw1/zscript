@@ -27,9 +27,10 @@ private:
     uint8_t currentSerialMode;
     bool configToChange: 1;
     bool openB: 1;
+    bool written: 1;
 
 public:
-    ZscriptUartOutStream() : currentFrequencyIndex(0), currentSerialMode(SERIAL_8N1), configToChange(false), openB(false) {
+    ZscriptUartOutStream() : currentFrequencyIndex(0), currentSerialMode(SERIAL_8N1), configToChange(false), openB(false), written(0) {
     }
 
     void open(uint8_t source) {
@@ -49,12 +50,15 @@ public:
     }
 
     void configure() {
-//        Serial.flush();
+        if (written) {
+            Serial.flush();
+        }
         Serial.begin(ZP::uartSupportedFreqs[currentFrequencyIndex], currentSerialMode);
         configToChange = false;
     }
 
     void writeBytes(const uint8_t *bytes, uint16_t count, bool hexMode) {
+        written = true;
         if (hexMode) {
             for (uint16_t i = 0; i < count; i++) {
                 Serial.print((char) AbstractOutStream<ZP>::toHexChar(bytes[i] >> 4));
