@@ -56,13 +56,13 @@ protected:
     static constexpr uint8_t Req{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
 
     /** Enum of bit-positions for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field. */
-    enum class Req{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions : uint8_t {
+    enum Req{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions : uint8_t {
                 {{#bits}}
         {{#lowerCamel}}{{name}}{{/lowerCamel}}_bitPosition,
                 {{/bits}}
     };
     /** Enum of bit fields (ie 1<<posn) for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field. */
-    enum class Req{{#upperCamel}}{{fieldName}}{{/upperCamel}}_Values : uint16_t {
+    enum Req{{#upperCamel}}{{fieldName}}{{/upperCamel}}_Values : uint16_t {
                 {{#bits}}
         /** Bit field: {{description}} */
         {{#lowerCamel}}{{name}}{{/lowerCamel}}_field = (1 << (uint8_t) Req{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions::{{#lowerCamel}}{{name}}{{/lowerCamel}}_bitPosition),
@@ -92,7 +92,7 @@ protected:
     static constexpr uint8_t Resp{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
 
     /** Enum of acceptable values for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field. */
-    enum class Resp{{#upperCamel}}{{name}}{{/upperCamel}}_Values : uint8_t {
+    enum Resp{{#upperCamel}}{{name}}{{/upperCamel}}_Values : uint8_t {
         {{#values}}{{#lowerCamel}}{{.}}{{/lowerCamel}}_value, {{/values}}
     };
             {{/enumType}}
@@ -105,13 +105,13 @@ protected:
     static constexpr uint8_t Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}__{{key}} = '{{key}}';
 
     /** Enum of bit-positions for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field. */
-    enum class Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions : uint8_t {
+    enum Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions : uint8_t {
                 {{#bits}}
         {{#lowerCamel}}{{name}}{{/lowerCamel}}_bitPosition,
                 {{/bits}}
     };
     /** Enum of bit fields (ie 1<<posn) for '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field. */
-    enum class Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_Values : uint16_t {
+    enum Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_Values : uint16_t {
                 {{#bits}}
         /** Bit field: {{description}} */
         {{#lowerCamel}}{{name}}{{/lowerCamel}}_field = (1 << (uint8_t) Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions::{{#lowerCamel}}{{name}}{{/lowerCamel}}_bitPosition),

@@ -16,13 +16,13 @@
 namespace Zscript {
 
 template<class ZP>
+class UartModule;
+
+template<class ZP>
 class UartChannel;
 
 template<class ZP>
 class ZscriptUartOutStream;
-
-template<class ZP>
-class UartModule;
 
 namespace uart_module {
 
@@ -31,9 +31,10 @@ class ZscriptUartChannelSetupCommand : public ChannelSetup_CommandDefs {
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t channelIndex;
-        if (!ctx.getFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), ctx.getChannelIndex(), &channelIndex)) {
+        if (!ctx.getReqdFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), &channelIndex)) {
             return;
         }
+
         UartChannel<ZP> *selectedChannel = Zscript<ZP>::zscript.getChannels()[channelIndex];
         if (selectedChannel->getAssociatedModule() != MODULE_FULL_ID) {
             ctx.status(ResponseStatus::VALUE_UNSUPPORTED);
@@ -56,8 +57,8 @@ public:
         {
             uint16_t options;
             if (ctx.getField(ReqOptions__B, &options)) {
-                channelOut->setConfigParityMode((options & (uint8_t) ReqOptions_Values::parityOn_field), (options & (uint8_t) ReqOptions_Values::parityOdd_field));
-                channelOut->setConfigStopBits(options & (uint8_t) ReqOptions_Values::doubleStop_field);
+                channelOut->setConfigParityMode((options & ReqOptions_Values::parityOn_field), (options & ReqOptions_Values::parityOdd_field));
+                channelOut->setConfigStopBits(options & ReqOptions_Values::doubleStop_field);
             }
         }
         UartUtil<ZP>::writeFrequencySelection(ctx.getOutStream(), channelOut->getFrequencyIndex());

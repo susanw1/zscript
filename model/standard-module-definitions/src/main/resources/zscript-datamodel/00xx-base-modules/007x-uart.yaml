@@ -58,8 +58,8 @@ commands:
         typeDefinition:
             '@type': bitset
             bits:
-            -   name: parityOn
-                description: enables sending parity bits
+            -   name: parity
+                description: whether parity bits are supported
             -   name: doubleStop
                 description: whether the device supports choosing single or double stop bits
             -   name: autoBaud
@@ -108,13 +108,13 @@ commands:
     -   key: B
         name: options
         description: a set of more specific operational choices about the device's operation
-        typeDefinition:
+        typeDefinition: &setup_options
             '@type': bitset
             bits:
             -   name: parityOn
                 description: enables sending parity bits
             -   name: parityOdd
-                description: if parityOn, then is odd parity enabled
+                description: if parityOn, then enable odd parity
             -   name: doubleStop
                 description: selects double stop bits rather than single
             -   name: autoBaud
@@ -193,10 +193,10 @@ commands:
             '@type': number
         required: yes
     responseFields:
-    -   key: I
+    -   key: M
         name: serialMarker
         description: the type of terminator ending the read
-        typeDefinition:
+        typeDefinition: &receive_markers
             '@type': enum
             values:
             - Nothing
@@ -214,7 +214,7 @@ commands:
     status: [ ]
 
 -   name: skip
-    command: 4
+    command: 0x4
     description: Serial skip
     operation: read
     requestFields:
@@ -231,17 +231,10 @@ commands:
             '@type': number
         required: yes
     responseFields:
-    -   key: I
+    -   key: M
         name: serialMarker
         description: the type of terminator ending the skip
-        typeDefinition:
-            '@type': enum
-            values:
-            - Nothing
-            - Break
-            - ParityError
-            - NoiseError
-            - BufferOverflow
+        typeDefinition: *receive_markers
         required: yes
     -   key: L
         name: length
@@ -261,7 +254,7 @@ commands:
         description: 'which channel to fetch info about (default: 0)'
         typeDefinition:
             '@type': number
-        required: no
+        required: yes
     -   key: F
         name: frequencySelection
         description: 'which frequency option should be investigated (default: maximum)'
@@ -272,12 +265,6 @@ commands:
     -   key: N
         name: channelCount
         description: the number of Uart channels supported by the device
-        typeDefinition:
-            '@type': number
-        required: yes
-    -   key: C
-        name: channel
-        description: the global channel index of the requested channel
         typeDefinition:
             '@type': number
         required: yes
@@ -301,6 +288,8 @@ commands:
             bits:
             -   name: parityOn
                 description: enables sending parity bits
+            -   name: parityOdd
+                description: if parityOn, then odd parity enabled
             -   name: doubleStop
                 description: whether the device supports choosing single or double stop bits
             -   name: autoBaud
@@ -336,17 +325,7 @@ commands:
     -   key: B
         name: options
         description: a set of more specific operational choices about the device's operation
-        typeDefinition:
-            '@type': bitset
-            bits:
-            -   name: parityOn
-                description: enables sending parity bits
-            -   name: parityOdd
-                description: if parityOn, then is odd parity enabled (
-            -   name: doubleStop
-                description: selects double stop bits rather than single
-            -   name: autoBaud
-                description: enables automatic baud rate detection
+        typeDefinition: *setup_options
         required: no
     -   key: +
         name: baudRate
@@ -366,7 +345,7 @@ commands:
 
 notifications:
 -   name: serialDataAvailable
-    notification: 0
+    notification: 0x0
     description: a serial interface has data available
     condition: on data exceeding some minimum level, or after data received and some timeout passed - not sent until after some kind of read received
     sections:
@@ -389,7 +368,7 @@ notifications:
         logicalTermination: end
 
 -   name: serialReceiveNearCapacity
-    notification: 1
+    notification: 0x1
     description: a serial interface is almost overflowing its data capacity
     condition: on data exceeding some proportion of the buffer (e.g. 75%) - not sent again until after the fullness drops below this level
     sections:
@@ -400,14 +379,7 @@ notifications:
             -   key: M
                 name: serialMarker
                 description: the type of terminator ending the data
-                typeDefinition:
-                    '@type': enum
-                    values:
-                    - Nothing
-                    - Break
-                    - ParityError
-                    - NoiseError
-                    - BufferOverflow
+                typeDefinition: *receive_markers
                 required: yes
             -   key: +
                 name: data
@@ -418,7 +390,7 @@ notifications:
         logicalTermination: end
 
 -   name: serialReceiveOverflow
-    notification: 2
+    notification: 0x2
     description: a serial interface has overflowed its receive buffer
     condition: on data overflowing the buffer - not sent again until after the fullness drops below some level (e.g. 50%)
     sections:
@@ -435,7 +407,7 @@ notifications:
         logicalTermination: end
 
 -   name: serialReceiveData
-    notification: 3
+    notification: 0x3
     description: a serial interface has data available, and this notification contains that data
     condition: 'on any of: X bytes of data having arrived, Y milliseconds after the first data in the buffer arrived, or when a serial marker arrives, for reasonable chosen values of X,Y'
     sections:

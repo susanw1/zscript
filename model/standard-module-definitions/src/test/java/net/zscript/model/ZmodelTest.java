@@ -41,7 +41,7 @@ class ZmodelTest {
         ZscriptModel model = ZscriptModel.standardModel();
         ModuleBank   mb    = model.getModuleBank(MODULEBANK_BASE_NAME).orElseThrow();
         assertThat(mb.modules()).extracting(ModuleModel::getModuleName)
-                .containsExactlyInAnyOrder("Core", "OuterCore", "ScriptSpace", "Pins", "I2C", "Uart", "Servo");
+                .containsExactlyInAnyOrder("Core", "OuterCore", "ScriptSpace", "Pins", "I2c", "Uart", "Servo");
     }
 
     @Test
