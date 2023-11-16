@@ -251,7 +251,7 @@ commands:
     requestFields:
     -   key: C
         name: channel
-        description: 'which channel to fetch info about (default: 0)'
+        description: 'which channel to fetch info about'
         typeDefinition:
             '@type': number
         required: yes
