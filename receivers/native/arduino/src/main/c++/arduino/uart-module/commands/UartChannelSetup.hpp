@@ -63,7 +63,6 @@ public:
         }
         UartUtil<ZP>::writeFrequencySelection(ctx.getOutStream(), channelOut->getFrequencyIndex());
     }
-
 };
 
 }

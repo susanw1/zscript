@@ -17,6 +17,7 @@ namespace Zscript {
 template<class ZP>
 class ZscriptI2cNotification {
     static const uint8_t SMBUS_ALERT_ADDR = 0xC;
+
 public:
     static void notification(ZscriptNotificationContext<ZP> ctx, bool moveAlong, bool isAddressing) {
         (void) moveAlong;

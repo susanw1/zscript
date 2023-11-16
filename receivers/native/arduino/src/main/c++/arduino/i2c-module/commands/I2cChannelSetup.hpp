@@ -50,9 +50,8 @@ public:
             }
             I2cModule<ZP>::channel.setAddress(address & 0x7F);
         }
-
     }
-
 };
+
 }
 #endif //SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CCHANNELSETUPCOMMAND_HPP_

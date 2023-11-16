@@ -48,8 +48,8 @@ public:
 #endif
 #endif
     }
-
 };
+
 }
 
 #endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CCAPABILITIESCOMMAND_HPP_ */
