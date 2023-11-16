@@ -20,7 +20,7 @@ public class MorseSimple {
         rxPort.setBaudRate(9600);
         //txPort.setBaudRate(9600);
 
-        Device rxDevice = new Device(ZscriptModel.standardModel(), new ZscriptNode(new SerialConnection(rxPort)));
+        Device rxDevice = new Device(ZscriptModel.standardModel(), ZscriptNode.newNode(new SerialConnection(rxPort)));
         Device txDevice = rxDevice; // new Device(ZscriptModel.standardModel(), new ZscriptNode(new SerialConnection(txPort))); // uncomment along with txPort to use 2 targets
 
         Thread.sleep(2000); // give the ports time to start up

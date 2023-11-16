@@ -10,6 +10,9 @@ public class ResponseCaptor<T extends ZscriptResponse> {
         return new ResponseCaptor<>();
     }
 
+    private ResponseCaptor() {
+    }
+
     private Respondable<T> source;
 
     public void setSource(Respondable<T> source) {

@@ -1,5 +1,8 @@
 package net.zscript.javaclient.connectors.tcp;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,14 +19,20 @@ import java.util.function.Consumer;
 import net.zscript.javaclient.connectors.RawConnection;
 
 public class TcpConnection extends RawConnection {
-    private final Socket          socket;
-    private final ExecutorService executor;
+    private static final Logger          LOG = LoggerFactory.getLogger(TcpConnection.class);
+    private final        Socket          socket;
+    private final        ExecutorService executor;
 
     private final InputStream  in;
     private final OutputStream out;
 
     private Future<?>        future;
     private Consumer<byte[]> handler;
+
+    @Override
+    protected Logger getLogger() {
+        return LOG;
+    }
 
     public TcpConnection(Socket socket) throws IOException {
         this(socket, Executors.newSingleThreadExecutor());

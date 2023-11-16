@@ -64,9 +64,9 @@ public class ConnectionBuffer {
     private final Connection           connection;
     private final Queue<BufferElement> buffer = new ArrayDeque<>();
 
-    private final int bufferSize;
-    private       int currentBufferContent = 0;
-    private       int currentEcho          = 0x100;
+    private int bufferSize;
+    private int currentBufferContent = 0;
+    private int currentEcho          = 0x100;
 
     private Collection<LockCondition> lockConditions  = new ArrayList<>();
     private boolean                   supports32Locks = false;
@@ -216,5 +216,9 @@ public class ConnectionBuffer {
         } else {
             return target < currentEcho + 0x1000 && target > currentEcho;
         }
+    }
+
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
     }
 }

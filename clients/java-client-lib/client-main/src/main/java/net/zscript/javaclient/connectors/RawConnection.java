@@ -1,22 +1,40 @@
 package net.zscript.javaclient.connectors;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.Provider;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.addressing.AddressedResponse;
 import net.zscript.javaclient.addressing.CompleteAddressedResponse;
+import net.zscript.javaclient.connectors.serial.SerialConnection;
 import net.zscript.javaclient.nodes.Connection;
+import net.zscript.javaclient.threading.ZscriptWorkerThread;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 
 public abstract class RawConnection implements Connection, AutoCloseable {
+    private final ZscriptWorkerThread thread = new ZscriptWorkerThread();
+
+    protected abstract Logger getLogger();
 
     @Override
     public final void send(AddressedCommand cmd) {
         try {
-            send(cmd.toBytes().toByteArray());
+            byte[] data = cmd.toBytes().toByteArray();
+            if (getLogger().isTraceEnabled()) {
+                getLogger().trace(UTF_8.decode(ByteBuffer.wrap(data)).toString());
+            }
+            send(data);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -24,14 +42,17 @@ public abstract class RawConnection implements Connection, AutoCloseable {
 
     @Override
     public final void onReceive(Consumer<AddressedResponse> resp) {
-        onReceiveBytes(data -> {
+        onReceiveBytes(data -> thread.moveOntoThread(() -> {
             TokenExtendingBuffer buffer = new TokenExtendingBuffer();
             Tokenizer            t      = new Tokenizer(buffer.getTokenWriter(), 2);
             for (byte b : data) {
                 t.accept(b);
             }
+            if (getLogger().isTraceEnabled()) {
+                getLogger().trace("{}", new String(data, UTF_8));
+            }
             resp.accept(CompleteAddressedResponse.parse(buffer.getTokenReader()).asResponse());
-        });
+        }));
     }
 
     @Override
@@ -43,4 +64,8 @@ public abstract class RawConnection implements Connection, AutoCloseable {
 
     protected abstract void onReceiveBytes(final Consumer<byte[]> responseHandler);
 
+    @Override
+    public ZscriptWorkerThread getAssociatedThread() {
+        return thread;
+    }
 }

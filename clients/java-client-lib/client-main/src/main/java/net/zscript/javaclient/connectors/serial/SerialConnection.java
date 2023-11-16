@@ -5,13 +5,12 @@ import static java.util.Objects.requireNonNull;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortIOException;
-import com.fazecast.jSerialComm.SerialPortMessageListener;
 import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 import net.zscript.javaclient.connectors.RawConnection;
@@ -21,6 +20,8 @@ import net.zscript.javaclient.connectors.RawConnection;
  */
 // Note: SerialPort is hard to use in tests as it contains Android references which cause Mocking failure.
 public class SerialConnection extends RawConnection {
+    private static final Logger LOG = LoggerFactory.getLogger(SerialConnection.class);
+
     private final SerialPort   commPort;
     private final OutputStream out;
 
@@ -33,6 +34,11 @@ public class SerialConnection extends RawConnection {
             throw new SerialPortIOException("Port cannot be opened: " + commPort);
         }
         this.out = commPort.getOutputStream();
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return LOG;
     }
 
     public void send(final byte[] data) throws IOException {
@@ -52,7 +58,7 @@ public class SerialConnection extends RawConnection {
         commPort.addDataListener(new SerialPortMessageListenerWithExceptions() {
             @Override
             public void catchException(Exception e) {
-                e.printStackTrace();
+                LOG.error(e.getMessage());
             }
 
             @Override

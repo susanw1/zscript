@@ -417,7 +417,7 @@ public class MorseFullCli implements Callable<Integer> {
         Device rxDevice = null;
         if (rx != null) {
             rx.setBaudRate(receiveBaud == -1 ? generalBaud : receiveBaud);
-            rxDevice = new Device(ZscriptModel.standardModel(), new ZscriptNode(new SerialConnection(rx)));
+            rxDevice = new Device(ZscriptModel.standardModel(), ZscriptNode.newNode(new SerialConnection(rx)));
             Thread.sleep(2000);
             rxDevice.sendAndWaitExpectSuccess(CoreModule.activateBuilder().build());
             if (negotiateBaud(rx, rxDevice, receiveBaudNegotiate == -1 ? generalBaudNegotiate : receiveBaudNegotiate, "Receive device") != 0) {
@@ -441,7 +441,7 @@ public class MorseFullCli implements Callable<Integer> {
                 txDevice = rxDevice;
             } else {
                 tx.setBaudRate(transmitBaud == -1 ? generalBaud : transmitBaud);
-                txDevice = new Device(ZscriptModel.standardModel(), new ZscriptNode(new SerialConnection(tx)));
+                txDevice = new Device(ZscriptModel.standardModel(), ZscriptNode.newNode(new SerialConnection(tx)));
                 Thread.sleep(2000);
                 txDevice.sendAndWaitExpectSuccess(CoreModule.activateBuilder().build());
                 if (negotiateBaud(tx, txDevice, transmitBaudNegotiate == -1 ? generalBaudNegotiate : transmitBaudNegotiate, "Transmit device") != 0) {

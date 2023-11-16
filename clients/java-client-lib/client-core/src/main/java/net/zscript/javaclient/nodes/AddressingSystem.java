@@ -7,8 +7,9 @@ import java.util.function.Consumer;
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.addressing.AddressedResponse;
 import net.zscript.javaclient.addressing.ZscriptAddress;
+import net.zscript.javaclient.threading.ZscriptWorkerThread;
 
-public class AddressingSystem {
+class AddressingSystem {
     class AddressingConnection implements Connection {
         private final ZscriptAddress              address;
         private       Consumer<AddressedResponse> respConsumer = null;
@@ -38,13 +39,18 @@ public class AddressingSystem {
         public void responseReceived(AddressedCommand found) {
             node.responseReceived(found);
         }
+
+        @Override
+        public ZscriptWorkerThread getAssociatedThread() {
+            return node.getParentConnection().getAssociatedThread();
+        }
     }
 
     private final Map<ZscriptAddress, AddressingConnection> connections = new HashMap<>();
 
-    private final ZscriptNode node;
+    private final ZscriptBasicNode node;
 
-    public AddressingSystem(ZscriptNode node) {
+    AddressingSystem(ZscriptBasicNode node) {
         this.node = node;
     }
 
