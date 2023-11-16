@@ -48,7 +48,6 @@ public:
         out.writeField(RespAddressingSupported__A, 0);
 #endif
     }
-
 };
 
 }

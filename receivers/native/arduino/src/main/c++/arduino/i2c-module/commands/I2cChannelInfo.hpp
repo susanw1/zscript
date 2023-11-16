@@ -54,8 +54,8 @@ public:
         out.writeField(RespChannelCount__N, 1);
         out.writeField(RespAddress__A, I2cModule<ZP>::channel.getAddress());
     }
-
 };
+
 }
 
 #endif //SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CCHANNELINFOCOMMAND_HPP_

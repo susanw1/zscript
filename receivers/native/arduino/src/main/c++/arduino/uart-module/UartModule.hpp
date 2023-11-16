@@ -42,7 +42,6 @@ namespace Zscript {
 
 template<class ZP>
 class UartModule : public ZscriptModule<ZP> {
-
 public:
 #ifdef ZSCRIPT_HAVE_UART_CHANNEL
     static UartChannel<ZP> channel;
@@ -84,6 +83,7 @@ public:
 template<class ZP>
 UartChannel<ZP> UartModule<ZP>::channel;
 #endif
+
 }
 
 #endif /* SRC_MAIN_CPP_ARDUINO_UART_MODULE_ZSCRIPTUARTMODULE_HPP_ */

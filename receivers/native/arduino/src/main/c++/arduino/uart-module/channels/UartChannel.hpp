@@ -153,8 +153,7 @@ public:
             }
         }
     }
-
-
 };
+
 }
 #endif /* SRC_MAIN_CPP_ARDUINO_SERIAL_MODULE_CHANNELS_ZSCRIPTSERIALCHANNEL_HPP_ */

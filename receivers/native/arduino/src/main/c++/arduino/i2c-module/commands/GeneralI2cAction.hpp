@@ -275,8 +275,8 @@ public:
         return digitalRead(SDA);
 
     }
-
 };
+
 }
 
 #endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_GENERALI2CACTION_HPP_ */

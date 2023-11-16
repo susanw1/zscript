@@ -19,7 +19,6 @@ public:
         uint8_t maxBaudBytes[4]{(maxBaud >> 24) & 0xff, (maxBaud >> 16) & 0xff, (maxBaud >> 8) & 0xff, (maxBaud) & 0xff};
         out.writeBigHex(maxBaudBytes, 4);
     }
-
 };
 
 }

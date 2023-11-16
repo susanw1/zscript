@@ -143,12 +143,16 @@ const uint8_t I2cOutStream<ZP>::SmBusAlertAddr = 0x0C;
 
 template<class ZP>
 uint8_t I2cOutStream<ZP>::outBuffer[ZP::i2cChannelOutputBufferSize];
+
 template<class ZP>
 uint16_t I2cOutStream<ZP>::writePos = 0;
+
 template<class ZP>
 uint16_t I2cOutStream<ZP>::readPos = 0;
+
 template<class ZP>
 uint8_t I2cOutStream<ZP>::addr = 0;
+
 template<class ZP>
 bool I2cOutStream<ZP>::usingMagicAddr = false;
 
@@ -252,12 +256,16 @@ public:
 
 template<class ZP>
 GenericCore::TokenRingBuffer<ZP> I2cChannel<ZP>::tBuffer(I2cChannel<ZP>::buffer, ZP::i2cBufferSize);
+
 template<class ZP>
 ZscriptTokenizer<ZP> I2cChannel<ZP>::tokenizer(I2cChannel<ZP>::tBuffer.getWriter(), 2);
+
 template<class ZP>
 uint8_t I2cChannel<ZP>::buffer[ZP::i2cBufferSize];
+
 template<class ZP>
 uint8_t I2cChannel<ZP>::tmp = 0;
+
 template<class ZP>
 bool I2cChannel<ZP>::usingTmp = false;
 
