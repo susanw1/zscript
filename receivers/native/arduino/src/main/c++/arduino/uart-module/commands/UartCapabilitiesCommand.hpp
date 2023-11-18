@@ -20,7 +20,7 @@ namespace Zscript {
 namespace uart_module {
 
 template<class ZP>
-class ZscriptUartCapabilitiesCommand: public Capabilities_CommandDefs {
+class UartCapabilitiesCommand: public Capabilities_CommandDefs {
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();

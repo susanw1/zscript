@@ -61,15 +61,15 @@ public:
 
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
         switch (bottomBits) {
-            case uart_module::ZscriptUartCapabilitiesCommand<ZP>::CODE:
-                uart_module::ZscriptUartCapabilitiesCommand<ZP>::execute(ctx);
+            case uart_module::UartCapabilitiesCommand<ZP>::CODE:
+                uart_module::UartCapabilitiesCommand<ZP>::execute(ctx);
                 break;
 #ifdef ZSCRIPT_HAVE_UART_CHANNEL
-            case uart_module::ZscriptUartChannelInfoCommand<ZP>::CODE:
-                uart_module::ZscriptUartChannelInfoCommand<ZP>::execute(ctx);
+            case uart_module::UartChannelInfoCommand<ZP>::CODE:
+                uart_module::UartChannelInfoCommand<ZP>::execute(ctx);
                 break;
-            case uart_module::ZscriptUartChannelSetupCommand<ZP>::CODE:
-                uart_module::ZscriptUartChannelSetupCommand<ZP>::execute(ctx);
+            case uart_module::UartChannelSetupCommand<ZP>::CODE:
+                uart_module::UartChannelSetupCommand<ZP>::execute(ctx);
                 break;
 #endif
             default:

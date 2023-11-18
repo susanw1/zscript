@@ -126,7 +126,7 @@ public:
     }
 
     UartChannel() :
-            buffer(), ZscriptChannel<ZP>(&out, &tBuffer, uart_module::MODULE_FULL_ID, true),
+            ZscriptChannel<ZP>(&out, &tBuffer, uart_module::MODULE_FULL_ID, true),
             tBuffer(buffer, ZP::uartChannelBufferSize), tokenizer(tBuffer.getWriter(), 2), usingTmp(false) {
     }
 

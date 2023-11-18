@@ -16,7 +16,10 @@ class UartUtil {
 public:
     static void writeFrequencySelection(CommandOutStream<ZP> out, uint8_t freqIndex) {
         const uint32_t maxBaud = ZP::uartSupportedFreqs[freqIndex];
-        uint8_t maxBaudBytes[4]{(maxBaud >> 24) & 0xff, (maxBaud >> 16) & 0xff, (maxBaud >> 8) & 0xff, (maxBaud) & 0xff};
+        uint8_t maxBaudBytes[4]{(uint8_t) ((maxBaud >> 24) & 0xff),
+                                (uint8_t) ((maxBaud >> 16) & 0xff),
+                                (uint8_t) ((maxBaud >> 8) & 0xff),
+                                (uint8_t) ((maxBaud) & 0xff)};
         out.writeBigHex(maxBaudBytes, 4);
     }
 };

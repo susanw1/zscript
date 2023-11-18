@@ -27,7 +27,7 @@ class ZscriptUartOutStream;
 namespace uart_module {
 
 template<class ZP>
-class ZscriptUartChannelSetupCommand : public ChannelSetup_CommandDefs {
+class UartChannelSetupCommand : public ChannelSetup_CommandDefs {
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t channelIndex;
@@ -35,7 +35,7 @@ public:
             return;
         }
 
-        UartChannel<ZP> *selectedChannel = Zscript<ZP>::zscript.getChannels()[channelIndex];
+        auto selectedChannel = (UartChannel<ZP> *) Zscript<ZP>::zscript.getChannels()[channelIndex];
         if (selectedChannel->getAssociatedModule() != MODULE_FULL_ID) {
             ctx.status(ResponseStatus::VALUE_UNSUPPORTED);
             return;

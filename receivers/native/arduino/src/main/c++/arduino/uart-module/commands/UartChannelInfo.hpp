@@ -28,14 +28,14 @@ class ZscriptUartOutStream;
 namespace uart_module {
 
 template<class ZP>
-class ZscriptUartChannelInfoCommand : public ChannelInfo_CommandDefs {
+class UartChannelInfoCommand : public ChannelInfo_CommandDefs {
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t channelIndex;
         if (!ctx.getReqdFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), &channelIndex)) {
             return;
         }
-        UartChannel<ZP> *selectedChannel = Zscript<ZP>::zscript.getChannels()[channelIndex];
+        UartChannel<ZP> *selectedChannel = (UartChannel<ZP> *) Zscript<ZP>::zscript.getChannels()[channelIndex];
         if (selectedChannel->getAssociatedModule() != MODULE_FULL_ID) {
             ctx.status(ResponseStatus::VALUE_UNSUPPORTED);
             return;
@@ -60,10 +60,8 @@ public:
 
         out.writeField(RespBitsetCapabilities__B, (parity & 0x2 ? RespBitsetCapabilities_Values::parityOn_field : 0)
                                                   | (parity & 0x1 ? RespBitsetCapabilities_Values::parityOdd_field : 0)
-                                                  | (stopBits? RespBitsetCapabilities_Values::doubleStop_field : 0)
+                                                  | (stopBits ? RespBitsetCapabilities_Values::doubleStop_field : 0)
         );
-
-        out.writeField(RespBitsetCapabilities__B, RespBitsetCapabilities_Values::parityOn_field | RespBitsetCapabilities_Values::doubleStop_field);
     }
 };
 
