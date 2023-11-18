@@ -49,14 +49,16 @@
 #include "commands/DigitalPinReadCommand.hpp"
 #include "commands/PinCapabilitiesCommand.hpp"
 
-#define MODULE_EXISTS_003 EXISTENCE_MARKER_UTIL
-#define MODULE_SWITCH_003 MODULE_SWITCH_UTIL(PinModule<ZP>::execute)
+#define MODULE_EXISTS_004 EXISTENCE_MARKER_UTIL
+#define MODULE_SWITCH_004 MODULE_SWITCH_UTIL(PinModule<ZP>::execute)
 
 #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
-#define MODULE_NOTIFICATION_EXISTS_003 EXISTENCE_MARKER_UTIL
-#define MODULE_NOTIFICATION_SWITCH_003 NOTIFICATION_SWITCH_UTIL(PinModule<ZP>::notification)
+#define MODULE_NOTIFICATION_EXISTS_004 EXISTENCE_MARKER_UTIL
+#define MODULE_NOTIFICATION_SWITCH_004 NOTIFICATION_SWITCH_UTIL(PinModule<ZP>::notification)
 #endif
+
 namespace Zscript {
+
 template<class ZP>
 class PinModule {
 #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
@@ -67,7 +69,7 @@ private:
     static volatile bool hasDigitalNotificationWaiting;
 
     static void onNotificationNeededDigital() {
-        if (!notificationSource.setNotification(&GenericCore::LockSet<ZP>::Empty, 0x30)) {
+        if (!notificationSource.setNotification(&GenericCore::LockSet<ZP>::Empty, 0x40)) {
             hasDigitalNotificationWaiting = true;
         }
     }
@@ -76,7 +78,7 @@ private:
     static volatile bool hasAnalogNotificationWaiting;
 
     static void onNotificationNeededAnalog() {
-        if (!notificationSource.setNotification(&GenericCore::LockSet<ZP>::Empty, 0x31)) {
+        if (!notificationSource.setNotification(&GenericCore::LockSet<ZP>::Empty, 0x41)) {
             hasAnalogNotificationWaiting = true;
         }
     }
@@ -101,13 +103,13 @@ public:
         if (!notificationSource.hasNotification()) {
             if (hasDigitalNotificationWaiting) {
                 hasDigitalNotificationWaiting = false;
-                notificationSource.setNotification(&GenericCore::LockSet<ZP>::Empty, 0x30);
+                notificationSource.setNotification(&GenericCore::LockSet<ZP>::Empty, 0x40);
                 hasDigitalNotificationWaiting |= DigitalNotification<ZP>::checkForWaitingNotification();
             }
 #ifdef ZSCRIPT_PIN_SUPPORT_ANALOG_NOTIFICATIONS
             else if (hasAnalogNotificationWaiting) {
                 hasAnalogNotificationWaiting = false;
-                notificationSource.setNotification(&GenericCore::LockSet<ZP>::Empty, 0x31);
+                notificationSource.setNotification(&GenericCore::LockSet<ZP>::Empty, 0x41);
                 hasAnalogNotificationWaiting |= AnalogNotification<ZP>::checkForWaitingNotification();
             }
 #endif
@@ -178,11 +180,15 @@ public:
 
 template<class ZP>
 GenericCore::ZscriptNotificationSource<ZP> PinModule<ZP>::notificationSource;
+
 template<class ZP>
 volatile bool PinModule<ZP>::hasDigitalNotificationWaiting = false;
+
 #ifdef ZSCRIPT_PIN_SUPPORT_ANALOG_NOTIFICATIONS
+
 template<class ZP>
 volatile bool PinModule<ZP>::hasAnalogNotificationWaiting = false;
+
 #endif
 #endif
 }
