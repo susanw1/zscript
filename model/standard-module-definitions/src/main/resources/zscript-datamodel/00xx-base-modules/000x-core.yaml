@@ -39,6 +39,18 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
+    -   key: A
+        name: addressingSupported
+        description: true if addressing is enabled; absent otherwise
+        typeDefinition:
+            '@type': flag
+        required: no
+    -   key: N
+        name: notificationsSupported
+        description: true if async notifications are enabled; absent otherwise
+        typeDefinition:
+            '@type': flag
+        required: no
     -   key: +
         name: ident
         description: identification string relating to requested versionType
@@ -144,7 +156,7 @@ commands:
             '@type': enum
             values:
             - TemporaryId
-            - GUID
+            - Guid
             - HardwareId
         required: yes
     -   key: F

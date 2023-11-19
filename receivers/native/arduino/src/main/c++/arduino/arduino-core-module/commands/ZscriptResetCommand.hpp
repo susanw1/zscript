@@ -9,22 +9,25 @@
 #define SRC_MAIN_CPP_ARDUINO_ARDUINO_CORE_MODULE_COMMANDS_ZSCRIPTRESETCOMMAND_HPP_
 
 #include <zscript/modules/ZscriptCommand.hpp>
+#include <net/zscript/model/modules/base/OuterCoreModule.hpp>
 
-#define COMMAND_EXISTS_0003 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_0011 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
+namespace outer_core_module {
+
 template<class ZP>
-class ZscriptResetCommand {
-
+class ZscriptResetCommand: public Reset_CommandDefs {
 public:
-    static constexpr uint8_t CODE = 0x03;
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         void (*resetFunc)(void) = 0;
         resetFunc();
     }
-
 };
+
+}
+
 }
 
 #define ZSCRIPT_RESET_COMMAND

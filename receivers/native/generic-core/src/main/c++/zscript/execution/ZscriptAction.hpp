@@ -28,7 +28,7 @@ class SemanticParser;
 template<class ZP>
 class ZscriptNotificationSource;
 
-enum class SemanticActionType : uint8_t {
+enum SemanticActionType : uint8_t {
     INVALID,
     GO_AROUND,
     WAIT_FOR_TOKENS,

@@ -45,7 +45,13 @@ protected:
         {{#typeDefinition}}
             {{#enumType}}
     /** Enum ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
-    static constexpr uint8_t Req{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+    static constexpr uint8_t Req{{#upperCamel}}{{fieldName}}{{/upperCamel}}__{{key}} = '{{key}}';
+    /** Enum of values for '{{#lowerCamel}}{{fieldName}}{{/lowerCamel}}' field. */
+    enum Req{{#upperCamel}}{{fieldName}}{{/upperCamel}}_Values : uint8_t {
+                {{#values}}
+        {{#lowerCamel}}{{.}}{{/lowerCamel}}_Value,
+                {{/values}}
+    };
             {{/enumType}}
             {{#numberType}}
     /** Number ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
@@ -65,7 +71,7 @@ protected:
     enum Req{{#upperCamel}}{{fieldName}}{{/upperCamel}}_Values : uint16_t {
                 {{#bits}}
         /** Bit field: {{description}} */
-        {{#lowerCamel}}{{name}}{{/lowerCamel}}_field = (1 << (uint8_t) Req{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions::{{#lowerCamel}}{{name}}{{/lowerCamel}}_bitPosition),
+        {{#lowerCamel}}{{name}}{{/lowerCamel}}_field = (1u << (uint8_t) Req{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions::{{#lowerCamel}}{{name}}{{/lowerCamel}}_bitPosition),
                 {{/bits}}
     };
             {{/bitsetType}}
@@ -114,7 +120,7 @@ protected:
     enum Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_Values : uint16_t {
                 {{#bits}}
         /** Bit field: {{description}} */
-        {{#lowerCamel}}{{name}}{{/lowerCamel}}_field = (1 << (uint8_t) Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions::{{#lowerCamel}}{{name}}{{/lowerCamel}}_bitPosition),
+        {{#lowerCamel}}{{name}}{{/lowerCamel}}_field = (1u << (uint8_t) Resp{{#upperCamel}}{{fieldName}}{{/upperCamel}}_BitPositions::{{#lowerCamel}}{{name}}{{/lowerCamel}}_bitPosition),
                 {{/bits}}
     };
             {{/bitsetType}}
@@ -134,6 +140,10 @@ protected:
     /** Commands ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
     static constexpr uint8_t Resp{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
             {{/commandsType}}
+            {{#modulesType}}
+    /** Modules ({{#required}}Required{{/required}}{{^required}}Optional{{/required}}): {{description}} */
+    static constexpr uint8_t Resp{{#upperCamel}}{{name}}{{/upperCamel}}__{{key}} = '{{key}}';
+            {{/modulesType}}
         {{/typeDefinition}}
 
     {{/responseFields}}

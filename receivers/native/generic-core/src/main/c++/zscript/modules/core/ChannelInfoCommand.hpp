@@ -8,18 +8,20 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_CORE_CHANNELINFOCOMMAND_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_CORE_CHANNELINFOCOMMAND_HPP_
 
+#include <net/zscript/model/modules/base/CoreModule.hpp>
 #include "../../ZscriptIncludes.hpp"
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../../LanguageVersion.hpp"
-#include <net/zscript/model/modules/base/CoreModule.hpp>
 
 #define COMMAND_EXISTS_0008 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
 template<class ZP>
 class ZscriptChannel;
 
 namespace GenericCore {
+
 template<class ZP>
 class ChannelInfoCommand: public core_module::ChannelInfo_CommandDefs {
 
@@ -38,9 +40,10 @@ public:
         out.writeField(RespBufferLength__B, Zscript<ZP>::zscript.getChannels()[channelIndex]->getBufferLength());
         out.writeField(RespCurrentChannel__U, current);
     }
-
 };
+
 }
+
 }
 
 #endif /* SRC_MAIN_C___ZSCRIPT_MODULES_CORE_CHANNELINFOCOMMAND_HPP_ */

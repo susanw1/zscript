@@ -22,10 +22,11 @@
 #include "ChannelSetupCommand.hpp"
 
 namespace Zscript {
+
 namespace GenericCore {
+
 template<class ZP>
 class ZscriptOuterCoreModule: public ZscriptModule<ZP> {
-
 public:
 
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
@@ -57,9 +58,10 @@ public:
             break;
         }
     }
-
 };
+
 }
+
 }
 
 #endif /* SRC_MAIN_C___ZSCRIPT_MODULES_OUTERCORE_OUTERCOREMODULE_HPP_ */
