@@ -7,6 +7,8 @@
 
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_OUTERCORE_EXTENDEDCAPABILITIESCOMMAND_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_OUTERCORE_EXTENDEDCAPABILITIESCOMMAND_HPP_
+
+#include <net/zscript/model/modules/base/OuterCoreModule.hpp>
 #include "../../ZscriptIncludes.hpp"
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../ZscriptModule.hpp"
@@ -14,15 +16,16 @@
 #define COMMAND_EXISTS_0010 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
-namespace GenericCore {
-template<class ZP>
-class ExtendedCapabilitiesCommand {
-public:
 
+namespace GenericCore {
+
+template<class ZP>
+class ExtendedCapabilitiesCommand: public outer_core_module::ExtendedCapabilities_CommandDefs {
+public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
         uint16_t target;
-        if (ctx.getField('M', &target)) {
+        if (ctx.getField(ReqModuleBankRequest__M, &target)) {
             if (target >= 16) {
                 ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
                 return;
@@ -80,15 +83,15 @@ public:
             default:
                 break;
             }
-            out.writeField('L', result);
+            out.writeField(RespModuleBanksLower__L, result);
         }
-        out.writeField('C', MODULE_CAPABILITIES(001));
-        out.writeField('M', BROAD_MODULE_EXISTENCE);
-
+        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(001));
+        out.writeField(RespModuleBanksUpper__M, BROAD_MODULE_EXISTENCE);
     }
-
 };
+
 }
+
 }
 
 #endif /* SRC_MAIN_C___ZSCRIPT_MODULES_OUTERCORE_EXTENDEDCAPABILITIESCOMMAND_HPP_ */

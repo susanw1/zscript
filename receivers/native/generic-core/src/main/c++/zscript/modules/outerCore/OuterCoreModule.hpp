@@ -7,6 +7,7 @@
 
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_OUTERCORE_OUTERCOREMODULE_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_OUTERCORE_OUTERCOREMODULE_HPP_
+
 #ifdef ZSCRIPT_HPP_INCLUDED
 #error Must be included before Zscript.hpp
 #endif
@@ -32,24 +33,24 @@ public:
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
 
         switch (bottomBits) {
-        case 0x0:
+        case ExtendedCapabilitiesCommand<ZP>::CODE:
             ExtendedCapabilitiesCommand<ZP>::execute(ctx);
             break;
 #ifdef ZSCRIPT_RESET_COMMAND
-        case 0x1:
+        case outer_core_module::Reset_CommandDefs::CODE:
             ZP::ResetCommand::execute(ctx);
             break;
 #endif
 #ifdef ZSCRIPT_ID_SAVE_COMMAND
-        case 0x4:
+        case outer_core_module::WriteGuid_CommandDefs::CODE:
             ZP::IdCommand::saveId(ctx);
             break;
 #endif
-        case 0x8:
+        case ChannelSetupCommand<ZP>::CODE:
             ChannelSetupCommand<ZP>::execute(ctx);
             break;
 #ifdef ZSCRIPT_USER_CUSTOM_OUTER_CORE_COMMAND
-        case 0x4:
+        case outer_core_module::UserDefined_CommandDefs::CODE:
             ZP::CustomOuterCoreCommand::execute(ctx);
             break;
 #endif
