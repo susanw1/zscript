@@ -5,6 +5,7 @@
 #ifndef ZSCRIPT_ZSCRIPTIDCOMMAND_H
 #define ZSCRIPT_ZSCRIPTIDCOMMAND_H
 
+#include <net/zscript/model/modules/base/CoreModule.hpp>
 #include <zscript/modules/ZscriptCommand.hpp>
 #include "../../arduino-core-module/persistence/PersistenceSystem.hpp"
 
@@ -13,17 +14,14 @@
 #define COMMAND_EXISTS_0014 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
+namespace core_module {
+
 template<class ZP>
-class ZscriptIdCommand {
+class ZscriptIdCommand: public ReadId_CommandDefs {
     static uint8_t tempIdArr[2];
     static uint8_t guidLoc;
 public:
-    enum IdType : uint8_t {
-        TEMPORARY_ID, GUID, HARDWARE_ID
-    };
-    static constexpr char ParamIdType__I = 'I';
-    static constexpr char ParamFailOnMismatchedId__F = 'F';
-
     static void setup() {
         guidLoc = PersistenceSystem<ZP>::reserveSection(16);
     }
@@ -31,7 +29,7 @@ public:
     static void fetchId(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
         uint16_t idType;
-        if (!ctx.getField(ParamIdType__I, &idType)) {
+        if (!ctx.getField(ReqIdType__I, &idType)) {
             ctx.status(MISSING_KEY);
             return;
         }
@@ -39,7 +37,7 @@ public:
         uint8_t i = 0;
         uint8_t bigLength = ctx.getBigFieldSize();
         switch (idType) {
-            case TEMPORARY_ID:
+            case temporaryId_Value:
                 out.writeBigHex(tempIdArr, 2);
                 if (bigLength != 0) {
                     if (bigLength != 2) {
@@ -55,7 +53,7 @@ public:
                     }
                 }
                 break;
-            case GUID:
+            case guid_Value:
                 uint8_t guidValue[16];
                 if (!PersistenceSystem<ZP>::readSection(guidLoc, 16, guidValue)) {
                     break;
@@ -76,10 +74,10 @@ public:
                 }
                 break;
             default:
-                ctx.status(VALUE_OUT_OF_RANGE);
+                ctx.status(VALUE_UNSUPPORTED);
                 return;
         }
-        if (!matches && ctx.hasField(ParamFailOnMismatchedId__F)) {
+        if (!matches && ctx.hasField(ReqFailOnNonMatch__F)) {
             ctx.status(COMMAND_FAIL_CONTROL);
         }
     }
@@ -102,13 +100,15 @@ public:
         }
         PersistenceSystem<ZP>::writeSection(guidLoc, 16, guidToSave);
     }
-
 };
 
 template<class ZP>
 uint8_t ZscriptIdCommand<ZP>::guidLoc = 0;
+
 template<class ZP>
 uint8_t ZscriptIdCommand<ZP>::tempIdArr[2] = {0, 0};
+}
+
 }
 
 #define ZSCRIPT_ID_FETCH_COMMAND

@@ -26,39 +26,38 @@
 #include "CapabilitiesCommand.hpp"
 
 namespace Zscript {
+
 namespace GenericCore {
+
 template<class ZP>
-class ZscriptCoreModule: public ZscriptModule<ZP> {
-
+class ZscriptCoreModule : public ZscriptModule<ZP> {
 public:
-
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
-
         switch (bottomBits) {
-        case 0x0:
+        case CapabilitiesCommand<ZP>::CODE:
             CapabilitiesCommand<ZP>::execute(ctx);
             break;
-        case 0x1:
+        case EchoCommand<ZP>::CODE:
             EchoCommand<ZP>::execute(ctx);
             break;
-        case 0x2:
+        case ActivateCommand<ZP>::CODE:
             ActivateCommand<ZP>::execute(ctx);
             break;
 #ifdef ZSCRIPT_ID_FETCH_COMMAND
-        case 0x4:
+        case core_module::ReadId_CommandDefs::CODE:
             ZP::IdCommand::fetchId(ctx);
             break;
 #endif
 #ifdef ZSCRIPT_ID_RANDOM_COMMAND
-        case 0x5:
+        case core_module::MakeCode_CommandDefs::CODE:
             ZP::IdCommand::makeRandomCode(ctx);
             break;
 #endif
-        case 0x8:
+        case ChannelInfoCommand<ZP>::CODE:
             ChannelInfoCommand<ZP>::execute(ctx);
             break;
 #ifdef ZSCRIPT_USER_CUSTOM_CORE_COMMAND
-        case 0x4:
+        case core_module::UserDefined_CommandDefs::CODE:
             ZP::CustomCoreCommand::execute(ctx);
             break;
 #endif
@@ -67,9 +66,10 @@ public:
             break;
         }
     }
-
 };
+
 }
+
 }
 
 #endif /* SRC_MAIN_C___ZSCRIPT_MODULES_CORE_COREMODULE_HPP_ */

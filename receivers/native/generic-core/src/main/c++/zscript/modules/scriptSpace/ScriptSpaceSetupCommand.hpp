@@ -7,9 +7,11 @@
 
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_SCRIPTSPACE_SCRIPTSPACESETUPCOMMAND_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_SCRIPTSPACE_SCRIPTSPACESETUPCOMMAND_HPP_
+
 #include "../../ZscriptIncludes.hpp"
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../ZscriptModule.hpp"
+
 #define COMMAND_EXISTS_0021 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {

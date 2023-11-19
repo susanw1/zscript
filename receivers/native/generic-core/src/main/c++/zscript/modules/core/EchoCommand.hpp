@@ -8,6 +8,7 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_CORE_ECHOCOMMAND_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_CORE_ECHOCOMMAND_HPP_
 
+#include <net/zscript/model/modules/base/CoreModule.hpp>
 #include "../../ZscriptIncludes.hpp"
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../../LanguageVersion.hpp"
@@ -15,11 +16,12 @@
 #define COMMAND_EXISTS_0001 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
-namespace GenericCore {
-template<class ZP>
-class EchoCommand {
-public:
 
+namespace GenericCore {
+
+template<class ZP>
+class EchoCommand: public core_module::Echo_CommandDefs {
+public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         GenericCore::TokenRingBuffer<ZP> *buffer = ctx.parseState->getReader().asBuffer();
 
@@ -50,9 +52,10 @@ public:
             }
         }
     }
-
 };
+
 }
+
 }
 
 #endif /* SRC_MAIN_C___ZSCRIPT_MODULES_CORE_ECHOCOMMAND_HPP_ */

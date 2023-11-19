@@ -45,8 +45,8 @@
 
 class ZscriptParams {
 public:
-    typedef Zscript::ZscriptResetCommand<ZscriptParams> ResetCommand;
-    typedef Zscript::ZscriptIdCommand<ZscriptParams> IdCommand;
+    typedef Zscript::outer_core_module::ZscriptResetCommand<ZscriptParams> ResetCommand;
+    typedef Zscript::core_module::ZscriptIdCommand<ZscriptParams> IdCommand;
 
     static uint16_t generateRandom16() {
         return (uint16_t) millis();
