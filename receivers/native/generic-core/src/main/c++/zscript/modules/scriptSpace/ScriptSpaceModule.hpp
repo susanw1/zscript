@@ -18,17 +18,18 @@
 
 #define MODULE_EXISTS_002 EXISTENCE_MARKER_UTIL
 #define MODULE_SWITCH_002 MODULE_SWITCH_UTIL(ScriptSpaceModule<ZP>::execute)
+
 #include "ScriptSpaceSetupCommand.hpp"
 #include "ScriptSpaceWriteCommand.hpp"
 #include "ScriptSpaceCapabilitiesCommand.hpp"
 
 namespace Zscript {
+
 namespace GenericCore {
+
 template<class ZP>
 class ScriptSpaceModule: public ZscriptModule<ZP> {
-
 public:
-
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
         switch (bottomBits) {
         case 0x0:
@@ -47,8 +48,11 @@ public:
     }
 
 };
+
 }
+
 }
+
 #define ZSCRIPT_SUPPORT_SCRIPT_SPACE
 #define ZSCRIPT_SUPPORT_NOTIFICATIONS
 
