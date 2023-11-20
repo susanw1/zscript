@@ -28,11 +28,7 @@ class ScriptSpaceSetupCommand: public script_space_module::ScriptSpaceSetup_Comm
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t spaceIndex = 0;
-        if (!ctx.getField(ReqScriptSpaceId__P, &spaceIndex)) {
-            ctx.status(ResponseStatus::MISSING_KEY);
-            return;
-        } else if (spaceIndex >= Zscript<ZP>::zscript.getScriptSpaceCount()) {
-            ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+        if (!ctx.getReqdFieldCheckLimit(ReqScriptSpaceId__P, Zscript<ZP>::zscript.getScriptSpaceCount(), &spaceIndex)) {
             return;
         }
 
@@ -40,10 +36,10 @@ public:
         ScriptSpace<ZP> *target = Zscript<ZP>::zscript.getScriptSpaces()[spaceIndex];
         out.writeField(RespCurrentWritePosition__P, target->getCurrentLength());
         if (target->isRunning()) {
-            out.writeField(RespRunning__R, 0);
+            out.writeFlagFieldSet(RespRunning__R);
         }
         if (target->canBeWrittenTo()) {
-            out.writeField(RespWriteAllowed__W, 0);
+            out.writeFlagFieldSet(RespWriteAllowed__W);
         }
         out.writeField(RespAvailableLength__L, target->getMaxLength());
         uint16_t runOpt = 0;

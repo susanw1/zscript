@@ -42,11 +42,7 @@ private:
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t spaceIndex;
-        if (!ctx.getField(ReqScriptSpaceId__P, &spaceIndex)) {
-            ctx.status(ResponseStatus::MISSING_KEY);
-            return;
-        } else if (spaceIndex >= Zscript<ZP>::zscript.getScriptSpaceCount()) {
-            ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+        if (!ctx.getReqdFieldCheckLimit(ReqScriptSpaceId__P, Zscript<ZP>::zscript.getScriptSpaceCount(), &spaceIndex)) {
             return;
         }
 
