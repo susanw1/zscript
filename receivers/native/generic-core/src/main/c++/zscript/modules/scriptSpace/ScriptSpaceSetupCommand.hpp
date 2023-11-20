@@ -9,52 +9,56 @@
 #define SRC_MAIN_C___ZSCRIPT_MODULES_SCRIPTSPACE_SCRIPTSPACESETUPCOMMAND_HPP_
 
 #include "../../ZscriptIncludes.hpp"
+
+#include <net/zscript/model/modules/base/ScriptSpaceModule.hpp>
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../ZscriptModule.hpp"
 
 #define COMMAND_EXISTS_0021 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
 template<class ZP>
 class ScriptSpace;
 
 namespace GenericCore {
-template<class ZP>
-class ScriptSpaceSetupCommand {
-public:
 
+template<class ZP>
+class ScriptSpaceSetupCommand: public script_space_module::ScriptSpaceSetup_CommandDefs {
+public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t spaceIndex = 0;
-        if (!ctx.getField('P', &spaceIndex)) {
+        if (!ctx.getField(ReqScriptSpaceId__P, &spaceIndex)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         } else if (spaceIndex >= Zscript<ZP>::zscript.getScriptSpaceCount()) {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
             return;
         }
+
         CommandOutStream<ZP> out = ctx.getOutStream();
         ScriptSpace<ZP> *target = Zscript<ZP>::zscript.getScriptSpaces()[spaceIndex];
-        out.writeField('P', target->getCurrentLength());
+        out.writeField(RespCurrentWritePosition__P, target->getCurrentLength());
         if (target->isRunning()) {
-            out.writeField('R', 0);
+            out.writeField(RespRunning__R, 0);
         }
         if (target->canBeWrittenTo()) {
-            out.writeField('W', 0);
+            out.writeField(RespWriteAllowed__W, 0);
         }
-        out.writeField('L', target->getMaxLength());
+        out.writeField(RespAvailableLength__L, target->getMaxLength());
         uint16_t runOpt = 0;
-        if (ctx.getField('R', &runOpt)) {
+        if (ctx.getField(ReqRun__R, &runOpt)) {
             if (runOpt != 0) {
                 target->run();
             } else {
                 target->stop();
             }
         }
-
     }
-
 };
+
 }
+
 }
 
 #endif /* SRC_MAIN_C___ZSCRIPT_MODULES_SCRIPTSPACE_SCRIPTSPACESETUPCOMMAND_HPP_ */

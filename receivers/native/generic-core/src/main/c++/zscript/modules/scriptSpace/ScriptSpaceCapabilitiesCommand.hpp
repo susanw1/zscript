@@ -9,6 +9,8 @@
 #define SRC_MAIN_C___ZSCRIPT_MODULES_SCRIPTSPACE_SCRIPTSPACECAPABILITIESCOMMAND_HPP_
 
 #include "../../ZscriptIncludes.hpp"
+
+#include <net/zscript/model/modules/base/ScriptSpaceModule.hpp>
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../ZscriptModule.hpp"
 
@@ -19,14 +21,13 @@ namespace Zscript {
 namespace GenericCore {
 
 template<class ZP>
-class ScriptSpaceCapabilitiesCommand {
+class ScriptSpaceCapabilitiesCommand: public script_space_module::Capabilities_CommandDefs {
 public:
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
-        out.writeField('C', MODULE_CAPABILITIES(002));
-        out.writeField('P', Zscript<ZP>::zscript.getScriptSpaceCount());
-
+        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(002));
+        out.writeField(RespScriptSpaceCount__P, Zscript<ZP>::zscript.getScriptSpaceCount());
     }
 };
 
