@@ -92,6 +92,10 @@ public:
         internal->writeField(field, value);
     }
 
+    void writeFlagFieldSet(uint8_t field) {
+        internal->writeField(field, 0);
+    }
+
     QuotedStringFieldWriter<ZP> beginQuotedString() {
         internal->beginBigString();
         return QuotedStringFieldWriter<ZP>(internal);
