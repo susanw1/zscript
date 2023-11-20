@@ -32,13 +32,13 @@ class ScriptSpaceModule: public ZscriptModule<ZP> {
 public:
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
         switch (bottomBits) {
-        case 0x0:
+        case ScriptSpaceCapabilitiesCommand<ZP>::CODE:
             ScriptSpaceCapabilitiesCommand<ZP>::execute(ctx);
             break;
-        case 0x1:
+        case ScriptSpaceSetupCommand<ZP>::CODE:
             ScriptSpaceSetupCommand<ZP>::execute(ctx);
             break;
-        case 0x2:
+        case ScriptSpaceWriteCommand<ZP>::CODE:
             ScriptSpaceWriteCommand<ZP>::execute(ctx);
             break;
         default:
