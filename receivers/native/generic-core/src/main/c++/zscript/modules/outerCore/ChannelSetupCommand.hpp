@@ -8,8 +8,9 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_CORE_CHANNELSETUPCOMMAND_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_CORE_CHANNELSETUPCOMMAND_HPP_
 
-#include <net/zscript/model/modules/base/OuterCoreModule.hpp>
 #include "../../ZscriptIncludes.hpp"
+
+#include <net/zscript/model/modules/base/OuterCoreModule.hpp>
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../../LanguageVersion.hpp"
 
