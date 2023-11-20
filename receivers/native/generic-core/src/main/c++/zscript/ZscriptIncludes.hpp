@@ -13,7 +13,6 @@
 #include <stdlib.h>
 
 #include "LanguageVersion.hpp"
-#include "ResponseTypes.hpp"
 #include "Zchars.hpp"
 #include "ZscriptResponseStatus.hpp"
 
