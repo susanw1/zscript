@@ -9,7 +9,7 @@
 #define SRC_MAIN_C___ZSCRIPT_ZSCRIPTCHANNEL_HPP_
 
 #ifndef ZSCRIPT_HPP_INCLUDED
-#   error Channels must be included only after Zscript.hpp
+#   error ZscriptChannel.hpp needs to be included AFTER Zscript.hpp
 #endif
 
 #include "semanticParser/SemanticParser.hpp"

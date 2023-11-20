@@ -11,6 +11,8 @@
 namespace Zscript {
 namespace GenericCore {
 
+#error deprecated! delete me!
+
 enum ResponseType {
     Response = 0,
     ResetNotification = 1,
