@@ -8,8 +8,9 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_CORE_ACTIVATECOMMAND_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_CORE_ACTIVATECOMMAND_HPP_
 
-#include <net/zscript/model/modules/base/CoreModule.hpp>
 #include "../../ZscriptIncludes.hpp"
+
+#include <net/zscript/model/modules/base/CoreModule.hpp>
 #include "../../execution/ZscriptCommandContext.hpp"
 #include "../../LanguageVersion.hpp"
 
