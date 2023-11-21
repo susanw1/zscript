@@ -16,6 +16,8 @@
 
 namespace Zscript {
 
+namespace uart_module {
+
 template<class ZP>
 class UartModule;
 
@@ -24,8 +26,6 @@ class UartChannel;
 
 template<class ZP>
 class ZscriptUartOutStream;
-
-namespace uart_module {
 
 template<class ZP>
 class UartChannelInfoCommand : public ChannelInfo_CommandDefs {

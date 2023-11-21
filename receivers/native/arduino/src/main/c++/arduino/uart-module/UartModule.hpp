@@ -12,21 +12,12 @@
 #include <zscript/execution/ZscriptCommandContext.hpp>
 
 #ifdef ZSCRIPT_HAVE_UART_CHANNEL
-
-namespace Zscript {
-template<class ZP>
-class UartChannel;
-}
-
 #include "commands/UartChannelInfo.hpp"
 #include "commands/UartChannelSetup.hpp"
-
 #endif
 
 #ifdef ZSCRIPT_HAVE_UART_MODULE
-
 #include <net/zscript/model/modules/base/UartModule.hpp>
-
 #endif
 
 #include "commands/UartCapabilitiesCommand.hpp"
@@ -36,9 +27,11 @@ class UartChannel;
 #endif
 
 #define MODULE_EXISTS_007 EXISTENCE_MARKER_UTIL
-#define MODULE_SWITCH_007 MODULE_SWITCH_UTIL(UartModule<ZP>::execute)
+#define MODULE_SWITCH_007 MODULE_SWITCH_UTIL(uart_module::UartModule<ZP>::execute)
 
 namespace Zscript {
+
+namespace uart_module {
 
 template<class ZP>
 class UartModule : public ZscriptModule<ZP> {
@@ -61,15 +54,15 @@ public:
 
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
         switch (bottomBits) {
-            case uart_module::UartCapabilitiesCommand<ZP>::CODE:
-                uart_module::UartCapabilitiesCommand<ZP>::execute(ctx);
+            case UartCapabilitiesCommand<ZP>::CODE:
+                UartCapabilitiesCommand<ZP>::execute(ctx);
                 break;
 #ifdef ZSCRIPT_HAVE_UART_CHANNEL
-            case uart_module::UartChannelInfoCommand<ZP>::CODE:
-                uart_module::UartChannelInfoCommand<ZP>::execute(ctx);
+            case UartChannelInfoCommand<ZP>::CODE:
+                UartChannelInfoCommand<ZP>::execute(ctx);
                 break;
-            case uart_module::UartChannelSetupCommand<ZP>::CODE:
-                uart_module::UartChannelSetupCommand<ZP>::execute(ctx);
+            case UartChannelSetupCommand<ZP>::CODE:
+                UartChannelSetupCommand<ZP>::execute(ctx);
                 break;
 #endif
             default:
@@ -83,6 +76,8 @@ public:
 template<class ZP>
 UartChannel<ZP> UartModule<ZP>::channel;
 #endif
+
+}
 
 }
 

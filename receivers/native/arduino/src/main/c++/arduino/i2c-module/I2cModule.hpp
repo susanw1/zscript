@@ -34,16 +34,6 @@
 
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
 
-namespace Zscript {
-
-namespace i2c_module {
-
-template<class ZP>
-class I2cChannel;
-}
-
-}
-
 #include "commands/I2cChannelInfo.hpp"
 #include "commands/I2cChannelSetup.hpp"
 

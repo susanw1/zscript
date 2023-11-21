@@ -123,8 +123,8 @@ public:
         }
 #endif
 #ifdef ZSCRIPT_HAVE_UART_CHANNEL
-        if (Zscript::UartChannel<ZscriptParams>::getNotifChannelPersistMaxLength() > notifPersistLength) {
-            notifPersistLength = Zscript::UartChannel<ZscriptParams>::getNotifChannelPersistMaxLength();
+        if (Zscript::uart_module::UartChannel<ZscriptParams>::getNotifChannelPersistMaxLength() > notifPersistLength) {
+            notifPersistLength = Zscript::uart_module::UartChannel<ZscriptParams>::getNotifChannelPersistMaxLength();
         }
 #endif
         Zscript::PersistenceSystem<ZscriptParams>::reserveNotifChannelData(notifPersistLength);
@@ -146,10 +146,10 @@ public:
 #endif
 
 #if defined(ZSCRIPT_HAVE_UART_MODULE) || defined(ZSCRIPT_HAVE_UART_CHANNEL)
-        Zscript::UartModule<ZscriptParams>::setup();
+        Zscript::uart_module::UartModule<ZscriptParams>::setup();
 #endif
 #ifdef ZSCRIPT_HAVE_UART_CHANNEL
-        channels[i++] = &Zscript::UartModule<ZscriptParams>::channel;
+        channels[i++] = &Zscript::uart_module::UartModule<ZscriptParams>::channel;
 #endif
 #ifdef ZSCRIPT_HAVE_UDP_CHANNEL
         Zscript::ZscriptUdpManager<ZscriptParams>::setup();
