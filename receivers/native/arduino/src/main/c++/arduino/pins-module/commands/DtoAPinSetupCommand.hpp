@@ -22,12 +22,7 @@ class DtoAPinSetupCommand: public DToASetup_CommandDefs {
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t pin;
-        if (!ctx.getField(ReqPin__P, &pin)) {
-            ctx.status(ResponseStatus::MISSING_KEY);
-            return;
-        }
-        if (pin >= ZP::pinCount) {
-            ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+        if (!ctx.getReqdFieldCheckLimit(ReqPin__P, ZP::pinCount, &pin)) {
             return;
         }
         CommandOutStream<ZP> out = ctx.getOutStream();
