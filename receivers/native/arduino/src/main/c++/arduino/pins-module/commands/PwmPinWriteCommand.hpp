@@ -11,22 +11,18 @@
 #include <zscript/modules/ZscriptCommand.hpp>
 #include "../PinManager.hpp"
 
-#define COMMAND_EXISTS_0039 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_0049 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
 
 namespace pins_module {
 
 template<class ZP>
-class PwmPinWriteCommand {
-    static constexpr char ParamPin__P = 'P';
-    static constexpr char ParamValue__V = 'V';
-
+class PwmPinWriteCommand: public PwmWrite_CommandDefs {
 public:
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t pin;
-        if (!ctx.getField(ParamPin__P, &pin)) {
+        if (!ctx.getField(ReqPin__P, &pin)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }
@@ -35,7 +31,7 @@ public:
             return;
         }
         uint16_t value;
-        if (!ctx.getField(ParamValue__V, &value)) {
+        if (!ctx.getField(ReqValue__V, &value)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }

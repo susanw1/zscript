@@ -11,23 +11,18 @@
 #include <zscript/modules/ZscriptCommand.hpp>
 #include "../PinManager.hpp"
 
-#define COMMAND_EXISTS_0036 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_0046 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
 
 namespace pins_module {
 
 template<class ZP>
-class DtoAPinSetupCommand {
-    static constexpr char ParamPin__P = 'P';
-
-    static constexpr char RespBitCount__B = 'B';
-
+class DtoAPinSetupCommand: public DToASetup_CommandDefs {
 public:
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t pin;
-        if (!ctx.getField(ParamPin__P, &pin)) {
+        if (!ctx.getField(ReqPin__P, &pin)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }
