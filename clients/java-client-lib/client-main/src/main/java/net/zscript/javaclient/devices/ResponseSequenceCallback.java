@@ -2,6 +2,7 @@ package net.zscript.javaclient.devices;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -48,16 +49,20 @@ public class ResponseSequenceCallback {
     }
 
     public static ResponseSequenceCallback from(List<MatchedCommandResponse> matchedCRs, Iterable<ZscriptCommandNode<?>> nodes, Map<ZscriptCommandNode<?>, Command> commandMap) {
-        Map<Command, ZscriptCommandNode<?>> nodeMap = new HashMap<>();
-        for (Map.Entry<ZscriptCommandNode<?>, Command> e : commandMap.entrySet()) {
-            nodeMap.put(e.getValue(), e.getKey());
-        }
         Set<ZscriptCommandNode<?>> notExecuted = new HashSet<>();
         for (ZscriptCommandNode<?> node : nodes) {
             if (!notExecuted.add(node)) {
                 throw new IllegalStateException(
                         "Command tree contains duplicate ZscriptCommandNode - this is not supported. Instead share the builder, and call it twice, or create the commands seperately.");
             }
+        }
+        if (matchedCRs.isEmpty()) {
+            // if nothing was executed:
+            return new ResponseSequenceCallback(notExecuted);
+        }
+        Map<Command, ZscriptCommandNode<?>> nodeMap = new HashMap<>();
+        for (Map.Entry<ZscriptCommandNode<?>, Command> e : commandMap.entrySet()) {
+            nodeMap.put(e.getValue(), e.getKey());
         }
 
         LinkedHashMap<ZscriptCommandNode<?>, ZscriptResponse> responses = new LinkedHashMap<>();
@@ -93,6 +98,8 @@ public class ResponseSequenceCallback {
 
     private final CommandExecutionSummary<?> abort;
 
+    private final boolean wasExecuted;
+
     private ResponseSequenceCallback(LinkedHashMap<ZscriptCommandNode<?>, ZscriptResponse> responses, Set<ZscriptCommandNode<?>> notExecuted,
             Set<CommandExecutionSummary<?>> succeeded,
             Set<CommandExecutionSummary<?>> failed, CommandExecutionSummary<?> abort) {
@@ -101,6 +108,16 @@ public class ResponseSequenceCallback {
         this.succeeded = succeeded;
         this.failed = failed;
         this.abort = abort;
+        this.wasExecuted = true;
+    }
+
+    private ResponseSequenceCallback(Set<ZscriptCommandNode<?>> notExecuted) {
+        this.responses = new LinkedHashMap<>();
+        this.notExecuted = notExecuted;
+        this.succeeded = Collections.emptySet();
+        this.failed = Collections.emptySet();
+        this.abort = null;
+        this.wasExecuted = false;
     }
 
     public List<ZscriptResponse> getResponses() {
@@ -141,5 +158,9 @@ public class ResponseSequenceCallback {
 
     public <T extends ZscriptResponse> Optional<T> getResponseFor(ResponseCaptor<T> captor) {
         return getResponseFor((ZscriptCommandNode<T>) captor.getSource()).map(r -> ((ZscriptCommandNode<T>) captor.getSource()).getResponseType().cast(r));
+    }
+
+    public boolean wasExecuted() {
+        return wasExecuted;
     }
 }

@@ -79,6 +79,9 @@ public class ResponseExecutionPath implements Iterable<Response> {
         return builders;
     }
 
+    public static ResponseExecutionPath blank() {
+        return new ResponseExecutionPath(null);
+    }
     public static ResponseExecutionPath parse(ReadToken start) {
         List<ResponseBuilder> builders = createLinkedPath(start);
 

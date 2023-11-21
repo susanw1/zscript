@@ -3,12 +3,9 @@ package net.zscript.javaclient.nodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -23,24 +20,6 @@ import net.zscript.javaclient.sequence.ResponseSequence;
 class ZscriptBasicNode implements ZscriptNode {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZscriptBasicNode.class);
-
-    private static class CommandTimeout {
-        private final int  echo;
-        private final long timeoutNanoTime;
-
-        private CommandTimeout(int echo, long timeoutNanoTime) {
-            this.echo = echo;
-            this.timeoutNanoTime = timeoutNanoTime;
-        }
-
-        public int getEcho() {
-            return echo;
-        }
-
-        public long getTimeoutNanoTime() {
-            return timeoutNanoTime;
-        }
-    }
 
     private final AddressingSystem addressingSystem;
 
@@ -62,22 +41,34 @@ class ZscriptBasicNode implements ZscriptNode {
     private final Map<CommandExecutionPath, Consumer<ResponseExecutionPath>> pathCallbacks         = new HashMap<>();
     private final Map<CommandSequence, Consumer<ResponseSequence>>           fullSequenceCallbacks = new HashMap<>();
 
-    private final Queue<CommandTimeout> timeouts = new ArrayDeque<>();
+    private final EchoAssigner echoSystem;
 
-    // How many timed-out commands are retained to avoid meaningless errors
-    private final int  savedTimeoutCount;
-    // If the timeout queue wraps in less than this time, too many timeouts are occurring.
-    private final long timeoutRollTooSoonCount;
-
-    ZscriptBasicNode(Connection parentConnection, int bufferSize, int savedTimeoutCount, long timeoutRollTooSoon, TimeUnit unit) {
-        if (savedTimeoutCount < 0) {
-            throw new IllegalArgumentException("Saved timeout count cannot be negative");
-        }
-        this.savedTimeoutCount = savedTimeoutCount;
-        this.timeoutRollTooSoonCount = unit.toNanos(timeoutRollTooSoon);
+    ZscriptBasicNode(Connection parentConnection, int bufferSize) {
         this.addressingSystem = new AddressingSystem(this);
         this.parentConnection = parentConnection;
-        this.connectionBuffer = new ConnectionBuffer(parentConnection, bufferSize);
+        this.echoSystem = new EchoAssigner(TimeUnit.MILLISECONDS.toNanos(100));
+        this.connectionBuffer = new ConnectionBuffer(parentConnection, echoSystem, bufferSize);
+        this.strategy.setBuffer(connectionBuffer);
+        parentConnection.onReceive(r -> {
+            try {
+                if (r.hasAddress()) {
+                    if (!addressingSystem.response(r)) {
+                        unknownResponseHandler.accept(r);
+                    }
+                } else {
+                    response(r);
+                }
+            } catch (Exception e) {
+                callbackExceptionHandler.accept(e); // catches all callback exceptions
+            }
+        });
+    }
+
+    ZscriptBasicNode(Connection parentConnection, int bufferSize, long minSegmentChangeTime, TimeUnit unit) {
+        this.addressingSystem = new AddressingSystem(this);
+        this.parentConnection = parentConnection;
+        this.echoSystem = new EchoAssigner(unit.toNanos(minSegmentChangeTime));
+        this.connectionBuffer = new ConnectionBuffer(parentConnection, echoSystem, bufferSize);
         this.strategy.setBuffer(connectionBuffer);
         parentConnection.onReceive(r -> {
             try {
@@ -118,52 +109,27 @@ class ZscriptBasicNode implements ZscriptNode {
     public void send(CommandSequence seq, Consumer<ResponseSequence> callback) {
         fullSequenceCallbacks.put(seq, callback);
         strategy.send(seq);
-        if (seq.hasEchoField()) {
-            for (Iterator<CommandTimeout> iter = timeouts.iterator(); iter.hasNext(); ) {
-                int echo = iter.next().getEcho();
-                if (echo == seq.getEchoValue()) {
-                    iter.remove();
-                    //TODO: log: time since last use timed out.
-                }
-            }
-        } else {
-            checkTimeoutEchoReuse();
-        }
     }
 
     public void send(CommandExecutionPath path, Consumer<ResponseExecutionPath> callback) {
         pathCallbacks.put(path, callback);
         strategy.send(path);
-        checkTimeoutEchoReuse();
     }
 
     public void send(AddressedCommand addr) {
         strategy.send(addr);
     }
 
-    //TODO: add call to execute this - use worker thread
     public void checkTimeouts() {
         Collection<CommandSequence> timedOut = connectionBuffer.checkTimeouts();
         if (!timedOut.isEmpty()) {
             long nanoTime = System.nanoTime();
-            for (CommandSequence cmd : timedOut) {
-                timeouts.add(new CommandTimeout(cmd.getEchoValue(), nanoTime));
-            }
-            while (timeouts.size() > savedTimeoutCount) {
-                long diff = nanoTime - timeouts.poll().getTimeoutNanoTime();
-                if (diff < timeoutRollTooSoonCount) {
-                    //log: too many timeouts...
+            for (CommandSequence seq : timedOut) {
+                if (fullSequenceCallbacks.get(seq) != null) {
+                    fullSequenceCallbacks.get(seq).accept(ResponseSequence.blank());
+                } else if (pathCallbacks.get(seq.getExecutionPath()) != null) {
+                    pathCallbacks.get(seq.getExecutionPath()).accept(ResponseExecutionPath.blank());
                 }
-            }
-        }
-    }
-
-    private void checkTimeoutEchoReuse() {
-        for (Iterator<CommandTimeout> iter = timeouts.iterator(); iter.hasNext(); ) {
-            int echo = iter.next().getEcho();
-            if (connectionBuffer.isApproachingEcho(echo)) {
-                iter.remove();
-                //TODO: log: time since last use timed out.
             }
         }
     }
@@ -180,11 +146,14 @@ class ZscriptBasicNode implements ZscriptNode {
         }
         AddressedCommand found = connectionBuffer.match(resp.getContent());
         if (found == null) {
+            // if it's a recently timed out message, ignore it.
+            if (resp.getContent().hasEchoValue() && echoSystem.unmatchedReceive(resp.getContent().getEchoValue())) {
+                return;
+            }
             unknownResponseHandler.accept(resp);
             return;
         }
         strategy.mayHaveSpace();
-        checkTimeoutEchoReuse();
         parentConnection.responseReceived(found);
         Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getContent());
         if (seqCallback != null) {
@@ -206,7 +175,6 @@ class ZscriptBasicNode implements ZscriptNode {
     public void responseReceived(AddressedCommand found) {
         if (connectionBuffer.responseReceived(found)) {
             strategy.mayHaveSpace();
-            checkTimeoutEchoReuse();
         }
         parentConnection.responseReceived(found);
     }

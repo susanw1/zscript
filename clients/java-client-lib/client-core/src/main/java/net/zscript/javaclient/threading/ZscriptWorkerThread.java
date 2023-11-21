@@ -1,5 +1,7 @@
 package net.zscript.javaclient.threading;
 
+import java.lang.ref.PhantomReference;
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,9 +34,9 @@ public class ZscriptWorkerThread {
             Runnable node = iter.next().get();
             if (node == null) {
                 iter.remove();
-                continue;
+            } else {
+                node.run();
             }
-            node.run();
         }
     }
 

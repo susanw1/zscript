@@ -59,10 +59,16 @@ public class Device {
         node.send(nodeToPath.getPath(), nodeToPath.getCallback());
     }
 
+    // if future is present, wasExecuted() is true, otherwise NoResponseException is given.
     public Future<ResponseSequenceCallback> send(final CommandSequenceNode cmdSeq) {
         CompletableFuture<ResponseSequenceCallback> future = new CompletableFuture<>();
-
-        CommandExecutionTask nodeToPath = convert(cmdSeq, future::complete);
+        CommandExecutionTask nodeToPath = convert(cmdSeq, resp -> {
+            if (!resp.wasExecuted()) {
+                future.completeExceptionally(new NoResponseException());
+            } else {
+                future.complete(resp);
+            }
+        });
         node.send(nodeToPath.getPath(), nodeToPath.getCallback());
         return future;
     }
@@ -71,6 +77,10 @@ public class Device {
         CompletableFuture<ResponseSequenceCallback> future = new CompletableFuture<>();
 
         CommandExecutionTask nodeToPath = convert(cmdSeq, resp -> {
+            if (!resp.wasExecuted()) {
+                future.completeExceptionally(new NoResponseException());
+                return;
+            }
             List<ResponseSequenceCallback.CommandExecutionSummary<?>> l = resp.getExecutionSummary();
             if (l.get(l.size() - 1).getResponse().succeeded()) {
                 future.complete(resp);

@@ -1,5 +1,8 @@
 package net.zscript.javaclient.nodes;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +35,7 @@ public class ConnectionBuffer {
         }
 
         BufferElement(CommandExecutionPath cmd, long nanoTimeTimeout) {
-            CommandSequence seq = CommandSequence.from(cmd, currentEcho, supports32Locks, lockConditions);
+            CommandSequence seq = CommandSequence.from(cmd, echo.getEcho(), supports32Locks, lockConditions);
             this.cmd = new AddressedCommand(seq);
             this.sameLayer = true;
             this.hadEchoBefore = false;
@@ -64,22 +67,17 @@ public class ConnectionBuffer {
     private final Connection           connection;
     private final Queue<BufferElement> buffer = new ArrayDeque<>();
 
+    private final EchoAssigner echo;
+
     private int bufferSize;
     private int currentBufferContent = 0;
-    private int currentEcho          = 0x100;
 
     private Collection<LockCondition> lockConditions  = new ArrayList<>();
     private boolean                   supports32Locks = false;
 
-    private void moveEchoValue() {
-        currentEcho++;
-        if (currentEcho > 0xffff) {
-            currentEcho = 0x100;
-        }
-    }
-
-    public ConnectionBuffer(Connection connection, int bufferSize) {
+    public ConnectionBuffer(Connection connection, EchoAssigner echo, int bufferSize) {
         this.connection = connection;
+        this.echo = echo;
         this.bufferSize = bufferSize;
     }
 
@@ -106,10 +104,15 @@ public class ConnectionBuffer {
         if (sequence.getResponseValue() != 0) {
             throw new IllegalArgumentException("Cannot match notification sequence with command sequence");
         }
+        if (!sequence.hasEchoValue()) {
+            return null;
+        }
         boolean removeUpTo = true;
         for (Iterator<BufferElement> iter = buffer.iterator(); iter.hasNext(); ) {
             BufferElement element = iter.next();
             if (element.isSameLayer() && element.getCommand().getContent().getEchoValue() == sequence.getEchoValue()) {
+                // if the echo value is auto-generated, clear the marker
+                echo.responseArrivedNormal(sequence.getEchoValue());
                 if (removeUpTo) {
                     clearOutTo(element);
                 } else {
@@ -133,6 +136,7 @@ public class ConnectionBuffer {
             if (currentNano - element.getNanoTimeTimeout() > 0) {
                 if (element.isSameLayer()) {
                     timedOut.add(element.getCommand().getContent());
+                    echo.timeout(element.getCommand().getContent().getEchoValue());
                 }
                 iter.remove();
                 currentBufferContent -= element.length;
@@ -172,7 +176,14 @@ public class ConnectionBuffer {
         if (!ignoreLength && element.length + currentBufferContent >= bufferSize) {
             return false;
         }
-        moveEchoValue();
+        // make sure echo system knows about echo usage...
+        if (element.hadEchoBefore) {
+            if (element.isSameLayer()) {
+                echo.manualEchoUse(element.getCommand().getContent().getEchoValue());
+            }
+        } else {
+            echo.moveEcho();
+        }
         buffer.add(element);
         currentBufferContent += element.length;
         connection.send(element.getCommand());
@@ -206,16 +217,6 @@ public class ConnectionBuffer {
 
     public int getCurrentBufferContent() {
         return currentBufferContent;
-    }
-
-    // checks if the target is going to be used as an echo value within 0xf00 uses of the current value.
-    // ignores the offset from wrapping by having a big enough window.
-    public boolean isApproachingEcho(int target) {
-        if (currentEcho > 0xf000) {
-            return target > currentEcho || target < currentEcho - 0xf000;
-        } else {
-            return target < currentEcho + 0x1000 && target > currentEcho;
-        }
     }
 
     public void setBufferSize(int bufferSize) {

@@ -15,12 +15,13 @@ import net.zscript.javaclient.threading.ZscriptWorkerThread;
 
 public interface ZscriptNode {
     static ZscriptNode newNode(Connection parentConnection) {
-        return newNode(parentConnection, 128, 100, 100, TimeUnit.MILLISECONDS);
+        return newNode(parentConnection, 128, 100, TimeUnit.MILLISECONDS);
     }
 
-    static ZscriptNode newNode(Connection parentConnection, int bufferSize, int savedTimeoutCount, long timeoutRollTooSoon, TimeUnit unit) {
-        ZscriptBasicNode    node   = new ZscriptBasicNode(parentConnection, bufferSize, savedTimeoutCount, timeoutRollTooSoon, unit);
+    static ZscriptNode newNode(Connection parentConnection, int bufferSize, long minSegmentChangeTime, TimeUnit unit) {
+        ZscriptBasicNode    node   = new ZscriptBasicNode(parentConnection, bufferSize, minSegmentChangeTime, unit);
         ZscriptWorkerThread thread = parentConnection.getAssociatedThread();
+        thread.addTimeoutCheck(node::checkTimeouts);
         return (ZscriptNode) Proxy.newProxyInstance(ZscriptNode.class.getClassLoader(), new Class[] { ZscriptNode.class },
                 (obj, method, params) -> thread.moveOntoThread(() -> method.invoke(node, params)));
     }

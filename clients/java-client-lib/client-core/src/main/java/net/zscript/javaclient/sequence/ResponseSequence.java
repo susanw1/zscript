@@ -9,12 +9,14 @@ import net.zscript.util.ByteString;
 
 public class ResponseSequence {
     private final ResponseExecutionPath executionPath;
-    private final int                   echoField;
-    private final int                   responseField;
+
+    private final int     echoField;
+    private final int     responseField;
+    private final boolean timedOut;
 
     public static ResponseSequence parse(TokenBuffer.TokenReader.ReadToken start) {
         if (start == null) {
-            return new ResponseSequence(ResponseExecutionPath.parse(null), -1, -1);
+            return new ResponseSequence(ResponseExecutionPath.blank(), -1, -1, false);
         }
         int                 echoField     = -1;
         int                 responseField = -1;
@@ -30,13 +32,18 @@ public class ResponseSequence {
             echoField = current.getData16();
             current = iter.next().orElse(null);
         }
-        return new ResponseSequence(ResponseExecutionPath.parse(current), echoField, responseField);
+        return new ResponseSequence(ResponseExecutionPath.parse(current), echoField, responseField, false);
     }
 
-    private ResponseSequence(ResponseExecutionPath executionPath, int echoField, int responseField) {
+    public static ResponseSequence blank() {
+        return new ResponseSequence(ResponseExecutionPath.blank(), -1, -1, true);
+    }
+
+    private ResponseSequence(ResponseExecutionPath executionPath, int echoField, int responseField, boolean timedOut) {
         this.executionPath = executionPath;
         this.echoField = echoField;
         this.responseField = responseField;
+        this.timedOut = timedOut;
     }
 
     public ResponseExecutionPath getExecutionPath() {
@@ -45,6 +52,10 @@ public class ResponseSequence {
 
     public int getEchoValue() {
         return echoField;
+    }
+
+    public boolean hasEchoValue() {
+        return echoField != -1;
     }
 
     public int getResponseValue() {
