@@ -14,6 +14,8 @@
 
 namespace Zscript {
 
+namespace uart_module {
+
 template<class ZP>
 class ZscriptUartOutStream : public AbstractOutStream<ZP> {
 public:
@@ -105,7 +107,7 @@ public:
 
     void setConfigParityMode(bool enabled, bool oddParity) {
         currentSerialMode = (currentSerialMode & ~MODE_PARITY_MASK) | (enabled ? MODE_PARITY_ON : 0)
-                | (oddParity ? MODE_PARITY_ODD : 0);
+                            | (oddParity ? MODE_PARITY_ODD : 0);
         configToChange = true;
     }
 };
@@ -126,7 +128,7 @@ public:
     }
 
     UartChannel() :
-            ZscriptChannel<ZP>(&out, &tBuffer, uart_module::MODULE_FULL_ID, true),
+            ZscriptChannel<ZP>(&out, &tBuffer, MODULE_FULL_ID, true),
             tBuffer(buffer, ZP::uartChannelBufferSize), tokenizer(tBuffer.getWriter(), 2), usingTmp(false) {
     }
 
@@ -156,4 +158,7 @@ public:
 };
 
 }
+
+}
+
 #endif /* SRC_MAIN_CPP_ARDUINO_SERIAL_MODULE_CHANNELS_ZSCRIPTSERIALCHANNEL_HPP_ */

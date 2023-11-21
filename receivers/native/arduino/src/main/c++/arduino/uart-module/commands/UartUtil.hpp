@@ -11,6 +11,8 @@
 
 namespace Zscript {
 
+namespace uart_module {
+
 template<class ZP>
 class UartUtil {
 public:
@@ -23,6 +25,8 @@ public:
         out.writeBigHex(maxBaudBytes, 4);
     }
 };
+
+}
 
 }
 
