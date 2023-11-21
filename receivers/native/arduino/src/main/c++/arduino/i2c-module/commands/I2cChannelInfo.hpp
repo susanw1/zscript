@@ -17,34 +17,26 @@
 namespace Zscript {
 
 template<class ZP>
+class ZscriptChannel;
+
+namespace i2c_module {
+
+template<class ZP>
 class I2cModule;
 
 template<class ZP>
 class I2cChannel;
 
 template<class ZP>
-class ZscriptChannel;
-
-template<class ZP>
-class ZscriptI2cChannelInfoCommand {
+class ZscriptI2cChannelInfoCommand: public ChannelInfo_CommandDefs {
 public:
-    static constexpr uint8_t CODE = 0x0c;
-
-    static constexpr char ReqChannel__C = 'C';
-
-    static constexpr char RespChannelCount__N = 'N';
-    static constexpr char RespChannelGlobal__C = 'C';
-    static constexpr char RespAddress__A = 'A';
-    static constexpr char RespInterface__I = 'I';
-
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t channelIndex;
         if (!ctx.getReqdFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), &channelIndex)) {
             return;
         }
         ZscriptChannel<ZP> *selectedChannel = Zscript<ZP>::zscript.getChannels()[channelIndex];
-        if (selectedChannel->getAssociatedModule() != i2c_module::MODULE_FULL_ID) {
+        if (selectedChannel->getAssociatedModule() != MODULE_FULL_ID) {
             ctx.status(ResponseStatus::VALUE_UNSUPPORTED);
             return;
         }
@@ -55,6 +47,8 @@ public:
         out.writeField(RespAddress__A, I2cModule<ZP>::channel.getAddress());
     }
 };
+
+}
 
 }
 

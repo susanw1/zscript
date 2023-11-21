@@ -118,8 +118,8 @@ public:
 #endif
 
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-        if (Zscript::I2cChannel<ZscriptParams>::getNotifChannelPersistMaxLength() > notifPersistLength) {
-            notifPersistLength = Zscript::I2cChannel<ZscriptParams>::getNotifChannelPersistMaxLength();
+        if (Zscript::i2c_module::I2cChannel<ZscriptParams>::getNotifChannelPersistMaxLength() > notifPersistLength) {
+            notifPersistLength = Zscript::i2c_module::I2cChannel<ZscriptParams>::getNotifChannelPersistMaxLength();
         }
 #endif
 #ifdef ZSCRIPT_HAVE_UART_CHANNEL
@@ -139,10 +139,10 @@ public:
 #endif
         uint8_t i = 0;
 #if defined(ZSCRIPT_HAVE_I2C_MODULE) || defined(ZSCRIPT_HAVE_I2C_CHANNEL)
-        Zscript::I2cModule<ZscriptParams>::setup();
+        Zscript::i2c_module::I2cModule<ZscriptParams>::setup();
 #endif
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-        channels[i++] = &Zscript::I2cModule<ZscriptParams>::channel;
+        channels[i++] = &Zscript::i2c_module::I2cModule<ZscriptParams>::channel;
 #endif
 
 #if defined(ZSCRIPT_HAVE_UART_MODULE) || defined(ZSCRIPT_HAVE_UART_CHANNEL)
@@ -170,7 +170,7 @@ public:
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         uint8_t srcCount = 0;
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
-        notifSrcs[srcCount++] = &Zscript::I2cModule<ZscriptParams>::notifSrc;
+        notifSrcs[srcCount++] = &Zscript::i2c_module::I2cModule<ZscriptParams>::notifSrc;
 #endif
 #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
         notifSrcs[srcCount++] = &Zscript::pins_module::PinModule<ZscriptParams>::notificationSource;

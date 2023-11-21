@@ -16,6 +16,8 @@
 
 namespace Zscript {
 
+namespace i2c_module {
+
 template<class ZP>
 class I2cOutStream : public AbstractOutStream<ZP> {
 public:
@@ -230,28 +232,6 @@ public:
             }
         }
     }
-
-//    void channelInfo(ZscriptCommandContext<ZP> ctx) {
-//        CommandOutStream<ZP> ctxOut = ctx.getOutStream();
-//        ctxOut.writeField('N', 0);
-//        ctxOut.writeField('M', 0x5);
-//    }
-//
-//    void channelSetup(ZscriptCommandContext<ZP> ctx) {
-//        uint16_t addr;
-//        if (ctx.getField('A', &addr)) {
-//            if (addr >= 128) {
-//                ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
-//                return;
-//            }
-//            out.setAddr((uint8_t) addr);
-//        }
-//        if (ctx.hasField('P')) {
-//            uint8_t index = this->parser.getChannelIndex();
-//            PersistenceSystem<ZP>::writeSection(PersistenceSystem<ZP>::getNotifChannelIdOffset(), 1, &index);
-//        }
-//    }
-
 };
 
 template<class ZP>
@@ -268,6 +248,8 @@ uint8_t I2cChannel<ZP>::tmp = 0;
 
 template<class ZP>
 bool I2cChannel<ZP>::usingTmp = false;
+
+}
 
 }
 

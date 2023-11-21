@@ -36,8 +36,12 @@
 
 namespace Zscript {
 
+namespace i2c_module {
+
 template<class ZP>
 class I2cChannel;
+}
+
 }
 
 #include "commands/I2cChannelInfo.hpp"
@@ -59,18 +63,20 @@ class I2cChannel;
 #endif
 
 #define MODULE_EXISTS_005 EXISTENCE_MARKER_UTIL
-#define MODULE_SWITCH_005 MODULE_SWITCH_UTIL(I2cModule<ZP>::execute)
+#define MODULE_SWITCH_005 MODULE_SWITCH_UTIL(i2c_module::I2cModule<ZP>::execute)
 
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
 #   ifdef ZSCRIPT_SUPPORT_ADDRESSING
 #       define MODULE_ADDRESS_EXISTS_005 EXISTENCE_MARKER_UTIL
-#       define MODULE_ADDRESS_SWITCH_005 ADDRESS_SWITCH_UTIL(I2cModule<ZP>::address)
+#       define MODULE_ADDRESS_SWITCH_005 ADDRESS_SWITCH_UTIL(i2c_module::I2cModule<ZP>::address)
 #   endif
 #   define MODULE_NOTIFICATION_EXISTS_005 EXISTENCE_MARKER_UTIL
-#   define MODULE_NOTIFICATION_SWITCH_005 NOTIFICATION_SWITCH_UTIL(I2cModule<ZP>::notification)
+#   define MODULE_NOTIFICATION_SWITCH_005 NOTIFICATION_SWITCH_UTIL(i2c_module::I2cModule<ZP>::notification)
 #endif
 
 namespace Zscript {
+
+namespace i2c_module {
 
 template<class ZP>
 class I2cModule : public ZscriptModule<ZP> {
@@ -88,7 +94,7 @@ class I2cModule : public ZscriptModule<ZP> {
 
 public:
 #ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-    static I2cChannel<ZP> channel;
+    static I2cChannel <ZP> channel;
 #endif
 
 
@@ -191,6 +197,8 @@ bool I2cModule<ZP>::giveNotifs = false;
 template<class ZP>
 GenericCore::ZscriptNotificationSource<ZP> I2cModule<ZP>::notifSrc;
 #endif
+}
+
 }
 
 #endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_ZSCRIPTI2CMODULE_HPP_ */
