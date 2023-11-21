@@ -16,6 +16,8 @@
 
 namespace Zscript {
 
+namespace i2c_module {
+
 template<class ZP>
 class I2cChannel;
 
@@ -23,21 +25,15 @@ template<class ZP>
 class I2cModule;
 
 template<class ZP>
-class ZscriptI2cChannelSetupCommand {
+class ZscriptI2cChannelSetupCommand: public ChannelSetup_CommandDefs {
 public:
-    static constexpr uint8_t CODE = 0x0d;
-
-    static constexpr char ReqChannel__C = 'C';
-    static constexpr char ReqAddress__A = 'A';
-
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t channelIndex;
         if (!ctx.getReqdFieldCheckLimit(ReqChannel__C, Zscript<ZP>::zscript.getChannelCount(), &channelIndex)) {
             return;
         }
         ZscriptChannel<ZP> *selectedChannel = Zscript<ZP>::zscript.getChannels()[channelIndex];
-        if (selectedChannel->getAssociatedModule() != i2c_module::MODULE_FULL_ID) {
+        if (selectedChannel->getAssociatedModule() != MODULE_FULL_ID) {
             ctx.status(ResponseStatus::VALUE_UNSUPPORTED);
             return;
         }
@@ -54,4 +50,7 @@ public:
 };
 
 }
+
+}
+
 #endif //SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CCHANNELSETUPCOMMAND_HPP_

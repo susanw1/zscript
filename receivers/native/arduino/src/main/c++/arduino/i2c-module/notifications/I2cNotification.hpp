@@ -14,6 +14,8 @@
 
 namespace Zscript {
 
+namespace i2c_module {
+
 template<class ZP>
 class ZscriptI2cNotification {
     static const uint8_t SMBUS_ALERT_ADDR = 0xC;
@@ -77,5 +79,8 @@ public:
 #endif
     }
 };
+
+}
+
 }
 #endif //SRC_MAIN_CPP_ARDUINO_I2C_MODULE_NOTIFICATIONS_ZSCRIPTI2CNOTIFICATION_HPP_

@@ -14,66 +14,50 @@
 #define COMMAND_EXISTS_0051 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
+namespace i2c_module {
+
 template<class ZP>
-class ZscriptI2cSetupCommand {
+class ZscriptI2cSetupCommand: public I2cSetup_CommandDefs {
 public:
-    static constexpr uint8_t CODE = 0x01;
-
-    // if set, determines which port to control; else set all ports
-    static constexpr char ParamInterface__I = 'I';
-    // chooses comms frequency, from 10, 100, 400 and 1000 kHz
-    static constexpr char ParamFreq__F = 'F';
-    // If present, sets whether addressing is enabled
-    static constexpr char ParamAddressingEnable__A = 'A';
-    // If present, sets whether notifications are enabled
-    static constexpr char ParamNotificationEnable__N = 'N';
-
-    static constexpr char RespFreqkHz__K = 'K';
-
     static void execute(ZscriptCommandContext<ZP> ctx
-
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
             , bool *addressing, bool *notifications
 #endif
-            ) {
+    ) {
 
         uint16_t freq;
-        if (ctx.getField(ParamFreq__F, &freq)) {
+        if (ctx.getField(ReqFrequency__F, &freq)) {
             uint32_t freqValue;
 
             switch (freq) {
-            case 0:
-                freqValue = 10000;
-                break;
-            case 1:
-                freqValue = 100000;
-                break;
-            case 2:
-                freqValue = 400000;
-                break;
-            case 3:
-                freqValue = 1000000;
-                break;
-            default:
-                ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
-                return;
+                case 0:
+                    freqValue = 10000;
+                    break;
+                case 1:
+                    freqValue = 100000;
+                    break;
+                case 2:
+                    freqValue = 400000;
+                    break;
+                case 3:
+                    freqValue = 1000000;
+                    break;
+                default:
+                    ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+                    return;
             }
 
             uint16_t interface;
-            if (!ctx.getField(ParamInterface__I, &interface)) {
-                ctx.status(ResponseStatus::MISSING_KEY);
-                return;
-            }
-            if (interface != 0) {
-                ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+            if (!ctx.getReqdFieldCheckLimit(ReqInterface__I, 1, &interface)) {
                 return;
             }
             Wire.setClock(freqValue);
-            ctx.getOutStream().writeField(RespFreqkHz__K, freqValue / 1000);
+            ctx.getOutStream().writeField(RespFrequencykHz__K, freqValue / 1000);
         }
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
         uint16_t notif;
-        if (ctx.getField(ParamNotificationEnable__N, &notif)) {
+        if (ctx.getField(ReqNotifications__N, &notif)) {
             *notifications = (notif != 0);
         }
 #ifdef ZSCRIPT_SUPPORT_ADDRESSING
@@ -85,6 +69,8 @@ public:
 #endif
     }
 };
+
+}
 
 }
 
