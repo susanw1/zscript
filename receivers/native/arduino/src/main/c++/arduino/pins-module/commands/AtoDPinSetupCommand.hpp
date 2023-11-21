@@ -11,27 +11,18 @@
 #include <zscript/modules/ZscriptCommand.hpp>
 #include "../PinManager.hpp"
 
-#define COMMAND_EXISTS_0034 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_0044 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
 
 namespace pins_module {
 
 template<class ZP>
-class AtoDPinSetupCommand {
-    static constexpr char ParamPin__P = 'P';
-    static constexpr char ParamEnableNotifications__N = 'N';
-    static constexpr char ParamLowerLimit__L = 'L';
-    static constexpr char ParamUpperLimit__U = 'U';
-
-    static constexpr char RespBitCount__B = 'B';
-    static constexpr char RespSupportsNotifications__N = 'N';
-
+class AtoDPinSetupCommand: public AToDSetup_CommandDefs {
 public:
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t pin;
-        if (!ctx.getField(ParamPin__P, &pin)) {
+        if (!ctx.getField(ReqPin__P, &pin)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }
@@ -42,7 +33,7 @@ public:
 #ifdef ZSCRIPT_PIN_SUPPORT_ANALOG_NOTIFICATIONS
         uint8_t index = PinManager<ZP>::getAnalogIndex(pin);
         uint16_t enableNotifications;
-        if (ctx.getField(ParamEnableNotifications__N, &enableNotifications)) {
+        if (ctx.getField(ReqEnableNotifications__N, &enableNotifications)) {
             if (enableNotifications != 0) {
                 PinManager<ZP>::enableAnalogNotification(index);
             } else {
@@ -50,17 +41,17 @@ public:
             }
         }
         uint16_t notificationLower;
-        if (ctx.getField(ParamLowerLimit__L, &notificationLower)) {
+        if (ctx.getField(ReqLowerLimitNotify__L, &notificationLower)) {
             PinManager<ZP>::setAnalogNotificationLower(index, notificationLower);
         }
         uint16_t notificationUpper;
-        if (ctx.getField(ParamUpperLimit__U, &notificationUpper)) {
+        if (ctx.getField(ReqUpperLimitNotify__U, &notificationUpper)) {
             PinManager<ZP>::setAnalogNotificationUpper(index, notificationUpper);
         }
 #endif
         CommandOutStream<ZP> out = ctx.getOutStream();
 #ifdef ZSCRIPT_PIN_SUPPORT_ANALOG_NOTIFICATIONS
-        out.writeField(RespSupportsNotifications__N, 0);
+        out.writeField(RespSupportedNotifications__N, 0);
 #endif
         if (PIN_SUPPORTS_ANALOG_READ(pin)) {
             out.writeField(RespBitCount__B, 10);

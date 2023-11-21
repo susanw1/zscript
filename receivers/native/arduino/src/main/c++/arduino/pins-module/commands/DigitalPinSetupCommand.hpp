@@ -11,60 +11,18 @@
 #include <zscript/modules/ZscriptCommand.hpp>
 #include "../PinManager.hpp"
 
-#define COMMAND_EXISTS_0031 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_0041 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
 
 namespace pins_module {
 
 template<class ZP>
-class DigitalPinSetupCommand {
-    static constexpr char ParamPin__P = 'P';
-    static constexpr char ParamNotificationSelect__N = 'N';
-    static constexpr uint16_t ParamNotificationSelect__None = 0;
-    static constexpr uint16_t ParamNotificationSelect__OnHigh = 1;
-    static constexpr uint16_t ParamNotificationSelect__OnLow = 2;
-    static constexpr uint16_t ParamNotificationSelect__OnRising = 3;
-    static constexpr uint16_t ParamNotificationSelect__OnFalling = 4;
-    static constexpr uint16_t ParamNotificationSelect__OnChange = 5;
-
-    static constexpr char ParamModeSelect__M = 'M';
-
-    static constexpr uint16_t ParamModeSelect__Input = 0;
-    static constexpr uint16_t ParamModeSelect__InputPullUp = 1;
-    static constexpr uint16_t ParamModeSelect__InputPullDown = 2;
-    static constexpr uint16_t ParamModeSelect__Output = 4;
-    static constexpr uint16_t ParamModeSelect__OpenDrain = 8;
-    static constexpr uint16_t ParamModeSelect__OpenDrainPullUp = 9;
-    static constexpr uint16_t ParamModeSelect__OpenDrainPullDown = 10;
-    static constexpr uint16_t ParamModeSelect__OpenCollector = 12;
-    static constexpr uint16_t ParamModeSelect__OpenCollectorPullUp = 13;
-    static constexpr uint16_t ParamModeSelect__OpenCollectorPullDown = 14;
-
-    static constexpr char RespSupportedModes__M = 'M';
-
-    static constexpr uint16_t RespSupportedModes__Input = 0x1;
-    static constexpr uint16_t RespSupportedModes__InputPullUp = 0x2;
-    static constexpr uint16_t RespSupportedModes__InputPullDown = 0x4;
-    static constexpr uint16_t RespSupportedModes__Output = 0x10;
-    static constexpr uint16_t RespSupportedModes__OpenDrain = 0x100;
-    static constexpr uint16_t RespSupportedModes__OpenDrainPullUp = 0x200;
-    static constexpr uint16_t RespSupportedModes__OpenDrainPullDown = 0x400;
-    static constexpr uint16_t RespSupportedModes__OpenCollector = 0x1000;
-    static constexpr uint16_t RespSupportedModes__OpenCollectorPullUp = 0x2000;
-    static constexpr uint16_t RespSupportedModes__OpenCollectorPullDown = 0x4000;
-
-    static constexpr char RespSupportedNotifications__N = 'N';
-    static constexpr uint16_t RespSupportedNotifications__OnHigh = 0x1;
-    static constexpr uint16_t RespSupportedNotifications__OnLow = 0x2;
-    static constexpr uint16_t RespSupportedNotifications__OnRising = 0x4;
-    static constexpr uint16_t RespSupportedNotifications__OnFalling = 0x8;
-    static constexpr uint16_t RespSupportedNotifications__OnChange = 0x10;
-
+class DigitalPinSetupCommand : public DigitalSetup_CommandDefs {
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t pin;
-        if (!ctx.getField(ParamPin__P, &pin)) {
+        if (!ctx.getField(ReqPin__P, &pin)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }
@@ -73,95 +31,103 @@ public:
             return;
         }
         uint16_t mode;
-        if (ctx.getField(ParamModeSelect__M, &mode)) {
+        if (ctx.getField(ReqMode__M, &mode)) {
             switch (mode) {
-                case ParamModeSelect__Input:
+                case ReqMode_Values::input_Value:
                     PinManager<ZP>::setState(pin, false, false, false);
                     pinMode(pin, INPUT);
                     break;
-                case ParamModeSelect__InputPullUp:
+                case ReqMode_Values::inputPullUp_Value:
                     PinManager<ZP>::setState(pin, false, true, false);
                     pinMode(pin, INPUT_PULLUP);
                     break;
-                case ParamModeSelect__Output:
+                case ReqMode_Values::output_Value:
                     PinManager<ZP>::setState(pin, false, false, false);
                     pinMode(pin, OUTPUT);
                     break;
-                case ParamModeSelect__OpenDrain:
+                case ReqMode_Values::openDrain_Value:
                     PinManager<ZP>::setState(pin, true, false, false);
                     pinMode(pin, INPUT);
                     digitalWrite(pin, LOW);
                     break;
-                case ParamModeSelect__OpenDrainPullUp:
+                case ReqMode_Values::openDrainPullUp_Value:
                     PinManager<ZP>::setState(pin, true, true, false);
                     pinMode(pin, INPUT_PULLUP);
                     digitalWrite(pin, LOW);
                     break;
-                case ParamModeSelect__OpenCollector:
+                case ReqMode_Values::openCollector_Value:
                     PinManager<ZP>::setState(pin, true, false, true);
                     pinMode(pin, INPUT);
                     digitalWrite(pin, HIGH);
                     break;
-                case ParamModeSelect__OpenCollectorPullUp:
+                case ReqMode_Values::openCollectorPullUp_Value:
                     PinManager<ZP>::setState(pin, true, true, true);
                     pinMode(pin, INPUT_PULLUP);
                     digitalWrite(pin, HIGH);
                     break;
                 default:
                     ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
-                    break;
+                    return;
             }
         }
+
 #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
         uint16_t notifMode;
-        if (ctx.getField(ParamNotificationSelect__N, &notifMode)) {
+        if (ctx.getField(ReqNotificationMode__N, &notifMode)) {
             if (!PinManager<ZP>::supportsInterruptNotifications(pin)) {
-                if (notifMode != ParamNotificationSelect__None && notifMode != ParamNotificationSelect__OnHigh &&
-                    notifMode != ParamNotificationSelect__OnLow) {
-                    ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+                if (notifMode != ReqNotificationMode_Values::none_Value
+                        && notifMode != ReqNotificationMode_Values::onHigh_Value
+                        && notifMode != ReqNotificationMode_Values::onLow_Value) {
+                    ctx.status(ResponseStatus::VALUE_UNSUPPORTED);
                     return;
                 }
             }
             switch (notifMode) {
-                case ParamNotificationSelect__None:
+                case ReqNotificationMode_Values::none_Value:
                     PinManager<ZP>::setNotificationType(pin, PinNotificationType::NONE);
                     break;
-                case ParamNotificationSelect__OnHigh:
+                case ReqNotificationMode_Values::onHigh_Value:
                     PinManager<ZP>::setNotificationType(pin, PinNotificationType::ON_HIGH);
                     break;
-                case ParamNotificationSelect__OnLow:
+                case ReqNotificationMode_Values::onLow_Value:
                     PinManager<ZP>::setNotificationType(pin, PinNotificationType::ON_LOW);
                     break;
-                case ParamNotificationSelect__OnRising:
+                case ReqNotificationMode_Values::onRising_Value:
                     PinManager<ZP>::setNotificationType(pin, PinNotificationType::ON_RISING);
                     break;
-                case ParamNotificationSelect__OnFalling:
+                case ReqNotificationMode_Values::onFalling_Value:
                     PinManager<ZP>::setNotificationType(pin, PinNotificationType::ON_FALLING);
                     break;
-                case ParamNotificationSelect__OnChange:
+                case ReqNotificationMode_Values::onChange_Value:
                     PinManager<ZP>::setNotificationType(pin, PinNotificationType::ON_CHANGE);
                     break;
                 default:
                     ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
-                    break;
+                    return;
             }
         }
 #endif
         CommandOutStream<ZP> out = ctx.getOutStream();
-        out.writeField(RespSupportedModes__M, RespSupportedModes__Input | RespSupportedModes__InputPullUp |
-                                              RespSupportedModes__Output | RespSupportedModes__OpenDrain |
-                                              RespSupportedModes__OpenDrainPullUp |
-                                              RespSupportedModes__OpenCollector |
-                                              RespSupportedModes__OpenCollectorPullUp);
+        out.writeField(RespSupportedModes__M, RespSupportedModes_Values::input_field
+                                              | RespSupportedModes_Values::inputPullUp_field
+                                              | RespSupportedModes_Values::output_field
+                                              | RespSupportedModes_Values::openDrain_field
+                                              | RespSupportedModes_Values::openDrainPullUp_field
+                                              | RespSupportedModes_Values::openCollector_field
+                                              | RespSupportedModes_Values::openCollectorPullUp_field);
+
 #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
         if (PinManager<ZP>::supportsInterruptNotifications(pin)) {
             out.writeField(RespSupportedNotifications__N,
-                           RespSupportedNotifications__OnHigh | RespSupportedNotifications__OnLow |
-                           RespSupportedNotifications__OnRising | RespSupportedNotifications__OnFalling |
-                           RespSupportedNotifications__OnChange);
+                           RespSupportedNotifications_Values::onHigh_field
+                           | RespSupportedNotifications_Values::onLow_field
+                           | RespSupportedNotifications_Values::onRising_field
+                           | RespSupportedNotifications_Values::onFalling_field
+                           | RespSupportedNotifications_Values::onChange_field);
         } else {
             out.writeField(RespSupportedNotifications__N,
-                           RespSupportedNotifications__OnHigh | RespSupportedNotifications__OnLow);
+                           RespSupportedNotifications_Values::onHigh_field
+                           | RespSupportedNotifications_Values::onLow_field);
         }
 #endif
     }

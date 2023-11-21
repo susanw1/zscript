@@ -11,7 +11,7 @@
 #include <zscript/modules/ZscriptCommand.hpp>
 #include "../PinManager.hpp"
 
-#define COMMAND_EXISTS_0035 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_0045 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
 
@@ -20,7 +20,6 @@ namespace pins_module {
 template<class ZP>
 class AtoDPinReadCommand: public AnalogRead_CommandDefs {
 public:
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t pin;
         if (!ctx.getField(ReqPin__P, &pin)) {

@@ -209,7 +209,6 @@ template<class ZP>
 class PinManager {
 
 #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
-
     static void pinInterrupt_00() {
         pinInterrupt(0);
     }
@@ -1156,7 +1155,6 @@ class PinManager {
     public:
         AnalogPinNotificationSetup(uint8_t pin) : notifState(false), notif(false), enabled(false), pinNum(pin), maxVal(0xfff),
                                        minVal(0x000), last(0x800) {
-
         }
     };
 
@@ -1209,10 +1207,7 @@ class PinManager {
 #endif
 
 public:
-
 #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
-
-
     static void setOnNotificationDigital(void (*onNotificationDigital)(void)) {
         PinManager<ZP>::onNotificationDigital = onNotificationDigital;
     }

@@ -10,36 +10,25 @@
 
 #include <zscript/modules/ZscriptCommand.hpp>
 
-#define COMMAND_EXISTS_0030 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_0040 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
 
 namespace pins_module {
 
 template<class ZP>
-class PinCapabilitiesCommand {
-    static constexpr char RespCommandsSet__C = 'C';
-    static constexpr char RespPinCount__P = 'P';
-    static constexpr char RespAvailableControllersBitset__B = 'B';
-
-    static constexpr uint16_t RespAvailableControllersBitset__Digital = 0x1;
-    static constexpr uint16_t RespAvailableControllersBitset__AtoD = 0x2;
-    static constexpr uint16_t RespAvailableControllersBitset__DtoA = 0x4;
-    static constexpr uint16_t RespAvailableControllersBitset__PWM = 0x8;
-
+class PinCapabilitiesCommand : public Capabilities_CommandDefs {
 public:
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
         out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(004));
         out.writeField(RespPinCount__P, ZP::pinCount);
-        out.writeField(RespAvailableControllersBitset__B, RespAvailableControllersBitset__Digital | RespAvailableControllersBitset__AtoD |
-
-                                                          #ifdef DEVICE_SUPPORTS_ANALOG_WRITE
-                                                          RespAvailableControllersBitset__DtoA |
-                                                          #endif
-
-                                                          RespAvailableControllersBitset__PWM);
+        out.writeField(RespAvailableControllers__B, RespAvailableControllers_Values::digital_field
+                                                    | RespAvailableControllers_Values::atoD_field
+                                                    #ifdef DEVICE_SUPPORTS_ANALOG_WRITE
+                                                    | RespAvailableControllers_Values::dtoA_field
+                                                    #endif
+                                                    | RespAvailableControllers_Values::pwm_field);
     }
 };
 

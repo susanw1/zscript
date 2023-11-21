@@ -34,7 +34,7 @@ commands:
                 description: whether the device supports AtoDs on the pins
             -   name: DtoA
                 description: whether the device supports DtoAs on the pins
-            -   name: PWM
+            -   name: pwm
                 description: whether the device supports PWM on the pins
             -   name: digitalNotification
                 description: whether the device supports notifications for digital pin control

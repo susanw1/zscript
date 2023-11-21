@@ -11,23 +11,18 @@
 #include <zscript/modules/ZscriptCommand.hpp>
 #include "../PinManager.hpp"
 
-#define COMMAND_EXISTS_0033 EXISTENCE_MARKER_UTIL
+#define COMMAND_EXISTS_0043 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
 
 namespace pins_module {
 
 template<class ZP>
-class DigitalPinReadCommand {
-    static constexpr char ParamPin__P = 'P';
-
-    static constexpr char RespValue__V = 'V';
-
+class DigitalPinReadCommand: public DigitalRead_CommandDefs {
 public:
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t pin;
-        if (!ctx.getField(ParamPin__P, &pin)) {
+        if (!ctx.getField(ReqPin__P, &pin)) {
             ctx.status(ResponseStatus::MISSING_KEY);
             return;
         }
@@ -36,7 +31,7 @@ public:
             return;
         }
         CommandOutStream<ZP> out = ctx.getOutStream();
-        out.writeField(RespValue__V, digitalRead(pin) == HIGH ? 1 : 0);
+        out.writeField(RespValue__V, digitalRead(pin) == HIGH ? high_value : low_value);
     }
 };
 
