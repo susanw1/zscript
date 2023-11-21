@@ -2,7 +2,6 @@
 #include <ZscriptFullInclude.hpp>
 
 void setup() {
-//    Serial.begin(9600);
     ZscriptSetup.setup();
 }
 
