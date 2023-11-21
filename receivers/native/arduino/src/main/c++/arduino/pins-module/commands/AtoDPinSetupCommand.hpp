@@ -14,6 +14,9 @@
 #define COMMAND_EXISTS_0034 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
+namespace pins_module {
+
 template<class ZP>
 class AtoDPinSetupCommand {
     static constexpr char ParamPin__P = 'P';
@@ -65,8 +68,10 @@ public:
             out.writeField(RespBitCount__B, 1);
         }
     }
-
 };
+
+}
+
 }
 
 #endif /* SRC_MAIN_C___ARDUINO_PINS_MODULE_COMMANDS_ATODSETUPCOMMAND_HPP_ */

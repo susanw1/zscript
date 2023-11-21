@@ -14,6 +14,9 @@
 #define COMMAND_EXISTS_0032 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
+namespace pins_module {
+
 template<class ZP>
 class DigitalPinWriteCommand {
     static constexpr char ParamPin__P = 'P';
@@ -50,8 +53,10 @@ public:
             }
         }
     }
-
 };
+
+}
+
 }
 
 #endif /* SRC_MAIN_C___ARDUINO_PINS_MODULE_COMMANDS_DIGITALPINWRITECOMMAND_HPP_ */

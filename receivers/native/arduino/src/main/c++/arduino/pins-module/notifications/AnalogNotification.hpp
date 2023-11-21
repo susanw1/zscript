@@ -13,6 +13,9 @@
 #include "../PinManager.hpp"
 
 namespace Zscript {
+
+namespace pins_module {
+
 template<class ZP>
 class AnalogNotification {
     static constexpr char PinNumber__P = 'P';
@@ -48,6 +51,9 @@ public:
         return false;
     }
 };
+
+}
+
 }
 
 #endif //ZSCRIPT_ANALOGNOTIFICATION_HPP

@@ -13,6 +13,9 @@
 #define COMMAND_EXISTS_0030 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
+namespace pins_module {
+
 template<class ZP>
 class PinCapabilitiesCommand {
     static constexpr char RespCommandsSet__C = 'C';
@@ -28,18 +31,20 @@ public:
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
-        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(003));
+        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(004));
         out.writeField(RespPinCount__P, ZP::pinCount);
         out.writeField(RespAvailableControllersBitset__B, RespAvailableControllersBitset__Digital | RespAvailableControllersBitset__AtoD |
 
-#ifdef DEVICE_SUPPORTS_ANALOG_WRITE
-        RespAvailableControllersBitset__DtoA |
-#endif
+                                                          #ifdef DEVICE_SUPPORTS_ANALOG_WRITE
+                                                          RespAvailableControllersBitset__DtoA |
+                                                          #endif
 
-                RespAvailableControllersBitset__PWM);
+                                                          RespAvailableControllersBitset__PWM);
     }
-
 };
+
+}
+
 }
 
 #endif /* SRC_MAIN_C___ARDUINO_PINS_MODULE_COMMANDS_PINCAPABILITIESCOMMAND_HPP_ */

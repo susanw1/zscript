@@ -132,7 +132,7 @@ public:
         Zscript::EthernetSystem<ZscriptParams>::setup();
 #endif
 #ifdef ZSCRIPT_HAVE_PIN_MODULE
-        Zscript::PinModule<ZscriptParams>::setup();
+        Zscript::pins_module::PinModule<ZscriptParams>::setup();
 #endif
 #ifdef ZSCRIPT_HAVE_SERVO_MODULE
         Zscript::ZscriptServoModule<ZscriptParams>::setup();
@@ -173,7 +173,7 @@ public:
         notifSrcs[srcCount++] = &Zscript::I2cModule<ZscriptParams>::notifSrc;
 #endif
 #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
-        notifSrcs[srcCount++] = &Zscript::PinModule<ZscriptParams>::notificationSource;
+        notifSrcs[srcCount++] = &Zscript::pins_module::PinModule<ZscriptParams>::notificationSource;
 #endif
 #if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS) || defined(ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS)
         Zscript::Zscript<ZscriptParams>::zscript.setNotificationSources(notifSrcs, srcCount);
@@ -196,7 +196,7 @@ public:
         Zscript::ZscriptServoModule<ZscriptParams>::moveAlongServos();
 #endif
 #ifdef ZSCRIPT_HAVE_PIN_MODULE
-        Zscript::PinModule<ZscriptParams>::poll();
+        Zscript::pins_module::PinModule<ZscriptParams>::poll();
 #endif
     }
 };
