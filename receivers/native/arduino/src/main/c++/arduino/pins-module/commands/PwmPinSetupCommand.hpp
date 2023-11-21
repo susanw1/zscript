@@ -14,12 +14,14 @@
 #define COMMAND_EXISTS_0038 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
+namespace pins_module {
+
 template<class ZP>
 class PwmPinSetupCommand {
     static constexpr char ParamPin__P = 'P';
 
     static constexpr char RespBitCount__B = 'B';
-
 public:
 
     static void execute(ZscriptCommandContext<ZP> ctx) {
@@ -39,8 +41,10 @@ public:
             out.writeField(RespBitCount__B, 1);
         }
     }
-
 };
+
+}
+
 }
 
 #endif /* SRC_MAIN_C___ARDUINO_PINS_MODULE_COMMANDS_PWMPINSETUPCOMMAND_HPP_ */

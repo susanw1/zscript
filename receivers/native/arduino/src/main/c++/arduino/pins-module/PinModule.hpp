@@ -50,38 +50,40 @@
 #include "commands/PinCapabilitiesCommand.hpp"
 
 #define MODULE_EXISTS_004 EXISTENCE_MARKER_UTIL
-#define MODULE_SWITCH_004 MODULE_SWITCH_UTIL(PinModule<ZP>::execute)
+#define MODULE_SWITCH_004 MODULE_SWITCH_UTIL(pins_module::PinModule<ZP>::execute)
 
 #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
 #define MODULE_NOTIFICATION_EXISTS_004 EXISTENCE_MARKER_UTIL
-#define MODULE_NOTIFICATION_SWITCH_004 NOTIFICATION_SWITCH_UTIL(PinModule<ZP>::notification)
+#define MODULE_NOTIFICATION_SWITCH_004 NOTIFICATION_SWITCH_UTIL(pins_module::PinModule<ZP>::notification)
 #endif
 
 namespace Zscript {
 
+namespace pins_module {
+
 template<class ZP>
 class PinModule {
 #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
-public:
-    static GenericCore::ZscriptNotificationSource<ZP> notificationSource;
+    public:
+        static GenericCore::ZscriptNotificationSource<ZP> notificationSource;
 
-private:
-    static volatile bool hasDigitalNotificationWaiting;
+    private:
+        static volatile bool hasDigitalNotificationWaiting;
 
-    static void onNotificationNeededDigital() {
-        if (!notificationSource.setNotification(&GenericCore::LockSet<ZP>::Empty, 0x40)) {
-            hasDigitalNotificationWaiting = true;
+        static void onNotificationNeededDigital() {
+            if (!notificationSource.setNotification(&GenericCore::LockSet<ZP>::Empty, 0x40)) {
+                hasDigitalNotificationWaiting = true;
+            }
         }
-    }
 
 #ifdef ZSCRIPT_PIN_SUPPORT_ANALOG_NOTIFICATIONS
-    static volatile bool hasAnalogNotificationWaiting;
+        static volatile bool hasAnalogNotificationWaiting;
 
-    static void onNotificationNeededAnalog() {
-        if (!notificationSource.setNotification(&GenericCore::LockSet<ZP>::Empty, 0x41)) {
-            hasAnalogNotificationWaiting = true;
+        static void onNotificationNeededAnalog() {
+            if (!notificationSource.setNotification(&GenericCore::LockSet<ZP>::Empty, 0x41)) {
+                hasAnalogNotificationWaiting = true;
+            }
         }
-    }
 
 #endif
 
@@ -191,6 +193,9 @@ volatile bool PinModule<ZP>::hasAnalogNotificationWaiting = false;
 
 #endif
 #endif
+
+}
+
 }
 
 #endif /* SRC_MAIN_CPP_ARDUINO_PINS_MODULE_ZSCRIPTPINMODULE_HPP_ */

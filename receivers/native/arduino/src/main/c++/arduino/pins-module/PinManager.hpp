@@ -9,6 +9,7 @@
 #define SRC_MAIN_C___ARDUINO_PINS_MODULE_PINMANAGER_HPP_
 
 #include <zscript/modules/ZscriptCommand.hpp>
+#include <net/zscript/model/modules/base/PinsModule.hpp>
 
 #ifndef digitalPinHasPWM
 #ifdef ARDUINO_ARCH_NRF52840    // NANO 33 BLE apparently...
@@ -192,6 +193,8 @@
 
 
 namespace Zscript {
+
+namespace pins_module {
 
 enum class PinNotificationType : uint8_t {
     NONE,
@@ -1408,6 +1411,9 @@ void (*PinManager<ZP>::onNotificationAnalog)(void);
 
 #endif
 #endif
+
+}
+
 }
 
 #endif /* SRC_MAIN_C___ARDUINO_PINS_MODULE_PINMANAGER_HPP_ */

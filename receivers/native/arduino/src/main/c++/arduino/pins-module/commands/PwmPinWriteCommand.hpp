@@ -14,6 +14,9 @@
 #define COMMAND_EXISTS_0039 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
+namespace pins_module {
+
 template<class ZP>
 class PwmPinWriteCommand {
     static constexpr char ParamPin__P = 'P';
@@ -47,8 +50,10 @@ public:
             }
         }
     }
-
 };
+
+}
+
 }
 
 #endif /* SRC_MAIN_C___ARDUINO_PINS_MODULE_COMMANDS_PWMPINWRITECOMMAND_HPP_ */

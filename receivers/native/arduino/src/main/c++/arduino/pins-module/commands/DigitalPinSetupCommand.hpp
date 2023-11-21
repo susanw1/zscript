@@ -14,6 +14,9 @@
 #define COMMAND_EXISTS_0031 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
+namespace pins_module {
+
 template<class ZP>
 class DigitalPinSetupCommand {
     static constexpr char ParamPin__P = 'P';
@@ -59,7 +62,6 @@ class DigitalPinSetupCommand {
     static constexpr uint16_t RespSupportedNotifications__OnChange = 0x10;
 
 public:
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t pin;
         if (!ctx.getField(ParamPin__P, &pin)) {
@@ -113,7 +115,6 @@ public:
 #ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
         uint16_t notifMode;
         if (ctx.getField(ParamNotificationSelect__N, &notifMode)) {
-
             if (!PinManager<ZP>::supportsInterruptNotifications(pin)) {
                 if (notifMode != ParamNotificationSelect__None && notifMode != ParamNotificationSelect__OnHigh &&
                     notifMode != ParamNotificationSelect__OnLow) {
@@ -164,8 +165,10 @@ public:
         }
 #endif
     }
-
 };
+
+}
+
 }
 
 #endif /* SRC_MAIN_C___ARDUINO_PINS_MODULE_COMMANDS_DIGITALPINSETUPCOMMAND_HPP_ */
