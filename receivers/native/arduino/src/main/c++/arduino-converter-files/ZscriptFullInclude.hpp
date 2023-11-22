@@ -135,7 +135,7 @@ public:
         Zscript::pins_module::PinModule<ZscriptParams>::setup();
 #endif
 #ifdef ZSCRIPT_HAVE_SERVO_MODULE
-        Zscript::ZscriptServoModule<ZscriptParams>::setup();
+        Zscript::servo_module::ZscriptServoModule<ZscriptParams>::setup();
 #endif
         uint8_t i = 0;
 #if defined(ZSCRIPT_HAVE_I2C_MODULE) || defined(ZSCRIPT_HAVE_I2C_CHANNEL)
@@ -193,7 +193,7 @@ public:
 
     static void pollAll() {
 #ifdef ZSCRIPT_HAVE_SERVO_MODULE
-        Zscript::ZscriptServoModule<ZscriptParams>::moveAlongServos();
+        Zscript::servo_module::ZscriptServoModule<ZscriptParams>::moveAlongServos();
 #endif
 #ifdef ZSCRIPT_HAVE_PIN_MODULE
         Zscript::pins_module::PinModule<ZscriptParams>::poll();

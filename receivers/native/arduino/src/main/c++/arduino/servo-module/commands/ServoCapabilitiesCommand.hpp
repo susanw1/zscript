@@ -14,6 +14,9 @@
 #define COMMAND_EXISTS_0080 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
+namespace servo_module {
+
 template<class ZP>
 class ServoCapabilitiesCommand {
 public:
@@ -40,15 +43,17 @@ public:
         out.writeField(RespMinPulseTime__N, 544 - 127 * 4);
         out.writeField(RespMaxPulseTime__M, 2400 + 127 * 4);
         out.writeField(RespCapabilityBitset__B,
-                RespCapabilityBitset__AdjustableRange
+                       RespCapabilityBitset__AdjustableRange
 
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
                 | RespCapabilityBitset__SlowMove | RespCapabilityBitset__PreciseSpeed
 #endif
-                );
+        );
     }
-
 };
+
+}
+
 }
 
 #endif /* SRC_MAIN_C___ARDUINO_SERVO_MODULE_COMMANDS_SERVOCAPABILITIESCOMMAND_HPP_ */

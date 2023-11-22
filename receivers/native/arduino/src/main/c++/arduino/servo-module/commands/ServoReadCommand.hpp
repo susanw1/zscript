@@ -14,6 +14,9 @@
 #define COMMAND_EXISTS_0083 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
+namespace servo_module {
+
 template<class ZP>
 class ServoReadCommand {
 public:
@@ -57,8 +60,10 @@ public:
             out.writeField(RespEnabled__E, 0);
         }
     }
-
 };
+
+}
+
 }
 
 #endif /* SRC_MAIN_C___ARDUINO_SERVO_MODULE_COMMANDS_SERVOREADCOMMAND_HPP_ */
