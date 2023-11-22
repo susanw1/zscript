@@ -14,6 +14,9 @@
 #define COMMAND_EXISTS_0081 EXISTENCE_MARKER_UTIL
 
 namespace Zscript {
+
+namespace servo_module {
+
 template<class ZP>
 class ServoSetupCommand {
 public:
@@ -81,8 +84,10 @@ public:
 #endif
 
     }
-
 };
+
+}
+
 }
 
 #endif /* SRC_MAIN_C___ARDUINO_SERVO_MODULE_COMMANDS_SERVOSETUPCOMMAND_HPP_ */
