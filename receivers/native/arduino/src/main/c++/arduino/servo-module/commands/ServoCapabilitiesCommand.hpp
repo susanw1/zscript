@@ -9,7 +9,9 @@
 #define SRC_MAIN_C___ARDUINO_SERVO_MODULE_COMMANDS_SERVOCAPABILITIESCOMMAND_HPP_
 
 #include <zscript/modules/ZscriptCommand.hpp>
+#include <net/zscript/model/modules/base/ServoModule.hpp>
 #include <Servo.h>
+#include "../GeneralServo.hpp"
 
 #define COMMAND_EXISTS_0080 EXISTENCE_MARKER_UTIL
 
@@ -18,35 +20,20 @@ namespace Zscript {
 namespace servo_module {
 
 template<class ZP>
-class ServoCapabilitiesCommand {
+class ServoCapabilitiesCommand: public Capabilities_CommandDefs {
 public:
-    static constexpr uint8_t CODE = 0x00;
-
-    static constexpr char RespCommandsSet__C = 'C';
-    static constexpr char RespServoInterfaceCount__I = 'I';
-    static constexpr char RespPulseRate__R = 'R';
-    static constexpr char RespMinPulseTime__N = 'N';
-    static constexpr char RespMaxPulseTime__M = 'M';
-    static constexpr char RespCapabilityBitset__B = 'B';
-
-    static constexpr uint16_t RespCapabilityBitset__AdjustableRange = 0x1;
-    static constexpr uint16_t RespCapabilityBitset__AdjustableCenter = 0x02;
-    static constexpr uint16_t RespCapabilityBitset__PersistableCalibration = 0x04;
-    static constexpr uint16_t RespCapabilityBitset__SlowMove = 0x08;
-    static constexpr uint16_t RespCapabilityBitset__PreciseSpeed = 0x10;
-
     static void execute(ZscriptCommandContext<ZP> ctx) {
         CommandOutStream<ZP> out = ctx.getOutStream();
         out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(008));
         out.writeField(RespServoInterfaceCount__I, ZP::servoCount);
         out.writeField(RespPulseRate__R, 20);
-        out.writeField(RespMinPulseTime__N, 544 - 127 * 4);
-        out.writeField(RespMaxPulseTime__M, 2400 + 127 * 4);
-        out.writeField(RespCapabilityBitset__B,
-                       RespCapabilityBitset__AdjustableRange
-
+        out.writeField(RespMinimumPulseTime__N, 544 - 127 * 4);
+        out.writeField(RespMaximumPulseTime__M, 2400 + 127 * 4);
+        out.writeField(RespCapabilityBitset__B, RespCapabilityBitset_Values::adjustableRange_field
+                | RespCapabilityBitset_Values::persistableCalibration_field
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
-                | RespCapabilityBitset__SlowMove | RespCapabilityBitset__PreciseSpeed
+                | RespCapabilityBitset_Values::slowMove_field
+                | RespCapabilityBitset_Values::preciseSpeed_field
 #endif
         );
     }
