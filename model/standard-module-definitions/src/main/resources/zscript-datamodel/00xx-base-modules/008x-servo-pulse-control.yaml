@@ -86,19 +86,19 @@ commands:
         required: yes
     -   key: N
         name: minimumPulseTime
-        description: the length of pulse to be used as the minimum for the chosen servo, in us
+        description: the length of pulse to be used as the minimum for the chosen servo, in µs
         typeDefinition:
             '@type': number
         required: no
     -   key: M
         name: maximumPulseTime
-        description: the length of pulse to be used as the maximum for the chosen servo, in us
+        description: the length of pulse to be used as the maximum for the chosen servo, in µs
         typeDefinition:
             '@type': number
         required: no
     -   key: C
         name: centerPulseTime
-        description: the length of pulse to be used as the center for the chosen servo, in us
+        description: the length of pulse to be used as the center for the chosen servo, in µs
         typeDefinition:
             '@type': number
         required: no
@@ -115,7 +115,7 @@ commands:
         typeDefinition:
             '@type': number
         required: no
-    -   key: D
+    -   key: P
         name: persistCalibrations
         description: if present, persists the current calibrations for the chosen servo
         typeDefinition:
@@ -136,19 +136,19 @@ commands:
         required: yes
     -   key: N
         name: minimumPulseTime
-        description: the length of pulse used as the minimum for the chosen servo, in us
+        description: the length of pulse used as the minimum for the chosen servo, in µs
         typeDefinition:
             '@type': number
         required: yes
     -   key: M
         name: maximumPulseTime
-        description: the length of pulse  used as the maximum for the chosen servo, in us
+        description: the length of pulse  used as the maximum for the chosen servo, in µs
         typeDefinition:
             '@type': number
         required: yes
     -   key: C
         name: centerPulseTime
-        description: the length of pulse used as the center for the chosen servo, in us
+        description: the length of pulse used as the center for the chosen servo, in µs
         typeDefinition:
             '@type': number
         required: yes
@@ -179,21 +179,21 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: V
-        name: value
-        description: The value the pulse system should move towards, as a left-shifted value, so 8000 is the middle.
+    -   key: T
+        name: target
+        description: target position the servo should move towards, as a 16-bit value, so 8000 is the middle.
         typeDefinition:
             '@type': number
         required: yes
     -   key: F
         name: fast
-        description: if present, will ignore current speed settings, and assert the desired value immediately
+        description: if present, will ignore current speed settings, and assert the desired target immediately
         typeDefinition:
             '@type': flag
         required: no
     -   key: E
         name: enable
-        description: if present, and true, will enable servo at current position (may result in sudden movement), if false, will disable servo. Otherwise, unchanged
+        description: enables (disables) servo at current position (enable may result in sudden movement)
         typeDefinition:
             '@type': enum
             values:
@@ -217,32 +217,32 @@ commands:
         required: yes
     -   key: W
         name: wait
-        description: wait for servo motion to complete
+        description: wait for servo (slowMode) motion to complete
         typeDefinition:
             '@type': flag
         required: no
     responseFields:
     -   key: T
         name: target
-        description: The current target position for the servo
+        description: The 16-bit (0-ffff) target position for the servo
         typeDefinition:
             '@type': number
         required: yes
     -   key: C
-        name: cuurent
-        description: The current position for the servo
+        name: current
+        description: The current 16-bit (0-ffff) position for the servo
         typeDefinition:
             '@type': number
         required: yes
     -   key: U
-        name: curentMicroseconds
+        name: currentMicroseconds
         description: The current microsecond time for the high pulse of the signal
         typeDefinition:
             '@type': number
         required: yes
     -   key: M
         name: moving
-        description: present if servo is currently moving
+        description: present if servo is currently moving (in slowMode)
         typeDefinition:
             '@type': flag
         required: no

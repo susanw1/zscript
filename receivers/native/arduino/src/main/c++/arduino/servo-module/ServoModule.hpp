@@ -18,6 +18,8 @@
 #include <zscript/modules/ZscriptModule.hpp>
 #include <zscript/execution/ZscriptCommandContext.hpp>
 
+#include <net/zscript/model/modules/base/ServoModule.hpp>
+
 
 #define MODULE_EXISTS_008 EXISTENCE_MARKER_UTIL
 #define MODULE_SWITCH_008 MODULE_SWITCH_UTIL_WITH_ASYNC(servo_module::ZscriptServoModule<ZP>::execute)

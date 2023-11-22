@@ -9,7 +9,8 @@
 #define SRC_MAIN_C___ARDUINO_SERVO_MODULE_COMMANDS_SERVOSETUPCOMMAND_HPP_
 
 #include <zscript/modules/ZscriptCommand.hpp>
-#include "../ServoModule.hpp"
+#include <net/zscript/model/modules/base/ServoModule.hpp>
+#include "../GeneralServo.hpp"
 
 #define COMMAND_EXISTS_0081 EXISTENCE_MARKER_UTIL
 
@@ -18,47 +19,26 @@ namespace Zscript {
 namespace servo_module {
 
 template<class ZP>
-class ServoSetupCommand {
+class ServoSetupCommand: public Setup_CommandDefs {
 public:
-    static constexpr uint8_t CODE = 0x01;
-
-    static constexpr char ParamServoInterface__I = 'I';
-    static constexpr char ParamMinPulseTime__N = 'N';
-    static constexpr char ParamMaxPulseTime__M = 'M';
-    static constexpr char ParamTravelSpeed__V = 'V';
-    static constexpr char ParamTravelSpeedPrecise__W = 'W';
-    static constexpr char ParamResetCalibrations__R = 'R';
-    static constexpr char ParamPersist__P = 'P';
-
-    static constexpr char RespPin__P = 'P';
-    static constexpr char RespMinPulseTime__N = 'N';
-    static constexpr char RespMaxPulseTime__M = 'M';
-    static constexpr char RespCentrePulseTime__C = 'C';
-    static constexpr char RespTravelSpeedPrecise__W = 'W';
-
     static void execute(ZscriptCommandContext<ZP> ctx, ZscriptGeneralServo<ZP> *servos, uint8_t persistenceStart) {
         uint16_t interface;
-        if (!ctx.getField(ParamServoInterface__I, &interface)) {
-            ctx.status(ResponseStatus::MISSING_KEY);
-            return;
-        }
-        if (interface >= ZP::servoCount) {
-            ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
+        if (!ctx.getReqdFieldCheckLimit(ReqServoInterface__I, ZP::servoCount, &interface)) {
             return;
         }
         ZscriptGeneralServo<ZP> *target = servos + interface;
-        if (ctx.hasField(ParamResetCalibrations__R)) {
+        if (ctx.hasField(ReqResetCalibrations__R)) {
             target->resetCalibration();
         }
         uint16_t minTime;
-        if (ctx.getField(ParamMinPulseTime__N, &minTime)) {
+        if (ctx.getField(ReqMinimumPulseTime__N, &minTime)) {
             target->setMinMicros(minTime);
         }
         uint16_t maxTime;
-        if (ctx.getField(ParamMaxPulseTime__M, &maxTime)) {
+        if (ctx.getField(ReqMaximumPulseTime__M, &maxTime)) {
             target->setMaxMicros(maxTime);
         }
-        if (ctx.hasField(ParamPersist__P)) {
+        if (ctx.hasField(ReqPersistCalibrations__P)) {
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
             uint8_t servoPersistLength = 5;
 #else
@@ -68,19 +48,19 @@ public:
         }
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
         uint16_t speed;
-        if (ctx.getField(ParamTravelSpeedPrecise__W, &speed)) {
+        if (ctx.getField(ReqPinChangeSpeedPrecise__W, &speed)) {
             target->setTravelSpeed(speed);
-        } else if (ctx.getField(ParamTravelSpeed__V, &speed)) {
+        } else if (ctx.getField(ReqPinChangeSpeed__V, &speed)) {
             target->setTravelSpeed(speed * 48);
         }
 #endif
         CommandOutStream<ZP> out = ctx.getOutStream();
         out.writeField(RespPin__P, target->getPin());
-        out.writeField(RespMinPulseTime__N, target->getMinMicros());
-        out.writeField(RespMaxPulseTime__M, target->getMaxMicros());
-        out.writeField(RespCentrePulseTime__C, target->getCentreMicros());
+        out.writeField(RespMinimumPulseTime__N, target->getMinMicros());
+        out.writeField(RespMaximumPulseTime__M, target->getMaxMicros());
+        out.writeField(RespCenterPulseTime__C, target->getCenterMicros());
 #ifdef ZSCRIPT_SERVO_MODULE_SLOW_MOVE
-        out.writeField(RespTravelSpeedPrecise__W, target->getCurrentSpeed());
+        out.writeField(RespPinChangeSpeedPrecise__W, target->getCurrentSpeed());
 #endif
 
     }

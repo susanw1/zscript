@@ -15,18 +15,6 @@
 #include <Servo.h>
 #include "../arduino-core-module/persistence/PersistenceSystem.hpp"
 
-//#include <zscript/modules/ZscriptModule.hpp>
-//#include <zscript/execution/ZscriptCommandContext.hpp>
-//
-
-//#define MODULE_EXISTS_008 EXISTENCE_MARKER_UTIL
-//#define MODULE_SWITCH_008 MODULE_SWITCH_UTIL_WITH_ASYNC(ZscriptServoModule<ZP>::execute)
-
-//#include "commands/ServoSetupCommand.hpp"
-//#include "commands/ServoWriteCommand.hpp"
-//#include "commands/ServoReadCommand.hpp"
-//#include "commands/ServoCapabilitiesCommand.hpp"
-
 namespace Zscript {
 
 namespace servo_module {
@@ -214,7 +202,7 @@ public:
         return maxPos;
     }
 
-    uint16_t getCentreMicros() {
+    uint16_t getCenterMicros() {
         return (maxPos + minPos) / 2;
     }
 
