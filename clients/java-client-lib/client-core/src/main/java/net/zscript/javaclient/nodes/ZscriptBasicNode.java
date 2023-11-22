@@ -16,10 +16,13 @@ import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.ResponseSequence;
+import net.zscript.javaclient.threading.ZscriptCallbackThreadpool;
 
 class ZscriptBasicNode implements ZscriptNode {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZscriptBasicNode.class);
+
+    private final ZscriptCallbackThreadpool callbackPool;
 
     private final AddressingSystem addressingSystem;
 
@@ -43,28 +46,12 @@ class ZscriptBasicNode implements ZscriptNode {
 
     private final EchoAssigner echoSystem;
 
-    ZscriptBasicNode(Connection parentConnection, int bufferSize) {
-        this.addressingSystem = new AddressingSystem(this);
-        this.parentConnection = parentConnection;
-        this.echoSystem = new EchoAssigner(TimeUnit.MILLISECONDS.toNanos(100));
-        this.connectionBuffer = new ConnectionBuffer(parentConnection, echoSystem, bufferSize);
-        this.strategy.setBuffer(connectionBuffer);
-        parentConnection.onReceive(r -> {
-            try {
-                if (r.hasAddress()) {
-                    if (!addressingSystem.response(r)) {
-                        unknownResponseHandler.accept(r);
-                    }
-                } else {
-                    response(r);
-                }
-            } catch (Exception e) {
-                callbackExceptionHandler.accept(e); // catches all callback exceptions
-            }
-        });
+    ZscriptBasicNode(ZscriptCallbackThreadpool callbackPool, Connection parentConnection, int bufferSize) {
+        this(callbackPool, parentConnection, bufferSize, 100, TimeUnit.MILLISECONDS);
     }
 
-    ZscriptBasicNode(Connection parentConnection, int bufferSize, long minSegmentChangeTime, TimeUnit unit) {
+    ZscriptBasicNode(ZscriptCallbackThreadpool callbackPool, Connection parentConnection, int bufferSize, long minSegmentChangeTime, TimeUnit unit) {
+        this.callbackPool = callbackPool;
         this.addressingSystem = new AddressingSystem(this);
         this.parentConnection = parentConnection;
         this.echoSystem = new EchoAssigner(unit.toNanos(minSegmentChangeTime));
@@ -74,13 +61,13 @@ class ZscriptBasicNode implements ZscriptNode {
             try {
                 if (r.hasAddress()) {
                     if (!addressingSystem.response(r)) {
-                        unknownResponseHandler.accept(r);
+                        callbackPool.sendCallback(unknownResponseHandler, r);
                     }
                 } else {
                     response(r);
                 }
             } catch (Exception e) {
-                callbackExceptionHandler.accept(e); // catches all callback exceptions
+                callbackPool.sendCallback(callbackExceptionHandler, e); // catches all callback exceptions
             }
         });
     }
@@ -126,9 +113,9 @@ class ZscriptBasicNode implements ZscriptNode {
             long nanoTime = System.nanoTime();
             for (CommandSequence seq : timedOut) {
                 if (fullSequenceCallbacks.get(seq) != null) {
-                    fullSequenceCallbacks.get(seq).accept(ResponseSequence.blank());
+                    callbackPool.sendCallback(fullSequenceCallbacks.get(seq), ResponseSequence.blank());
                 } else if (pathCallbacks.get(seq.getExecutionPath()) != null) {
-                    pathCallbacks.get(seq.getExecutionPath()).accept(ResponseExecutionPath.blank());
+                    callbackPool.sendCallback(pathCallbacks.get(seq.getExecutionPath()), ResponseExecutionPath.blank());
                 }
             }
         }
@@ -138,9 +125,9 @@ class ZscriptBasicNode implements ZscriptNode {
         if (resp.getContent().getResponseValue() != 0) {
             Consumer<ResponseSequence> handler = notificationHandlers.get(resp.getContent().getResponseValue());
             if (handler != null) {
-                handler.accept(resp.getContent());
+                callbackPool.sendCallback(handler, resp.getContent());
             } else {
-                unknownResponseHandler.accept(resp);
+                callbackPool.sendCallback(unknownResponseHandler, resp);
             }
             return;
         }
@@ -150,20 +137,20 @@ class ZscriptBasicNode implements ZscriptNode {
             if (resp.getContent().hasEchoValue() && echoSystem.unmatchedReceive(resp.getContent().getEchoValue())) {
                 return;
             }
-            unknownResponseHandler.accept(resp);
+            callbackPool.sendCallback(unknownResponseHandler, resp);
             return;
         }
         strategy.mayHaveSpace();
         parentConnection.responseReceived(found);
         Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getContent());
         if (seqCallback != null) {
-            seqCallback.accept(resp.getContent());
+            callbackPool.sendCallback(seqCallback, resp.getContent());
         } else {
             Consumer<ResponseExecutionPath> pathCallback = pathCallbacks.remove(found.getContent().getExecutionPath());
             if (pathCallback != null) {
-                pathCallback.accept(resp.getContent().getExecutionPath());
+                callbackPool.sendCallback(pathCallback, resp.getContent().getExecutionPath());
             } else {
-                unknownResponseHandler.accept(resp);
+                callbackPool.sendCallback(unknownResponseHandler, resp);
             }
         }
     }

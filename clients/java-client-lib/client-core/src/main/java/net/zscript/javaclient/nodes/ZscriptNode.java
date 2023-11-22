@@ -19,8 +19,8 @@ public interface ZscriptNode {
     }
 
     static ZscriptNode newNode(Connection parentConnection, int bufferSize, long minSegmentChangeTime, TimeUnit unit) {
-        ZscriptBasicNode    node   = new ZscriptBasicNode(parentConnection, bufferSize, minSegmentChangeTime, unit);
         ZscriptWorkerThread thread = parentConnection.getAssociatedThread();
+        ZscriptBasicNode    node   = new ZscriptBasicNode(thread.getCallbackPool(), parentConnection, bufferSize, minSegmentChangeTime, unit);
         thread.addTimeoutCheck(node::checkTimeouts);
         return (ZscriptNode) Proxy.newProxyInstance(ZscriptNode.class.getClassLoader(), new Class[] { ZscriptNode.class },
                 (obj, method, params) -> thread.moveOntoThread(() -> method.invoke(node, params)));

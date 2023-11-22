@@ -3,20 +3,15 @@ package net.zscript.javaclient.connectors;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.security.Provider;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.addressing.AddressedResponse;
 import net.zscript.javaclient.addressing.CompleteAddressedResponse;
-import net.zscript.javaclient.connectors.serial.SerialConnection;
 import net.zscript.javaclient.nodes.Connection;
 import net.zscript.javaclient.threading.ZscriptWorkerThread;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;

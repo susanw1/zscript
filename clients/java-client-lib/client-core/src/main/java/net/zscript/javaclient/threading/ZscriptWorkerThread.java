@@ -1,7 +1,5 @@
 package net.zscript.javaclient.threading;
 
-import java.lang.ref.PhantomReference;
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,11 +13,18 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class ZscriptWorkerThread {
-    private final ScheduledExecutorService      exec          = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
+
+    private final ZscriptCallbackThreadpool     threadpool;
     private final Thread                        execThread;
     private final List<WeakReference<Runnable>> timeoutChecks = new ArrayList<>();
 
     public ZscriptWorkerThread() {
+        this(new ZscriptCallbackThreadpool());
+    }
+
+    public ZscriptWorkerThread(ZscriptCallbackThreadpool threadpool) {
+        this.threadpool = threadpool;
         try {
             execThread = exec.submit(Thread::currentThread).get();
         } catch (ExecutionException | InterruptedException e) {
@@ -117,5 +122,9 @@ public class ZscriptWorkerThread {
         } else {
             return exec.submit(task);
         }
+    }
+
+    public ZscriptCallbackThreadpool getCallbackPool() {
+        return threadpool;
     }
 }
