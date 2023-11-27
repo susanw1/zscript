@@ -22,9 +22,9 @@ namespace servo_module {
 template<class ZP>
 class ServoCapabilitiesCommand: public Capabilities_CommandDefs {
 public:
-    static void execute(ZscriptCommandContext<ZP> ctx) {
+    static void execute(ZscriptCommandContext<ZP> ctx, uint16_t commandsSet) {
         CommandOutStream<ZP> out = ctx.getOutStream();
-        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(008));
+        out.writeField(RespCommandsSet__C, commandsSet);
         out.writeField(RespServoInterfaceCount__I, ZP::servoCount);
         out.writeField(RespPulseRate__R, 20);
         out.writeField(RespMinimumPulseTime__N, 544 - 127 * 4);

@@ -119,7 +119,7 @@ public:
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
         switch (bottomBits) {
             case 0x0:
-                PinCapabilitiesCommand<ZP>::execute(ctx);
+                PinCapabilitiesCommand<ZP>::execute(ctx, MODULE_CAPABILITIES(004));
                 break;
             case 0x1:
                 DigitalPinSetupCommand<ZP>::execute(ctx);

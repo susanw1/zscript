@@ -23,7 +23,7 @@ namespace GenericCore {
 template<class ZP>
 class ExtendedCapabilitiesCommand: public outer_core_module::ExtendedCapabilities_CommandDefs {
 public:
-    static void execute(ZscriptCommandContext<ZP> ctx) {
+    static void execute(ZscriptCommandContext<ZP> ctx, uint16_t commandsSet) {
         CommandOutStream<ZP> out = ctx.getOutStream();
         uint16_t target;
         if (ctx.getField(ReqModuleBankRequest__M, &target)) {
@@ -86,7 +86,7 @@ public:
             }
             out.writeField(RespModuleBanksLower__L, result);
         }
-        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(001));
+        out.writeField(RespCommandsSet__C, commandsSet);
         out.writeField(RespModuleBanksUpper__M, BROAD_MODULE_EXISTENCE);
     }
 };

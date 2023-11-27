@@ -19,9 +19,9 @@ namespace pins_module {
 template<class ZP>
 class PinCapabilitiesCommand : public Capabilities_CommandDefs {
 public:
-    static void execute(ZscriptCommandContext<ZP> ctx) {
+    static void execute(ZscriptCommandContext<ZP> ctx, uint16_t commandsSet) {
         CommandOutStream<ZP> out = ctx.getOutStream();
-        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(004));
+        out.writeField(RespCommandsSet__C, commandsSet);
         out.writeField(RespPinCount__P, ZP::pinCount);
         out.writeField(RespAvailableControllers__B, RespAvailableControllers_Values::digital_field
                                                     | RespAvailableControllers_Values::atoD_field
