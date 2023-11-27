@@ -15,11 +15,27 @@ public class ZscriptCallbackThreadpool {
         this.callbackPool = callbackPool;
     }
 
-    public <T> void sendCallback(Consumer<T> callback, T content) {
+    public <T> void sendCallback(Consumer<T> callback, T content, Consumer<Exception> handler) {
+        callbackPool.submit(() -> {
+            try {
+                callback.accept(content);
+            } catch (Exception e) {
+                handler.accept(e);
+            }
+        });
+    }
+
+    public <T extends Exception> void sendCallback(Consumer<T> callback, T content) {
         callbackPool.submit(() -> callback.accept(content));
     }
 
-    public void sendCallback(Runnable callback) {
-        callbackPool.submit(callback);
+    public void sendCallback(Runnable callback, Consumer<Exception> handler) {
+        callbackPool.submit(() -> {
+            try {
+                callback.run();
+            } catch (Exception e) {
+                handler.accept(e);
+            }
+        });
     }
 }
