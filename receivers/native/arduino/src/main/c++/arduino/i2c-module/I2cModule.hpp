@@ -10,58 +10,50 @@
 
 
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
-#define ZSCRIPT_HAVE_I2C_MODULE
+    #define ZSCRIPT_HAVE_I2C_MODULE
 #endif
 
 #include <zscript/modules/ZscriptModule.hpp>
 #include <zscript/execution/ZscriptCommandContext.hpp>
 
-#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
-#ifdef ZSCRIPT_SUPPORT_ADDRESSING
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
+    #if defined(ZSCRIPT_SUPPORT_ADDRESSING)
+        #include <zscript/execution/ZscriptAddressingContext.hpp>
+    #endif
 
-#include <zscript/execution/ZscriptAddressingContext.hpp>
-
+    #if defined(ZSCRIPT_SUPPORT_NOTIFICATIONS)
+        #include <zscript/notifications/ZscriptNotificationSource.hpp>
+        #include <zscript/execution/ZscriptNotificationContext.hpp>
+        #include "notifications/I2cNotification.hpp"
+    #endif
 #endif
 
-#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
-
-#include <zscript/notifications/ZscriptNotificationSource.hpp>
-#include <zscript/execution/ZscriptNotificationContext.hpp>
-#include "notifications/I2cNotification.hpp"
-
-#endif
+#if defined(ZSCRIPT_HAVE_I2C_CHANNEL)
+    #include "commands/I2cChannelInfo.hpp"
+    #include "commands/I2cChannelSetup.hpp"
 #endif
 
-#ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-
-#include "commands/I2cChannelInfo.hpp"
-#include "commands/I2cChannelSetup.hpp"
-
-#endif
-
-#ifdef ZSCRIPT_HAVE_I2C_MODULE
-
-#include "commands/I2cSetupCommand.hpp"
-#include "commands/GeneralI2cAction.hpp"
-
+#if defined(ZSCRIPT_HAVE_I2C_MODULE)
+    #include "commands/I2cSetupCommand.hpp"
+    #include "commands/GeneralI2cAction.hpp"
 #endif
 
 #include "commands/I2cCapabilitiesCommand.hpp"
 
 #ifdef ZSCRIPT_HPP_INCLUDED
-#error Must be included before Zscript.hpp
+    #error Must be included before Zscript.hpp
 #endif
 
 #define MODULE_EXISTS_005 EXISTENCE_MARKER_UTIL
 #define MODULE_SWITCH_005 MODULE_SWITCH_UTIL(i2c_module::I2cModule<ZP>::execute)
 
-#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
-#   ifdef ZSCRIPT_SUPPORT_ADDRESSING
-#       define MODULE_ADDRESS_EXISTS_005 EXISTENCE_MARKER_UTIL
-#       define MODULE_ADDRESS_SWITCH_005 ADDRESS_SWITCH_UTIL(i2c_module::I2cModule<ZP>::address)
-#   endif
-#   define MODULE_NOTIFICATION_EXISTS_005 EXISTENCE_MARKER_UTIL
-#   define MODULE_NOTIFICATION_SWITCH_005 NOTIFICATION_SWITCH_UTIL(i2c_module::I2cModule<ZP>::notification)
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
+    #if defined(ZSCRIPT_SUPPORT_ADDRESSING)
+        #define MODULE_ADDRESS_EXISTS_005 EXISTENCE_MARKER_UTIL
+        #define MODULE_ADDRESS_SWITCH_005 ADDRESS_SWITCH_UTIL(i2c_module::I2cModule<ZP>::address)
+    #endif
+#define MODULE_NOTIFICATION_EXISTS_005 EXISTENCE_MARKER_UTIL
+#define MODULE_NOTIFICATION_SWITCH_005 NOTIFICATION_SWITCH_UTIL(i2c_module::I2cModule<ZP>::notification)
 #endif
 
 namespace Zscript {
@@ -70,7 +62,7 @@ namespace i2c_module {
 
 template<class ZP>
 class I2cModule : public ZscriptModule<ZP> {
-#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
     static bool isAddressing;
     static bool giveNotifs;
 
@@ -83,22 +75,22 @@ class I2cModule : public ZscriptModule<ZP> {
 #endif
 
 public:
-#ifdef ZSCRIPT_HAVE_I2C_CHANNEL
-    static I2cChannel <ZP> channel;
+#if defined(ZSCRIPT_HAVE_I2C_CHANNEL)
+    static I2cChannel<ZP> channel;
 #endif
 
 
-#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
     static GenericCore::ZscriptNotificationSource<ZP> notifSrc;
 #endif
 
     static void setup() {
-#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
         pinMode(ZP::i2cAlertInPin, INPUT_PULLUP);
         attachInterrupt(digitalPinToInterrupt(ZP::i2cAlertInPin), &smBusAlertReceived, FALLING);
         pinMode(ZP::i2cAlertInPin, INPUT_PULLUP);
 #endif
-#ifdef ZSCRIPT_HAVE_I2C_CHANNEL
+#if defined(ZSCRIPT_HAVE_I2C_CHANNEL)
         channel.setup();
         channel.setAddress(ZscriptParams::i2cChannelAddress);
 #else
@@ -107,7 +99,7 @@ public:
     }
 
     static void poll() {
-#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
         if (digitalRead(ZP::i2cAlertInPin) == LOW) {
             smBusAlertReceived();
         }
@@ -119,11 +111,11 @@ public:
             case ZscriptI2cCapabilitiesCommand<ZP>::CODE:
                 ZscriptI2cCapabilitiesCommand<ZP>::execute(ctx);
                 break;
-#ifdef ZSCRIPT_HAVE_I2C_MODULE
+#if defined(ZSCRIPT_HAVE_I2C_MODULE)
             case ZscriptI2cSetupCommand<ZP>::CODE:
                 ZscriptI2cSetupCommand<ZP>::execute(ctx
 
-#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
                         , &isAddressing, &giveNotifs
 #endif
                 );
@@ -138,7 +130,7 @@ public:
                 GeneralI2cAction<ZP>::executeSendReceive(ctx, GeneralI2cAction<ZP>::ActionType::SEND_RECEIVE);
                 break;
 #endif
-#ifdef ZSCRIPT_HAVE_I2C_CHANNEL
+#if defined(ZSCRIPT_HAVE_I2C_CHANNEL)
             case ZscriptI2cChannelInfoCommand<ZP>::CODE:
                 ZscriptI2cChannelInfoCommand<ZP>::execute(ctx);
                 break;
@@ -152,9 +144,8 @@ public:
         }
     }
 
-#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
-#ifdef ZSCRIPT_SUPPORT_ADDRESSING
-
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
+    #if defined(ZSCRIPT_SUPPORT_ADDRESSING)
     static void address(ZscriptAddressingContext<ZP> ctx) {
         if (!isAddressing) {
             ctx.status(ResponseStatus::ADDRESS_NOT_FOUND);
@@ -162,22 +153,20 @@ public:
         }
         GeneralI2cAction<ZP>::executeAddressing(ctx);
     }
-
-#endif
+    #endif
 
     static void notification(ZscriptNotificationContext<ZP> ctx, bool moveAlong) {
         ZscriptI2cNotification<ZP>::notification(ctx, moveAlong, isAddressing);
     }
-
 #endif
 };
 
-#ifdef ZSCRIPT_HAVE_I2C_CHANNEL
+#if defined(ZSCRIPT_HAVE_I2C_CHANNEL)
 template<class ZP>
 I2cChannel<ZP> I2cModule<ZP>::channel;
 #endif
 
-#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+#if defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
 template<class ZP>
 bool I2cModule<ZP>::isAddressing = false;
 

@@ -14,6 +14,7 @@
 namespace Zscript {
 
 namespace GenericCore {
+
 template<class ZP>
 class ZscriptNotificationSource;
 }
@@ -56,6 +57,7 @@ public:
         return source->getAsyncActionNotifier();
     }
 };
+
 }
 
 #endif /* SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTNOTIFICATIONCONTEXT_HPP_ */

@@ -11,9 +11,6 @@
 #ifdef ZSCRIPT_HPP_INCLUDED
 #error Must be included before Zscript.hpp
 #endif
-#ifdef ZSCRIPT_PIN_SUPPORT_NOTIFICATIONS
-
-#endif
 
 #include <zscript/modules/ZscriptCommand.hpp>
 #include <zscript/modules/ZscriptModule.hpp>
