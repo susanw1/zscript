@@ -61,12 +61,12 @@ public:
         if (ctx.getField(ReqNotifications__N, &notif)) {
             *notifications = (notif != 0);
         }
-#ifdef ZSCRIPT_SUPPORT_ADDRESSING
+    #ifdef ZSCRIPT_SUPPORT_ADDRESSING
         uint16_t addr;
-        if (ctx.getField(ParamAddressingEnable__A, &addr)) {
+        if (ctx.getField(ReqAddressing__A, &addr)) {
             *addressing = (addr != 0);
         }
-#endif
+    #endif
 #endif
     }
 };

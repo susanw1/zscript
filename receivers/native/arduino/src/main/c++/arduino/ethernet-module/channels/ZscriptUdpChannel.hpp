@@ -140,10 +140,13 @@ public:
 
 template<class ZP>
 uint16_t ZscriptUdpManager<ZP>::port = ZP::udpLocalPort;
+
 template<class ZP>
 bool ZscriptUdpManager<ZP>::hasMessageB = false;
+
 template<class ZP>
 ZscriptUdpOutStream<ZP> ZscriptUdpManager<ZP>::out;
+
 template<class ZP>
 ZscriptUdpChannel<ZP> ZscriptUdpManager<ZP>::channels[ZP::udpChannelCount];
 
@@ -170,7 +173,9 @@ public:
             ZscriptChannel<ZP>(&ZscriptUdpManager<ZP>::out, &tBuffer, 0x11, true),
             tBuffer(buffer, ZP::udpBufferSize),
             tokenizer(tBuffer.getWriter(), 2),
-            lastMilliAccess(millis()), remoteAddr(), remotePort(0) {
+            lastMilliAccess(millis()),
+            remoteAddr(),
+            remotePort(0) {
     }
 
     bool setupStartupNotificationChannel() {
@@ -200,10 +205,12 @@ public:
     }
 
     bool isAvailable(uint32_t currentTime) {
-        return (remotePort == 0) ||
-               (!this->parser.isActivated()) &&
-               Zscript<ZP>::zscript.getNotificationChannelIndex() != this->parser.getChannelIndex() &&
-               currentTime - lastMilliAccess < ZP::nonActivatedChannelTimeout;
+        return (remotePort == 0)
+               || (!this->parser.isActivated())
+#ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
+                  && Zscript<ZP>::zscript.getNotificationChannelIndex() != this->parser.getChannelIndex()
+#endif
+                  && currentTime - lastMilliAccess < ZP::nonActivatedChannelTimeout;
     }
 
     void messageIncoming(uint32_t currentTime) {
