@@ -24,8 +24,9 @@ namespace GenericCore {
 template<class ZP>
 class CapabilitiesCommand: public core_module::Capabilities_CommandDefs {
 public:
-    static void execute(ZscriptCommandContext<ZP> ctx) {
+    static void execute(ZscriptCommandContext<ZP> ctx, uint16_t commandsSet) {
         CommandOutStream<ZP> out = ctx.getOutStream();
+        out.writeField(RespCommandsSet__C, commandsSet);
 
         uint16_t versionType = ctx.getField(ReqVersionType__V, userFirmware_Value);
         const char *ident = NULL;
@@ -60,7 +61,6 @@ public:
         } else {
             ctx.status(ResponseStatus::VALUE_OUT_OF_RANGE);
         }
-        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(000));
         out.writeField(RespModulesBankSet__M, COMMAND_SWITCH_EXISTS_BOTTOM_BYTE(00));
 #ifdef ZSCRIPT_SUPPORT_NOTIFICATIONS
         out.writeField(RespNotificationsSupported__N, 0);

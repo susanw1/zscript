@@ -33,7 +33,7 @@ public:
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
         switch (bottomBits) {
         case ScriptSpaceCapabilitiesCommand<ZP>::CODE:
-            ScriptSpaceCapabilitiesCommand<ZP>::execute(ctx);
+            ScriptSpaceCapabilitiesCommand<ZP>::execute(ctx, MODULE_CAPABILITIES(002));
             break;
         case ScriptSpaceSetupCommand<ZP>::CODE:
             ScriptSpaceSetupCommand<ZP>::execute(ctx);

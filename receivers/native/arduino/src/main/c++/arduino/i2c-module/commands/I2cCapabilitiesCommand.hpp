@@ -21,9 +21,9 @@ namespace i2c_module {
 template<class ZP>
 class ZscriptI2cCapabilitiesCommand : public Capabilities_CommandDefs {
 public:
-    static void execute(ZscriptCommandContext<ZP> ctx) {
+    static void execute(ZscriptCommandContext<ZP> ctx, uint16_t commandsSet) {
         CommandOutStream<ZP> out = ctx.getOutStream();
-        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(005));
+        out.writeField(RespCommandsSet__C, commandsSet);
         out.writeField(RespInterfaceCount__I, 1);
         out.writeField(RespFrequenciesSupported__F, 3);
 #ifdef ZSCRIPT_HAVE_I2C_MODULE

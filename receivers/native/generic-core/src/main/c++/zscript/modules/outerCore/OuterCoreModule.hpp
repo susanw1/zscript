@@ -34,7 +34,7 @@ public:
 
         switch (bottomBits) {
         case ExtendedCapabilitiesCommand<ZP>::CODE:
-            ExtendedCapabilitiesCommand<ZP>::execute(ctx);
+            ExtendedCapabilitiesCommand<ZP>::execute(ctx, MODULE_CAPABILITIES(001));
             break;
 #ifdef ZSCRIPT_RESET_COMMAND
         case outer_core_module::Reset_CommandDefs::CODE:

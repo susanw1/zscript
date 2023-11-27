@@ -22,7 +22,7 @@ namespace uart_module {
 template<class ZP>
 class UartCapabilitiesCommand: public Capabilities_CommandDefs {
 public:
-    static void execute(ZscriptCommandContext<ZP> ctx) {
+    static void execute(ZscriptCommandContext<ZP> ctx, uint16_t commandsSet) {
         CommandOutStream<ZP> out = ctx.getOutStream();
 
         constexpr uint8_t freqCount = sizeof(ZP::uartSupportedFreqs) / sizeof(ZP::uartSupportedFreqs[0]);
@@ -32,7 +32,7 @@ public:
             return;
         }
 
-        out.writeField(RespCommandsSet__C, MODULE_CAPABILITIES(007));
+        out.writeField(RespCommandsSet__C, commandsSet);
         UartUtil<ZP>::writeFrequencySelection(out, freqIndex);
 
         // implements just a single Serial port at this time. Should be expanded to more...

@@ -70,7 +70,7 @@ public:
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits, bool moveAlong) {
         switch (bottomBits) {
             case ServoCapabilitiesCommand<ZP>::CODE:
-                ServoCapabilitiesCommand<ZP>::execute(ctx);
+                ServoCapabilitiesCommand<ZP>::execute(ctx, MODULE_CAPABILITIES(008));
                 break;
             case ServoSetupCommand<ZP>::CODE:
                 ServoSetupCommand<ZP>::execute(ctx, servos, persistenceStart);

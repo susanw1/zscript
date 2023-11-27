@@ -109,7 +109,7 @@ public:
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
         switch (bottomBits) {
             case ZscriptI2cCapabilitiesCommand<ZP>::CODE:
-                ZscriptI2cCapabilitiesCommand<ZP>::execute(ctx);
+                ZscriptI2cCapabilitiesCommand<ZP>::execute(ctx, MODULE_CAPABILITIES(005));
                 break;
 #if defined(ZSCRIPT_HAVE_I2C_MODULE)
             case ZscriptI2cSetupCommand<ZP>::CODE:

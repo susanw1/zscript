@@ -35,7 +35,7 @@ public:
     static void execute(ZscriptCommandContext<ZP> ctx, uint8_t bottomBits) {
         switch (bottomBits) {
         case CapabilitiesCommand<ZP>::CODE:
-            CapabilitiesCommand<ZP>::execute(ctx);
+            CapabilitiesCommand<ZP>::execute(ctx, MODULE_CAPABILITIES(000));
             break;
         case EchoCommand<ZP>::CODE:
             EchoCommand<ZP>::execute(ctx);
