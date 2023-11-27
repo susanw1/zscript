@@ -2,6 +2,7 @@ package net.zscript.javaclient.threading;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class ZscriptCallbackThreadpool {
@@ -19,6 +20,16 @@ public class ZscriptCallbackThreadpool {
         callbackPool.submit(() -> {
             try {
                 callback.accept(content);
+            } catch (Exception e) {
+                handler.accept(e);
+            }
+        });
+    }
+
+    public <T, U> void sendCallback(BiConsumer<T, U> callback, T content1, U content2, Consumer<Exception> handler) {
+        callbackPool.submit(() -> {
+            try {
+                callback.accept(content1, content2);
             } catch (Exception e) {
                 handler.accept(e);
             }

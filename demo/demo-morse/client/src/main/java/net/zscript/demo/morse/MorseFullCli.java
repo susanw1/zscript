@@ -186,7 +186,7 @@ public class MorseFullCli implements Callable<Integer> {
             int baudInt = parseBaud(respEach.getBaudRate());
             if (baudInt == target) {
                 hasFound = true;
-                device.sendAndWaitExpectSuccess(UartModule.channelSetupBuilder().setChannel(currentChannelIndex).setFrequency(i).build());
+                device.sendAndWaitExpectSuccess(UartModule.channelSetupBuilder().setChannel(currentChannelIndex).setFrequencySelection(i).build());
                 port.setBaudRate(target);
                 break;
             }
@@ -238,7 +238,7 @@ public class MorseFullCli implements Callable<Integer> {
             return 1;
         }
         // apply chosen frequency
-        device.sendAndWaitExpectSuccess(UartModule.channelSetupBuilder().setChannel(currentChannelIndex).setFrequency(choice).build());
+        device.sendAndWaitExpectSuccess(UartModule.channelSetupBuilder().setChannel(currentChannelIndex).setFrequencySelection(choice).build());
         port.setBaudRate(freqChoices[choice]);
         return 0;
     }

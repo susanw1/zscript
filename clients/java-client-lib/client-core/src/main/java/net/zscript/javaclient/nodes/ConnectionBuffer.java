@@ -111,6 +111,9 @@ public class ConnectionBuffer {
         for (Iterator<BufferElement> iter = buffer.iterator(); iter.hasNext(); ) {
             BufferElement element = iter.next();
             if (element.isSameLayer() && element.getCommand().getContent().getEchoValue() == sequence.getEchoValue()) {
+                if (!element.getCommand().getContent().getExecutionPath().matchesResponses(sequence.getExecutionPath())) {
+                    return element.getCommand();
+                }
                 // if the echo value is auto-generated, clear the marker
                 echo.responseArrivedNormal(sequence.getEchoValue());
                 if (removeUpTo) {

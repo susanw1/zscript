@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
@@ -31,12 +32,20 @@ class ZscriptBasicNode implements ZscriptNode {
 
     private QueuingStrategy strategy = new StandardQueuingStrategy(1000, TimeUnit.MILLISECONDS); // should be enough for almost all cases
 
+    private BiConsumer<AddressedCommand, AddressedResponse> badCommandResponseMatchHandler = (c, r) -> {
+        LOG.error("Command and response do not match: {} ; {}", c.getContent().toBytes().asString(), r.getContent().toSequence().asString());
+    };
+
+    private Consumer<AddressedResponse> unknownNotificationHandler = r -> {
+        LOG.warn("Unknown notification received: {}", r.getContent().toSequence().asString());
+    };
+
     private Consumer<AddressedResponse> unknownResponseHandler = r -> {
-        throw new IllegalStateException("Unknown response received: " + r);
+        throw new IllegalStateException("Unknown response received: " + r.getContent().toSequence().asString());
     };
 
     private Consumer<Exception> callbackExceptionHandler = e -> {
-        LOG.error(e.getMessage());
+        LOG.error("Exception caught from callback: ", e);
     };
 
     private final Map<Integer, Consumer<ResponseSequence>> notificationHandlers = new HashMap<>();
@@ -76,13 +85,22 @@ class ZscriptBasicNode implements ZscriptNode {
         this.unknownResponseHandler = unknownResponseHandler;
     }
 
-    public void setStrategy(QueuingStrategy strategy) {
-        this.strategy = strategy;
-        this.strategy.setBuffer(connectionBuffer);
+    public void setUnknownNotificationHandler(Consumer<AddressedResponse> unknownNotificationHandler) {
+        this.unknownNotificationHandler = unknownNotificationHandler;
+    }
+
+    public void setBadCommandResponseMatchHandler(
+            BiConsumer<AddressedCommand, AddressedResponse> badCommandResponseMatchHandler) {
+        this.badCommandResponseMatchHandler = badCommandResponseMatchHandler;
     }
 
     public void setCallbackExceptionHandler(Consumer<Exception> callbackExceptionHandler) {
         this.callbackExceptionHandler = callbackExceptionHandler;
+    }
+
+    public void setStrategy(QueuingStrategy strategy) {
+        this.strategy = strategy;
+        this.strategy.setBuffer(connectionBuffer);
     }
 
     public Connection attach(ZscriptAddress address) {
@@ -126,7 +144,7 @@ class ZscriptBasicNode implements ZscriptNode {
             if (handler != null) {
                 callbackPool.sendCallback(handler, resp.getContent(), callbackExceptionHandler);
             } else {
-                callbackPool.sendCallback(unknownResponseHandler, resp, callbackExceptionHandler);
+                callbackPool.sendCallback(unknownNotificationHandler, resp, callbackExceptionHandler);
             }
             return;
         }
@@ -138,6 +156,8 @@ class ZscriptBasicNode implements ZscriptNode {
             }
             callbackPool.sendCallback(unknownResponseHandler, resp, callbackExceptionHandler);
             return;
+        } else if (!found.getContent().getExecutionPath().matchesResponses(resp.getContent().getExecutionPath())) {
+            callbackPool.sendCallback(badCommandResponseMatchHandler, found, resp, callbackExceptionHandler);
         }
         strategy.mayHaveSpace();
         parentConnection.responseReceived(found);

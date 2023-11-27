@@ -234,6 +234,15 @@ public class CommandExecutionPath implements Iterable<Command> {
         }
     }
 
+    public boolean matchesResponses(ResponseExecutionPath resps) {
+        try {
+            compareResponses(resps);
+            return true;
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
     public List<MatchedCommandResponse> compareResponses(ResponseExecutionPath resps) {
         Deque<Command> parenStarts = new ArrayDeque<>();
         // fill out parenStarts so that we can have as many ')' as we want...
@@ -260,45 +269,45 @@ public class CommandExecutionPath implements Iterable<Command> {
             if (lastSucceeded) {
                 if (lastEndedClose) {
                     if (parenStarts.peek().getOnFail() == current.getOnFail()) {
-                        throw new IllegalStateException("Response has ')' without valid opening '('");
+                        throw new IllegalArgumentException("Response has ')' without valid opening '('");
                     }
                     Command tmp2 = parenStarts.pop().getOnFail();
                     while (tmp2 != null && tmp2 != current) {
                         tmp2 = tmp2.getOnSuccess();
                     }
                     if (tmp2 != current) {
-                        throw new IllegalStateException("Response has ')' without command sequence merging");
+                        throw new IllegalArgumentException("Response has ')' without command sequence merging");
                     }
                     lastEndedClose = false;
                 } else if (lastEndedOpen) {
                     parenStarts.push(current);
                     lastEndedOpen = false;
                 } else if (lastFail != null && current.getOnFail() != lastFail) {
-                    throw new IllegalStateException("Fail conditions don't match up around '&'");
+                    throw new IllegalArgumentException("Fail conditions don't match up around '&'");
                 }
             } else {
                 for (int i = 0; i < lastParenCount; i++) {
                     if (parenStarts.isEmpty()) {
-                        throw new IllegalStateException("Command sequence ran out of parens before response sequence");
+                        throw new IllegalArgumentException("Command sequence ran out of parens before response sequence");
                     }
                     Command tmp3 = parenStarts.peek().getOnFail();
                     while (tmp3 != null && tmp3.getOnFail() != current) {
                         tmp3 = tmp3.getOnSuccess();
                     }
                     if (tmp3 == null) {
-                        throw new IllegalStateException("Response has ')' without command sequence merging");
+                        throw new IllegalArgumentException("Response has ')' without command sequence merging");
                     }
                     tmp3 = parenStarts.peek().getOnFail();
                     while (tmp3 != null && tmp3 != current) {
                         tmp3 = tmp3.getOnFail();
                     }
                     if (tmp3 != current) {
-                        throw new IllegalStateException("Response has ')' without command sequence merging");
+                        throw new IllegalArgumentException("Response has ')' without command sequence merging");
                     }
                     parenStarts.pop();
                 }
                 if (parenStarts.isEmpty() || parenStarts.peek().getOnFail() != current) {
-                    throw new IllegalStateException("Response has failure divergence without parenthesis");
+                    throw new IllegalArgumentException("Response has failure divergence without parenthesis");
                 }
             }
             if (currentResp.wasSuccess()) {

@@ -402,14 +402,7 @@ notifications:
             -   key: M
                 name: serialMarker
                 description: the type of terminator ending the data
-                typeDefinition:
-                    '@type': enum
-                    values:
-                    - Nothing
-                    - Break
-                    - ParityError
-                    - NoiseError
-                    - BufferOverflow
+                typeDefinition: *receive_markers
                 required: yes
             -   key: +
                 name: data
