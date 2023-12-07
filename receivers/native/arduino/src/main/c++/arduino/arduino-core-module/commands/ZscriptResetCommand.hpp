@@ -5,8 +5,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARDUINO_ARDUINO_CORE_MODULE_COMMANDS_ZSCRIPTRESETCOMMAND_HPP_
-#define SRC_MAIN_CPP_ARDUINO_ARDUINO_CORE_MODULE_COMMANDS_ZSCRIPTRESETCOMMAND_HPP_
+#if defined(SRC_ZSCRIPT_BASE_RESET_COMMAND)
+#error This file should not be included more than once
+#endif
+#define SRC_ZSCRIPT_BASE_RESET_COMMAND
 
 #include <zscript/modules/ZscriptCommand.hpp>
 #include <net/zscript/model/modules/base/OuterCoreModule.hpp>
@@ -32,4 +34,3 @@ public:
 
 #define ZSCRIPT_RESET_COMMAND
 
-#endif /* SRC_MAIN_CPP_ARDUINO_ARDUINO_CORE_MODULE_COMMANDS_ZSCRIPTRESETCOMMAND_HPP_ */

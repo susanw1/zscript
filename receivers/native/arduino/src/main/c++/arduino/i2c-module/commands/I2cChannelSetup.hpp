@@ -5,12 +5,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CCHANNELSETUPCOMMAND_HPP_
-#define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CCHANNELSETUPCOMMAND_HPP_
-
-#include <zscript/modules/ZscriptCommand.hpp>
-#include <net/zscript/model/modules/base/I2cModule.hpp>
-#include <Wire.h>
+#if defined(SRC_ZSCRIPT_BASE_I2C_CHANNEL_SETUP_COMMAND)
+#error This file should not be included more than once
+#endif
+#define SRC_ZSCRIPT_BASE_I2C_CHANNEL_SETUP_COMMAND
 
 #define COMMAND_EXISTS_005d EXISTENCE_MARKER_UTIL
 
@@ -25,7 +23,7 @@ template<class ZP>
 class I2cModule;
 
 template<class ZP>
-class ZscriptI2cChannelSetupCommand: public ChannelSetup_CommandDefs {
+class ZscriptI2cChannelSetupCommand : public ChannelSetup_CommandDefs {
 public:
     static void execute(ZscriptCommandContext<ZP> ctx) {
         uint16_t channelIndex;
@@ -52,5 +50,3 @@ public:
 }
 
 }
-
-#endif //SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CCHANNELSETUPCOMMAND_HPP_

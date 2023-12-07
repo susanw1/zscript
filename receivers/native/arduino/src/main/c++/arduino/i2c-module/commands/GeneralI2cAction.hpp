@@ -5,12 +5,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_GENERALI2CACTION_HPP_
-#define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_GENERALI2CACTION_HPP_
-
-#include <zscript/modules/ZscriptCommand.hpp>
-#include <net/zscript/model/modules/base/I2cModule.hpp>
-#include <Wire.h>
+#if defined(SRC_ZSCRIPT_BASE_I2C_GENERAL_ACTION)
+#error This file should not be included more than once
+#endif
+#define SRC_ZSCRIPT_BASE_I2C_GENERAL_ACTION
 
 #define COMMAND_EXISTS_0052 EXISTENCE_MARKER_UTIL
 #define COMMAND_EXISTS_0053 EXISTENCE_MARKER_UTIL
@@ -269,5 +267,3 @@ public:
 }
 
 }
-
-#endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_GENERALI2CACTION_HPP_ */

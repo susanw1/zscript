@@ -5,12 +5,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CSETUPCOMMAND_HPP_
-#define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CSETUPCOMMAND_HPP_
-
-#include <zscript/modules/ZscriptCommand.hpp>
-#include <net/zscript/model/modules/base/I2cModule.hpp>
-#include <Wire.h>
+#if defined(SRC_ZSCRIPT_BASE_I2C_SETUP_COMMAND)
+#error This file should not be included more than once
+#endif
+#define SRC_ZSCRIPT_BASE_I2C_SETUP_COMMAND
 
 #define COMMAND_EXISTS_0051 EXISTENCE_MARKER_UTIL
 
@@ -22,7 +20,7 @@ template<class ZP>
 class ZscriptI2cSetupCommand: public I2cSetup_CommandDefs {
 public:
     static void execute(ZscriptCommandContext<ZP> ctx
-#ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
+#ifdef SRC_ZSCRIPT_BASE_I2C_NOTIFICATION
             , bool *addressing, bool *notifications
 #endif
     ) {
@@ -74,5 +72,3 @@ public:
 }
 
 }
-
-#endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CSETUPCOMMAND_HPP_ */
