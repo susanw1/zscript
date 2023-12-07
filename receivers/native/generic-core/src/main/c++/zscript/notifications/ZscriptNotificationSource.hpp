@@ -8,7 +8,7 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_NOTIFICATIONS_ZSCRIPTNOTIFICATIONSOURCE_HPP_
 #define SRC_MAIN_C___ZSCRIPT_NOTIFICATIONS_ZSCRIPTNOTIFICATIONSOURCE_HPP_
 
-#include "../execution/LockSet.hpp"
+#include <zscript/execution/LockSet.hpp>
 
 namespace Zscript {
 namespace GenericCore {
@@ -209,7 +209,6 @@ public:
         }
         Zscript<ZP>::zscript.unlock(locks);
         locked = false;
-        return;
     }
 
     AsyncActionNotifier<ZP> getAsyncActionNotifier() {

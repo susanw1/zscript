@@ -1,13 +1,19 @@
-//
-// Created by alicia on 11/09/23.
-//
+/*
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2022 Zscript team (Susan Witts, Alicia Witts)
+ *
+ * SPDX-License-Identifier: MIT
+ */
 
-#ifndef ZSCRIPT_ZSCRIPTIDCOMMAND_H
-#define ZSCRIPT_ZSCRIPTIDCOMMAND_H
+#if defined(SRC_ZSCRIPT_BASE_CORE_ID_COMMAND)
+#error This file should not be included more than once
+#endif
+#define SRC_ZSCRIPT_BASE_CORE_ID_COMMAND
 
-#include <net/zscript/model/modules/base/CoreModule.hpp>
+#include <arduino/arduino-core-module/persistence/PersistenceSystem.hpp>
 #include <zscript/modules/ZscriptCommand.hpp>
-#include "../../arduino-core-module/persistence/PersistenceSystem.hpp"
+#include <net/zscript/model/modules/base/CoreModule.hpp>
+#include <net/zscript/model/modules/base/OuterCoreModule.hpp>
 
 #define COMMAND_EXISTS_0004 EXISTENCE_MARKER_UTIL
 #define COMMAND_EXISTS_0005 EXISTENCE_MARKER_UTIL
@@ -115,4 +121,3 @@ uint8_t ZscriptIdCommand<ZP>::tempIdArr[2] = {0, 0};
 #define ZSCRIPT_ID_SAVE_COMMAND
 #define ZSCRIPT_ID_RANDOM_COMMAND
 
-#endif //ZSCRIPT_ZSCRIPTIDCOMMAND_H

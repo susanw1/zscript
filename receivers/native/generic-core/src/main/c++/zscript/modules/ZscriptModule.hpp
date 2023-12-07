@@ -8,7 +8,8 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_ZSCRIPTMODULE_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_ZSCRIPTMODULE_HPP_
 
-#include "../ZscriptIncludes.hpp"
+#include <zscript/ZscriptIncludes.hpp>
+#include <zscript/modules/ZscriptCommand.hpp>
 
 #define COMMAND_SWITCH_TAKE_IF_DEF(thing, x, ...) x
 #define COMMAND_SWITCH_TAKE_IF_DEFI(thing, x, ...) COMMAND_SWITCH_TAKE_IF_DEF(thing, x, __VA_ARG__)
