@@ -8,8 +8,9 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTNOTIFICATIONCONTEXT_HPP_
 #define SRC_MAIN_C___ZSCRIPT_EXECUTION_ZSCRIPTNOTIFICATIONCONTEXT_HPP_
 
-#include "../ZscriptIncludes.hpp"
-#include "CommandOutStream.hpp"
+#include <zscript/ZscriptIncludes.hpp>
+#include <zscript/notifications/ZscriptNotificationSource.hpp>
+#include <zscript/execution/CommandOutStream.hpp>
 
 namespace Zscript {
 

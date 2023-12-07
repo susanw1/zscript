@@ -66,9 +66,13 @@ public:
 
 template<class ZP>
 uint8_t PersistenceSystem<ZP>::currentOffset = 0;
-template<class ZP>
-uint8_t PersistenceSystem<ZP>::notifChannelIdOffset = PersistenceSystem<ZP>::reserveSection(1);
+
 template<class ZP>
 uint8_t PersistenceSystem<ZP>::notifChannelDataOffset = 0;
+
+template<class ZP>
+uint8_t PersistenceSystem<ZP>::notifChannelIdOffset = PersistenceSystem<ZP>::reserveSection(1);
+
 }
+
 #endif //SRC_MAIN_CPP_ARDUINO_ARDUINO_CORE_MODULE_COMMANDS_PERSISTENCESYSTEM_HPP_

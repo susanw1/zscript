@@ -8,9 +8,11 @@
 #ifndef SRC_MAIN_C___ZSCRIPT_MODULES_ZSCRIPTCOMMAND_HPP_
 #define SRC_MAIN_C___ZSCRIPT_MODULES_ZSCRIPTCOMMAND_HPP_
 
-#include "../ZscriptIncludes.hpp"
-#include "../execution/ZscriptCommandContext.hpp"
-#ifdef ZSCRIPT_SUPPORT_ADDRESSING
-#include "../execution/ZscriptAddressingContext.hpp"
+#include <zscript/ZscriptIncludes.hpp>
+#include <zscript/execution/ZscriptCommandContext.hpp>
+
+#if defined(ZSCRIPT_SUPPORT_ADDRESSING)
+    #include <zscript/execution/ZscriptAddressingContext.hpp>
 #endif
+
 #endif /* SRC_MAIN_C___ZSCRIPT_MODULES_ZSCRIPTCOMMAND_HPP_ */
