@@ -24,9 +24,7 @@
     #include "arduino/pins-module/PinModule.hpp"
 #endif
 
-#if defined(ZSCRIPT_HAVE_I2C_MODULE) || defined(ZSCRIPT_HAVE_I2C_CHANNEL)
-    #include "arduino/i2c-module/I2cModule.hpp"
-#endif
+#include "arduino/i2c-module/I2cModule_all.hpp"
 
 
 #if defined(ZSCRIPT_HAVE_UART_MODULE) || defined(ZSCRIPT_HAVE_UART_CHANNEL)
@@ -47,9 +45,7 @@
 
 // INCLUDE ALL CHANNELS BELOW HERE!
 
-#if defined(ZSCRIPT_HAVE_I2C_CHANNEL)
-    #include <arduino/i2c-module/channels/I2cChannel.hpp>
-#endif
+#include <arduino/i2c-module/channels/I2cChannel.hpp>
 
 #if defined(ZSCRIPT_HAVE_UART_CHANNEL)
     #include "arduino/uart-module/channels/UartChannel.hpp"
@@ -127,7 +123,7 @@ public:
         Zscript::servo_module::ZscriptServoModule<ZscriptParams>::setup();
 #endif
         uint8_t i = 0;
-#if defined(ZSCRIPT_HAVE_I2C_MODULE) || defined(ZSCRIPT_HAVE_I2C_CHANNEL)
+#if defined(ZSCRIPT_HAVE_I2C_GENERAL) || defined(ZSCRIPT_HAVE_I2C_CHANNEL)
         Zscript::i2c_module::I2cModule<ZscriptParams>::setup();
 #endif
 #if defined(ZSCRIPT_HAVE_I2C_CHANNEL)

@@ -5,12 +5,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CCAPABILITIESCOMMAND_HPP_
-#define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CCAPABILITIESCOMMAND_HPP_
+#if defined(SRC_ZSCRIPT_BASE_I2C_CAPABILITIES_COMMAND)
+#error This file should not be included more than once
+#endif
+#define SRC_ZSCRIPT_BASE_I2C_CAPABILITIES_COMMAND
 
-#include <zscript/modules/ZscriptCommand.hpp>
-#include <net/zscript/model/modules/base/I2cModule.hpp>
-#include <Wire.h>
 
 #define COMMAND_EXISTS_0050 EXISTENCE_MARKER_UTIL
 
@@ -26,11 +25,11 @@ public:
         out.writeField(RespCommandsSet__C, commandsSet);
         out.writeField(RespInterfaceCount__I, 1);
         out.writeField(RespFrequenciesSupported__F, 3);
-#ifdef ZSCRIPT_HAVE_I2C_MODULE
+#ifdef ZSCRIPT_HAVE_I2C_GENERAL
         out.writeField(RespBitsetCapabilities__B, RespBitsetCapabilities_Values::lowSpeedSupported_field
                                                   | RespBitsetCapabilities_Values::smBusAddressResolution_field);
 #else
-        out.writeField(RespBitsetCapabilities__B, RespBitsetCapabilities__LowSpeedSupported);
+        out.writeField(RespBitsetCapabilities__B, RespBitsetCapabilities_Values::lowSpeedSupported_field);
 #endif
 #ifdef ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS
         out.writeField(RespNotificationsSupported__N, 0);
@@ -44,5 +43,3 @@ public:
 }
 
 }
-
-#endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_COMMANDS_ZSCRIPTI2CCAPABILITIESCOMMAND_HPP_ */

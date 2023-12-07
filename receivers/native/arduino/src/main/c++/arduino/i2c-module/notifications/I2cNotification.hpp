@@ -4,21 +4,12 @@
  *
  * SPDX-License-Identifier: MIT
  */
-
-#ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_NOTIFICATIONS_ZSCRIPTI2CNOTIFICATION_HPP_
-#define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_NOTIFICATIONS_ZSCRIPTI2CNOTIFICATION_HPP_
-
-#if !defined(ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS)
-    #error ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS should be enabled to ensure all notification components are included
+#if defined(SRC_ZSCRIPT_BASE_I2C_NOTIFICATION)
+#error This file should not be included more than once
 #endif
+#define SRC_ZSCRIPT_BASE_I2C_NOTIFICATION
 
-#if !defined(ZSCRIPT_SUPPORT_NOTIFICATIONS)
-    #error ZSCRIPT_I2C_SUPPORT_NOTIFICATIONS requires ZSCRIPT_SUPPORT_NOTIFICATIONS to be enabled
-#endif
-
-#include <zscript/modules/ZscriptCommand.hpp>
 #include <zscript/execution/ZscriptNotificationContext.hpp>
-#include <Wire.h>
 
 namespace Zscript {
 
@@ -91,4 +82,3 @@ public:
 }
 
 }
-#endif //SRC_MAIN_CPP_ARDUINO_I2C_MODULE_NOTIFICATIONS_ZSCRIPTI2CNOTIFICATION_HPP_

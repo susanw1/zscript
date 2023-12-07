@@ -5,14 +5,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARDUINO_I2C_MODULE_CHANNELS_ZSCRIPTI2CCHANNEL_HPP_
-#define SRC_MAIN_CPP_ARDUINO_I2C_MODULE_CHANNELS_ZSCRIPTI2CCHANNEL_HPP_
+#if defined(SRC_ZSCRIPT_BASE_I2C_CHANNEL)
+#error This file should not be included more than once
+#endif
+#define SRC_ZSCRIPT_BASE_I2C_CHANNEL
 
-
-#include <ZscriptChannelBuilder.hpp>
-#include <Wire.h>
-
-#include "../I2cManager.hpp"
+#include <arduino/i2c-module/channels/I2cSmbusExtras.hpp>
 
 namespace Zscript {
 
@@ -252,5 +250,3 @@ bool I2cChannel<ZP>::usingTmp = false;
 }
 
 }
-
-#endif /* SRC_MAIN_CPP_ARDUINO_I2C_MODULE_CHANNELS_ZSCRIPTI2CCHANNEL_HPP_ */
