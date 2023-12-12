@@ -1,0 +1,15 @@
+Found two distinct types of I2C subsystem, provided more obscure features aren't used:
+Looking inside implementations:
+grep -r "I2C" . | grep -i -o "version=\"[^\"]*\"" | sort -u
+gives:
+Version="F0-i2c2_v1_1_Cube"
+Version="i2c1_v1_5_Cube"
+Version="i2c2_v1_1_Cube"
+Version="i2c2_v1_1F7_Cube"
+Version="i2c2_v1_1U5_Cube"
+Version="STM32MP13_i2c1_v1_0"
+Version="STM32MP_i2c2_v1_3"
+Version="STM32U5xx"
+
+STM32U5xx is grep shrapnel, and all the i2c2 versions are equivalent enough to use the same library.
+Note also that the STM32MP13_i2c1_v1_0 chips also use the i2c2_v1 implementation. The reason for this is unknown. 
