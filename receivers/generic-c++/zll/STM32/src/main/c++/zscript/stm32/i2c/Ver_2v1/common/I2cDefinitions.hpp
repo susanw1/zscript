@@ -5,11 +5,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-enum I2cFrequency {
+enum class I2cFrequency : uint8_t {
     kHz10, kHz100, kHz400, kHz1000
 };
 
-enum I2cTerminationStatus {
+enum class I2cTerminationStatus : uint8_t {
     Complete,       // Successful completion - stopped when expected
     AddressNack,    // No response to address - device missing or busy
     DataNack,       // No response to a data byte - device stopped ack'ing. Probably bad.
@@ -17,6 +17,6 @@ enum I2cTerminationStatus {
     BusError,       // Bus had a (bad) failure, eg jammed, or a STOP at wrong time, but recovered to usable state
     BusJammed,      // Bus jammed and recovery failed. Probably very bad.
     BusBusy,        // MultiMaster, so bus unavailable (MM not supported well at this time)
-    MemoryError,    // probably indicates a bug! Unlikely in this setup
+    MemoryError,    // Something went wrong with a DMA - probably indicates a bug! (unlikely if no DMAs used)
     OtherError      // eg setup error, or unknown error - probably a bug.
 };

@@ -14,7 +14,7 @@ bool I2c<LL>::init() {
     state.lockBool = false;
     i2c.activateClock(id);
     i2c.disablePeripheral();
-    setFrequency(kHz100);
+    setFrequency(I2cFrequency::kHz100);
     i2c.doBasicSetup();
     bool worked = i2c.recoverSdaJam(); // just make sure no stupid states
     i2c.activatePins();
@@ -56,21 +56,21 @@ void I2c<LL>::interrupt() {
         } else {
             i2c.sendData(txData[position++]);
         }
-    } else if (i2c.hasBusErrorInt()) {
+    } else if (i2c.hasI2cTerminationStatus::BusErrorInt()) {
         // BERR
         if (callback != NULL) {
-            callback(this, BusError);
+            callback(this, I2cTerminationStatus::BusError);
         }
         finish();
-        i2c.clearBusErrorInt();
+        i2c.clearI2cTerminationStatus::BusErrorInt();
     } else if (i2c.hasArbitrationLossInt()) {
         // ARLO
         bool worked = init();
         if (callback != NULL) {
             if (worked) {
-                callback(this, BusError);
+                callback(this, I2cTerminationStatus::BusError);
             } else {
-                callback(this, BusJammed);
+                callback(this, I2cTerminationStatus::BusJammed);
             }
         }
         finish();
@@ -80,9 +80,9 @@ void I2c<LL>::interrupt() {
         if (callback != NULL) {
             // TIMEOUT
             if (worked) {
-                callback(this, BusError);
+                callback(this, I2cTerminationStatus::BusError);
             } else {
-                callback(this, BusJammed);
+                callback(this, I2cTerminationStatus::BusJammed);
             }
         }
         finish();
@@ -91,18 +91,18 @@ void I2c<LL>::interrupt() {
         // NACK
         if ((!state.hasTxRx && state.hasRx && position == 0)
             || (state.hasTx && (txLen == 0 || position == 0))) {
-            callback(this, AddressNack);
+            callback(this, I2cTerminationStatus::AddressNack);
         } else if (state.hasTxRx && state.txDone && position == 0) {
-            callback(this, Address2Nack);
+            callback(this, I2cTerminationStatus::Address2Nack);
         } else {
-            callback(this, DataNack);
+            callback(this, I2cTerminationStatus::DataNack);
         }
         finish();
         i2c.clearNackInt();
     } else if (i2c.hasStopInt()) {
         // STOP
         if (state.hasRx || state.hasTx || state.hasTxRx) {
-            callback(this, Complete);
+            callback(this, I2cTerminationStatus::Complete);
         }
         finish();
         i2c.clearStopInt();
@@ -113,7 +113,7 @@ void I2c<LL>::interrupt() {
         } else {
             i2c.setNackAndStop();
             finish();
-            callback(this, Complete);
+            callback(this, I2cTerminationStatus::Complete);
         }
     } else if (i2c.hasReloadInt()) {
         // TCR - reload
@@ -135,13 +135,13 @@ void I2c<LL>::interrupt() {
 
 template<class LL>
 void I2c<LL>::asyncTransmit10(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen,
-                              void (*callback)(I2c*, I2cTerminationStatus)) {
+                              void (*callback)(I2c *, I2cTerminationStatus)) {
     if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone || i2c.isBusy()) {
-        callback(this, BusBusy);
+        callback(this,  I2cTerminationStatus::BusBusy);
         return;
     }
     if (address >= 1024 || (address >= 128 && !tenBit)) {
-        callback(this, OtherError);
+        callback(this,  I2cTerminationStatus::OtherError);
         return;
     }
     this->callback = callback;
@@ -156,13 +156,13 @@ void I2c<LL>::asyncTransmit10(uint16_t address, bool tenBit, const uint8_t *txDa
 
 template<class LL>
 void I2c<LL>::asyncReceive10(uint16_t address, bool tenBit, uint8_t *rxData, uint16_t rxLen,
-                             void (*callback)(I2c*, I2cTerminationStatus)) {
+                             void (*callback)(I2c *, I2cTerminationStatus)) {
     if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone || i2c.isBusy()) {
-        callback(this, BusBusy);
+        callback(this,  I2cTerminationStatus::BusBusy);
         return;
     }
     if (address >= 1024 || (address >= 128 && !tenBit)) {
-        callback(this, OtherError);
+        callback(this,  I2cTerminationStatus::OtherError);
         return;
     }
     this->callback = callback;
@@ -177,7 +177,7 @@ void I2c<LL>::asyncReceive10(uint16_t address, bool tenBit, uint8_t *rxData, uin
 
 template<class LL>
 void I2c<LL>::asyncTransmitReceive10(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, uint8_t *rxData,
-                                     uint16_t rxLen, void (*callback)(I2c*, I2cTerminationStatus)) {
+                                     uint16_t rxLen, void (*callback)(I2c *, I2cTerminationStatus)) {
     state.hasTx = true;
     state.hasTxRx = true;
     this->rxData = rxData;
@@ -188,12 +188,12 @@ void I2c<LL>::asyncTransmitReceive10(uint16_t address, bool tenBit, const uint8_
 template<class LL>
 void I2c<LL>::restartReceive() {
     if (rxLen == 0) {
-        callback(this, OtherError);
+        callback(this,  I2cTerminationStatus::OtherError);
         i2c.setStop();
         return;
     }
     if (address >= 1024 || (address >= 128 && !state.tenBit)) {
-        callback(this, OtherError);
+        callback(this,  I2cTerminationStatus::OtherError);
         i2c.setStop();
         return;
     }

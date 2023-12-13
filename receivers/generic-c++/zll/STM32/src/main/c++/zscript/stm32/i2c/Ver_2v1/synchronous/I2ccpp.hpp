@@ -14,7 +14,7 @@ bool I2c<LL>::init() {
     state.lockBool = false;
     i2c.activateClock(id);
     i2c.disablePeripheral();
-    setFrequency(kHz100);
+    setFrequency(I2cFrequency::kHz100);
     i2c.doBasicSetup();
     bool worked = i2c.recoverSdaJam(); // just make sure no stupid states
     i2c.activatePins();
@@ -46,10 +46,10 @@ void I2c<LL>::finish() {
 template<class LL>
 I2cTerminationStatus I2c<LL>::transmit10(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, bool stop) {
     if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone || i2c.isBusy()) {
-        return BusBusy;
+        return I2cTerminationStatus::BusBusy;
     }
     if (address >= 1024 || (address >= 128 && !tenBit)) {
-        return OtherError;
+        return I2cTerminationStatus::OtherError;
     }
     state.repeatCount = 0;
     state.hasRx = false;
@@ -69,7 +69,7 @@ I2cTerminationStatus I2c<LL>::transmit10(uint16_t address, bool tenBit, const ui
             finish();
             i2c.clearBusErrorInt();
             i2c.setupErrorInterrupt();
-            return BusError;
+            return I2cTerminationStatus::BusError;
         } else if (i2c.hasArbitrationLossInt()) {
             // ARLO
             bool worked = init();
@@ -77,41 +77,41 @@ I2cTerminationStatus I2c<LL>::transmit10(uint16_t address, bool tenBit, const ui
             i2c.clearArbitrationLossInt();
             i2c.setupErrorInterrupt();
             if (worked) {
-                return BusError;
+                return I2cTerminationStatus::BusError;
             } else {
-                return BusJammed;
+                return I2cTerminationStatus::BusJammed;
             }
         } else if (i2c.hasTimeoutInt()) {
             // TIMEOUT
             finish();
             i2c.clearTimeoutInt();
             i2c.setupErrorInterrupt();
-            return BusJammed;
+            return I2cTerminationStatus::BusJammed;
         } else if (i2c.hasNackInt()) {
             // NACK
             finish();
             i2c.clearNackInt();
             i2c.setupErrorInterrupt();
             if (position == 0) {
-                return AddressNack;
+                return I2cTerminationStatus::AddressNack;
             } else {
-                return DataNack;
+                return I2cTerminationStatus::DataNack;
             }
         } else if (i2c.hasStopInt()) {
             // STOP
             finish();
             i2c.clearStopInt();
             i2c.setupErrorInterrupt();
-            return Complete;
+            return I2cTerminationStatus::Complete;
         } else if (i2c.hasTransferCompleteInt()) {
             // TC - bidirectional
             if (stop) {
                 finish();
                 i2c.setNackAndStop();
                 i2c.setupErrorInterrupt();
-                return Complete;
+                return I2cTerminationStatus::Complete;
             } else {
-                return Complete;
+                return I2cTerminationStatus::Complete;
             }
         } else if (i2c.hasReloadInt()) {
             // TCR - reload
@@ -129,10 +129,10 @@ I2cTerminationStatus I2c<LL>::transmit10(uint16_t address, bool tenBit, const ui
 template<class LL>
 I2cTerminationStatus I2c<LL>::receive10(uint16_t address, bool tenBit, uint8_t *rxData, uint16_t rxLen) {
     if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone || i2c.isBusy()) {
-        return BusBusy;
+        return I2cTerminationStatus::BusBusy;
     }
     if (address >= 1024 || (address >= 128 && !tenBit)) {
-        return OtherError;
+        return I2cTerminationStatus::OtherError;
     }
     state.repeatCount = 0;
     state.hasRx = false;
@@ -148,7 +148,7 @@ I2cTerminationStatus I2c<LL>::receive10(uint16_t address, bool tenBit, uint8_t *
                 volatile uint8_t v = i2c.readData();
                 (void) v;
                 i2c.setupErrorInterrupt();
-                return Complete;
+                return I2cTerminationStatus::Complete;
             } else {
                 rxData[position++] = i2c.readData();
             }
@@ -156,7 +156,7 @@ I2cTerminationStatus I2c<LL>::receive10(uint16_t address, bool tenBit, uint8_t *
             finish();
             i2c.clearBusErrorInt();
             i2c.setupErrorInterrupt();
-            return BusError;
+            return I2cTerminationStatus::BusError;
         } else if (i2c.hasArbitrationLossInt()) {
             // ARLO
             bool worked = init();
@@ -164,38 +164,38 @@ I2cTerminationStatus I2c<LL>::receive10(uint16_t address, bool tenBit, uint8_t *
             i2c.clearArbitrationLossInt();
             i2c.setupErrorInterrupt();
             if (worked) {
-                return BusError;
+                return I2cTerminationStatus::BusError;
             } else {
-                return BusJammed;
+                return I2cTerminationStatus::BusJammed;
             }
         } else if (i2c.hasTimeoutInt()) {
             // TIMEOUT
             finish();
             i2c.clearTimeoutInt();
             i2c.setupErrorInterrupt();
-            return BusJammed;
+            return I2cTerminationStatus::BusJammed;
         } else if (i2c.hasNackInt()) {
             // NACK
             finish();
             i2c.clearNackInt();
             i2c.setupErrorInterrupt();
             if (position == 0) {
-                return AddressNack;
+                return I2cTerminationStatus::AddressNack;
             } else {
-                return DataNack;
+                return I2cTerminationStatus::DataNack;
             }
         } else if (i2c.hasStopInt()) {
             // STOP
             finish();
             i2c.clearStopInt();
             i2c.setupErrorInterrupt();
-            return Complete;
+            return I2cTerminationStatus::Complete;
         } else if (i2c.hasTransferCompleteInt()) {
             // TC - bidirectional
             finish();
             i2c.setNackAndStop();
             i2c.setupErrorInterrupt();
-            return Complete;
+            return I2cTerminationStatus::Complete;
         } else if (i2c.hasReloadInt()) {
             // TCR - reload
             uint16_t length = rxLen;

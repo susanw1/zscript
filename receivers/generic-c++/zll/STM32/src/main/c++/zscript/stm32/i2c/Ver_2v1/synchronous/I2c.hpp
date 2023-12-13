@@ -47,10 +47,10 @@ public:
 
     I2cTerminationStatus transmitReceive10(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, uint8_t *rxData, uint16_t rxLen) {
         I2cTerminationStatus result = transmit10(address, tenBit, txData, txLen, false);
-        if (result == Complete) {
+        if (result == I2cTerminationStatus::Complete) {
             result = receive10(address, tenBit, rxData, rxLen);
-            if (result == AddressNack) {
-                return Address2Nack;
+            if (result == I2cTerminationStatus::AddressNack) {
+                return I2cTerminationStatus::Address2Nack;
             }
             return result;
         } else {
