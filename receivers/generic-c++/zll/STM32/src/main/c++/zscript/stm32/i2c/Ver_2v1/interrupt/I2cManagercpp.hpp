@@ -7,11 +7,7 @@
 
 
 #define I2C_INITIALISE(x) I2c<LL>(\
-        I2cInternal<LL>(I2C_SDA(I2C##x, I2C##x##_SDA), I2C_SCL(I2C##x, I2C##x##_SCL), I2C##x##_REGISTER_LOC),\
-        x,\
-        DMA_RQ_I2C##x##_TX,\
-        DMA_RQ_I2C##x##_RX\
-        )
+        I2cInternal<LL>(I2C_SDA(I2C##x, I2C##x##_SDA), I2C_SCL(I2C##x, I2C##x##_SCL), I2C##x##_REGISTER_LOC), x)
 
 template<class LL>
 I2c<LL> I2cManager<LL>::i2cs[] = {
@@ -23,15 +19,6 @@ void I2cManager<LL>::interrupt(uint8_t id) {
     i2cs[id].interrupt();
 }
 
-template<class LL>
-void I2cManager<LL>::dmaInterrupt(Dma<LL> *dma, DmaTerminationStatus status) {
-    for (int i = 0; i < HW::i2cCount; ++i) {
-        if (I2cManager::getI2cById(i)->dma == dma) {
-            I2cManager::getI2cById(i)->dmaInterrupt(status);
-            break;
-        }
-    }
-}
 template<class LL>
 void I2cManager<LL>::init() {
     InterruptManager::setInterrupt(&I2cManager::interrupt, InterruptType::I2cEv);

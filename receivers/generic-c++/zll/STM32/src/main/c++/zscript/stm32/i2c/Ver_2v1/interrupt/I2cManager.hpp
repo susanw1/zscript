@@ -16,8 +16,6 @@ private:
 
     static void interrupt(uint8_t);
 
-    static void dmaInterrupt(Dma<LL>*, DmaTerminationStatus);
-
     I2cManager() {
     }
 

@@ -14,10 +14,6 @@ private:
 
     static I2c<LL> i2cs[I2C_COUNT];
 
-    static void interrupt(uint8_t);
-
-    static void dmaInterrupt(Dma<LL>*, DmaTerminationStatus);
-
     I2cManager() {
     }
 

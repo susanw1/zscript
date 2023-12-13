@@ -18,12 +18,6 @@ private:
     I2cInternal<LL> i2c;
     I2cIdentifier id;
 
-    Dma <LL> *dma = NULL;
-    DmaRequest requestTx = DMAMUX_NO_MUX;
-    DmaRequest requestRx = DMAMUX_NO_MUX;
-
-    void dmaInterrupt(DmaTerminationStatus status);
-
     uint16_t address = 0;
     uint16_t position = 0;
     uint16_t rxLen = 0;
@@ -44,8 +38,8 @@ private:
 
 public:
 
-    I2c<LL>::I2c(I2cInternal<LL> i2c, I2cIdentifier id, DmaRequest requestTx, DmaRequest requestRx) :
-            i2c(i2c), id(id), requestTx(requestTx), requestRx(requestRx), state(), callback(NULL) {
+    I2c(I2cInternal<LL> i2c, I2cIdentifier id) :
+            i2c(i2c), id(id), state(), callback(NULL) {
     }
 
     bool init();

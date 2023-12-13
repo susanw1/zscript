@@ -4,6 +4,13 @@
  *
  * SPDX-License-Identifier: MIT
  */
+
+#ifdef I2C_LOWLEVEL
+#error I2C system must be included only once per cpp file (and only one type of I2C system may be included)
+#endif
+
+#define I2C_LOWLEVEL
+
 #ifndef DMA_LOWLEVEL
 #error I2C DMA system requires DMA loading first. Please include an appropriate DMA system
 #endif
@@ -21,6 +28,11 @@
 #include <zscript/stm32/devices/peripheralPinCheck.h>
 #endif
 
-#include <stdint.h>
+#include <utility/PreprocessorArrayInitialiser.hpp>
+#include <zscript/stm32/i2c/Ver_2v1/common/I2cRegisters.hpp>
+#include <zscript/stm32/i2c/Ver_2v1/common/I2cDefinitions.hpp>
+#include <zscript/stm32/i2c/Ver_2v1/common/I2cInternal.hpp>
 #include <zscript/stm32/i2c/Ver_2v1/dma/I2c.hpp>
-#include <zscript/stm32/i2c/Ver_2v1/dma/I2c.hpp>
+#include <zscript/stm32/i2c/Ver_2v1/dma/I2ccpp.hpp>
+#include <zscript/stm32/i2c/Ver_2v1/dma/I2cManager.hpp>
+#include <zscript/stm32/i2c/Ver_2v1/dma/I2cManagercpp.hpp>

@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 template<class LL>
 bool I2c<LL>::init() {
     state.hasRx = false;
@@ -31,26 +30,7 @@ void I2c<LL>::setFrequency(I2cFrequency freq) {
 }
 
 template<class LL>
-void I2c<LL>::dmaInterrupt(DmaTerminationStatus status) {
-    if (status == SetupError) {
-        callback(this, OtherError);
-    } else if (status == DmaError) {
-        callback(this, MemoryError);
-    } else if (status == DataTransferComplete) {
-        if (state.hasTxRx && state.txDone) {
-            i2c.setStop();
-        } else {
-            callback(this, OtherError); // as we set the DMA to be able to transfer 1 extra byte
-        }
-    }
-}
-
-template<class LL>
 void I2c<LL>::finish() {
-    if ((state.hasRx && (!state.hasTxRx || state.txDone)) || txLen != 0) {
-        dma->halt();
-        dma->unlock();
-    }
     state.hasRx = false;
     state.hasTx = false;
     state.hasTxRx = false;
@@ -65,9 +45,17 @@ void I2c<LL>::finish() {
 template<class LL>
 void I2c<LL>::interrupt() {
     if (i2c.hasReadDataInt() && position != rxLen) {
-        callback(this, OtherError);
+        if (position == rxLen) {
+            i2c.setNackAndStop();
+        } else {
+            rxData[position++] = i2c.readData();
+        }
     } else if (i2c.hasNoSendDataInt() && position != txLen) {
-        callback(this, OtherError);
+        if (position == txLen) {
+            i2c.setNackAndStop();
+        } else {
+            i2c.sendData(txData[position++]);
+        }
     } else if (i2c.hasBusErrorInt()) {
         // BERR
         if (callback != NULL) {
@@ -77,10 +65,6 @@ void I2c<LL>::interrupt() {
         i2c.clearBusErrorInt();
     } else if (i2c.hasArbitrationLossInt()) {
         // ARLO
-        if ((state.hasRx && (!state.hasTxRx || state.txDone)) || txLen != 0) {
-            dma->halt();
-            dma->unlock();
-        }
         bool worked = init();
         if (callback != NULL) {
             if (worked) {
@@ -105,10 +89,10 @@ void I2c<LL>::interrupt() {
         i2c.clearTimeoutInt();
     } else if (i2c.hasNackInt()) {
         // NACK
-        if ((!state.hasTxRx && state.hasRx && dma->fetchRemainingTransferLength() == rxLen)
-            || (state.hasTx && (txLen == 0 || dma->fetchRemainingTransferLength() == txLen))) {
+        if ((!state.hasTxRx && state.hasRx && position == 0)
+            || (state.hasTx && (txLen == 0 || position == 0))) {
             callback(this, AddressNack);
-        } else if (state.hasTxRx && state.txDone && dma->fetchRemainingTransferLength() == rxLen) {
+        } else if (state.hasTxRx && state.txDone && position == 0) {
             callback(this, Address2Nack);
         } else {
             callback(this, DataNack);
@@ -151,12 +135,8 @@ void I2c<LL>::interrupt() {
 
 template<class LL>
 void I2c<LL>::asyncTransmit10(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen,
-                              void (*callback)(I2c *, I2cTerminationStatus)) {
+                              void (*callback)(I2c*, I2cTerminationStatus)) {
     if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone || i2c.isBusy()) {
-        callback(this, BusBusy);
-        return;
-    }
-    if (txLen != 0 && !dma->lock()) {
         callback(this, BusBusy);
         return;
     }
@@ -171,29 +151,18 @@ void I2c<LL>::asyncTransmit10(uint16_t address, bool tenBit, const uint8_t *txDa
     this->txLen = txLen;
     this->address = address;
     state.tenBit = tenBit;
-    if (txLen != 0) {
-        dma->peripheralWrite(requestTx, txData, true, i2c.txRegAddr(), false, txLen + 1, false, Medium, &I2cManager<LL>::dmaInterrupt, false);
-    }
-    i2c.setupTransmit(true, true, address, tenBit, txLen);
+    i2c.setupTransmit(false, true, address, tenBit, txLen);
 }
 
 template<class LL>
 void I2c<LL>::asyncReceive10(uint16_t address, bool tenBit, uint8_t *rxData, uint16_t rxLen,
-                             void (*callback)(I2c *, I2cTerminationStatus)) {
+                             void (*callback)(I2c*, I2cTerminationStatus)) {
     if (state.hasTx || state.hasRx || state.hasTxRx || state.txDone || i2c.isBusy()) {
         callback(this, BusBusy);
         return;
     }
     if (address >= 1024 || (address >= 128 && !tenBit)) {
         callback(this, OtherError);
-        return;
-    }
-    if (rxLen == 0) {
-        callback(this, OtherError);
-        return;
-    }
-    if (!dma->lock()) {
-        callback(this, BusBusy);
         return;
     }
     this->callback = callback;
@@ -203,13 +172,12 @@ void I2c<LL>::asyncReceive10(uint16_t address, bool tenBit, uint8_t *rxData, uin
     this->rxLen = rxLen;
     this->address = address;
     state.tenBit = tenBit;
-    dma->peripheralRead(requestRx, i2c.rxRegAddr(), false, rxData, true, rxLen + 1, false, Medium, &I2cManager<LL>::dmaInterrupt, false);
-    i2c.setupReceive(true, true, address, tenBit, rxLen);
+    i2c.setupReceive(false, true, address, tenBit, rxLen);
 }
 
 template<class LL>
 void I2c<LL>::asyncTransmitReceive10(uint16_t address, bool tenBit, const uint8_t *txData, uint16_t txLen, uint8_t *rxData,
-                                     uint16_t rxLen, void (*callback)(I2c *, I2cTerminationStatus)) {
+                                     uint16_t rxLen, void (*callback)(I2c*, I2cTerminationStatus)) {
     state.hasTx = true;
     state.hasTxRx = true;
     this->rxData = rxData;
@@ -219,27 +187,18 @@ void I2c<LL>::asyncTransmitReceive10(uint16_t address, bool tenBit, const uint8_
 
 template<class LL>
 void I2c<LL>::restartReceive() {
-    if (txLen == 0 && !dma->lock()) {
-        callback(this, BusBusy);
-        i2c.setStop();
-        return;
-    }
-    dma->halt();
     if (rxLen == 0) {
         callback(this, OtherError);
         i2c.setStop();
-        dma->unlock();
         return;
     }
     if (address >= 1024 || (address >= 128 && !state.tenBit)) {
         callback(this, OtherError);
         i2c.setStop();
-        dma->unlock();
         return;
     }
     this->callback = callback;
     state.repeatCount = 0;
     state.txDone = true;
-    dma->peripheralRead(requestRx, i2c.rxRegAddr(), false, rxData, true, rxLen + 1, false, Medium, &I2cManager<LL>::dmaInterrupt, false);
-    i2c.setupReceive(true, true, address, state.tenBit, rxLen);
+    i2c.setupReceive(false, true, address, state.tenBit, rxLen);
 }

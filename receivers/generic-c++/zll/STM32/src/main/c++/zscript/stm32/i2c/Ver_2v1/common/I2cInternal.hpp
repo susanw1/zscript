@@ -5,14 +5,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 struct I2cState {
     uint16_t repeatCount :10;
     bool hasTx :1;
     bool hasRx :1;
     bool hasTxRx :1;
     bool txDone :1;
-    bool useDmas :1;
     bool lockBool :1;
     bool tenBit :1;
 };
