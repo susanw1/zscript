@@ -1,9 +1,10 @@
 /*
- * Zcode Library - Command System for Microcontrollers)
- * Copyright (c) 2022 Zcode team (Susan Witts, Alicia Witts)
+ * Zscript Library - Command System for Microcontrollers)
+ * Copyright (c) 2023 Zscript team (Susan Witts, Alicia Witts)
  *
  * SPDX-License-Identifier: MIT
  */
+
 #ifdef GPIO_LOWLEVEL
 #error GPIO system must be included only once per cpp file (and only one type of GPIO system may be included)
 #endif
