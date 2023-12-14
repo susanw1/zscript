@@ -44,7 +44,7 @@ private:
 
 public:
 
-    I2c<LL>::I2c(I2cInternal<LL> i2c, I2cIdentifier id, DmaRequest requestTx, DmaRequest requestRx) :
+    I2c(I2cInternal<LL> i2c, I2cIdentifier id, DmaRequest requestTx, DmaRequest requestRx) :
             i2c(i2c), id(id), requestTx(requestTx), requestRx(requestRx), state(), callback(NULL) {
     }
 

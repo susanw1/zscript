@@ -386,25 +386,25 @@ void I2cInternal<LL>::setFrequency(Clock<LL> *clock, I2cFrequency freq) {
     }
     registers->CR1 &= ~enableI2c; // turn off peripheral
     // Always uses PCLK_1
-    if (freq == kHz10) {
+    if (freq == I2cFrequency::kHz10) {
         uint8_t scale = clock->getDivider(4000) - 1;
         if (scale > 15) {
             scale = 15;
         }
         registers->TIMINGR = sclDelay5 | sdaDelay2 | sclHigh184 | sclLow200 | (scale << 28);
-    } else if (freq == kHz100) {
+    } else if (freq == I2cFrequency::kHz100) {
         uint8_t scale = clock->getDivider(4000) - 1;
         if (scale > 15) {
             scale = 15;
         }
         registers->TIMINGR = sclDelay5 | sdaDelay2 | sclHigh16 | sclLow20 | (scale << 28);
-    } else if (freq == kHz400) {
+    } else if (freq == I2cFrequency::kHz400) {
         uint8_t scale = clock->getDivider(8000) - 1;
         if (scale > 15) {
             scale = 15;
         }
         registers->TIMINGR = sclDelay4 | sdaDelay3 | sclHigh4 | sclLow10 | (scale << 28);
-    } else if (freq == kHz1000) {
+    } else if (freq == I2cFrequency::kHz1000) {
         uint8_t scale = clock->getDivider(16000) - 1;
         if (scale > 15) {
             scale = 15;
