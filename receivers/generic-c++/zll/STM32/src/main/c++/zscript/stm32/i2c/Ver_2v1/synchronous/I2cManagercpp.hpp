@@ -7,7 +7,7 @@
 
 
 #define I2C_INITIALISE(x) I2c<LL>(\
-        I2cInternal<LL>(I2C_SDA(I2C##x, I2C##x##_SDA), I2C_SCL(I2C##x, I2C##x##_SCL), I2C##x##_REGISTER_LOC), x)
+        I2cInternal<LL>(I2C_SDA(I2C##x, I2C##x##_SDA), I2C_SCL(I2C##x, I2C##x##_SCL), I2C##x##_BASE), x)
 
 template<class LL>
 I2c<LL> I2cManager<LL>::i2cs[] = {

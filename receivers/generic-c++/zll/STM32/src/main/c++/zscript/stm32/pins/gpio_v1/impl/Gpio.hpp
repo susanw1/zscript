@@ -5,11 +5,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_GPIO_HPP_
-#define SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_GPIO_HPP_
-
-#include <arm-no-os/llIncludes.hpp>
-#include "specific/GpioPort.hpp"
 
 template<class LL>
 class GpioPin {
@@ -44,11 +39,3 @@ public:
         return pin;
     }
 };
-
-#include "GpioManager.hpp"
-
-#ifndef GPIOLOWLEVEL_NO_CPP
-#include "specific/Gpiocpp.hpp"
-#endif
-
-#endif /* SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_GPIO_HPP_ */

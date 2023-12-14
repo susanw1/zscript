@@ -5,13 +5,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_SPECIFIC_GPIOCPP_HPP_
-#define SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_SPECIFIC_GPIOCPP_HPP_
-
-#include "../Gpio.hpp"
-
-#include "../GpioManager.hpp"
-
 template<class LL>
 void GpioPin<LL>::init() {
     GpioManager<LL>::activateClock(pin);
@@ -65,5 +58,3 @@ template<class LL>
 void GpioPin<LL>::setAlternateFunction(uint8_t function) {
     GpioManager<LL>::getPort(pin)->setAlternateFunction(pin, function);
 }
-
-#endif /* SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_SPECIFIC_GPIOCPP_HPP_ */

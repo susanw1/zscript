@@ -5,12 +5,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_SPECIFIC_GPIOPORT_HPP_
-#define SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_SPECIFIC_GPIOPORT_HPP_
-
-#include <arm-no-os/llIncludes.hpp>
-#include "GpioNames.hpp"
-
 enum OutputMode {
     PushPull, OpenDrain
 };
@@ -84,5 +78,3 @@ public:
         }
     }
 };
-
-#endif /* SRC_MAIN_CPP_ARM_NO_OS_PINS_MODULE_LOWLEVEL_SPECIFIC_GPIOPORT_HPP_ */
