@@ -12,4 +12,6 @@ public interface QueuingStrategy {
     void send(CommandExecutionPath seq);
 
     void send(AddressedCommand seq);
+
+    void setBuffer(ConnectionBuffer buffer);
 }

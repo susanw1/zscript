@@ -31,6 +31,7 @@ public class AddressedCommand {
             address.writeTo(builder);
         }
         content.toBytes(builder);
+        builder.appendByte('\n');
     }
 
     public CommandSequence getContent() {

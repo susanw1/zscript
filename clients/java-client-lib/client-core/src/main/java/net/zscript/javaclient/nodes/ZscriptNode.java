@@ -1,7 +1,7 @@
 package net.zscript.javaclient.nodes;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Proxy;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
@@ -11,116 +11,40 @@ import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.ResponseSequence;
+import net.zscript.javaclient.threading.ZscriptWorkerThread;
 
-public class ZscriptNode {
-    private final AddressingSystem addressingSystem;
-
-    private final ConnectionBuffer connectionBuffer;
-    private final Connection       parentConnection;
-
-    private QueuingStrategy strategy = new StandardQueuingStrategy();
-
-    private Consumer<AddressedResponse> unknownResponseHandler = r -> {
-        throw new IllegalStateException("Unknown response received: " + r);
-    };
-
-    private final Map<Integer, Consumer<ResponseSequence>> notificationHandlers = new HashMap<>();
-
-    private final Map<CommandExecutionPath, Consumer<ResponseExecutionPath>> pathCallbacks         = new HashMap<>();
-    private final Map<CommandSequence, Consumer<ResponseSequence>>           fullSequenceCallbacks = new HashMap<>();
-
-    public ZscriptNode(Connection parentConnection, int bufferSize) {
-        this.addressingSystem = new AddressingSystem(this);
-        this.parentConnection = parentConnection;
-        this.connectionBuffer = new ConnectionBuffer(parentConnection, bufferSize);
-        parentConnection.onReceive(r -> {
-            if (r.hasAddress()) {
-                if (!addressingSystem.response(r)) {
-                    unknownResponseHandler.accept(r);
-                }
-            } else {
-                response(r);
-            }
-        });
+public interface ZscriptNode {
+    static ZscriptNode newNode(Connection parentConnection) {
+        return newNode(parentConnection, 128, 100, TimeUnit.MILLISECONDS);
     }
 
-    public void setUnknownResponseHandler(Consumer<AddressedResponse> unknownResponseHandler) {
-        this.unknownResponseHandler = unknownResponseHandler;
+    static ZscriptNode newNode(Connection parentConnection, int bufferSize, long minSegmentChangeTime, TimeUnit unit) {
+        ZscriptWorkerThread thread = parentConnection.getAssociatedThread();
+        ZscriptBasicNode    node   = new ZscriptBasicNode(thread.getCallbackPool(), parentConnection, bufferSize, minSegmentChangeTime, unit);
+        thread.addTimeoutCheck(node::checkTimeouts);
+        return (ZscriptNode) Proxy.newProxyInstance(ZscriptNode.class.getClassLoader(), new Class[] { ZscriptNode.class },
+                (obj, method, params) -> thread.moveOntoThread(() -> method.invoke(node, params)));
     }
 
-    public void setStrategy(QueuingStrategy strategy) {
-        this.strategy = strategy;
-    }
+    void setUnknownResponseHandler(Consumer<AddressedResponse> unknownResponseHandler);
 
-    public Connection attach(ZscriptAddress address) {
-        return addressingSystem.attach(address);
-    }
+    void setStrategy(QueuingStrategy strategy);
 
-    public Connection detach(ZscriptAddress address) {
-        return addressingSystem.detach(address);
-    }
+    void setBufferSize(int bufferSize);
 
-    public void send(CommandSequence seq, Consumer<ResponseSequence> callback) {
-        fullSequenceCallbacks.put(seq, callback);
-        strategy.send(seq);
-    }
+    void setCallbackExceptionHandler(Consumer<Exception> callbackExceptionHandler);
 
-    public void send(CommandExecutionPath path, Consumer<ResponseExecutionPath> callback) {
-        pathCallbacks.put(path, callback);
-        strategy.send(path);
-    }
+    Connection attach(ZscriptAddress address);
 
-    public void send(AddressedCommand addr) {
-        strategy.send(addr);
-    }
+    Connection detach(ZscriptAddress address);
 
-    private void response(AddressedResponse resp) {
-        if (resp.getContent().getResponseValue() != 0) {
-            Consumer<ResponseSequence> handler = notificationHandlers.get(resp.getContent().getResponseValue());
-            if (handler != null) {
-                handler.accept(resp.getContent());
-            } else {
-                unknownResponseHandler.accept(resp);
-            }
-            return;
-        }
-        AddressedCommand found = connectionBuffer.match(resp.getContent());
-        if (found == null) {
-            unknownResponseHandler.accept(resp);
-            return;
-        }
-        strategy.mayHaveSpace();
-        parentConnection.responseReceived(found);
-        Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getContent());
-        if (seqCallback != null) {
-            seqCallback.accept(resp.getContent());
-        } else {
-            Consumer<ResponseExecutionPath> pathCallback = pathCallbacks.remove(found.getContent().getExecutionPath());
-            if (pathCallback != null) {
-                pathCallback.accept(resp.getContent().getExecutionPath());
-            } else {
-                unknownResponseHandler.accept(resp);
-            }
-        }
+    void send(CommandSequence seq, Consumer<ResponseSequence> callback);
 
-    }
+    void send(CommandExecutionPath path, Consumer<ResponseExecutionPath> callback);
 
-    public Connection getParentConnection() {
-        return parentConnection;
-    }
+    void send(AddressedCommand addr);
 
-    public void responseReceived(AddressedCommand found) {
-        if (connectionBuffer.responseReceived(found)) {
-            strategy.mayHaveSpace();
-        }
-        parentConnection.responseReceived(found);
-    }
+    void setNotificationHandler(int notification, Consumer<ResponseSequence> handler);
 
-    public void setNotificationHandler(int notification, Consumer<ResponseSequence> handler) {
-        notificationHandlers.put(notification, handler);
-    }
-
-    public void removeNotificationHandler(int notification) {
-        notificationHandlers.remove(notification);
-    }
+    void removeNotificationHandler(int notification);
 }

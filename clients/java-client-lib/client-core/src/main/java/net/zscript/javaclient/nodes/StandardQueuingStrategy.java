@@ -2,6 +2,7 @@ package net.zscript.javaclient.nodes;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
@@ -22,7 +23,7 @@ public class StandardQueuingStrategy implements QueuingStrategy {
 
         @Override
         public boolean addToBuffer(boolean ignoreLength) {
-            return buffer.send(seq, ignoreLength);
+            return buffer.send(seq, ignoreLength, timeout, unit);
         }
     }
 
@@ -35,7 +36,7 @@ public class StandardQueuingStrategy implements QueuingStrategy {
 
         @Override
         public boolean addToBuffer(boolean ignoreLength) {
-            return buffer.send(path, ignoreLength);
+            return buffer.send(path, ignoreLength, timeout, unit);
         }
     }
 
@@ -48,13 +49,21 @@ public class StandardQueuingStrategy implements QueuingStrategy {
 
         @Override
         public boolean addToBuffer(boolean ignoreLength) {
-            return buffer.send(addr, ignoreLength);
+            return buffer.send(addr, ignoreLength, timeout, unit);
         }
     }
 
     private final Queue<QueueElement> waiting = new ArrayDeque<>();
 
     private ConnectionBuffer buffer;
+
+    private final long     timeout;
+    private final TimeUnit unit;
+
+    public StandardQueuingStrategy(long timeout, TimeUnit unit) {
+        this.timeout = timeout;
+        this.unit = unit;
+    }
 
     public void setBuffer(ConnectionBuffer buffer) {
         this.buffer = buffer;
@@ -66,7 +75,7 @@ public class StandardQueuingStrategy implements QueuingStrategy {
             waiting.poll();
         }
         if (!waiting.isEmpty() && !buffer.hasNonAddressedInBuffer()) {
-            buffer.send(CommandExecutionPath.blank(), true);
+            buffer.send(CommandExecutionPath.blank(), true, timeout, unit);
         }
     }
 

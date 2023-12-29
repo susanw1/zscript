@@ -77,7 +77,7 @@
         <!-- Logging impl for tests -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
+            <artifactId>logback-classic</artifactId>
             <version>${version.logback}</version>
         </dependency>
     </dependencies>

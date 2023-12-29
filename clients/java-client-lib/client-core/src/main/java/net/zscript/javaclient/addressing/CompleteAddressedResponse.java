@@ -3,11 +3,13 @@ package net.zscript.javaclient.addressing;
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import net.zscript.javaclient.sequence.ResponseSequence;
+import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.components.Zchars;
 import net.zscript.util.OptIterator;
 
@@ -16,6 +18,14 @@ public class CompleteAddressedResponse {
     private final ResponseSequence     content;
 
     public static CompleteAddressedResponse parse(TokenReader reader) {
+        OptIterator<ReadToken> iterEnding = reader.iterator();
+        for (Optional<ReadToken> opt = iterEnding.next(); opt.isPresent(); opt = iterEnding.next()) {
+            if (opt.get().isSequenceEndMarker()) {
+                if (opt.get().getKey() != Tokenizer.NORMAL_SEQUENCE_END) {
+                    throw new RuntimeException("Parse failed with Tokenizer error: " + Integer.toHexString(opt.get().getKey()));
+                }
+            }
+        }
         OptIterator<ReadToken> iter      = reader.iterator();
         List<ZscriptAddress>   addresses = new ArrayList<>();
         ResponseSequence       seq       = null;

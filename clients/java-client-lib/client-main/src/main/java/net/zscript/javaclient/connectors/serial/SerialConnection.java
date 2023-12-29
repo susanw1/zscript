@@ -5,7 +5,9 @@ import static java.util.Objects.requireNonNull;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortIOException;
-import com.fazecast.jSerialComm.SerialPortMessageListener;
+import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,6 +20,8 @@ import net.zscript.javaclient.connectors.RawConnection;
  */
 // Note: SerialPort is hard to use in tests as it contains Android references which cause Mocking failure.
 public class SerialConnection extends RawConnection {
+    private static final Logger LOG = LoggerFactory.getLogger(SerialConnection.class);
+
     private final SerialPort   commPort;
     private final OutputStream out;
 
@@ -32,6 +36,11 @@ public class SerialConnection extends RawConnection {
         this.out = commPort.getOutputStream();
     }
 
+    @Override
+    protected Logger getLogger() {
+        return LOG;
+    }
+
     public void send(final byte[] data) throws IOException {
         out.write(data);
     }
@@ -44,10 +53,14 @@ public class SerialConnection extends RawConnection {
         if (this.handler != null) {
             throw new IllegalStateException("Handler already assigned");
         }
-
         this.handler = requireNonNull(responseHandler, "handler");
 
-        commPort.addDataListener(new SerialPortMessageListener() {
+        commPort.addDataListener(new SerialPortMessageListenerWithExceptions() {
+            @Override
+            public void catchException(Exception e) {
+                LOG.error(e.getMessage());
+            }
+
             @Override
             public int getListeningEvents() {
                 return SerialPort.LISTENING_EVENT_DATA_RECEIVED;
@@ -55,7 +68,6 @@ public class SerialConnection extends RawConnection {
 
             @Override
             public void serialEvent(SerialPortEvent serialPortEvent) {
-                System.out.println("Event: " + serialPortEvent);
                 if (serialPortEvent.getEventType() == SerialPort.LISTENING_EVENT_DATA_RECEIVED) {
                     responseHandler.accept(serialPortEvent.getReceivedData());
                 }
@@ -70,6 +82,7 @@ public class SerialConnection extends RawConnection {
             public boolean delimiterIndicatesEndOfMessage() {
                 return true;
             }
+
         });
     }
 

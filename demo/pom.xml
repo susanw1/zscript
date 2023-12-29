@@ -16,6 +16,7 @@
 
     <modules>
         <module>demo-01</module>
+        <module>demo-morse</module>
     </modules>
 
     <dependencies>

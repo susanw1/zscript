@@ -1,5 +1,8 @@
 package net.zscript.javaclient.connection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -8,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import net.zscript.javaclient.connectors.RawConnection;
+import net.zscript.javaclient.connectors.serial.SerialConnection;
 import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.OutputStreamOutStream;
 import net.zscript.javareceiver.core.Zscript;
@@ -19,9 +23,15 @@ import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 
 public class LocalZscriptConnection extends RawConnection {
-    private final ExecutorService  exec   = Executors.newSingleThreadExecutor();
-    private final Queue<byte[]>    dataIn = new ArrayDeque<>();
-    private       Consumer<byte[]> responseHandler;
+    private static final Logger           LOG    = LoggerFactory.getLogger(LocalZscriptConnection.class);
+    private final        ExecutorService  exec   = Executors.newSingleThreadExecutor();
+    private final        Queue<byte[]>    dataIn = new ArrayDeque<>();
+    private              Consumer<byte[]> responseHandler;
+
+    @Override
+    protected Logger getLogger() {
+        return LOG;
+    }
 
     private class ProgressForever implements Runnable {
         private final Zscript zscript;

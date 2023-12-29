@@ -234,12 +234,10 @@ public class JavaCommandBuilderResponseTest {
             final Consumer<R> listener) {
         responseChars.chars().forEach(c -> tokenizer.accept((byte) c));
 
-        ResponseCaptor<R> captor = ResponseCaptor.create();
-        ZscriptCommandNode cmd = commandBuilder.capture(captor)
-                .build();
+        ResponseCaptor<R>     captor = ResponseCaptor.create();
+        ZscriptCommandNode<R> cmd    = commandBuilder.capture(captor).build();
 
-        cmd.responseArrived(cmd.parseResponse(new ZscriptTokenExpression(tokenReader::iterator)));
-        listener.accept(captor.get());
+        listener.accept(cmd.parseResponse(new ZscriptTokenExpression(tokenReader::iterator)));
     }
 
 }

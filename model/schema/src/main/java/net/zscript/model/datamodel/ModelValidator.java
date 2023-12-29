@@ -124,15 +124,6 @@ public class ModelValidator {
                         sNode.getSection().getName(), notification.getName(), sNode.getNotification());
             }
             checkNotificationSection(sNode);
-
-            boolean lastOne = (i == sections.size() - 1);
-            if (!lastOne && sNode.getLogicalTermination() == ZscriptDataModel.LogicalTermination.END) {
-                throw new ZscriptModelException("Only final NotificationSectionNode has logicalTermination of NONE [section=%s, notification=%s]",
-                        sNode.getSection().getName(), notification.getName());
-            } else if (lastOne && sNode.getLogicalTermination() != ZscriptDataModel.LogicalTermination.END) {
-                throw new ZscriptModelException("Final NotificationSectionNode must have logicalTermination of NONE [section=%s, notification=%s]",
-                        sNode.getSection().getName(), notification.getName());
-            }
         }
     }
 

@@ -363,7 +363,6 @@ notifications:
                     - low
                     - high
                 required: yes
-        logicalTermination: end
 
 -   name: analog
     notification: 1
@@ -395,4 +394,3 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: yes
-        logicalTermination: end

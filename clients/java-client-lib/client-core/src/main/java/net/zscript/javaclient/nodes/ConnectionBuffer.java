@@ -1,10 +1,15 @@
 package net.zscript.javaclient.nodes;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
@@ -19,27 +24,31 @@ public class ConnectionBuffer {
         private final boolean          sameLayer;
         private final boolean          hadEchoBefore;
         private final int              length;
+        private final long             nanoTimeTimeout;
 
-        BufferElement(CommandSequence seq) {
+        BufferElement(CommandSequence seq, long nanoTimeTimeout) {
             this.cmd = new AddressedCommand(seq);
             this.sameLayer = true;
             this.hadEchoBefore = true;
             this.length = seq.getBufferLength();
+            this.nanoTimeTimeout = nanoTimeTimeout;
         }
 
-        BufferElement(CommandExecutionPath cmd) {
-            CommandSequence seq = CommandSequence.from(cmd, currentEcho, supports32Locks, lockConditions);
+        BufferElement(CommandExecutionPath cmd, long nanoTimeTimeout) {
+            CommandSequence seq = CommandSequence.from(cmd, echo.getEcho(), supports32Locks, lockConditions);
             this.cmd = new AddressedCommand(seq);
             this.sameLayer = true;
             this.hadEchoBefore = false;
             this.length = seq.getBufferLength();
+            this.nanoTimeTimeout = nanoTimeTimeout;
         }
 
-        BufferElement(AddressedCommand cmd) {
+        BufferElement(AddressedCommand cmd, long nanoTimeTimeout) {
             this.cmd = cmd;
             this.sameLayer = !cmd.hasAddressLayer();
             this.hadEchoBefore = true;
             this.length = cmd.getBufferLength();
+            this.nanoTimeTimeout = nanoTimeTimeout;
         }
 
         public boolean isSameLayer() {
@@ -49,27 +58,26 @@ public class ConnectionBuffer {
         public AddressedCommand getCommand() {
             return cmd;
         }
+
+        public long getNanoTimeTimeout() {
+            return nanoTimeTimeout;
+        }
     }
 
     private final Connection           connection;
     private final Queue<BufferElement> buffer = new ArrayDeque<>();
 
-    private final int bufferSize;
-    private       int currentBufferContent = 0;
-    private       int currentEcho          = 0x100;
+    private final EchoAssigner echo;
+
+    private int bufferSize;
+    private int currentBufferContent = 0;
 
     private Collection<LockCondition> lockConditions  = new ArrayList<>();
     private boolean                   supports32Locks = false;
 
-    private void moveEchoValue() {
-        currentEcho++;
-        if (currentEcho > 0xffff) {
-            currentEcho = 0x100;
-        }
-    }
-
-    public ConnectionBuffer(Connection connection, int bufferSize) {
+    public ConnectionBuffer(Connection connection, EchoAssigner echo, int bufferSize) {
         this.connection = connection;
+        this.echo = echo;
         this.bufferSize = bufferSize;
     }
 
@@ -96,10 +104,18 @@ public class ConnectionBuffer {
         if (sequence.getResponseValue() != 0) {
             throw new IllegalArgumentException("Cannot match notification sequence with command sequence");
         }
+        if (!sequence.hasEchoValue()) {
+            return null;
+        }
         boolean removeUpTo = true;
         for (Iterator<BufferElement> iter = buffer.iterator(); iter.hasNext(); ) {
             BufferElement element = iter.next();
             if (element.isSameLayer() && element.getCommand().getContent().getEchoValue() == sequence.getEchoValue()) {
+                if (!element.getCommand().getContent().getExecutionPath().matchesResponses(sequence.getExecutionPath())) {
+                    return element.getCommand();
+                }
+                // if the echo value is auto-generated, clear the marker
+                echo.responseArrivedNormal(sequence.getEchoValue());
                 if (removeUpTo) {
                     clearOutTo(element);
                 } else {
@@ -112,6 +128,24 @@ public class ConnectionBuffer {
             }
         }
         return null;
+    }
+
+    public Collection<CommandSequence> checkTimeouts() {
+        List<CommandSequence> timedOut    = new ArrayList<>(2);
+        long                  currentNano = System.nanoTime();
+        for (Iterator<BufferElement> iter = buffer.iterator(); iter.hasNext(); ) {
+            BufferElement element = iter.next();
+            //subtracting first to avoid wrapping issues.
+            if (currentNano - element.getNanoTimeTimeout() > 0) {
+                if (element.isSameLayer()) {
+                    timedOut.add(element.getCommand().getContent());
+                    echo.timeout(element.getCommand().getContent().getEchoValue());
+                }
+                iter.remove();
+                currentBufferContent -= element.length;
+            }
+        }
+        return timedOut;
     }
 
     public boolean responseReceived(AddressedCommand cmd) {
@@ -145,23 +179,30 @@ public class ConnectionBuffer {
         if (!ignoreLength && element.length + currentBufferContent >= bufferSize) {
             return false;
         }
-        moveEchoValue();
+        // make sure echo system knows about echo usage...
+        if (element.hadEchoBefore) {
+            if (element.isSameLayer()) {
+                echo.manualEchoUse(element.getCommand().getContent().getEchoValue());
+            }
+        } else {
+            echo.moveEcho();
+        }
         buffer.add(element);
         currentBufferContent += element.length;
         connection.send(element.getCommand());
         return true;
     }
 
-    public boolean send(AddressedCommand cmd, boolean ignoreLength) {
-        return send(new BufferElement(cmd), ignoreLength);
+    public boolean send(AddressedCommand cmd, boolean ignoreLength, long timeout, TimeUnit unit) {
+        return send(new BufferElement(cmd, System.nanoTime() + unit.toNanos(timeout)), ignoreLength);
     }
 
-    public boolean send(CommandSequence seq, boolean ignoreLength) {
-        return send(new BufferElement(seq), ignoreLength);
+    public boolean send(CommandSequence seq, boolean ignoreLength, long timeout, TimeUnit unit) {
+        return send(new BufferElement(seq, System.nanoTime() + unit.toNanos(timeout)), ignoreLength);
     }
 
-    public boolean send(CommandExecutionPath path, boolean ignoreLength) {
-        return send(new BufferElement(path), ignoreLength);
+    public boolean send(CommandExecutionPath path, boolean ignoreLength, long timeout, TimeUnit unit) {
+        return send(new BufferElement(path, System.nanoTime() + unit.toNanos(timeout)), ignoreLength);
     }
 
     public boolean hasNonAddressedInBuffer() {
@@ -181,4 +222,7 @@ public class ConnectionBuffer {
         return currentBufferContent;
     }
 
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
+    }
 }

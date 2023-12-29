@@ -360,7 +360,6 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: yes
-        logicalTermination: andthen
     -   section:
             name: smBusAlertResolution
             description: information on an attempted SMBus alert address read
@@ -377,4 +376,3 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: no
-        logicalTermination: end
