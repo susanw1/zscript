@@ -174,7 +174,7 @@
 #define ARRAY_INITIALISE_0_REAL3(argumentFunc, count) ARRAY_INITIALISE_0_REAL4(argumentFunc, count)
 #define ARRAY_INITIALISE_0_REAL2(argumentFunc, count) ARRAY_INITIALISE_0_REAL3(argumentFunc, count)
 
-#define ARRAY_INITIALISE_0(argumentFunc, count) ARRAY_INITIALISE_0_REAL2(argumentFunc,  count)
+#define ARRAY_INITIALISE_0START(argumentFunc, count) ARRAY_INITIALISE_0_REAL2(argumentFunc,  count)
 
 //
 
@@ -189,7 +189,7 @@
 #define ARRAY_INITIALISE_1_REAL3(argumentFunc, count) ARRAY_INITIALISE_1_REAL4(argumentFunc, count)
 #define ARRAY_INITIALISE_1_REAL2(argumentFunc, count) ARRAY_INITIALISE_1_REAL3(argumentFunc, count)
 
-#define ARRAY_INITIALISE_1(argumentFunc, count) ARRAY_INITIALISE_1_REAL2(argumentFunc,  count)
+#define ARRAY_INITIALISE_1START(argumentFunc, count) ARRAY_INITIALISE_1_REAL2(argumentFunc,  count)
 
 //device definition:
 

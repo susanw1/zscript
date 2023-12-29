@@ -8,8 +8,8 @@
 #define I2C_INITIALISE(x) I2c<LL>(\
         I2cInternal<LL>(I2C_SDA(I2C##x, I2C##x##_SDA), I2C_SCL(I2C##x, I2C##x##_SCL), I2C##x##_BASE),\
         x,\
-        DMA_RQ_I2C##x##_TX,\
-        DMA_RQ_I2C##x##_RX\
+        DmaRequest::DMA_RQ_I2C##x##_TX,\
+        DmaRequest::DMA_RQ_I2C##x##_RX\
         )
 
 template<class LL>
