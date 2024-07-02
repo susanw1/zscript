@@ -107,7 +107,7 @@ intrinsics:
     statusCategories:
     - &statusCategory_success
         name: success
-        description: command completed successfully wither failure or error
+        description: command completed successfully, not failure or error
         baseId: 0x00
 
     - &statusCategory_failure
