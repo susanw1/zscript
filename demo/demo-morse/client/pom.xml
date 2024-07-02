@@ -18,7 +18,7 @@
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
-            <version>4.7.5</version>
+            <version>${version.picocli}</version>
         </dependency>
         <dependency>
             <groupId>net.zscript</groupId>
@@ -35,32 +35,5 @@
             <artifactId>logback-classic</artifactId>
             <version>${version.logback}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>18.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>18.0.2</version>
-        </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <!-- To run, use: mvn -pl net.zscript.demo:demo-01-client install javafx:run -->
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <configuration>
-                    <mainClass>net.zscript.demo01.client.ui.UiMain</mainClass>
-                    <!--                    <jlinkImageName>zscript_demo_01</jlinkImageName>-->
-                    <!--                    <launcher>launcher</launcher>-->
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
