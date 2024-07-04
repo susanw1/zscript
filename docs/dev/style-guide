@@ -1,4 +1,0 @@
-Do not use static variables inside methods - they can (sometimes) cause the compiler to pull in 70k of handler code, as they have complicated edge cases.
-Instead declare the variables in the class, and access them from there.
-
-When pulling in large templated libraries, ensure that only one cpp file includes the whole thing, as otherwise compilation times can explode. This includes zcode.hpp, Ethernet.h, etc.
