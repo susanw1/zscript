@@ -14,7 +14,7 @@ protocols, eg ethernet, serial ports or I2C. It is loosely inspired by *G-code*,
 
 ##### Project Status
 
-Pre-alpha! We're still putting it together. Release before end of 2023.
+Pre-alpha! We're still putting it together.
 
 ##### Where do I get it?
 
@@ -25,28 +25,14 @@ Instructions are here: [Where-to-get-Zscript](https://github.com/susanw1/zscript
 * Simple syntax - requests and responses are designed to be reasonably straightforward to use and understand, for both human- and computer-generated commands.
 
          # Set pin 4 to HIGH, and receive Status response OK to confirm
-         Z42 P4 V1
-         !S
-* Modular and extensible - commands are implemented as modules, with space for user-defined commands. Standard modules include I2C, UART, SPI, USBC-PD. Modules
-  defined [declaratively in YAML](https://github.com/susanw1/zscript/tree/master/model/standard-module-definitions/src/main/resources/zscript-datamodel/00xx-base-modules).
+         sent> Z42 P4 V1
+         recv> !S
 
+* [Modular and extensible](https://github.com/susanw1/zscript/wiki/Modules)
 * Client libraries, in Java (and Python, to come) - generated from declarative modules.
-
-        commPortConnection.send(PinsModule.digitalWrite()
-            .setPin(4)
-            .setValue(1)
-            .build());
-
 * Small, efficient and configurable - you can remove features and modules so you don't pay for what you don't use.
-
 * Device addressing - Zscript commands can be tunnelled from one device to another over serial, I2C etc.
-
-        # Send echo command to 2nd device via 1st over I2C link, and receive response.  
-        #  5.1.62 means (module 5) bus 1 address 0x62
-          @5.1.62 Z1 A2
-          !@5.1.62 A2 S
 * Portable - implemented on ARMs and Arduinos, with PICs to come soon.
-
 * Interactive - simple REPL (read-eval-print-loop) supported.
 
 ##### Purpose
@@ -66,8 +52,7 @@ Zscript makes it really easy to try out your hardware, and then control it from 
 
 ##### Links:
 
-[Documentation](docs/spec/zscript-description.md)
-
-[Developer setup](docs/dev/dev-setup.md)
-
-[Arm Deployment](receivers/native/arm/no-os/docs/stlink-deployment.md)
+* [Documentation](https://github.com/susanw1/zscript/wiki)
+* [Issues](https://github.com/susanw1/zscript/issues)
+* [Discussion](https://github.com/susanw1/zscript/discussions)
+* [ X ](https://x.com/_zscript_) and [Groups](https://groups.google.com/g/zscript)
