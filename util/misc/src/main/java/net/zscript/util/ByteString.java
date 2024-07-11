@@ -7,6 +7,9 @@ import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * A buildable byte string to make it easy to work with byte-oriented text data.
+ */
 public interface ByteString {
     /**
      * Returns (a copy of) the content of this ByteString.
@@ -138,23 +141,37 @@ public interface ByteString {
             return appendByte((byte) b);
         }
 
+        /**
+         * Appends the supplied single byte, without having to check for range.
+         *
+         * @param b any value 0x00-0xff
+         * @return this builder, to facilitate chaining
+         */
         public <B extends ByteStringBuilder> B appendByte(byte b) {
             baos.write(b);
             return asTypeB();
         }
 
+        /**
+         * Appends the supplied byte array.
+         *
+         * @param bytes any value 0x00-0xff
+         * @return this builder, to facilitate chaining
+         * @throws IllegalArgumentException if value is out of range 0-ff
+         */
         public <B extends ByteStringBuilder> B appendRaw(byte[] bytes) {
             baos.writeBytes(bytes);
             return asTypeB();
         }
 
+        /**
+         * Appends the supplied byte string (creates temporary copy unless it's immutable).
+         *
+         * @param byteString any existing ByteString
+         * @return this builder, to facilitate chaining
+         */
         public <B extends ByteStringBuilder> B append(ByteString byteString) {
-            baos.writeBytes(byteString.toByteArray());
-            return asTypeB();
-        }
-
-        public <B extends ByteStringBuilder> B append(ImmutableByteString byteString) {
-            baos.writeBytes(byteString.bytes);
+            baos.writeBytes(byteString instanceof ImmutableByteString ? ((ImmutableByteString) byteString).bytes : byteString.toByteArray());
             return asTypeB();
         }
 
@@ -190,14 +207,17 @@ public interface ByteString {
         }
 
         /**
-         * Appends a number as up to 4 nibbles of hex. All leading zeroes EXCEPT ONE are suppressed.
+         * Appends a number as up to 8 nibbles of hex. All leading zeroes EXCEPT ONE are suppressed.
          *
          * @param value the value to append
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range
          */
         public <B extends ByteStringBuilder> B appendNumeric32KeepZero(long value) {
-            if (value > 0x10000) {
+            if ((value & ~0xffffffffL) != 0) {
+                throw new IllegalArgumentException("Numeric32 fields must be 0x0-0xffffffff: " + value);
+            }
+            if (value >= 0x10000) {
                 appendNumericKeepZero((int) (value >>> 16));
                 appendHexPair((byte) (value >>> 8));
                 return appendHexPair((byte) (value));
@@ -226,7 +246,7 @@ public interface ByteString {
          */
         public <B extends ByteStringBuilder> B appendNumericKeepZero(int value) {
             if ((value & ~0xffff) != 0) {
-                throw new IllegalArgumentException("Numeric fields must be 0x0-0xffffffff: " + value);
+                throw new IllegalArgumentException("Numeric fields must be 0x0-0xffff: " + value);
             }
             if (value >= 0x1000) {
                 baos.write(toHex(value >>> 12));
@@ -242,7 +262,7 @@ public interface ByteString {
         }
 
         @SuppressWarnings("unchecked")
-        public <B extends ByteStringBuilder> B asTypeB() {
+        private <B extends ByteStringBuilder> B asTypeB() {
             return (B) this;
         }
 

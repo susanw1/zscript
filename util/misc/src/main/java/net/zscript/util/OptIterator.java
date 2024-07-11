@@ -25,7 +25,7 @@ public interface OptIterator<T> {
      * to highlight improper use, but they might not.
      *
      * @return value items wrapped as Optional, or {@link java.util.Optional#empty()} to signal end of items
-     * @exception NoSuchElementException on going beyond the end (optional)
+     * @throws NoSuchElementException on going beyond the end (optional)
      */
     Optional<T> next();
 
@@ -42,12 +42,12 @@ public interface OptIterator<T> {
     }
 
     /**
-     * Exposes the emelements as a conventional {@link java.util.stream.Stream}.
+     * Exposes the elements as a conventional {@link java.util.stream.Stream}.
      *
      * @return a stream of elements
      */
     default Stream<T> stream() {
-        return Stream.iterate(next(), t -> t.isPresent(), t -> next()).map(t -> t.get());
+        return Stream.iterate(next(), Optional::isPresent, t -> next()).map(Optional::get);
     }
 
     /**
@@ -59,7 +59,7 @@ public interface OptIterator<T> {
      */
     static <T> OptIterator<T> of(final Iterable<T> iterable) {
         return new OptIterator<T>() {
-            Iterator<T> origIterator = iterable.iterator();
+            private final Iterator<T> origIterator = iterable.iterator();
 
             @Override
             public Optional<T> next() {
