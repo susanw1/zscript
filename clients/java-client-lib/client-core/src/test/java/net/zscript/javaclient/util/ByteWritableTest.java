@@ -1,4 +1,4 @@
-package net.zscript.javaclient.commandbuilder;
+package net.zscript.javaclient.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,9 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javaclient.ByteWritable;
-import net.zscript.javaclient.ZscriptByteString;
-import net.zscript.javaclient.ZscriptByteString.ZscriptByteStringBuilder;
+import net.zscript.javaclient.util.ZscriptByteString.ZscriptByteStringBuilder;
 
 class ByteWritableTest {
     ByteWritable testObject = new ByteWritable() {

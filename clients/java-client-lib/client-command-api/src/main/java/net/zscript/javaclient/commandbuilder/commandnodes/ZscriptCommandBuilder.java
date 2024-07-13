@@ -9,10 +9,10 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.joining;
 
-import net.zscript.javaclient.ByteWritable;
-import net.zscript.javaclient.ZscriptByteString.ZscriptByteStringBuilder;
 import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
+import net.zscript.javaclient.util.ByteWritable;
+import net.zscript.javaclient.util.ZscriptByteString.ZscriptByteStringBuilder;
 import net.zscript.model.components.Zchars;
 
 /**

@@ -5,13 +5,13 @@ import java.util.Collection;
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
-import net.zscript.javaclient.ZscriptByteString;
+import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString;
 
-public class CommandSequence {
+public class CommandSequence implements ByteString.Appendable<ZscriptByteString.ZscriptByteStringBuilder> {
 
     public static CommandSequence from(CommandExecutionPath path, int echoField) {
         return from(path, echoField, false);
@@ -77,6 +77,15 @@ public class CommandSequence {
     }
 
     public void toBytes(ZscriptByteString.ZscriptByteStringBuilder builder) {
+        locks.toBytes(builder);
+        if (echoField != -1) {
+            builder.appendField(Zchars.Z_ECHO, echoField);
+        }
+        executionPath.toSequence(builder);
+    }
+
+    @Override
+    public void appendTo(ZscriptByteString.ZscriptByteStringBuilder builder) {
         locks.toBytes(builder);
         if (echoField != -1) {
             builder.appendField(Zchars.Z_ECHO, echoField);

@@ -3,8 +3,8 @@ package net.zscript.javaclient.addressing;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.javaclient.sequence.CommandSequence;
+import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.util.ByteString;
 
 public class AddressedCommand {
@@ -22,16 +22,11 @@ public class AddressedCommand {
 
     public ByteString toBytes() {
         ZscriptByteString.ZscriptByteStringBuilder builder = ZscriptByteString.builder();
-        toBytes(builder);
-        return builder.build();
-    }
 
-    public void toBytes(ZscriptByteString.ZscriptByteStringBuilder builder) {
-        for (ZscriptAddress address : addressSections) {
-            address.writeTo(builder);
-        }
+        builder.append(addressSections);
         content.toBytes(builder);
         builder.appendByte('\n');
+        return builder.build();
     }
 
     public CommandSequence getContent() {

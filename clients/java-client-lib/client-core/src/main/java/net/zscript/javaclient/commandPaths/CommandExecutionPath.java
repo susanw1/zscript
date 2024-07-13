@@ -15,7 +15,7 @@ import java.util.Set;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
-import net.zscript.javaclient.ZscriptByteString;
+import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.ZscriptModel;

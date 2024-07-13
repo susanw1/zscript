@@ -1,16 +1,15 @@
 package net.zscript.javaclient.commandbuilder.commandnodes;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
-import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.javaclient.commandbuilder.Respondable;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder.BigField;
+import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 
 public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends CommandSequenceNode implements Respondable<T> {

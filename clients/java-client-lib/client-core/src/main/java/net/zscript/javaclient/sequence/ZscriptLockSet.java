@@ -4,7 +4,7 @@ import java.util.BitSet;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
-import net.zscript.javaclient.ZscriptByteString;
+import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.model.components.Zchars;
 
 public class ZscriptLockSet {

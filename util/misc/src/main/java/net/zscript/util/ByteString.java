@@ -34,6 +34,22 @@ public interface ByteString {
      */
     String asString();
 
+    default <B extends ByteStringBuilder> Appendable<B> asAppendable() {
+        return builder -> builder.appendRaw(toByteArray());
+    }
+
+    static ByteString from(Appendable<ByteStringBuilder> a) {
+        return builder().append(a).build();
+    }
+
+    static ByteString from(Iterable<? extends Appendable<ByteStringBuilder>> a) {
+        return builder().append(a).build();
+    }
+
+    static ByteString from(Appendable<ByteStringBuilder>... a) {
+        return builder().append(a).build();
+    }
+
     /**
      * Creates a fresh builder for a ByteString
      *
@@ -74,6 +90,11 @@ public interface ByteString {
             return this;
         }
 
+        @Override
+        public <B extends ByteStringBuilder> Appendable<B> asAppendable() {
+            return builder -> builder.appendRaw(bytes);
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -105,11 +126,11 @@ public interface ByteString {
             }
             return Arrays.equals(bytes, ((ImmutableByteString) obj).bytes);
         }
-
-        private static final byte[] HEX = "0123456789abcdef".getBytes(UTF_8);
     }
 
     class ByteStringBuilder implements ByteString {
+        private static final byte[] HEX = "0123456789abcdef".getBytes(UTF_8);
+
         protected final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         /**
@@ -171,7 +192,45 @@ public interface ByteString {
          * @return this builder, to facilitate chaining
          */
         public <B extends ByteStringBuilder> B append(ByteString byteString) {
-            baos.writeBytes(byteString instanceof ImmutableByteString ? ((ImmutableByteString) byteString).bytes : byteString.toByteArray());
+            return append(byteString.asAppendable());
+        }
+
+        /**
+         * Appends the supplied Appendable object
+         *
+         * @param appendable the object to be appended
+         * @param <B>        the type of Builder it needs to be written to
+         * @return this builder, to facilitate chaining
+         */
+        public <B extends ByteStringBuilder> B append(Appendable<B> appendable) {
+            // Note - this needs to NOT typecast because it lies with subclasses. FIXME by avoiding subclasses of ByteString
+            appendable.appendTo(asTypeB());
+            return asTypeB();
+        }
+
+        /**
+         * Appends each of the Appendables in the supplied collection.
+         *
+         * @param appendables zero or more Appendables
+         * @param <B>         the type of Builder it needs to be written to
+         * @return this builder, to facilitate chaining
+         */
+        public <B extends ByteStringBuilder> B append(Iterable<? extends Appendable<B>> appendables) {
+            // Note - this needs to NOT typecast because it lies with subclasses. FIXME by avoiding subclasses of ByteString
+            appendables.forEach(a -> a.appendTo(asTypeB()));
+            return asTypeB();
+        }
+
+        /**
+         * Appends each of the supplied Appendables.
+         *
+         * @param appendables zero or more Appendables
+         * @param <B>         the type of Builder it needs to be written to
+         * @return this builder, to facilitate chaining
+         */
+        @SafeVarargs
+        public final <B extends ByteStringBuilder> B append(Appendable<ByteStringBuilder>... appendables) {
+            Arrays.stream(appendables).forEach(a -> a.appendTo(asTypeB()));
             return asTypeB();
         }
 
@@ -189,6 +248,12 @@ public interface ByteString {
             return appendHexPair((byte) value);
         }
 
+        /**
+         * Appends the supplied value as a 2 nibble hexadecimal.
+         *
+         * @param value any value 0x00-0xff
+         * @return this builder, to facilitate chaining
+         */
         public <B extends ByteStringBuilder> B appendHexPair(byte value) {
             baos.write(toHex((value >>> 4) & 0xF));
             baos.write(toHex(value & 0xF));
@@ -281,7 +346,20 @@ public interface ByteString {
         public ByteString build() {
             return new ImmutableByteString(toByteArray());
         }
+    }
 
+    /**
+     * Handy interface to allow classes to define their own means of being appended to a ByteString.
+     *
+     * @param <B> the type of builder required
+     */
+    interface Appendable<B extends ByteStringBuilder> {
+        /**
+         * Defines how to be written to the supplied Builder
+         *
+         * @param builder the builder to append to
+         */
+        void appendTo(B builder);
     }
 
     /**
@@ -291,7 +369,7 @@ public interface ByteString {
      * @return the corresponding hex character, '0'-'9' or 'a'-'f'
      * @throws IndexOutOfBoundsException if value is out of range
      */
-    static byte toHex(int nibble) {
-        return ImmutableByteString.HEX[nibble];
+    private static byte toHex(int nibble) {
+        return ByteStringBuilder.HEX[nibble];
     }
 }

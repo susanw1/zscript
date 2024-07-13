@@ -2,12 +2,12 @@ package net.zscript.javaclient.commandPrinting;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,7 +21,7 @@ import net.zscript.javaclient.commandPaths.MatchedCommandResponse;
 import net.zscript.javaclient.commandPaths.Response;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
-import net.zscript.javaclient.ZscriptByteString;
+import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.datamodel.IntrinsicsDataModel.StatusModel;
@@ -351,7 +351,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         CommandGrapher.CommandDepth maxDepth = new CommandGrapher.CommandDepth(0);
         while (!workingTrees.isEmpty()) {
             CommandGrapher.CommandGraphElement current = workingTrees.peek();
-            Command             cmd   = current.getCommand();
+            Command                            cmd     = current.getCommand();
 
             CommandGrapher.CommandGraphElement latestOpenTree = openedTrees.peek();
             if (latestOpenTree != null && cmd.getOnFail() != latestOpenTree.getCommand()) {

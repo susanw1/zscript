@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import net.zscript.javaclient.ZscriptByteString;
+import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;

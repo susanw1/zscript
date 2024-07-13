@@ -1,28 +1,25 @@
 package net.zscript.javaclient.addressing;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import net.zscript.javaclient.ByteWritable;
-import net.zscript.javaclient.ZscriptByteString;
+import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+
+import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.model.components.Zchars;
+import net.zscript.util.ByteString;
 import net.zscript.util.OptIterator;
 
-public class ZscriptAddress implements ByteWritable {
+public class ZscriptAddress implements ByteString.Appendable<ZscriptByteString.ZscriptByteStringBuilder> {
     private final int[] addressParts;
 
     /**
-     * Composes an Address from the
+     * Composes an Address from the supplied parts.
      *
-     * @param addressParts
-     * @return
+     * @param addressParts the numeric 16-bit elements of the address, each in range 0-0xffff
+     * @return a ZscriptAddress representing the supplied numeric parts
+     * @throws IllegalArgumentException if any of the values is out of range 0-ffff
      */
     public static ZscriptAddress from(int... addressParts) {
         return new ZscriptAddress(addressParts.clone());
@@ -35,6 +32,13 @@ public class ZscriptAddress implements ByteWritable {
         return from(addressParts);
     }
 
+    /**
+     * Composes an Address from the parts in the supplied list.
+     *
+     * @param addressParts the numeric 16-bit elements of the address, each in range 0-0xffff
+     * @return a ZscriptAddress representing the supplied numeric parts
+     * @throws IllegalArgumentException if any of the values is out of range 0-ffff
+     */
     public static ZscriptAddress from(List<Integer> addressParts) {
         return new ZscriptAddress(addressParts.stream().mapToInt(i -> i).toArray());
     }
@@ -104,25 +108,16 @@ public class ZscriptAddress implements ByteWritable {
      */
     @Override
     public String toString() {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            final ZscriptByteString.ZscriptByteStringBuilder builder = ZscriptByteString.builder();
-            writeTo(builder);
-            builder.writeTo(baos);
-            return baos.toString(UTF_8);
-        } catch (IOException e) {
-            // this cannot happen with a BAOS, but hey.
-            throw new UncheckedIOException(e);
-        }
+        return ZscriptByteString.builder().append(this).asString();
     }
 
     @Override
-    public ZscriptAddress writeTo(final ZscriptByteString.ZscriptByteStringBuilder out) {
+    public void appendTo(ZscriptByteString.ZscriptByteStringBuilder builder) {
         byte pre = Zchars.Z_ADDRESSING;
         for (int a : addressParts) {
-            out.appendField(pre, a);
+            builder.appendField(pre, a);
             pre = Zchars.Z_ADDRESSING_CONTINUE;
         }
-        return this;
     }
 
     public int getBufferLength() {
@@ -138,5 +133,4 @@ public class ZscriptAddress implements ByteWritable {
         }
         return length;
     }
-
 }

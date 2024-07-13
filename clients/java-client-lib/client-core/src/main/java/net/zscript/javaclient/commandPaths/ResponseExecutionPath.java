@@ -8,8 +8,7 @@ import java.util.Optional;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
-
-import net.zscript.javaclient.ZscriptByteString;
+import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.components.Zchars;
@@ -82,6 +81,7 @@ public class ResponseExecutionPath implements Iterable<Response> {
     public static ResponseExecutionPath blank() {
         return new ResponseExecutionPath(null);
     }
+
     public static ResponseExecutionPath parse(ReadToken start) {
         List<ResponseBuilder> builders = createLinkedPath(start);
 

@@ -1,6 +1,6 @@
 package net.zscript.javaclient.commandPaths;
 
-import net.zscript.javaclient.ZscriptByteString;
+import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.model.components.Zchars;
 
 public class Response {

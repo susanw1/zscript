@@ -1,4 +1,7 @@
-package net.zscript.javaclient.core;
+package net.zscript.javaclient.commandPrinting;
+
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.of;
@@ -6,10 +9,6 @@ import static org.junit.jupiter.params.provider.Arguments.of;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.stream.Stream;
 
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;

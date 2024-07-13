@@ -1,12 +1,11 @@
-package net.zscript.javaclient.commandbuilder;
+package net.zscript.javaclient.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javaclient.ZscriptByteString;
-import net.zscript.javaclient.ZscriptByteString.ZscriptByteStringBuilder;
+import net.zscript.javaclient.util.ZscriptByteString.ZscriptByteStringBuilder;
 import net.zscript.model.components.Zchars;
 
 class ZscriptByteStringTest {
