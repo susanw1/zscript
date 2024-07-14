@@ -120,7 +120,7 @@ public class ZscriptAddress implements ByteAppendable {
     public void appendTo(ByteStringBuilder builder) {
         byte pre = Zchars.Z_ADDRESSING;
         for (int a : addressParts) {
-            builder.appendByte(pre).appendNumeric(a);
+            builder.appendByte(pre).appendNumeric16(a);
             pre = Zchars.Z_ADDRESSING_CONTINUE;
         }
     }

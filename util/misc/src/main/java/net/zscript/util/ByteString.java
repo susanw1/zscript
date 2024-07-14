@@ -10,13 +10,21 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * A buildable byte string to make it easy to work with byte-oriented text data.
  */
-public interface ByteString {
+public final class ByteString {
+    private final byte[] bytes;
+
+    private ByteString(final byte[] bytes) {
+        this.bytes = bytes;
+    }
+
     /**
      * Returns (a copy of) the content of this ByteString.
      *
      * @return content
      */
-    byte[] toByteArray();
+    public byte[] toByteArray() {
+        return bytes.clone();
+    }
 
     /**
      * Writes this ByteString to the specified OutputStream.
@@ -25,129 +33,193 @@ public interface ByteString {
      * @return this ByteString, to facilitate chaining
      * @throws IOException if the write fails
      */
-    ByteString writeTo(final OutputStream out) throws IOException;
-
-    /**
-     * Returns the content of this ByteString as a Java String, using UTF-8 conversion.
-     *
-     * @return content as a String
-     */
-    String asString();
+    public ByteString writeTo(final OutputStream out) throws IOException {
+        out.write(bytes);
+        return this;
+    }
 
     /**
      * Exposes this ByteString as an Appendable to make it easy to append to other ByteStrings.
      *
      * @return an Appendable adapter that can write these bytes to another Builder
      */
-    default ByteAppendable asAppendable() {
-        return builder -> builder.appendRaw(toByteArray());
-    }
-
-    static ByteString from(ByteAppendable a) {
-        return builder().append(a).build();
-    }
-
-    static ByteString concat(Iterable<? extends ByteAppendable> a) {
-        return builder().append(a).build();
-    }
-
-    static ByteString concat(ByteAppendable... a) {
-        return builder().append(a).build();
+    public ByteAppendable asAppendable() {
+        return builder -> builder.appendRaw(bytes);
     }
 
     /**
-     * Creates a fresh builder for a ByteString
-     *
-     * @return a builder
+     * {@inheritDoc}
      */
-    static ByteStringBuilder builder() {
+    @Override
+    public String toString() {
+        return "ByteString[" + asString() + "]";
+    }
+
+    /**
+     * Returns the content of this ByteString as a Java String, using UTF-8 conversion.
+     *
+     * @return content as a String
+     */
+    public String asString() {
+        return new String(bytes, UTF_8);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(bytes);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof ByteString)) {
+            return false;
+        }
+        return Arrays.equals(bytes, ((ByteString) obj).bytes);
+    }
+
+    /**
+     * Utility method to create a ByteString from a single Appendable
+     *
+     * @param a the appendable to append
+     * @return the resulting ByteString
+     */
+    public static ByteString from(ByteAppendable a) {
+        return from(a, ByteAppender.DEFAULT_APPENDER);
+    }
+
+    /**
+     * Utility method to create a ByteString from any object, using a suitable ByteAppender
+     *
+     * @param object   the object to append
+     * @param appender the appender to do the appending
+     * @param <T>      the type of the object
+     * @return the resulting ByteString
+     */
+    private static <T> ByteString from(T object, ByteAppender<? super T> appender) {
+        return builder().append(object, appender).build();
+    }
+
+    /**
+     * Utility method to create a ByteString from a concatenated series of (zero or more) Appendables
+     *
+     * @param appendables the appendables to append
+     * @return the resulting ByteString
+     */
+    public static ByteString concat(ByteAppendable... appendables) {
+        return builder(appendables).build();
+    }
+
+    /**
+     * Utility method to create a ByteString from a concatenated series of (zero or more) objects using the supplied appender.
+     *
+     * @param appender the appender to use
+     * @param objects  the appendables to append
+     * @param <T>      the type of the objects
+     * @return the resulting ByteString
+     */
+    public static <T> ByteString concat(ByteAppender<? super T> appender, T... objects) {
+        return builder(appender, objects).build();
+    }
+
+    /**
+     * Utility method to create a ByteString from a concatenated series of (zero or more) Appendables in their Iterator order
+     *
+     * @param a the appendables to append
+     * @return the new ByteString
+     */
+    public static ByteString concat(Iterable<? extends ByteAppendable> a) {
+        return builder(a).build();
+    }
+
+    /**
+     * Utility method to create a ByteString from a concatenated series of (zero or more) Appendables
+     *
+     * @param appender the appender to use
+     * @param objects  the appendables to append
+     * @param <T>      the type of the objects
+     * @return the resulting ByteString
+     */
+    public static <T> ByteString concat(ByteAppender<? super T> appender, Iterable<? extends T> objects) {
+        return builder(appender, objects).build();
+    }
+
+    /**
+     * Creates a fresh empty builder for a ByteString
+     *
+     * @return a new builder
+     */
+    public static ByteStringBuilder builder() {
         return new ByteStringBuilder();
     }
 
     /**
-     * Creates a fresh builder for a ByteString, initialized with the supplied ByteString's content.
+     * Creates a fresh builder for a ByteString, initialized with the concatenation of the supplied Appendables.
      *
-     * @return a builder
+     * @param appendables the appendables to be appended
+     * @return a newly initialized builder
      */
-    static ByteStringBuilder builder(ByteString existingByteString) {
-        return builder().appendRaw(existingByteString.toByteArray());
+    public static ByteStringBuilder builder(ByteAppendable... appendables) {
+        return builder(ByteAppender.DEFAULT_APPENDER, appendables);
     }
 
-    final class ImmutableByteString implements ByteString {
-        private final byte[] bytes;
-
-        private ImmutableByteString(final byte[] bytes) {
-            this.bytes = bytes;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public byte[] toByteArray() {
-            return bytes.clone();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public ImmutableByteString writeTo(final OutputStream out) throws IOException {
-            out.write(bytes);
-            return this;
-        }
-
-        @Override
-        public ByteAppendable asAppendable() {
-            return builder -> builder.appendRaw(bytes);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String toString() {
-            return "ImmutableByteString[" + asString() + "]";
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String asString() {
-            return new String(bytes, UTF_8);
-        }
-
-        @Override
-        public int hashCode() {
-            return Arrays.hashCode(bytes);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (!(obj instanceof ImmutableByteString)) {
-                return false;
-            }
-            return Arrays.equals(bytes, ((ImmutableByteString) obj).bytes);
-        }
+    /**
+     * Creates a fresh builder for a ByteString, initialized with the concatenation of the supplied Appendables, using the supplied ByteAppender.
+     *
+     * @param appender the appender to use
+     * @param objects  the objects to append
+     * @param <T>      the type of the objects
+     * @return the resulting ByteString
+     */
+    @SafeVarargs
+    public static <T> ByteStringBuilder builder(ByteAppender<? super T> appender, T... objects) {
+        return builder().append(appender, objects);
     }
 
-    class ByteStringBuilder implements ByteString {
+    /**
+     * Creates a fresh builder for a ByteString, initialized with the supplied Appendables in their Iterator order.
+     *
+     * @param appendables appendables to be appended
+     * @return a newly initialized builder
+     */
+    public static ByteStringBuilder builder(Iterable<? extends ByteAppendable> appendables) {
+        return builder(ByteAppender.DEFAULT_APPENDER, appendables);
+    }
+
+    /**
+     * Creates a fresh builder for a ByteString, initialized with the supplied objects in their Iterator order, using the supplied ByteAppender.
+     *
+     * @param appender the appender to use
+     * @param objects  the objects to append
+     * @param <T>      the type of the objects
+     * @return the resulting ByteString
+     */
+    public static <T> ByteStringBuilder builder(ByteAppender<? super T> appender, Iterable<? extends T> objects) {
+        return builder().append(appender, objects);
+    }
+
+    public static final class ByteStringBuilder {
         private static final byte[] HEX = "0123456789abcdef".getBytes(UTF_8);
 
-        protected final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         /**
-         * {@inheritDoc}
+         * Writes the current contents of the builder to the specified OutputStream.
+         *
+         * @param out the stream to write to
+         * @return this builder, to facilitate chaining
          */
-        public ByteString writeTo(final OutputStream out) throws IOException {
+        public ByteStringBuilder writeTo(final OutputStream out) throws IOException {
             out.write(baos.toByteArray());
             return this;
         }
 
         /**
-         * {@inheritDoc}
+         * Returns a copy of the current contents of the builder
+         *
+         * @return copy of the current contents
          */
         public byte[] toByteArray() {
             return baos.toByteArray();
@@ -160,7 +232,7 @@ public interface ByteString {
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range 0-ff
          */
-        public <B extends ByteStringBuilder> B appendByte(int b) {
+        public ByteStringBuilder appendByte(int b) {
             if ((b & ~0xff) != 0) {
                 throw new IllegalArgumentException("Hexpair values must be 0x0-0xff: " + b);
             }
@@ -173,30 +245,39 @@ public interface ByteString {
          * @param b any value 0x00-0xff
          * @return this builder, to facilitate chaining
          */
-        public <B extends ByteStringBuilder> B appendByte(byte b) {
+        public ByteStringBuilder appendByte(byte b) {
             baos.write(b);
-            return asTypeB();
+            return this;
         }
 
         /**
          * Appends the supplied byte array.
          *
-         * @param bytes any value 0x00-0xff
+         * @param bytes any bytes
          * @return this builder, to facilitate chaining
-         * @throws IllegalArgumentException if value is out of range 0-ff
          */
-        public <B extends ByteStringBuilder> B appendRaw(byte[] bytes) {
+        public ByteStringBuilder appendRaw(byte[] bytes) {
             baos.writeBytes(bytes);
-            return asTypeB();
+            return this;
         }
 
         /**
-         * Appends the supplied byte string (creates temporary copy unless it's immutable).
+         * Appends the supplied text in UTF-8 encoding (with no escaping or other transforms).
+         *
+         * @param text the text to write
+         * @return this builder, to facilitate chaining
+         */
+        public ByteStringBuilder appendUtf8(CharSequence text) {
+            return appendRaw(text.toString().getBytes(UTF_8));
+        }
+
+        /**
+         * Appends the supplied byte string.
          *
          * @param byteString any existing ByteString
          * @return this builder, to facilitate chaining
          */
-        public <B extends ByteStringBuilder> B append(ByteString byteString) {
+        public ByteStringBuilder append(ByteString byteString) {
             return append(byteString.asAppendable());
         }
 
@@ -207,33 +288,64 @@ public interface ByteString {
          * @param <B>            the type of Builder it needs to be written to
          * @return this builder, to facilitate chaining
          */
-        public <B extends ByteStringBuilder> B append(ByteAppendable byteAppendable) {
-            byteAppendable.appendTo(this);
-            return asTypeB();
+        public ByteStringBuilder append(ByteAppendable byteAppendable) {
+            return append(byteAppendable, ByteAppender.DEFAULT_APPENDER);
         }
 
         /**
-         * Appends each of the Appendables in the supplied collection.
+         * Appends the supplied object using the supplied ByteAppender.
          *
-         * @param appendables zero or more Appendables
-         * @param <B>         the type of Builder it needs to be written to
+         * @param object   the object to append
+         * @param appender the appender to use
+         * @param <T>      the type of the object to be appended
          * @return this builder, to facilitate chaining
          */
-        public <B extends ByteStringBuilder> B append(Iterable<? extends ByteAppendable> appendables) {
-            appendables.forEach(a -> a.appendTo(this));
-            return asTypeB();
+        public <T> ByteStringBuilder append(T object, ByteAppender<? super T> appender) {
+            appender.append(object, this);
+            return this;
+        }
+
+        /**
+         * Appends each of the Appendables in the supplied collection, in iterator order.
+         *
+         * @param appendables zero or more Appendables
+         * @return this builder, to facilitate chaining
+         */
+        public ByteStringBuilder append(Iterable<? extends ByteAppendable> appendables) {
+            return append(ByteAppender.DEFAULT_APPENDER, appendables);
+        }
+
+        /**
+         * Appends each of the supplied objects using the supplied appender, in iterator order.
+         *
+         * @param appender the appender to use
+         * @param objects  zero or more objects to be appended
+         * @param <T>      the type of the objects
+         * @return this builder, to facilitate chaining
+         */
+        public <T> ByteStringBuilder append(ByteAppender<? super T> appender, Iterable<? extends T> objects) {
+            objects.forEach(a -> appender.append(a, this));
+            return this;
         }
 
         /**
          * Appends each of the supplied Appendables.
          *
-         * @param byteAppendables zero or more Appendables
-         * @param <B>             the type of Builder it needs to be written to
+         * @param appendables zero or more Appendables
          * @return this builder, to facilitate chaining
          */
-        public final <B extends ByteStringBuilder> B append(ByteAppendable... byteAppendables) {
-            Arrays.stream(byteAppendables).forEach(a -> a.appendTo(this));
-            return asTypeB();
+        public ByteStringBuilder append(ByteAppendable... appendables) {
+            return append(ByteAppender.DEFAULT_APPENDER, Arrays.asList(appendables));
+        }
+
+        /**
+         * Appends each of the supplied objects using the supplied appender.
+         *
+         * @param objects zero or more Appendables
+         * @return this builder, to facilitate chaining
+         */
+        public <T> ByteStringBuilder append(ByteAppender<? super T> appender, T... objects) {
+            return append(appender, Arrays.asList(objects));
         }
 
         /**
@@ -243,7 +355,7 @@ public interface ByteString {
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range 0-ff
          */
-        public <B extends ByteStringBuilder> B appendHexPair(int value) {
+        public ByteStringBuilder appendHexPair(int value) {
             if ((value & ~0xff) != 0) {
                 throw new IllegalArgumentException("Hex-pair values must be 0x0-0xff: " + value);
             }
@@ -256,10 +368,10 @@ public interface ByteString {
          * @param value any value 0x00-0xff
          * @return this builder, to facilitate chaining
          */
-        public <B extends ByteStringBuilder> B appendHexPair(byte value) {
+        public ByteStringBuilder appendHexPair(byte value) {
             baos.write(toHex((value >>> 4) & 0xF));
             baos.write(toHex(value & 0xF));
-            return asTypeB();
+            return this;
         }
 
         /**
@@ -269,8 +381,8 @@ public interface ByteString {
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range
          */
-        public <B extends ByteStringBuilder> B appendNumeric32(long value) {
-            return (value == 0) ? asTypeB() : appendNumeric32KeepZero(value);
+        public ByteStringBuilder appendNumeric32(long value) {
+            return value == 0 ? this : appendNumeric32KeepZero(value);
         }
 
         /**
@@ -280,16 +392,16 @@ public interface ByteString {
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range
          */
-        public <B extends ByteStringBuilder> B appendNumeric32KeepZero(long value) {
+        public ByteStringBuilder appendNumeric32KeepZero(long value) {
             if ((value & ~0xffffffffL) != 0) {
                 throw new IllegalArgumentException("Numeric32 fields must be 0x0-0xffffffff: " + value);
             }
             if (value >= 0x10000) {
-                appendNumericKeepZero((int) (value >>> 16));
+                appendNumeric16KeepZero((int) (value >>> 16));
                 appendHexPair((byte) (value >>> 8));
                 return appendHexPair((byte) (value));
             } else {
-                return appendNumericKeepZero((int) (value & 0xffff));
+                return appendNumeric16KeepZero((int) (value & 0xffff));
             }
         }
 
@@ -300,8 +412,8 @@ public interface ByteString {
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range
          */
-        public <B extends ByteStringBuilder> B appendNumeric(int value) {
-            return (value == 0) ? asTypeB() : appendNumericKeepZero(value);
+        public ByteStringBuilder appendNumeric16(int value) {
+            return value == 0 ? this : appendNumeric16KeepZero(value);
         }
 
         /**
@@ -311,7 +423,7 @@ public interface ByteString {
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range
          */
-        public <B extends ByteStringBuilder> B appendNumericKeepZero(int value) {
+        public ByteStringBuilder appendNumeric16KeepZero(int value) {
             if ((value & ~0xffff) != 0) {
                 throw new IllegalArgumentException("Numeric fields must be 0x0-0xffff: " + value);
             }
@@ -325,17 +437,18 @@ public interface ByteString {
                 baos.write(toHex((value >>> 4) & 0xF));
             }
             baos.write(toHex(value & 0xF));
-            return asTypeB();
+            return this;
         }
 
-        @SuppressWarnings("unchecked")
-        private <B extends ByteStringBuilder> B asTypeB() {
-            return (B) this;
-        }
-
-        @Override
-        public String toString() {
-            return "ByteStringBuilder[" + asString() + "]";
+        /**
+         * Exposes this Builder as an Appendable to make it easy to append to other ByteStrings.
+         *
+         * Note: The bytes appended will be those accumulated at the time the ByteAppendable is used, including any added since this method was called. It isn't a frozen snapshot.
+         *
+         * @return an Appendable adapter that can write this Builder to another Builder
+         */
+        public ByteAppendable asAppendable() {
+            return builder -> builder.appendRaw(toByteArray());
         }
 
         /**
@@ -345,15 +458,20 @@ public interface ByteString {
             return baos.toString(UTF_8);
         }
 
+        @Override
+        public String toString() {
+            return "ByteStringBuilder[" + asString() + "]";
+        }
+
         public ByteString build() {
-            return new ImmutableByteString(toByteArray());
+            return new ByteString(toByteArray());
         }
     }
 
     /**
      * Handy interface to allow classes to define their own means of being appended to a ByteString.
      */
-    interface ByteAppendable {
+    public interface ByteAppendable {
         /**
          * Defines how to be written to the supplied Builder
          *
@@ -361,8 +479,41 @@ public interface ByteString {
          */
         void appendTo(ByteStringBuilder builder);
 
+        /**
+         * Renders this object as a ByteString.
+         *
+         * @return a ByteString containing just this object.
+         */
         default ByteString toByteString() {
             return ByteString.from(this);
+        }
+    }
+
+    /**
+     * Defines how to append an object of type T, in case it isn't ByteAppendable, or if a different append operation is required than the default. (This is a bit like
+     * java.util.Comparator vs java.util.Comparable)
+     *
+     * @param <T> the type of object to append
+     */
+    public interface ByteAppender<T> {
+        ByteAppender<ByteAppendable> DEFAULT_APPENDER = ByteAppendable::appendTo;
+
+        /**
+         * Defines how to perform the append for the supplied object
+         *
+         * @param object  the object to append
+         * @param builder the builder to append to
+         */
+        void append(T object, ByteStringBuilder builder);
+
+        /**
+         * Renders the specified object as a ByteString using this ByteAppender
+         *
+         * @param object the object to append
+         * @return a ByteString containing just this object.
+         */
+        default ByteString toByteString(T object) {
+            return ByteString.from(object, this);
         }
     }
 

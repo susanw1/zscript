@@ -59,7 +59,7 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
         for (int i = 'A'; i <= 'Z'; i++) {
             if (fields.get((byte) i) != null) {
                 int value = fields.get((byte) i);
-                b.appendByte((byte) i).appendNumeric(value);
+                b.appendByte((byte) i).appendNumeric16(value);
             }
         }
         for (BigField f : bigFields) {

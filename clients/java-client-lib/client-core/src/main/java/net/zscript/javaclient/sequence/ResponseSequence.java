@@ -68,10 +68,10 @@ public class ResponseSequence implements ByteAppendable {
     public void appendTo(ByteStringBuilder builder) {
         // FIXME: should there only be a '!' when it's been set? Can this even happen?
         if (responseField != -1) {
-            builder.appendByte(Zchars.Z_RESPONSE_MARK).appendNumeric(responseField);
+            builder.appendByte(Zchars.Z_RESPONSE_MARK).appendNumeric16(responseField);
         }
         if (echoField != -1) {
-            builder.appendByte(Zchars.Z_ECHO).appendNumeric(echoField);
+            builder.appendByte(Zchars.Z_ECHO).appendNumeric16(echoField);
         }
         executionPath.appendTo(builder);
     }

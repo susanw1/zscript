@@ -105,22 +105,20 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
      *
      * @return concatenation of all associated big-field data
      */
+    @Override
     public byte[] getBigFieldData() {
-        ByteStringBuilder out = ByteString.builder();
-        for (BigField big : bigFields) {
-            out.appendRaw(big.getData());
-        }
-        return out.toByteArray();
+        return ByteString.concat((bigField, b) -> b.appendRaw(bigField.getData()), bigFields)
+                .toByteArray();
     }
 
     @Override
     public void appendTo(ByteStringBuilder builder) {
         if (fields['Z' - 'A'] != -1) {
-            builder.appendByte(Zchars.Z_CMD).appendNumeric(fields['Z' - 'A']);
+            builder.appendByte(Zchars.Z_CMD).appendNumeric16(fields['Z' - 'A']);
         }
         for (int i = 0; i < fields.length; i++) {
             if (i != 'Z' - 'A' && fields[i] != -1) {
-                builder.appendByte((byte) (i + 'A')).appendNumeric(fields[i]);
+                builder.appendByte((byte) (i + 'A')).appendNumeric16(fields[i]);
             }
 
         }

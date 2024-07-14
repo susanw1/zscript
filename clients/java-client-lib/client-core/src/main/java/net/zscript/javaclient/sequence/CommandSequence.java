@@ -74,7 +74,7 @@ public class CommandSequence implements ByteAppendable {
     public void appendTo(ByteStringBuilder builder) {
         locks.appendTo(builder);
         if (echoField != -1) {
-            builder.appendByte(Zchars.Z_ECHO).appendNumeric(echoField);
+            builder.appendByte(Zchars.Z_ECHO).appendNumeric16(echoField);
         }
         executionPath.appendTo(builder);
     }
