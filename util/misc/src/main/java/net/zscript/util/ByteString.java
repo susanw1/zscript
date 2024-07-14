@@ -1,6 +1,5 @@
 package net.zscript.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -88,6 +87,26 @@ public final class ByteString {
      */
     public static ByteString from(ByteAppendable a) {
         return from(a, ByteAppender.DEFAULT_APPENDER);
+    }
+
+    /**
+     * Utility method to create a ByteString from byte[]
+     *
+     * @param b the byte array to copy
+     * @return the resulting ByteString
+     */
+    public static ByteString from(byte[] b) {
+        return from(b, (object, builder) -> builder.appendRaw(b));
+    }
+
+    /**
+     * Utility method to create a ByteString from a single byte
+     *
+     * @param b the byte to copy
+     * @return the resulting ByteString
+     */
+    public static ByteString from(byte b) {
+        return from(b, (object, builder) -> builder.appendByte(b));
     }
 
     /**
@@ -203,7 +222,7 @@ public final class ByteString {
     public static final class ByteStringBuilder {
         private static final byte[] HEX = "0123456789abcdef".getBytes(UTF_8);
 
-        private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        private final ExpandableByteBuffer buffer = new ExpandableByteBuffer(128);
 
         /**
          * Writes the current contents of the builder to the specified OutputStream.
@@ -212,7 +231,7 @@ public final class ByteString {
          * @return this builder, to facilitate chaining
          */
         public ByteStringBuilder writeTo(final OutputStream out) throws IOException {
-            out.write(baos.toByteArray());
+            buffer.writeTo(out);
             return this;
         }
 
@@ -222,7 +241,7 @@ public final class ByteString {
          * @return copy of the current contents
          */
         public byte[] toByteArray() {
-            return baos.toByteArray();
+            return buffer.toByteArray();
         }
 
         /**
@@ -246,7 +265,7 @@ public final class ByteString {
          * @return this builder, to facilitate chaining
          */
         public ByteStringBuilder appendByte(byte b) {
-            baos.write(b);
+            buffer.addByte(b);
             return this;
         }
 
@@ -257,7 +276,7 @@ public final class ByteString {
          * @return this builder, to facilitate chaining
          */
         public ByteStringBuilder appendRaw(byte[] bytes) {
-            baos.writeBytes(bytes);
+            buffer.addBytes(bytes);
             return this;
         }
 
@@ -285,7 +304,6 @@ public final class ByteString {
          * Appends the supplied Appendable object
          *
          * @param byteAppendable the object to be appended
-         * @param <B>            the type of Builder it needs to be written to
          * @return this builder, to facilitate chaining
          */
         public ByteStringBuilder append(ByteAppendable byteAppendable) {
@@ -369,8 +387,8 @@ public final class ByteString {
          * @return this builder, to facilitate chaining
          */
         public ByteStringBuilder appendHexPair(byte value) {
-            baos.write(toHex((value >>> 4) & 0xF));
-            baos.write(toHex(value & 0xF));
+            buffer.addByte(toHex((value >>> 4) & 0xF));
+            buffer.addByte(toHex(value & 0xF));
             return this;
         }
 
@@ -428,15 +446,15 @@ public final class ByteString {
                 throw new IllegalArgumentException("Numeric fields must be 0x0-0xffff: " + value);
             }
             if (value >= 0x1000) {
-                baos.write(toHex(value >>> 12));
+                buffer.addByte(toHex(value >>> 12));
             }
             if (value >= 0x100) {
-                baos.write(toHex((value >>> 8) & 0xF));
+                buffer.addByte(toHex((value >>> 8) & 0xF));
             }
             if (value >= 0x10) {
-                baos.write(toHex((value >>> 4) & 0xF));
+                buffer.addByte(toHex((value >>> 4) & 0xF));
             }
-            baos.write(toHex(value & 0xF));
+            buffer.addByte(toHex(value & 0xF));
             return this;
         }
 
@@ -451,11 +469,8 @@ public final class ByteString {
             return builder -> builder.appendRaw(toByteArray());
         }
 
-        /**
-         * {@inheritDoc}
-         */
         public String asString() {
-            return baos.toString(UTF_8);
+            return buffer.asString();
         }
 
         @Override

@@ -73,11 +73,25 @@ class ByteStringTest {
 
         assertThat(ByteString.builder(new TestAppendable(1), new TestAppendable(2)).build().asString()).isEqualTo("x=01x=02");
         assertThat(ByteString.concat(new TestAppendable(1), new TestAppendable(2)).asString()).isEqualTo("x=01x=02");
+        assertThat(ByteString.builder().append(new TestAppendable(1), new TestAppendable(2)).asString()).isEqualTo("x=01x=02");
 
         assertThat(ByteString.builder(List.of(new TestAppendable(3), new TestAppendable(4))).build().asString()).isEqualTo("x=03x=04");
         assertThat(ByteString.concat(List.of(new TestAppendable(3), new TestAppendable(4))).asString()).isEqualTo("x=03x=04");
+        assertThat(ByteString.builder().append(List.of(new TestAppendable(1), new TestAppendable(2))).asString()).isEqualTo("x=01x=02");
 
         assertThat(new TestAppendable(6).toByteString().asString()).isEqualTo("x=06");
+    }
+
+    @Test
+    public void shouldCreateFromTypes() {
+        assertThat(ByteString.from((byte) 'a').toByteArray()).containsExactly('a');
+        assertThat(ByteString.from(new byte[] { 'a', 'b' }).toByteArray()).containsExactly('a', 'b');
+
+        ByteString.ByteAppender<String> appender = (object, builder) -> builder.appendUtf8(object);
+        assertThat(ByteString.concat(appender, "hello", " ", "world").asString()).isEqualTo("hello world");
+        assertThat(ByteString.concat(appender, List.of("hello", " ", "world")).asString()).isEqualTo("hello world");
+
+        assertThat(appender.toByteString("Hello")).isEqualTo(ByteString.builder().appendUtf8("Hello").build());
     }
 
     @Test
