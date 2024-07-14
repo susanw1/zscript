@@ -6,12 +6,17 @@ import java.util.Optional;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
-import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.model.components.Zchars;
-import net.zscript.util.ByteString;
+import net.zscript.util.ByteString.ByteAppendable;
+import net.zscript.util.ByteString.ByteStringBuilder;
 import net.zscript.util.OptIterator;
 
-public class ZscriptAddress implements ByteString.Appendable<ZscriptByteString.ZscriptByteStringBuilder> {
+/**
+ * Representation of a single address, as per <code>@1.5.192</code>, where each element is a uint16.
+ *
+ * Aggregation to create a full multi-hop address is managed by {@link AddressedCommand} and {@link CompleteAddressedResponse}
+ */
+public class ZscriptAddress implements ByteAppendable {
     private final int[] addressParts;
 
     /**
@@ -108,14 +113,14 @@ public class ZscriptAddress implements ByteString.Appendable<ZscriptByteString.Z
      */
     @Override
     public String toString() {
-        return ZscriptByteString.builder().append(this).asString();
+        return toByteString().asString();
     }
 
     @Override
-    public void appendTo(ZscriptByteString.ZscriptByteStringBuilder builder) {
+    public void appendTo(ByteStringBuilder builder) {
         byte pre = Zchars.Z_ADDRESSING;
         for (int a : addressParts) {
-            builder.appendField(pre, a);
+            builder.appendByte(pre).appendNumeric(a);
             pre = Zchars.Z_ADDRESSING_CONTINUE;
         }
     }

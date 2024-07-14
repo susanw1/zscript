@@ -13,15 +13,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.commandnodes.AndSequenceNode;
-import net.zscript.javaclient.commandbuilder.commandnodes.OrSequenceNode;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
-
 import net.zscript.javaclient.commandPaths.Command;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
+import net.zscript.javaclient.commandbuilder.commandnodes.AndSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.OrSequenceNode;
+import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationHandle;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationId;
 import net.zscript.javaclient.nodes.ZscriptNode;
@@ -142,11 +141,11 @@ public class Device {
         CommandSequence sequence = CommandSequence.parse(model, buffer.getTokenReader().getFirstReadToken(), false);
         if (sequence.hasEchoField() || sequence.hasLockField()) {
             node.send(sequence, r -> {
-                callback.accept(r.toSequence().toByteArray());
+                callback.accept(r.toByteString().toByteArray());
             });
         } else {
             node.send(sequence.getExecutionPath(), r -> {
-                callback.accept(r.toSequence().toByteArray());
+                callback.accept(r.toByteString().toByteArray());
             });
         }
     }

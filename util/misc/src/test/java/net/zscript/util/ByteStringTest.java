@@ -3,7 +3,6 @@ package net.zscript.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -128,58 +127,4 @@ class ByteStringTest {
         assertThat(ByteString.builder().appendByte('Z').appendNumeric(0x12).toString())
                 .isEqualTo("ByteStringBuilder[Z12]");
     }
-
-    class MyZscriptByteStringBuilder extends ByteString.ByteStringBuilder {
-        MyZscriptByteStringBuilder extraAppendMethodForTesting() {
-            appendByte('a');
-            return this;
-        }
-    }
-
-    @Test
-    public void shouldAppendWithCustomizedAppendable() throws IOException {
-
-        // this Appendable's appendTo method requires extra powers of the special MyZscriptByteStringBuilder
-        ByteString.Appendable<MyZscriptByteStringBuilder> testObject = MyZscriptByteStringBuilder::extraAppendMethodForTesting;
-
-        var zbsb = new MyZscriptByteStringBuilder();
-        var baos = new ByteArrayOutputStream();
-        zbsb.append(testObject).append(testObject).writeTo(baos);
-        assertThat(baos.toByteArray()).containsExactly('a', 'a');
-    }
-
-    @Test
-    public void shouldAppendCollectionWithCustomizedAppendable() throws IOException {
-
-        // this Appendable's appendTo method requires extra powers of the special MyZscriptByteStringBuilder
-        ByteString.Appendable<MyZscriptByteStringBuilder> testObject = MyZscriptByteStringBuilder::extraAppendMethodForTesting;
-
-        var zbsb = new MyZscriptByteStringBuilder();
-        var baos = new ByteArrayOutputStream();
-        zbsb.append(List.of(testObject, testObject, testObject)).writeTo(baos);
-        assertThat(baos.toByteArray()).containsExactly('a', 'a', 'a');
-    }
-
-    //    class MyOtherZscriptByteStringBuilder extends ByteString.ByteStringBuilder {
-    //        MyOtherZscriptByteStringBuilder anotherAppendMethodForTesting() {
-    //            appendByte('b');
-    //            return this;
-    //        }
-    //    }
-    //
-    //    @Test
-    //    public void shouldVerifyTypeSafety() throws IOException {
-    //        // this Appendable's appendTo method requires extra powers of the special MyZscriptByteStringBuilder
-    //        ByteString.Appendable<MyZscriptByteStringBuilder> testObject1 = MyZscriptByteStringBuilder::extraAppendMethodForTesting;
-    //
-    //        // this one's appendTo method requires different powers of the other MyOtherZscriptByteStringBuilder
-    //        ByteString.Appendable<MyOtherZscriptByteStringBuilder> testObject2 = MyOtherZscriptByteStringBuilder::anotherAppendMethodForTesting;
-    //
-    //        var zbsb = new MyZscriptByteStringBuilder();
-    //        var baos = new ByteArrayOutputStream();
-    //        zbsb.append(testObject1).writeTo(baos);
-    //        //        zbsb.append(testObject2).writeTo(baos); // This should not compile!
-    //        assertThat(baos.toByteArray()).containsExactly('a', 'a', 'a');
-    //    }
-
 }

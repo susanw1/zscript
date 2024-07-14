@@ -1,14 +1,14 @@
 package net.zscript.javaclient.nodes;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.addressing.AddressedResponse;
@@ -32,16 +32,16 @@ class ZscriptBasicNode implements ZscriptNode {
 
     private QueuingStrategy strategy = new StandardQueuingStrategy(1000, TimeUnit.MILLISECONDS); // should be enough for almost all cases
 
-    private BiConsumer<AddressedCommand, AddressedResponse> badCommandResponseMatchHandler = (c, r) -> {
-        LOG.error("Command and response do not match: {} ; {}", c.getContent().toBytes().asString(), r.getContent().toSequence().asString());
+    private BiConsumer<AddressedCommand, AddressedResponse> badCommandResponseMatchHandler = (cmd, resp) -> {
+        LOG.error("Command and response do not match: {} ; {}", cmd.getContent().toByteString().asString(), resp.getContent().toByteString().asString());
     };
 
-    private Consumer<AddressedResponse> unknownNotificationHandler = r -> {
-        LOG.warn("Unknown notification received: {}", r.getContent().toSequence().asString());
+    private Consumer<AddressedResponse> unknownNotificationHandler = resp -> {
+        LOG.warn("Unknown notification received: {}", resp.getContent().toByteString().asString());
     };
 
-    private Consumer<AddressedResponse> unknownResponseHandler = r -> {
-        throw new IllegalStateException("Unknown response received: " + r.getContent().toSequence().asString());
+    private Consumer<AddressedResponse> unknownResponseHandler = resp -> {
+        throw new IllegalStateException("Unknown response received: " + resp.getContent().toByteString().asString());
     };
 
     private Consumer<Exception> callbackExceptionHandler = e -> {
@@ -66,14 +66,14 @@ class ZscriptBasicNode implements ZscriptNode {
         this.echoSystem = new EchoAssigner(unit.toNanos(minSegmentChangeTime));
         this.connectionBuffer = new ConnectionBuffer(parentConnection, echoSystem, bufferSize);
         this.strategy.setBuffer(connectionBuffer);
-        parentConnection.onReceive(r -> {
+        parentConnection.onReceive(resp -> {
             try {
-                if (r.hasAddress()) {
-                    if (!addressingSystem.response(r)) {
-                        callbackPool.sendCallback(unknownResponseHandler, r, callbackExceptionHandler);
+                if (resp.hasAddress()) {
+                    if (!addressingSystem.response(resp)) {
+                        callbackPool.sendCallback(unknownResponseHandler, resp, callbackExceptionHandler);
                     }
                 } else {
-                    response(r);
+                    response(resp);
                 }
             } catch (Exception e) {
                 callbackPool.sendCallback(callbackExceptionHandler, e); // catches all callback exceptions

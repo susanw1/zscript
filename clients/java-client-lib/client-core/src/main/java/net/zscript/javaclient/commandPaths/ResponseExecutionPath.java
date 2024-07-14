@@ -8,18 +8,18 @@ import java.util.Optional;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
-import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.components.Zchars;
-import net.zscript.util.ByteString;
+import net.zscript.util.ByteString.ByteAppendable;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class ResponseExecutionPath implements Iterable<Response> {
+public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable {
 
     static class ResponseBuilder {
         ReadToken start = null;
 
-        byte seperator = 0;
+        byte separator = 0;
 
         public ReadToken getStart() {
             return start;
@@ -34,11 +34,11 @@ public class ResponseExecutionPath implements Iterable<Response> {
         }
 
         public boolean isUnexplainedFail() {
-            return seperator == Zchars.Z_ORELSE && isEmpty();
+            return separator == Zchars.Z_ORELSE && isEmpty();
         }
 
         public Response generateResponse(Response next, boolean unexplainedFail, int priorBrackets) {
-            return new Response(next, !(unexplainedFail || seperator == Zchars.Z_ORELSE), seperator == '(', seperator == ')', priorBrackets, ZscriptFieldSet.fromTokens(start));
+            return new Response(next, !(unexplainedFail || separator == Zchars.Z_ORELSE), separator == '(', separator == ')', priorBrackets, ZscriptFieldSet.fromTokens(start));
         }
     }
 
@@ -60,13 +60,13 @@ public class ResponseExecutionPath implements Iterable<Response> {
                 ResponseBuilder next = new ResponseBuilder();
                 builders.add(next);
                 if (token.getKey() == Tokenizer.CMD_END_ANDTHEN) {
-                    last.seperator = Zchars.Z_ANDTHEN;
+                    last.separator = Zchars.Z_ANDTHEN;
                 } else if (token.getKey() == Tokenizer.CMD_END_ORELSE) {
-                    last.seperator = Zchars.Z_ORELSE;
+                    last.separator = Zchars.Z_ORELSE;
                 } else if (token.getKey() == Tokenizer.CMD_END_OPEN_PAREN) {
-                    last.seperator = Zchars.Z_OPENPAREN;
+                    last.separator = Zchars.Z_OPENPAREN;
                 } else if (token.getKey() == Tokenizer.CMD_END_CLOSE_PAREN) {
-                    last.seperator = Zchars.Z_CLOSEPAREN;
+                    last.separator = Zchars.Z_CLOSEPAREN;
                 } else if (token.isSequenceEndMarker()) {
                     break;
                 } else {
@@ -128,8 +128,9 @@ public class ResponseExecutionPath implements Iterable<Response> {
         return resps;
     }
 
+    @Override
     public Iterator<Response> iterator() {
-        return new Iterator<Response>() {
+        return new Iterator<>() {
             Response r = firstResponse;
 
             @Override
@@ -146,18 +147,13 @@ public class ResponseExecutionPath implements Iterable<Response> {
         };
     }
 
-    public ByteString toSequence() {
-        ZscriptByteString.ZscriptByteStringBuilder out = ZscriptByteString.builder();
-        toSequence(out);
-        return out.build();
-    }
-
-    public void toSequence(ZscriptByteString.ZscriptByteStringBuilder out) {
+    @Override
+    public void appendTo(ByteStringBuilder builder) {
         for (Iterator<Response> iter = iterator(); iter.hasNext(); ) {
             Response r = iter.next();
-            r.toBytes(out);
+            r.appendTo(builder);
             if (iter.hasNext()) {
-                r.seperatorBytes(out);
+                r.separatorBytes(builder);
             }
         }
     }

@@ -8,40 +8,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString;
+import net.zscript.util.ByteString.ByteAppendable;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class ZscriptFieldSet implements ZscriptExpression {
-
-    public static class BigField {
-        private final byte[]  data;
-        private final boolean isString;
-
-        public BigField(byte[] data, boolean isString) {
-            this.data = data;
-            this.isString = isString;
-        }
-
-        public byte[] getData() {
-            return data;
-        }
-
-        public boolean isString() {
-            return isString;
-        }
-
-        public void output(ZscriptByteString.ZscriptByteStringBuilder out) {
-            if (isString) {
-                out.appendBigfieldText(data);
-            } else {
-                out.appendBigfieldBytes(data);
-            }
-        }
-    }
+public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
 
     private final List<BigField> bigFields;
     private final int[]          fields;
@@ -76,6 +51,7 @@ public class ZscriptFieldSet implements ZscriptExpression {
         return new ZscriptFieldSet(bigFields, fields, hasClash);
     }
 
+    // FIXME - this can be improved, only used once
     public static ZscriptFieldSet fromMap(List<byte[]> inBigFields, List<Boolean> bigFieldStrings, Map<Byte, Integer> inFields) {
         int[] fields = new int[26];
         Arrays.fill(fields, -1);
@@ -124,26 +100,32 @@ public class ZscriptFieldSet implements ZscriptExpression {
         return fields[key - 'A'];
     }
 
+    /**
+     * Aggregates all big-fields in this field-set and returns the concatenated result.
+     *
+     * @return concatenation of all associated big-field data
+     */
     public byte[] getBigFieldData() {
-        ByteString.ByteStringBuilder out = ByteString.builder();
+        ByteStringBuilder out = ByteString.builder();
         for (BigField big : bigFields) {
             out.appendRaw(big.getData());
         }
         return out.toByteArray();
     }
 
-    public void toBytes(ZscriptByteString.ZscriptByteStringBuilder out) {
+    @Override
+    public void appendTo(ByteStringBuilder builder) {
         if (fields['Z' - 'A'] != -1) {
-            out.appendField(Zchars.Z_CMD, fields['Z' - 'A']);
+            builder.appendByte(Zchars.Z_CMD).appendNumeric(fields['Z' - 'A']);
         }
         for (int i = 0; i < fields.length; i++) {
             if (i != 'Z' - 'A' && fields[i] != -1) {
-                out.appendField((byte) (i + 'A'), fields[i]);
+                builder.appendByte((byte) (i + 'A')).appendNumeric(fields[i]);
             }
 
         }
         for (BigField big : bigFields) {
-            big.output(out);
+            big.appendTo(builder);
         }
     }
 
@@ -161,7 +143,7 @@ public class ZscriptFieldSet implements ZscriptExpression {
             }
         }
         for (BigField big : bigFields) {
-            length += big.data.length + 2;
+            length += big.getDataLength() + 2;
         }
         return length;
     }
@@ -172,8 +154,8 @@ public class ZscriptFieldSet implements ZscriptExpression {
 
     public int getFieldCount() {
         int count = 0;
-        for (int i = 0; i < fields.length; i++) {
-            if (fields[i] != -1) {
+        for (int field : fields) {
+            if (field != -1) {
                 count++;
             }
         }
@@ -187,10 +169,8 @@ public class ZscriptFieldSet implements ZscriptExpression {
     public int getBigFieldSize() {
         int len = 0;
         for (BigField big : bigFields) {
-            len += big.getData().length;
+            len += big.getDataLength();
         }
         return len;
-
     }
-
 }

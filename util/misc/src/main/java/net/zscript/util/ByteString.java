@@ -34,19 +34,24 @@ public interface ByteString {
      */
     String asString();
 
-    default <B extends ByteStringBuilder> Appendable<B> asAppendable() {
+    /**
+     * Exposes this ByteString as an Appendable to make it easy to append to other ByteStrings.
+     *
+     * @return an Appendable adapter that can write these bytes to another Builder
+     */
+    default ByteAppendable asAppendable() {
         return builder -> builder.appendRaw(toByteArray());
     }
 
-    static ByteString from(Appendable<ByteStringBuilder> a) {
+    static ByteString from(ByteAppendable a) {
         return builder().append(a).build();
     }
 
-    static ByteString from(Iterable<? extends Appendable<ByteStringBuilder>> a) {
+    static ByteString concat(Iterable<? extends ByteAppendable> a) {
         return builder().append(a).build();
     }
 
-    static ByteString from(Appendable<ByteStringBuilder>... a) {
+    static ByteString concat(ByteAppendable... a) {
         return builder().append(a).build();
     }
 
@@ -91,7 +96,7 @@ public interface ByteString {
         }
 
         @Override
-        public <B extends ByteStringBuilder> Appendable<B> asAppendable() {
+        public ByteAppendable asAppendable() {
             return builder -> builder.appendRaw(bytes);
         }
 
@@ -198,13 +203,12 @@ public interface ByteString {
         /**
          * Appends the supplied Appendable object
          *
-         * @param appendable the object to be appended
-         * @param <B>        the type of Builder it needs to be written to
+         * @param byteAppendable the object to be appended
+         * @param <B>            the type of Builder it needs to be written to
          * @return this builder, to facilitate chaining
          */
-        public <B extends ByteStringBuilder> B append(Appendable<B> appendable) {
-            // Note - this needs to NOT typecast because it lies with subclasses. FIXME by avoiding subclasses of ByteString
-            appendable.appendTo(asTypeB());
+        public <B extends ByteStringBuilder> B append(ByteAppendable byteAppendable) {
+            byteAppendable.appendTo(this);
             return asTypeB();
         }
 
@@ -215,22 +219,20 @@ public interface ByteString {
          * @param <B>         the type of Builder it needs to be written to
          * @return this builder, to facilitate chaining
          */
-        public <B extends ByteStringBuilder> B append(Iterable<? extends Appendable<B>> appendables) {
-            // Note - this needs to NOT typecast because it lies with subclasses. FIXME by avoiding subclasses of ByteString
-            appendables.forEach(a -> a.appendTo(asTypeB()));
+        public <B extends ByteStringBuilder> B append(Iterable<? extends ByteAppendable> appendables) {
+            appendables.forEach(a -> a.appendTo(this));
             return asTypeB();
         }
 
         /**
          * Appends each of the supplied Appendables.
          *
-         * @param appendables zero or more Appendables
-         * @param <B>         the type of Builder it needs to be written to
+         * @param byteAppendables zero or more Appendables
+         * @param <B>             the type of Builder it needs to be written to
          * @return this builder, to facilitate chaining
          */
-        @SafeVarargs
-        public final <B extends ByteStringBuilder> B append(Appendable<ByteStringBuilder>... appendables) {
-            Arrays.stream(appendables).forEach(a -> a.appendTo(asTypeB()));
+        public final <B extends ByteStringBuilder> B append(ByteAppendable... byteAppendables) {
+            Arrays.stream(byteAppendables).forEach(a -> a.appendTo(this));
             return asTypeB();
         }
 
@@ -350,16 +352,18 @@ public interface ByteString {
 
     /**
      * Handy interface to allow classes to define their own means of being appended to a ByteString.
-     *
-     * @param <B> the type of builder required
      */
-    interface Appendable<B extends ByteStringBuilder> {
+    interface ByteAppendable {
         /**
          * Defines how to be written to the supplied Builder
          *
          * @param builder the builder to append to
          */
-        void appendTo(B builder);
+        void appendTo(ByteStringBuilder builder);
+
+        default ByteString toByteString() {
+            return ByteString.from(this);
+        }
     }
 
     /**

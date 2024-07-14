@@ -1,9 +1,10 @@
 package net.zscript.javaclient.commandPaths;
 
-import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.model.components.Zchars;
+import net.zscript.util.ByteString.ByteAppendable;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class Response {
+public class Response implements ByteAppendable {
     private final ZscriptFieldSet fieldSet;
 
     private final Response next;
@@ -29,32 +30,31 @@ public class Response {
         return next;
     }
 
-    public void toBytes(ZscriptByteString.ZscriptByteStringBuilder out) {
-        fieldSet.toBytes(out);
+    @Override
+    public void appendTo(ByteStringBuilder out) {
+        fieldSet.appendTo(out);
     }
 
-    public void seperatorBytes(ZscriptByteString.ZscriptByteStringBuilder out) {
+    public void separatorBytes(ByteStringBuilder builder) {
         if (wasSuccess) {
             if (isOpenBracket) {
-                out.appendByte(Zchars.Z_OPENPAREN);
+                builder.appendByte(Zchars.Z_OPENPAREN);
             } else if (isCloseBracket) {
-                out.appendByte(Zchars.Z_CLOSEPAREN);
+                builder.appendByte(Zchars.Z_CLOSEPAREN);
             } else {
-                out.appendByte(Zchars.Z_ANDTHEN);
+                builder.appendByte(Zchars.Z_ANDTHEN);
             }
         } else {
             for (int i = 0; i < bracketCount; i++) {
-                out.appendByte(Zchars.Z_CLOSEPAREN);
+                builder.appendByte(Zchars.Z_CLOSEPAREN);
             }
-            out.appendByte(Zchars.Z_ORELSE);
+            builder.appendByte(Zchars.Z_ORELSE);
         }
     }
 
     @Override
     public String toString() {
-        ZscriptByteString.ZscriptByteStringBuilder out = ZscriptByteString.builder();
-        toBytes(out);
-        return out.asString();
+        return toByteString().asString();
     }
 
     public ZscriptFieldSet getFields() {

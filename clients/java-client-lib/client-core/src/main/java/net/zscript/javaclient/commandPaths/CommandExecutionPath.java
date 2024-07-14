@@ -15,15 +15,15 @@ import java.util.Set;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
-import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
-import net.zscript.util.ByteString;
+import net.zscript.util.ByteString.ByteAppendable;
+import net.zscript.util.ByteString.ByteStringBuilder;
 import net.zscript.util.OptIterator;
 
-public class CommandExecutionPath implements Iterable<Command> {
+public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
 
     static class CommandBuilder {
         ReadToken start = null;
@@ -161,13 +161,8 @@ public class CommandExecutionPath implements Iterable<Command> {
         this.firstCommand = firstCommand;
     }
 
-    public ByteString toSequence() {
-        ZscriptByteString.ZscriptByteStringBuilder out = ZscriptByteString.builder();
-        toSequence(out);
-        return out.build();
-    }
-
-    public void toSequence(ZscriptByteString.ZscriptByteStringBuilder out) {
+    @Override
+    public void appendTo(ByteStringBuilder builder) {
         Deque<Command> openedTrees  = new ArrayDeque<>();
         Deque<Command> workingTrees = new ArrayDeque<>();
         if (firstCommand != null) {
@@ -196,7 +191,7 @@ public class CommandExecutionPath implements Iterable<Command> {
                 if (mergesHere) {
                     openedTrees.pop();
                     workingTrees.push(latestOpenTree);
-                    out.appendByte(Zchars.Z_ORELSE);
+                    builder.appendByte(Zchars.Z_ORELSE);
                     needsOpen = false;
                     needsAnd = false;
                     // if it closes the top open tree, process that tree first
@@ -206,15 +201,15 @@ public class CommandExecutionPath implements Iterable<Command> {
             if (current.getOnFail() != null && current.getOnFail() != latestOpenTree) {
                 // the command opens a new open tree
                 if (needsOpen) {
-                    out.appendByte(Zchars.Z_OPENPAREN);
+                    builder.appendByte(Zchars.Z_OPENPAREN);
                 }
                 openedTrees.push(current.getOnFail());
                 latestOpenTree = current.getOnFail();
             } else if (needsAnd) {
-                out.appendByte(Zchars.Z_ANDTHEN);
+                builder.appendByte(Zchars.Z_ANDTHEN);
             }
 
-            workingTrees.pop().toBytes(out); // only put elements into the list when we're done processing them
+            workingTrees.pop().appendTo(builder); // only put elements into the list when we're done processing them
             needsAnd = false;
             needsOpen = true;
             if (current.getOnSuccess() != null) {
@@ -223,12 +218,12 @@ public class CommandExecutionPath implements Iterable<Command> {
                     workingTrees.push(current.getOnSuccess());
                     needsAnd = true;
                 } else {
-                    out.appendByte(Zchars.Z_CLOSEPAREN);
+                    builder.appendByte(Zchars.Z_CLOSEPAREN);
                 }
             } else if (latestOpenTree != null) {
                 openedTrees.pop();
                 workingTrees.push(latestOpenTree);
-                out.appendByte(Zchars.Z_ORELSE);
+                builder.appendByte(Zchars.Z_ORELSE);
                 needsOpen = false;
             }
         }

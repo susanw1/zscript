@@ -26,7 +26,7 @@ public class CommandExecutionPathRegenerationTest {
         }
         CommandExecutionPath path = CommandExecutionPath.parse(bufferCmd.getTokenReader().getFirstReadToken());
 
-        assertThat(path.toSequence().asString()).isEqualTo(output);
+        assertThat(path.toByteString().asString()).isEqualTo(output);
     }
 
     private static Stream<Arguments> shouldProduceActionsForLogicalCommandSeries() {

@@ -1,13 +1,13 @@
 package net.zscript.javaclient.sequence;
 
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
-import net.zscript.javaclient.util.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.model.components.Zchars;
-import net.zscript.util.ByteString;
+import net.zscript.util.ByteString.ByteAppendable;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class ResponseSequence {
+public class ResponseSequence implements ByteAppendable {
     private final ResponseExecutionPath executionPath;
 
     private final int     echoField;
@@ -18,9 +18,11 @@ public class ResponseSequence {
         if (start == null) {
             return new ResponseSequence(ResponseExecutionPath.blank(), -1, -1, false);
         }
-        int                 echoField     = -1;
-        int                 responseField = -1;
-        TokenBufferIterator iter          = start.getNextTokens();
+
+        int echoField     = -1;
+        int responseField = -1;
+
+        TokenBufferIterator iter = start.getNextTokens();
 
         TokenBuffer.TokenReader.ReadToken current = iter.next().orElse(null);
         if (current == null || current.getKey() != Zchars.Z_RESPONSE_MARK) {
@@ -62,20 +64,15 @@ public class ResponseSequence {
         return responseField;
     }
 
-    public ByteString toSequence() {
-        ZscriptByteString.ZscriptByteStringBuilder out = ZscriptByteString.builder();
-        toSequence(out);
-        return out.build();
-    }
-
-    public void toSequence(ZscriptByteString.ZscriptByteStringBuilder out) {
+    @Override
+    public void appendTo(ByteStringBuilder builder) {
+        // FIXME: should there only be a '!' when it's been set? Can this even happen?
         if (responseField != -1) {
-            out.appendField(Zchars.Z_RESPONSE_MARK, responseField);
+            builder.appendByte(Zchars.Z_RESPONSE_MARK).appendNumeric(responseField);
         }
         if (echoField != -1) {
-            out.appendField(Zchars.Z_ECHO, echoField);
+            builder.appendByte(Zchars.Z_ECHO).appendNumeric(echoField);
         }
-        executionPath.toSequence(out);
+        executionPath.appendTo(builder);
     }
-
 }
