@@ -39,7 +39,10 @@ import net.zscript.model.components.Zchars;
  * If an incoming single command is too long for the buffer, then it will become OVERRUN no matter what.
  */
 public class Tokenizer {
+    // Token for whole of rest of sequence following an address, representing the message to be passed downstream.
     public static final byte ADDRESSING_FIELD_KEY = (byte) 0x80;
+
+    /////////////// Sequence marker values (top 4 bits set) - signify sequence end (either normal, or error during tokenization)
 
     public static final byte NORMAL_SEQUENCE_END              = (byte) 0xf0;
     public static final byte ERROR_BUFFER_OVERRUN             = (byte) 0xf1;
@@ -48,6 +51,8 @@ public class Tokenizer {
     public static final byte ERROR_CODE_STRING_NOT_TERMINATED = (byte) 0xf4;
     public static final byte ERROR_CODE_STRING_ESCAPING       = (byte) 0xf5;
     public static final byte ERROR_CODE_ILLEGAL_TOKEN         = (byte) 0xf6;
+
+    /////////////// Normal marker values (top 3 bits set) - signify command/response end, implies read processing may proceed
 
     public static final byte CMD_END_ANDTHEN     = (byte) 0xe1;
     public static final byte CMD_END_ORELSE      = (byte) 0xe2;
@@ -69,11 +74,9 @@ public class Tokenizer {
     private int     escapingCount; // 2 bit counter, from 2 to 0
 
     public Tokenizer(final TokenWriter writer, final int maxNumericBytes) {
-        this.writer = writer;
-        this.maxNumericBytes = maxNumericBytes;
-        this.parseOutAddressing = false;
-        resetFlags();
+        this(writer, maxNumericBytes, false);
     }
+
     public Tokenizer(final TokenWriter writer, final int maxNumericBytes, final boolean parseOutAddressing) {
         this.writer = writer;
         this.maxNumericBytes = maxNumericBytes;
@@ -114,10 +117,11 @@ public class Tokenizer {
     }
 
     /**
-     * TODO: Review: this seems a bit simple...
+     * Requests to process a byte of Zscript input into the tokenizer buffer, if there's capacity. If the offer returns true, then the byte has been consumed; otherwise the byte
+     * was rejected, and it should be kept so that it can be presented again. It is possible the
      *
-     * @param b
-     * @return
+     * @param b the new byte of zscript input
+     * @return true if the byte was processed, false otherwise
      */
     public boolean offer(final byte b) {
         if (checkCapacity() || writer.getFlags().isReaderBlocked()) {
@@ -126,10 +130,9 @@ public class Tokenizer {
         }
         return false;
     }
-    // TODO: Discuss dataLost changes.
 
     /**
-     * Process a byte of Zscript input into the parser.
+     * Process a byte of Zscript input into the tokenizer buffer.
      *
      * @param b the new byte of zscript input
      */
@@ -155,14 +158,6 @@ public class Tokenizer {
             dataLost();
             return;
         }
-
-        // TODO: Hysteresis on bufferOvr - review this approach given we're rewinding current token on failure marker
-        //        if (bufferOvr) {
-        //            if (!writer.checkAvailableCapacity(10)) {
-        //                return;
-        //            }
-        //            bufferOvr = false;
-        //        }
 
         if (writer.isTokenComplete()) {
             startNewToken(b);
@@ -268,13 +263,13 @@ public class Tokenizer {
             case Zchars.Z_CLOSEPAREN:
                 marker = CMD_END_CLOSE_PAREN;
                 break;
-            // more for other constructs? '(', ')'
+            // more for other constructs?
             }
             if (marker != 0) {
                 writer.writeMarker(marker);
                 return;
             }
-            throw new IllegalStateException("Unknown seperator: " + (char) b);
+            throw new IllegalStateException("Unknown separator: " + (char) b);
         }
 
         if (b == Zchars.Z_ADDRESSING) {
@@ -289,12 +284,12 @@ public class Tokenizer {
 
         numeric = !Zchars.isNonNumerical(b);
         isText = false;
-        if (b != Zchars.Z_COMMENT) {
-            writer.startToken(b, numeric);
-        } else {
+        if (b == Zchars.Z_COMMENT) {
             skipToNL = true;
             return;
         }
+
+        writer.startToken(b, numeric);
 
         if (b == Zchars.Z_BIGFIELD_QUOTED) {
             isText = true;

@@ -55,7 +55,6 @@ public class ZscriptTokenExpression implements ZscriptExpression {
                 .filter(tok -> Zchars.isBigField(tok.getKey()))
                 .mapToInt(ReadToken::getDataSize)
                 .sum();
-
     }
 
     @Override

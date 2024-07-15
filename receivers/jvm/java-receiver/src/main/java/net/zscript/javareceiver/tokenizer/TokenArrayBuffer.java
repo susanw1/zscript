@@ -14,11 +14,8 @@ import java.util.Optional;
  * <li>Tokens may exceed datalen of 255 using additional new token with special key <i>TOKEN_EXTENSION</i></li>
  * <li></li>
  * </ol>
- *
  */
 public abstract class TokenArrayBuffer implements TokenBuffer {
-    // TODO: Raise flag on error and on newline
-
     private static final byte MAX_TOKEN_DATA_LENGTH = (byte) 255;
 
     /** the ring-buffer's data array */
@@ -37,16 +34,12 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
 
     // construct via static factories
     protected TokenArrayBuffer(final int sz) {
-        data = new byte[sz];
-        tokenWriter = new TokenArrayBufferWriter();
-        tokenReader = new TokenArrayBufferReader();
-        flags = new TokenBufferFlags();
+        this(new byte[sz]);
     }
 
     // construct via static factories
     protected TokenArrayBuffer(final byte[] preloaded) {
         data = preloaded;
-        writeStart = 0;
         tokenWriter = new TokenArrayBufferWriter();
         tokenReader = new TokenArrayBufferReader();
         flags = new TokenBufferFlags();
@@ -139,9 +132,9 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
         public void endToken() {
             if (inNibble) {
                 if (numeric) {
-//                    if (writeLastLen != writeStart) {
-//                        throw new IllegalStateException("Illegal numeric field longer than 255 bytes");
-//                    }
+                    //                    if (writeLastLen != writeStart) {
+                    //                        throw new IllegalStateException("Illegal numeric field longer than 255 bytes");
+                    //                    }
 
                     // if odd nibble count, then shuffle nibbles through token's data to ensure "right-aligned", eg 4ad0 really means 04ad
                     byte hold = 0;
@@ -248,7 +241,8 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
     abstract int offset(final int index, final int offset);
 
     /**
-     * Utility for determining whether the specified index is in the current readable area, defined as readStart <= index < writeStart (but accounting for this being a ringbuffer).
+     * Utility for determining whether the specified index is in the current readable area, defined as readStart <= index < writeStart (but accounting for this being a
+     * ringbuffer).
      *
      * Everything included in the readable area is committed and immutable.
      *
@@ -369,8 +363,7 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
 
             @Override
             public TokenBufferIterator getNextTokens() {
-                final ArrayBufferTokenIterator iterator = new ArrayBufferTokenIterator(index);
-                return iterator;
+                return new ArrayBufferTokenIterator(index);
             }
 
             @Override
@@ -379,7 +372,7 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
                     throw new IllegalStateException("Cannot get data from marker token");
                 }
                 return new BlockIterator() {
-                    private int itIndex      = offset(index, 2);
+                    private int itIndex = offset(index, 2);
                     private int segRemaining = getSegmentDataSize();
 
                     @Override
@@ -503,12 +496,11 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
 
             @Override
             public String toString() {
-                if (TokenBuffer.isMarker(data[index])) {
-                    return "Token(Marker:0x" + Integer.toHexString(Byte.toUnsignedInt(data[index])) + ")";
+                if (TokenBuffer.isMarker(getKey())) {
+                    return "Token(Marker:0x" + Integer.toHexString(Byte.toUnsignedInt(getKey())) + ")";
                 }
-                return "Token(key='" + (char) getKey() + "', len=" + getDataSize() + ")";
+                return "Token(key='" + (char) getKey() + "'(0x" + Integer.toHexString(Byte.toUnsignedInt(getKey())) + "), len=" + getDataSize() + ")";
             }
         }
-
     }
 }

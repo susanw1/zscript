@@ -1,8 +1,8 @@
 package net.zscript.javareceiver.tokenizer;
 
-import static java.text.MessageFormat.format;
-
 import java.util.Arrays;
+
+import static java.text.MessageFormat.format;
 
 public class ScriptSpaceBuffer extends TokenArrayBuffer {
 
@@ -33,7 +33,7 @@ public class ScriptSpaceBuffer extends TokenArrayBuffer {
         throw new UnsupportedOperationException();
     }
 
-    public class ScriptSpaceWriterBuffer extends TokenArrayBuffer {
+    public static class ScriptSpaceWriterBuffer extends TokenArrayBuffer {
         private final ScriptSpaceBuffer parent;
 
         private ScriptSpaceWriterBuffer(ScriptSpaceBuffer parent, byte[] data) {
@@ -63,7 +63,7 @@ public class ScriptSpaceBuffer extends TokenArrayBuffer {
             parent.data = Arrays.copyOf(data, writeStart);
             parent.writeStart = writeStart + 2;
         }
-    };
+    }
 
     public ScriptSpaceWriterBuffer append() {
         ScriptSpaceWriterBuffer writer = new ScriptSpaceWriterBuffer(this, data);
