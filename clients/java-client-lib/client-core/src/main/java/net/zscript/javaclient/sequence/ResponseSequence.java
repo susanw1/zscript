@@ -15,10 +15,6 @@ public class ResponseSequence implements ByteAppendable {
     private final boolean timedOut;
 
     public static ResponseSequence parse(TokenBuffer.TokenReader.ReadToken start) {
-        if (start == null) {
-            return new ResponseSequence(ResponseExecutionPath.blank(), -1, -1, false);
-        }
-
         int echoField     = -1;
         int responseField = -1;
 
@@ -37,7 +33,11 @@ public class ResponseSequence implements ByteAppendable {
         return new ResponseSequence(ResponseExecutionPath.parse(current), echoField, responseField, false);
     }
 
-    public static ResponseSequence blank() {
+    public static ResponseSequence empty() {
+        return new ResponseSequence(ResponseExecutionPath.blank(), -1, -1, false);
+    }
+
+    public static ResponseSequence timedOut() {
         return new ResponseSequence(ResponseExecutionPath.blank(), -1, -1, true);
     }
 

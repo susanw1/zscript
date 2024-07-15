@@ -130,7 +130,7 @@ class ZscriptBasicNode implements ZscriptNode {
         if (!timedOut.isEmpty()) {
             for (CommandSequence seq : timedOut) {
                 if (fullSequenceCallbacks.get(seq) != null) {
-                    callbackPool.sendCallback(fullSequenceCallbacks.get(seq), ResponseSequence.blank(), callbackExceptionHandler);
+                    callbackPool.sendCallback(fullSequenceCallbacks.get(seq), ResponseSequence.timedOut(), callbackExceptionHandler);
                 } else if (pathCallbacks.get(seq.getExecutionPath()) != null) {
                     callbackPool.sendCallback(pathCallbacks.get(seq.getExecutionPath()), ResponseExecutionPath.blank(), callbackExceptionHandler);
                 }

@@ -1,12 +1,11 @@
 package net.zscript.javaclient.addressing;
 
-import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
-import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
-
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
+import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.javareceiver.tokenizer.Tokenizer;
@@ -39,7 +38,7 @@ public class CompleteAddressedResponse {
             }
         }
         if (seq == null) {
-            seq = ResponseSequence.parse(null);
+            seq = ResponseSequence.empty();
         }
         return new CompleteAddressedResponse(addresses, seq);
     }
@@ -65,4 +64,3 @@ public class CompleteAddressedResponse {
         return new AddressedResponse(this, 0);
     }
 }
-

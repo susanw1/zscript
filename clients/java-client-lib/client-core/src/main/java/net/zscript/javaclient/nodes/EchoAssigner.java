@@ -1,9 +1,9 @@
 package net.zscript.javaclient.nodes;
 
+import java.util.BitSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.BitSet;
 
 public class EchoAssigner {
     private static final Logger LOG = LoggerFactory.getLogger(EchoAssigner.class);
@@ -24,7 +24,7 @@ public class EchoAssigner {
     private int waitingCount = 0;
     private int currentEcho  = 0;
 
-    private long lastSegmentChangeTimeNanos = System.nanoTime();
+    private final long lastSegmentChangeTimeNanos = System.nanoTime();
 
     public EchoAssigner(long minSegmentChangeTimeNanos) {
         this.minSegmentChangeTimeNanos = minSegmentChangeTimeNanos;
