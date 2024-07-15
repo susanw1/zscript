@@ -71,9 +71,11 @@ intrinsics:
     -   name: addressing
         ch: "@"
         description: "marks the start of an address, eg @12.4.3"
+        addressing: true
     -   name: addressingContinue
         ch: "."
         description: "separates address components, eg @12.4.3"
+        addressing: true
     -   name: echo
         ch: "_"
         description: "special sequence-level field assigning a command number, echoed in the response"
