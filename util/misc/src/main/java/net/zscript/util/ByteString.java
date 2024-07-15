@@ -3,13 +3,15 @@ package net.zscript.util;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * A buildable byte string to make it easy to work with byte-oriented text data.
  */
-public final class ByteString {
+public final class ByteString implements Iterable<Byte> {
     private final byte[] bytes;
 
     private ByteString(final byte[] bytes) {
@@ -23,6 +25,36 @@ public final class ByteString {
      */
     public byte[] toByteArray() {
         return bytes.clone();
+    }
+
+    /**
+     * Determines the number of bytes in this ByteString.
+     *
+     * @return the number of bytes
+     */
+    public int getSize() {
+        return bytes.length;
+    }
+
+    /**
+     * Returns a simple Iterator.
+     *
+     * @return iterator
+     */
+    @Override
+    public Iterator<Byte> iterator() {
+        return new ByteIterator();
+    }
+
+    /**
+     * Access the byte at the specified index.
+     *
+     * @param index the index to retrieve
+     * @return the byte at that index
+     * @throws ArrayIndexOutOfBoundsException if index < 0 or index >= getSize()
+     */
+    public byte get(int index) {
+        return bytes[index];
     }
 
     /**
@@ -133,12 +165,15 @@ public final class ByteString {
 
     /**
      * Utility method to create a ByteString from a concatenated series of (zero or more) objects using the supplied appender.
+     * <p/>
+     * SafeVarargs confirmed because objects array is not modified.
      *
      * @param appender the appender to use
      * @param objects  the appendables to append
      * @param <T>      the type of the objects
      * @return the resulting ByteString
      */
+    @SafeVarargs
     public static <T> ByteString concat(ByteAppender<? super T> appender, T... objects) {
         return builder(appender, objects).build();
     }
@@ -186,6 +221,8 @@ public final class ByteString {
 
     /**
      * Creates a fresh builder for a ByteString, initialized with the concatenation of the supplied Appendables, using the supplied ByteAppender.
+     * <p/>
+     * SafeVarargs confirmed because objects array is not modified.
      *
      * @param appender the appender to use
      * @param objects  the objects to append
@@ -242,6 +279,15 @@ public final class ByteString {
          */
         public byte[] toByteArray() {
             return buffer.toByteArray();
+        }
+
+        /**
+         * Determines the number of bytes appended so far.
+         *
+         * @return the byte count
+         */
+        public int getSize() {
+            return buffer.getCount();
         }
 
         /**
@@ -529,6 +575,26 @@ public final class ByteString {
          */
         default ByteString toByteString(T object) {
             return ByteString.from(object, this);
+        }
+    }
+
+    /**
+     * Simple array iterator
+     */
+    public class ByteIterator implements Iterator<Byte> {
+        int index = 0;
+
+        @Override
+        public boolean hasNext() {
+            return index < bytes.length;
+        }
+
+        @Override
+        public Byte next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return bytes[index++];
         }
     }
 

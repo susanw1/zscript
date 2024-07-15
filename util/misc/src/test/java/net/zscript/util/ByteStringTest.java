@@ -4,8 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIndexOutOfBoundsException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -21,6 +23,7 @@ class ByteStringTest {
         var strBuilder = ByteString.builder().appendByte(0x61).appendByte('b');
         var str        = strBuilder.build();
         assertThat(str.toByteArray()).containsExactly('a', 'b');
+        assertThat(str.getSize()).isEqualTo(2);
 
         var byteArrayOutputStream = new ByteArrayOutputStream();
         assertThat(str.writeTo(byteArrayOutputStream)).isSameAs(str);
@@ -31,6 +34,28 @@ class ByteStringTest {
         assertThat(byteArrayOutputStream2.toByteArray()).containsExactly('a', 'b');
 
         assertThatThrownBy(() -> ByteString.builder().appendByte('Z').appendByte(257).toByteArray()).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void shouldAccessBytes() {
+        var strBuilder = ByteString.builder().appendByte(0x61).appendByte('b');
+        assertThat(strBuilder.getSize()).isEqualTo(2);
+        final ByteString str = strBuilder.build();
+        assertThat(str.get(0)).isEqualTo((byte) 97);
+        assertThat(str.get(1)).isEqualTo((byte) 98);
+        assertThatIndexOutOfBoundsException().isThrownBy(() -> str.get(2));
+    }
+
+    @Test
+    public void shouldIterateBytes() {
+        var str  = ByteString.builder().appendByte(0x61).appendByte('b').build();
+        var iter = str.iterator();
+        assertThat(iter.hasNext()).isTrue();
+        assertThat(iter.next()).isEqualTo((byte) 97);
+        assertThat(iter.hasNext()).isTrue();
+        assertThat(iter.next()).isEqualTo((byte) 98);
+        assertThat(iter.hasNext()).isFalse();
+        assertThatThrownBy(iter::next).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test

@@ -112,8 +112,9 @@ public class Tokenizer {
      * @return true if capacity definitely exists, false otherwise.
      */
     public boolean checkCapacity() {
-        // worst case is... TODO: review this!
-        return writer.checkAvailableCapacity(3);
+        // A single char might a) write previous token's nibble, b) write the key+len of new token - hence 3.
+        final int MOST_BYTES_REQUIRED_BY_ONE_CHAR = 3;
+        return writer.checkAvailableCapacity(MOST_BYTES_REQUIRED_BY_ONE_CHAR);
     }
 
     /**
