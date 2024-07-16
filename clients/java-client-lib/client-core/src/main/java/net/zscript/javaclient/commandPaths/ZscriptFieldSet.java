@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 
+import static java.util.Collections.emptyList;
+
 import net.zscript.javareceiver.tokenizer.BlockIterator;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
@@ -16,6 +18,9 @@ import net.zscript.util.ByteString;
 import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
+/**
+ * Represents a set of fields making up a Zscript expression (single command or response) that can be parsed from Tokens.
+ */
 public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
 
     private final List<BigField> bigFields;
@@ -69,7 +74,7 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
     public static ZscriptFieldSet blank() {
         int[] fields = new int[26];
         Arrays.fill(fields, -1);
-        return new ZscriptFieldSet(new ArrayList<>(), fields, false);
+        return new ZscriptFieldSet(emptyList(), fields, false);
     }
 
     private ZscriptFieldSet(List<BigField> bigFields, int[] fields, boolean hasClash) {
@@ -105,7 +110,7 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
      */
     @Override
     public ByteString getBigFieldAsByteString() {
-        return ByteString.concat((bigField, b) -> b.appendRaw(bigField.getData()), bigFields);
+        return ByteString.concat((bigField, b) -> b.append(bigField.getDataAsByteString()), bigFields);
     }
 
     @Override
@@ -148,13 +153,7 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
     }
 
     public int getFieldCount() {
-        int count = 0;
-        for (int field : fields) {
-            if (field != -1) {
-                count++;
-            }
-        }
-        return count;
+        return (int) Arrays.stream(fields).filter(f -> f != 0).count();
     }
 
     public boolean hasBigField() {
@@ -162,10 +161,8 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
     }
 
     public int getBigFieldSize() {
-        int len = 0;
-        for (BigField big : bigFields) {
-            len += big.getDataLength();
-        }
-        return len;
+        return bigFields.stream()
+                .mapToInt(BigField::getDataLength)
+                .sum();
     }
 }

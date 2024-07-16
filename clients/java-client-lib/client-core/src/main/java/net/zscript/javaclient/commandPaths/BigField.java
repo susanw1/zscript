@@ -32,7 +32,7 @@ public class BigField implements ByteAppendable {
      *
      * @return the big-field's data
      */
-    public ByteString asByteString() {
+    public ByteString getDataAsByteString() {
         return data;
     }
 
@@ -51,7 +51,7 @@ public class BigField implements ByteAppendable {
      * @return number of data bytes
      */
     public int getDataLength() {
-        return data.getSize();
+        return data.size();
     }
 
     @Override
@@ -72,5 +72,9 @@ public class BigField implements ByteAppendable {
                 builder.appendHexPair(b);
             }
         }
+    }
+
+    public int getBufferLength() {
+        return 2 + getDataLength();
     }
 }

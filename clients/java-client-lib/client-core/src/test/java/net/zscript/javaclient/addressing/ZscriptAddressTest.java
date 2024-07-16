@@ -75,6 +75,7 @@ class ZscriptAddressTest {
     @Test
     public void shouldFailOnOutOfRangeAddresses() {
         assertThatIllegalArgumentException().isThrownBy(() -> ZscriptAddress.from(1, 0x12345));
+        assertThatIllegalArgumentException().isThrownBy(() -> ZscriptAddress.from(1, -1));
     }
 
     @Test

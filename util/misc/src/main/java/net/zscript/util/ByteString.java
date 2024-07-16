@@ -32,7 +32,7 @@ public final class ByteString implements Iterable<Byte> {
      *
      * @return the number of bytes
      */
-    public int getSize() {
+    public int size() {
         return bytes.length;
     }
 
@@ -286,7 +286,7 @@ public final class ByteString implements Iterable<Byte> {
          *
          * @return the byte count
          */
-        public int getSize() {
+        public int size() {
             return buffer.getCount();
         }
 
