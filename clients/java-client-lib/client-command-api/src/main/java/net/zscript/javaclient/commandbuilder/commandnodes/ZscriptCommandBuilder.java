@@ -9,8 +9,7 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.joining;
 
-import net.zscript.javaclient.ByteWritable;
-import net.zscript.javaclient.ZscriptByteString.ZscriptByteStringBuilder;
+import net.zscript.javaclient.commandPaths.BigField;
 import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.model.components.Zchars;
@@ -27,7 +26,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     final List<BigField>     bigFields = new ArrayList<>();
     final Map<Byte, Integer> fields    = new HashMap<>();
 
-    /** set of 26 numeric fields, and bigfield. Bits init'd on {@link #setRequiredFields(byte[])} and cleared when fields are set. */
+    /** Set of 26 numeric fields, and bigfield. Bits init'd on {@link #setRequiredFields(byte[])} and cleared when fields are set. */
     private final BitSet requiredFields = new BitSet();
 
     protected ZscriptCommandBuilder<T> setField(byte key, int value) {
@@ -131,32 +130,4 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
      * @throws ZscriptMissingFieldException if builder doesn't yet pass validation
      */
     public abstract ZscriptCommandNode<T> build();
-
-    public static class BigField implements ByteWritable {
-        private final byte[]  data;
-        private final boolean isString;
-
-        public BigField(byte[] data, boolean isString) {
-            this.data = data;
-            this.isString = isString;
-        }
-
-        @Override
-        public ByteWritable writeTo(ZscriptByteStringBuilder out) {
-            if (isString) {
-                out.appendBigfieldText(data);
-            } else {
-                out.appendBigfieldBytes(data);
-            }
-            return this;
-        }
-
-        public byte[] getData() {
-            return data;
-        }
-
-        public boolean isString() {
-            return isString;
-        }
-    }
 }

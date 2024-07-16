@@ -6,10 +6,10 @@ public interface TokenBuffer {
     /**
      * Special token key to indicate that this segment is a continuation of the previous token due to its data size hitting maximum.
      */
-    public static final byte TOKEN_EXTENSION = (byte) 0x81;
+    byte TOKEN_EXTENSION = (byte) 0x81;
 
     /**
-     * Determines whether the supplied byte is a valid "marker" key.
+     * Determines whether the supplied byte is a valid "marker" key (including sequence marker).
      *
      * @param key any byte
      * @return true if it's a marker; false otherwise
@@ -19,7 +19,7 @@ public interface TokenBuffer {
     }
 
     /**
-     * Determines whether the supplied byte is a sequence-end "marker" key (newline, fatal error.
+     * Determines whether the supplied byte is a sequence-end "marker" key (newline, fatal error).
      *
      * @param key any byte
      * @return true if it's a sequence-end marker; false otherwise
@@ -30,35 +30,115 @@ public interface TokenBuffer {
 
     TokenWriter getTokenWriter();
 
-    public interface TokenWriter {
+    /**
+     * Defines the operations that a Tokenizer may perform to write to the TokenBuffer.
+     */
+    interface TokenWriter {
+        /**
+         * Access the writer<->reader control flags.
+         *
+         * @return the buffer's flags
+         */
         TokenBufferFlags getFlags();
 
-        void startToken(byte b, boolean c);
+        /**
+         * Starts a new token with the specified key, along with whether nibble pairs are to be aggregated into bytes numerically. If a token is already being written, then it is
+         * finished off first. The key must not be a marker - use {@link #writeMarker(byte)}.
+         *
+         * @param key     the byte to use as the key
+         * @param numeric true if numeric nibble aggregation should be used, false otherwise
+         * @throws IllegalArgumentException if key is a marker
+         */
+        void startToken(byte key, boolean numeric);
 
+        /**
+         * Forces the current token to be finished (eg on close-quote), wrapping up any numeric nibbles and resetting the state flags.
+         */
         void endToken();
 
+        /**
+         * Adds a new byte to the current token.
+         *
+         * @param b the byte to add
+         * @throws IllegalStateException    if no token has been started, or we're in the middle of a nibble
+         * @throws IllegalArgumentException if this is a numeric token, and we've exceeded the maximum size
+         */
         void continueTokenByte(byte b);
 
+        /**
+         * Adds a new nibble to the current token.
+         *
+         * @param b the nibble to add, with value in range 0-0xf
+         * @throws IllegalStateException    if no token has been started
+         * @throws IllegalArgumentException if the nibble is out of range, or this is a numeric token and we've exceeded the maximum size
+         */
         void continueTokenNibble(byte b);
 
+        /**
+         * Determines whether the last token has been ended correctly.
+         *
+         * @return true if complete; false if there's a token still being formed
+         */
         boolean isTokenComplete();
 
+        /**
+         * Writes the specified Marker. If a token is already being written, then it is finished off first. Markers are used to indicate that a parsable sequence of tokens has been
+         * written which may trigger some reading activity.
+         *
+         * @param key the marker's key, as per {@link TokenBuffer#isMarker(byte)}
+         * @throws IllegalArgumentException if key is not a marker
+         */
         void writeMarker(byte key);
 
+        /**
+         * Indicates a failure state to be communicated through the buffer to the Reader. This is the identical to writing a Marker, _except_ if there's a token already being
+         * written and not complete, then it is wound back and its space reclaimed. The errorCode is expected to be a Sequence Marker, as per
+         * {@link TokenBuffer#isSequenceEndMarker(byte)}.
+         * <p/>
+         * One particular errorCode is the Buffer OVERRUN condition.
+         *
+         * @param errorCode a marker key to signal an error
+         * @throws IllegalArgumentException if key is not a marker
+         */
         void fail(byte errorCode);
 
+        /**
+         * Gets the key of the current token.
+         *
+         * @return the key
+         * @throws IllegalStateException if no token is being written
+         */
         byte getCurrentWriteTokenKey();
 
+        /**
+         * Gets the current length of the current token.
+         *
+         * @return the length
+         * @throws IllegalStateException if no token is being written
+         */
         int getCurrentWriteTokenLength();
 
+        /**
+         * Determines whether the writer is in the middle of writing a nibble (ie there have been an odd number of nibbles so far).
+         *
+         * @return true if there is a nibble being constructed; false otherwise
+         */
         boolean isInNibble();
 
+        /**
+         * Determines whether the buffer has the specified number of bytes available.
+         *
+         * @return true if there is space; false otherwise
+         */
         boolean checkAvailableCapacity(int size);
     }
 
     TokenReader getTokenReader();
 
-    public interface TokenReader {
+    /**
+     * Defines all the operations that a parser can perform to read from the TokenBuffer.
+     */
+    interface TokenReader {
         /**
          * Access the writer<->reader control flags.
          *
@@ -84,7 +164,7 @@ public interface TokenBuffer {
          * Creates a ReadToken representing the current first readable token.
          *
          * @return a ReadToken representing the current first readable token
-         * @exception NoSuchElementException if no token is available, see {@link #hasReadToken()}.
+         * @throws NoSuchElementException if no token is available, see {@link #hasReadToken()}.
          */
         ReadToken getFirstReadToken();
 
@@ -92,7 +172,7 @@ public interface TokenBuffer {
          * Handy method equivalent to {@code getFirstReadToken().getKey()}
          *
          * @return the key of the first readable token
-         * @exception NoSuchElementException if no token is available, see {@link #hasReadToken()}.
+         * @throws NoSuchElementException if no token is available, see {@link #hasReadToken()}.
          */
         default byte getFirstKey() {
             return getFirstReadToken().getKey();
@@ -129,7 +209,6 @@ public interface TokenBuffer {
              * Handy method equivalent to using {@link TokenBuffer#isMarker(byte)} on this ReadToken.
              *
              * @return true if this is a marker token; false otherwise
-             *
              */
             default boolean isMarker() {
                 return TokenBuffer.isMarker(getKey());
@@ -139,7 +218,6 @@ public interface TokenBuffer {
              * Handy method equivalent to using {@link TokenBuffer#isSequenceEndMarker(byte)} on this ReadToken.
              *
              * @return true if this is a sequence-marker token; false otherwise
-             *
              */
             default boolean isSequenceEndMarker() {
                 return TokenBuffer.isSequenceEndMarker(getKey());

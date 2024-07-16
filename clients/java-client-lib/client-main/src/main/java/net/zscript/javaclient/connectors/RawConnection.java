@@ -1,14 +1,13 @@
 package net.zscript.javaclient.connectors;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import org.slf4j.Logger;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import org.slf4j.Logger;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.addressing.AddressedResponse;
@@ -30,7 +29,7 @@ public abstract class RawConnection implements Connection, AutoCloseable {
     @Override
     public final void send(AddressedCommand cmd) {
         try {
-            byte[] data = cmd.toBytes().toByteArray();
+            byte[] data = cmd.toByteString().toByteArray();
             if (getLogger().isTraceEnabled()) {
                 getLogger().trace(UTF_8.decode(ByteBuffer.wrap(data)).toString());
             }

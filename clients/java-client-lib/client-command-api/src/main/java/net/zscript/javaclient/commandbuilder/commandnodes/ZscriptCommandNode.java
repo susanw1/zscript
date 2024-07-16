@@ -1,17 +1,16 @@
 package net.zscript.javaclient.commandbuilder.commandnodes;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import net.zscript.javaclient.commandPaths.BigField;
 import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
-import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.javaclient.commandbuilder.Respondable;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder.BigField;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.util.ByteString;
 
 public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends CommandSequenceNode implements Respondable<T> {
 
@@ -56,14 +55,15 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
 
     @Override
     public String asString() {
-        ZscriptByteString.ZscriptByteStringBuilder b = ZscriptByteString.builder();
+        ByteString.ByteStringBuilder b = ByteString.builder();
         for (int i = 'A'; i <= 'Z'; i++) {
             if (fields.get((byte) i) != null) {
-                b.appendField((byte) i, fields.get((byte) i));
+                int value = fields.get((byte) i);
+                b.appendByte((byte) i).appendNumeric16(value);
             }
         }
         for (BigField f : bigFields) {
-            f.writeTo(b);
+            f.appendTo(b);
         }
         return b.asString();
     }

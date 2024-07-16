@@ -5,13 +5,13 @@ import java.util.Collection;
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
-import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
-import net.zscript.util.ByteString;
+import net.zscript.util.ByteString.ByteAppendable;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class CommandSequence {
+public class CommandSequence implements ByteAppendable {
 
     public static CommandSequence from(CommandExecutionPath path, int echoField) {
         return from(path, echoField, false);
@@ -70,18 +70,13 @@ public class CommandSequence {
         this.locks = locks;
     }
 
-    public ByteString toBytes() {
-        ZscriptByteString.ZscriptByteStringBuilder builder = ZscriptByteString.builder();
-        toBytes(builder);
-        return builder.build();
-    }
-
-    public void toBytes(ZscriptByteString.ZscriptByteStringBuilder builder) {
-        locks.toBytes(builder);
+    @Override
+    public void appendTo(ByteStringBuilder builder) {
+        locks.appendTo(builder);
         if (echoField != -1) {
-            builder.appendField(Zchars.Z_ECHO, echoField);
+            builder.appendByte(Zchars.Z_ECHO).appendNumeric16(echoField);
         }
-        executionPath.toSequence(builder);
+        executionPath.appendTo(builder);
     }
 
     public CommandExecutionPath getExecutionPath() {

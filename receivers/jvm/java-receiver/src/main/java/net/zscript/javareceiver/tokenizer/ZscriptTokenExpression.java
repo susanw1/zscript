@@ -1,6 +1,5 @@
 package net.zscript.javareceiver.tokenizer;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -8,15 +7,29 @@ import java.util.function.Supplier;
 
 import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.model.components.Zchars;
+import net.zscript.util.ByteString;
 import net.zscript.util.OptIterator;
 
+/**
+ *
+ */
 public class ZscriptTokenExpression implements ZscriptExpression {
     private final Supplier<OptIterator<ReadToken>> tokenIteratorSupplier;
 
+    /**
+     * Creates a {@link ZscriptTokenExpression} using the specified Supplier to acquire the {@link OptIterator} for reading the {@link ReadToken}s.
+     *
+     * @param tokenIteratorSupplier where to get the ReadToken iterator
+     */
     public ZscriptTokenExpression(final Supplier<OptIterator<ReadToken>> tokenIteratorSupplier) {
         this.tokenIteratorSupplier = tokenIteratorSupplier;
     }
 
+    /**
+     * Creates a special ReadToken iterator which stops at the first Marker (and hence reads exactly one ZscriptExpression).
+     *
+     * @return a ReadToken iterator
+     */
     public OptIterator<ReadToken> iteratorToMarker() {
         return new OptIterator<>() {
             final OptIterator<ReadToken> internal = tokenIteratorSupplier.get();
@@ -29,9 +42,9 @@ public class ZscriptTokenExpression implements ZscriptExpression {
     }
 
     @Override
-    public OptionalInt getField(byte f) {
+    public OptionalInt getField(byte key) {
         return iteratorToMarker().stream()
-                .filter(tok -> tok.getKey() == f)
+                .filter(tok -> tok.getKey() == key)
                 .mapToInt(ReadToken::getData16)
                 .findFirst();
     }
@@ -55,17 +68,16 @@ public class ZscriptTokenExpression implements ZscriptExpression {
                 .filter(tok -> Zchars.isBigField(tok.getKey()))
                 .mapToInt(ReadToken::getDataSize)
                 .sum();
-
     }
-
+    
     @Override
-    public byte[] getBigFieldData() {
-        byte[] data = new byte[getBigFieldSize()];
-        int    i    = 0;
-        for (Iterator<Byte> iterator = getBigField(); iterator.hasNext(); ) {
-            data[i++] = iterator.next();
+    public ByteString getBigFieldAsByteString() {
+        ByteString.ByteStringBuilder b = ByteString.builder();
+
+        for (BlockIterator iterator = getBigField(); iterator.hasNext(); ) {
+            b.appendRaw(iterator.nextContiguous());
         }
-        return data;
+        return b.build();
     }
 
     public BlockIterator getBigField() {

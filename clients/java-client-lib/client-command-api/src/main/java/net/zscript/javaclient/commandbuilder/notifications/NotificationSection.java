@@ -1,6 +1,5 @@
 package net.zscript.javaclient.commandbuilder.notifications;
 
-import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
 import net.zscript.javaclient.commandbuilder.Respondable;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;

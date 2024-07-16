@@ -2,12 +2,12 @@ package net.zscript.javaclient.commandPrinting;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,11 +21,12 @@ import net.zscript.javaclient.commandPaths.MatchedCommandResponse;
 import net.zscript.javaclient.commandPaths.Response;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
-import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.datamodel.IntrinsicsDataModel.StatusModel;
 import net.zscript.model.datamodel.ZscriptDataModel;
+import net.zscript.util.ByteString;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
 public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, StandardCommandGrapher.CommandPrintSettings, CommandGraph.GraphPrintSettings> {
 
@@ -58,12 +59,12 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
             box.append("No data");
         } else {
             if (field.getTypeDefinition() instanceof ZscriptDataModel.TextTypeDefinition) {
-                box.append('"');
-                box.append(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(bigFields)));
-                box.append('"');
+                box.append('"')
+                        .append(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(bigFields)))
+                        .append('"');
             } else {
                 box.append("(Hex) ");
-                ZscriptByteString.ZscriptByteStringBuilder builder = ZscriptByteString.builder();
+                ByteStringBuilder builder = ByteString.builder();
                 for (byte b : bigFields) {
                     builder.appendHexPair(b);
                     builder.appendByte(' ');
@@ -117,9 +118,9 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
             int value = fieldSet.getFieldValue(key);
             if (value == -1) {
                 if (field.isRequired()) {
-                    box.setStyle(new CharacterStyle(TextColor.RED, TextColor.DEFAULT, true));
-                    box.append("Error: Is required but missing");
-                    box.setStyle(CharacterStyle.standardStyle());
+                    box.setStyle(new CharacterStyle(TextColor.RED, TextColor.DEFAULT, true))
+                            .append("Error: Is required but missing")
+                            .setStyle(CharacterStyle.standardStyle());
                 } else {
                     box.append("Not present");
                 }
@@ -127,13 +128,10 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
                 if (field.getTypeDefinition() instanceof ZscriptDataModel.FlagTypeDefinition) {
                     box.append("Present");
                 } else {
-                    box.append("0x");
-                    box.appendHex(value, 1);
+                    box.append("0x").appendHex(value, 1);
                 }
                 if (field.getTypeDefinition() instanceof ZscriptDataModel.AnyTypeDefinition || field.getTypeDefinition() instanceof ZscriptDataModel.NumberTypeDefinition) {
-                    box.append(" (");
-                    box.append(value);
-                    box.append(")");
+                    box.append(" (").append(value).append(")");
                 } else if (field.getTypeDefinition() instanceof ZscriptDataModel.EnumTypeDefinition) {
                     box.append(" (");
                     List<String> values = ((ZscriptDataModel.EnumTypeDefinition) field.getTypeDefinition()).getValues();
@@ -161,9 +159,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
 
         char key = field.getKey();
         box.append(upperFirst(field.getName()));
-        box.append(" (");
-        box.append(key);
-        box.append("): ");
+        box.append(" (").append(key).append("): ");
         doneFields[key - 'A'] = true;
         int value = fieldSet.getFieldValue(key);
         if (value == -1) {
@@ -351,7 +347,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         CommandGrapher.CommandDepth maxDepth = new CommandGrapher.CommandDepth(0);
         while (!workingTrees.isEmpty()) {
             CommandGrapher.CommandGraphElement current = workingTrees.peek();
-            Command             cmd   = current.getCommand();
+            Command                            cmd     = current.getCommand();
 
             CommandGrapher.CommandGraphElement latestOpenTree = openedTrees.peek();
             if (latestOpenTree != null && cmd.getOnFail() != latestOpenTree.getCommand()) {

@@ -4,10 +4,11 @@ import java.util.BitSet;
 
 import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
-import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.model.components.Zchars;
+import net.zscript.util.ByteString.ByteAppendable;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class ZscriptLockSet {
+public class ZscriptLockSet implements ByteAppendable {
     private final BitSet  locks;
     private final boolean supports32;
 
@@ -22,19 +23,11 @@ public class ZscriptLockSet {
     }
 
     public static ZscriptLockSet allLocked(boolean supports32) {
-        if (supports32) {
-            return new ZscriptLockSet(true, 0xFFFFFFFFL);
-        } else {
-            return new ZscriptLockSet(false, 0xFFFF);
-        }
+        return new ZscriptLockSet(true, supports32 ? 0xFFFFFFFFL : 0xFFFF);
     }
 
     public static ZscriptLockSet noneLocked(boolean supports32) {
-        if (supports32) {
-            return new ZscriptLockSet(true, 0);
-        } else {
-            return new ZscriptLockSet(false, 0);
-        }
+        return new ZscriptLockSet(supports32, 0);
     }
 
     private ZscriptLockSet(boolean supports32, long data) {
@@ -54,13 +47,13 @@ public class ZscriptLockSet {
         locks.or(other.locks);
     }
 
-    public void toBytes(ZscriptByteString.ZscriptByteStringBuilder builder) {
+    @Override
+    public void appendTo(ByteStringBuilder builder) {
         if (isAllSet()) {
             return;
         }
         long data = locks.toLongArray()[0];
-        builder.appendField32(Zchars.Z_LOCKS, data);
-
+        builder.appendByte(Zchars.Z_LOCKS).appendNumeric32(data);
     }
 
     public boolean isAllSet() {

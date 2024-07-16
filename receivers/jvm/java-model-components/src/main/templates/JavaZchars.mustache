@@ -41,6 +41,10 @@ public class Zchars {
         return false{{#zchars}}{{#bigField}} || b == '{{{chEscapedAsC}}}'{{/bigField}}{{/zchars}};
     }
 
+    public static boolean isAddressing(byte b) {
+        return false{{#zchars}}{{#addressing}} || b == '{{{chEscapedAsC}}}'{{/addressing}}{{/zchars}};
+    }
+
     public static boolean mustStringEscape(byte b) {
         return false{{#zchars}}{{#mustEscape}} || b == '{{{chEscapedAsC}}}'{{/mustEscape}}{{/zchars}};
     }

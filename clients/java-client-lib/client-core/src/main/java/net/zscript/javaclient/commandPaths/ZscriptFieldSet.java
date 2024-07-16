@@ -2,46 +2,26 @@ package net.zscript.javaclient.commandPaths;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import net.zscript.javaclient.ZscriptByteString;
+import static java.util.Collections.emptyList;
+
+import net.zscript.javareceiver.tokenizer.BlockIterator;
 import net.zscript.javareceiver.tokenizer.TokenBuffer;
 import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString;
+import net.zscript.util.ByteString.ByteAppendable;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class ZscriptFieldSet implements ZscriptExpression {
-
-    public static class BigField {
-        private final byte[]  data;
-        private final boolean isString;
-
-        public BigField(byte[] data, boolean isString) {
-            this.data = data;
-            this.isString = isString;
-        }
-
-        public byte[] getData() {
-            return data;
-        }
-
-        public boolean isString() {
-            return isString;
-        }
-
-        public void output(ZscriptByteString.ZscriptByteStringBuilder out) {
-            if (isString) {
-                out.appendBigfieldText(data);
-            } else {
-                out.appendBigfieldBytes(data);
-            }
-        }
-    }
+/**
+ * Represents a set of fields making up a Zscript expression (single command or response) that can be parsed from Tokens.
+ */
+public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
 
     private final List<BigField> bigFields;
     private final int[]          fields;
@@ -58,13 +38,11 @@ public class ZscriptFieldSet implements ZscriptExpression {
         for (Optional<TokenBuffer.TokenReader.ReadToken> opt = iterator.next(); opt.filter(t -> !t.isMarker()).isPresent(); opt = iterator.next()) {
             TokenBuffer.TokenReader.ReadToken token = opt.get();
             if (Zchars.isBigField(token.getKey())) {
-                byte[] data = new byte[token.getDataSize()];
-
-                int i = 0;
-                for (Iterator<Byte> iter = token.blockIterator(); iter.hasNext(); ) {
-                    data[i++] = iter.next();
+                ByteStringBuilder builder = ByteString.builder();
+                for (BlockIterator iter = token.blockIterator(); iter.hasNext(); ) {
+                    builder.appendRaw(iter.nextContiguous());
                 }
-                bigFields.add(new BigField(data, token.getKey() == Zchars.Z_BIGFIELD_QUOTED));
+                bigFields.add(new BigField(builder.build(), token.getKey() == Zchars.Z_BIGFIELD_QUOTED));
             } else {
                 if (fields[token.getKey() - 'A'] != -1 || token.getDataSize() > 2 || !Zchars.isNumericKey(token.getKey())) {
                     hasClash = true;
@@ -76,6 +54,7 @@ public class ZscriptFieldSet implements ZscriptExpression {
         return new ZscriptFieldSet(bigFields, fields, hasClash);
     }
 
+    // FIXME - this can be improved, only used once
     public static ZscriptFieldSet fromMap(List<byte[]> inBigFields, List<Boolean> bigFieldStrings, Map<Byte, Integer> inFields) {
         int[] fields = new int[26];
         Arrays.fill(fields, -1);
@@ -95,7 +74,7 @@ public class ZscriptFieldSet implements ZscriptExpression {
     public static ZscriptFieldSet blank() {
         int[] fields = new int[26];
         Arrays.fill(fields, -1);
-        return new ZscriptFieldSet(new ArrayList<>(), fields, false);
+        return new ZscriptFieldSet(emptyList(), fields, false);
     }
 
     private ZscriptFieldSet(List<BigField> bigFields, int[] fields, boolean hasClash) {
@@ -124,26 +103,29 @@ public class ZscriptFieldSet implements ZscriptExpression {
         return fields[key - 'A'];
     }
 
-    public byte[] getBigFieldData() {
-        ByteString.ByteStringBuilder out = ByteString.builder();
-        for (BigField big : bigFields) {
-            out.appendRaw(big.getData());
-        }
-        return out.toByteArray();
+    /**
+     * Aggregates all big-fields in this field-set and returns the concatenated result.
+     *
+     * @return concatenation of all associated big-field data
+     */
+    @Override
+    public ByteString getBigFieldAsByteString() {
+        return ByteString.concat((bigField, b) -> b.append(bigField.getDataAsByteString()), bigFields);
     }
 
-    public void toBytes(ZscriptByteString.ZscriptByteStringBuilder out) {
+    @Override
+    public void appendTo(ByteStringBuilder builder) {
         if (fields['Z' - 'A'] != -1) {
-            out.appendField(Zchars.Z_CMD, fields['Z' - 'A']);
+            builder.appendByte(Zchars.Z_CMD).appendNumeric16(fields['Z' - 'A']);
         }
         for (int i = 0; i < fields.length; i++) {
             if (i != 'Z' - 'A' && fields[i] != -1) {
-                out.appendField((byte) (i + 'A'), fields[i]);
+                builder.appendByte((byte) (i + 'A')).appendNumeric16(fields[i]);
             }
 
         }
         for (BigField big : bigFields) {
-            big.output(out);
+            big.appendTo(builder);
         }
     }
 
@@ -161,23 +143,17 @@ public class ZscriptFieldSet implements ZscriptExpression {
             }
         }
         for (BigField big : bigFields) {
-            length += big.data.length + 2;
+            length += big.getDataLength() + 2;
         }
         return length;
     }
 
-    public OptionalInt getField(byte f) {
-        return fields[f - 'A'] == -1 ? OptionalInt.empty() : OptionalInt.of(fields[f - 'A']);
+    public OptionalInt getField(byte key) {
+        return fields[key - 'A'] == -1 ? OptionalInt.empty() : OptionalInt.of(fields[key - 'A']);
     }
 
     public int getFieldCount() {
-        int count = 0;
-        for (int i = 0; i < fields.length; i++) {
-            if (fields[i] != -1) {
-                count++;
-            }
-        }
-        return count;
+        return (int) Arrays.stream(fields).filter(f -> f != 0).count();
     }
 
     public boolean hasBigField() {
@@ -185,12 +161,8 @@ public class ZscriptFieldSet implements ZscriptExpression {
     }
 
     public int getBigFieldSize() {
-        int len = 0;
-        for (BigField big : bigFields) {
-            len += big.getData().length;
-        }
-        return len;
-
+        return bigFields.stream()
+                .mapToInt(BigField::getDataLength)
+                .sum();
     }
-
 }

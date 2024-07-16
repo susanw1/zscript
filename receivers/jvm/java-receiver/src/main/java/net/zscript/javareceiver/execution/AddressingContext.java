@@ -38,7 +38,7 @@ public class AddressingContext extends AbstractContext {
 
             @Override
             public Optional<Integer> next() {
-                return internal.next().filter(rt -> rt.getKey() == Zchars.Z_ADDRESSING || rt.getKey() == Zchars.Z_ADDRESSING_CONTINUE).map(ReadToken::getData16);
+                return internal.next().filter(rt -> Zchars.isAddressing(rt.getKey())).map(ReadToken::getData16);
             }
         };
     }
@@ -83,7 +83,7 @@ public class AddressingContext extends AbstractContext {
                 status(ZscriptStatus.INVALID_KEY);
                 return false;
             }
-            if (token.getKey() == Zchars.Z_ADDRESSING || token.getKey() == Zchars.Z_ADDRESSING_CONTINUE) {
+            if (Zchars.isAddressing(token.getKey())) {
                 continue;
             }
             if (token.getKey() != Tokenizer.ADDRESSING_FIELD_KEY) {

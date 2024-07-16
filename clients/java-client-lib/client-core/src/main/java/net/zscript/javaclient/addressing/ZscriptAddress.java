@@ -1,28 +1,28 @@
 package net.zscript.javaclient.addressing;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
-import net.zscript.javaclient.ByteWritable;
-import net.zscript.javaclient.ZscriptByteString;
+import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+
 import net.zscript.model.components.Zchars;
-import net.zscript.util.OptIterator;
+import net.zscript.util.ByteString.ByteAppendable;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class ZscriptAddress implements ByteWritable {
+/**
+ * Representation of a single address, as per <code>@1.5.192</code>, where each element is a uint16.
+ *
+ * Aggregation to create a full multi-hop address is managed by {@link AddressedCommand} and {@link CompleteAddressedResponse}
+ */
+public class ZscriptAddress implements ByteAppendable {
     private final int[] addressParts;
 
     /**
-     * Composes an Address from the
+     * Composes an Address from the supplied parts.
      *
-     * @param addressParts
-     * @return
+     * @param addressParts the numeric 16-bit elements of the address, each in range 0-0xffff
+     * @return a ZscriptAddress representing the supplied numeric parts
+     * @throws IllegalArgumentException if any of the values is out of range 0-ffff
      */
     public static ZscriptAddress from(int... addressParts) {
         return new ZscriptAddress(addressParts.clone());
@@ -35,6 +35,13 @@ public class ZscriptAddress implements ByteWritable {
         return from(addressParts);
     }
 
+    /**
+     * Composes an Address from the parts in the supplied list.
+     *
+     * @param addressParts the numeric 16-bit elements of the address, each in range 0-0xffff
+     * @return a ZscriptAddress representing the supplied numeric parts
+     * @throws IllegalArgumentException if any of the values is out of range 0-ffff
+     */
     public static ZscriptAddress from(List<Integer> addressParts) {
         return new ZscriptAddress(addressParts.stream().mapToInt(i -> i).toArray());
     }
@@ -43,21 +50,14 @@ public class ZscriptAddress implements ByteWritable {
         if (token.getKey() != Zchars.Z_ADDRESSING) {
             throw new IllegalArgumentException("Cannot parse address from non-address fields");
         }
-        int length = 0;
 
-        OptIterator<ReadToken> iter = token.getNextTokens();
-        for (Optional<ReadToken> opt = iter.next(); opt.filter(t -> t.getKey() == Zchars.Z_ADDRESSING || t.getKey() == Zchars.Z_ADDRESSING_CONTINUE)
-                .isPresent(); opt = iter.next()) {
-            length++;
-        }
-        int                    i            = 0;
-        int[]                  addrSections = new int[length];
-        OptIterator<ReadToken> iter2        = token.getNextTokens();
-        for (Optional<ReadToken> opt = iter2.next(); opt.filter(t -> t.getKey() == Zchars.Z_ADDRESSING || t.getKey() == Zchars.Z_ADDRESSING_CONTINUE)
-                .isPresent(); opt = iter2.next()) {
-            addrSections[i++] = opt.get().getData16();
-        }
-        return new ZscriptAddress(addrSections);
+        // Note, tokenizer will only write one Address; subsequent addresses are inside the single token envelope.
+        int[] parts = token.getNextTokens().stream()
+                .takeWhile(t -> Zchars.isAddressing(t.getKey()))
+                .mapToInt(ReadToken::getData16)
+                .toArray();
+
+        return new ZscriptAddress(parts);
     }
 
     private ZscriptAddress(int[] addr) {
@@ -69,21 +69,31 @@ public class ZscriptAddress implements ByteWritable {
         this.addressParts = addr;
     }
 
+    /**
+     * Determines the ints making up the address parts.
+     *
+     * @return a new array of address parts
+     */
     public int[] getAsInts() {
         return addressParts.clone();
     }
 
+    /**
+     * Determines the number of address parts (eg @a.b.c has 3)
+     *
+     * @return the number of address parts in this address
+     */
     public int size() {
         return addressParts.length;
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Arrays.hashCode(addressParts);
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
@@ -104,27 +114,28 @@ public class ZscriptAddress implements ByteWritable {
      */
     @Override
     public String toString() {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            final ZscriptByteString.ZscriptByteStringBuilder builder = ZscriptByteString.builder();
-            writeTo(builder);
-            builder.writeTo(baos);
-            return baos.toString(UTF_8);
-        } catch (IOException e) {
-            // this cannot happen with a BAOS, but hey.
-            throw new UncheckedIOException(e);
-        }
+        return toByteString().asString();
     }
 
+    /**
+     * Defines how a ZscriptAddress should be written to a ByteString in canonical Zscript notation, eg "@12.34ab.c56"
+     *
+     * @param builder the builder to append to
+     */
     @Override
-    public ZscriptAddress writeTo(final ZscriptByteString.ZscriptByteStringBuilder out) {
+    public void appendTo(ByteStringBuilder builder) {
         byte pre = Zchars.Z_ADDRESSING;
         for (int a : addressParts) {
-            out.appendField(pre, a);
+            builder.appendByte(pre).appendNumeric16(a);
             pre = Zchars.Z_ADDRESSING_CONTINUE;
         }
-        return this;
     }
 
+    /**
+     * Length in bytes of the tokens in the token buffer for this whole address.
+     *
+     * @return token buffer space required, in bytes
+     */
     public int getBufferLength() {
         int length = 0;
         for (int addressPart : addressParts) {
@@ -138,5 +149,4 @@ public class ZscriptAddress implements ByteWritable {
         }
         return length;
     }
-
 }

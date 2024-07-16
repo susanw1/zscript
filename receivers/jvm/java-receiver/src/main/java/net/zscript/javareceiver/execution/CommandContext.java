@@ -14,6 +14,7 @@ import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 import net.zscript.javareceiver.tokenizer.ZscriptTokenExpression;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
+import net.zscript.util.ByteString;
 import net.zscript.util.OptIterator;
 
 /**
@@ -61,8 +62,8 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
     }
 
     @Override
-    public byte[] getBigFieldData() {
-        return expression.getBigFieldData();
+    public ByteString getBigFieldAsByteString() {
+        return expression.getBigFieldAsByteString();
     }
 
     @Override

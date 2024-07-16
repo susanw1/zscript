@@ -3,11 +3,12 @@ package net.zscript.javaclient.addressing;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import net.zscript.javaclient.ZscriptByteString;
 import net.zscript.javaclient.sequence.CommandSequence;
-import net.zscript.util.ByteString;
+import net.zscript.model.components.Zchars;
+import net.zscript.util.ByteString.ByteAppendable;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class AddressedCommand {
+public class AddressedCommand implements ByteAppendable {
     private final Queue<ZscriptAddress> addressSections;
     private final CommandSequence       content;
 
@@ -20,18 +21,11 @@ public class AddressedCommand {
         addressSections.add(section);
     }
 
-    public ByteString toBytes() {
-        ZscriptByteString.ZscriptByteStringBuilder builder = ZscriptByteString.builder();
-        toBytes(builder);
-        return builder.build();
-    }
-
-    public void toBytes(ZscriptByteString.ZscriptByteStringBuilder builder) {
-        for (ZscriptAddress address : addressSections) {
-            address.writeTo(builder);
-        }
-        content.toBytes(builder);
-        builder.appendByte('\n');
+    @Override
+    public void appendTo(ByteStringBuilder builder) {
+        builder.append(addressSections)
+                .append(content)
+                .appendByte(Zchars.Z_NEWLINE);
     }
 
     public CommandSequence getContent() {
