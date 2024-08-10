@@ -14,8 +14,8 @@ import net.zscript.javaclient.addressing.AddressedResponse;
 import net.zscript.javaclient.addressing.CompleteAddressedResponse;
 import net.zscript.javaclient.nodes.Connection;
 import net.zscript.javaclient.threading.ZscriptWorkerThread;
-import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.tokenizer.TokenExtendingBuffer;
+import net.zscript.tokenizer.Tokenizer;
 
 public abstract class RawConnection implements Connection, AutoCloseable {
     private final ZscriptWorkerThread thread = new ZscriptWorkerThread();

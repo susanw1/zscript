@@ -5,7 +5,7 @@ import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
 import net.zscript.javareceiver.semanticParser.SemanticAction;
 import net.zscript.javareceiver.semanticParser.SemanticParser;
-import net.zscript.javareceiver.tokenizer.TokenBuffer;
+import net.zscript.tokenizer.TokenBuffer;
 
 /**
  * Abstract implementation of a Channel that integrates a parser and buffer, and a source of actions that execute the received commands. As an ActionSource, it provides executable

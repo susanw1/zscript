@@ -1,4 +1,4 @@
-package net.zscript.javareceiver.tokenizer;
+package net.zscript.tokenizer;
 
 /**
  * Flags to indicate current status, acting as a communication channel between the TokenWriter and TokenReader.

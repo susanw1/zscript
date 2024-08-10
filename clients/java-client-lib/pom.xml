@@ -33,7 +33,7 @@
         </dependency>
         <dependency>
             <groupId>net.zscript</groupId>
-            <artifactId>java-receiver</artifactId>
+            <artifactId>java-tokenizer</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

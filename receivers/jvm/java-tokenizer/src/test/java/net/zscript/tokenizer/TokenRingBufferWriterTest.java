@@ -1,19 +1,19 @@
-package net.zscript.javareceiver.tokenizer;
+package net.zscript.tokenizer;
 
-import static net.zscript.javareceiver.tokenizer.Tokenizer.ERROR_BUFFER_OVERRUN;
+import static net.zscript.tokenizer.Tokenizer.ERROR_BUFFER_OVERRUN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
+import net.zscript.tokenizer.TokenBuffer.TokenWriter;
 
 class TokenRingBufferWriterTest {
 
     private static final int BUFSIZE = 10;
 
     private final TokenRingBuffer buffer = TokenRingBuffer.createBufferWithCapacity(BUFSIZE);
-    private final TokenWriter          writer = buffer.getTokenWriter();
+    private final TokenWriter     writer = buffer.getTokenWriter();
 
     /**
      * Validates the exposed buffer state.
@@ -229,7 +229,7 @@ class TokenRingBufferWriterTest {
     @Test
     void shouldTokenizeContinuedBigField() {
         TokenRingBuffer bigBuffer = TokenRingBuffer.createBufferWithCapacity(300);
-        TokenWriter          writer    = bigBuffer.getTokenWriter();
+        TokenWriter     writer    = bigBuffer.getTokenWriter();
 
         writer.startToken((byte) '+', false);
         for (int i = 0; i < 258; i++) {

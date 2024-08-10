@@ -1,6 +1,6 @@
 package net.zscript.javareceiver.semanticParser;
 
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
+import net.zscript.tokenizer.TokenBuffer.TokenReader;
 
 /**
  * Defines parser state methods accessed by Command/Address contexts.

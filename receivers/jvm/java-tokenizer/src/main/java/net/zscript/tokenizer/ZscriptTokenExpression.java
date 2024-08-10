@@ -1,12 +1,12 @@
-package net.zscript.javareceiver.tokenizer;
+package net.zscript.tokenizer;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Supplier;
 
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.model.components.Zchars;
+import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.util.ByteString;
 import net.zscript.util.OptIterator;
 
@@ -69,7 +69,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
                 .mapToInt(ReadToken::getDataSize)
                 .sum();
     }
-    
+
     @Override
     public ByteString getBigFieldAsByteString() {
         ByteString.ByteStringBuilder b = ByteString.builder();

@@ -8,11 +8,10 @@ import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javaclient.connectors.RawConnection;
 import net.zscript.javaclient.connectors.ZscriptConnectors;
 import net.zscript.javaclient.connectors.ZscriptConnectors.ZscriptConnector;
-import net.zscript.javaclient.devices.Device;
 import net.zscript.javaclient.sequence.CommandSequence;
-import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.modules.base.CoreModule;
+import net.zscript.tokenizer.TokenExtendingBuffer;
+import net.zscript.tokenizer.Tokenizer;
 
 class TcpMain {
     public static void main(String[] args) throws Exception {

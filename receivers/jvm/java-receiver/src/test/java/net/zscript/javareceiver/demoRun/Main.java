@@ -10,8 +10,8 @@ import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
 import net.zscript.javareceiver.modules.outerCore.ZscriptOuterCoreModule;
 import net.zscript.javareceiver.modules.scriptSpaces.ScriptSpaceModule;
 import net.zscript.javareceiver.scriptSpaces.ScriptSpace;
-import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.tokenizer.TokenRingBuffer;
+import net.zscript.tokenizer.Tokenizer;
 
 public class Main {
     public static void main(String[] args) throws IOException {

@@ -1,12 +1,8 @@
 package net.zscript.javaclient.commandbuilder.defaultCommands;
 
-import java.nio.charset.StandardCharsets;
-
-import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
-import net.zscript.javareceiver.tokenizer.ZscriptExpression;
-import net.zscript.model.components.Zchars;
+import net.zscript.tokenizer.ZscriptExpression;
 
 public class GenericCommandBuilder extends ZscriptCommandBuilder<DefaultResponse> {
     public ZscriptCommandBuilder<DefaultResponse> setField(byte key, int value) {

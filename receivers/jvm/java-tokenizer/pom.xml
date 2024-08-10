@@ -9,8 +9,8 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>java-receiver</artifactId>
-    <name>Zscript Receiver Using Token Buffer in Java</name>
+    <artifactId>java-tokenizer</artifactId>
+    <name>Zscript Token Buffer System</name>
 
     <dependencies>
         <dependency>
@@ -21,11 +21,6 @@
         <dependency>
             <groupId>net.zscript</groupId>
             <artifactId>zscript-java-model-components</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.zscript</groupId>
-            <artifactId>java-tokenizer</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

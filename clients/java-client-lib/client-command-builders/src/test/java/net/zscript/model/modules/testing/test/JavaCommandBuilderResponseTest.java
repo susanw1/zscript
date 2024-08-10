@@ -1,5 +1,7 @@
 package net.zscript.model.modules.testing.test;
 
+import java.util.function.Consumer;
+
 import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.BitsetRespTestU.Lion;
 import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.BitsetRespTestU.Tabby;
 import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.BitsetRespTestU.Tiger;
@@ -8,20 +10,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.function.Consumer;
-
 import net.zscript.client.modules.test.testing.TestingModule;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.BitsetRespTestV;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.EnumRespTestP;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.EnumRespTestQ;
+import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
-import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
-import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
-import net.zscript.javareceiver.tokenizer.ZscriptTokenExpression;
+import net.zscript.tokenizer.TokenBuffer.TokenReader;
+import net.zscript.tokenizer.TokenExtendingBuffer;
+import net.zscript.tokenizer.Tokenizer;
+import net.zscript.tokenizer.ZscriptTokenExpression;
 
 public class JavaCommandBuilderResponseTest {
     final TokenExtendingBuffer buffer      = new TokenExtendingBuffer();

@@ -1,4 +1,4 @@
-package net.zscript.javareceiver.tokenizer;
+package net.zscript.tokenizer;
 
 import java.util.OptionalInt;
 

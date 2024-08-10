@@ -7,14 +7,14 @@ import net.zscript.javareceiver.core.LockSet;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptLocks;
 import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
-import net.zscript.javareceiver.tokenizer.TokenBuffer;
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
-import net.zscript.javareceiver.tokenizer.TokenBufferFlags;
-import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
+import net.zscript.tokenizer.TokenBuffer;
+import net.zscript.tokenizer.TokenBuffer.TokenReader;
+import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.tokenizer.TokenBufferFlags;
+import net.zscript.tokenizer.TokenBufferIterator;
+import net.zscript.tokenizer.Tokenizer;
 
 public class SemanticParser implements ParseState, ContextView {
     // 6 bytes + 1 pointer

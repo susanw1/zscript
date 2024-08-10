@@ -3,8 +3,8 @@ package net.zscript.javareceiver.core;
 import java.nio.charset.StandardCharsets;
 
 import net.zscript.javareceiver.execution.ZscriptField;
-import net.zscript.javareceiver.tokenizer.BlockIterator;
 import net.zscript.model.components.Zchars;
+import net.zscript.tokenizer.BlockIterator;
 
 public abstract class AbstractOutStream implements OutStream, ZscriptCommandOutStream {
     /**

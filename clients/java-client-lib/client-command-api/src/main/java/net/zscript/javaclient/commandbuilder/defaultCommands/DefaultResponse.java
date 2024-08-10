@@ -3,7 +3,7 @@ package net.zscript.javaclient.commandbuilder.defaultCommands;
 import java.util.OptionalInt;
 
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.tokenizer.ZscriptExpression;
 
 public class DefaultResponse implements ZscriptResponse {
     private final ZscriptExpression expression;

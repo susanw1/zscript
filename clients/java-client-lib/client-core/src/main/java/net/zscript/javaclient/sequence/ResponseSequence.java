@@ -1,9 +1,9 @@
 package net.zscript.javaclient.sequence;
 
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
-import net.zscript.javareceiver.tokenizer.TokenBuffer;
-import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.model.components.Zchars;
+import net.zscript.tokenizer.TokenBuffer;
+import net.zscript.tokenizer.TokenBufferIterator;
 import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 

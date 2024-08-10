@@ -2,11 +2,9 @@ package net.zscript.javaclient.commandbuilder.commandNodes;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
-import net.zscript.javaclient.commandbuilder.ValidatingResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
-import net.zscript.javaclient.commandbuilder.defaultCommands.DefaultResponse;
-import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.tokenizer.ZscriptExpression;
 
 public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> {
     public static final int USER_FIRMWARE     = 0;
@@ -74,4 +72,3 @@ class DemoCapabilities extends ZscriptCommandNode<DemoCapabilitiesCommandRespons
         return false;
     }
 }
-

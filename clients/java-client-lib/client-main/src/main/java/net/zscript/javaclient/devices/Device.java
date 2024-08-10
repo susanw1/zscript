@@ -25,9 +25,9 @@ import net.zscript.javaclient.commandbuilder.notifications.NotificationHandle;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationId;
 import net.zscript.javaclient.nodes.ZscriptNode;
 import net.zscript.javaclient.sequence.CommandSequence;
-import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.ZscriptModel;
+import net.zscript.tokenizer.TokenExtendingBuffer;
+import net.zscript.tokenizer.Tokenizer;
 
 public class Device {
     private final ZscriptModel model;
