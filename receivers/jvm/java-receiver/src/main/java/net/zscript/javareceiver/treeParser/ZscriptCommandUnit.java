@@ -1,6 +1,6 @@
 package net.zscript.javareceiver.treeParser;
 
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 public class ZscriptCommandUnit implements ZscriptSequenceUnit {
     private final ReadToken start;

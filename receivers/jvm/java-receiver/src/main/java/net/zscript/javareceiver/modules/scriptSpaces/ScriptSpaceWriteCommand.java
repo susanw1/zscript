@@ -7,9 +7,9 @@ import java.util.OptionalInt;
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.scriptSpaces.ScriptSpace;
-import net.zscript.javareceiver.tokenizer.ScriptSpaceBuffer.ScriptSpaceWriterBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.components.ZscriptStatus;
+import net.zscript.tokenizer.ScriptSpaceBuffer.ScriptSpaceWriterBuffer;
+import net.zscript.tokenizer.Tokenizer;
 
 public class ScriptSpaceWriteCommand {
     public static void execute(List<ScriptSpace> spaces, CommandContext ctx) {

@@ -1,8 +1,11 @@
-package net.zscript.javareceiver.tokenizer;
+package net.zscript.tokenizer;
 
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
+import static net.zscript.tokenizer.TokenBuffer.isMarker;
+import static net.zscript.tokenizer.TokenBuffer.isSequenceEndMarker;
 
 /**
  * Array based implementation of a Token Buffer - the tokens making up incoming command or response sequences are encoded and accessed here. Rules are:
@@ -100,7 +103,7 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
                     if (numeric) {
                         throw new IllegalArgumentException("Illegal numeric field longer than 255 bytes");
                     }
-                    writeNewTokenStart(TokenArrayBuffer.TOKEN_EXTENSION);
+                    writeNewTokenStart(TOKEN_EXTENSION);
                 }
                 data[writeCursor] = (byte) (nibble << 4);
                 data[writeLastLen]++;
@@ -121,7 +124,7 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
                 if (numeric) {
                     throw new IllegalArgumentException("Illegal numeric field longer than 255 bytes");
                 }
-                writeNewTokenStart(TokenArrayBuffer.TOKEN_EXTENSION);
+                writeNewTokenStart(TOKEN_EXTENSION);
             }
             data[writeCursor] = b;
             moveCursor();
@@ -186,7 +189,7 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
 
         @Override
         public void writeMarker(final byte key) {
-            if (!TokenBuffer.isMarker(key)) {
+            if (!isMarker(key)) {
                 throw new IllegalArgumentException("invalid marker [key=0x" + Integer.toHexString(key) + "]");
             }
             endToken();
@@ -194,14 +197,14 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
             moveCursor();
             endToken();
 
-            if (TokenBuffer.isSequenceEndMarker(key)) {
+            if (isSequenceEndMarker(key)) {
                 flags.setSeqMarkerWritten();
             }
             flags.setMarkerWritten();
         }
 
         private void writeNewTokenStart(final byte key) {
-            if (TokenBuffer.isMarker(key)) {
+            if (isMarker(key)) {
                 throw new IllegalArgumentException("invalid token [key=0x" + Integer.toHexString(key) + "]");
             }
             data[writeCursor] = key;
@@ -270,13 +273,13 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
                 }
 
                 final int initialIndex = index;
-                if (TokenBuffer.isMarker(data[index])) {
+                if (isMarker(data[index])) {
                     index = offset(index, 1);
                 } else {
                     do {
                         final int tokenDataLength = Byte.toUnsignedInt(data[offset(index, 1)]);
                         index = offset(index, tokenDataLength + 2);
-                    } while (data[index] == TokenArrayBuffer.TOKEN_EXTENSION);
+                    } while (data[index] == TOKEN_EXTENSION);
                 }
 
                 return Optional.of(new ArrayBufferToken(initialIndex));
@@ -355,7 +358,7 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
                 if (!isInReadableArea(index)) {
                     throw new IllegalArgumentException("index is not in readable area [index=" + index + "]");
                 }
-                if (data[index] == TokenArrayBuffer.TOKEN_EXTENSION) {
+                if (data[index] == TOKEN_EXTENSION) {
                     throw new IllegalArgumentException("Tokens cannot begin with extension key");
                 }
                 this.index = index;
@@ -390,7 +393,7 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
                     public boolean hasNext() {
                         // Copes with empty tokens which still have extensions... probably not a valid thing anyway, but still, it didn't cost anything.
                         while (segRemaining == 0) {
-                            if ((itIndex == writeStart) || (data[itIndex] != TokenArrayBuffer.TOKEN_EXTENSION)) {
+                            if ((itIndex == writeStart) || (data[itIndex] != TOKEN_EXTENSION)) {
                                 return false;
                             }
                             segRemaining = Byte.toUnsignedInt(data[offset(itIndex, 1)]);
@@ -480,7 +483,7 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
                     final int segSz = Byte.toUnsignedInt(data[offset(index, 1)]);
                     totalSz += segSz;
                     index = offset(index, segSz + 2);
-                } while (index != writeStart && data[index] == TokenArrayBuffer.TOKEN_EXTENSION);
+                } while (index != writeStart && data[index] == TOKEN_EXTENSION);
 
                 return totalSz;
             }

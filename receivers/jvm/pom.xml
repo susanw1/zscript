@@ -14,9 +14,10 @@
     <name>Zscript JVM Receiver</name>
 
     <modules>
-        <module>java-receiver</module>
-        <!--        <module>java-receiver-acceptance-tests</module>-->
         <module>java-model-components</module>
+        <module>java-receiver</module>
+        <module>java-tokenizer</module>
+        <!--        <module>java-receiver-acceptance-tests</module>-->
     </modules>
 
     <dependencies>

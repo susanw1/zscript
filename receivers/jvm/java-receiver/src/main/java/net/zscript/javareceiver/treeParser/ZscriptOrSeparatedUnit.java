@@ -1,7 +1,7 @@
 package net.zscript.javareceiver.treeParser;
 
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.tokenizer.Tokenizer;
 
 public class ZscriptOrSeparatedUnit implements ZscriptSequenceUnit {
     private final ZscriptSequenceUnitPlace before;

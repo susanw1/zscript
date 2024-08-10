@@ -1,8 +1,8 @@
-package net.zscript.javareceiver.tokenizer;
-
-import static java.text.MessageFormat.format;
+package net.zscript.tokenizer;
 
 import java.util.Arrays;
+
+import static java.text.MessageFormat.format;
 
 public class TokenExtendingBuffer extends TokenArrayBuffer {
     public TokenExtendingBuffer() {

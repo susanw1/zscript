@@ -29,9 +29,16 @@
             <version>[2.0.0,3.0.0)</version>
         </dependency>
 
+        <!-- Test Dependencies -->
         <dependency>
             <groupId>net.zscript</groupId>
             <artifactId>zscript-java-client-command-builders</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>java-receiver</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

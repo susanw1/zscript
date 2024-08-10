@@ -2,7 +2,6 @@ package net.zscript.javaclient.commandbuilder;
 
 import java.util.OptionalInt;
 
-import net.zscript.javareceiver.tokenizer.BlockIterator;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
 

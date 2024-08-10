@@ -2,7 +2,7 @@ package net.zscript.javaclient.commandbuilder;
 
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
-import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.tokenizer.ZscriptExpression;
 
 public class DemoActivateCommand extends ZscriptCommandNode<DemoActivateCommand.DemoActivateCommandResponse> {
     //    private final boolean alreadyActivated;

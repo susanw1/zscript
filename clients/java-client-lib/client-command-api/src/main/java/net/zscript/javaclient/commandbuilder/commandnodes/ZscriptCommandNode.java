@@ -9,7 +9,7 @@ import net.zscript.javaclient.commandPaths.BigField;
 import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
 import net.zscript.javaclient.commandbuilder.Respondable;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.tokenizer.ZscriptExpression;
 import net.zscript.util.ByteString;
 
 public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends CommandSequenceNode implements Respondable<T> {

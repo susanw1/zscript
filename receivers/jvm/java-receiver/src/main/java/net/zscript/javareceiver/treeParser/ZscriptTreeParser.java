@@ -1,13 +1,13 @@
 package net.zscript.javareceiver.treeParser;
 
-import static net.zscript.javareceiver.tokenizer.TokenBuffer.isSequenceEndMarker;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
+import static net.zscript.tokenizer.TokenBuffer.isSequenceEndMarker;
+
+import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.tokenizer.Tokenizer;
 import net.zscript.util.OptIterator;
 
 public class ZscriptTreeParser {
@@ -30,7 +30,7 @@ public class ZscriptTreeParser {
         }
         ZscriptSequenceUnitPlace place = new ZscriptSequenceUnitPlace(start, Tokenizer.NORMAL_SEQUENCE_END, -lowest);
         while (place.parse()) {
-            ;
+            // just keep parsing
         }
         return place;
     }
@@ -66,7 +66,7 @@ public class ZscriptTreeParser {
             minParenLevel = 0;
         }
         if (!hasMarker) {
-//            System.out.println("Command: " + (char) start.getKey() + " : " + Integer.toHexString(Byte.toUnsignedInt(endMarker)));
+            //            System.out.println("Command: " + (char) start.getKey() + " : " + Integer.toHexString(Byte.toUnsignedInt(endMarker)));
             return new ZscriptCommandUnit(start);
         }
 
@@ -81,7 +81,7 @@ public class ZscriptTreeParser {
                     firstOnLevel = t;
                 }
                 if (t.getKey() == Tokenizer.CMD_END_ORELSE) {
-//                    System.out.println("Or: " + (char) start.getKey() + " : " + Integer.toHexString(Byte.toUnsignedInt(endMarker)));
+                    //                    System.out.println("Or: " + (char) start.getKey() + " : " + Integer.toHexString(Byte.toUnsignedInt(endMarker)));
                     return new ZscriptOrSeparatedUnit(firstOnLevel, Math.max(parenStartCount - minParenLevel, 0), it.next().get(), endMarker);
                 }
             }
@@ -130,7 +130,7 @@ public class ZscriptTreeParser {
             it = start.getNextTokens();
             for (opt = it.next(); opt.isPresent() && !opt.get().isMarker(); opt = it.next()) {
             }
-//            System.out.println("Command2: " + (char) start.getKey() + " : " + Integer.toHexString(Byte.toUnsignedInt(endMarker)));
+            //            System.out.println("Command2: " + (char) start.getKey() + " : " + Integer.toHexString(Byte.toUnsignedInt(endMarker)));
             return new ZscriptCommandUnit(opt.get());
         }
         if (prevStart == null) {
@@ -138,7 +138,7 @@ public class ZscriptTreeParser {
         }
         units.add(new ZscriptSequenceUnitPlace(prevStart, endMarker, parenLeft));
 
-//            System.out.println("And: " + (char) start.getKey() + " : " + Integer.toHexString(Byte.toUnsignedInt(endMarker)));
+        //            System.out.println("And: " + (char) start.getKey() + " : " + Integer.toHexString(Byte.toUnsignedInt(endMarker)));
         return new ZscriptAndSequenceUnit(units);
     }
 

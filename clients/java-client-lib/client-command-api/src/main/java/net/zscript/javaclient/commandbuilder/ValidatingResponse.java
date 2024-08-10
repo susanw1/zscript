@@ -2,9 +2,8 @@ package net.zscript.javaclient.commandbuilder;
 
 import java.util.OptionalInt;
 
-import net.zscript.javareceiver.tokenizer.BlockIterator;
-import net.zscript.javareceiver.tokenizer.ZscriptExpression;
 import net.zscript.model.components.Zchars;
+import net.zscript.tokenizer.ZscriptExpression;
 
 public abstract class ValidatingResponse implements ZscriptResponse {
     protected final ZscriptExpression expression;

@@ -1,7 +1,7 @@
-package net.zscript.javareceiver.tokenizer;
+package net.zscript.tokenizer;
 
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
 import net.zscript.model.components.Zchars;
+import net.zscript.tokenizer.TokenBuffer.TokenWriter;
 
 /**
  * General Tokenizer for handling a stream of incoming Zscript bytes. Responsibilities:

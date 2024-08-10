@@ -13,9 +13,9 @@ import net.zscript.javaclient.connectors.RawConnection;
 import net.zscript.javaclient.connectors.ZscriptConnectors;
 import net.zscript.javaclient.connectors.serial.SerialConnector;
 import net.zscript.javaclient.sequence.CommandSequence;
-import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.modules.base.CoreModule;
+import net.zscript.tokenizer.TokenExtendingBuffer;
+import net.zscript.tokenizer.Tokenizer;
 
 class SerialMain {
     public static void main(String[] args) throws IOException, InterruptedException {

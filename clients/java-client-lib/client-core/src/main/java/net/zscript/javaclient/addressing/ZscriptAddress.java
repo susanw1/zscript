@@ -3,7 +3,7 @@ package net.zscript.javaclient.addressing;
 import java.util.Arrays;
 import java.util.List;
 
-import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString.ByteAppendable;

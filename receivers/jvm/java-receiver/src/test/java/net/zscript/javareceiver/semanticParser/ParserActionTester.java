@@ -1,25 +1,25 @@
 package net.zscript.javareceiver.semanticParser;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
 import net.zscript.javareceiver.semanticParser.SemanticParser.State;
-import net.zscript.javareceiver.tokenizer.TokenBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.tokenizer.TokenBuffer;
+import net.zscript.tokenizer.Tokenizer;
 
 /**
  * Testing utility methods.
  */
 class ParserActionTester {
-    private final Zscript            zscript;
-    private final TokenBuffer buffer;
-    private final Tokenizer   tokenizer;
-    private final SemanticParser   parser;
-    private final OutStream   outStream;
+    private final Zscript        zscript;
+    private final TokenBuffer    buffer;
+    private final Tokenizer      tokenizer;
+    private final SemanticParser parser;
+    private final OutStream      outStream;
 
     public ParserActionTester(Zscript zscript, TokenBuffer buffer, Tokenizer tokenizer, SemanticParser parser, OutStream outStream) {
         this.zscript = zscript;

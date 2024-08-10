@@ -13,8 +13,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import net.zscript.ascii.AnsiCharacterStylePrinter;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
-import net.zscript.javareceiver.tokenizer.TokenExtendingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.tokenizer.TokenExtendingBuffer;
+import net.zscript.tokenizer.Tokenizer;
 
 public class CompleteCommandGrapherTest {
     CommandGraph.GraphPrintSettings basicSettings = new CommandGraph.GraphPrintSettings(new StandardCommandGrapher.CommandPrintSettings("  ", VerbositySetting.NAME), true, 2,

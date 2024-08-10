@@ -1,7 +1,7 @@
 package net.zscript.javaclient.commandbuilder.commandNodes;
 
 import net.zscript.javaclient.commandbuilder.ValidatingResponse;
-import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.tokenizer.ZscriptExpression;
 
 public class DemoCapabilitiesCommandResponse extends ValidatingResponse {
     private       int    infoType = DemoCapabilitiesCommandBuilder.USER_FIRMWARE;

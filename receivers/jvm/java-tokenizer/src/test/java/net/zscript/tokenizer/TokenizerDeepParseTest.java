@@ -1,16 +1,12 @@
-package net.zscript.javareceiver.tokenizer;
+package net.zscript.tokenizer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
-import static net.zscript.javareceiver.tokenizer.Tokenizer.NORMAL_SEQUENCE_END;
-import static org.junit.jupiter.api.Assertions.fail;
+import static net.zscript.tokenizer.Tokenizer.NORMAL_SEQUENCE_END;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyByte;
-import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,12 +16,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import net.zscript.model.components.Zchars;
 
 @ExtendWith(MockitoExtension.class)
-class TokenizerTest {
+class TokenizerDeepParseTest {
     @Mock
     private TokenBuffer             buffer;
     @Mock
@@ -46,18 +43,18 @@ class TokenizerTest {
 
     @BeforeEach
     void setUp() {
-        tokenizer = new Tokenizer(writer, 2);
+        tokenizer = new Tokenizer(writer, 2, true);
         when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
     }
 
     @Test
     void shouldMarkOverrunOnDataLostOnce() {
         tokenizer.dataLost();
-        verify(writer).fail(Tokenizer.ERROR_BUFFER_OVERRUN);
+        Mockito.verify(writer).fail(Tokenizer.ERROR_BUFFER_OVERRUN);
         // do it again - should just record once
-        reset(writer);
+        Mockito.reset(writer);
         tokenizer.dataLost();
-        verify(writer, never()).fail(Tokenizer.ERROR_BUFFER_OVERRUN);
+        Mockito.verify(writer, Mockito.never()).fail(Tokenizer.ERROR_BUFFER_OVERRUN);
     }
 
     @ParameterizedTest(name = "{0}: {1}")
@@ -152,11 +149,11 @@ class TokenizerTest {
 
     private static Stream<Arguments> shouldHandleAddressing() {
         return Stream.of(
-                Arguments.of("Simple address", "@2Z\n", "t@n2aZm" + END),
-                Arguments.of("Simple address with nulls", "\000@\000a\000Z\000\n", "--t@--na--aZ--m" + END),
-                Arguments.of("Simple address, complex content", "@2Z12345\"a=\n", "t@n2aZb1b2b3b4b5b\"bab=m" + END),
-                Arguments.of("Multilevel address", "@2.1Z\n", "t@n2t.n1aZm" + END),
-                Arguments.of("Compound multilevel addresses", "@2.3@4.5Z\n", "t@n2t.n3a@b4b.b5bZm" + END));
+                Arguments.of("Simple address", "@2Z\n", "t@n2tZm" + END),
+                Arguments.of("Simple address with nulls", "\000@\000a\000Z\000\n", "--t@--na--tZ--m" + END),
+                Arguments.of("Simple address, complex content", "@2Z1234A123B23\n", "t@n2tZn1n2n3n4tAn1n2n3tBn2n3m" + END),
+                Arguments.of("Multilevel address", "@2.123Z\n", "t@n2t.n1n2n3tZm" + END),
+                Arguments.of("Compound multilevel addresses", "@2.3@4.5Z\n", "t@n2t.n3t@n4t.n5tZm" + END));
     }
 
     /**
@@ -179,36 +176,36 @@ class TokenizerTest {
             try {
                 switch (action) {
                 case 's':
-                    verify(writer).startToken(arg, false);
+                    Mockito.verify(writer).startToken(arg, false);
                     break;
                 case 't':
-                    verify(writer).startToken(arg, true);
+                    Mockito.verify(writer).startToken(arg, true);
                     break;
                 case 'n':
-                    verify(writer).continueTokenNibble((byte) Character.digit((char) arg, 16));
+                    Mockito.verify(writer).continueTokenNibble((byte) Character.digit((char) arg, 16));
                     break;
                 case 'b':
-                    verify(writer).continueTokenByte(arg);
+                    Mockito.verify(writer).continueTokenByte(arg);
                     break;
                 case 'm':
-                    verify(writer).writeMarker(arg);
+                    Mockito.verify(writer).writeMarker(arg);
                     break;
                 case 'f':
-                    verify(writer).fail(arg);
+                    Mockito.verify(writer).fail(arg);
                     break;
                 case 'a':
-                    verify(writer).startToken(Tokenizer.ADDRESSING_FIELD_KEY, false);
-                    verify(writer).continueTokenByte(arg);
+                    Mockito.verify(writer).startToken(Tokenizer.ADDRESSING_FIELD_KEY, false);
+                    Mockito.verify(writer).continueTokenByte(arg);
                     break;
                 case '-':
-                    verify(writer, never()).startToken(anyByte(), anyBoolean());
-                    verify(writer, never()).continueTokenNibble(anyByte());
-                    verify(writer, never()).continueTokenByte(anyByte());
+                    Mockito.verify(writer, Mockito.never()).startToken(anyByte(), anyBoolean());
+                    Mockito.verify(writer, Mockito.never()).continueTokenNibble(anyByte());
+                    Mockito.verify(writer, Mockito.never()).continueTokenByte(anyByte());
                     break;
                 default:
                     fail("Unknown action! '" + action + "'");
                 }
-                clearInvocations(writer);
+                Mockito.clearInvocations(writer);
             } catch (Throwable t) {
                 throw new AssertionError("At index " + index + " processing char " + Byte.toUnsignedInt(c), t);
             }

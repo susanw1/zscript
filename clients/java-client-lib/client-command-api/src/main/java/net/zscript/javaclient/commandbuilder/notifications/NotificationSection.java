@@ -3,7 +3,7 @@ package net.zscript.javaclient.commandbuilder.notifications;
 import net.zscript.javaclient.commandbuilder.Respondable;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
-import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.tokenizer.ZscriptExpression;
 
 public abstract class NotificationSection<T extends ZscriptResponse> implements Respondable<T> {
     public abstract Class<T> getResponseType();

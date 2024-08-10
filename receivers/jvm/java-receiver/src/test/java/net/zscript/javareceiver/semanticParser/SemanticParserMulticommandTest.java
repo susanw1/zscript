@@ -1,14 +1,14 @@
 package net.zscript.javareceiver.semanticParser;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Stream;
+
 import static net.zscript.javareceiver.semanticParser.SemanticAction.ActionType.END_SEQUENCE;
 import static net.zscript.javareceiver.semanticParser.SemanticAction.ActionType.RUN_FIRST_COMMAND;
 import static net.zscript.javareceiver.semanticParser.SemanticAction.ActionType.WAIT_FOR_TOKENS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.of;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,9 +19,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import net.zscript.javareceiver.core.StringWriterOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
-import net.zscript.javareceiver.tokenizer.TokenBuffer;
-import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.tokenizer.TokenBuffer;
+import net.zscript.tokenizer.TokenRingBuffer;
+import net.zscript.tokenizer.Tokenizer;
 
 class SemanticParserMulticommandTest {
     private final TokenBuffer buffer    = TokenRingBuffer.createBufferWithCapacity(256);

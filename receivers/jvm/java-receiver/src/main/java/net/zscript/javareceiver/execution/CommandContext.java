@@ -8,12 +8,12 @@ import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptCommandOutStream;
 import net.zscript.javareceiver.semanticParser.ContextView;
-import net.zscript.javareceiver.tokenizer.BlockIterator;
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
-import net.zscript.javareceiver.tokenizer.ZscriptExpression;
-import net.zscript.javareceiver.tokenizer.ZscriptTokenExpression;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
+import net.zscript.tokenizer.BlockIterator;
+import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.tokenizer.ZscriptExpression;
+import net.zscript.tokenizer.ZscriptTokenExpression;
 import net.zscript.util.ByteString;
 import net.zscript.util.OptIterator;
 

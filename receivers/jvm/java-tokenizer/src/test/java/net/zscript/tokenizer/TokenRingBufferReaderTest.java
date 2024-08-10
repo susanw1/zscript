@@ -1,6 +1,4 @@
-package net.zscript.javareceiver.tokenizer;
-
-import static org.assertj.core.api.Assertions.assertThat;
+package net.zscript.tokenizer;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -11,12 +9,14 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Random;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenWriter;
+import net.zscript.tokenizer.TokenBuffer.TokenReader;
+import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.tokenizer.TokenBuffer.TokenWriter;
 import net.zscript.util.OptIterator;
 
 class TokenRingBufferReaderTest {
@@ -260,7 +260,7 @@ class TokenRingBufferReaderTest {
         writeExtendedToken(r, 800);
         BlockIterator data = reader.iterator().next().get().blockIterator();
         int           i    = 0;
-        for (BlockIterator iterator = data; iterator.hasNext();) {
+        for (BlockIterator iterator = data; iterator.hasNext(); ) {
             byte[] nextCont = iterator.nextContiguous();
             assertThat(nextCont).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i, Math.min(i + 255, 800)));
             i += 255;
@@ -273,7 +273,7 @@ class TokenRingBufferReaderTest {
         writeExtendedToken(r, 800);
         BlockIterator data = reader.iterator().next().get().blockIterator();
         int           i    = 0;
-        for (BlockIterator iterator = data; iterator.hasNext();) {
+        for (BlockIterator iterator = data; iterator.hasNext(); ) {
             assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i, Math.min(i + 200, 800)));
             if (iterator.hasNext()) {
                 assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i + 200, Math.min(i + 255, 800)));
@@ -293,7 +293,7 @@ class TokenRingBufferReaderTest {
         writeExtendedToken(r, 800);
         BlockIterator data = reader.iterator().next().get().blockIterator();
         int           i    = 0;
-        for (BlockIterator iterator = data; iterator.hasNext();) {
+        for (BlockIterator iterator = data; iterator.hasNext(); ) {
             int offset = 200;
             if (i + initialLength + (initialLength + 254) / 255 * 2 + i / 255 * 2 < BUFSIZE
                     && i + 200 + initialLength + (initialLength + 254) / 255 * 2 + i / 255 * 2 + 2 > BUFSIZE) {

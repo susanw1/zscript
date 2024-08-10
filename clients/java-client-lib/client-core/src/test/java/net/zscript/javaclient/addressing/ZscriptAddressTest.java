@@ -10,12 +10,12 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javareceiver.tokenizer.TokenBuffer;
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader;
-import net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
-import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.model.components.Zchars;
+import net.zscript.tokenizer.TokenBuffer;
+import net.zscript.tokenizer.TokenBuffer.TokenReader;
+import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.tokenizer.TokenRingBuffer;
+import net.zscript.tokenizer.Tokenizer;
 import net.zscript.util.ByteString;
 
 class ZscriptAddressTest {

@@ -2,12 +2,12 @@ package net.zscript.javaclient.sequence;
 
 import java.util.Collection;
 
-import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
-import net.zscript.javareceiver.tokenizer.TokenBufferIterator;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
+import net.zscript.tokenizer.TokenBufferIterator;
 import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 

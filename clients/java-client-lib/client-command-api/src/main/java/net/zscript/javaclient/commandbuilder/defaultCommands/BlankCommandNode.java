@@ -1,10 +1,8 @@
 package net.zscript.javaclient.commandbuilder.defaultCommands;
 
 import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
-import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javareceiver.tokenizer.ZscriptExpression;
+import net.zscript.tokenizer.ZscriptExpression;
 
 public class BlankCommandNode extends ZscriptCommandNode<DefaultResponse> {
 

@@ -2,7 +2,7 @@ package net.zscript.javaclient.sequence;
 
 import java.util.BitSet;
 
-import static net.zscript.javareceiver.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString.ByteAppendable;

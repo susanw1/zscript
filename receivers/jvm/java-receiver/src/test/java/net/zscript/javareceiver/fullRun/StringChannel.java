@@ -5,14 +5,14 @@ import java.nio.charset.StandardCharsets;
 import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.ZscriptChannel;
 import net.zscript.javareceiver.execution.CommandContext;
-import net.zscript.javareceiver.tokenizer.TokenBuffer;
-import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.tokenizer.TokenBuffer;
+import net.zscript.tokenizer.TokenRingBuffer;
+import net.zscript.tokenizer.Tokenizer;
 
 public class StringChannel extends ZscriptChannel {
     private final Tokenizer in;
     private final byte[]    input;
-    private int             index = 0;
+    private       int       index = 0;
 
     public static StringChannel from(String input, OutStream out) {
         TokenBuffer buffer = TokenRingBuffer.createBufferWithCapacity(64);

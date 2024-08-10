@@ -1,8 +1,8 @@
 package net.zscript.javareceiver.demoRun2;
 
-import net.zscript.javareceiver.tokenizer.TokenRingBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
 import net.zscript.javareceiver.treeParser.ZscriptTreeParser;
+import net.zscript.tokenizer.TokenRingBuffer;
+import net.zscript.tokenizer.Tokenizer;
 
 public class Main {
     public static void main(String[] args) {

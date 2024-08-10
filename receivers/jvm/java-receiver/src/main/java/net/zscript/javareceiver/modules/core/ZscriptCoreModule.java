@@ -3,8 +3,8 @@ package net.zscript.javareceiver.modules.core;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.modules.ZscriptModule;
-import net.zscript.javareceiver.tokenizer.BlockIterator;
 import net.zscript.model.components.ZscriptStatus;
+import net.zscript.tokenizer.BlockIterator;
 
 public class ZscriptCoreModule implements ZscriptModule {
     private final ZscriptCapabilitiesCommand capabilitiesCmd = new ZscriptCapabilitiesCommand();

@@ -8,9 +8,9 @@ import net.zscript.javareceiver.execution.ActionSource;
 import net.zscript.javareceiver.execution.ZscriptAction;
 import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
 import net.zscript.javareceiver.semanticParser.SemanticParser;
-import net.zscript.javareceiver.tokenizer.ScriptSpaceBuffer;
-import net.zscript.javareceiver.tokenizer.ScriptSpaceBuffer.ScriptSpaceWriterBuffer;
-import net.zscript.javareceiver.tokenizer.Tokenizer;
+import net.zscript.tokenizer.ScriptSpaceBuffer;
+import net.zscript.tokenizer.ScriptSpaceBuffer.ScriptSpaceWriterBuffer;
+import net.zscript.tokenizer.Tokenizer;
 
 public class ScriptSpace implements ActionSource {
     private final ScriptSpaceOutStream outStream;

@@ -1,4 +1,4 @@
-package net.zscript.javareceiver.tokenizer;
+package net.zscript.tokenizer;
 
 import static java.text.MessageFormat.format;
 
@@ -9,7 +9,6 @@ import static java.text.MessageFormat.format;
  * <li>All indices are incremented modulo the length of the underlying byte array.</li>
  * <li></li>
  * </ol>
- *
  */
 public class TokenRingBuffer extends TokenArrayBuffer {
     /**
