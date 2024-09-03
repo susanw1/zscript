@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import net.zscript.ascii.AnsiCharacterStylePrinter;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
-import net.zscript.tokenizer.TokenExtendingBuffer;
+import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.tokenizer.Tokenizer;
 
 public class CompleteCommandGrapherTest {
@@ -23,7 +23,7 @@ public class CompleteCommandGrapherTest {
     @ParameterizedTest
     @MethodSource
     public void shouldProduceGoodGraphs(final String input, final String output) {
-        TokenExtendingBuffer bufferCmd    = new TokenExtendingBuffer();
+        ExtendingTokenBuffer bufferCmd    = new ExtendingTokenBuffer();
         Tokenizer            tokenizerCmd = new Tokenizer(bufferCmd.getTokenWriter(), 2);
         for (byte b : input.getBytes(StandardCharsets.UTF_8)) {
             tokenizerCmd.accept(b);

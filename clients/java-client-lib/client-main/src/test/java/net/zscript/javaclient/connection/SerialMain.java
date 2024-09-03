@@ -13,8 +13,8 @@ import net.zscript.javaclient.connectors.RawConnection;
 import net.zscript.javaclient.connectors.ZscriptConnectors;
 import net.zscript.javaclient.connectors.serial.SerialConnector;
 import net.zscript.javaclient.sequence.CommandSequence;
+import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.model.modules.base.CoreModule;
-import net.zscript.tokenizer.TokenExtendingBuffer;
 import net.zscript.tokenizer.Tokenizer;
 
 class SerialMain {
@@ -91,7 +91,7 @@ class SerialMain {
             });
             for (int i = 0; i < 10; i++) {
                 byte[]               ba     = CoreModule.echoBuilder().setAny('A', 35).build().asString().getBytes(StandardCharsets.UTF_8);
-                TokenExtendingBuffer buffer = new TokenExtendingBuffer();
+                ExtendingTokenBuffer buffer = new ExtendingTokenBuffer();
                 Tokenizer            t      = new Tokenizer(buffer.getTokenWriter(), 2);
                 for (byte b : ba) {
                     t.accept(b);

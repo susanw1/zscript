@@ -11,14 +11,18 @@ import org.apache.commons.io.output.WriterOutputStream;
  */
 public class StringWriterOutStream extends OutputStreamOutStream<WriterOutputStream> {
     private final StringWriter stringWriter;
-    private boolean            open = false;
+    private       boolean      open = false;
 
     public StringWriterOutStream() throws IOException {
         this(new StringWriter());
     }
 
     private StringWriterOutStream(StringWriter stringWriter) throws IOException {
-        super(new WriterOutputStream.Builder().setCharset(StandardCharsets.ISO_8859_1).setWriter(stringWriter).setWriteImmediately(true).get());
+        super(new WriterOutputStream.Builder()
+                .setCharset(StandardCharsets.ISO_8859_1)
+                .setWriter(stringWriter)
+                .setWriteImmediately(true)
+                .get());
         this.stringWriter = stringWriter;
     }
 

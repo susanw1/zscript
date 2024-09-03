@@ -25,8 +25,8 @@ import net.zscript.javaclient.commandbuilder.notifications.NotificationHandle;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationId;
 import net.zscript.javaclient.nodes.ZscriptNode;
 import net.zscript.javaclient.sequence.CommandSequence;
+import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.model.ZscriptModel;
-import net.zscript.tokenizer.TokenExtendingBuffer;
 import net.zscript.tokenizer.Tokenizer;
 
 public class Device {
@@ -133,7 +133,7 @@ public class Device {
     }
 
     public void send(final byte[] cmdSeq, final Consumer<byte[]> callback) {
-        TokenExtendingBuffer buffer = new TokenExtendingBuffer();
+        ExtendingTokenBuffer buffer = new ExtendingTokenBuffer();
         Tokenizer            tok    = new Tokenizer(buffer.getTokenWriter(), 2);
         for (byte b : cmdSeq) {
             tok.accept(b);

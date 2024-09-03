@@ -18,13 +18,13 @@ import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.tokenizer.TokenBuffer.TokenReader;
-import net.zscript.tokenizer.TokenExtendingBuffer;
 import net.zscript.tokenizer.Tokenizer;
 import net.zscript.tokenizer.ZscriptTokenExpression;
 
 public class JavaCommandBuilderResponseTest {
-    final TokenExtendingBuffer buffer      = new TokenExtendingBuffer();
+    final ExtendingTokenBuffer buffer      = new ExtendingTokenBuffer();
     final Tokenizer            tokenizer   = new Tokenizer(buffer.getTokenWriter(), 2);
     final TokenReader          tokenReader = buffer.getTokenReader();
 
