@@ -1,16 +1,15 @@
 package net.zscript.tokenizer;
 
-import static java.text.MessageFormat.format;
+import static java.lang.String.format;
 
 /**
- * Ring-buffer implementation of a Token Buffer - a specific implementation of the ArrayBuffer. Additional rules are:
+ * Ring-buffer implementation of a TokenBuffer - a specific implementation of the AbstractArrayTokenBuffer. Additional rules are:
  * <ol>
  * <li>Maximum size is 64k bytes - Zscript isn't expected to work on huge datasets.</li>
  * <li>All indices are incremented modulo the length of the underlying byte array.</li>
- * <li></li>
  * </ol>
  */
-public class TokenRingBuffer extends TokenArrayBuffer {
+public class TokenRingBuffer extends AbstractArrayTokenBuffer {
     /**
      * Zscript shouldn't need huge buffers, so 64K is our extreme limit. It should be addressable by uint16 indexes. Note that *exact* 64K size implies that data.length cannot be
      * held in a uint16, so careful code required if porting!
@@ -24,12 +23,12 @@ public class TokenRingBuffer extends TokenArrayBuffer {
     private TokenRingBuffer(int sz) {
         super(sz);
         if (sz > MAX_RING_BUFFER_SIZE) {
-            throw new IllegalArgumentException(format("size too big [sz={}, max={}]", sz, MAX_RING_BUFFER_SIZE));
+            throw new IllegalArgumentException(format("size too big [sz=%d, max=%d]", sz, MAX_RING_BUFFER_SIZE));
         }
     }
 
     private int getAvailableWrite(int writeCursor) {
-        return (writeCursor >= readStart ? data.length : 0) + readStart - writeCursor - 1;
+        return (writeCursor >= getReadStart() ? getDataSize() : 0) + getReadStart() - writeCursor - 1;
     }
 
     @Override
@@ -38,10 +37,7 @@ public class TokenRingBuffer extends TokenArrayBuffer {
     }
 
     @Override
-    int offset(final int index, final int offset) {
-        if (index < 0 || offset < 0 || offset >= data.length) {
-            throw new IllegalArgumentException(format("Unexpected values [pos={}, offset={}]", index, offset));
-        }
-        return (index + offset) % data.length;
+    protected int offsetOnOverflow(int overflowedOffset) {
+        return overflowedOffset - getDataSize();
     }
 }

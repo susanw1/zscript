@@ -119,7 +119,7 @@ public class Tokenizer {
 
     /**
      * Requests to process a byte of Zscript input into the tokenizer buffer, if there's capacity. If the offer returns true, then the byte has been consumed; otherwise the byte
-     * was rejected, and it should be kept so that it can be presented again. It is possible the
+     * was rejected, and it should be kept so that it can be presented again.
      *
      * @param b the new byte of zscript input
      * @return true if the byte was processed, false otherwise

@@ -18,22 +18,26 @@ public class ScriptSpaceSetupCommand {
             ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
             return;
         }
-        ZscriptCommandOutStream out    = ctx.getOutStream();
-        ScriptSpace             target = spaces.get(spaceIndex.getAsInt());
-        out.writeField('P', target.getCurrentLength());
-        if (target.isRunning()) {
+
+        ZscriptCommandOutStream out         = ctx.getOutStream();
+        ScriptSpace             targetSpace = spaces.get(spaceIndex.getAsInt());
+        out.writeField('P', targetSpace.getCurrentLength());
+
+        if (targetSpace.isRunning()) {
             out.writeField('R', 0);
         }
-        if (target.canBeWrittenTo()) {
+
+        if (targetSpace.isWritable()) {
             out.writeField('W', 0);
         }
+
         out.writeField('L', 0xFFFF);
         OptionalInt runOpt = ctx.getField('R');
         if (runOpt.isPresent()) {
             if (runOpt.getAsInt() != 0) {
-                target.run();
+                targetSpace.run();
             } else {
-                target.stop();
+                targetSpace.stop();
             }
         }
     }

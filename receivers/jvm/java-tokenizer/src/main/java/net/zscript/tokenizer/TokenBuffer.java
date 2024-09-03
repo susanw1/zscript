@@ -2,6 +2,9 @@ package net.zscript.tokenizer;
 
 import java.util.NoSuchElementException;
 
+/**
+ * Defines the interface for the standard buffer for tokenizing Zscript.
+ */
 public interface TokenBuffer {
     /**
      * Special token key to indicate that this segment is a continuation of the previous token due to its data size hitting maximum.

@@ -14,7 +14,7 @@ import net.zscript.javaclient.addressing.AddressedResponse;
 import net.zscript.javaclient.addressing.CompleteAddressedResponse;
 import net.zscript.javaclient.nodes.Connection;
 import net.zscript.javaclient.threading.ZscriptWorkerThread;
-import net.zscript.tokenizer.TokenExtendingBuffer;
+import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.tokenizer.Tokenizer;
 
 public abstract class RawConnection implements Connection, AutoCloseable {
@@ -44,7 +44,7 @@ public abstract class RawConnection implements Connection, AutoCloseable {
         onReceiveBytes(data -> thread.moveOntoThread(() -> {
             AddressedResponse parsed = null;
             try {
-                TokenExtendingBuffer buffer = new TokenExtendingBuffer();
+                ExtendingTokenBuffer buffer = new ExtendingTokenBuffer();
                 Tokenizer            t      = new Tokenizer(buffer.getTokenWriter(), 2);
                 for (byte b : data) {
                     t.accept(b);

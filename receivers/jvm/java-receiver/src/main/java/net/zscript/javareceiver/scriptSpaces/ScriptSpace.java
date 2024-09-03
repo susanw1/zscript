@@ -6,22 +6,24 @@ import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.execution.ActionSource;
 import net.zscript.javareceiver.execution.ZscriptAction;
+import net.zscript.javareceiver.scriptSpaces.ScriptSpaceTokenBuffer.ScriptSpaceWriterTokenBuffer;
 import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
 import net.zscript.javareceiver.semanticParser.SemanticParser;
-import net.zscript.tokenizer.ScriptSpaceBuffer;
-import net.zscript.tokenizer.ScriptSpaceBuffer.ScriptSpaceWriterBuffer;
 import net.zscript.tokenizer.Tokenizer;
 
+/**
+ *
+ */
 public class ScriptSpace implements ActionSource {
-    private final ScriptSpaceOutStream outStream;
-    private final ScriptSpaceBuffer    buffer;
-    private final SemanticParser       parser;
-    private final boolean              canBeWrittenTo;
+    private final ScriptSpaceOutStream   outStream;
+    private final ScriptSpaceTokenBuffer buffer;
+    private final SemanticParser         parser;
+    private final boolean                isWritable;
 
     public static ScriptSpace from(Zscript z, String str) {
-        ScriptSpaceBuffer       buffer = new ScriptSpaceBuffer();
-        ScriptSpaceWriterBuffer writer = buffer.fromStart();
-        Tokenizer               tok    = new Tokenizer(writer.getTokenWriter(), 2);
+        ScriptSpaceTokenBuffer       buffer = new ScriptSpaceTokenBuffer();
+        ScriptSpaceWriterTokenBuffer writer = buffer.fromStart();
+        Tokenizer                    tok    = new Tokenizer(writer.getTokenWriter(), 2);
         for (byte b : str.getBytes(StandardCharsets.UTF_8)) {
             tok.accept(b);
         }
@@ -30,17 +32,17 @@ public class ScriptSpace implements ActionSource {
     }
 
     public static ScriptSpace blank(Zscript z) {
-        ScriptSpaceBuffer buffer = new ScriptSpaceBuffer();
-        ScriptSpace       space  = new ScriptSpace(z, buffer, true);
+        ScriptSpaceTokenBuffer buffer = new ScriptSpaceTokenBuffer();
+        ScriptSpace            space  = new ScriptSpace(z, buffer, true);
         space.stop();
         return space;
     }
 
-    public ScriptSpace(Zscript z, ScriptSpaceBuffer buffer, boolean canBeWrittenTo) {
+    private ScriptSpace(Zscript z, ScriptSpaceTokenBuffer buffer, boolean isWritable) {
         this.buffer = buffer;
         this.parser = new SemanticParser(buffer.getTokenReader(), new ExecutionActionFactory());
         this.outStream = new ScriptSpaceOutStream(z, parser, new byte[32]);
-        this.canBeWrittenTo = canBeWrittenTo;
+        this.isWritable = isWritable;
     }
 
     @Override
@@ -53,20 +55,20 @@ public class ScriptSpace implements ActionSource {
         return outStream;
     }
 
-    public boolean canBeWrittenTo() {
-        return canBeWrittenTo;
+    public boolean isWritable() {
+        return isWritable;
     }
 
-    public ScriptSpaceWriterBuffer append() {
-        if (canBeWrittenTo) {
+    public ScriptSpaceWriterTokenBuffer append() {
+        if (isWritable) {
             return buffer.append();
         } else {
             throw new UnsupportedOperationException();
         }
     }
 
-    public ScriptSpaceWriterBuffer overwrite() {
-        if (canBeWrittenTo) {
+    public ScriptSpaceWriterTokenBuffer overwrite() {
+        if (isWritable) {
             return buffer.fromStart();
         } else {
             throw new UnsupportedOperationException();
@@ -88,5 +90,4 @@ public class ScriptSpace implements ActionSource {
     public void stop() {
         parser.stop();
     }
-
 }

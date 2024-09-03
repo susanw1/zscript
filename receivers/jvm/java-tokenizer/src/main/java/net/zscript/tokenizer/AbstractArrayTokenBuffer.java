@@ -4,25 +4,25 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static java.lang.String.format;
 import static net.zscript.tokenizer.TokenBuffer.isMarker;
 import static net.zscript.tokenizer.TokenBuffer.isSequenceEndMarker;
 
 /**
- * Array based implementation of a Token Buffer - the tokens making up incoming command or response sequences are encoded and accessed here. Rules are:
+ * Array based implementation of a TokenBuffer - the tokens making up incoming command or response sequences are encoded and accessed here. Rules are:
  * <ol>
  * <li>There is a writable area, owned by a TokenWriter, in the space <i>writeStart <= i < readStart</i>.</li>
  * <li>There is a readable area, owned by a TokenIterator, in the space <i>readStart <= i < writeStart</i>.</li>
  * <li>A token is written as >=2 bytes at <i>writeStart</i>: <code>key | datalen | [data]</code> - so tokens can be iterated by adding (datalen+2) to an existing token start.</li>
  * <li>A marker is written as 1 byte at <i>writeStart</i>, indicating a dataless key - markers are identified as a key with top 3 bits set (eg from 0xe0-0xff).</li>
  * <li>Tokens may exceed datalen of 255 using additional new token with special key <i>TOKEN_EXTENSION</i></li>
- * <li></li>
  * </ol>
  */
-public abstract class TokenArrayBuffer implements TokenBuffer {
+public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
     private static final byte MAX_TOKEN_DATA_LENGTH = (byte) 255;
 
     /** the ring-buffer's data array */
-    protected byte[] data;
+    private byte[] data;
 
     private final TokenWriter tokenWriter;
 
@@ -31,26 +31,40 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
     private final TokenBufferFlags flags;
 
     /** index of first byte owned by reader, writable space ends just before it */
-    protected int readStart  = 0;
+    private int readStart;
     /** index of first byte owned by TokenWriter, readable space ends just before it */
-    protected int writeStart = 0;
+    private int writeStart;
 
     // construct via static factories
-    protected TokenArrayBuffer(final int sz) {
-        this(new byte[sz]);
+    protected AbstractArrayTokenBuffer(final int sz) {
+        this(new byte[sz], 0);
     }
 
     // construct via static factories
-    protected TokenArrayBuffer(final byte[] preloaded) {
-        data = preloaded;
-        tokenWriter = new TokenArrayBufferWriter();
-        tokenReader = new TokenArrayBufferReader();
-        flags = new TokenBufferFlags();
+    protected AbstractArrayTokenBuffer(final byte[] preloaded, int writeStart) {
+        this.data = preloaded;
+        this.tokenWriter = new ArrayTokenBufferWriter();
+        this.tokenReader = new ArrayTokenBufferReader();
+        this.flags = new TokenBufferFlags();
+        this.writeStart = writeStart;
+        this.readStart = 0;
     }
 
-    // Visible for testing only!
-    byte[] getInternalData() {
-        return data.clone();
+    protected final byte[] getInternalData() {
+        return data;
+    }
+
+    protected final int getDataSize() {
+        return data.length;
+    }
+
+    protected final void importInternalDataFrom(final AbstractArrayTokenBuffer other) {
+        this.data = Arrays.copyOf(other.data, other.writeStart);
+        this.writeStart = other.writeStart;
+    }
+
+    protected final void extendData(int extra) {
+        data = Arrays.copyOf(data, data.length + extra);
     }
 
     @Override
@@ -65,7 +79,11 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
 
     protected abstract boolean checkAvailableCapacityFrom(final int writeCursor, final int size);
 
-    private class TokenArrayBufferWriter implements TokenWriter {
+    protected final int getReadStart() {
+        return readStart;
+    }
+
+    private class ArrayTokenBufferWriter implements TokenWriter {
         /** index of data-length field of most recent token segment (esp required for long multi-segment tokens) */
         private int writeLastLen = 0;
         /** the current write index into data array */
@@ -235,13 +253,28 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
     }
 
     /**
-     * Utility method that performs wrap-around for a lookup into the buffer
+     * Utility method that finds the correct offset from the supplied index, handling the off-the-end condition in a subclass-specific way (eg wrap, or expand the buffer, etc).
      *
      * @param index  location in the underlying ring-buffer
      * @param offset an offset to add, >= 0
      * @return a new index, at the requested offset
      */
-    abstract int offset(final int index, final int offset);
+    final int offset(final int index, final int offset) {
+        if (index < 0 || offset < 0 || offset >= data.length) {
+            throw new IllegalArgumentException(format("Unexpected values [index=%d, offset=%d]", index, offset));
+        }
+        final int newOffset = index + offset;
+        return (newOffset < data.length) ? newOffset : offsetOnOverflow(newOffset);
+    }
+
+    /**
+     * Hook method that allows an action to be taken when an offset lookup goes off the end of the data buffer.
+     *
+     * @param overflowedOffset the offset we were trying to access, required to be data.length &lt;= overflowedOffset &lt; 2*data.length (ie off the end, but not by multiple
+     *                         rounds)
+     * @return a new offset that should be used instead (eg loop around if this is a ring buffer, or just the overflowed offset if we've expanded the buffer)
+     */
+    protected abstract int offsetOnOverflow(final int overflowedOffset);
 
     /**
      * Utility for determining whether the specified index is in the current readable area, defined as readStart <= index < writeStart (but accounting for this being a
@@ -257,7 +290,7 @@ public abstract class TokenArrayBuffer implements TokenBuffer {
                 || writeStart < readStart && (index < writeStart || index >= readStart);
     }
 
-    private class TokenArrayBufferReader implements TokenReader {
+    private class ArrayTokenBufferReader implements TokenReader {
 
         private class ArrayBufferTokenIterator implements TokenBufferIterator {
             private int index;
