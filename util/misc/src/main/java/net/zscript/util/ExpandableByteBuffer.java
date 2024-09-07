@@ -67,15 +67,6 @@ final class ExpandableByteBuffer {
     }
 
     /**
-     * Adds the supplied array of bytes.
-     *
-     * @param b the bytes to add
-     */
-    public void addBytes(byte[] b) {
-        addBytes(b, 0, b.length);
-    }
-
-    /**
      * Adds the supplied bytes, starting from 'offset' and adding 'len' bytes
      *
      * @param b      the bytes to add
