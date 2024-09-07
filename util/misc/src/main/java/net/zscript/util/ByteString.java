@@ -51,7 +51,7 @@ public final class ByteString implements Iterable<Byte> {
      *
      * @param index the index to retrieve
      * @return the byte at that index
-     * @throws ArrayIndexOutOfBoundsException if index < 0 or index >= getSize()
+     * @throws ArrayIndexOutOfBoundsException if index < 0 or index >= size()
      */
     public byte get(int index) {
         return bytes[index];
@@ -322,7 +322,20 @@ public final class ByteString implements Iterable<Byte> {
          * @return this builder, to facilitate chaining
          */
         public ByteStringBuilder appendRaw(byte[] bytes) {
-            buffer.addBytes(bytes);
+            buffer.addBytes(bytes, 0, bytes.length);
+            return this;
+        }
+
+        /**
+         * Adds the supplied bytes, starting from 'offset' and adding 'len' bytes
+         *
+         * @param bytes  the bytes to add
+         * @param offset starting from this offset
+         * @param len    copying this many bytes
+         * @return this builder, to facilitate chaining
+         */
+        public ByteStringBuilder appendRaw(byte[] bytes, int offset, int len) {
+            buffer.addBytes(bytes, offset, len);
             return this;
         }
 

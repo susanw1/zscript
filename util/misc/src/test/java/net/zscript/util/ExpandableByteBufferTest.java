@@ -29,8 +29,8 @@ class ExpandableByteBufferTest {
         e.addByte((byte) 'b');
         assertThat(e.getCount()).isEqualTo(2);
         assertThat(e.toByteArray()).containsExactly('a', 'b');
-        e.addBytes(new byte[] { 'p', 'q', 'r' });
-        e.addBytes(new byte[] { 'x' });
+        e.addBytes(new byte[] { 'a', 'b', 'p', 'q', 'r', 'y', 'z' }, 2, 3);
+        e.addBytes(new byte[] { 'x' }, 0, 1);
         assertThat(e.getCount()).isEqualTo(6);
         assertThat(e.toByteArray()).containsExactly('a', 'b', 'p', 'q', 'r', 'x');
     }
@@ -38,7 +38,7 @@ class ExpandableByteBufferTest {
     @Test
     public void shouldProduceUtfStrings() {
         ExpandableByteBuffer e = new ExpandableByteBuffer(1);
-        e.addBytes("x £5 y".getBytes(StandardCharsets.UTF_8));
+        e.addBytes("x £5 y".getBytes(StandardCharsets.UTF_8), 0, 7);
         assertThat(e.getCount()).isEqualTo(7);
         assertThat(e.asString()).isEqualTo("x £5 y");
         assertThat(e.toString()).isEqualTo("x £5 y");
@@ -47,7 +47,7 @@ class ExpandableByteBufferTest {
     @Test
     public void shouldWriteToStreams() throws IOException {
         ExpandableByteBuffer e = new ExpandableByteBuffer(1);
-        e.addBytes("abc".getBytes(StandardCharsets.UTF_8));
+        e.addBytes("abc".getBytes(StandardCharsets.UTF_8), 0, 3);
         ByteArrayOutputStream s = new ByteArrayOutputStream();
         e.writeTo(s);
         assertThat(s.toByteArray()).containsExactly('a', 'b', 'c');

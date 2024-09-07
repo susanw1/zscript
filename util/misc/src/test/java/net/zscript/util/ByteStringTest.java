@@ -37,6 +37,16 @@ class ByteStringTest {
     }
 
     @Test
+    public void shouldAppendRaw() {
+        var str = ByteString.builder()
+                .appendRaw(new byte[] { 'a', 'b' })
+                .appendRaw(new byte[] { 'p', 'q', 'r', 's', 't' }, 1, 3)
+                .build();
+
+        assertThat(str.asString()).isEqualTo("abqrs");
+    }
+
+    @Test
     public void shouldAccessBytes() {
         var strBuilder = ByteString.builder().appendByte(0x61).appendByte('b');
         assertThat(strBuilder.size()).isEqualTo(2);
