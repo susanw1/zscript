@@ -4,6 +4,9 @@ import java.util.NoSuchElementException;
 
 /**
  * Defines the interface for the standard buffer for tokenizing Zscript.
+ * <p/>
+ * It is split into two parts, the TokenWriter, which provides all the operations relating to adding tokens to the buffer, and the TokenReader, which provides the parser-side
+ * capabilities. The TokenReader thinks in terms of ReadTokens, which are defined within.
  */
 public interface TokenBuffer {
     /**
@@ -139,7 +142,9 @@ public interface TokenBuffer {
     TokenReader getTokenReader();
 
     /**
-     * Defines all the operations that a parser can perform to read from the TokenBuffer.
+     * Defines all the operations that a parser should be able to perform to read from the TokenBuffer. The TokenReader (or its underlying buffer) maintains a "current read
+     * position"; it can read the token at that position, create an iterator to read forward from that token, and "flush" the current token thus moving the current position forward
+     * by one token.
      */
     interface TokenReader {
         /**
@@ -186,11 +191,14 @@ public interface TokenBuffer {
          */
         void flushFirstReadToken();
 
+        /**
+         * Represents a single Token in the token buffer.
+         */
         interface ReadToken {
             /**
-             * Creates an iterator where calling next will first give this token.
+             * Creates an iterator over the completed tokens from this token's position, such that  calling next() will first give this token.
              *
-             * @return an iterator over ReadTokens available.
+             * @return an iterator over available ReadTokens.
              */
             TokenBufferIterator getNextTokens();
 
@@ -202,16 +210,17 @@ public interface TokenBuffer {
             byte getKey();
 
             /**
-             * Determines the amount of data associated with this token, including any (immediately) following extension segment tokens.
+             * Determines the amount of data associated with this token, including any (immediately) following extension segment tokens. If the Token is a marker, then returns
+             * zero.
              *
-             * @return the "real" size of this token, including following extension segments
+             * @return the "real" size of this token, including following extension segments, or zero if token is a marker.
              */
             int getDataSize();
 
             /**
              * Handy method equivalent to using {@link TokenBuffer#isMarker(byte)} on this ReadToken.
              *
-             * @return true if this is a marker token; false otherwise
+             * @return true if this is a marker token (including sequence marker); false otherwise
              */
             default boolean isMarker() {
                 return TokenBuffer.isMarker(getKey());
@@ -227,23 +236,26 @@ public interface TokenBuffer {
             }
 
             /**
-             * Exposes the data as a stream of bytes. It manages hopping across extension segments.
+             * Exposes the data as a stream of bytes. It manages hopping across extension segments, and breaks caused by circularity in ring-buffers.
              *
-             * @return an iterator that exposes the data as a succession of individual bytes.
+             * @return an iterator that exposes the data either as a succession of individual bytes, or as byte[] blocks of contiguous bytes.
+             * @throws IllegalStateException if this token is any kind of Marker - check first!
              */
             BlockIterator blockIterator();
 
             /**
              * Exposes the data as a single number (uint32).
              *
-             * @return the value of the data, as a 4 byte number.
+             * @return the value of the data, as a 4 byte number
+             * @throws IllegalStateException if this token is any kind of Marker - check first!
              */
             long getData32();
 
             /**
              * Exposes the data as a single number (uint16).
              *
-             * @return the value of the data, as a 2 byte number.
+             * @return the value of the data, as a 2 byte number
+             * @throws IllegalStateException if this token is any kind of Marker - check first!
              */
             int getData16();
         }

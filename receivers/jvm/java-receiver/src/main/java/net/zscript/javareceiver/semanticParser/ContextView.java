@@ -10,14 +10,14 @@ public interface ContextView {
 
     /**
      * Allows a command to signal that it is complete (set as default on entry to a command's code), or not complete. If not complete, then the parser will note that the command is
-     * incomplete, and will expect some other code to call {@link #notifyNeedsAction()}.
+     * incomplete, and will expect some other code to call {@link AsyncActionNotifier#notifyNeedsAction()}.
      *
      * @param b if true then command is marked as complete; if false, then the command will not be considered complete on return from its execute method.
      */
     void setCommandComplete(boolean b);
 
     /**
-     * Indicates whether the command is in its {@complete state, or whether there is async work yet to do. Note that command code when executed defaults to complete
+     * Indicates whether the command is in its {@code complete} state, or whether there is async work yet to do. Note that command code when executed defaults to complete.
      *
      * @return true if complete, false otherwise
      */

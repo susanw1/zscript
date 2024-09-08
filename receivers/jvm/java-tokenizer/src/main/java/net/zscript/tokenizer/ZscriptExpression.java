@@ -5,7 +5,8 @@ import java.util.OptionalInt;
 import net.zscript.util.ByteString;
 
 /**
- * Defines the information available from a Zscript expression, that is, a single Zscript or response with fields and big-fields.
+ * Defines the information available from a Zscript expression, that is, a single Zscript command or response with fields and big-fields; an element of a command/response
+ * sequence.
  */
 public interface ZscriptExpression {
     /**
