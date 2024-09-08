@@ -1,8 +1,5 @@
 package net.zscript.javaclient.commandbuilder.commandnodes;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -15,7 +12,7 @@ import net.zscript.javaclient.commandbuilder.defaultCommands.FailureCommandNode;
  * An element of a Command Sequence under construction, representing a node in the Syntax Tree of a sequence during building.
  */
 public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode<?>> {
-    protected CommandSequenceNode parent = null;
+    private CommandSequenceNode parent = null;
 
     void setParent(CommandSequenceNode parent) {
         this.parent = parent;

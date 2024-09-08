@@ -2,7 +2,6 @@ package net.zscript.javasimulator.zcode.i2c;
 
 import java.util.OptionalInt;
 
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javasimulator.connections.i2c.I2cProtocolCategory;
 import net.zscript.model.components.ZscriptStatus;

@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.zscript.javaclient.connectors.RawConnection;
-import net.zscript.javareceiver.core.OutStream;
 import net.zscript.javareceiver.core.OutputStreamOutStream;
+import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptChannel;
 import net.zscript.javareceiver.execution.CommandContext;
@@ -57,7 +57,7 @@ public class LocalZscriptConnection extends RawConnection {
         zscript.addModule(new ZscriptOuterCoreModule());
 
         TokenRingBuffer ringBuffer = TokenRingBuffer.createBufferWithCapacity(100);
-        final OutStream outStream = new OutputStreamOutStream<>(new ByteArrayOutputStream()) {
+        final SequenceOutStream outStream = new OutputStreamOutStream<>(new ByteArrayOutputStream()) {
             @Override
             public void close() {
                 responseHandler.accept(getOutputStream().toByteArray());

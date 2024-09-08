@@ -2,12 +2,13 @@ package net.zscript.javasimulator.zcode.i2c;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.zscript.javareceiver.core.AbstractOutStream;
-import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.ZscriptChannel;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javasimulator.CommunicationPacket;
@@ -69,17 +70,16 @@ public class I2cChannel extends ZscriptChannel implements SimulatorConsumer<I2cP
                     try {
                         stream.write(Arrays.copyOf(bytes, count));
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        throw new UncheckedIOException(e);
                     }
                 }
             }
-
         });
         e.getConnection(I2cProtocolCategory.class, index).getProtocol(I2cConnection.class).connect(addr, e);
         return channel;
     }
 
-    private I2cChannel(Entity e, I2cAddress addr, TokenBuffer buffer, Queue<byte[]> outQueue, OutStream out) {
+    private I2cChannel(Entity e, I2cAddress addr, TokenBuffer buffer, Queue<byte[]> outQueue, SequenceOutStream out) {
         super(buffer, out);
         this.e = e;
         this.addr = addr;

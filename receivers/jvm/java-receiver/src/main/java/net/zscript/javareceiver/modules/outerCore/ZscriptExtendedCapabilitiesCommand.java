@@ -2,14 +2,14 @@ package net.zscript.javareceiver.modules.outerCore;
 
 import java.util.OptionalInt;
 
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
+import net.zscript.javareceiver.core.CommandOutStream;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.model.components.ZscriptStatus;
 
 public class ZscriptExtendedCapabilitiesCommand {
 
     public static void execute(CommandContext ctx) {
-        ZscriptCommandOutStream out = ctx.getOutStream();
+        CommandOutStream out = ctx.getOutStream();
         out.writeField('C', ZscriptOuterCoreModule.getCommands());
         out.writeField('M', ctx.getZscript().getModuleRegistry().getCommandSwitchExistsBroad());
         OptionalInt targetOpt = ctx.getField((byte) 'M');

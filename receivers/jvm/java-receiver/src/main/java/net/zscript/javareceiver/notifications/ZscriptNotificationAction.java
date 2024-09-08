@@ -1,8 +1,8 @@
 package net.zscript.javareceiver.notifications;
 
-import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.core.CommandOutStream;
+import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
 import net.zscript.javareceiver.execution.NotificationContext;
 import net.zscript.javareceiver.execution.ZscriptAction;
 
@@ -30,7 +30,7 @@ public class ZscriptNotificationAction implements ZscriptAction {
     }
 
     @Override
-    public void performAction(Zscript z, OutStream out) {
+    public void performAction(Zscript z, SequenceOutStream out) {
         switch (type) {
         case NOTIFICATION_BEGIN:
             startResponse(out);
@@ -53,14 +53,14 @@ public class ZscriptNotificationAction implements ZscriptAction {
         source.actionExecuted();
     }
 
-    private void startResponse(OutStream out) {
+    private void startResponse(SequenceOutStream out) {
         if (!out.isOpen()) {
             out.open();
         }
-        ZscriptCommandOutStream commandStream = out.asCommandOutStream();
+        CommandOutStream commandStream = out.asCommandOutStream();
         if (source.isAddressing()) {
             commandStream.writeField('!', 0);
-//            commandStream.writeField(Zchars.Z_ADDRESSING, (source.getID() >> 4));
+            //            commandStream.writeField(Zchars.Z_ADDRESSING, (source.getID() >> 4));
         } else {
             commandStream.writeField('!', (source.getID() >> 4));
         }

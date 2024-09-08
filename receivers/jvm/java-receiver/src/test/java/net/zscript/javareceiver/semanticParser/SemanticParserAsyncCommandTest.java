@@ -7,9 +7,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.zscript.javareceiver.core.CommandOutStream;
 import net.zscript.javareceiver.core.StringWriterOutStream;
 import net.zscript.javareceiver.core.Zscript;
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.modules.ZscriptModule;
@@ -107,7 +107,7 @@ class SemanticParserAsyncCommandTest {
         class AsyncCommand {
 
             public void execute(CommandContext ctx) {
-                ZscriptCommandOutStream out = ctx.getOutStream();
+                CommandOutStream out = ctx.getOutStream();
                 out.writeField('A', 0xff);
 
                 int endOnValue = ctx.getField((byte) 'E', 1);

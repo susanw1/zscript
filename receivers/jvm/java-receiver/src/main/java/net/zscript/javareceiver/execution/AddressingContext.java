@@ -2,9 +2,9 @@ package net.zscript.javareceiver.execution;
 
 import java.util.Optional;
 
-import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.core.CommandOutStream;
+import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
 import net.zscript.javareceiver.semanticParser.ContextView;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
@@ -45,8 +45,8 @@ public class AddressingContext extends AbstractContext {
 
     @Override
     public boolean status(byte status) {
-        OutStream               out        = zscript.getNotificationOutStream();
-        ZscriptCommandOutStream commandOut = out.asCommandOutStream();
+        SequenceOutStream out        = zscript.getNotificationOutStream();
+        CommandOutStream  commandOut = out.asCommandOutStream();
         if (!out.isOpen()) {
             out.open();
         }

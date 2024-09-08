@@ -4,9 +4,9 @@ import java.util.BitSet;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.core.CommandOutStream;
+import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
 import net.zscript.javareceiver.semanticParser.ContextView;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
@@ -23,17 +23,17 @@ import net.zscript.util.OptIterator;
  */
 public class CommandContext extends AbstractContext implements ZscriptExpression {
     private final Zscript                zscript;
-    private final OutStream              out;
+    private final SequenceOutStream      out;
     private final ZscriptTokenExpression expression;
 
-    public CommandContext(final Zscript zscript, final ContextView contextView, final OutStream out) {
+    public CommandContext(final Zscript zscript, final ContextView contextView, final SequenceOutStream out) {
         super(contextView);
         this.zscript = zscript;
         this.out = out;
         this.expression = new ZscriptTokenExpression(() -> contextView.getReader().iterator());
     }
 
-    public ZscriptCommandOutStream getOutStream() {
+    public CommandOutStream getOutStream() {
         return out.asCommandOutStream();
     }
 
@@ -75,13 +75,13 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
         return false;
     }
 
-    public OptIterator<ZscriptField> fieldIterator() {
+    public OptIterator<ZscriptTokenField> fieldIterator() {
         return new OptIterator<>() {
             final OptIterator<ReadToken> iter = expression.iteratorToMarker();
 
             @Override
-            public Optional<ZscriptField> next() {
-                return iter.next().map(ZscriptField::new);
+            public Optional<ZscriptTokenField> next() {
+                return iter.next().map(ZscriptTokenField::new);
             }
         };
     }

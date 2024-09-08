@@ -2,11 +2,11 @@ package net.zscript.javareceiver.core;
 
 import java.nio.charset.StandardCharsets;
 
-import net.zscript.javareceiver.execution.ZscriptField;
+import net.zscript.javareceiver.execution.ZscriptTokenField;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.BlockIterator;
 
-public abstract class AbstractOutStream implements OutStream, ZscriptCommandOutStream {
+public abstract class AbstractOutStream implements OutStream {
     /**
      * @param bytes   the bytes to write
      * @param count   how many of the bytes to write
@@ -35,14 +35,22 @@ public abstract class AbstractOutStream implements OutStream, ZscriptCommandOutS
         buffer[index + 1] = toHexChar(b & 0xf);
     }
 
-    private int appendHexTrim(byte b, byte[] buffer, int index) {
+    /**
+     * Utility that writes the supplied byte to the supplied buffer as 0, 1, or 2 hex digits.
+     *
+     * @param b          the byte to write
+     * @param buffer     the buffer to write to
+     * @param startIndex the start index within the buffer to begin writing
+     * @return the number of digits written, to facilitate advancing the index
+     */
+    private int appendHexTrim(byte b, byte[] buffer, int startIndex) {
         if ((b & 0xF0) != 0) {
-            buffer[index] = toHexChar(b >>> 4);
-            buffer[index + 1] = toHexChar(b & 0xf);
+            buffer[startIndex] = toHexChar(b >>> 4);
+            buffer[startIndex + 1] = toHexChar(b & 0xf);
             return 2;
         }
         if (b != 0) {
-            buffer[index] = toHexChar(b & 0xf);
+            buffer[startIndex] = toHexChar(b & 0xf);
             return 1;
         }
         return 0;
@@ -89,7 +97,7 @@ public abstract class AbstractOutStream implements OutStream, ZscriptCommandOutS
     }
 
     @Override
-    public void writeField(ZscriptField field) {
+    public void writeField(ZscriptTokenField field) {
         if (field.isBigField()) {
             if (field.getKey() == Zchars.Z_BIGFIELD_QUOTED) {
                 writeCharAsByte('"');

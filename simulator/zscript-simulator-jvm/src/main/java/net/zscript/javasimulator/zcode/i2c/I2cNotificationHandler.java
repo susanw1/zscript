@@ -2,9 +2,9 @@ package net.zscript.javasimulator.zcode.i2c;
 
 import java.util.Arrays;
 
+import net.zscript.javareceiver.core.CommandOutStream;
 import net.zscript.javareceiver.core.LockSet;
-import net.zscript.javareceiver.core.OutStream;
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
+import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.execution.NotificationContext;
 import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
 import net.zscript.javasimulator.BlankCommunicationResponse;
@@ -94,10 +94,10 @@ public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCate
     }
 
     public void notification(Entity entity, NotificationContext ctx) {
-        OutStream               out         = ctx.getOutStream();
-        int                     i           = ctx.getID() & 0xF;
-        boolean                 isAddressed = ctx.isAddressing();
-        ZscriptCommandOutStream commandOut  = out.asCommandOutStream();
+        SequenceOutStream out         = ctx.getOutStream();
+        int               i           = ctx.getID() & 0xF;
+        boolean           isAddressed = ctx.isAddressing();
+        CommandOutStream  commandOut  = out.asCommandOutStream();
         bitSet &= ~(1 << i);
         I2cResponse addrRespTmp = (I2cResponse) entity.getConnection(I2cProtocolCategory.class, i).sendMessage(entity, new I2cReceivePacket(SmBusAlertConnection.ALERT_ADDRESS, 2));
         if (!addrRespTmp.worked()) {

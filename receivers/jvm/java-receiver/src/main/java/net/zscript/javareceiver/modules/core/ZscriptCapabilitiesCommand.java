@@ -1,6 +1,6 @@
 package net.zscript.javareceiver.modules.core;
 
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
+import net.zscript.javareceiver.core.CommandOutStream;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.model.components.ZscriptStatus;
 
@@ -31,7 +31,7 @@ public class ZscriptCapabilitiesCommand {
     public String coreZscriptStr          = "Prototype parsing/running system for JVM";
 
     public void execute(CommandContext ctx) {
-        ZscriptCommandOutStream out = ctx.getOutStream();
+        CommandOutStream out = ctx.getOutStream();
 
         int versionType = ctx.getField((byte) 'V', 0);
 

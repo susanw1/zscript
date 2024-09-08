@@ -4,10 +4,10 @@ import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.BlockIterator;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
-public class ZscriptField implements Iterable<Byte> {
+public class ZscriptTokenField implements Iterable<Byte> {
     private final ReadToken token;
 
-    public ZscriptField(ReadToken token) {
+    public ZscriptTokenField(ReadToken token) {
         this.token = token;
     }
 

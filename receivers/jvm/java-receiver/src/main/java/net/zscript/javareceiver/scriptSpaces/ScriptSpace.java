@@ -2,7 +2,7 @@ package net.zscript.javareceiver.scriptSpaces;
 
 import java.nio.charset.StandardCharsets;
 
-import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.execution.ActionSource;
 import net.zscript.javareceiver.execution.ZscriptAction;
@@ -41,7 +41,7 @@ public class ScriptSpace implements ActionSource {
     private ScriptSpace(Zscript z, ScriptSpaceTokenBuffer buffer, boolean isWritable) {
         this.buffer = buffer;
         this.parser = new SemanticParser(buffer.getTokenReader(), new ExecutionActionFactory());
-        this.outStream = new ScriptSpaceOutStream(z, parser, new byte[32]);
+        this.outStream = new ScriptSpaceOutStream(z, parser);
         this.isWritable = isWritable;
     }
 
@@ -51,7 +51,7 @@ public class ScriptSpace implements ActionSource {
     }
 
     @Override
-    public OutStream getOutStream(Zscript zscript) {
+    public SequenceOutStream getOutStream(Zscript zscript) {
         return outStream;
     }
 

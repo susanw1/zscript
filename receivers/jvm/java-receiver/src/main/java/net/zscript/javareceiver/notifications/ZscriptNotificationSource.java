@@ -1,7 +1,7 @@
 package net.zscript.javareceiver.notifications;
 
 import net.zscript.javareceiver.core.LockSet;
-import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.execution.ActionSource;
 import net.zscript.javareceiver.notifications.ZscriptNotificationAction.NotificationActionType;
@@ -20,8 +20,8 @@ public class ZscriptNotificationSource implements ActionSource {
     private volatile int                     id            = 0;
     private volatile NotificationSourceState state         = NotificationSourceState.NO_NOTIFICATION;
     private volatile boolean                 isAddressing  = false;
-    private NotificationActionType           currentAction = NotificationActionType.WAIT_FOR_NOTIFICATION;
-    private boolean                          locked        = false;
+    private          NotificationActionType  currentAction = NotificationActionType.WAIT_FOR_NOTIFICATION;
+    private          boolean                 locked        = false;
 
     @Override
     public ZscriptNotificationAction getAction() {
@@ -52,7 +52,7 @@ public class ZscriptNotificationSource implements ActionSource {
     }
 
     @Override
-    public OutStream getOutStream(Zscript zscript) {
+    public SequenceOutStream getOutStream(Zscript zscript) {
         return zscript.getNotificationOutStream();
     }
 

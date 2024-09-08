@@ -11,7 +11,6 @@ import org.apache.commons.io.output.WriterOutputStream;
  */
 public class StringWriterOutStream extends OutputStreamOutStream<WriterOutputStream> {
     private final StringWriter stringWriter;
-    private       boolean      open = false;
 
     public StringWriterOutStream() throws IOException {
         this(new StringWriter());
@@ -24,21 +23,6 @@ public class StringWriterOutStream extends OutputStreamOutStream<WriterOutputStr
                 .setWriteImmediately(true)
                 .get());
         this.stringWriter = stringWriter;
-    }
-
-    @Override
-    public void open() {
-        open = true;
-    }
-
-    @Override
-    public void close() {
-        open = false;
-    }
-
-    @Override
-    public boolean isOpen() {
-        return open;
     }
 
     public String getString() {
