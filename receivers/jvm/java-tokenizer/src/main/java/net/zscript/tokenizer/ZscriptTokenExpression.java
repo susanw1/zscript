@@ -11,7 +11,7 @@ import net.zscript.util.ByteString;
 import net.zscript.util.OptIterator;
 
 /**
- *
+ * Implementation of ZscriptExpression which understands how to locate and extract fields from Tokens.
  */
 public class ZscriptTokenExpression implements ZscriptExpression {
     private final Supplier<OptIterator<ReadToken>> tokenIteratorSupplier;
@@ -81,10 +81,11 @@ public class ZscriptTokenExpression implements ZscriptExpression {
     }
 
     public BlockIterator getBigField() {
+        // BlockIterator that iterates over multiple big-field items appearing in a single expression.
         return new BlockIterator() {
             final OptIterator<ReadToken> it = iteratorToMarker();
 
-            BlockIterator internal = null;
+            private BlockIterator internal = null;
 
             @Override
             public boolean hasNext() {
