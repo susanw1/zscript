@@ -1,10 +1,9 @@
-package net.zscript.javareceiver.execution;
+package net.zscript.tokenizer;
 
 import net.zscript.model.components.Zchars;
-import net.zscript.tokenizer.BlockIterator;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
-public class ZscriptTokenField implements Iterable<Byte> {
+public class ZscriptTokenField implements ZscriptField {
     private final ReadToken token;
 
     public ZscriptTokenField(ReadToken token) {

@@ -1,6 +1,6 @@
 package net.zscript.javareceiver.core;
 
-import net.zscript.javareceiver.execution.ZscriptTokenField;
+import net.zscript.tokenizer.ZscriptField;
 
 /**
  * Defines the operations on the response OutStream available to a command via the CommandContext. Deliberately narrowed interface - we don't want commands confused with machinery
@@ -25,7 +25,7 @@ public interface CommandOutStream {
         writeField((byte) field, value);
     }
 
-    void writeField(ZscriptTokenField field);
+    void writeField(ZscriptField field);
 
     /**
      * Writes the supplied string as a quoted Big Field. It is assumed to represent actual text and will be UTF-8 encoded. Forbidden chars (eg '\n', '"', '=', '\0') will be
