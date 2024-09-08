@@ -25,6 +25,7 @@ public class StringChannel extends ZscriptChannel {
         this.input = input.getBytes(StandardCharsets.UTF_8);
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void moveAlong() {
         while (index < input.length && in.offer(input[index++])) {

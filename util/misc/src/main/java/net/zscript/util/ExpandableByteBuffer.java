@@ -9,7 +9,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Little utility class that gives expandable byte array capability without the hassle of ByteArrayOutputStream. Used by ByteString to buffer bytes.
- *
+ * <p/>
  * Visible for testing.
  */
 final class ExpandableByteBuffer {

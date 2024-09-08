@@ -133,6 +133,7 @@ public class SemanticAction implements ZscriptAction {
             } else if (marker == Tokenizer.CMD_END_CLOSE_PAREN) {
                 out.writeCloseParen();
             } else if (marker == Tokenizer.NORMAL_SEQUENCE_END) {
+                // no action required
             } else {
                 throw new IllegalStateException("Unknown marker");
             }

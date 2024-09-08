@@ -421,7 +421,8 @@ public final class ByteString implements Iterable<Byte> {
          * @param objects zero or more Appendables
          * @return this builder, to facilitate chaining
          */
-        public <T> ByteStringBuilder append(ByteAppender<? super T> appender, T... objects) {
+        @SafeVarargs
+        public final <T> ByteStringBuilder append(ByteAppender<? super T> appender, T... objects) {
             return append(appender, Arrays.asList(objects));
         }
 
@@ -519,7 +520,7 @@ public final class ByteString implements Iterable<Byte> {
 
         /**
          * Exposes this Builder as an Appendable to make it easy to append to other ByteStrings.
-         *
+         * <p/>
          * Note: The bytes appended will be those accumulated at the time the ByteAppendable is used, including any added since this method was called. It isn't a frozen snapshot.
          *
          * @return an Appendable adapter that can write this Builder to another Builder

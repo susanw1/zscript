@@ -139,16 +139,13 @@ public class ZscriptNotificationSource implements ActionSource {
     }
 
     public AsyncActionNotifier getAsyncActionNotifier() {
-        return new AsyncActionNotifier() {
-            @Override
-            public void notifyNeedsAction() {
-                switch (state) {
-                case NOTIFICATION_INCOMPLETE:
-                    state = NotificationSourceState.NOTIFICATION_NEEDS_ACTION;
-                    break;
-                default:
-                    throw new IllegalStateException("Invalid state transition");
-                }
+        return () -> {
+            switch (state) {
+            case NOTIFICATION_INCOMPLETE:
+                state = NotificationSourceState.NOTIFICATION_NEEDS_ACTION;
+                break;
+            default:
+                throw new IllegalStateException("Invalid state transition");
             }
         };
     }
