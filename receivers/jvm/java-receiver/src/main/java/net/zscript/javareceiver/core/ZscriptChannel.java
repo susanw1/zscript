@@ -17,15 +17,15 @@ import net.zscript.tokenizer.TokenBuffer;
  * </ul>
  */
 public abstract class ZscriptChannel implements ActionSource {
-    protected final SemanticParser p;
-    protected final OutStream      out;
+    protected final SemanticParser    p;
+    protected final SequenceOutStream out;
 
-    protected ZscriptChannel(final SemanticParser p, final OutStream out) {
+    protected ZscriptChannel(final SemanticParser p, final SequenceOutStream out) {
         this.p = p;
         this.out = out;
     }
 
-    protected ZscriptChannel(final TokenBuffer buffer, final OutStream out) {
+    protected ZscriptChannel(final TokenBuffer buffer, final SequenceOutStream out) {
         this(new SemanticParser(buffer.getTokenReader(), new ExecutionActionFactory()), out);
     }
 
@@ -34,7 +34,7 @@ public abstract class ZscriptChannel implements ActionSource {
     }
 
     @Override
-    public OutStream getOutStream(Zscript zscript) {
+    public SequenceOutStream getOutStream(Zscript zscript) {
         return out;
     }
 

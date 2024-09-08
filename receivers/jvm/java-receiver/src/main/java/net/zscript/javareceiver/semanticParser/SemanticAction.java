@@ -1,8 +1,8 @@
 package net.zscript.javareceiver.semanticParser;
 
-import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.core.CommandOutStream;
+import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.execution.ZscriptAction;
@@ -41,12 +41,12 @@ public class SemanticAction implements ZscriptAction {
     }
 
     @Override
-    public void performAction(Zscript zscript, OutStream out) {
+    public void performAction(Zscript zscript, SequenceOutStream out) {
         performActionImpl(zscript, out);
         parseState.actionPerformed(type);
     }
 
-    protected void performActionImpl(Zscript zscript, OutStream out) {
+    protected void performActionImpl(Zscript zscript, SequenceOutStream out) {
         switch (type) {
         case ERROR:
             startResponse(out, (byte) 0); // TODO: debate
@@ -110,18 +110,18 @@ public class SemanticAction implements ZscriptAction {
 
     }
 
-    private void startResponse(OutStream out, byte respType) {
+    private void startResponse(SequenceOutStream out, byte respType) {
         if (!out.isOpen()) {
             out.open();
         }
-        ZscriptCommandOutStream commandOutput = out.asCommandOutStream();
+        CommandOutStream commandOutput = out.asCommandOutStream();
         commandOutput.writeField('!', respType);
         if (parseState.hasEcho()) {
             commandOutput.writeField('_', parseState.getEcho());
         }
     }
 
-    private void sendNormalMarkerPrefix(OutStream out) {
+    private void sendNormalMarkerPrefix(SequenceOutStream out) {
         byte marker = parseState.takeCurrentMarker();
         if (marker != 0) {
             if (marker == Tokenizer.CMD_END_ANDTHEN) {

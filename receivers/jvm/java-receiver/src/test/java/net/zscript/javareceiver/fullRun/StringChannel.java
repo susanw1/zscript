@@ -2,7 +2,7 @@ package net.zscript.javareceiver.fullRun;
 
 import java.nio.charset.StandardCharsets;
 
-import net.zscript.javareceiver.core.OutStream;
+import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.ZscriptChannel;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.tokenizer.TokenBuffer;
@@ -14,12 +14,12 @@ public class StringChannel extends ZscriptChannel {
     private final byte[]    input;
     private       int       index = 0;
 
-    public static StringChannel from(String input, OutStream out) {
+    public static StringChannel from(String input, SequenceOutStream out) {
         TokenBuffer buffer = TokenRingBuffer.createBufferWithCapacity(64);
         return new StringChannel(buffer, input, out);
     }
 
-    private StringChannel(TokenBuffer buffer, String input, OutStream out) {
+    private StringChannel(TokenBuffer buffer, String input, SequenceOutStream out) {
         super(buffer, out);
         this.in = new Tokenizer(buffer.getTokenWriter(), 2);
         this.input = input.getBytes(StandardCharsets.UTF_8);

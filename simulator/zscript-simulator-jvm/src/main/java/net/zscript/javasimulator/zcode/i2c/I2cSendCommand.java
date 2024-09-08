@@ -2,7 +2,7 @@ package net.zscript.javasimulator.zcode.i2c;
 
 import java.util.OptionalInt;
 
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
+import net.zscript.javareceiver.core.CommandOutStream;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javasimulator.Connection;
 import net.zscript.javasimulator.Entity;
@@ -15,10 +15,10 @@ import net.zscript.model.components.ZscriptStatus;
 public class I2cSendCommand {
 
     public static void execute(CommandContext ctx, I2cModule module) {
-        Entity                  entity  = module.getEntity();
-        ZscriptCommandOutStream out     = ctx.getOutStream();
-        OptionalInt             addrOpt = ctx.getField((byte) 'A');
-        OptionalInt             portOpt = ctx.getField((byte) 'P');
+        Entity           entity  = module.getEntity();
+        CommandOutStream out     = ctx.getOutStream();
+        OptionalInt      addrOpt = ctx.getField((byte) 'A');
+        OptionalInt      portOpt = ctx.getField((byte) 'P');
 
         if (addrOpt.isEmpty()) {
             ctx.status(ZscriptStatus.MISSING_KEY);

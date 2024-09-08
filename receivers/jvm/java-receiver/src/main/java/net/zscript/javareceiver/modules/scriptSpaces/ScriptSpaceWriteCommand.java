@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.OptionalInt;
 
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
+import net.zscript.javareceiver.core.CommandOutStream;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.scriptSpaces.ScriptSpace;
 import net.zscript.javareceiver.scriptSpaces.ScriptSpaceTokenBuffer.ScriptSpaceWriterTokenBuffer;
@@ -22,8 +22,8 @@ public class ScriptSpaceWriteCommand {
             return;
         }
 
-        ZscriptCommandOutStream out    = ctx.getOutStream();
-        ScriptSpace             target = spaces.get(spaceIndex.getAsInt());
+        CommandOutStream out    = ctx.getOutStream();
+        ScriptSpace      target = spaces.get(spaceIndex.getAsInt());
         if (target.isRunning()) {
             ctx.status(ZscriptStatus.COMMAND_FAIL);
             return;

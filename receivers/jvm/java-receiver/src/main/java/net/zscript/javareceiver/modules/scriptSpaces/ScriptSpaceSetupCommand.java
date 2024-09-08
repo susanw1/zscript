@@ -3,7 +3,7 @@ package net.zscript.javareceiver.modules.scriptSpaces;
 import java.util.List;
 import java.util.OptionalInt;
 
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
+import net.zscript.javareceiver.core.CommandOutStream;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.scriptSpaces.ScriptSpace;
 import net.zscript.model.components.ZscriptStatus;
@@ -19,8 +19,8 @@ public class ScriptSpaceSetupCommand {
             return;
         }
 
-        ZscriptCommandOutStream out         = ctx.getOutStream();
-        ScriptSpace             targetSpace = spaces.get(spaceIndex.getAsInt());
+        CommandOutStream out         = ctx.getOutStream();
+        ScriptSpace      targetSpace = spaces.get(spaceIndex.getAsInt());
         out.writeField('P', targetSpace.getCurrentLength());
 
         if (targetSpace.isRunning()) {

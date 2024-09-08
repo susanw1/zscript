@@ -3,7 +3,7 @@ package net.zscript.javareceiver.modules.core;
 import java.util.OptionalInt;
 import java.util.Random;
 
-import net.zscript.javareceiver.core.ZscriptCommandOutStream;
+import net.zscript.javareceiver.core.CommandOutStream;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.model.components.ZscriptStatus;
 
@@ -13,7 +13,7 @@ public class ZscriptRandomCodeCommand {
     private       int    code;
 
     public void make(CommandContext ctx) {
-        ZscriptCommandOutStream out = ctx.getOutStream();
+        CommandOutStream out = ctx.getOutStream();
         code = r.nextInt(0x1000);
         out.writeField('C', code);
     }

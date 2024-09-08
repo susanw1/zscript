@@ -16,7 +16,7 @@ public class Zscript {
     private final List<ActionSource>    sources        = new ArrayList<>();
     private final ZscriptExecutor       executor;
 
-    private OutStream notificationOutStream = new AbstractOutStream() {
+    private SequenceOutStream notificationOutStream = new AbstractOutStream() {
         private boolean open = false;
 
         @Override
@@ -38,7 +38,6 @@ public class Zscript {
         @Override
         protected void writeBytes(byte[] bytes, int count, boolean hexMode) {
         }
-
     };
 
     public Zscript() {
@@ -90,11 +89,11 @@ public class Zscript {
         return moduleRegistry;
     }
 
-    public OutStream getNotificationOutStream() {
+    public SequenceOutStream getNotificationOutStream() {
         return notificationOutStream;
     }
 
-    public void setNotificationOutStream(OutStream out) {
+    public void setNotificationOutStream(SequenceOutStream out) {
         this.notificationOutStream = out;
     }
 
