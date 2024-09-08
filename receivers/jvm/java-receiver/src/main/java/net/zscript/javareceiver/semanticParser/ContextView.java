@@ -37,7 +37,7 @@ public interface ContextView {
 
     /**
      * Allows a background/async command component to signal that the command's code needs scheduling to move it along.
-     *
+     * <p/>
      * Example, an interrupt-driven serial writer might call {@link AsyncActionNotifier#notifyNeedsAction()} in its interrupt handler to indicate that the data was all sent
      * correctly. The command will be progressed next time Zscript is given execution time.
      */

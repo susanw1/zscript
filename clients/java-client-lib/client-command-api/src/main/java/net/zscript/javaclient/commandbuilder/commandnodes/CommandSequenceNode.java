@@ -132,8 +132,8 @@ public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode
                 }
             };
         }
-        return new Iterator<ZscriptCommandNode<?>>() {
-            Iterator<CommandSequenceNode> children = getChildren().iterator();
+        return new Iterator<>() {
+            final Iterator<CommandSequenceNode> children = getChildren().iterator();
             Iterator<ZscriptCommandNode<?>> childIter = null;
 
             @Override

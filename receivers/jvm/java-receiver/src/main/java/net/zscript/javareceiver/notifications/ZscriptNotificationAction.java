@@ -19,7 +19,7 @@ public class ZscriptNotificationAction implements ZscriptAction {
     private final ZscriptNotificationSource source;
     private final NotificationActionType    type;
 
-    public ZscriptNotificationAction(ZscriptNotificationSource source, NotificationActionType type) {
+    ZscriptNotificationAction(ZscriptNotificationSource source, NotificationActionType type) {
         this.source = source;
         this.type = type;
     }
