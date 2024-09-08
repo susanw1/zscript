@@ -2,9 +2,9 @@ package net.zscript.javareceiver.core;
 
 import java.nio.charset.StandardCharsets;
 
-import net.zscript.javareceiver.execution.ZscriptTokenField;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.BlockIterator;
+import net.zscript.tokenizer.ZscriptField;
 
 public abstract class AbstractOutStream implements OutStream {
     /**
@@ -97,7 +97,7 @@ public abstract class AbstractOutStream implements OutStream {
     }
 
     @Override
-    public void writeField(ZscriptTokenField field) {
+    public void writeField(ZscriptField field) {
         if (field.isBigField()) {
             if (field.getKey() == Zchars.Z_BIGFIELD_QUOTED) {
                 writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
