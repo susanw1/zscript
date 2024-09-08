@@ -115,7 +115,7 @@ public class SemanticAction implements ZscriptAction {
             out.open();
         }
         CommandOutStream commandOutput = out.asCommandOutStream();
-        commandOutput.writeField('!', respType);
+        commandOutput.writeField(Zchars.Z_RESPONSE_MARK, respType);
         if (parseState.hasEcho()) {
             commandOutput.writeField('_', parseState.getEcho());
         }

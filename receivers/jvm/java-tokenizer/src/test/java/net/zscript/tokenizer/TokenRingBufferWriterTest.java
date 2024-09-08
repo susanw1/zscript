@@ -267,6 +267,14 @@ class TokenRingBufferWriterTest {
         assertThat(buffer.getInternalData()).startsWith('+', 3, 0xa0, 0xa1, 0xa2, ERROR_BUFFER_OVERRUN, 2, 0x32, 0x33);
     }
 
+    @Test
+    public void shouldPreventOversizeBuffer() {
+        assertThatThrownBy(() -> {
+            TokenRingBuffer.createBufferWithCapacity(65537);
+        }).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("size too big [sz=65537, max=65536]");
+    }
+
     private void insertNumericToken(char key, byte... data) {
         writer.startToken((byte) key, true);
         for (byte b : data) {

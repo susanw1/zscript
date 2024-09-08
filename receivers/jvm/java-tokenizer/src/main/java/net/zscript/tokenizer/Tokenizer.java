@@ -283,7 +283,7 @@ public class Tokenizer {
             return;
         }
 
-        numeric = !Zchars.isNonNumerical(b);
+        numeric = !Zchars.isNonNumericalKey(b);
         isText = false;
         if (b == Zchars.Z_COMMENT) {
             skipToNL = true;
