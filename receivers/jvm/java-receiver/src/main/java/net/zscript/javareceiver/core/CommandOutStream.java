@@ -15,6 +15,12 @@ public interface CommandOutStream {
      */
     void writeField(byte field, int value);
 
+    /**
+     * Convenience method to minimize char->byte casting.
+     *
+     * @param field the field char
+     * @param value the 0-0xffff value to write
+     */
     default void writeField(char field, int value) {
         writeField((byte) field, value);
     }

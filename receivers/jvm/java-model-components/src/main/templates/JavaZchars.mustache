@@ -33,7 +33,7 @@ public class Zchars {
         return false{{#zchars}}{{#separator}} || b == '{{{chEscapedAsC}}}'{{/separator}}{{/zchars}};
     }
 
-    public static boolean isNonNumerical(byte b) {
+    public static boolean isNonNumericalKey(byte b) {
         return false{{#zchars}}{{#nonNumeric}} || b == '{{{chEscapedAsC}}}'{{/nonNumeric}}{{/zchars}};
     }
 

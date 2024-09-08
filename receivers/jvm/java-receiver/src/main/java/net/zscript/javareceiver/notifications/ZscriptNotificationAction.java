@@ -5,6 +5,7 @@ import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.execution.NotificationContext;
 import net.zscript.javareceiver.execution.ZscriptAction;
+import net.zscript.model.components.Zchars;
 
 public class ZscriptNotificationAction implements ZscriptAction {
     enum NotificationActionType {
@@ -59,10 +60,10 @@ public class ZscriptNotificationAction implements ZscriptAction {
         }
         CommandOutStream commandStream = out.asCommandOutStream();
         if (source.isAddressing()) {
-            commandStream.writeField('!', 0);
+            commandStream.writeField(Zchars.Z_RESPONSE_MARK, 0);
             //            commandStream.writeField(Zchars.Z_ADDRESSING, (source.getID() >> 4));
         } else {
-            commandStream.writeField('!', (source.getID() >> 4));
+            commandStream.writeField(Zchars.Z_RESPONSE_MARK, (source.getID() >> 4));
         }
     }
 

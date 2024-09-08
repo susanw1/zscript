@@ -50,7 +50,7 @@ public class AddressingContext extends AbstractContext {
         if (!out.isOpen()) {
             out.open();
         }
-        commandOut.writeField('!', 0);
+        commandOut.writeField(Zchars.Z_RESPONSE_MARK, 0);
         commandOut.writeField(Zchars.Z_STATUS, status);
         out.endSequence();
         out.close();

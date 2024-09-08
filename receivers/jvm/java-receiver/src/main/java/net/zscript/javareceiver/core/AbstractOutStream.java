@@ -60,7 +60,7 @@ public abstract class AbstractOutStream implements OutStream {
      * Convenience method that write the bytes stored in the supplied string.
      */
     private void writeEscaped(byte b) {
-        writeBytes(new byte[] { '=', toHexChar(b >>> 4), toHexChar(b & 0xf) }, 3, false);
+        writeBytes(new byte[] { Zchars.Z_STRING_ESCAPE, toHexChar(b >>> 4), toHexChar(b & 0xf) }, 3, false);
     }
 
     private void writeStringByte(byte b) {
@@ -73,7 +73,7 @@ public abstract class AbstractOutStream implements OutStream {
 
     @Override
     public void endSequence() {
-        writeCharAsByte('\n');
+        writeCharAsByte(Zchars.Z_NEWLINE);
     }
 
     @Override
@@ -100,14 +100,14 @@ public abstract class AbstractOutStream implements OutStream {
     public void writeField(ZscriptTokenField field) {
         if (field.isBigField()) {
             if (field.getKey() == Zchars.Z_BIGFIELD_QUOTED) {
-                writeCharAsByte('"');
+                writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
                 // note, could use BlockIterator, but need to split and extract escaped chars
                 for (byte b : field) {
                     writeStringByte(b);
                 }
-                writeCharAsByte('"');
+                writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
             } else {
-                writeCharAsByte('+');
+                writeCharAsByte(Zchars.Z_BIGFIELD_HEX);
                 for (BlockIterator iterator = field.iterator(); iterator.hasNext(); ) {
                     byte[] bytes = iterator.nextContiguous();
                     writeBytes(bytes, bytes.length, true);
@@ -125,36 +125,36 @@ public abstract class AbstractOutStream implements OutStream {
 
     @Override
     public void writeQuotedString(byte[] data) {
-        writeCharAsByte('"');
+        writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
         for (byte b : data) {
             writeStringByte(b);
         }
-        writeCharAsByte('"');
+        writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
     }
 
     @Override
     public void writeBig(byte[] data) {
-        writeCharAsByte('+');
+        writeCharAsByte(Zchars.Z_BIGFIELD_HEX);
         writeBytes(data, data.length, true);
     }
 
     @Override
     public void writeOrElse() {
-        writeCharAsByte('|');
+        writeCharAsByte(Zchars.Z_ORELSE);
     }
 
     @Override
     public void writeAndThen() {
-        writeCharAsByte('&');
+        writeCharAsByte(Zchars.Z_ANDTHEN);
     }
 
     @Override
     public void writeOpenParen() {
-        writeCharAsByte('(');
+        writeCharAsByte(Zchars.Z_OPENPAREN);
     }
 
     @Override
     public void writeCloseParen() {
-        writeCharAsByte(')');
+        writeCharAsByte(Zchars.Z_CLOSEPAREN);
     }
 }

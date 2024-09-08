@@ -102,7 +102,7 @@ public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCate
         I2cResponse addrRespTmp = (I2cResponse) entity.getConnection(I2cProtocolCategory.class, i).sendMessage(entity, new I2cReceivePacket(SmBusAlertConnection.ALERT_ADDRESS, 2));
         if (!addrRespTmp.worked()) {
             if (isAddressed) {
-                commandOut.writeField('S', ZscriptStatus.ADDRESS_NOT_FOUND);
+                commandOut.writeField(Zchars.Z_STATUS, ZscriptStatus.ADDRESS_NOT_FOUND);
             } else {
                 commandOut.writeField('P', i);
             }
@@ -136,8 +136,8 @@ public class I2cNotificationHandler implements SimulatorConsumer<I2cProtocolCate
                     new I2cReceivePacket(new I2cAddress(addr), CHUNK_LENGTH));
             if (!respTmp.worked()) {
                 out.endSequence();
-                commandOut.writeField('!', 0x50);
-                commandOut.writeField('S', ZscriptStatus.ADDRESS_NOT_FOUND);
+                commandOut.writeField(Zchars.Z_RESPONSE_MARK, 0x50);
+                commandOut.writeField(Zchars.Z_STATUS, ZscriptStatus.ADDRESS_NOT_FOUND);
                 break;
             }
             data = ((I2cReceiveResponse) respTmp).getData();
