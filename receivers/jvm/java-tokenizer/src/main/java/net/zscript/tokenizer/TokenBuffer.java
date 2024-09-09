@@ -155,7 +155,7 @@ public interface TokenBuffer {
         TokenBufferFlags getFlags();
 
         /**
-         * Creates an iterator over all the readable tokens.
+         * Creates an iterator over all the readable tokens. Note: skips over extension segment tokens - they are (correctly) never returned during iteration.
          *
          * @return an iterator over ReadTokens available.
          */
@@ -196,7 +196,7 @@ public interface TokenBuffer {
          */
         interface ReadToken {
             /**
-             * Creates an iterator over the completed tokens from this token's position, such that  calling next() will first give this token.
+             * Creates an OptIterator over the completed tokens from this token's position forward, such that  calling next() will first supply this token.
              *
              * @return an iterator over available ReadTokens.
              */
@@ -236,7 +236,7 @@ public interface TokenBuffer {
             }
 
             /**
-             * Exposes the data as a stream of bytes. It manages hopping across extension segments, and breaks caused by circularity in ring-buffers.
+             * Exposes this token's data as a stream of bytes or byte[] blocks. It manages aggregating across extension segments, and breaks caused by circularity in ring-buffers.
              *
              * @return an iterator that exposes the data either as a succession of individual bytes, or as byte[] blocks of contiguous bytes.
              * @throws IllegalStateException if this token is any kind of Marker - check first!

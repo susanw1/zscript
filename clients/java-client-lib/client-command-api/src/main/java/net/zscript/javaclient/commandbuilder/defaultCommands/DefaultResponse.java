@@ -18,8 +18,7 @@ public class DefaultResponse implements ZscriptResponse {
     }
 
     @Override
-    public OptionalInt getField(char key) {
+    public OptionalInt getField(byte key) {
         return expression.getField(key);
     }
-
 }

@@ -595,7 +595,7 @@ public final class ByteString implements Iterable<Byte> {
     /**
      * Simple array iterator
      */
-    public class ByteIterator implements Iterator<Byte> {
+    private class ByteIterator implements Iterator<Byte> {
         int index = 0;
 
         @Override

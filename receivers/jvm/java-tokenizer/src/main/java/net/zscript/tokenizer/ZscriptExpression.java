@@ -1,5 +1,6 @@
 package net.zscript.tokenizer;
 
+import java.util.Optional;
 import java.util.OptionalInt;
 
 import net.zscript.util.ByteString;
@@ -10,12 +11,35 @@ import net.zscript.util.ByteString;
  */
 public interface ZscriptExpression {
     /**
+     * Gets the ZscriptField representing the specified numeric field (key, value), if it exists.
+     *
+     * @param key the key of the required field
+     * @return the field, or empty if the field isn't defined
+     */
+    Optional<? extends ZscriptField> getZscriptField(byte key);
+
+    /**
+     * Gets the ZscriptField representing the specified numeric field (key, value), if it exists.
+     *
+     * @param key the key of the required field
+     * @return the field, or empty if the field isn't defined
+     */
+    default Optional<? extends ZscriptField> getZscriptField(char key) {
+        return getZscriptField((byte) key);
+    }
+
+    /**
      * Gets the value of the specified field.
      *
      * @param key the key of the required field
      * @return the value of that field, or empty if the field isn't defined
      */
-    OptionalInt getField(byte key);
+    default OptionalInt getField(byte key) {
+        // I thought there would be a super-cool way to do this that wasn't basically an if-statement...OptionalInt makes it messy.
+        return getZscriptField(key)
+                .map(f -> OptionalInt.of(f.getValue()))
+                .orElseGet(OptionalInt::empty);
+    }
 
     /**
      * Gets the value of the specified field.
@@ -86,7 +110,7 @@ public interface ZscriptExpression {
     /**
      * Determines the total number of bytes in the big-field (or fields, concatenated, if there are several).
      *
-     * @return the big-field size, in bytes
+     * @return the big-field size, in bytes (zero if no big-field is found)
      */
     int getBigFieldSize();
 

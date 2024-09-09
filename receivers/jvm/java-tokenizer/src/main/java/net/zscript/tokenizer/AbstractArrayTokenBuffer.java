@@ -268,7 +268,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
     }
 
     /**
-     * Hook method that allows an action to be taken when an offset lookup goes off the end of the data buffer.
+     * Hook method that allows an action to be taken when an offset lookup goes off the end of the data buffer, and determines the actual offset value to use.
      *
      * @param overflowedOffset the offset we were trying to access, required to be data.length &lt;= overflowedOffset &lt; 2*data.length (ie off the end, but not by multiple
      *                         rounds)
@@ -291,12 +291,22 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
     }
 
     private class ArrayTokenBufferReader implements TokenReader {
-
+        /**
+         * Token Iterator which iterates all the available tokens that have been (completely) written to the buffer. It's aware of the extension tokens and excludes them from the
+         * iteration.
+         *
+         * @see #iterator()
+         */
         private class ArrayBufferTokenIterator implements TokenBufferIterator {
             private int index;
 
-            public ArrayBufferTokenIterator(final int index) {
-                this.index = index;
+            /**
+             * Creates an iterator on this buffer's tokens. Note: skips over extension segment tokens - they are never returned during iteration.
+             *
+             * @param startIndex the index of the first token to be returned
+             */
+            private ArrayBufferTokenIterator(final int startIndex) {
+                this.index = startIndex;
             }
 
             @Override
@@ -318,6 +328,9 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                 return Optional.of(new ArrayBufferToken(initialIndex));
             }
 
+            /**
+             * {@inheritDoc}
+             */
             @Override
             public void flushBuffer() {
                 readStart = index;
@@ -379,7 +392,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
          * <li>you can't go off the end of the readable space.</li>
          * </ul>
          *
-         * Any operation which gives a ReadToken where these rules might break should fail should there not be one.
+         * Any operation which returns a ReadToken should fail when these rules are broken.
          */
         private class ArrayBufferToken implements ReadToken {
             private final int index;
@@ -397,6 +410,9 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                 this.index = index;
             }
 
+            /**
+             * {@inheritDoc}
+             */
             @Override
             public TokenBufferIterator getNextTokens() {
                 return new ArrayBufferTokenIterator(index);
@@ -412,17 +428,6 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                     private int segRemaining = getSegmentDataSize();
 
                     @Override
-                    public Byte next() {
-                        if (!hasNext()) {
-                            throw new NoSuchElementException();
-                        }
-                        final byte res = data[itIndex];
-                        itIndex = offset(itIndex, 1);
-                        segRemaining--;
-                        return res;
-                    }
-
-                    @Override
                     public boolean hasNext() {
                         // Copes with empty tokens which still have extensions... probably not a valid thing anyway, but still, it didn't cost anything.
                         while (segRemaining == 0) {
@@ -433,6 +438,17 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                             itIndex = offset(itIndex, 2);
                         }
                         return true;
+                    }
+
+                    @Override
+                    public Byte next() {
+                        if (!hasNext()) {
+                            throw new NoSuchElementException();
+                        }
+                        final byte res = data[itIndex];
+                        itIndex = offset(itIndex, 1);
+                        segRemaining--;
+                        return res;
                     }
 
                     @Override

@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandPaths;
 
+import net.zscript.model.components.Zchars;
+import net.zscript.model.components.ZscriptStatus;
 import net.zscript.util.ByteString;
 import net.zscript.util.ByteString.ByteAppendable;
 
@@ -33,20 +35,23 @@ public class Command implements ByteAppendable {
     }
 
     public boolean canFail() {
+        // can't fail if it's the trivial empty command
         if (isEmpty()) {
             return false;
         }
-        if (fieldSet.getFieldValue('Z') == 1) {
-            int sVal = fieldSet.getFieldValue('S');
-            return sVal > 0x00 && sVal < 0x10;
+        // special case: "Z1 S{status}" command, where {status} is a failure code (esp COMMAND_FAIL_CONTROL)
+        if (fieldSet.getFieldVal(Zchars.Z_CMD) == 1) {
+            int sVal = fieldSet.getFieldVal(Zchars.Z_STATUS);
+            return ZscriptStatus.isFailure(sVal);
         }
         return true;
     }
 
     public boolean canSucceed() {
-        if (fieldSet.getFieldValue('Z') == 1) {
-            int sVal = fieldSet.getFieldValue('S');
-            return sVal == 0 || sVal == -1;
+        // special case: "Z1" command, where 'S' is missing, or has a zero (success) code
+        if (fieldSet.getFieldVal(Zchars.Z_CMD) == 1) {
+            int sVal = fieldSet.getFieldVal(Zchars.Z_STATUS);
+            return sVal == -1 || ZscriptStatus.isSuccess(sVal);
         }
         return true;
     }

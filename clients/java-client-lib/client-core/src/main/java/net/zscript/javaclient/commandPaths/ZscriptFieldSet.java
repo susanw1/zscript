@@ -10,10 +10,10 @@ import java.util.OptionalInt;
 import static java.util.Collections.emptyList;
 
 import net.zscript.model.components.Zchars;
-import net.zscript.tokenizer.BlockIterator;
 import net.zscript.tokenizer.TokenBuffer;
 import net.zscript.tokenizer.TokenBufferIterator;
 import net.zscript.tokenizer.ZscriptExpression;
+import net.zscript.tokenizer.ZscriptField;
 import net.zscript.util.ByteString;
 import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
@@ -38,11 +38,7 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
         for (Optional<TokenBuffer.TokenReader.ReadToken> opt = iterator.next(); opt.filter(t -> !t.isMarker()).isPresent(); opt = iterator.next()) {
             TokenBuffer.TokenReader.ReadToken token = opt.get();
             if (Zchars.isBigField(token.getKey())) {
-                ByteStringBuilder builder = ByteString.builder();
-                for (BlockIterator iter = token.blockIterator(); iter.hasNext(); ) {
-                    builder.appendRaw(iter.nextContiguous());
-                }
-                bigFields.add(new BigField(builder.build(), token.getKey() == Zchars.Z_BIGFIELD_QUOTED));
+                bigFields.add(new BigField(ByteString.from(token.blockIterator()), token.getKey() == Zchars.Z_BIGFIELD_QUOTED));
             } else {
                 if (fields[token.getKey() - 'A'] != -1 || token.getDataSize() > 2 || !Zchars.isNumericKey(token.getKey())) {
                     hasClash = true;
@@ -83,6 +79,9 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
         this.hasClash = hasClash;
     }
 
+    /**
+     * @return true if this expression has no numeric fields and no big-fields; false otherwise
+     */
     public boolean isEmpty() {
         if (!bigFields.isEmpty()) {
             return false;
@@ -95,11 +94,11 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
         return true;
     }
 
-    public int getFieldValue(byte key) {
+    public int getFieldVal(byte key) {
         return fields[key - 'A'];
     }
 
-    public int getFieldValue(char key) {
+    public int getFieldVal(char key) {
         return fields[key - 'A'];
     }
 
@@ -116,13 +115,12 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
     @Override
     public void appendTo(ByteStringBuilder builder) {
         if (fields['Z' - 'A'] != -1) {
-            builder.appendByte(Zchars.Z_CMD).appendNumeric16(fields['Z' - 'A']);
+            NumberField.append(Zchars.Z_CMD, fields['Z' - 'A'], builder);
         }
         for (int i = 0; i < fields.length; i++) {
-            if (i != 'Z' - 'A' && fields[i] != -1) {
-                builder.appendByte((byte) (i + 'A')).appendNumeric16(fields[i]);
+            if (i + 'A' != 'Z' && fields[i] != -1) {
+                NumberField.append((byte) (i + 'A'), fields[i], builder);
             }
-
         }
         for (BigField big : bigFields) {
             big.appendTo(builder);
@@ -143,23 +141,33 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
             }
         }
         for (BigField big : bigFields) {
-            length += big.getDataLength() + 2;
+            length += big.getBufferLength();
         }
         return length;
     }
 
+    @Override
     public OptionalInt getField(byte key) {
         return fields[key - 'A'] == -1 ? OptionalInt.empty() : OptionalInt.of(fields[key - 'A']);
     }
 
-    public int getFieldCount() {
-        return (int) Arrays.stream(fields).filter(f -> f != 0).count();
+    @Override
+    public Optional<? extends ZscriptField> getZscriptField(byte key) {
+        int v = fields[key - 'A'];
+        return Optional.ofNullable(v != -1 ? new NumberField(key, v) : null);
     }
 
+    @Override
+    public int getFieldCount() {
+        return (int) Arrays.stream(fields).filter(f -> f != -1).count();
+    }
+
+    @Override
     public boolean hasBigField() {
         return !bigFields.isEmpty();
     }
 
+    @Override
     public int getBigFieldSize() {
         return bigFields.stream()
                 .mapToInt(BigField::getDataLength)
