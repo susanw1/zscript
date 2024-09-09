@@ -13,20 +13,20 @@ public interface ZscriptResponse {
      */
     boolean isValid();
 
-    OptionalInt getField(char key);
+    OptionalInt getField(byte key);
 
     default boolean succeeded() {
-        OptionalInt status = getField((char) Zchars.Z_STATUS);
+        OptionalInt status = getField(Zchars.Z_STATUS);
         return status.isEmpty() || status.getAsInt() == ZscriptStatus.SUCCESS;
     }
 
     default boolean failed() {
-        OptionalInt status = getField((char) Zchars.Z_STATUS);
+        OptionalInt status = getField(Zchars.Z_STATUS);
         return status.isPresent() && ZscriptStatus.isFailure(status.getAsInt());
     }
 
     default boolean error() {
-        OptionalInt status = getField((char) Zchars.Z_STATUS);
+        OptionalInt status = getField(Zchars.Z_STATUS);
         return status.isPresent() && ZscriptStatus.isError(status.getAsInt());
     }
 }

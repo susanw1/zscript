@@ -13,6 +13,7 @@ import net.zscript.model.components.ZscriptStatus;
 import net.zscript.tokenizer.BlockIterator;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.tokenizer.ZscriptExpression;
+import net.zscript.tokenizer.ZscriptField;
 import net.zscript.tokenizer.ZscriptTokenExpression;
 import net.zscript.tokenizer.ZscriptTokenField;
 import net.zscript.util.ByteString;
@@ -44,6 +45,11 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
     }
 
     @Override
+    public Optional<? extends ZscriptField> getZscriptField(byte key) {
+        return expression.getZscriptField(key);
+    }
+
+    @Override
     public int getFieldCount() {
         return expression.getFieldCount();
     }
@@ -53,6 +59,12 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
         return expression.hasBigField();
     }
 
+    /**
+     * Produces a BlockIterator that iterates over multiple big-field items appearing in a single expression, including any extension tokens, thus providing access to all the
+     * big-field bytes.
+     *
+     * @return fully big-field-aware data iterator
+     */
     public BlockIterator getBigField() {
         return expression.getBigField();
     }
@@ -76,12 +88,19 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
         return false;
     }
 
-    public OptIterator<ZscriptTokenField> fieldIterator() {
+    /**
+     * Returns  an iterator that supplies ZscriptField objects representing the fields (big-fields and numeric) in the current ZscriptExpression.
+     * <p/>
+     * Note: relies on {@link ZscriptTokenExpression#iteratorToMarker()} to supply tokens, which should skip extension tokens correctly.
+     *
+     * @return OptIterator for all the fields in this expression
+     */
+    public OptIterator<ZscriptField> fieldIterator() {
         return new OptIterator<>() {
             final OptIterator<ReadToken> iter = expression.iteratorToMarker();
 
             @Override
-            public Optional<ZscriptTokenField> next() {
+            public Optional<ZscriptField> next() {
                 return iter.next().map(ZscriptTokenField::new);
             }
         };

@@ -3,6 +3,9 @@ package net.zscript.tokenizer;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
+/**
+ * Given a ReadToken, this provides a "field view" of the token.
+ */
 public class ZscriptTokenField implements ZscriptField {
     private final ReadToken token;
 
@@ -26,5 +29,4 @@ public class ZscriptTokenField implements ZscriptField {
     public BlockIterator iterator() {
         return token.blockIterator();
     }
-
 }

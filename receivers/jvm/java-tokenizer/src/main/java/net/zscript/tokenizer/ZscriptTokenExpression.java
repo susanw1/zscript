@@ -2,7 +2,6 @@ package net.zscript.tokenizer;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 import net.zscript.model.components.Zchars;
@@ -26,7 +25,8 @@ public class ZscriptTokenExpression implements ZscriptExpression {
     }
 
     /**
-     * Creates a special ReadToken iterator which stops at the first Marker (and hence reads exactly one ZscriptExpression).
+     * Creates a special ReadToken iterator which stops at the first Marker (and hence reads exactly one ZscriptExpression). Note: relies on the tokenIteratorSupplier to supply
+     * tokens, which should skip extension tokens correctly.
      *
      * @return a ReadToken iterator
      */
@@ -42,11 +42,11 @@ public class ZscriptTokenExpression implements ZscriptExpression {
     }
 
     @Override
-    public OptionalInt getField(byte key) {
+    public Optional<? extends ZscriptField> getZscriptField(byte key) {
         return iteratorToMarker().stream()
                 .filter(tok -> tok.getKey() == key)
-                .mapToInt(ReadToken::getData16)
-                .findFirst();
+                .findFirst()
+                .map(ZscriptTokenField::new);
     }
 
     @Override
@@ -72,16 +72,16 @@ public class ZscriptTokenExpression implements ZscriptExpression {
 
     @Override
     public ByteString getBigFieldAsByteString() {
-        ByteString.ByteStringBuilder b = ByteString.builder();
-
-        for (BlockIterator iterator = getBigField(); iterator.hasNext(); ) {
-            b.appendRaw(iterator.nextContiguous());
-        }
-        return b.build();
+        return ByteString.from(getBigField());
     }
 
+    /**
+     * Produces a BlockIterator that iterates over multiple big-field items appearing in a single expression, including any extension tokens, thus providing access to all the
+     * big-field bytes.
+     *
+     * @return fully big-field-aware data iterator
+     */
     public BlockIterator getBigField() {
-        // BlockIterator that iterates over multiple big-field items appearing in a single expression.
         return new BlockIterator() {
             final OptIterator<ReadToken> it = iteratorToMarker();
 
@@ -95,6 +95,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
                 for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
                     ReadToken token = opt.get();
                     if (Zchars.isBigField(token.getKey())) {
+                        // note that the token's blockIterator handles extension blocks
                         internal = token.blockIterator();
                         if (internal.hasNext()) {
                             return true;
