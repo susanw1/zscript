@@ -3,6 +3,7 @@ package net.zscript.javaclient.addressing;
 import java.util.Arrays;
 import java.util.List;
 
+import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 import net.zscript.model.components.Zchars;
@@ -126,7 +127,7 @@ public class ZscriptAddress implements ByteAppendable {
     public void appendTo(ByteStringBuilder builder) {
         byte pre = Zchars.Z_ADDRESSING;
         for (int a : addressParts) {
-            builder.appendByte(pre).appendNumeric16(a);
+            fieldOf(pre, a).appendTo(builder);
             pre = Zchars.Z_ADDRESSING_CONTINUE;
         }
     }

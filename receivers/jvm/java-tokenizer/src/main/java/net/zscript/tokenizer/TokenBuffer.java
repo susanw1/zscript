@@ -231,6 +231,8 @@ public interface TokenBuffer {
 
             /**
              * Creates an OptIterator over the completed tokens from this token's position forward, such that  calling next() will first supply this token.
+             * <p/>
+             * Extension tokens are never returned; they're accessed via the previous token that was extended.
              *
              * @return an iterator over available ReadTokens.
              */

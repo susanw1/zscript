@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 
 import static java.util.Collections.emptyList;
+import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
 
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer;
@@ -98,10 +99,6 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
         return fields[key - 'A'];
     }
 
-    public int getFieldVal(char key) {
-        return fields[key - 'A'];
-    }
-
     /**
      * Aggregates all big-fields in this field-set and returns the concatenated result.
      *
@@ -115,11 +112,11 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
     @Override
     public void appendTo(ByteStringBuilder builder) {
         if (fields['Z' - 'A'] != -1) {
-            NumberField.append(Zchars.Z_CMD, fields['Z' - 'A'], builder);
+            fieldOf(Zchars.Z_CMD, fields['Z' - 'A']).appendTo(builder);
         }
         for (int i = 0; i < fields.length; i++) {
             if (i + 'A' != 'Z' && fields[i] != -1) {
-                NumberField.append((byte) (i + 'A'), fields[i], builder);
+                fieldOf((byte) (i + 'A'), fields[i]).appendTo(builder);
             }
         }
         for (BigField big : bigFields) {
