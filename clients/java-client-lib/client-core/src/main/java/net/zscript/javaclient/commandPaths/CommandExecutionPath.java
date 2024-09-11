@@ -65,7 +65,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
             return builders;
         }
 
-        TokenBufferIterator iterator = start.getNextTokens();
+        TokenBufferIterator iterator = start.tokenIterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ReadToken token = opt.get();
             if (last.getStart() == null) {

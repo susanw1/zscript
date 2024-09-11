@@ -13,7 +13,7 @@ class ZscriptTokenExpressionTest {
     Tokenizer               tokenizer   = new Tokenizer(buffer.getTokenWriter(), 2);
     TokenBuffer.TokenReader tokenReader = buffer.getTokenReader();
 
-    ZscriptTokenExpression zscriptExpr = new ZscriptTokenExpression(() -> tokenReader.iterator());
+    ZscriptTokenExpression zscriptExpr = new ZscriptTokenExpression(() -> tokenReader.tokenIterator());
 
     @Test
     public void shouldGetFields() {
@@ -53,7 +53,7 @@ class ZscriptTokenExpressionTest {
         assertThat(zscriptExpr.getBigFieldSize()).isEqualTo(11);
         assertThat(zscriptExpr.getBigFieldData()).containsExactly("Hello World".getBytes(ISO_8859_1));
 
-        BlockIterator iter = zscriptExpr.getBigField();
+        BlockIterator iter = zscriptExpr.bigFieldDataIterator();
         assertThat(iter.next()).isEqualTo((byte) 'H');
         assertThat(iter.nextContiguous(7)).containsExactly("ello".getBytes(ISO_8859_1));
         assertThat(iter.nextContiguous()).containsExactly(" ".getBytes(ISO_8859_1));

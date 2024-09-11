@@ -41,7 +41,7 @@ public class CommandSequence implements ByteAppendable {
     public static CommandSequence parse(ZscriptModel model, ReadToken start, boolean supports32Locks) {
         ZscriptLockSet      locks     = null;
         int                 echoField = -1;
-        TokenBufferIterator iter      = start.getNextTokens();
+        TokenBufferIterator iter      = start.tokenIterator();
         ReadToken           current   = iter.next().orElse(null);
         while (current != null && (current.getKey() == Zchars.Z_LOCKS || current.getKey() == Zchars.Z_ECHO)) {
             if (current.getKey() == Zchars.Z_LOCKS) {

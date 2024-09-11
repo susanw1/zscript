@@ -17,7 +17,7 @@ public class CompleteAddressedResponse {
     private final ResponseSequence     content;
 
     public static CompleteAddressedResponse parse(TokenReader reader) {
-        OptIterator<ReadToken> iterEnding = reader.iterator();
+        OptIterator<ReadToken> iterEnding = reader.tokenIterator();
         for (Optional<ReadToken> opt = iterEnding.next(); opt.isPresent(); opt = iterEnding.next()) {
             if (opt.get().isSequenceEndMarker()) {
                 if (opt.get().getKey() != Tokenizer.NORMAL_SEQUENCE_END) {
@@ -25,7 +25,7 @@ public class CompleteAddressedResponse {
                 }
             }
         }
-        OptIterator<ReadToken> iter      = reader.iterator();
+        OptIterator<ReadToken> iter      = reader.tokenIterator();
         List<ZscriptAddress>   addresses = new ArrayList<>();
         ResponseSequence       seq       = null;
         for (Optional<ReadToken> opt = iter.next(); opt.isPresent(); opt = iter.next()) {

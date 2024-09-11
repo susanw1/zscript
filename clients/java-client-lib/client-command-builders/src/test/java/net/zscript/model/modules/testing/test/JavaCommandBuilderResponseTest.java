@@ -237,7 +237,7 @@ public class JavaCommandBuilderResponseTest {
         ResponseCaptor<R>     captor = ResponseCaptor.create();
         ZscriptCommandNode<R> cmd    = commandBuilder.capture(captor).build();
 
-        listener.accept(cmd.parseResponse(new ZscriptTokenExpression(tokenReader::iterator)));
+        listener.accept(cmd.parseResponse(new ZscriptTokenExpression(tokenReader::tokenIterator)));
     }
 
 }

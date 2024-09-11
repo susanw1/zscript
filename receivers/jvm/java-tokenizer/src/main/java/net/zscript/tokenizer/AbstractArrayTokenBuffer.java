@@ -295,7 +295,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
          * Token Iterator which iterates all the available tokens that have been (completely) written to the buffer. It's aware of the extension tokens and excludes them from the
          * iteration.
          *
-         * @see #iterator()
+         * @see #tokenIterator()
          */
         private class ArrayBufferTokenIterator implements TokenBufferIterator {
             private int index;
@@ -349,7 +349,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
          * {@inheritDoc}
          */
         @Override
-        public TokenBufferIterator iterator() {
+        public TokenBufferIterator tokenIterator() {
             return new ArrayBufferTokenIterator(readStart);
         }
 
@@ -377,7 +377,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
          */
         @Override
         public void flushFirstReadToken() {
-            final TokenBufferIterator it = iterator();
+            final TokenBufferIterator it = tokenIterator();
             it.next();
             it.flushBuffer();
         }
@@ -414,12 +414,12 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
              * {@inheritDoc}
              */
             @Override
-            public TokenBufferIterator getNextTokens() {
+            public TokenBufferIterator tokenIterator() {
                 return new ArrayBufferTokenIterator(index);
             }
 
             @Override
-            public BlockIterator blockIterator() {
+            public BlockIterator dataIterator() {
                 if (isMarker()) {
                     throw new IllegalStateException("Cannot get data from marker token");
                 }

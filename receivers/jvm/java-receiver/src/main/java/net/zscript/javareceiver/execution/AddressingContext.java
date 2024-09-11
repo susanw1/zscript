@@ -22,11 +22,11 @@ public class AddressingContext extends AbstractContext {
     }
 
     public BlockIterator getAddressedData() {
-        OptIterator<ReadToken> iterator = contextView.getReader().iterator();
+        OptIterator<ReadToken> iterator = contextView.getReader().tokenIterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ReadToken token = opt.get();
             if (token.getKey() == Tokenizer.ADDRESSING_FIELD_KEY) {
-                return token.blockIterator();
+                return token.dataIterator();
             }
         }
         throw new IllegalStateException("No data with addressing");
@@ -34,7 +34,7 @@ public class AddressingContext extends AbstractContext {
 
     public OptIterator<Integer> getAddressSegments() {
         return new OptIterator<>() {
-            final OptIterator<ReadToken> internal = contextView.getReader().iterator();
+            final OptIterator<ReadToken> internal = contextView.getReader().tokenIterator();
 
             @Override
             public Optional<Integer> next() {
@@ -58,7 +58,7 @@ public class AddressingContext extends AbstractContext {
     }
 
     public int getAddressedDataSize() {
-        final OptIterator<ReadToken> it = contextView.getReader().iterator();
+        final OptIterator<ReadToken> it = contextView.getReader().tokenIterator();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent(); opt = it.next()) {
             ReadToken token = opt.get();
             if (token.getKey() == Tokenizer.ADDRESSING_FIELD_KEY) {
@@ -72,7 +72,7 @@ public class AddressingContext extends AbstractContext {
         boolean hasReachedData = false;
         int     i              = 0;
 
-        OptIterator<ReadToken> iterator = contextView.getReader().iterator();
+        OptIterator<ReadToken> iterator = contextView.getReader().tokenIterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ReadToken token = opt.get();
             i++;

@@ -72,7 +72,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
 
     @Override
     public ByteString getBigFieldAsByteString() {
-        return ByteString.from(getBigField());
+        return ByteString.from(bigFieldDataIterator());
     }
 
     /**
@@ -81,7 +81,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
      *
      * @return fully big-field-aware data iterator
      */
-    public BlockIterator getBigField() {
+    public BlockIterator bigFieldDataIterator() {
         return new BlockIterator() {
             final OptIterator<ReadToken> it = iteratorToMarker();
 
@@ -96,7 +96,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
                     ReadToken token = opt.get();
                     if (Zchars.isBigField(token.getKey())) {
                         // note that the token's blockIterator handles extension blocks
-                        internal = token.blockIterator();
+                        internal = token.dataIterator();
                         if (internal.hasNext()) {
                             return true;
                         }
