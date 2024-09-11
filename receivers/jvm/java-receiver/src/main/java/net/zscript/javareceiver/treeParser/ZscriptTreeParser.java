@@ -16,7 +16,7 @@ public class ZscriptTreeParser {
         int lowest     = 0;
         int parenCount = 0;
 
-        OptIterator<ReadToken> it = start.getNextTokens();
+        OptIterator<ReadToken> it = start.tokenIterator();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent() && !opt.get().isSequenceEndMarker(); opt = it.next()) {
             ReadToken t = opt.get();
             if (t.getKey() == Tokenizer.CMD_END_OPEN_PAREN) {
@@ -42,7 +42,7 @@ public class ZscriptTreeParser {
 
         boolean hadNonParen = false;
 
-        OptIterator<ReadToken> it = start.getNextTokens();
+        OptIterator<ReadToken> it = start.tokenIterator();
         for (Optional<ReadToken> opt = it.next(); opt.isPresent()
                 && (parenLevel != 0 || opt.get().getKey() != endMarker) && !opt.get().isSequenceEndMarker(); opt = it.next()) {
             ReadToken t = opt.get();
@@ -71,7 +71,7 @@ public class ZscriptTreeParser {
         }
 
         ReadToken firstOnLevel = null;
-        it = start.getNextTokens();
+        it = start.tokenIterator();
         parenLevel = parenStartCount;
         for (Optional<ReadToken> opt = it.next(); opt.isPresent()
                 && (parenLevel != 0 || opt.get().getKey() != endMarker) && !isSequenceEndMarker(opt.get().getKey()); opt = it.next()) {
@@ -100,7 +100,7 @@ public class ZscriptTreeParser {
         boolean   hasTokens   = false;
         boolean   lastWasOpen = false;
         parenLevel = parenStartCount;
-        it = start.getNextTokens();
+        it = start.tokenIterator();
         Optional<ReadToken> opt;
         for (opt = it.next(); opt.isPresent()
                 && (parenLevel != 0 && !isSequenceEndMarker(opt.get().getKey()) || opt.get().getKey() != endMarker); opt = it.next()) {
@@ -127,7 +127,7 @@ public class ZscriptTreeParser {
             }
         }
         if (!hasTokens) {
-            it = start.getNextTokens();
+            it = start.tokenIterator();
             for (opt = it.next(); opt.isPresent() && !opt.get().isMarker(); opt = it.next()) {
             }
             //            System.out.println("Command2: " + (char) start.getKey() + " : " + Integer.toHexString(Byte.toUnsignedInt(endMarker)));

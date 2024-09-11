@@ -32,7 +32,7 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
         super(contextView);
         this.zscript = zscript;
         this.out = out;
-        this.expression = new ZscriptTokenExpression(() -> contextView.getReader().iterator());
+        this.expression = new ZscriptTokenExpression(() -> contextView.getReader().tokenIterator());
     }
 
     public CommandOutStream getOutStream() {
@@ -65,8 +65,8 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
      *
      * @return fully big-field-aware data iterator
      */
-    public BlockIterator getBigField() {
-        return expression.getBigField();
+    public BlockIterator bigFieldDataIterator() {
+        return expression.bigFieldDataIterator();
     }
 
     @Override

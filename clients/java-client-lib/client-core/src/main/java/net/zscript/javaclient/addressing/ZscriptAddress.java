@@ -52,7 +52,7 @@ public class ZscriptAddress implements ByteAppendable {
         }
 
         // Note, tokenizer will only write one Address; subsequent addresses are inside the single token envelope.
-        int[] parts = token.getNextTokens().stream()
+        int[] parts = token.tokenIterator().stream()
                 .takeWhile(t -> Zchars.isAddressing(t.getKey()))
                 .mapToInt(ReadToken::getData16)
                 .toArray();

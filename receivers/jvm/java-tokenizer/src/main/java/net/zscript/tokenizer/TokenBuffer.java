@@ -159,7 +159,7 @@ public interface TokenBuffer {
          *
          * @return an iterator over ReadTokens available.
          */
-        TokenBufferIterator iterator();
+        TokenBufferIterator tokenIterator();
 
         /**
          * Checks whether any tokens can be read.
@@ -195,12 +195,6 @@ public interface TokenBuffer {
          * Represents a single Token in the token buffer.
          */
         interface ReadToken {
-            /**
-             * Creates an OptIterator over the completed tokens from this token's position forward, such that  calling next() will first supply this token.
-             *
-             * @return an iterator over available ReadTokens.
-             */
-            TokenBufferIterator getNextTokens();
 
             /**
              * Determines the key associated with this token.
@@ -236,12 +230,19 @@ public interface TokenBuffer {
             }
 
             /**
+             * Creates an OptIterator over the completed tokens from this token's position forward, such that  calling next() will first supply this token.
+             *
+             * @return an iterator over available ReadTokens.
+             */
+            TokenBufferIterator tokenIterator();
+
+            /**
              * Exposes this token's data as a stream of bytes or byte[] blocks. It manages aggregating across extension segments, and breaks caused by circularity in ring-buffers.
              *
              * @return an iterator that exposes the data either as a succession of individual bytes, or as byte[] blocks of contiguous bytes.
              * @throws IllegalStateException if this token is any kind of Marker - check first!
              */
-            BlockIterator blockIterator();
+            BlockIterator dataIterator();
 
             /**
              * Exposes the data as a single number (uint32).

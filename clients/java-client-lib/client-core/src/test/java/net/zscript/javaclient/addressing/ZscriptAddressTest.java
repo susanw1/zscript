@@ -54,7 +54,7 @@ class ZscriptAddressTest {
     public void shouldNotParseMultipleAddresses() {
         tokenize("@12.34.56 @78.ab Z1A2+34\n");
 
-        List<ZscriptAddress> addresses = tokenReader.iterator().stream()
+        List<ZscriptAddress> addresses = tokenReader.tokenIterator().stream()
                 .filter(t -> t.getKey() == Zchars.Z_ADDRESSING)
                 .map(ZscriptAddress::parse)
                 .collect(toList());

@@ -111,7 +111,7 @@ class TokenRingBufferReaderTest {
                 }
             }
             ByteArrayOutputStream st = new ByteArrayOutputStream();
-            Streams.stream(found.blockIterator()).forEach(t -> st.write(t));
+            Streams.stream(found.dataIterator()).forEach(t -> st.write(t));
             assertThat(st.toByteArray()).containsExactly(expected.data);
         }
         if (expected.isExtended) {
@@ -139,7 +139,7 @@ class TokenRingBufferReaderTest {
         assertThat(reader.hasReadToken()).isTrue();
         assertThat(reader.getFirstReadToken().getKey()).isEqualTo(tokens.get(0).key);
         Iterator<TokenExpectation> expectations = tokens.iterator();
-        OptIterator<ReadToken>     iterator     = reader.iterator();
+        OptIterator<ReadToken>     iterator     = reader.tokenIterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ReadToken token = opt.get();
             try {
@@ -159,7 +159,7 @@ class TokenRingBufferReaderTest {
         assertThat(reader.hasReadToken()).isTrue();
         assertThat(reader.getFirstReadToken().getKey()).isEqualTo(tokens.get(0).key);
         Iterator<TokenExpectation> expectations = tokens.iterator();
-        OptIterator<ReadToken>     iterator     = reader.iterator();
+        OptIterator<ReadToken>     iterator     = reader.tokenIterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ReadToken token = opt.get();
             try {
@@ -183,7 +183,7 @@ class TokenRingBufferReaderTest {
         assertThat(reader.hasReadToken()).isTrue();
         assertThat(reader.getFirstReadToken().getKey()).isEqualTo(tokens.get(0).key);
         Iterator<TokenExpectation> expectations = tokens.iterator();
-        OptIterator<ReadToken>     iterator     = reader.iterator();
+        OptIterator<ReadToken>     iterator     = reader.tokenIterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ReadToken token = opt.get();
             try {
@@ -204,7 +204,7 @@ class TokenRingBufferReaderTest {
         writeNormalTokens(r, 10, 2);
         writeExtendedToken(r, 400);
         writeNormalTokens(r, 10, 2);
-        testIteratorCorrectness(reader.iterator(), 0);
+        testIteratorCorrectness(reader.tokenIterator(), 0);
     }
 
     @Test
@@ -216,7 +216,7 @@ class TokenRingBufferReaderTest {
         writeExtendedToken(r, 400);
         writeNormalTokens(r, 10, 2);
         reader.flushFirstReadToken();
-        testIteratorCorrectness(reader.iterator(), 1);
+        testIteratorCorrectness(reader.tokenIterator(), 1);
     }
 
     @Test
@@ -229,10 +229,10 @@ class TokenRingBufferReaderTest {
         writeNormalTokens(r, 10, 2);
         int i = 0;
 
-        OptIterator<ReadToken> iterator = reader.iterator();
+        OptIterator<ReadToken> iterator = reader.tokenIterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ReadToken token = opt.get();
-            testIteratorCorrectness(token.getNextTokens(), i++);
+            testIteratorCorrectness(token.tokenIterator(), i++);
         }
     }
 
@@ -240,25 +240,25 @@ class TokenRingBufferReaderTest {
     void shouldIterateTokenDataThroughExtensions() {
         Random r = new Random(SEED);
         writeExtendedToken(r, 800);
-        testIteratorCorrectness(reader.iterator(), 0);
+        testIteratorCorrectness(reader.tokenIterator(), 0);
     }
 
     @Test
     void shouldIterateTokenDataThroughLoopingBuffer() {
         Random r = new Random(SEED);
         writeExtendedToken(r, 800);
-        TokenBufferIterator it = reader.iterator();
+        TokenBufferIterator it = reader.tokenIterator();
         it.next();
         it.flushBuffer();
         writeExtendedToken(r, 800);
-        testIteratorCorrectness(reader.iterator(), 1);
+        testIteratorCorrectness(reader.tokenIterator(), 1);
     }
 
     @Test
     void shouldIterateTokenDataInContiguousChunks() {
         Random r = new Random(SEED);
         writeExtendedToken(r, 800);
-        BlockIterator data = reader.iterator().next().get().blockIterator();
+        BlockIterator data = reader.tokenIterator().next().get().dataIterator();
         int           i    = 0;
         for (BlockIterator iterator = data; iterator.hasNext(); ) {
             byte[] nextCont = iterator.nextContiguous();
@@ -271,7 +271,7 @@ class TokenRingBufferReaderTest {
     void shouldIterateTokenDataInLimtedContiguousChunks() {
         Random r = new Random(SEED);
         writeExtendedToken(r, 800);
-        BlockIterator data = reader.iterator().next().get().blockIterator();
+        BlockIterator data = reader.tokenIterator().next().get().dataIterator();
         int           i    = 0;
         for (BlockIterator iterator = data; iterator.hasNext(); ) {
             assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i, Math.min(i + 200, 800)));
@@ -287,11 +287,11 @@ class TokenRingBufferReaderTest {
         int    initialLength = 700;
         Random r             = new Random(SEED);
         writeExtendedToken(r, initialLength);
-        TokenBufferIterator it = reader.iterator();
+        TokenBufferIterator it = reader.tokenIterator();
         it.next();
         it.flushBuffer();
         writeExtendedToken(r, 800);
-        BlockIterator data = reader.iterator().next().get().blockIterator();
+        BlockIterator data = reader.tokenIterator().next().get().dataIterator();
         int           i    = 0;
         for (BlockIterator iterator = data; iterator.hasNext(); ) {
             int offset = 200;

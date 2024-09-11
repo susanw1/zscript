@@ -34,11 +34,11 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
         Arrays.fill(fields, -1);
         boolean hasClash = false;
 
-        TokenBufferIterator iterator = start.getNextTokens();
+        TokenBufferIterator iterator = start.tokenIterator();
         for (Optional<TokenBuffer.TokenReader.ReadToken> opt = iterator.next(); opt.filter(t -> !t.isMarker()).isPresent(); opt = iterator.next()) {
             TokenBuffer.TokenReader.ReadToken token = opt.get();
             if (Zchars.isBigField(token.getKey())) {
-                bigFields.add(new BigField(ByteString.from(token.blockIterator()), token.getKey() == Zchars.Z_BIGFIELD_QUOTED));
+                bigFields.add(new BigField(ByteString.from(token.dataIterator()), token.getKey() == Zchars.Z_BIGFIELD_QUOTED));
             } else {
                 if (fields[token.getKey() - 'A'] != -1 || token.getDataSize() > 2 || !Zchars.isNumericKey(token.getKey())) {
                     hasClash = true;

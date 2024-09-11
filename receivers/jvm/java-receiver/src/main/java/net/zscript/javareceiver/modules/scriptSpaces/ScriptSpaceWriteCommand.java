@@ -37,7 +37,7 @@ public class ScriptSpaceWriteCommand {
         }
 
         Tokenizer tok = new Tokenizer(writer.getTokenWriter(), 2);
-        for (Iterator<Byte> iterator = ctx.getBigField(); iterator.hasNext(); ) {
+        for (Iterator<Byte> iterator = ctx.bigFieldDataIterator(); iterator.hasNext(); ) {
             tok.accept(iterator.next());
         }
         writer.commitChanges();

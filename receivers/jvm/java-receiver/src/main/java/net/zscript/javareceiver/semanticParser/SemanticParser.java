@@ -68,7 +68,7 @@ public class SemanticParser implements ParseState, ContextView {
          * @return the Marker token that was found, or empty if none
          */
         private Optional<ReadToken> seekMarker(final boolean seekSeqEnd, final boolean flush) {
-            final TokenBufferIterator it = reader.iterator();
+            final TokenBufferIterator it = reader.tokenIterator();
             Optional<ReadToken>       token;
 
             Predicate<ReadToken> p = seekSeqEnd ? ReadToken::isSequenceEndMarker : ReadToken::isMarker;
@@ -470,7 +470,7 @@ public class SemanticParser implements ParseState, ContextView {
      */
     private boolean seekSecondMarker() {
         // starts pointing at a marker - we want to know if there's another one after it, or if we're out of tokens!
-        final TokenBufferIterator it = reader.iterator();
+        final TokenBufferIterator it = reader.tokenIterator();
 
         // skip the current (Marker) token, and then
         it.next();
@@ -507,7 +507,7 @@ public class SemanticParser implements ParseState, ContextView {
                     state = State.ERROR_LOCKS;
                     return;
                 }
-                locks = LockSet.from(first.blockIterator());
+                locks = LockSet.from(first.dataIterator());
                 hasLocks = true;
             }
             reader.flushFirstReadToken(); // safe as key is checked, not a Marker

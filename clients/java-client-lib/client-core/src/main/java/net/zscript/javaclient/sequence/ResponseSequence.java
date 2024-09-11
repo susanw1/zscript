@@ -18,7 +18,7 @@ public class ResponseSequence implements ByteAppendable {
         int echoField     = -1;
         int responseField = -1;
 
-        TokenBufferIterator iter = start.getNextTokens();
+        TokenBufferIterator iter = start.tokenIterator();
 
         TokenBuffer.TokenReader.ReadToken current = iter.next().orElse(null);
         if (current == null || current.getKey() != Zchars.Z_RESPONSE_MARK) {
