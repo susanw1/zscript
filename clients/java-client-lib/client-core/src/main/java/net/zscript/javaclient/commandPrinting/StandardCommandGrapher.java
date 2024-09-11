@@ -106,7 +106,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
     private void explainField(TextBox box, ZscriptDataModel.GenericField field, boolean[] doneFields, ZscriptFieldSet fieldSet, CommandPrintSettings settings) {
         box.startNewLine(1);
 
-        char key = field.getKey();
+        byte key = (byte) field.getKey();
         box.append(upperFirst(field.getName()));
         box.append(" (");
         box.append(key);
@@ -157,7 +157,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
             ZscriptFieldSet fieldSet, ZscriptDataModel.CommandModel command) {
         box.startNewLine(1);
 
-        char key = field.getKey();
+        byte key = (byte) field.getKey();
         box.append(upperFirst(field.getName()));
         box.append(" (").append(key).append("): ");
         doneFields[key - 'A'] = true;
@@ -226,7 +226,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
 
         ZscriptFieldSet fieldSet = target.getFields();
 
-        int commandValue = fieldSet.getFieldVal('Z');
+        int commandValue = fieldSet.getFieldVal(Zchars.Z_CMD);
         box.startNewLine(0);
         if (fieldSet.isEmpty()) {
             box.append("Empty Command");
@@ -273,7 +273,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
     }
 
     public AsciiFrame explainResponse(Command source, Response target, ZscriptModel model, CommandPrintSettings settings) {
-        int             commandValue = source.getFields().getFieldVal('Z');
+        int             commandValue = source.getFields().getFieldVal(Zchars.Z_CMD);
         ZscriptFieldSet fieldSet     = target.getFields();
 
         TextBox box = new TextBox(settings.indentString);

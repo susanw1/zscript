@@ -1,5 +1,7 @@
 package net.zscript.javaclient.sequence;
 
+import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
+
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer;
@@ -68,10 +70,10 @@ public class ResponseSequence implements ByteAppendable {
     public void appendTo(ByteStringBuilder builder) {
         // FIXME: should there only be a '!' when it's been set? Can this even happen?
         if (responseField != -1) {
-            builder.appendByte(Zchars.Z_RESPONSE_MARK).appendNumeric16(responseField);
+            fieldOf(Zchars.Z_RESPONSE_MARK, responseField).appendTo(builder);
         }
         if (echoField != -1) {
-            builder.appendByte(Zchars.Z_ECHO).appendNumeric16(echoField);
+            fieldOf(Zchars.Z_ECHO, echoField).appendTo(builder);
         }
         executionPath.appendTo(builder);
     }

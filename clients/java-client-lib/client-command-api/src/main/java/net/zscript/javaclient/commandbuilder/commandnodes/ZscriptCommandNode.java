@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
+
 import net.zscript.javaclient.commandPaths.BigField;
 import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
 import net.zscript.javaclient.commandbuilder.Respondable;
@@ -59,7 +61,7 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
         for (int i = 'A'; i <= 'Z'; i++) {
             if (fields.get((byte) i) != null) {
                 int value = fields.get((byte) i);
-                b.appendByte((byte) i).appendNumeric16(value);
+                fieldOf((byte) i, value).appendTo(b);
             }
         }
         for (BigField f : bigFields) {

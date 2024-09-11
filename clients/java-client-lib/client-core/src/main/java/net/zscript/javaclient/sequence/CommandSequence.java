@@ -2,6 +2,7 @@ package net.zscript.javaclient.sequence;
 
 import java.util.Collection;
 
+import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
@@ -74,7 +75,7 @@ public class CommandSequence implements ByteAppendable {
     public void appendTo(ByteStringBuilder builder) {
         locks.appendTo(builder);
         if (echoField != -1) {
-            builder.appendByte(Zchars.Z_ECHO).appendNumeric16(echoField);
+            fieldOf(Zchars.Z_ECHO, echoField).appendTo(builder);
         }
         executionPath.appendTo(builder);
     }

@@ -9,6 +9,10 @@ public class NumberField implements ZscriptField, ByteString.ByteAppendable {
     private byte key;
     private int  value;
 
+    public static NumberField fieldOf(byte key, int value) {
+        return new NumberField(key, value);
+    }
+
     public NumberField(byte key, int value) {
         this.key = key;
         this.value = value;
@@ -36,10 +40,6 @@ public class NumberField implements ZscriptField, ByteString.ByteAppendable {
 
     @Override
     public void appendTo(ByteStringBuilder builder) {
-        append(key, value, builder);
-    }
-
-    public static void append(byte key, int value, ByteStringBuilder builder) {
         builder.appendByte(key).appendNumeric16(value);
     }
 }
