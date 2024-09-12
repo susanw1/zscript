@@ -36,13 +36,23 @@ public final class ByteString implements Iterable<Byte> {
     }
 
     /**
-     * Returns a block Iterator over the bytes in the string.
+     * Returns a block Iterator over the bytes in the string, with the default maximum block size set to the size of this ByteString.
      *
      * @return iterator a block iterator
      */
     @Override
     public BlockIterator iterator() {
-        return new ByteBlockIterator();
+        return new ByteBlockIterator(bytes.length);
+    }
+
+    /**
+     * Returns a block Iterator over the bytes in the string, with the specified default maximum block size.
+     *
+     * @param defaultMaxLength the max number of bytes to return in a call to {@link BlockIterator#nextContiguous()}
+     * @return iterator a block iterator
+     */
+    public BlockIterator iterator(int defaultMaxLength) {
+        return new ByteBlockIterator(defaultMaxLength);
     }
 
     /**
@@ -612,7 +622,17 @@ public final class ByteString implements Iterable<Byte> {
      * Simple array iterator
      */
     private class ByteBlockIterator implements BlockIterator {
+        final int defaultMaxLength;
         int index = 0;
+
+        /**
+         * Creates a new iterator.
+         *
+         * @param defaultMaxLength the max number of bytes to return in a call to {@link #nextContiguous()}
+         */
+        ByteBlockIterator(int defaultMaxLength) {
+            this.defaultMaxLength = defaultMaxLength;
+        }
 
         @Override
         public boolean hasNext() {
@@ -629,7 +649,7 @@ public final class ByteString implements Iterable<Byte> {
 
         @Override
         public byte[] nextContiguous() {
-            return nextContiguous(bytes.length);
+            return nextContiguous(defaultMaxLength);
         }
 
         @Override

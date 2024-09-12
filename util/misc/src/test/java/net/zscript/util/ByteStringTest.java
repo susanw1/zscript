@@ -71,15 +71,16 @@ class ByteStringTest {
     @Test
     public void shouldIterateBlockBytes() {
         var str  = ByteString.builder().appendUtf8("hello, London calling, £5 is a fiver").build();
-        var iter = str.iterator();
+        var iter = str.iterator(6);
 
         assertThat(iter.hasNext()).isTrue();
         assertThat(iter.next()).isEqualTo((byte) 'h');
         assertThat(iter.nextContiguous(8)).isEqualTo("ello, Lo".getBytes(ISO_8859_1));
         assertThat(iter.nextContiguous(11)).isEqualTo("ndon callin".getBytes(ISO_8859_1));
-        assertThat(iter.nextContiguous(6)).containsExactly('g', ',', ' ', 0xc2, 0xa3, '5');
+        assertThat(iter.nextContiguous()).containsExactly('g', ',', ' ', 0xc2, 0xa3, '5');
         assertThat(iter.hasNext()).isTrue();
-        assertThat(iter.nextContiguous()).isEqualTo(" is a fiver".getBytes(ISO_8859_1));
+        assertThat(iter.nextContiguous()).isEqualTo(" is a ".getBytes(ISO_8859_1));
+        assertThat(iter.nextContiguous()).isEqualTo("fiver".getBytes(ISO_8859_1));
         assertThat(iter.hasNext()).isFalse();
     }
 

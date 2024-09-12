@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.PrimitiveIterator;
 
 public class TextBox implements AsciiFrame {
 
@@ -133,7 +132,7 @@ public class TextBox implements AsciiFrame {
     @Override
     public Iterator<TextRow> iterator() {
         emptyBuilder();
-        return new Iterator<TextRow>() {
+        return new Iterator<>() {
             private final Iterator<TextLine> lineIter = lines.iterator();
 
             private int indent = 0;
