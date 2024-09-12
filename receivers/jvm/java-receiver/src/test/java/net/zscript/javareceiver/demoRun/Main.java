@@ -2,6 +2,7 @@ package net.zscript.javareceiver.demoRun;
 
 import java.io.IOException;
 
+import net.zscript.javareceiver.core.OutputStreamOutStream;
 import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptChannel;
@@ -28,7 +29,7 @@ public class Main {
         zscript.addActionSource(space);
 
         TokenRingBuffer   rbuff = TokenRingBuffer.createBufferWithCapacity(100);
-        SequenceOutStream out   = new ZscriptPrintingOutStream();
+        SequenceOutStream out   = new OutputStreamOutStream<>(System.out);
         zscript.addChannel(new ZscriptChannel(rbuff, out) {
             final Tokenizer in = new Tokenizer(rbuff.getTokenWriter(), 2);
             private int i = 0;
@@ -42,7 +43,7 @@ public class Main {
 
             @Override
             public void channelInfo(CommandContext ctx) {
-                ctx.getOutStream().writeQuotedString("Basic text channel");
+                ctx.getOutStream().writeBigFieldQuoted("Basic text channel");
             }
 
             @Override

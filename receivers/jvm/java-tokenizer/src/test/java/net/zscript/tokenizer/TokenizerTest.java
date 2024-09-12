@@ -25,8 +25,6 @@ import net.zscript.model.components.Zchars;
 @ExtendWith(MockitoExtension.class)
 class TokenizerTest {
     @Mock
-    private TokenBuffer             buffer;
-    @Mock
     private TokenBuffer.TokenWriter writer;
 
     private Tokenizer tokenizer;

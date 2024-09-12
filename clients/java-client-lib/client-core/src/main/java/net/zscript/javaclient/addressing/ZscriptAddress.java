@@ -12,7 +12,7 @@ import net.zscript.util.ByteString.ByteStringBuilder;
 
 /**
  * Representation of a single address, as per <code>@1.5.192</code>, where each element is a uint16.
- *
+ * <p/>
  * Aggregation to create a full multi-hop address is managed by {@link AddressedCommand} and {@link CompleteAddressedResponse}
  */
 public class ZscriptAddress implements ByteAppendable {

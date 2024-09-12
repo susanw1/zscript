@@ -1,8 +1,5 @@
 package net.zscript.javaclient.nodes;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,52 +15,6 @@ import net.zscript.javaclient.sequence.LockCondition;
 import net.zscript.javaclient.sequence.ResponseSequence;
 
 public class ConnectionBuffer {
-
-    class BufferElement {
-        private final AddressedCommand cmd;
-        private final boolean          sameLayer;
-        private final boolean          hadEchoBefore;
-        private final int              length;
-        private final long             nanoTimeTimeout;
-
-        BufferElement(CommandSequence seq, long nanoTimeTimeout) {
-            this.cmd = new AddressedCommand(seq);
-            this.sameLayer = true;
-            this.hadEchoBefore = true;
-            this.length = seq.getBufferLength();
-            this.nanoTimeTimeout = nanoTimeTimeout;
-        }
-
-        BufferElement(CommandExecutionPath cmd, long nanoTimeTimeout) {
-            CommandSequence seq = CommandSequence.from(cmd, echo.getEcho(), supports32Locks, lockConditions);
-            this.cmd = new AddressedCommand(seq);
-            this.sameLayer = true;
-            this.hadEchoBefore = false;
-            this.length = seq.getBufferLength();
-            this.nanoTimeTimeout = nanoTimeTimeout;
-        }
-
-        BufferElement(AddressedCommand cmd, long nanoTimeTimeout) {
-            this.cmd = cmd;
-            this.sameLayer = !cmd.hasAddressLayer();
-            this.hadEchoBefore = true;
-            this.length = cmd.getBufferLength();
-            this.nanoTimeTimeout = nanoTimeTimeout;
-        }
-
-        public boolean isSameLayer() {
-            return sameLayer;
-        }
-
-        public AddressedCommand getCommand() {
-            return cmd;
-        }
-
-        public long getNanoTimeTimeout() {
-            return nanoTimeTimeout;
-        }
-    }
-
     private final Connection           connection;
     private final Queue<BufferElement> buffer = new ArrayDeque<>();
 
@@ -224,5 +175,50 @@ public class ConnectionBuffer {
 
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
+    }
+
+    class BufferElement {
+        private final AddressedCommand cmd;
+        private final boolean          sameLayer;
+        private final boolean          hadEchoBefore;
+        private final int              length;
+        private final long             nanoTimeTimeout;
+
+        BufferElement(CommandSequence seq, long nanoTimeTimeout) {
+            this.cmd = new AddressedCommand(seq);
+            this.sameLayer = true;
+            this.hadEchoBefore = true;
+            this.length = seq.getBufferLength();
+            this.nanoTimeTimeout = nanoTimeTimeout;
+        }
+
+        BufferElement(CommandExecutionPath cmd, long nanoTimeTimeout) {
+            CommandSequence seq = CommandSequence.from(cmd, echo.getEcho(), supports32Locks, lockConditions);
+            this.cmd = new AddressedCommand(seq);
+            this.sameLayer = true;
+            this.hadEchoBefore = false;
+            this.length = seq.getBufferLength();
+            this.nanoTimeTimeout = nanoTimeTimeout;
+        }
+
+        BufferElement(AddressedCommand cmd, long nanoTimeTimeout) {
+            this.cmd = cmd;
+            this.sameLayer = !cmd.hasAddressLayer();
+            this.hadEchoBefore = true;
+            this.length = cmd.getBufferLength();
+            this.nanoTimeTimeout = nanoTimeTimeout;
+        }
+
+        public boolean isSameLayer() {
+            return sameLayer;
+        }
+
+        public AddressedCommand getCommand() {
+            return cmd;
+        }
+
+        public long getNanoTimeTimeout() {
+            return nanoTimeTimeout;
+        }
     }
 }
