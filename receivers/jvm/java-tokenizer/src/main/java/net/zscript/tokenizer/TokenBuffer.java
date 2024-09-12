@@ -2,6 +2,8 @@ package net.zscript.tokenizer;
 
 import java.util.NoSuchElementException;
 
+import net.zscript.util.BlockIterator;
+
 /**
  * Defines the interface for the standard buffer for tokenizing Zscript.
  * <p/>

@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.util.BlockIterator;
 import net.zscript.util.ByteString;
 import net.zscript.util.OptIterator;
 

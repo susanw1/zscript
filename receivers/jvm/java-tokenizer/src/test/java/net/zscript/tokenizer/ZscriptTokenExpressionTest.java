@@ -8,6 +8,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
+import net.zscript.util.BlockIterator;
+
 class ZscriptTokenExpressionTest {
     TokenBuffer             buffer      = TokenRingBuffer.createBufferWithCapacity(256);
     Tokenizer               tokenizer   = new Tokenizer(buffer.getTokenWriter(), 2);

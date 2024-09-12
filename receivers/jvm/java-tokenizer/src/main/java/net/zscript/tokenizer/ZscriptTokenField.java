@@ -2,6 +2,7 @@ package net.zscript.tokenizer;
 
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
+import net.zscript.util.BlockIterator;
 
 /**
  * Given a ReadToken, this provides a "field view" of the token.

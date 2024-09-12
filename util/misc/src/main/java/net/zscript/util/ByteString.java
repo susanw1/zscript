@@ -3,7 +3,6 @@ package net.zscript.util;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -37,13 +36,13 @@ public final class ByteString implements Iterable<Byte> {
     }
 
     /**
-     * Returns a simple Iterator.
+     * Returns a block Iterator over the bytes in the string.
      *
-     * @return iterator
+     * @return iterator a block iterator
      */
     @Override
-    public Iterator<Byte> iterator() {
-        return new ByteIterator();
+    public BlockIterator iterator() {
+        return new ByteBlockIterator();
     }
 
     /**
@@ -67,6 +66,23 @@ public final class ByteString implements Iterable<Byte> {
     public ByteString writeTo(final OutputStream out) throws IOException {
         out.write(bytes);
         return this;
+    }
+
+    /**
+     * Similar to System.arraycopy, this allows the bytes to be written to a destination byte-array. If 'max' implies a larger number of bytes than available, or there's
+     * insufficient space in 'dest', then the actual number of bytes copied is correspondingly reduced, and returned. Areas of 'dest' that are before destPos or after the end of
+     * the writing are unaffected.
+     *
+     * @param srcPos  the start index in this ByteString
+     * @param dest    the destination byte-array
+     * @param destPos the start position in the destination array
+     * @param max     the max number of bytes to copy
+     * @return the actual number of bytes written
+     */
+    public int copyTo(int srcPos, byte[] dest, int destPos, int max) {
+        int len = Math.min(Math.min(bytes.length - srcPos, dest.length - destPos), max);
+        System.arraycopy(bytes, srcPos, dest, destPos, len);
+        return len;
     }
 
     /**
@@ -149,7 +165,7 @@ public final class ByteString implements Iterable<Byte> {
      * @param <T>      the type of the object
      * @return the resulting ByteString
      */
-    private static <T> ByteString from(T object, ByteAppender<? super T> appender) {
+    public static <T> ByteString from(T object, ByteAppender<? super T> appender) {
         return builder().append(object, appender).build();
     }
 
@@ -595,7 +611,7 @@ public final class ByteString implements Iterable<Byte> {
     /**
      * Simple array iterator
      */
-    private class ByteIterator implements Iterator<Byte> {
+    private class ByteBlockIterator implements BlockIterator {
         int index = 0;
 
         @Override
@@ -609,6 +625,20 @@ public final class ByteString implements Iterable<Byte> {
                 throw new NoSuchElementException();
             }
             return bytes[index++];
+        }
+
+        @Override
+        public byte[] nextContiguous() {
+            return nextContiguous(bytes.length);
+        }
+
+        @Override
+        public byte[] nextContiguous(int maxLength) {
+            int    n     = Math.min(maxLength, bytes.length - index);
+            byte[] block = new byte[n];
+            int    len   = copyTo(index, block, 0, n);
+            index += len;
+            return block;
         }
     }
 
