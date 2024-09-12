@@ -119,12 +119,12 @@ public abstract class AbstractOutStream implements OutStream {
     }
 
     @Override
-    public void writeQuotedString(String string) {
-        writeQuotedString(string.getBytes(StandardCharsets.UTF_8));
+    public void writeBigFieldQuoted(String string) {
+        writeBigFieldQuoted(string.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
-    public void writeQuotedString(byte[] data) {
+    public void writeBigFieldQuoted(byte[] data) {
         writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
         for (byte b : data) {
             writeStringByte(b);
@@ -133,7 +133,7 @@ public abstract class AbstractOutStream implements OutStream {
     }
 
     @Override
-    public void writeBig(byte[] data) {
+    public void writeBigFieldHex(byte[] data) {
         writeCharAsByte(Zchars.Z_BIGFIELD_HEX);
         writeBytes(data, data.length, true);
     }

@@ -6,8 +6,8 @@ import net.zscript.util.ByteString;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
 public class NumberField implements ZscriptField, ByteString.ByteAppendable {
-    private byte key;
-    private int  value;
+    private final byte key;
+    private final int  value;
 
     public static NumberField fieldOf(byte key, int value) {
         return new NumberField(key, value);
@@ -41,5 +41,10 @@ public class NumberField implements ZscriptField, ByteString.ByteAppendable {
     @Override
     public void appendTo(ByteStringBuilder builder) {
         builder.appendByte(key).appendNumeric16(value);
+    }
+
+    @Override
+    public String toString() {
+        return "NumberField[" + ByteString.from(this) + "]";
     }
 }

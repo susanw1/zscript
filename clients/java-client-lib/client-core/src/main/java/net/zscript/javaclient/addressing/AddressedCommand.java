@@ -8,6 +8,9 @@ import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
+/**
+ * Represents a fixed command-sequence, augmented by the addresses of nodes it passes through to get to the target..
+ */
 public class AddressedCommand implements ByteAppendable {
     private final Queue<ZscriptAddress> addressSections;
     private final CommandSequence       content;

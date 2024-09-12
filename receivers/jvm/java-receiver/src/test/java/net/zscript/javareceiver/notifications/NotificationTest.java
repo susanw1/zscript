@@ -1,8 +1,8 @@
 package net.zscript.javareceiver.notifications;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +52,7 @@ public class NotificationTest {
                 someValue--;
             }
             notifier = ctx.getAsyncActionNotifier();
-            ctx.getOutStream().asCommandOutStream().writeQuotedString(toWrite);
+            ctx.getOutStream().asCommandOutStream().writeBigFieldQuoted(toWrite);
         }
 
     }

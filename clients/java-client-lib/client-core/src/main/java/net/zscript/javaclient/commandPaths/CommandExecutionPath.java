@@ -25,39 +25,48 @@ import net.zscript.util.OptIterator;
 
 public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
 
-    static class CommandBuilder {
-        ReadToken start = null;
+    public static CommandExecutionPath parse(ReadToken start) {
+        return parse(ZscriptModel.standardModel(), start);
+    }
 
-        CommandBuilder onSuccess           = null;
-        int            successBracketCount = 0;
-        CommandBuilder onFail              = null;
-        int            failBracketCount    = 0;
+    public static CommandExecutionPath parse(ZscriptModel model, ReadToken start) {
+        List<CommandBuilder> builders = createLinkedPaths(start);
 
-        public void setOnSuccess(CommandBuilder onSuccess) {
-            this.onSuccess = onSuccess;
+        Map<CommandBuilder, Command> commands = new HashMap<>();
+        for (ListIterator<CommandBuilder> iter = builders.listIterator(builders.size()); iter.hasPrevious(); ) {
+            CommandBuilder b = iter.previous();
+            if (b.start != null) {
+                commands.put(b, b.generateCommand(commands));
+            }
         }
+        return new CommandExecutionPath(model, commands.get(builders.get(0)));
+    }
 
-        public void setOnFail(CommandBuilder onFail) {
-            this.onFail = onFail;
-        }
+    public static CommandExecutionPath from(ZscriptModel model, Command success) {
+        return new CommandExecutionPath(model, success);
+    }
 
-        public ReadToken getStart() {
-            return start;
-        }
+    public static CommandExecutionPath blank() {
+        return blank(ZscriptModel.standardModel());
+    }
 
-        public void setStart(ReadToken token) {
-            this.start = token;
-        }
+    public static CommandExecutionPath blank(ZscriptModel model) {
+        return new CommandExecutionPath(model, null);
+    }
 
-        public Command generateCommand(Map<CommandBuilder, Command> commands) {
-            return new Command(commands.get(onSuccess), commands.get(onFail), ZscriptFieldSet.fromTokens(start));
-        }
+    private final ZscriptModel model;
+    private final Command      firstCommand;
+
+    private CommandExecutionPath(ZscriptModel model, Command firstCommand) {
+        this.model = model;
+        this.firstCommand = firstCommand;
     }
 
     private static List<CommandBuilder> createLinkedPaths(ReadToken start) {
+        List<CommandBuilder> builders = new ArrayList<>();
+
         List<CommandBuilder> needSuccessPath = new ArrayList<>();
         List<CommandBuilder> needFailPath    = new ArrayList<>();
-        List<CommandBuilder> builders        = new ArrayList<>();
 
         CommandBuilder last = new CommandBuilder();
         builders.add(last);
@@ -122,43 +131,6 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
             }
         }
         return builders;
-    }
-
-    public static CommandExecutionPath parse(ReadToken start) {
-        return parse(ZscriptModel.standardModel(), start);
-    }
-
-    public static CommandExecutionPath parse(ZscriptModel model, ReadToken start) {
-        List<CommandBuilder> builders = createLinkedPaths(start);
-
-        Map<CommandBuilder, Command> commands = new HashMap<>();
-        for (ListIterator<CommandBuilder> iter = builders.listIterator(builders.size()); iter.hasPrevious(); ) {
-            CommandBuilder b = iter.previous();
-            if (b.start != null) {
-                commands.put(b, b.generateCommand(commands));
-            }
-        }
-        return new CommandExecutionPath(model, commands.get(builders.get(0)));
-    }
-
-    public static CommandExecutionPath from(ZscriptModel model, Command success) {
-        return new CommandExecutionPath(model, success);
-    }
-
-    public static CommandExecutionPath blank() {
-        return blank(ZscriptModel.standardModel());
-    }
-
-    public static CommandExecutionPath blank(ZscriptModel model) {
-        return new CommandExecutionPath(model, null);
-    }
-
-    private final ZscriptModel model;
-    private final Command      firstCommand;
-
-    private CommandExecutionPath(ZscriptModel model, Command firstCommand) {
-        this.model = model;
-        this.firstCommand = firstCommand;
     }
 
     @Override
@@ -246,38 +218,40 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
             parenStarts.add(tmp1);
             tmp1 = tmp1.getOnFail();
         }
+
         boolean lastEndedOpen  = false;
         boolean lastEndedClose = false;
         boolean lastSucceeded  = true;
         int     lastParenCount = 0;
 
         List<MatchedCommandResponse> cmds        = new ArrayList<>();
-        Command                      current     = firstCommand;
+        Command                      currentCmd  = firstCommand;
         Response                     currentResp = resps.getFirstResponse();
         Command                      lastFail    = null;
+
         while (currentResp != null) {
-            if (current == null) {
+            if (currentCmd == null) {
                 throw new IllegalArgumentException("Command sequence ended before response - cannot match");
             }
-            cmds.add(new MatchedCommandResponse(current, currentResp));
+            cmds.add(new MatchedCommandResponse(currentCmd, currentResp));
 
             if (lastSucceeded) {
                 if (lastEndedClose) {
-                    if (parenStarts.peek().getOnFail() == current.getOnFail()) {
+                    if (parenStarts.peek().getOnFail() == currentCmd.getOnFail()) {
                         throw new IllegalArgumentException("Response has ')' without valid opening '('");
                     }
                     Command tmp2 = parenStarts.pop().getOnFail();
-                    while (tmp2 != null && tmp2 != current) {
+                    while (tmp2 != null && tmp2 != currentCmd) {
                         tmp2 = tmp2.getOnSuccess();
                     }
-                    if (tmp2 != current) {
+                    if (tmp2 != currentCmd) {
                         throw new IllegalArgumentException("Response has ')' without command sequence merging");
                     }
                     lastEndedClose = false;
                 } else if (lastEndedOpen) {
-                    parenStarts.push(current);
+                    parenStarts.push(currentCmd);
                     lastEndedOpen = false;
-                } else if (lastFail != null && current.getOnFail() != lastFail) {
+                } else if (lastFail != null && currentCmd.getOnFail() != lastFail) {
                     throw new IllegalArgumentException("Fail conditions don't match up around '&'");
                 }
             } else {
@@ -286,22 +260,22 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
                         throw new IllegalArgumentException("Command sequence ran out of parens before response sequence");
                     }
                     Command tmp3 = parenStarts.peek().getOnFail();
-                    while (tmp3 != null && tmp3.getOnFail() != current) {
+                    while (tmp3 != null && tmp3.getOnFail() != currentCmd) {
                         tmp3 = tmp3.getOnSuccess();
                     }
                     if (tmp3 == null) {
                         throw new IllegalArgumentException("Response has ')' without command sequence merging");
                     }
                     tmp3 = parenStarts.peek().getOnFail();
-                    while (tmp3 != null && tmp3 != current) {
+                    while (tmp3 != null && tmp3 != currentCmd) {
                         tmp3 = tmp3.getOnFail();
                     }
-                    if (tmp3 != current) {
+                    if (tmp3 != currentCmd) {
                         throw new IllegalArgumentException("Response has ')' without command sequence merging");
                     }
                     parenStarts.pop();
                 }
-                if (parenStarts.isEmpty() || parenStarts.peek().getOnFail() != current) {
+                if (parenStarts.isEmpty() || parenStarts.peek().getOnFail() != currentCmd) {
                     throw new IllegalArgumentException("Response has failure divergence without parenthesis");
                 }
             }
@@ -311,14 +285,14 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
                 } else if (currentResp.hasOpenParen()) {
                     lastEndedOpen = true;
                 }
-                lastFail = current.getOnFail();
+                lastFail = currentCmd.getOnFail();
                 lastSucceeded = true;
-                current = current.getOnSuccess();
+                currentCmd = currentCmd.getOnSuccess();
             } else {
                 lastFail = null;
                 lastParenCount = currentResp.getParenCount();
                 lastSucceeded = false;
-                current = current.getOnFail();
+                currentCmd = currentCmd.getOnFail();
             }
             currentResp = currentResp.getNext();
         }
@@ -376,5 +350,34 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
 
     public ZscriptModel getModel() {
         return model;
+    }
+
+    private static class CommandBuilder {
+        ReadToken start = null;
+
+        CommandBuilder onSuccess           = null;
+        int            successBracketCount = 0;
+        CommandBuilder onFail              = null;
+        int            failBracketCount    = 0;
+
+        public void setOnSuccess(CommandBuilder onSuccess) {
+            this.onSuccess = onSuccess;
+        }
+
+        public void setOnFail(CommandBuilder onFail) {
+            this.onFail = onFail;
+        }
+
+        public ReadToken getStart() {
+            return start;
+        }
+
+        public void setStart(ReadToken token) {
+            this.start = token;
+        }
+
+        public Command generateCommand(Map<CommandBuilder, Command> commands) {
+            return new Command(commands.get(onSuccess), commands.get(onFail), ZscriptFieldSet.fromTokens(start));
+        }
     }
 }

@@ -13,6 +13,9 @@ import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.javaclient.threading.ZscriptWorkerThread;
 
+/**
+ * Defines the core interface for a device as a node in the zscript device-tree.
+ */
 public interface ZscriptNode {
     static ZscriptNode newNode(Connection parentConnection) {
         return newNode(parentConnection, 128, 100, TimeUnit.MILLISECONDS);
@@ -22,6 +25,7 @@ public interface ZscriptNode {
         ZscriptWorkerThread thread = parentConnection.getAssociatedThread();
         ZscriptBasicNode    node   = new ZscriptBasicNode(thread.getCallbackPool(), parentConnection, bufferSize, minSegmentChangeTime, unit);
         thread.addTimeoutCheck(node::checkTimeouts);
+
         return (ZscriptNode) Proxy.newProxyInstance(ZscriptNode.class.getClassLoader(), new Class[] { ZscriptNode.class },
                 (obj, method, params) -> thread.moveOntoThread(() -> method.invoke(node, params)));
     }

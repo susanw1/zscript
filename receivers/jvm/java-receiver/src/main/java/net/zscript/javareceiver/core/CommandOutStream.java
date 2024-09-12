@@ -33,7 +33,7 @@ public interface CommandOutStream {
      *
      * @param text the text to write
      */
-    void writeQuotedString(String text);
+    void writeBigFieldQuoted(String text);
 
     /**
      * Writes the supplied bytes as a quoted Big Field. It is assumed to already be encoded as required, and will *not* be UTF-8 encoded. However, forbidden chars (eg '\n', '"',
@@ -41,12 +41,12 @@ public interface CommandOutStream {
      *
      * @param utf8text the text to write
      */
-    void writeQuotedString(byte[] utf8text);
+    void writeBigFieldQuoted(byte[] utf8text);
 
     /**
      * Writes the bytes provided as a hex big field, eg +68656c6c6f
      *
      * @param data the data to write
      */
-    void writeBig(byte[] data);
+    void writeBigFieldHex(byte[] data);
 }

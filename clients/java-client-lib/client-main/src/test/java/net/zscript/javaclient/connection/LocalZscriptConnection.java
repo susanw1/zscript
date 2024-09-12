@@ -46,6 +46,7 @@ public class LocalZscriptConnection extends RawConnection {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            // resubmit itself
             exec.submit(this);
         }
     }
@@ -90,7 +91,7 @@ public class LocalZscriptConnection extends RawConnection {
 
             @Override
             public void channelInfo(CommandContext view) {
-                view.getOutStream().writeQuotedString("Basic text channel");
+                view.getOutStream().writeBigFieldQuoted("Basic text channel");
             }
 
             @Override

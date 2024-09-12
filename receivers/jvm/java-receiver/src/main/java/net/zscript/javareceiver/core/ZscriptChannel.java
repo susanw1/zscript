@@ -13,15 +13,15 @@ import net.zscript.tokenizer.TokenBuffer;
  * <ul>
  *     <li>{@link #channelInfo(CommandContext)}</li>
  *     <li>{@link #channelSetup(CommandContext)}</li>
- *     <li>either: an independent background means to write to the Tokenizer, or a {@link #moveAlong()} implementation to keep feeding it synchronously.</li>
+ *     <li>either: an independent background mechanism to write to the Tokenizer, or a {@link #moveAlong()} implementation to keep feeding it synchronously.</li>
  * </ul>
  */
 public abstract class ZscriptChannel implements ActionSource {
-    protected final SemanticParser    p;
+    protected final SemanticParser    parser;
     protected final SequenceOutStream out;
 
-    protected ZscriptChannel(final SemanticParser p, final SequenceOutStream out) {
-        this.p = p;
+    protected ZscriptChannel(final SemanticParser parser, final SequenceOutStream out) {
+        this.parser = parser;
         this.out = out;
     }
 
@@ -30,7 +30,7 @@ public abstract class ZscriptChannel implements ActionSource {
     }
 
     public SemanticParser getParser() {
-        return p;
+        return parser;
     }
 
     @Override
@@ -40,7 +40,7 @@ public abstract class ZscriptChannel implements ActionSource {
 
     @Override
     public SemanticAction getAction() {
-        return p.getAction();
+        return parser.getAction();
     }
 
     /**
@@ -50,7 +50,7 @@ public abstract class ZscriptChannel implements ActionSource {
     }
 
     public void setChannelIndex(byte i) {
-        p.setChannelIndex(i);
+        parser.setChannelIndex(i);
     }
 
     public abstract void channelInfo(final CommandContext ctx);

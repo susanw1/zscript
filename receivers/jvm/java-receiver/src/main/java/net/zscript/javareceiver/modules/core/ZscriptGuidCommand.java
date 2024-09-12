@@ -17,7 +17,7 @@ public class ZscriptGuidCommand {
             ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
             bb.putLong(uuid.getMostSignificantBits());
             bb.putLong(uuid.getLeastSignificantBits());
-            ctx.getOutStream().writeBig(bb.array());
+            ctx.getOutStream().writeBigFieldHex(bb.array());
         }
     }
 

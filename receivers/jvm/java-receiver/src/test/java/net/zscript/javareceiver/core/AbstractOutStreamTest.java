@@ -1,9 +1,9 @@
 package net.zscript.javareceiver.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,7 +75,7 @@ public class AbstractOutStreamTest {
                 expected.append(toHexChar(j));
             }
         }
-        stOut.writeBig(data);
+        stOut.writeBigFieldHex(data);
         assertThat(stOut.getString()).isEqualTo(expected.toString());
     }
 
@@ -99,14 +99,14 @@ public class AbstractOutStreamTest {
             data[i] = (byte) i;
         }
         expected.append('"');
-        stOut.writeQuotedString(data);
+        stOut.writeBigFieldQuoted(data);
         assertThat(stOut.getString()).isEqualTo(expected.toString());
     }
 
     @Test
     void shouldWriteStringFieldWithHiByte() {
         // 0xb5 is the 'µ' symbol, but we expect literally 0xb5, not utf-8's 0xc2b5
-        stOut.writeQuotedString(new byte[] { (byte) 0xb5 });
+        stOut.writeBigFieldQuoted(new byte[] { (byte) 0xb5 });
         // note: ISO_8859_1 handily takes bottom byte of each char. We're not really using it.
         assertThat(stOut.getString().getBytes(StandardCharsets.ISO_8859_1)).hasSize(3).containsExactly('"', 0xb5, '"');
     }
@@ -114,14 +114,14 @@ public class AbstractOutStreamTest {
     @Test
     void shouldWriteStringFieldWithStringContainingHiByte() {
         // 0xb5 is the 'µ' symbol, and writing strings should convert to UTF-8's 0xc2b5
-        stOut.writeQuotedString("µ");
+        stOut.writeBigFieldQuoted("µ");
         // note: ISO_8859_1 handily takes bottom byte of each char. We're not really using it.
         assertThat(stOut.getString().getBytes(StandardCharsets.ISO_8859_1)).hasSize(4).containsExactly('"', 0xc2, 0xb5, '"');
     }
 
     @Test
     void shouldWriteStringFieldWithString() {
-        stOut.writeQuotedString("Hello World");
+        stOut.writeBigFieldQuoted("Hello World");
         assertThat(stOut.getString()).isEqualTo("\"Hello World\"");
     }
 

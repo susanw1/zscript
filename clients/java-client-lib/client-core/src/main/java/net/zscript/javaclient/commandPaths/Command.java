@@ -5,6 +5,9 @@ import net.zscript.model.components.ZscriptStatus;
 import net.zscript.util.ByteString;
 import net.zscript.util.ByteString.ByteAppendable;
 
+/**
+ * Represents a single command within a command-sequence, with its fields; it keeps track of the commands that follow it onSuccess
+ */
 public class Command implements ByteAppendable {
     private final ZscriptFieldSet fieldSet;
 

@@ -28,7 +28,7 @@ class TokenRingBufferReaderTest {
     private final TokenReader            reader = buffer.getTokenReader();
     private final List<TokenExpectation> tokens = new ArrayList<>();
 
-    private class TokenExpectation {
+    private static class TokenExpectation {
         boolean isMarker;
         boolean isExtended;
         byte    key;
@@ -40,7 +40,6 @@ class TokenRingBufferReaderTest {
             this.key = key;
             this.data = data;
         }
-
     }
 
     private TokenExpectation marker(byte key) {
@@ -96,7 +95,7 @@ class TokenRingBufferReaderTest {
     }
 
     private void testTokenSimilarity(ReadToken found, TokenExpectation expected) {
-        assertThat(found.isMarker() == expected.isMarker);
+        assertThat(found.isMarker()).isSameAs(expected.isMarker);
         assertThat(found.getKey()).isEqualTo(expected.key);
         if (!found.isMarker()) {
             if (expected.data.length <= 4) {
@@ -111,7 +110,7 @@ class TokenRingBufferReaderTest {
                 }
             }
             ByteArrayOutputStream st = new ByteArrayOutputStream();
-            Streams.stream(found.dataIterator()).forEach(t -> st.write(t));
+            Streams.stream(found.dataIterator()).forEach(st::write);
             assertThat(st.toByteArray()).containsExactly(expected.data);
         }
         if (expected.isExtended) {
@@ -260,30 +259,30 @@ class TokenRingBufferReaderTest {
         writeExtendedToken(r, 800);
         BlockIterator data = reader.tokenIterator().next().get().dataIterator();
         int           i    = 0;
-        for (BlockIterator iterator = data; iterator.hasNext(); ) {
-            byte[] nextCont = iterator.nextContiguous();
+        while (data.hasNext()) {
+            byte[] nextCont = data.nextContiguous();
             assertThat(nextCont).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i, Math.min(i + 255, 800)));
             i += 255;
         }
     }
 
     @Test
-    void shouldIterateTokenDataInLimtedContiguousChunks() {
+    void shouldIterateTokenDataInLimitedContiguousChunks() {
         Random r = new Random(SEED);
         writeExtendedToken(r, 800);
         BlockIterator data = reader.tokenIterator().next().get().dataIterator();
         int           i    = 0;
-        for (BlockIterator iterator = data; iterator.hasNext(); ) {
-            assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i, Math.min(i + 200, 800)));
-            if (iterator.hasNext()) {
-                assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i + 200, Math.min(i + 255, 800)));
+        while (data.hasNext()) {
+            assertThat(data.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i, Math.min(i + 200, 800)));
+            if (data.hasNext()) {
+                assertThat(data.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(0).data, i + 200, Math.min(i + 255, 800)));
                 i += 255;
             }
         }
     }
 
     @Test
-    void shouldIterateTokenDataInLimtedContiguousChunksAroundEnd() {
+    void shouldIterateTokenDataInLimitedContiguousChunksAroundEnd() {
         int    initialLength = 700;
         Random r             = new Random(SEED);
         writeExtendedToken(r, initialLength);
@@ -293,22 +292,22 @@ class TokenRingBufferReaderTest {
         writeExtendedToken(r, 800);
         BlockIterator data = reader.tokenIterator().next().get().dataIterator();
         int           i    = 0;
-        for (BlockIterator iterator = data; iterator.hasNext(); ) {
+        while (data.hasNext()) {
             int offset = 200;
             if (i + initialLength + (initialLength + 254) / 255 * 2 + i / 255 * 2 < BUFSIZE
                     && i + 200 + initialLength + (initialLength + 254) / 255 * 2 + i / 255 * 2 + 2 > BUFSIZE) {
                 offset = BUFSIZE - (initialLength + i + (initialLength + 254) / 255 * 2 + i / 255 * 2 + 2);
             }
-            assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(1).data, i, Math.min(i + offset, 800)));
-            if (iterator.hasNext()) {
+            assertThat(data.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(1).data, i, Math.min(i + offset, 800)));
+            if (data.hasNext()) {
                 if (i + offset > 800) {
                     throw new AssertionError("Iterator didn't terminate when it should have");
                 }
                 if (offset + 200 < 255) {
-                    assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(1).data, i + offset, Math.min(i + offset + 200, 800)));
+                    assertThat(data.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(1).data, i + offset, Math.min(i + offset + 200, 800)));
                     offset += 200;
                 }
-                assertThat(iterator.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(1).data, i + offset, Math.min(i + 255, 800)));
+                assertThat(data.nextContiguous(200)).containsExactly(Arrays.copyOfRange(tokens.get(1).data, i + offset, Math.min(i + 255, 800)));
                 i += 255;
             }
         }
