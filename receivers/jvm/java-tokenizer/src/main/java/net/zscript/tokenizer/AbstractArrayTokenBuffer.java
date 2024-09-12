@@ -8,6 +8,8 @@ import static java.lang.String.format;
 import static net.zscript.tokenizer.TokenBuffer.isMarker;
 import static net.zscript.tokenizer.TokenBuffer.isSequenceEndMarker;
 
+import net.zscript.util.BlockIterator;
+
 /**
  * Array based implementation of a TokenBuffer - the tokens making up incoming command or response sequences are encoded and accessed here. Rules are:
  * <ol>

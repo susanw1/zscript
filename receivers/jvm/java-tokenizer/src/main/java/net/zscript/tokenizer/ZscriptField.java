@@ -1,5 +1,7 @@
 package net.zscript.tokenizer;
 
+import net.zscript.util.BlockIterator;
+
 /**
  * Represents a Zscript field, which may be either numeric or a big-field.
  */

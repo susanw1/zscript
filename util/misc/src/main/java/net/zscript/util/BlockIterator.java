@@ -1,9 +1,7 @@
-package net.zscript.tokenizer;
+package net.zscript.util;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import net.zscript.util.ByteString;
 
 /**
  * Defines an iterator that works over buffers of bytes, revealing them byte at a time, or in contiguous blocks.

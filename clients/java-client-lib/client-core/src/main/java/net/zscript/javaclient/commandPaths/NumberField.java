@@ -1,7 +1,7 @@
 package net.zscript.javaclient.commandPaths;
 
-import net.zscript.tokenizer.BlockIterator;
 import net.zscript.tokenizer.ZscriptField;
+import net.zscript.util.BlockIterator;
 import net.zscript.util.ByteString;
 import net.zscript.util.ByteString.ByteStringBuilder;
 

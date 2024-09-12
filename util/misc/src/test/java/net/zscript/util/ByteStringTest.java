@@ -2,10 +2,10 @@ package net.zscript.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIndexOutOfBoundsException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -66,6 +66,21 @@ class ByteStringTest {
         assertThat(iter.next()).isEqualTo((byte) 98);
         assertThat(iter.hasNext()).isFalse();
         assertThatThrownBy(iter::next).isInstanceOf(NoSuchElementException.class);
+    }
+
+    @Test
+    public void shouldIterateBlockBytes() {
+        var str  = ByteString.builder().appendUtf8("hello, London calling, £5 is a fiver").build();
+        var iter = str.iterator();
+
+        assertThat(iter.hasNext()).isTrue();
+        assertThat(iter.next()).isEqualTo((byte) 'h');
+        assertThat(iter.nextContiguous(8)).isEqualTo("ello, Lo".getBytes(ISO_8859_1));
+        assertThat(iter.nextContiguous(11)).isEqualTo("ndon callin".getBytes(ISO_8859_1));
+        assertThat(iter.nextContiguous(6)).containsExactly('g', ',', ' ', 0xc2, 0xa3, '5');
+        assertThat(iter.hasNext()).isTrue();
+        assertThat(iter.nextContiguous()).isEqualTo(" is a fiver".getBytes(ISO_8859_1));
+        assertThat(iter.hasNext()).isFalse();
     }
 
     @Test
@@ -152,7 +167,7 @@ class ByteStringTest {
     @ParameterizedTest
     @CsvSource({ "0xf1e2d3c4,Zf1e2d3c4", "0xe2d3c4,Ze2d3c4", "0x3c4,Z3c4", "0x10000,Z10000", "0xffff,Zffff", "0,Z" })
     public void shouldWriteToByteArrayNumbers32(long value, String expected) {
-        assertThat(ByteString.builder().appendByte('Z').appendNumeric32(value).toByteArray()).containsExactly(expected.getBytes(StandardCharsets.ISO_8859_1));
+        assertThat(ByteString.builder().appendByte('Z').appendNumeric32(value).toByteArray()).containsExactly(expected.getBytes(ISO_8859_1));
     }
 
     @Test

@@ -1,8 +1,8 @@
 package net.zscript.javaclient.commandPaths;
 
 import net.zscript.model.components.Zchars;
-import net.zscript.tokenizer.BlockIterator;
 import net.zscript.tokenizer.ZscriptField;
+import net.zscript.util.BlockIterator;
 import net.zscript.util.ByteString;
 import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
@@ -111,7 +111,6 @@ public class BigField implements ZscriptField, ByteAppendable {
 
     @Override
     public BlockIterator iterator() {
-        // FIXME - this needs implementing, should ByteStrings be BlockIterable?
-        return BlockIterator.EMPTY;
+        return data.iterator();
     }
 }

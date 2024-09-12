@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import net.zscript.tokenizer.TokenBuffer.TokenReader;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.tokenizer.TokenBuffer.TokenWriter;
+import net.zscript.util.BlockIterator;
 import net.zscript.util.OptIterator;
 
 class TokenRingBufferReaderTest {
