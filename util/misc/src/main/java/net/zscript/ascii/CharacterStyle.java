@@ -1,5 +1,6 @@
 package net.zscript.ascii;
 
+import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public class CharacterStyle {
@@ -14,14 +15,17 @@ public class CharacterStyle {
         this.isBold = isBold;
     }
 
+    @Nonnull
     public static CharacterStyle standardStyle() {
         return new CharacterStyle(TextColor.DEFAULT, TextColor.DEFAULT, false);
     }
 
+    @Nonnull
     public TextColor getFGColor() {
         return color;
     }
 
+    @Nonnull
     public TextColor getBGColor() {
         return background;
     }

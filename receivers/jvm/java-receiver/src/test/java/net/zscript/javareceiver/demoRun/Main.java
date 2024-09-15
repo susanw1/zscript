@@ -1,5 +1,6 @@
 package net.zscript.javareceiver.demoRun;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 
 import net.zscript.javareceiver.core.OutputStreamOutStream;
@@ -42,12 +43,12 @@ public class Main {
             }
 
             @Override
-            public void channelInfo(CommandContext ctx) {
+            public void channelInfo(@Nonnull CommandContext ctx) {
                 ctx.getOutStream().writeBigFieldQuoted("Basic text channel");
             }
 
             @Override
-            public void channelSetup(CommandContext ctx) {
+            public void channelSetup(@Nonnull CommandContext ctx) {
             }
         });
         zscript.setNotificationOutStream(out);

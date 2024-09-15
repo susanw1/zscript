@@ -1,8 +1,5 @@
 package net.zscript.javaclient.connectors.tcp;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,6 +12,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.zscript.javaclient.connectors.RawConnection;
 
@@ -52,7 +52,7 @@ public class TcpConnection extends RawConnection {
 
     @Override
     public void onReceiveBytes(final Consumer<byte[]> responseHandler) {
-        if (this.handler != null || responseHandler == null) {
+        if (this.handler != null) {
             throw new IllegalStateException("Handler already assigned");
         }
 

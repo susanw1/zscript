@@ -1,5 +1,6 @@
 package net.zscript.javaclient.commandPaths;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -308,6 +309,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
             Iterator<Command> toVisit = Set.of(firstCommand).iterator();
             Set<Command> next = new HashSet<>();
 
+            @Nonnull
             @Override
             public Optional<Command> next() {
                 while (true) {

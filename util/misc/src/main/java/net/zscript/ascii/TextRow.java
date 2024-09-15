@@ -1,5 +1,6 @@
 package net.zscript.ascii;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 public class TextRow {
@@ -11,6 +12,7 @@ public class TextRow {
         this.styles = styles;
     }
 
+    @Nonnull
     public String toString(CharacterStylePrinter printer) {
         CharacterStyle prev    = CharacterStyle.standardStyle();
         StringBuilder  builder = new StringBuilder();
@@ -29,6 +31,7 @@ public class TextRow {
         return chars[i];
     }
 
+    @Nonnull
     public CharacterStyle styleAt(int i) {
         return styles[i];
     }

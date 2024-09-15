@@ -19,16 +19,16 @@ public class ZscriptCapabilitiesCommand {
         return Integer.parseInt(version);
     }
 
-    public int    userFirmwareVersion     = 1;
-    public String userFirmwareStr         = "";
-    public int    userHardwareVersion     = 1;
-    public String userHardwareStr         = "";
-    public int    platformFirmwareVersion = getVersion();
-    public String platformFirmwareStr     = "Java JRE " + System.getProperty("java.runtime.version");
-    public int    platformHardwareVersion = 0;
-    public String platformHardwareStr     = System.getProperty("os.arch") + " " + System.getProperty("os.name");
-    public int    coreZscriptVersion      = 0;
-    public String coreZscriptStr          = "Prototype parsing/running system for JVM";
+    public final int    userFirmwareVersion     = 1;
+    public final String userFirmwareStr         = "";
+    public final int    userHardwareVersion     = 1;
+    public final String userHardwareStr         = "";
+    public final int    platformFirmwareVersion = getVersion();
+    public final String platformFirmwareStr     = "Java JRE " + System.getProperty("java.runtime.version");
+    public final int    platformHardwareVersion = 0;
+    public final String platformHardwareStr     = System.getProperty("os.arch") + " " + System.getProperty("os.name");
+    public final int    coreZscriptVersion      = 0;
+    public final String coreZscriptStr          = "Prototype parsing/running system for JVM";
 
     public void execute(CommandContext ctx) {
         CommandOutStream out = ctx.getOutStream();

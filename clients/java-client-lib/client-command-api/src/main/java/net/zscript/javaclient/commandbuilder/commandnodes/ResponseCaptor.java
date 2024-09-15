@@ -1,6 +1,6 @@
 package net.zscript.javaclient.commandbuilder.commandnodes;
 
-import java.util.NoSuchElementException;
+import javax.annotation.Nullable;
 
 import net.zscript.javaclient.commandbuilder.Respondable;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
@@ -19,6 +19,7 @@ public class ResponseCaptor<T extends ZscriptResponse> {
         this.source = source;
     }
 
+    @Nullable
     public Respondable<T> getSource() {
         return source;
     }

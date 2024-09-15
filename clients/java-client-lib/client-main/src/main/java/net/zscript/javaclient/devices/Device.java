@@ -1,5 +1,6 @@
 package net.zscript.javaclient.devices;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
@@ -40,17 +41,14 @@ public class Device {
         this.node = node;
     }
 
+    @Nonnull
     public <T extends NotificationHandle> T getNotificationHandle(NotificationId<T> id) {
-        if (handles.get(id) == null) {
-            handles.put(id, id.newHandle());
-        }
-        return id.getHandleType().cast(handles.get(id));
+        return id.getHandleType().cast(handles.computeIfAbsent(id, NotificationId::newHandle));
     }
 
     public <T extends NotificationHandle> void setNotificationListener(NotificationId<T> id, Consumer<NotificationSequenceCallback> listener) {
-        node.setNotificationHandler(id.getId(), respSeq -> {
-            listener.accept(NotificationSequenceCallback.from(getNotificationHandle(id).getSections(), respSeq.getExecutionPath().getResponses()));
-        });
+        node.setNotificationHandler(id.getId(),
+                respSeq -> listener.accept(NotificationSequenceCallback.from(getNotificationHandle(id).getSections(), respSeq.getExecutionPath().getResponses())));
     }
 
     public void sendAsync(final CommandSequenceNode cmdSeq, final Consumer<ResponseSequenceCallback> callback) {
@@ -59,6 +57,7 @@ public class Device {
     }
 
     // if future is present, wasExecuted() is true, otherwise NoResponseException is given.
+    @Nonnull
     public Future<ResponseSequenceCallback> send(final CommandSequenceNode cmdSeq) {
         CompletableFuture<ResponseSequenceCallback> future = new CompletableFuture<>();
         CommandExecutionTask nodeToPath = convert(cmdSeq, resp -> {
@@ -72,6 +71,7 @@ public class Device {
         return future;
     }
 
+    @Nonnull
     public Future<ResponseSequenceCallback> sendExpectSuccess(final CommandSequenceNode cmdSeq) {
         CompletableFuture<ResponseSequenceCallback> future = new CompletableFuture<>();
 
@@ -91,6 +91,7 @@ public class Device {
         return future;
     }
 
+    @Nonnull
     public ResponseSequenceCallback sendAndWait(final CommandSequenceNode cmdSeq) throws InterruptedException {
         try {
             return send(cmdSeq).get();
@@ -99,6 +100,7 @@ public class Device {
         }
     }
 
+    @Nonnull
     public ResponseSequenceCallback sendAndWaitExpectSuccess(final CommandSequenceNode cmdSeq) throws InterruptedException {
         try {
             return sendExpectSuccess(cmdSeq).get();
@@ -111,6 +113,7 @@ public class Device {
         }
     }
 
+    @Nonnull
     public ResponseSequenceCallback sendAndWait(final CommandSequenceNode cmdSeq, final long timeout, final TimeUnit unit) throws TimeoutException, InterruptedException {
         try {
             return send(cmdSeq).get(timeout, unit);
@@ -119,6 +122,7 @@ public class Device {
         }
     }
 
+    @Nonnull
     public ResponseSequenceCallback sendAndWaitExpectSuccess(final CommandSequenceNode cmdSeq, final long timeout, final TimeUnit unit)
             throws TimeoutException, InterruptedException {
         try {
@@ -140,13 +144,9 @@ public class Device {
         }
         CommandSequence sequence = CommandSequence.parse(model, buffer.getTokenReader().getFirstReadToken(), false);
         if (sequence.hasEchoField() || sequence.hasLockField()) {
-            node.send(sequence, r -> {
-                callback.accept(r.toByteString().toByteArray());
-            });
+            node.send(sequence, r -> callback.accept(r.toByteString().toByteArray()));
         } else {
-            node.send(sequence.getExecutionPath(), r -> {
-                callback.accept(r.toByteString().toByteArray());
-            });
+            node.send(sequence.getExecutionPath(), r -> callback.accept(r.toByteString().toByteArray()));
         }
     }
 
@@ -159,15 +159,18 @@ public class Device {
             this.callback = callback;
         }
 
+        @Nonnull
         public CommandExecutionPath getPath() {
             return path;
         }
 
+        @Nonnull
         public Consumer<ResponseExecutionPath> getCallback() {
             return callback;
         }
     }
 
+    @Nonnull
     CommandExecutionTask convert(CommandSequenceNode cmdSeq, Consumer<ResponseSequenceCallback> callback) {
         class Layer {
             Command success;
@@ -192,8 +195,11 @@ public class Device {
 
         while (true) {
             if (stack.peek().hasPrevious()) {
-                Layer               layer = destinations.peek();
-                CommandSequenceNode next  = stack.peek().previous();
+                Layer layer = destinations.peek();
+                if (layer == null) {
+                    throw new NullPointerException("layer is null");
+                }
+                CommandSequenceNode next = stack.peek().previous();
                 if (next instanceof ZscriptCommandNode) {
                     Command cmd = new Command(layer.success, layer.failure, ((ZscriptCommandNode<?>) next).asFieldSet());
                     if (commandMap.containsKey(next)) {

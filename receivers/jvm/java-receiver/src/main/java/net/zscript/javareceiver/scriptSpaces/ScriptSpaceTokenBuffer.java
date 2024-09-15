@@ -1,5 +1,7 @@
 package net.zscript.javareceiver.scriptSpaces;
 
+import javax.annotation.Nonnull;
+
 import net.zscript.tokenizer.AbstractArrayTokenBuffer;
 
 public class ScriptSpaceTokenBuffer extends AbstractArrayTokenBuffer {
@@ -34,6 +36,7 @@ public class ScriptSpaceTokenBuffer extends AbstractArrayTokenBuffer {
         return getDataSize();
     }
 
+    @Nonnull
     @Override
     public TokenWriter getTokenWriter() {
         throw new UnsupportedOperationException();
@@ -67,8 +70,6 @@ public class ScriptSpaceTokenBuffer extends AbstractArrayTokenBuffer {
 
         public void commitChanges() {
             parent.importInternalDataFrom(this);
-            //            parent.data = Arrays.copyOf(data, writeStart);
-            //            parent.writeStart = writeStart + 2; // Question: Why is it +2 ??
         }
     }
 }

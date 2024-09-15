@@ -1,5 +1,6 @@
 package net.zscript.javareceiver.execution;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
 import net.zscript.javareceiver.core.CommandOutStream;
@@ -36,6 +37,7 @@ public class AddressingContext extends AbstractContext {
         return new OptIterator<>() {
             final OptIterator<ReadToken> internal = contextView.getReader().tokenIterator();
 
+            @Nonnull
             @Override
             public Optional<Integer> next() {
                 return internal.next().filter(rt -> Zchars.isAddressing(rt.getKey())).map(ReadToken::getData16);

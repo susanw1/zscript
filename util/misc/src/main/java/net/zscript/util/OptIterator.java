@@ -1,5 +1,6 @@
 package net.zscript.util;
 
+import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -20,13 +21,14 @@ public interface OptIterator<T> {
 
     /**
      * Returns successive items from the sequence being iterated.
-     *
+     * <p/>
      * Note: calling this method <i>after</i> it has returned {@code empty} may result in undefined behaviour. We'd expect implementations to throw {@link NoSuchElementException}
      * to highlight improper use, but they might not.
      *
      * @return value items wrapped as Optional, or {@link java.util.Optional#empty()} to signal end of items
      * @throws NoSuchElementException on going beyond the end (optional)
      */
+    @Nonnull
     Optional<T> next();
 
     /**
@@ -46,6 +48,7 @@ public interface OptIterator<T> {
      *
      * @return a stream of elements
      */
+    @Nonnull
     default Stream<T> stream() {
         return Stream.iterate(next(), Optional::isPresent, t -> next()).map(Optional::get);
     }
@@ -57,10 +60,12 @@ public interface OptIterator<T> {
      * @param iterable the Iterable object to read
      * @return a suitable OptIterator
      */
+    @Nonnull
     static <T> OptIterator<T> of(final Iterable<T> iterable) {
-        return new OptIterator<T>() {
+        return new OptIterator<>() {
             private final Iterator<T> origIterator = iterable.iterator();
 
+            @Nonnull
             @Override
             public Optional<T> next() {
                 return origIterator.hasNext() ? Optional.of(origIterator.next()) : Optional.empty();

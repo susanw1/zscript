@@ -20,9 +20,7 @@ import net.zscript.tokenizer.Tokenizer;
 public abstract class RawConnection implements Connection, AutoCloseable {
     private final ZscriptWorkerThread thread = new ZscriptWorkerThread();
 
-    private Consumer<byte[]> parseFailHandler = bytes -> {
-        getLogger().warn("Response failed parsing: {}", new String(bytes, UTF_8));
-    };
+    private final Consumer<byte[]> parseFailHandler = bytes -> getLogger().warn("Response failed parsing: {}", new String(bytes, UTF_8));
 
     protected abstract Logger getLogger();
 

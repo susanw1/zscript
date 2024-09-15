@@ -1,26 +1,17 @@
 package net.zscript.javaclient.devices;
 
-import java.text.ParseException;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.zscript.javaclient.commandPaths.Command;
-import net.zscript.javaclient.commandPaths.MatchedCommandResponse;
 import net.zscript.javaclient.commandPaths.Response;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationSection;
-import net.zscript.model.components.Zchars;
 
 public class NotificationSequenceCallback {
 
@@ -28,6 +19,7 @@ public class NotificationSequenceCallback {
         private final NotificationSection<T> notif;
         private final T                      response;
 
+        @Nonnull
         public static <T extends ZscriptResponse> NotificationSectionSummary<T> generateExecutionSummary(NotificationSection<T> notif, Response response) {
             return new NotificationSectionSummary<>(notif, notif.parseResponse(response.getFields()));
         }
@@ -37,19 +29,23 @@ public class NotificationSequenceCallback {
             this.response = response;
         }
 
+        @Nonnull
         public NotificationSection<T> getNotification() {
             return notif;
         }
 
+        @Nonnull
         public T getResponse() {
             return response;
         }
 
+        @Nonnull
         public Class<T> getResponseType() {
             return notif.getResponseType();
         }
     }
 
+    @Nonnull
     public static NotificationSequenceCallback from(List<NotificationSection<?>> sections, List<Response> responses) {
         LinkedHashMap<NotificationSection<?>, ZscriptResponse> map = new LinkedHashMap<>();
 
@@ -72,26 +68,32 @@ public class NotificationSequenceCallback {
         this.responses = responses;
     }
 
+    @Nonnull
     public List<ZscriptResponse> getResponses() {
         return new ArrayList<>(responses.values());
     }
 
+    @Nonnull
     public List<NotificationSection<?>> getExecuted() {
         return new ArrayList<>(responses.keySet());
     }
 
+    @Nonnull
     public List<NotificationSectionSummary<?>> getExecutionSummary() {
         return responses.entrySet().stream().map(e -> matchExecutionSummary(e.getKey(), e.getValue())).collect(Collectors.toList());
     }
 
+    @Nonnull
     private <T extends ZscriptResponse> NotificationSectionSummary<T> matchExecutionSummary(NotificationSection<T> node, ZscriptResponse resp) {
         return new NotificationSectionSummary<>(node, node.getResponseType().cast(resp));
     }
 
+    @Nonnull
     public Optional<ZscriptResponse> getResponseFor(NotificationSection<?> node) {
         return Optional.ofNullable(responses.get(node));
     }
 
+    @Nonnull
     public <T extends ZscriptResponse> Optional<T> getResponseFor(ResponseCaptor<T> captor) {
         return getResponseFor((NotificationSection<T>) captor.getSource()).map(r -> ((NotificationSection<T>) captor.getSource()).getResponseType().cast(r));
     }

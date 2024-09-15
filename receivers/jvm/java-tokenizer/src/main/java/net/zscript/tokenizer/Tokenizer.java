@@ -18,10 +18,10 @@ import net.zscript.tokenizer.TokenBuffer.TokenWriter;
  * If incoming characters arrive faster than they can be processed, or command-sequences are so long that they threaten to overrun the token buffer storage, then the execution side
  * is alerted by writing error tokens. There are two approaches to processing a byte of zscript input with respect to token buffer capacity, depending on whether the source of
  * bytes is unbuffered or buffered.
- *
+ * <p/>
  * <h4>Unbuffered Channels</h4>
  *
- * If an channel is feeding unbuffered chars into the tokenizer, then running out of tokenizer buffer is fatal to the current sequence: chars are doomed to be dropped. This might
+ * If a channel is feeding unbuffered chars into the tokenizer, then running out of tokenizer buffer is fatal to the current sequence: chars are doomed to be dropped. This might
  * reflect an I2C input being read in an interrupt handler, and if the current char can't be accepted, then there's nowhere else to store it.
  * <p/>
  * In this case, the channel should call {@link #accept(byte)}, which will create the token or write an OVERRUN marker. Consequently, we must mark the buffer as OVERRUN at that

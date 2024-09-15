@@ -24,6 +24,7 @@ public class ZscriptExecutor {
         for (ActionSource source : sources) {
             ZscriptAction action = source.getAction();
             if (action.isEmptyAction()) {
+                // FIXME: this null appears to be ok, but only because this call seems to do nothing when isEmptyAction() is true.
                 action.performAction(zscript, null);
             } else {
                 hasNonWait = true;

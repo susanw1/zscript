@@ -1,5 +1,7 @@
 package net.zscript.tokenizer;
 
+import javax.annotation.Nonnull;
+
 import net.zscript.util.BlockIterator;
 
 /**
@@ -30,6 +32,7 @@ public interface ZscriptField extends Iterable<Byte> {
      *
      * @return an iterator over the data in this field (including extension data)
      */
+    @Nonnull
     @Override
     BlockIterator iterator();
 }

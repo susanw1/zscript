@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandbuilder.commandnodes;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,7 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
         this(null, Collections.emptyList(), Collections.emptyMap());
     }
 
-    protected ZscriptCommandNode(ResponseCaptor<T> captor, List<BigField> bigFields, Map<Byte, Integer> fields) {
+    protected ZscriptCommandNode(@Nullable ResponseCaptor<T> captor, List<BigField> bigFields, Map<Byte, Integer> fields) {
         this.captor = captor;
         this.bigFields = bigFields;
         this.fields = fields;
@@ -38,10 +40,12 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
         }
     }
 
+    @Nullable
     public ResponseCaptor<T> getCaptor() {
         return captor;
     }
 
+    @Nonnull
     public abstract T parseResponse(ZscriptExpression response);
 
     public abstract Class<T> getResponseType();

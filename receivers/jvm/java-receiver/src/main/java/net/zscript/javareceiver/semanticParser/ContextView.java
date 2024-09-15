@@ -1,11 +1,14 @@
 package net.zscript.javareceiver.semanticParser;
 
+import javax.annotation.Nonnull;
+
 import net.zscript.tokenizer.TokenBuffer.TokenReader;
 
 /**
  * Defines parser state methods accessed by Command/Address contexts.
  */
 public interface ContextView {
+    @Nonnull
     TokenReader getReader();
 
     /**
@@ -45,6 +48,13 @@ public interface ContextView {
         void notifyNeedsAction();
     }
 
+    /**
+     * Allows the initial "foreground" part of an async command to get hold of the AsyncActionNotifier, which it can store and call back in the "background" part - say in an
+     * interrupt handler or other event listener - in order to signal that the command should move along.
+     *
+     * @return the AsyncActionNotifier to allow a later callback
+     */
+    @Nonnull
     AsyncActionNotifier getAsyncActionNotifier();
 
     int getChannelIndex();

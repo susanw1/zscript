@@ -1,5 +1,6 @@
 package net.zscript.javasimulator.zcode.i2c;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class I2cModule implements ZscriptModule {
     }
 
     @Override
-    public void execute(CommandContext ctx, int command) {
+    public void execute(@Nonnull CommandContext ctx, int command) {
         switch (command) {
         case 0:
             I2cCapabilitiesCommand.execute(ctx, entity);
@@ -57,12 +58,12 @@ public class I2cModule implements ZscriptModule {
     }
 
     @Override
-    public void address(AddressingContext ctx) {
+    public void address(@Nonnull AddressingContext ctx) {
         I2cAddressAction.execute(ctx, this);
     }
 
     @Override
-    public void notification(NotificationContext ctx, boolean moveAlong) {
+    public void notification(@Nonnull NotificationContext ctx, boolean moveAlong) {
         notificationHandler.notification(entity, ctx);
     }
 

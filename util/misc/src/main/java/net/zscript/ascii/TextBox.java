@@ -1,5 +1,6 @@
 package net.zscript.ascii;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -78,12 +79,14 @@ public class TextBox implements AsciiFrame {
         builder = new StringBuilder();
     }
 
+    @Nonnull
     public TextBox setStyle(CharacterStyle style) {
         emptyBuilder();
         lastStyle = style;
         return this;
     }
 
+    @Nonnull
     public TextBox startNewLine(int indent) {
         emptyBuilder();
         lastStyle = CharacterStyle.standardStyle();
@@ -91,6 +94,7 @@ public class TextBox implements AsciiFrame {
         return this;
     }
 
+    @Nonnull
     public TextBox startNewLine() {
         emptyBuilder();
         lastStyle = CharacterStyle.standardStyle();
@@ -129,6 +133,7 @@ public class TextBox implements AsciiFrame {
         return true;
     }
 
+    @Nonnull
     @Override
     public Iterator<TextRow> iterator() {
         emptyBuilder();
@@ -160,6 +165,7 @@ public class TextBox implements AsciiFrame {
                 return true;
             }
 
+            @Nonnull
             @Override
             public TextRow next() {
                 if (!hasNext()) {
@@ -257,6 +263,7 @@ public class TextBox implements AsciiFrame {
         }
     }
 
+    @Nonnull
     public TextBox appendHex(int value, int minimumLength) {
         for (int i = 8 - 1; i >= 0; i--) {
             if (minimumLength > i || value >= (1 << (4 * i))) {
@@ -268,66 +275,79 @@ public class TextBox implements AsciiFrame {
 
     // All the append methods from StringBuilder...
 
+    @Nonnull
     public TextBox append(Object obj) {
         builder.append(obj);
         return this;
     }
 
+    @Nonnull
     public TextBox append(String str) {
         builder.append(str);
         return this;
     }
 
+    @Nonnull
     public TextBox append(StringBuffer sb) {
         builder.append(sb);
         return this;
     }
 
+    @Nonnull
     public TextBox append(CharSequence s) {
         builder.append(s);
         return this;
     }
 
+    @Nonnull
     public TextBox append(CharSequence s, int start, int end) {
         builder.append(s, start, end);
         return this;
     }
 
+    @Nonnull
     public TextBox append(char[] str) {
         builder.append(str);
         return this;
     }
 
+    @Nonnull
     public TextBox append(char[] str, int offset, int len) {
         builder.append(str, offset, len);
         return this;
     }
 
+    @Nonnull
     public TextBox append(boolean b) {
         builder.append(b);
         return this;
     }
 
+    @Nonnull
     public TextBox append(char c) {
         builder.append(c);
         return this;
     }
 
+    @Nonnull
     public TextBox append(int i) {
         builder.append(i);
         return this;
     }
 
+    @Nonnull
     public TextBox append(long lng) {
         builder.append(lng);
         return this;
     }
 
+    @Nonnull
     public TextBox append(float f) {
         builder.append(f);
         return this;
     }
 
+    @Nonnull
     public TextBox append(double d) {
         builder.append(d);
         return this;

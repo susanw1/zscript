@@ -1,5 +1,6 @@
 package net.zscript.util;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.CharacterCodingException;
@@ -94,6 +95,7 @@ final class ExpandableByteBuffer {
      *
      * @return copy of the bytes so far
      */
+    @Nonnull
     public byte[] toByteArray() {
         return Arrays.copyOf(buf, count);
     }
@@ -103,10 +105,12 @@ final class ExpandableByteBuffer {
      *
      * @return string representing the bytes so far
      */
+    @Nonnull
     public String asString() {
         return new String(buf, 0, count, UTF_8);
     }
 
+    @Nonnull
     @Override
     public String toString() {
         return asString();

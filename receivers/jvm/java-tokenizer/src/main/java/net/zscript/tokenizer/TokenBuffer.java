@@ -1,5 +1,6 @@
 package net.zscript.tokenizer;
 
+import javax.annotation.Nonnull;
 import java.util.NoSuchElementException;
 
 import net.zscript.util.BlockIterator;
@@ -36,6 +37,7 @@ public interface TokenBuffer {
         return (key & 0xf0) == 0xf0;
     }
 
+    @Nonnull
     TokenWriter getTokenWriter();
 
     /**
@@ -47,6 +49,7 @@ public interface TokenBuffer {
          *
          * @return the buffer's flags
          */
+        @Nonnull
         TokenBufferFlags getFlags();
 
         /**
@@ -141,6 +144,7 @@ public interface TokenBuffer {
         boolean checkAvailableCapacity(int size);
     }
 
+    @Nonnull
     TokenReader getTokenReader();
 
     /**
@@ -154,6 +158,7 @@ public interface TokenBuffer {
          *
          * @return the buffer's flags
          */
+        @Nonnull
         TokenBufferFlags getFlags();
 
         /**
@@ -161,6 +166,7 @@ public interface TokenBuffer {
          *
          * @return an iterator over ReadTokens available.
          */
+        @Nonnull
         TokenBufferIterator tokenIterator();
 
         /**
@@ -176,6 +182,7 @@ public interface TokenBuffer {
          * @return a ReadToken representing the current first readable token
          * @throws NoSuchElementException if no token is available, see {@link #hasReadToken()}.
          */
+        @Nonnull
         ReadToken getFirstReadToken();
 
         /**
@@ -238,6 +245,7 @@ public interface TokenBuffer {
              *
              * @return an iterator over available ReadTokens.
              */
+            @Nonnull
             TokenBufferIterator tokenIterator();
 
             /**
@@ -246,6 +254,7 @@ public interface TokenBuffer {
              * @return an iterator that exposes the data either as a succession of individual bytes, or as byte[] blocks of contiguous bytes.
              * @throws IllegalStateException if this token is any kind of Marker - check first!
              */
+            @Nonnull
             BlockIterator dataIterator();
 
             /**

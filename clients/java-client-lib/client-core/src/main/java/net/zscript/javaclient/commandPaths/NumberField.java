@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandPaths;
 
+import javax.annotation.Nonnull;
+
 import net.zscript.tokenizer.ZscriptField;
 import net.zscript.util.BlockIterator;
 import net.zscript.util.ByteString;
@@ -33,6 +35,7 @@ public class NumberField implements ZscriptField, ByteString.ByteAppendable {
         return false;
     }
 
+    @Nonnull
     @Override
     public BlockIterator iterator() {
         return BlockIterator.EMPTY;
