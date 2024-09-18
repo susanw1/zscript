@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandbuilder;
 
+import javax.annotation.Nonnull;
+
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.tokenizer.ZscriptExpression;
@@ -14,11 +16,13 @@ public class DemoActivateCommand extends ZscriptCommandNode<DemoActivateCommand.
         return new DemoActivateCommandBuilder();
     }
 
+    @Nonnull
     @Override
-    public DemoActivateCommandResponse parseResponse(ZscriptExpression resp) {
+    public DemoActivateCommandResponse parseResponse(@Nonnull ZscriptExpression resp) {
         return new DemoActivateCommandResponse(resp, new byte[] {}, resp.getField('A').orElse(0) == 1);
     }
 
+    @Nonnull
     @Override
     public Class<DemoActivateCommandResponse> getResponseType() {
         return DemoActivateCommandResponse.class;
@@ -35,6 +39,7 @@ public class DemoActivateCommand extends ZscriptCommandNode<DemoActivateCommand.
             setField('Z', 2);
         }
 
+        @Nonnull
         @Override
         public DemoActivateCommand build() {
             return new DemoActivateCommand(this);

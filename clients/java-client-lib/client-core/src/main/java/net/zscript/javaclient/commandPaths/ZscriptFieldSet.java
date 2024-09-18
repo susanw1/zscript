@@ -1,5 +1,6 @@
 package net.zscript.javaclient.commandPaths;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -104,6 +105,7 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
      *
      * @return concatenation of all associated big-field data
      */
+    @Nonnull
     @Override
     public ByteString getBigFieldAsByteString() {
         return ByteString.concat((bigField, b) -> b.append(bigField.getDataAsByteString()), bigFields);
@@ -143,11 +145,13 @@ public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
         return length;
     }
 
+    @Nonnull
     @Override
     public OptionalInt getField(byte key) {
         return fields[key - 'A'] == -1 ? OptionalInt.empty() : OptionalInt.of(fields[key - 'A']);
     }
 
+    @Nonnull
     @Override
     public Optional<? extends ZscriptField> getZscriptField(byte key) {
         int v = fields[key - 'A'];

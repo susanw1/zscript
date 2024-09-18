@@ -1,5 +1,6 @@
 package net.zscript.javaclient.sequence;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
@@ -65,7 +66,7 @@ public class CommandSequence implements ByteAppendable {
     private final int                  echoField;
     private final ZscriptLockSet       locks;
 
-    private CommandSequence(CommandExecutionPath executionPath, int echoField, ZscriptLockSet locks) {
+    private CommandSequence(CommandExecutionPath executionPath, int echoField, @Nullable ZscriptLockSet locks) {
         this.executionPath = executionPath;
         this.echoField = echoField;
         this.locks = locks;
@@ -73,7 +74,9 @@ public class CommandSequence implements ByteAppendable {
 
     @Override
     public void appendTo(ByteStringBuilder builder) {
-        locks.appendTo(builder);
+        if (locks != null) {
+            locks.appendTo(builder);
+        }
         if (echoField != -1) {
             fieldOf(Zchars.Z_ECHO, echoField).appendTo(builder);
         }
@@ -96,11 +99,12 @@ public class CommandSequence implements ByteAppendable {
         return echoField;
     }
 
+    @Nullable
     public ZscriptLockSet getLocks() {
         return locks;
     }
 
     public int getBufferLength() {
-        return executionPath.getBufferLength() + (echoField > 0xff ? 4 : 3) + locks.getBufferLength();
+        return executionPath.getBufferLength() + (echoField > 0xff ? 4 : 3) + (locks != null ? locks.getBufferLength() : 0);
     }
 }

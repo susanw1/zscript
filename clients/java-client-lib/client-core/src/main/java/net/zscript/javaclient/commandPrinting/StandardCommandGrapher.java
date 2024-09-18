@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandPrinting;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
@@ -220,6 +222,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         }
     }
 
+    @Nonnull
     public AsciiFrame explainCommand(Command target, ZscriptModel model, CommandPrintSettings settings) {
         TextBox box = new TextBox(settings.indentString);
         box.setIndentOnWrap(1);
@@ -272,6 +275,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         return box;
     }
 
+    @Nonnull
     public AsciiFrame explainResponse(Command source, Response target, ZscriptModel model, CommandPrintSettings settings) {
         int             commandValue = source.getFields().getFieldVal(Zchars.Z_CMD);
         ZscriptFieldSet fieldSet     = target.getFields();
@@ -322,12 +326,14 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         return box;
     }
 
+    @Nonnull
     public AsciiFrame graph(CommandExecutionPath path, CommandGraph.GraphPrintSettings settings) {
         return graph(path, null, settings);
     }
 
+    @Nonnull
     @Override
-    public AsciiFrame graph(CommandExecutionPath path, ResponseExecutionPath resps, CommandGraph.GraphPrintSettings settings) {
+    public AsciiFrame graph(CommandExecutionPath path, @Nullable ResponseExecutionPath resps, CommandGraph.GraphPrintSettings settings) {
         Command firstCommand = path.getFirstCommand();
 
         boolean skipImpossiblePaths = settings.skipImpossiblePaths();

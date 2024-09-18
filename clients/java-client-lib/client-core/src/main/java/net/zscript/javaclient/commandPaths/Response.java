@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandPaths;
 
+import javax.annotation.Nullable;
+
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
@@ -13,7 +15,7 @@ public class Response implements ByteAppendable {
     private final boolean  isCloseBracket;
     private final int      bracketCount;
 
-    Response(Response next, boolean wasSuccess, boolean isOpenBracket, boolean isCloseBracket, int bracketCount, ZscriptFieldSet fieldSet) {
+    Response(@Nullable Response next, boolean wasSuccess, boolean isOpenBracket, boolean isCloseBracket, int bracketCount, ZscriptFieldSet fieldSet) {
         this.next = next;
         this.wasSuccess = wasSuccess;
         this.isOpenBracket = isOpenBracket;
@@ -26,6 +28,7 @@ public class Response implements ByteAppendable {
         return wasSuccess;
     }
 
+    @Nullable
     public Response getNext() {
         return next;
     }

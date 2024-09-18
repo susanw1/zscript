@@ -62,7 +62,6 @@ public interface ZscriptExpression {
      * @param key the key of the required field
      * @return true if it exists, false otherwise
      */
-    @Nonnull
     default boolean hasField(final byte key) {
         return getField(key).isPresent();
     }

@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandbuilder.defaultCommands;
 
+import javax.annotation.Nonnull;
+
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.tokenizer.ZscriptExpression;
@@ -37,14 +39,17 @@ public class GenericCommandBuilder extends ZscriptCommandBuilder<DefaultResponse
         return super.addBigField(data);
     }
 
+    @Nonnull
     @Override
     public ZscriptCommandNode<DefaultResponse> build() {
-        return new ZscriptCommandNode<DefaultResponse>() {
+        return new ZscriptCommandNode<>() {
+            @Nonnull
             @Override
             public DefaultResponse parseResponse(ZscriptExpression response) {
                 return new DefaultResponse(response);
             }
 
+            @Nonnull
             @Override
             public Class<DefaultResponse> getResponseType() {
                 return DefaultResponse.class;

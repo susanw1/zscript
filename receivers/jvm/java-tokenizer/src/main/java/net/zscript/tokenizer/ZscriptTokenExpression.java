@@ -44,6 +44,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
         };
     }
 
+    @Nonnull
     @Override
     public Optional<? extends ZscriptField> getZscriptField(byte key) {
         return iteratorToMarker().stream()
@@ -73,6 +74,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
                 .sum();
     }
 
+    @Nonnull
     @Override
     public ByteString getBigFieldAsByteString() {
         return ByteString.from(bigFieldDataIterator());

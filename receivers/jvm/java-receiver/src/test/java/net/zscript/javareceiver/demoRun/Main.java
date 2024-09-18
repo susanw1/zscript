@@ -1,7 +1,6 @@
 package net.zscript.javareceiver.demoRun;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
 
 import net.zscript.javareceiver.core.OutputStreamOutStream;
 import net.zscript.javareceiver.core.SequenceOutStream;
@@ -16,7 +15,7 @@ import net.zscript.tokenizer.TokenRingBuffer;
 import net.zscript.tokenizer.Tokenizer;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Zscript                zscript  = new Zscript();
         ScriptSpaceModule      scrSpace = new ScriptSpaceModule();
         ZscriptOuterCoreModule oCore    = new ZscriptOuterCoreModule();

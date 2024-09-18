@@ -1,5 +1,6 @@
 package net.zscript.javaclient.commandbuilder.defaultCommands;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Map;
 
@@ -55,11 +56,13 @@ public class FailureCommandNode extends ZscriptCommandNode<DefaultResponse> {
         return next;
     }
 
+    @Nonnull
     @Override
     public DefaultResponse parseResponse(ZscriptExpression response) {
         return new DefaultResponse(response);
     }
 
+    @Nonnull
     @Override
     public Class<DefaultResponse> getResponseType() {
         return DefaultResponse.class;

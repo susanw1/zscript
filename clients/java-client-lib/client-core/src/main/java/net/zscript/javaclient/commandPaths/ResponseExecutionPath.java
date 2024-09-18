@@ -1,6 +1,7 @@
 package net.zscript.javaclient.commandPaths;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,13 +40,13 @@ public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable
         }
 
         @Nonnull
-        public Response generateResponse(Response next, boolean unexplainedFail, int priorBrackets) {
+        public Response generateResponse(@Nullable Response next, boolean unexplainedFail, int priorBrackets) {
             return new Response(next, !(unexplainedFail || separator == Zchars.Z_ORELSE), separator == '(', separator == ')', priorBrackets, ZscriptFieldSet.fromTokens(start));
         }
     }
 
     @Nonnull
-    private static List<ResponseBuilder> createLinkedPath(ReadToken start) {
+    private static List<ResponseBuilder> createLinkedPath(@Nullable ReadToken start) {
         List<ResponseBuilder> builders = new ArrayList<>();
 
         ResponseBuilder last = new ResponseBuilder();
@@ -87,7 +88,7 @@ public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable
     }
 
     @Nonnull
-    public static ResponseExecutionPath parse(ReadToken start) {
+    public static ResponseExecutionPath parse(@Nullable ReadToken start) {
         List<ResponseBuilder> builders = createLinkedPath(start);
 
         Response prev               = null;
@@ -117,7 +118,7 @@ public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable
 
     private final Response firstResponse;
 
-    private ResponseExecutionPath(Response firstResponse) {
+    private ResponseExecutionPath(@Nullable Response firstResponse) {
         this.firstResponse = firstResponse;
     }
 

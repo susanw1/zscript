@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandbuilder.commandNodes;
 
+import javax.annotation.Nonnull;
+
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
@@ -26,22 +28,23 @@ public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCa
         return super.setField(key, value);
     }
 
-    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigField(byte[] data) {
+    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigField(@Nonnull byte[] data) {
         return super.addBigField(data);
     }
 
-    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigField(byte[] data, boolean asString) {
+    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigField(@Nonnull byte[] data, boolean asString) {
         return super.addBigField(data, asString);
     }
 
-    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigFieldAsSmallest(byte[] data) {
+    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigFieldAsSmallest(@Nonnull byte[] data) {
         return super.addBigField(data);
     }
 
-    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigField(String data) {
+    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigField(@Nonnull String data) {
         return super.addBigField(data);
     }
 
+    @Nonnull
     @Override
     public ZscriptCommandNode<DemoCapabilitiesCommandResponse> build() {
         return new DemoCapabilities(this);
@@ -57,11 +60,13 @@ class DemoCapabilities extends ZscriptCommandNode<DemoCapabilitiesCommandRespons
         return new DemoCapabilitiesCommandBuilder();
     }
 
+    @Nonnull
     @Override
-    public DemoCapabilitiesCommandResponse parseResponse(ZscriptExpression resp) {
+    public DemoCapabilitiesCommandResponse parseResponse(@Nonnull ZscriptExpression resp) {
         return new DemoCapabilitiesCommandResponse(resp, new byte[] {}, resp.getField('V').getAsInt(), new String(resp.getBigFieldData(), ISO_8859_1));
     }
 
+    @Nonnull
     @Override
     public Class<DemoCapabilitiesCommandResponse> getResponseType() {
         return DemoCapabilitiesCommandResponse.class;
