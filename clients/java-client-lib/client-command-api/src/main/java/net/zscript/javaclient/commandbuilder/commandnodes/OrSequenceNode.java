@@ -1,11 +1,6 @@
 package net.zscript.javaclient.commandbuilder.commandnodes;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import net.zscript.model.components.Zchars;
 
 public class OrSequenceNode extends CommandSequenceNode {
     final CommandSequenceNode before;
@@ -27,7 +22,7 @@ public class OrSequenceNode extends CommandSequenceNode {
     boolean isCommand() {
         return false;
     }
-
+ 
     @Override
     CommandSequenceNode optimize() {
         if (!before.canFail()) {
