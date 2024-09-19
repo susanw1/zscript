@@ -1,0 +1,108 @@
+// Individual Notification Sections
+
+{{#notificationSections}}
+    /** {{description}} */
+    public static final class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId extends NotificationSectionId<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> {
+        private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId ID = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId();
+
+        @Nonnull
+        public static {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId {{#lowerCamel}}{{name}}{{/lowerCamel}}NotificationSectionId() {
+            return ID;
+        }
+
+        @Nonnull
+        public static {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId get() {
+            return ID;
+        }
+
+        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId() {
+        }
+    }
+
+    public static final class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSection extends NotificationSection<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> {
+        @Nonnull
+        @Override
+        public Class<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> getResponseType() {
+            return {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent.class;
+        }
+
+        /** Constructs the correct notification object, representing the supplied Zscript response expression. */
+        @Nonnull
+        @Override
+        public {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent parseResponse(@Nonnull final ZscriptExpression expression) {
+            return new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent(expression);
+        }
+    }
+
+    public static final class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent extends ValidatingResponse {
+        public {{#upperCamel}}{{name}}NotificationSectionContent{{/upperCamel}}(ZscriptExpression response) {
+            super(response, new byte[] { {{#responseFields}}{{#required}}(byte) '{{key}}', {{/required}}{{/responseFields}} });
+        }
+        {{#fields}}
+        {{>responseField.mustache}}
+        {{/fields}}
+    }
+    {{/notificationSections}}
+
+
+    {{#notifications}}
+    /** {{description}} */
+    public static final class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId extends NotificationId<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle> {
+        public static final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications NTFN = {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications.{{#upperCamel}}{{notificationName}}{{/upperCamel}};
+        private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId ID = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId();
+
+        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId() {}
+
+        @Nonnull
+        public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId {{#lowerCamel}}{{notificationName}}{{/lowerCamel}}NotificationId() {
+            return ID;
+        }
+
+        @Nonnull
+        public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId get() {
+            return ID;
+        }
+
+        @Override
+        public int getId() {
+            return (MODULE_ID << 4) | (int) NTFN.getNotification();
+        }
+
+        @Nonnull
+        @Override
+        public Class<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle> getHandleType() {
+            return {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle.class;
+        }
+
+        @Nonnull
+        @Override
+        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle newHandle() {
+            return new {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle();
+        }
+    }
+
+    public static final class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle extends NotificationHandle {
+        private final LinkedHashMap<NotificationSectionId<?>, NotificationSection<?>> sections = new LinkedHashMap<>();
+
+        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle() {
+            {{#sections}}
+                {{#section}}
+            sections.put({{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId.get(), new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSection());
+                {{/section}}
+            {{/sections}}
+        }
+
+        @Nonnull
+        @Override
+        public <T extends ZscriptResponse> NotificationSection<T> getSection(@Nonnull NotificationSectionId<T> response) {
+            return (NotificationSection<T>) sections.get(response);
+        }
+
+        @Nonnull
+        @Override
+        public List<NotificationSection<?>> getSections() {
+            return new ArrayList<>(sections.values());
+        }
+    }
+
+    {{/notifications}}
