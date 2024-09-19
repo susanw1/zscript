@@ -88,7 +88,7 @@ public class SemanticParser implements ParseState, ContextView {
 
             if (seekSeqEnd) {
                 if (token.isPresent()) {
-                    assignSeqEndMarker(token.get().getKey());// Literally only this case can happen mid command to cause an error...
+                    assignSeqEndMarker(token.get().getKey()); // Literally only this case can happen mid-command to cause an error...
                 } else {
                     haveSeqEndMarker = false;
                 }
