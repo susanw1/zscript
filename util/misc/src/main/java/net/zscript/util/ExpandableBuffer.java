@@ -13,13 +13,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * <p/>
  * Visible for testing.
  */
-final class ExpandableByteBuffer {
+final class ExpandableBuffer {
     /** the buffer where we store the incoming bytes. */
     private byte[] buf;
     /** The number of bytes stored so far, such that buf[count] is the first free slot */
     private int    count;
 
-    public ExpandableByteBuffer(int initialSize) {
+    public ExpandableBuffer(int initialSize) {
         buf = new byte[initialSize];
         count = 0;
     }
