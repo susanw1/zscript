@@ -26,7 +26,7 @@ import net.zscript.model.components.*;
 @Generated(value = "JavaCommandBuilder.mustache",
            date = "{{timeNow}}",
            comments = "Zscript Java fluent Command/Response builder generator, using {{additional.context-source}}")
-public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
+public final class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
     public static final int    MODULE_ID = {{id}};
     public static final String MODULE_NAME = "{{name}}";
     public static final String VERSION = "{{version}}";
@@ -36,7 +36,7 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
         // prevent instantiation
     }
 
-    {{! ============ COMMAND PROCESSING ============= }}
+    {{! ============ COMMAND SUMMARY ============= }}
     /**
      * Defines constants for the commands defined in the '{{#upperCamel}}{{moduleName}}{{/upperCamel}}' module. Each command has a CMD field referencing its constant.
      */
@@ -66,6 +66,40 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
         }
     }
 
+    {{! ============ NOTIFICATION SUMMARY ============= }}
+
+    /**
+     * Defines the set of all notifications defined in the '{{#upperCamel}}{{moduleName}}{{/upperCamel}}' module.
+     */
+    public static enum {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications {
+{{#notifications}}
+        /** {{description}} ({@link {{#upperCamel}}{{notificationName}}NotificationId{{/upperCamel}}.NTFN}) */
+        {{#upperCamel}}{{notificationName}}{{/upperCamel}}({{notification}}),
+{{/notifications}}
+        ;
+
+        private final byte notification;
+
+        private {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications(int notification) {
+            if ((notification & ~0xf) != 0) {
+                throw new ZscriptModelException("Invalid notification number: " + notification);
+            }
+            this.notification = (byte) notification;
+        }
+
+        /**
+         * Returns the 4-bit notification id code (associated with the '!' response sequence field).
+         *
+         * @return notification id (0x0-0xf)
+         */
+        public byte getNotification() {
+            return notification;
+        }
+    }
+
+{{! ============ COMMAND PROCESSING ============= }}
+
+
 {{#commands}}
     /**
      * Creates a builder for the '{{name}}' command: {{description}}
@@ -79,7 +113,7 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
     /**
     * Defines the '{{name}}' command: {{description}}
     */
-    public static class {{#upperCamel}}{{commandName}}Command{{/upperCamel}}
+    public static final class {{#upperCamel}}{{commandName}}Command{{/upperCamel}}
             extends ZscriptCommandNode<{{#upperCamel}}{{commandName}}Command{{/upperCamel}}.{{#upperCamel}}{{name}}{{/upperCamel}}Response> {
         public static final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands CMD = {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands.{{#upperCamel}}{{commandName}}{{/upperCamel}};
 
@@ -117,7 +151,7 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
          * <p/>
          * Command semantics characterized as: {{operation}}.
          */
-        public static class Builder extends ZscriptCommandBuilder<{{#upperCamel}}{{name}}{{/upperCamel}}Response> {
+        public static final class Builder extends ZscriptCommandBuilder<{{#upperCamel}}{{name}}{{/upperCamel}}Response> {
 
             private Builder() {
                 setRequiredFields(new byte[] { {{#requestFields}}{{#required}}(byte) '{{key}}', {{/required}}{{/requestFields}} });
@@ -141,7 +175,7 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
         /**
          * Defines the response to a {{#upperCamel}}{{name}}{{/upperCamel}} command: {{description}}
          */
-        public static class {{#upperCamel}}{{name}}Response{{/upperCamel}} extends ValidatingResponse {
+        public static final class {{#upperCamel}}{{name}}Response{{/upperCamel}} extends ValidatingResponse {
             public {{#upperCamel}}{{name}}Response{{/upperCamel}}(ZscriptExpression response) {
                 super(response, new byte[] { {{#responseFields}}{{#required}}(byte) '{{key}}', {{/required}}{{/responseFields}} });
             }
@@ -157,138 +191,6 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
 
     {{! ============ NOTIFICATION PROCESSING ============= }}
 
-    /**
-     * Defines the set of all notifications defined in the '{{#upperCamel}}{{moduleName}}{{/upperCamel}}' module.
-     */
-    public static enum {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications {
-        {{#notifications}}
-        /** {{description}} ({@link {{#upperCamel}}{{notificationName}}NotificationId{{/upperCamel}}.NTFN}) */
-        {{#upperCamel}}{{notificationName}}{{/upperCamel}}({{notification}}),
-        {{/notifications}}
-        ;
-
-        private final byte notification;
-
-        private {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications(int notification) {
-            if ((notification & ~0xf) != 0) {
-                throw new ZscriptModelException("Invalid notification number: " + notification);
-            }
-            this.notification = (byte) notification;
-        }
-
-        /**
-         * Returns the 4-bit notification id code (associated with the '!' response sequence field).
-         *
-         * @return notification id (0x0-0xf)
-         */
-        public byte getNotification() {
-            return notification;
-        }
-    }
-
-    {{#notificationSections}}
-    /** {{description}} */
-    public static class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId extends NotificationSectionId<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> {
-        private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId id = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId();
-
-        public static {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId {{#lowerCamel}}{{name}}{{/lowerCamel}}NotificationSectionId() {
-            return id;
-        }
-
-        @Nonnull
-        public static {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId get() {
-            return id;
-        }
-
-        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId() {
-        }
-    }
-
-    public static class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSection extends NotificationSection<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> {
-        @Nonnull
-        @Override
-        public Class<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> getResponseType() {
-            return {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent.class;
-        }
-
-        /** Constructs the correct notification object, representing the supplied Zscript response expression. */
-        @Nonnull
-        @Override
-        public {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent parseResponse(@Nonnull final ZscriptExpression expression) {
-            return new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent(expression);
-        }
-    }
-
-    public static class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent extends ValidatingResponse {
-        public {{#upperCamel}}{{name}}NotificationSectionContent{{/upperCamel}}(ZscriptExpression response) {
-            super(response, new byte[] { {{#responseFields}}{{#required}}(byte) '{{key}}', {{/required}}{{/responseFields}} });
-        }
-        {{#fields}}
-            {{>responseField.mustache}}
-        {{/fields}}
-    }
-    {{/notificationSections}}
-
-    {{#notifications}}
-    /** {{description}} */
-    public static class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId extends NotificationId<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle> {
-        public static final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications NTFN = {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications.{{#upperCamel}}{{notificationName}}{{/upperCamel}};
-        private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId ID = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId();
-
-        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId() {}
-
-        @Nonnull
-        public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId {{#lowerCamel}}{{notificationName}}{{/lowerCamel}}NotificationId() {
-            return ID;
-        }
-
-        @Nonnull
-        public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId get() {
-            return ID;
-        }
-
-        @Override
-        public int getId() {
-            return (MODULE_ID << 4) | (int) NTFN.getNotification();
-        }
-
-        @Nonnull
-        @Override
-        public Class<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle> getHandleType() {
-            return {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle.class;
-        }
-
-        @Nonnull
-        @Override
-        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle newHandle() {
-            return new {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle();
-        }
-    }
-
-    public static class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle extends NotificationHandle {
-        private final LinkedHashMap<NotificationSectionId<?>, NotificationSection<?>> sections = new LinkedHashMap<>();
-
-        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle() {
-        {{#sections}}
-        {{#section}}
-            sections.put({{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId.get(), new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSection());
-        {{/section}}
-        {{/sections}}
-        }
-
-        @Nonnull
-        @Override
-        public <T extends ZscriptResponse> NotificationSection<T> getSection(@Nonnull NotificationSectionId<T> response) {
-            return (NotificationSection<T>) sections.get(response);
-        }
-
-        @Nonnull
-        @Override
-        public List<NotificationSection<?>> getSections() {
-            return new ArrayList<>(sections.values());
-        }
-    }
-
-    {{/notifications}}
-
+    // +++++++++++++ NOTIFICATIONS +++++++++++++
+    {{>notifications.mustache}}
 }
