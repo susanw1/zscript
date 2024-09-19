@@ -1,5 +1,7 @@
 package net.zscript.javareceiver.modules.core;
 
+import javax.annotation.Nonnull;
+
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.modules.ZscriptModule;
@@ -57,14 +59,17 @@ public class ZscriptCoreModule implements ZscriptModule {
         }
     }
 
+    @Nonnull
     public ZscriptCapabilitiesCommand getCapabilitiesCmd() {
         return capabilitiesCmd;
     }
 
+    @Nonnull
     public ZscriptRandomCodeCommand getCodeCmd() {
         return codeCmd;
     }
 
+    @Nonnull
     public ZscriptGuidCommand getGuidCmd() {
         return guidCmd;
     }

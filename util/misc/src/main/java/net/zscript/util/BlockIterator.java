@@ -1,5 +1,6 @@
 package net.zscript.util;
 
+import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -12,6 +13,7 @@ public interface BlockIterator extends Iterator<Byte>, ByteString.ByteAppendable
      *
      * @return an array of as many bytes as are contiguous in the structure.
      */
+    @Nonnull
     byte[] nextContiguous();
 
     /**
@@ -19,6 +21,7 @@ public interface BlockIterator extends Iterator<Byte>, ByteString.ByteAppendable
      *
      * @return an array of as many bytes (up to maxLength) as are contiguous in the structure.
      */
+    @Nonnull
     byte[] nextContiguous(int maxLength);
 
     /**
@@ -40,16 +43,19 @@ public interface BlockIterator extends Iterator<Byte>, ByteString.ByteAppendable
     }
 
     BlockIterator EMPTY = new BlockIterator() {
+        @Nonnull
         @Override
         public Byte next() {
             throw new NoSuchElementException();
         }
 
+        @Nonnull
         @Override
         public byte[] nextContiguous() {
             throw new NoSuchElementException();
         }
 
+        @Nonnull
         @Override
         public byte[] nextContiguous(int maxLength) {
             throw new NoSuchElementException();

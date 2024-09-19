@@ -19,5 +19,4 @@ public interface TokenBufferIterator extends OptIterator<ReadToken> {
      * Generally, avoid retaining ReadTokens or holding multiple iterators.
      */
     void flushBuffer();
-
 }

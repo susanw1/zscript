@@ -1,5 +1,6 @@
 package net.zscript.javaclient.commandbuilder;
 
+import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
 import java.util.EnumSet;
@@ -23,6 +24,7 @@ public class Utils {
      * @param <E>       the enum type itself
      * @return a Set containing the corresponding values defined in the enum
      */
+    @Nonnull
     public static <E extends Enum<E>> EnumSet<E> bitsetToEnumSet(int bitFields, Class<E> enumClass) {
         final E[] enumValues = enumClass.getEnumConstants();
         return BitSet.valueOf(new long[] { bitFields }).stream()
@@ -51,6 +53,7 @@ public class Utils {
         return value;
     }
 
+    @Nonnull
     public static byte[] formatField(byte f, int value) {
         if (value >= 0x10000 || value < 0) {
             throw new IllegalStateException("Command fields must be uint16s: " + value);

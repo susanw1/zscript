@@ -1,5 +1,6 @@
 package net.zscript.javaclient.commandbuilder.commandnodes;
 
+import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -95,6 +96,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         }
     }
 
+    @Nonnull
     public ZscriptCommandBuilder<T> capture(ResponseCaptor<T> captor) {
         this.captor = captor;
         return this;
@@ -129,5 +131,6 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
      * @return the command that has been built
      * @throws ZscriptMissingFieldException if builder doesn't yet pass validation
      */
+    @Nonnull
     public abstract ZscriptCommandNode<T> build();
 }

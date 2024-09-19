@@ -1,5 +1,7 @@
 package net.zscript.javaclient.devices;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +28,7 @@ public class ResponseSequenceCallback {
         private final ZscriptCommandNode<T> command;
         private final T                     response;
 
+        @Nonnull
         public static <T extends ZscriptResponse> CommandExecutionSummary<T> generateExecutionSummary(ZscriptCommandNode<T> command, Response response) {
             return new CommandExecutionSummary<>(command, command.parseResponse(response.getFields()));
         }
@@ -35,19 +38,23 @@ public class ResponseSequenceCallback {
             this.response = response;
         }
 
+        @Nonnull
         public ZscriptCommandNode<T> getCommand() {
             return command;
         }
 
+        @Nonnull
         public T getResponse() {
             return response;
         }
 
+        @Nonnull
         public Class<T> getResponseType() {
             return command.getResponseType();
         }
     }
 
+    @Nonnull
     public static ResponseSequenceCallback from(List<MatchedCommandResponse> matchedCRs, Iterable<ZscriptCommandNode<?>> nodes, Map<ZscriptCommandNode<?>, Command> commandMap) {
         Set<ZscriptCommandNode<?>> notExecuted = new HashSet<>();
         for (ZscriptCommandNode<?> node : nodes) {
@@ -102,7 +109,7 @@ public class ResponseSequenceCallback {
 
     private ResponseSequenceCallback(LinkedHashMap<ZscriptCommandNode<?>, ZscriptResponse> responses, Set<ZscriptCommandNode<?>> notExecuted,
             Set<CommandExecutionSummary<?>> succeeded,
-            Set<CommandExecutionSummary<?>> failed, CommandExecutionSummary<?> abort) {
+            Set<CommandExecutionSummary<?>> failed, @Nullable CommandExecutionSummary<?> abort) {
         this.responses = responses;
         this.notExecuted = notExecuted;
         this.succeeded = succeeded;

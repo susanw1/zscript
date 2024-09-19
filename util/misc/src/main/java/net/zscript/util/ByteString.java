@@ -1,5 +1,6 @@
 package net.zscript.util;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -40,6 +41,7 @@ public final class ByteString implements Iterable<Byte> {
      *
      * @return iterator a block iterator
      */
+    @Nonnull
     @Override
     public BlockIterator iterator() {
         return new ByteBlockIterator(bytes.length);
@@ -51,6 +53,7 @@ public final class ByteString implements Iterable<Byte> {
      * @param defaultMaxLength the max number of bytes to return in a call to {@link BlockIterator#nextContiguous()}
      * @return iterator a block iterator
      */
+    @Nonnull
     public BlockIterator iterator(int defaultMaxLength) {
         return new ByteBlockIterator(defaultMaxLength);
     }
@@ -73,6 +76,7 @@ public final class ByteString implements Iterable<Byte> {
      * @return this ByteString, to facilitate chaining
      * @throws IOException if the write fails
      */
+    @Nonnull
     public ByteString writeTo(final OutputStream out) throws IOException {
         out.write(bytes);
         return this;
@@ -100,6 +104,7 @@ public final class ByteString implements Iterable<Byte> {
      *
      * @return an Appendable adapter that can write these bytes to another Builder
      */
+    @Nonnull
     public ByteAppendable asAppendable() {
         return builder -> builder.appendRaw(bytes);
     }
@@ -108,6 +113,7 @@ public final class ByteString implements Iterable<Byte> {
      * {@inheritDoc}
      */
     @Override
+    @Nonnull
     public String toString() {
         return "ByteString[" + asString() + "]";
     }
@@ -117,6 +123,7 @@ public final class ByteString implements Iterable<Byte> {
      *
      * @return content as a String
      */
+    @Nonnull
     public String asString() {
         return new String(bytes, UTF_8);
     }
@@ -143,6 +150,7 @@ public final class ByteString implements Iterable<Byte> {
      * @param a the appendable to append
      * @return the resulting ByteString
      */
+    @Nonnull
     public static ByteString from(ByteAppendable a) {
         return from(a, ByteAppender.DEFAULT_APPENDER);
     }
@@ -153,6 +161,7 @@ public final class ByteString implements Iterable<Byte> {
      * @param b the byte array to copy
      * @return the resulting ByteString
      */
+    @Nonnull
     public static ByteString from(byte[] b) {
         return from(b, (object, builder) -> builder.appendRaw(b));
     }
@@ -163,6 +172,7 @@ public final class ByteString implements Iterable<Byte> {
      * @param b the byte to copy
      * @return the resulting ByteString
      */
+    @Nonnull
     public static ByteString from(byte b) {
         return from(b, (object, builder) -> builder.appendByte(b));
     }
@@ -175,6 +185,7 @@ public final class ByteString implements Iterable<Byte> {
      * @param <T>      the type of the object
      * @return the resulting ByteString
      */
+    @Nonnull
     public static <T> ByteString from(T object, ByteAppender<? super T> appender) {
         return builder().append(object, appender).build();
     }
@@ -185,6 +196,7 @@ public final class ByteString implements Iterable<Byte> {
      * @param appendables the appendables to append
      * @return the resulting ByteString
      */
+    @Nonnull
     public static ByteString concat(ByteAppendable... appendables) {
         return builder(appendables).build();
     }
@@ -200,6 +212,7 @@ public final class ByteString implements Iterable<Byte> {
      * @return the resulting ByteString
      */
     @SafeVarargs
+    @Nonnull
     public static <T> ByteString concat(ByteAppender<? super T> appender, T... objects) {
         return builder(appender, objects).build();
     }
@@ -210,6 +223,7 @@ public final class ByteString implements Iterable<Byte> {
      * @param a the appendables to append
      * @return the new ByteString
      */
+    @Nonnull
     public static ByteString concat(Iterable<? extends ByteAppendable> a) {
         return builder(a).build();
     }
@@ -222,6 +236,7 @@ public final class ByteString implements Iterable<Byte> {
      * @param <T>      the type of the objects
      * @return the resulting ByteString
      */
+    @Nonnull
     public static <T> ByteString concat(ByteAppender<? super T> appender, Iterable<? extends T> objects) {
         return builder(appender, objects).build();
     }
@@ -231,6 +246,7 @@ public final class ByteString implements Iterable<Byte> {
      *
      * @return a new builder
      */
+    @Nonnull
     public static ByteStringBuilder builder() {
         return new ByteStringBuilder();
     }
@@ -241,6 +257,7 @@ public final class ByteString implements Iterable<Byte> {
      * @param appendables the appendables to be appended
      * @return a newly initialized builder
      */
+    @Nonnull
     public static ByteStringBuilder builder(ByteAppendable... appendables) {
         return builder(ByteAppender.DEFAULT_APPENDER, appendables);
     }
@@ -256,6 +273,7 @@ public final class ByteString implements Iterable<Byte> {
      * @return the resulting ByteString
      */
     @SafeVarargs
+    @Nonnull
     public static <T> ByteStringBuilder builder(ByteAppender<? super T> appender, T... objects) {
         return builder().append(appender, objects);
     }
@@ -266,6 +284,7 @@ public final class ByteString implements Iterable<Byte> {
      * @param appendables appendables to be appended
      * @return a newly initialized builder
      */
+    @Nonnull
     public static ByteStringBuilder builder(Iterable<? extends ByteAppendable> appendables) {
         return builder(ByteAppender.DEFAULT_APPENDER, appendables);
     }
@@ -278,6 +297,7 @@ public final class ByteString implements Iterable<Byte> {
      * @param <T>      the type of the objects
      * @return the resulting ByteString
      */
+    @Nonnull
     public static <T> ByteStringBuilder builder(ByteAppender<? super T> appender, Iterable<? extends T> objects) {
         return builder().append(appender, objects);
     }
@@ -293,6 +313,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param out the stream to write to
          * @return this builder, to facilitate chaining
          */
+        @Nonnull
         public ByteStringBuilder writeTo(final OutputStream out) throws IOException {
             buffer.writeTo(out);
             return this;
@@ -303,6 +324,7 @@ public final class ByteString implements Iterable<Byte> {
          *
          * @return copy of the current contents
          */
+        @Nonnull
         public byte[] toByteArray() {
             return buffer.toByteArray();
         }
@@ -323,6 +345,7 @@ public final class ByteString implements Iterable<Byte> {
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range 0-ff
          */
+        @Nonnull
         public ByteStringBuilder appendByte(int b) {
             if ((b & ~0xff) != 0) {
                 throw new IllegalArgumentException("Hexpair values must be 0x0-0xff: " + b);
@@ -336,6 +359,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param b any value 0x00-0xff
          * @return this builder, to facilitate chaining
          */
+        @Nonnull
         public ByteStringBuilder appendByte(byte b) {
             buffer.addByte(b);
             return this;
@@ -347,6 +371,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param bytes any bytes
          * @return this builder, to facilitate chaining
          */
+        @Nonnull
         public ByteStringBuilder appendRaw(byte[] bytes) {
             buffer.addBytes(bytes, 0, bytes.length);
             return this;
@@ -360,6 +385,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param len    copying this many bytes
          * @return this builder, to facilitate chaining
          */
+        @Nonnull
         public ByteStringBuilder appendRaw(byte[] bytes, int offset, int len) {
             buffer.addBytes(bytes, offset, len);
             return this;
@@ -371,6 +397,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param text the text to write
          * @return this builder, to facilitate chaining
          */
+        @Nonnull
         public ByteStringBuilder appendUtf8(CharSequence text) {
             return appendRaw(text.toString().getBytes(UTF_8));
         }
@@ -381,6 +408,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param byteString any existing ByteString
          * @return this builder, to facilitate chaining
          */
+        @Nonnull
         public ByteStringBuilder append(ByteString byteString) {
             return append(byteString.asAppendable());
         }
@@ -391,6 +419,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param byteAppendable the object to be appended
          * @return this builder, to facilitate chaining
          */
+        @Nonnull
         public ByteStringBuilder append(ByteAppendable byteAppendable) {
             return append(byteAppendable, ByteAppender.DEFAULT_APPENDER);
         }
@@ -403,6 +432,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param <T>      the type of the object to be appended
          * @return this builder, to facilitate chaining
          */
+        @Nonnull
         public <T> ByteStringBuilder append(T object, ByteAppender<? super T> appender) {
             appender.append(object, this);
             return this;
@@ -414,6 +444,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param appendables zero or more Appendables
          * @return this builder, to facilitate chaining
          */
+        @Nonnull
         public ByteStringBuilder append(Iterable<? extends ByteAppendable> appendables) {
             return append(ByteAppender.DEFAULT_APPENDER, appendables);
         }
@@ -426,6 +457,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param <T>      the type of the objects
          * @return this builder, to facilitate chaining
          */
+        @Nonnull
         public <T> ByteStringBuilder append(ByteAppender<? super T> appender, Iterable<? extends T> objects) {
             objects.forEach(a -> appender.append(a, this));
             return this;
@@ -437,6 +469,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param appendables zero or more Appendables
          * @return this builder, to facilitate chaining
          */
+        @Nonnull
         public ByteStringBuilder append(ByteAppendable... appendables) {
             return append(ByteAppender.DEFAULT_APPENDER, Arrays.asList(appendables));
         }
@@ -448,6 +481,7 @@ public final class ByteString implements Iterable<Byte> {
          * @return this builder, to facilitate chaining
          */
         @SafeVarargs
+        @Nonnull
         public final <T> ByteStringBuilder append(ByteAppender<? super T> appender, T... objects) {
             return append(appender, Arrays.asList(objects));
         }
@@ -459,6 +493,7 @@ public final class ByteString implements Iterable<Byte> {
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range 0-ff
          */
+        @Nonnull
         public ByteStringBuilder appendHexPair(int value) {
             if ((value & ~0xff) != 0) {
                 throw new IllegalArgumentException("Hex-pair values must be 0x0-0xff: " + value);
@@ -472,6 +507,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param value any value 0x00-0xff
          * @return this builder, to facilitate chaining
          */
+        @Nonnull
         public ByteStringBuilder appendHexPair(byte value) {
             buffer.addByte(toHex((value >>> 4) & 0xF));
             buffer.addByte(toHex(value & 0xF));
@@ -485,6 +521,7 @@ public final class ByteString implements Iterable<Byte> {
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range
          */
+        @Nonnull
         public ByteStringBuilder appendNumeric32(long value) {
             return value == 0 ? this : appendNumeric32KeepZero(value);
         }
@@ -496,6 +533,7 @@ public final class ByteString implements Iterable<Byte> {
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range
          */
+        @Nonnull
         public ByteStringBuilder appendNumeric32KeepZero(long value) {
             if ((value & ~0xffffffffL) != 0) {
                 throw new IllegalArgumentException("Numeric32 fields must be 0x0-0xffffffff: " + value);
@@ -516,6 +554,7 @@ public final class ByteString implements Iterable<Byte> {
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range
          */
+        @Nonnull
         public ByteStringBuilder appendNumeric16(int value) {
             return value == 0 ? this : appendNumeric16KeepZero(value);
         }
@@ -527,6 +566,7 @@ public final class ByteString implements Iterable<Byte> {
          * @return this builder, to facilitate chaining
          * @throws IllegalArgumentException if value is out of range
          */
+        @Nonnull
         public ByteStringBuilder appendNumeric16KeepZero(int value) {
             if ((value & ~0xffff) != 0) {
                 throw new IllegalArgumentException("Numeric fields must be 0x0-0xffff: " + value);
@@ -551,19 +591,23 @@ public final class ByteString implements Iterable<Byte> {
          *
          * @return an Appendable adapter that can write this Builder to another Builder
          */
+        @Nonnull
         public ByteAppendable asAppendable() {
             return builder -> builder.appendRaw(toByteArray());
         }
 
+        @Nonnull
         public String asString() {
             return buffer.asString();
         }
 
+        @Nonnull
         @Override
         public String toString() {
             return "ByteStringBuilder[" + asString() + "]";
         }
 
+        @Nonnull
         public ByteString build() {
             return new ByteString(toByteArray());
         }
@@ -585,6 +629,7 @@ public final class ByteString implements Iterable<Byte> {
          *
          * @return a ByteString containing just this object.
          */
+        @Nonnull
         default ByteString toByteString() {
             return ByteString.from(this);
         }
@@ -613,6 +658,7 @@ public final class ByteString implements Iterable<Byte> {
          * @param object the object to append
          * @return a ByteString containing just this object.
          */
+        @Nonnull
         default ByteString toByteString(T object) {
             return ByteString.from(object, this);
         }
@@ -639,6 +685,7 @@ public final class ByteString implements Iterable<Byte> {
             return index < bytes.length;
         }
 
+        @Nonnull
         @Override
         public Byte next() {
             if (!hasNext()) {
@@ -647,11 +694,13 @@ public final class ByteString implements Iterable<Byte> {
             return bytes[index++];
         }
 
+        @Nonnull
         @Override
         public byte[] nextContiguous() {
             return nextContiguous(defaultMaxLength);
         }
 
+        @Nonnull
         @Override
         public byte[] nextContiguous(int maxLength) {
             int    n     = Math.min(maxLength, bytes.length - index);

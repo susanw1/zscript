@@ -1,5 +1,6 @@
 package net.zscript.tokenizer;
 
+import javax.annotation.Nonnull;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -35,6 +36,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
         return new OptIterator<>() {
             final OptIterator<ReadToken> internal = tokenIteratorSupplier.get();
 
+            @Nonnull
             @Override
             public Optional<ReadToken> next() {
                 return internal.next().filter(t -> !t.isMarker());
@@ -42,6 +44,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
         };
     }
 
+    @Nonnull
     @Override
     public Optional<? extends ZscriptField> getZscriptField(byte key) {
         return iteratorToMarker().stream()
@@ -71,6 +74,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
                 .sum();
     }
 
+    @Nonnull
     @Override
     public ByteString getBigFieldAsByteString() {
         return ByteString.from(bigFieldDataIterator());
@@ -114,6 +118,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
                 return internal.next();
             }
 
+            @Nonnull
             @Override
             public byte[] nextContiguous(int maxLength) {
                 if (!hasNext()) {
@@ -122,6 +127,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
                 return internal.nextContiguous(maxLength);
             }
 
+            @Nonnull
             @Override
             public byte[] nextContiguous() {
                 if (!hasNext()) {

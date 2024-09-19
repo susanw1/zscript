@@ -1,5 +1,6 @@
 package net.zscript.javareceiver.execution;
 
+import javax.annotation.Nonnull;
 import java.util.BitSet;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -35,15 +36,18 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
         this.expression = new ZscriptTokenExpression(() -> contextView.getReader().tokenIterator());
     }
 
+    @Nonnull
     public CommandOutStream getOutStream() {
         return out.asCommandOutStream();
     }
 
+    @Nonnull
     @Override
     public OptionalInt getField(final byte key) {
         return expression.getField(key);
     }
 
+    @Nonnull
     @Override
     public Optional<? extends ZscriptField> getZscriptField(byte key) {
         return expression.getZscriptField(key);
@@ -65,6 +69,7 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
      *
      * @return fully big-field-aware data iterator
      */
+    @Nonnull
     public BlockIterator bigFieldDataIterator() {
         return expression.bigFieldDataIterator();
     }
@@ -74,6 +79,7 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
         return expression.getBigFieldSize();
     }
 
+    @Nonnull
     @Override
     public ByteString getBigFieldAsByteString() {
         return expression.getBigFieldAsByteString();
@@ -95,10 +101,12 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
      *
      * @return OptIterator for all the fields in this expression
      */
+    @Nonnull
     public OptIterator<ZscriptField> fieldIterator() {
         return new OptIterator<>() {
             final OptIterator<ReadToken> iter = expression.iteratorToMarker();
 
+            @Nonnull
             @Override
             public Optional<ZscriptField> next() {
                 return iter.next().map(ZscriptTokenField::new);
@@ -137,6 +145,7 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
         contextView.activate();
     }
 
+    @Nonnull
     public Zscript getZscript() {
         return zscript;
     }

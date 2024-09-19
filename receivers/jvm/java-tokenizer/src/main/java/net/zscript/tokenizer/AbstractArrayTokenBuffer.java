@@ -1,5 +1,6 @@
 package net.zscript.tokenizer;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -52,6 +53,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
         this.readStart = 0;
     }
 
+    @Nonnull
     protected final byte[] getInternalData() {
         return data;
     }
@@ -69,11 +71,13 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
         data = Arrays.copyOf(data, data.length + extra);
     }
 
+    @Nonnull
     @Override
     public TokenWriter getTokenWriter() {
         return tokenWriter;
     }
 
+    @Nonnull
     @Override
     public TokenReader getTokenReader() {
         return tokenReader;
@@ -94,6 +98,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
         private boolean inNibble = false;
         private boolean numeric  = false;
 
+        @Nonnull
         @Override
         public TokenBufferFlags getFlags() {
             return flags;
@@ -281,7 +286,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
     /**
      * Utility for determining whether the specified index is in the current readable area, defined as readStart <= index < writeStart (but accounting for this being a
      * ringbuffer).
-     *
+     * <p/>
      * Everything included in the readable area is committed and immutable.
      *
      * @param index the index to check
@@ -311,6 +316,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                 this.index = startIndex;
             }
 
+            @Nonnull
             @Override
             public Optional<ReadToken> next() {
                 if (index == writeStart) {
@@ -342,6 +348,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
         /**
          * {@inheritDoc}
          */
+        @Nonnull
         @Override
         public TokenBufferFlags getFlags() {
             return flags;
@@ -350,6 +357,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
         /**
          * {@inheritDoc}
          */
+        @Nonnull
         @Override
         public TokenBufferIterator tokenIterator() {
             return new ArrayBufferTokenIterator(readStart);
@@ -366,6 +374,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
         /**
          * {@inheritDoc}
          */
+        @Nonnull
         @Override
         public ReadToken getFirstReadToken() {
             if (readStart == writeStart) {
@@ -386,7 +395,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
 
         /**
          * A view of a token starting at a known index. In principle, all the operations around navigating tokens as stored in the buffer are encapsulated here.
-         *
+         * <p/>
          * Fundamentally, the ReadToken is nothing more than an index into the ArrayBuffer: it's really just a uint16 or uint8. If you re-implement this in C, then that's what
          * you'd have. But at a higher level, it has the following rules:
          * <ul>
@@ -415,11 +424,13 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
             /**
              * {@inheritDoc}
              */
+            @Nonnull
             @Override
             public TokenBufferIterator tokenIterator() {
                 return new ArrayBufferTokenIterator(index);
             }
 
+            @Nonnull
             @Override
             public BlockIterator dataIterator() {
                 if (isMarker()) {
@@ -442,6 +453,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                         return true;
                     }
 
+                    @Nonnull
                     @Override
                     public Byte next() {
                         if (!hasNext()) {
@@ -453,11 +465,13 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                         return res;
                     }
 
+                    @Nonnull
                     @Override
                     public byte[] nextContiguous() {
                         return nextContiguous(data.length);
                     }
 
+                    @Nonnull
                     @Override
                     public byte[] nextContiguous(final int maxLength) {
                         if (maxLength < 0) {

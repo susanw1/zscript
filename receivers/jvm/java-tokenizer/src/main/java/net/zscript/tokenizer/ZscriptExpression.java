@@ -1,5 +1,6 @@
 package net.zscript.tokenizer;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -16,6 +17,7 @@ public interface ZscriptExpression {
      * @param key the key of the required field
      * @return the field, or empty if the field isn't defined
      */
+    @Nonnull
     Optional<? extends ZscriptField> getZscriptField(byte key);
 
     /**
@@ -24,6 +26,7 @@ public interface ZscriptExpression {
      * @param key the key of the required field
      * @return the field, or empty if the field isn't defined
      */
+    @Nonnull
     default Optional<? extends ZscriptField> getZscriptField(char key) {
         return getZscriptField((byte) key);
     }
@@ -34,6 +37,7 @@ public interface ZscriptExpression {
      * @param key the key of the required field
      * @return the value of that field, or empty if the field isn't defined
      */
+    @Nonnull
     default OptionalInt getField(byte key) {
         // I thought there would be a super-cool way to do this that wasn't basically an if-statement...OptionalInt makes it messy.
         return getZscriptField(key)
@@ -47,6 +51,7 @@ public interface ZscriptExpression {
      * @param key the key of the required field
      * @return the value of that field, or empty if the field isn't defined
      */
+    @Nonnull
     default OptionalInt getField(char key) {
         return getField((byte) key);
     }
@@ -119,6 +124,7 @@ public interface ZscriptExpression {
      *
      * @return a new array containing all big-field data, or empty array if none defined
      */
+    @Nonnull
     default byte[] getBigFieldData() {
         return getBigFieldAsByteString().toByteArray();
     }
@@ -126,7 +132,8 @@ public interface ZscriptExpression {
     /**
      * The data associated with the big-field. If multiple, then concatenated, in order. If no big field, then return an empty array.
      *
-     * @return a ByteString containing all big-field data, or empty array if none defined
+     * @return a ByteString containing all big-field data, or empty ByteString if none defined
      */
+    @Nonnull
     ByteString getBigFieldAsByteString();
 }

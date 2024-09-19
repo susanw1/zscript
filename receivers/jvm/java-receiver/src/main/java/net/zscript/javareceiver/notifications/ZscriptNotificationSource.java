@@ -1,5 +1,7 @@
 package net.zscript.javareceiver.notifications;
 
+import javax.annotation.Nonnull;
+
 import net.zscript.javareceiver.core.LockSet;
 import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
@@ -138,6 +140,7 @@ public class ZscriptNotificationSource implements ActionSource {
         }
     }
 
+    @Nonnull
     public AsyncActionNotifier getAsyncActionNotifier() {
         return () -> {
             switch (state) {

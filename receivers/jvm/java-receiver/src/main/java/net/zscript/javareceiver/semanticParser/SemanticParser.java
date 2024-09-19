@@ -1,5 +1,6 @@
 package net.zscript.javareceiver.semanticParser;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -67,6 +68,7 @@ public class SemanticParser implements ParseState, ContextView {
          * @param flush      enables flushing of tokens (up to, but not including the Marker), otherwise buffer is unchanged
          * @return the Marker token that was found, or empty if none
          */
+        @Nonnull
         private Optional<ReadToken> seekMarker(final boolean seekSeqEnd, final boolean flush) {
             final TokenBufferIterator it = reader.tokenIterator();
             Optional<ReadToken>       token;
@@ -86,7 +88,7 @@ public class SemanticParser implements ParseState, ContextView {
 
             if (seekSeqEnd) {
                 if (token.isPresent()) {
-                    assignSeqEndMarker(token.get().getKey());// Literally only this case can happen mid command to cause an error...
+                    assignSeqEndMarker(token.get().getKey()); // Literally only this case can happen mid-command to cause an error...
                 } else {
                     haveSeqEndMarker = false;
                 }
@@ -132,6 +134,7 @@ public class SemanticParser implements ParseState, ContextView {
         /**
          * Checks whether the reader has a marker, and returns WAIT_FOR_TOKENS if not
          */
+        @Nonnull
         public ActionType checkNeedsTokens() {
             if (!haveNextMarker || !haveSeqEndMarker) {
                 dealWithTokenBufferFlags();
@@ -239,6 +242,7 @@ public class SemanticParser implements ParseState, ContextView {
     }
 
     // VisibleForTesting
+    @Nonnull
     State getState() {
         return state;
     }
@@ -246,8 +250,9 @@ public class SemanticParser implements ParseState, ContextView {
     /**
      * Determines the next action to be performed.
      *
-     * @return
+     * @return an action
      */
+    @Nonnull
     public SemanticAction getAction() {
         // currentAction is always nulled after action execution
         while (currentAction == ActionType.INVALID || currentAction == ActionType.GO_AROUND) {
@@ -260,6 +265,7 @@ public class SemanticParser implements ParseState, ContextView {
         return actionFactory.ofType(this, currentAction);
     }
 
+    @Nonnull
     private ActionType findNextAction() {
         switch (state) {
         case PRESEQUENCE:
@@ -403,6 +409,7 @@ public class SemanticParser implements ParseState, ContextView {
      * @param marker the logical operator ending the previous command
      * @return an appropriate action: END_SEQUENCE, RUN_COMMAND, CLOSE_PAREN, GO_AROUND
      */
+    @Nonnull
     private ActionType flowControl(final byte marker) {
         if (isInErrorState()) {
             return ActionType.GO_AROUND;
@@ -618,6 +625,7 @@ public class SemanticParser implements ParseState, ContextView {
     ////////////////////////////////
     // Defined in {@link ContextView}
 
+    @Nonnull
     @Override
     public TokenReader getReader() {
         return reader;
@@ -637,8 +645,7 @@ public class SemanticParser implements ParseState, ContextView {
             state = b ? State.COMMAND_COMPLETE : State.COMMAND_INCOMPLETE;
             break;
         case COMMAND_FAILED:
-            //            state = errorState(OTHER_ERROR);// ?? should we do this? What error?
-            //            break;
+            //  FIXME: state = errorState(OTHER_ERROR);break; -- should we do this?
         default:
             throw new IllegalStateException("Invalid state transition");
         }
@@ -700,6 +707,7 @@ public class SemanticParser implements ParseState, ContextView {
         return false;
     }
 
+    @Nonnull
     @Override
     public AsyncActionNotifier getAsyncActionNotifier() {
         return () -> {

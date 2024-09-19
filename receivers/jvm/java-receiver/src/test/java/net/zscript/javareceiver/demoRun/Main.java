@@ -1,6 +1,6 @@
 package net.zscript.javareceiver.demoRun;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 
 import net.zscript.javareceiver.core.OutputStreamOutStream;
 import net.zscript.javareceiver.core.SequenceOutStream;
@@ -15,7 +15,7 @@ import net.zscript.tokenizer.TokenRingBuffer;
 import net.zscript.tokenizer.Tokenizer;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Zscript                zscript  = new Zscript();
         ScriptSpaceModule      scrSpace = new ScriptSpaceModule();
         ZscriptOuterCoreModule oCore    = new ZscriptOuterCoreModule();
@@ -42,12 +42,12 @@ public class Main {
             }
 
             @Override
-            public void channelInfo(CommandContext ctx) {
+            public void channelInfo(@Nonnull CommandContext ctx) {
                 ctx.getOutStream().writeBigFieldQuoted("Basic text channel");
             }
 
             @Override
-            public void channelSetup(CommandContext ctx) {
+            public void channelSetup(@Nonnull CommandContext ctx) {
             }
         });
         zscript.setNotificationOutStream(out);

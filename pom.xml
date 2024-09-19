@@ -23,6 +23,7 @@
         <version.logback>1.5.6</version.logback>
         <version.jackson>2.15.4</version.jackson>
         <version.antlr>4.13.1</version.antlr>
+        <version.spotbugs>4.8.6</version.spotbugs>
         <version.picocli>4.7.6</version.picocli>
         <version.javafx>18.0.2</version.javafx>
 
@@ -43,6 +44,7 @@
         <version.maven-compiler-plugin>3.13.0</version.maven-compiler-plugin>
         <version.maven-surefire-plugin>3.3.0</version.maven-surefire-plugin>
         <version.maven-failsafe-plugin>3.3.0</version.maven-failsafe-plugin>
+        <version.maven-spotbugs-plugin>4.8.6.3</version.maven-spotbugs-plugin>
         <version.maven-assembly-plugin>3.7.1</version.maven-assembly-plugin>
         <version.maven-enforcer-plugin>3.5.0</version.maven-enforcer-plugin>
         <version.mustache-templating-maven-plugin>0.0.1</version.mustache-templating-maven-plugin>
@@ -99,7 +101,11 @@
                 <artifactId>mustache-templating-context-loader</artifactId>
                 <version>${version.mustache-templating-maven-plugin}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-annotations</artifactId>
+                <version>${version.spotbugs}</version>
+            </dependency>
 
             <!-- Test Dependencies -->
             <!-- ================= -->
@@ -177,6 +183,11 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${version.maven-spotbugs-plugin}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>

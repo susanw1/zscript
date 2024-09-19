@@ -1,16 +1,7 @@
 package net.zscript.demo.morse;
 
-import com.fazecast.jSerialComm.SerialPort;
-
-import com.fazecast.jSerialComm.SerialPortInvalidPortException;
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -20,6 +11,13 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
+
+import com.fazecast.jSerialComm.SerialPort;
+import com.fazecast.jSerialComm.SerialPortInvalidPortException;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
@@ -505,7 +503,7 @@ public class MorseFullCli implements Callable<Integer> {
         return 0;
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
         int exitCode = new CommandLine(new MorseFullCli()).execute(args);
         System.exit(exitCode);
     }

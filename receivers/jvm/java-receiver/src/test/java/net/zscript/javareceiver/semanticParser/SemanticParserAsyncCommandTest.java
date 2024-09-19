@@ -1,5 +1,6 @@
 package net.zscript.javareceiver.semanticParser;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +58,7 @@ class SemanticParserAsyncCommandTest {
         }
 
         @Override
-        public void execute(CommandContext ctx, int command) {
+        public void execute(@Nonnull CommandContext ctx, int command) {
             switch (command) {
             case 2:
                 // picked 2 at random. this is command 0xf2
@@ -77,10 +78,10 @@ class SemanticParserAsyncCommandTest {
          * For testing, use 2nd part of address to match someValue if it's <10. Otherwise, don't go async at all.
          */
         @Override
-        public void address(AddressingContext ctx) {
+        public void address(@Nonnull AddressingContext ctx) {
             OptIterator<Integer> s = ctx.getAddressSegments();
             s.next(); // throw away module-lookup key
-            if (s.next().get() < 10) {
+            if (s.next().orElseThrow() < 10) {
                 ctx.commandNotComplete();
                 notifier = ctx.getAsyncActionNotifier();
             }
@@ -90,7 +91,7 @@ class SemanticParserAsyncCommandTest {
         public void addressMoveAlong(AddressingContext ctx) {
             OptIterator<Integer> s = ctx.getAddressSegments();
             s.next(); // throw away module-lookup key
-            if (s.next().get() != someValue) {
+            if (s.next().orElseThrow() != someValue) {
                 ctx.commandNotComplete();
             }
         }

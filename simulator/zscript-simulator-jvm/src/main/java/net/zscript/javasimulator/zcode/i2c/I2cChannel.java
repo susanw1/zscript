@@ -1,5 +1,6 @@
 package net.zscript.javasimulator.zcode.i2c;
 
+import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -60,7 +61,7 @@ public class I2cChannel extends ZscriptChannel implements SimulatorConsumer<I2cP
             }
 
             @Override
-            protected void writeBytes(byte[] bytes, int count, boolean hexMode) {
+            protected void writeBytes(@Nonnull byte[] bytes, int count, boolean hexMode) {
                 if (hexMode) {
                     for (byte b : bytes) {
                         stream.write(toHexChar(b >>> 4));
@@ -147,13 +148,13 @@ public class I2cChannel extends ZscriptChannel implements SimulatorConsumer<I2cP
     }
 
     @Override
-    public void channelInfo(CommandContext ctx) {
+    public void channelInfo(@Nonnull CommandContext ctx) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void channelSetup(CommandContext ctx) {
+    public void channelSetup(@Nonnull CommandContext ctx) {
         // TODO Auto-generated method stub
 
     }

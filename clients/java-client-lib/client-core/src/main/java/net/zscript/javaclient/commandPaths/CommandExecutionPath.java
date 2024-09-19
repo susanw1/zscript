@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandPaths;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +31,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         return parse(ZscriptModel.standardModel(), start);
     }
 
-    public static CommandExecutionPath parse(ZscriptModel model, ReadToken start) {
+    public static CommandExecutionPath parse(ZscriptModel model, @Nullable ReadToken start) {
         List<CommandBuilder> builders = createLinkedPaths(start);
 
         Map<CommandBuilder, Command> commands = new HashMap<>();
@@ -57,12 +59,12 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
     private final ZscriptModel model;
     private final Command      firstCommand;
 
-    private CommandExecutionPath(ZscriptModel model, Command firstCommand) {
+    private CommandExecutionPath(ZscriptModel model, @Nullable Command firstCommand) {
         this.model = model;
         this.firstCommand = firstCommand;
     }
 
-    private static List<CommandBuilder> createLinkedPaths(ReadToken start) {
+    private static List<CommandBuilder> createLinkedPaths(@Nullable ReadToken start) {
         List<CommandBuilder> builders = new ArrayList<>();
 
         List<CommandBuilder> needSuccessPath = new ArrayList<>();
@@ -299,6 +301,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         return cmds;
     }
 
+    @Nonnull
     public Iterator<Command> iterator() {
         if (firstCommand == null) {
             return Collections.emptyListIterator();
@@ -308,6 +311,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
             Iterator<Command> toVisit = Set.of(firstCommand).iterator();
             Set<Command> next = new HashSet<>();
 
+            @Nonnull
             @Override
             public Optional<Command> next() {
                 while (true) {

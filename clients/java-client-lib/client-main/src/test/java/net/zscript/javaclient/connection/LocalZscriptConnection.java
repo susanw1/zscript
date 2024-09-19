@@ -1,5 +1,6 @@
 package net.zscript.javaclient.connection;
 
+import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -90,24 +91,24 @@ public class LocalZscriptConnection extends RawConnection {
             }
 
             @Override
-            public void channelInfo(CommandContext view) {
+            public void channelInfo(@Nonnull CommandContext view) {
                 view.getOutStream().writeBigFieldQuoted("Basic text channel");
             }
 
             @Override
-            public void channelSetup(CommandContext view) {
+            public void channelSetup(@Nonnull CommandContext view) {
             }
         });
         exec.submit(new ProgressForever(zscript));
     }
 
     @Override
-    public void send(byte[] data) {
+    public void send(@Nonnull byte[] data) {
         exec.submit(() -> dataIn.add(data));
     }
 
     @Override
-    public void onReceiveBytes(Consumer<byte[]> responseHandler) {
+    public void onReceiveBytes(@Nonnull Consumer<byte[]> responseHandler) {
         this.responseHandler = responseHandler;
     }
 

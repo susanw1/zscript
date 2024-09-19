@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandbuilder.defaultCommands;
 
+import javax.annotation.Nonnull;
+
 import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.tokenizer.ZscriptExpression;
@@ -51,11 +53,13 @@ public class BlankCommandNode extends ZscriptCommandNode<DefaultResponse> {
         return false;
     }
 
+    @Nonnull
     @Override
     public DefaultResponse parseResponse(ZscriptExpression response) {
         return new DefaultResponse(response);
     }
 
+    @Nonnull
     @Override
     public Class<DefaultResponse> getResponseType() {
         return DefaultResponse.class;

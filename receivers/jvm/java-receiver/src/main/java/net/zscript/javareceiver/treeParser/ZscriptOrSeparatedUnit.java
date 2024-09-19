@@ -19,7 +19,7 @@ public class ZscriptOrSeparatedUnit implements ZscriptSequenceUnit {
 
     @Override
     public String toString() {
-        return "(" + before.toString() + "|" + after.toString() + ")";
+        return "(" + before + "|" + after + ")";
     }
 
 }

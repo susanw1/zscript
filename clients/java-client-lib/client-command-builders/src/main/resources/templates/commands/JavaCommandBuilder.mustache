@@ -4,6 +4,7 @@ import java.nio.charset.*;
 import java.util.*;
 import java.util.stream.*;
 
+import javax.annotation.*;
 import javax.annotation.processing.Generated;
 
 import static net.zscript.javaclient.commandbuilder.Utils.*;
@@ -13,6 +14,7 @@ import net.zscript.javaclient.commandbuilder.defaultCommands.*;
 import net.zscript.javaclient.commandbuilder.*;
 import net.zscript.javaclient.commandbuilder.commandnodes.*;
 import net.zscript.javaclient.commandbuilder.notifications.*;
+import net.zscript.model.datamodel.*;
 import net.zscript.tokenizer.*;
 import net.zscript.model.components.*;
 
@@ -35,13 +37,12 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
     }
 
     {{! ============ COMMAND PROCESSING ============= }}
-
     /**
-     * Defines the set of all commands defined in the '{{#upperCamel}}{{moduleName}}{{/upperCamel}}' module.
+     * Defines constants for the commands defined in the '{{#upperCamel}}{{moduleName}}{{/upperCamel}}' module. Each command has a CMD field referencing its constant.
      */
     public static enum {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands {
 {{#commands}}
-        /** {{description}} */
+        /** {{description}} ({@link {{#upperCamel}}{{commandName}}Command{{/upperCamel}}.CMD}) */
         {{#upperCamel}}{{commandName}}{{/upperCamel}}({{command}}),
 {{/commands}}
         ;
@@ -49,6 +50,9 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
         private final byte command;
 
         private {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands(int command) {
+            if ((command & ~0xf) != 0) {
+                throw new ZscriptModelException("Invalid command number: " + command);
+            }
             this.command = (byte) command;
         }
 
@@ -72,6 +76,9 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
 
 {{/commands}}
 {{#commands}}
+    /**
+    * Defines the '{{name}}' command: {{description}}
+    */
     public static class {{#upperCamel}}{{commandName}}Command{{/upperCamel}}
             extends ZscriptCommandNode<{{#upperCamel}}{{commandName}}Command{{/upperCamel}}.{{#upperCamel}}{{name}}{{/upperCamel}}Response> {
         public static final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands CMD = {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands.{{#upperCamel}}{{commandName}}{{/upperCamel}};
@@ -80,10 +87,14 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
             super(builder);
         }
 
+        /** Constructs the command object. */
+        @Nonnull
         public static Builder builder() {
             return new Builder();
         }
 
+        /** Identifies the type of the response associated with this command. */
+        @Nonnull
         @Override
         public Class<{{#upperCamel}}{{name}}{{/upperCamel}}Response> getResponseType() {
             return {{#upperCamel}}{{name}}{{/upperCamel}}Response.class;
@@ -94,14 +105,16 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
             return {{#status}}true|{{/status}}{{^status}}false|{{/status}}false;
         }
 
+        /** Constructs the correct response object to this type of command, representing the supplied Zscript response expression. */
+        @Nonnull
         @Override
-        public {{#upperCamel}}{{name}}Response{{/upperCamel}} parseResponse(ZscriptExpression resp) {
+        public {{#upperCamel}}{{name}}Response{{/upperCamel}} parseResponse(@Nonnull ZscriptExpression resp) {
             return new {{#upperCamel}}{{name}}Response{{/upperCamel}}(resp);
         }
 
         /**
-         * {{description}}
-         * <p>
+         * Builder for setting fields for: {{description}}
+         * <p/>
          * Command semantics characterized as: {{operation}}.
          */
         public static class Builder extends ZscriptCommandBuilder<{{#upperCamel}}{{name}}{{/upperCamel}}Response> {
@@ -111,6 +124,7 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
                 setField(Zchars.Z_CMD, {{fullCommand}});
             }
 
+            @Nonnull
             @Override
             public {{#upperCamel}}{{commandName}}Command{{/upperCamel}} build() {
                 failIfInvalid();
@@ -118,22 +132,24 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
             }
 
 
-        // +++++++++++++ REQUEST FIELDS +++++++++++++
+            // +++++++++++++ REQUEST FIELDS +++++++++++++
         {{#requestFields}}
             {{>requestField.mustache}}
         {{/requestFields}}
         }
 
-    // +++++++++++++ RESPONSE FIELDS +++++++++++++
-
+        /**
+         * Defines the response to a {{#upperCamel}}{{name}}{{/upperCamel}} command: {{description}}
+         */
         public static class {{#upperCamel}}{{name}}Response{{/upperCamel}} extends ValidatingResponse {
             public {{#upperCamel}}{{name}}Response{{/upperCamel}}(ZscriptExpression response) {
                 super(response, new byte[] { {{#responseFields}}{{#required}}(byte) '{{key}}', {{/required}}{{/responseFields}} });
             }
+
+            // +++++++++++++ RESPONSE FIELDS +++++++++++++
         {{#responseFields}}
             {{>responseField.mustache}}
         {{/responseFields}}
-
         }
     }
 
@@ -146,7 +162,7 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
      */
     public static enum {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications {
         {{#notifications}}
-        /** {{description}} */
+        /** {{description}} ({@link {{#upperCamel}}{{notificationName}}NotificationId{{/upperCamel}}.NTFN}) */
         {{#upperCamel}}{{notificationName}}{{/upperCamel}}({{notification}}),
         {{/notifications}}
         ;
@@ -154,6 +170,9 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
         private final byte notification;
 
         private {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications(int notification) {
+            if ((notification & ~0xf) != 0) {
+                throw new ZscriptModelException("Invalid notification number: " + notification);
+            }
             this.notification = (byte) notification;
         }
 
@@ -172,23 +191,30 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
     public static class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId extends NotificationSectionId<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> {
         private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId id = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId();
 
-        public static {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId {{#lowerCamel}}{{name}}{{/lowerCamel}}NotificationSectionId(){
+        public static {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId {{#lowerCamel}}{{name}}{{/lowerCamel}}NotificationSectionId() {
             return id;
         }
-        public static {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId get(){
+
+        @Nonnull
+        public static {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId get() {
             return id;
         }
-        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId(){
+
+        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId() {
         }
     }
+
     public static class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSection extends NotificationSection<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> {
+        @Nonnull
         @Override
-        public Class<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> getResponseType(){
+        public Class<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> getResponseType() {
             return {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent.class;
         }
 
+        /** Constructs the correct notification object, representing the supplied Zscript response expression. */
+        @Nonnull
         @Override
-        public {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent parseResponse(ZscriptExpression expression){
+        public {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent parseResponse(@Nonnull final ZscriptExpression expression) {
             return new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent(expression);
         }
     }
@@ -205,35 +231,41 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
 
     {{#notifications}}
     /** {{description}} */
-    public static class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId extends NotificationId<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle>{
+    public static class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId extends NotificationId<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle> {
         public static final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications NTFN = {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications.{{#upperCamel}}{{notificationName}}{{/upperCamel}};
-        private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId id = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId();
+        private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId ID = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId();
 
-        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId(){}
+        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId() {}
 
-        public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId {{#lowerCamel}}{{notificationName}}{{/lowerCamel}}NotificationId(){
-            return id;
+        @Nonnull
+        public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId {{#lowerCamel}}{{notificationName}}{{/lowerCamel}}NotificationId() {
+            return ID;
         }
-        public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId get(){
-            return id;
+
+        @Nonnull
+        public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId get() {
+            return ID;
         }
 
         @Override
-        public int getId(){
+        public int getId() {
             return (MODULE_ID << 4) | (int) NTFN.getNotification();
         }
 
+        @Nonnull
         @Override
-        public Class<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle> getHandleType(){
+        public Class<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle> getHandleType() {
             return {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle.class;
         }
 
+        @Nonnull
         @Override
-        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle newHandle(){
+        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle newHandle() {
             return new {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle();
         }
     }
-    public static class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle extends NotificationHandle{
+
+    public static class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle extends NotificationHandle {
         private final LinkedHashMap<NotificationSectionId<?>, NotificationSection<?>> sections = new LinkedHashMap<>();
 
         public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle() {
@@ -243,10 +275,14 @@ public class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
         {{/section}}
         {{/sections}}
         }
+
+        @Nonnull
         @Override
-        public <T extends ZscriptResponse> NotificationSection<T> getSection(NotificationSectionId<T> response) {
+        public <T extends ZscriptResponse> NotificationSection<T> getSection(@Nonnull NotificationSectionId<T> response) {
             return (NotificationSection<T>) sections.get(response);
         }
+
+        @Nonnull
         @Override
         public List<NotificationSection<?>> getSections() {
             return new ArrayList<>(sections.values());

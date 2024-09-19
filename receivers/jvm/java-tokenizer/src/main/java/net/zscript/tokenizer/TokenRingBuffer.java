@@ -1,5 +1,7 @@
 package net.zscript.tokenizer;
 
+import javax.annotation.Nonnull;
+
 import static java.lang.String.format;
 
 /**
@@ -16,6 +18,7 @@ public class TokenRingBuffer extends AbstractArrayTokenBuffer {
      */
     private static final int MAX_RING_BUFFER_SIZE = 0x1_0000;
 
+    @Nonnull
     public static TokenRingBuffer createBufferWithCapacity(final int sz) {
         return new TokenRingBuffer(sz);
     }

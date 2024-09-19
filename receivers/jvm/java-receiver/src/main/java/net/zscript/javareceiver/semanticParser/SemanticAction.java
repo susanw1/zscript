@@ -1,5 +1,7 @@
 package net.zscript.javareceiver.semanticParser;
 
+import javax.annotation.Nonnull;
+
 import net.zscript.javareceiver.core.CommandOutStream;
 import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
@@ -105,9 +107,7 @@ public class SemanticAction implements ZscriptAction {
             break;
         case INVALID:
             throw new IllegalStateException();
-
         }
-
     }
 
     private void startResponse(SequenceOutStream out, byte respType) {
@@ -156,6 +156,7 @@ public class SemanticAction implements ZscriptAction {
     }
 
     // visible for testing
+    @Nonnull
     ActionType getType() {
         return type;
     }

@@ -1,16 +1,15 @@
 package net.zscript.demo.morse;
 
-import static net.zscript.model.modules.base.PinsModule.DigitalNotificationSectionContent.Value;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static net.zscript.model.modules.base.PinsModule.DigitalNotificationSectionContent.Value;
+
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
 import net.zscript.javaclient.devices.Device;
-import net.zscript.model.modules.base.CoreModule;
 import net.zscript.model.modules.base.OuterCoreModule;
 import net.zscript.model.modules.base.PinsModule;
 import net.zscript.model.modules.base.PinsModule.DigitalSetupCommand.Builder.Mode;

@@ -1,6 +1,6 @@
 package net.zscript.ascii;
 
-import java.util.Iterator;
+import javax.annotation.Nonnull;
 
 public interface AsciiFrame extends Iterable<TextRow> {
 
@@ -10,6 +10,7 @@ public interface AsciiFrame extends Iterable<TextRow> {
 
     boolean setWidth(int width);
 
+    @Nonnull
     default String generateString(CharacterStylePrinter printer) {
         StringBuilder b = new StringBuilder();
         for (TextRow row : this) {

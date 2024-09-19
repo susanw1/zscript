@@ -1,5 +1,7 @@
 package net.zscript.ascii;
 
+import javax.annotation.Nonnull;
+
 public class AnsiCharacterStylePrinter implements CharacterStylePrinter {
     public static final String ANSI_RESET = "\u001B[0";
     public static final String ANSI_BOLD  = "\u001B[1";
@@ -19,6 +21,7 @@ public class AnsiCharacterStylePrinter implements CharacterStylePrinter {
 
     public static final String ANSI_END_ESCAPE = "m";
 
+    @Nonnull
     private String getAnsiFromColor(TextColor color) {
         switch (color) {
         case BLACK:
@@ -44,6 +47,7 @@ public class AnsiCharacterStylePrinter implements CharacterStylePrinter {
         }
     }
 
+    @Nonnull
     @Override
     public String apply(CharacterStyle style) {
         String result = "";
@@ -59,6 +63,7 @@ public class AnsiCharacterStylePrinter implements CharacterStylePrinter {
         return result;
     }
 
+    @Nonnull
     @Override
     public String applyDiff(CharacterStyle prev, CharacterStyle next) {
         if (prev.isBold() && !next.isBold()) {
@@ -77,6 +82,7 @@ public class AnsiCharacterStylePrinter implements CharacterStylePrinter {
         return result;
     }
 
+    @Nonnull
     @Override
     public String cancel(CharacterStyle style) {
         if (style.isBold()) {

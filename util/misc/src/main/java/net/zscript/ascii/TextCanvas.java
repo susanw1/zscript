@@ -1,9 +1,8 @@
 package net.zscript.ascii;
 
-import java.util.ArrayList;
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 public class TextCanvas implements AsciiFrame {
 
@@ -360,9 +359,10 @@ public class TextCanvas implements AsciiFrame {
         element.apply();
     }
 
+    @Nonnull
     @Override
     public Iterator<TextRow> iterator() {
-        return new Iterator<TextRow>() {
+        return new Iterator<>() {
             private int vertPos = 0;
 
             @Override

@@ -1,5 +1,6 @@
 package net.zscript.javaclient.commandbuilder.commandnodes;
 
+import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -113,6 +114,7 @@ public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode
 
     public abstract List<CommandSequenceNode> getChildren();
 
+    @Nonnull
     @Override
     public Iterator<ZscriptCommandNode<?>> iterator() {
         if (this instanceof ZscriptCommandNode) {
