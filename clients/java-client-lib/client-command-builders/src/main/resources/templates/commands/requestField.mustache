@@ -55,12 +55,12 @@
             /**
              * Conditionally sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
-             * @param set       if true, then set the field; otherwise, ignore it
+             * @param condition if true, then set the field; otherwise, ignore it
              * @param value     the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set
              * @return this builder, to facilitate method chaining
              */
-            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}(final boolean set, @Nonnull final {{#upperCamel}}{{name}}{{/upperCamel}} value) {
-                return set ? set{{#upperCamel}}{{name}}{{/upperCamel}}(value) : this;
+            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}If(final boolean condition, @Nonnull final {{#upperCamel}}{{name}}{{/upperCamel}} value) {
+                return condition ? set{{#upperCamel}}{{name}}{{/upperCamel}}(value) : this;
             }
             {{/required}}
                             {{/enumType}}
@@ -91,12 +91,12 @@
             /**
              * Conditionally sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
-             * @param set       if true, then set the field; otherwise, ignore
+             * @param condition if true, then set the field; otherwise, ignore
              * @param value     the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set
              * @return this builder, to facilitate method chaining
              */
-            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}(final boolean set, final int value) {
-                return set ? set{{#upperCamel}}{{name}}{{/upperCamel}}(value) : this;
+            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}If(final boolean condition, final int value) {
+                return condition ? set{{#upperCamel}}{{name}}{{/upperCamel}}(value) : this;
             }
             {{/required}}
                             {{/numberType}}
@@ -115,11 +115,11 @@
             /**
              * Sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}}' field: {{description}}
              *
-             * @param set       if true, then set the field; otherwise, ignore it
+             * @param condition   if true, then set the field; otherwise, ignore it
              * @return this builder, to facilitate method chaining
              */
-            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}(final boolean set) {
-                return set ? set{{#upperCamel}}{{name}}{{/upperCamel}}() : this;
+            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}If(final boolean condition) {
+                return condition ? set{{#upperCamel}}{{name}}{{/upperCamel}}() : this;
             }
 
             {{/flagType}}
@@ -205,12 +205,12 @@
              * <p/>
              * If 'set' is true, then this ORs the supplied bit onto the field's existing value - it does NOT overwrite.
              *
-             * @param set       if true, then set the field; otherwise, ignore it
+             * @param condition if true, then set the field; otherwise, ignore it
              * @param value     the {{#lowerCamel}}{{name}}{{/lowerCamel}} to set
              * @return this builder, to facilitate method chaining
              */
-            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}(final boolean set, @Nonnull final {{#upperCamel}}{{name}}{{/upperCamel}} value) {
-                return set ? set{{#upperCamel}}{{name}}{{/upperCamel}}(value) : this;
+            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}If(final boolean condition, @Nonnull final {{#upperCamel}}{{name}}{{/upperCamel}} value) {
+                return condition ? set{{#upperCamel}}{{name}}{{/upperCamel}}(value) : this;
             }
             {{/required}}
                         {{/bitsetType}}
@@ -273,12 +273,12 @@
              * <p/>
              * The string is encoded as UTF-8.
              *
-             * @param set       if true, then set the field; otherwise, ignore it
+             * @param condition if true, then set the field; otherwise, ignore it
              * @param text      the text to append, if present
              * @return this builder, to facilitate method chaining
              */
-            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}(final boolean set, @Nonnull final String text) {
-                return set ? set{{#upperCamel}}{{name}}{{/upperCamel}}(text) : this;
+            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}If(final boolean condition, @Nonnull final String text) {
+                return condition ? set{{#upperCamel}}{{name}}{{/upperCamel}}(text) : this;
             }
 
             {{/required}}
@@ -340,12 +340,12 @@
              * <p/>
              * The string is encoded as UTF-8.
              *
-             * @param set       if true, then set the field; otherwise, ignore it
+             * @param condition if true, then set the field; otherwise, ignore
              * @param bytes     the bytes to append, if present
              * @return this builder, to facilitate method chaining
              */
-            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}(final boolean set, @Nonnull final byte[] bytes) {
-                return set ? set{{#upperCamel}}{{name}}{{/upperCamel}}(bytes) : this;
+            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}If(final boolean condition, @Nonnull final byte[] bytes) {
+                return condition ? set{{#upperCamel}}{{name}}{{/upperCamel}}(bytes) : this;
             }
             {{/required}}
         {{/bytesType}}
@@ -377,13 +377,13 @@
             /**
              * Conditionally sets the '{{#lowerCamel}}{{name}}{{/lowerCamel}} field: {{description}}
              *
-             * @param set    if true, then set the field; otherwise, ignore
-             * @param key    the key to set, 'A'-'Z'
-             * @param value  the numerical value
+             * @param condition if true, then set the field; otherwise, ignore
+             * @param key       the key to set, 'A'-'Z'
+             * @param value     the numerical value
              * @return this builder, to facilitate method chaining
              */
-            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}(final boolean set, final char key, final int value) {
-                return set ? set{{#upperCamel}}{{name}}{{/upperCamel}}(key, value) : this;
+            public Builder set{{#upperCamel}}{{name}}{{/upperCamel}}If(final boolean condition, final char key, final int value) {
+                return condition ? set{{#upperCamel}}{{name}}{{/upperCamel}}(key, value) : this;
             }
         {{/required}}
     {{/anyType}}

@@ -106,10 +106,10 @@ public class JavaCommandBuilderBuildTest {
     @Test
     void shouldCreateCommandWithConditionalFieldsTrue() {
         ZscriptCommandBuilder<?> b1 = TestingModule.testCommand0Builder()
-                .setEnumReqTestB(true, Rabbit)
-                .setNumberReqTestD(false, 0x21a)
-                .setBitsetReqTestF(true, GreekFeta)
-                .setBitsetReqTestF(false, Cheddar)
+                .setEnumReqTestBIf(true, Rabbit)
+                .setNumberReqTestDIf(false, 0x21a)
+                .setBitsetReqTestFIf(true, GreekFeta)
+                .setBitsetReqTestFIf(false, Cheddar)
 
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
@@ -117,10 +117,10 @@ public class JavaCommandBuilderBuildTest {
         assertThat(build(b1)).isEqualTo("A2BC23E1F4Z");
 
         ZscriptCommandBuilder<?> b2 = TestingModule.testCommand0Builder()
-                .setEnumReqTestB(false, Rabbit)
-                .setNumberReqTestD(true, 0x21a)
-                .setBitsetReqTestF(false, GreekFeta)
-                .setBitsetReqTestF(true, Cheddar)
+                .setEnumReqTestBIf(false, Rabbit)
+                .setNumberReqTestDIf(true, 0x21a)
+                .setBitsetReqTestFIf(false, GreekFeta)
+                .setBitsetReqTestFIf(true, Cheddar)
 
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
