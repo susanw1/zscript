@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>client-core</artifactId>
+    <artifactId>zscript-java-client-core</artifactId>
     <name>Java Client Core</name>
 
 </project>

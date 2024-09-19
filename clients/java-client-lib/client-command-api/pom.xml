@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>net.zscript</groupId>
-            <artifactId>client-core</artifactId>
+            <artifactId>zscript-java-client-core</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
