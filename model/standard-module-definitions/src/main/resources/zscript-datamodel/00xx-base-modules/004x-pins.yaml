@@ -12,7 +12,7 @@ commands:
     responseFields:
     -   key: C
         name: commandsSet
-        description: which commands are enabled in the I2C module
+        description: which commands are enabled in the Pins module
         typeDefinition:
             '@type': commands
         required: yes

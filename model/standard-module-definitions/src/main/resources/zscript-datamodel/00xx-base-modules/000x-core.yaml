@@ -23,13 +23,13 @@ commands:
     responseFields:
     -   key: C
         name: commandsSet
-        description: which commands are enabled in this module
+        description: which commands are enabled in the Core module
         typeDefinition:
             '@type': commands
         required: yes
     -   key: M
         name: modulesBankSet
-        description: which modules present in this bank (ie given 00mc, return m)
+        description: which modules are present in this bank (ie given 00mc, return m)
         typeDefinition:
             '@type': modules
         required: yes
