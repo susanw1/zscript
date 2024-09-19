@@ -8,22 +8,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-class ExpandableByteBufferTest {
+class ExpandableBufferTest {
     @Test
     public void shouldCollectCorrectly() {
-        ExpandableByteBuffer e = new ExpandableByteBuffer(128);
+        ExpandableBuffer e = new ExpandableBuffer(128);
         addAndCheck(e);
         assertThat(e.getCapacity()).isEqualTo(128);
     }
 
     @Test
     public void shouldExpandCorrectly() {
-        ExpandableByteBuffer e = new ExpandableByteBuffer(1);
+        ExpandableBuffer e = new ExpandableBuffer(1);
         addAndCheck(e);
         assertThat(e.getCapacity()).isEqualTo(8);
     }
 
-    private static void addAndCheck(ExpandableByteBuffer e) {
+    private static void addAndCheck(ExpandableBuffer e) {
         e.addByte((byte) 'a');
         assertThat(e.getCount()).isEqualTo(1);
         e.addByte((byte) 'b');
@@ -37,7 +37,7 @@ class ExpandableByteBufferTest {
 
     @Test
     public void shouldProduceUtfStrings() {
-        ExpandableByteBuffer e = new ExpandableByteBuffer(1);
+        ExpandableBuffer e = new ExpandableBuffer(1);
         e.addBytes("x £5 y".getBytes(StandardCharsets.UTF_8), 0, 7);
         assertThat(e.getCount()).isEqualTo(7);
         assertThat(e.asString()).isEqualTo("x £5 y");
@@ -46,7 +46,7 @@ class ExpandableByteBufferTest {
 
     @Test
     public void shouldWriteToStreams() throws IOException {
-        ExpandableByteBuffer e = new ExpandableByteBuffer(1);
+        ExpandableBuffer e = new ExpandableBuffer(1);
         e.addBytes("abc".getBytes(StandardCharsets.UTF_8), 0, 3);
         ByteArrayOutputStream s = new ByteArrayOutputStream();
         e.writeTo(s);

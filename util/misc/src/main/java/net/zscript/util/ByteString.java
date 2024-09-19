@@ -305,7 +305,7 @@ public final class ByteString implements Iterable<Byte> {
     public static final class ByteStringBuilder {
         private static final byte[] HEX = "0123456789abcdef".getBytes(UTF_8);
 
-        private final ExpandableByteBuffer buffer = new ExpandableByteBuffer(128);
+        private final ExpandableBuffer buffer = new ExpandableBuffer(128);
 
         /**
          * Writes the current contents of the builder to the specified OutputStream.

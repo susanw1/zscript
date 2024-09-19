@@ -288,12 +288,6 @@ public class TextBox implements AsciiFrame {
     }
 
     @Nonnull
-    public TextBox append(StringBuffer sb) {
-        builder.append(sb);
-        return this;
-    }
-
-    @Nonnull
     public TextBox append(CharSequence s) {
         builder.append(s);
         return this;
