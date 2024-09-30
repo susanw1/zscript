@@ -200,4 +200,48 @@ commands:
             '@type': bytes
         required: no
 
-notifications: [ ]
+notifications:
+-   name: testNtfA
+    notification: 0
+    description: looks like a real notification, for testing
+    condition: something happens
+    sections:
+    -   section: &section_first
+            name: expr1
+            description: first expression
+            fields:
+            -   key: D
+                name: testNtfARespDField1
+                description: tomato
+                typeDefinition:
+                    '@type': number
+                required: yes
+            -   key: L
+                name: testNtfARespLField2
+                description: radish
+                typeDefinition:
+                    '@type': number
+                required: yes
+
+-   name: testNtfB
+    notification: 1
+    description: looks like another real notification, for testing
+    condition: something else happens
+    sections:
+    -   section: *section_first
+    -   section:
+            name: expr2
+            description: second expression
+            fields:
+            -   key: X
+                name: testNtfBRespXField1
+                description: lettuce
+                typeDefinition:
+                    '@type': number
+                required: yes
+            -   key: Y
+                name: testNtfBRespYField2
+                description: kale
+                typeDefinition:
+                    '@type': text
+                required: no

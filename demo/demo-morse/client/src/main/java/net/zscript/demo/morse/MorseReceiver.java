@@ -40,7 +40,9 @@ public class MorseReceiver {
         try {
             lastTimeNano = System.nanoTime();
             ResponseCaptor<PinsModule.DigitalNotificationSectionContent> captor = ResponseCaptor.create();
-            device.getNotificationHandle(PinsModule.DigitalNotificationId.get()).getSection(PinsModule.DigitalNotificationSectionId.get()).setCaptor(captor);
+            device.getNotificationHandle(PinsModule.DigitalNotificationId.get())
+                    .getSection(PinsModule.DigitalNotificationSectionId.get())
+                    .setCaptor(captor);
             device.setNotificationListener(PinsModule.DigitalNotificationId.get(), notificationSequenceCallback -> {
                 PinsModule.DigitalNotificationSectionContent content = notificationSequenceCallback.getResponseFor(captor).get();
 

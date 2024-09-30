@@ -95,6 +95,7 @@ public class NotificationSequenceCallback {
 
     @Nonnull
     public <T extends ZscriptResponse> Optional<T> getResponseFor(ResponseCaptor<T> captor) {
+        // FIXME: ensure source can't be null!
         return getResponseFor((NotificationSection<T>) captor.getSource()).map(r -> ((NotificationSection<T>) captor.getSource()).getResponseType().cast(r));
     }
 }

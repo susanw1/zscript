@@ -9,6 +9,8 @@ import javax.annotation.processing.Generated;
 
 import static net.zscript.javaclient.commandbuilder.Utils.*;
 
+import net.zscript.javaclient.commandPaths.*;
+import net.zscript.javaclient.commandbuilder.commandnodes.*;
 import net.zscript.javaclient.commandbuilder.commandnodes.*;
 import net.zscript.javaclient.commandbuilder.defaultCommands.*;
 import net.zscript.javaclient.commandbuilder.*;
@@ -192,5 +194,6 @@ public final class {{#upperCamel}}{{moduleName}}{{/upperCamel}}Module {
     {{! ============ NOTIFICATION PROCESSING ============= }}
 
     // +++++++++++++ NOTIFICATIONS +++++++++++++
+
     {{>notifications.mustache}}
 }

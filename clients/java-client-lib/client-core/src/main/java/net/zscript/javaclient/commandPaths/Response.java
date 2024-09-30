@@ -6,7 +6,7 @@ import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class Response implements ByteAppendable {
+public final class Response implements ByteAppendable {
     private final ZscriptFieldSet fieldSet;
 
     private final Response next;

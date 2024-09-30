@@ -1,7 +1,8 @@
-// Individual Notification Sections
+// Individual Notification Sections, to be grouped into actual notifications. Processed separately from the actual notifications, because many Sections are
+// replicated identically across multiple notifications, and would otherwise create pointless duplicates.
 
 {{#notificationSections}}
-    /** {{description}} */
+    /** Singleton identifier for specific notification section: {{description}} */
     public static final class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId extends NotificationSectionId<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> {
         private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId ID = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId();
 
@@ -16,6 +17,7 @@
         }
 
         private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId() {
+            // prevent instantiation
         }
     }
 
@@ -34,24 +36,33 @@
         }
     }
 
+    /** Response wrapper for this section of the Notification, with accessors for the fields. */
     public static final class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent extends ValidatingResponse {
-        public {{#upperCamel}}{{name}}NotificationSectionContent{{/upperCamel}}(ZscriptExpression response) {
-            super(response, new byte[] { {{#responseFields}}{{#required}}(byte) '{{key}}', {{/required}}{{/responseFields}} });
+        /** Constructs the notification object, representing the supplied Zscript response expression. */
+        public {{#upperCamel}}{{name}}NotificationSectionContent{{/upperCamel}}(@Nonnull ZscriptExpression response) {
+            super(response, new byte[] { {{#fields}}{{#required}}(byte) '{{key}}', {{/required}}{{/fields}} });
         }
+
+        // Notification section field accessors
+
         {{#fields}}
-        {{>responseField.mustache}}
+            {{>responseField.mustache}}
         {{/fields}}
     }
-    {{/notificationSections}}
 
+{{/notificationSections}}
 
-    {{#notifications}}
-    /** {{description}} */
+// Notification-level classes.
+
+{{#notifications}}
+    /** Singleton identifier for the {{notificationName}} notification: {{description}} */
     public static final class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId extends NotificationId<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle> {
         public static final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications NTFN = {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications.{{#upperCamel}}{{notificationName}}{{/upperCamel}};
         private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId ID = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId();
 
-        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId() {}
+        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId() {
+            // prevent instantiation
+        }
 
         @Nonnull
         public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId {{#lowerCamel}}{{notificationName}}{{/lowerCamel}}NotificationId() {
@@ -81,6 +92,7 @@
         }
     }
 
+    /** Handle for {{#upperCamel}}{{notificationName}}{{/upperCamel}} Notifications, referencing the sections within. */
     public static final class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle extends NotificationHandle {
         private final LinkedHashMap<NotificationSectionId<?>, NotificationSection<?>> sections = new LinkedHashMap<>();
 
@@ -105,4 +117,4 @@
         }
     }
 
-    {{/notifications}}
+{{/notifications}}

@@ -1,15 +1,12 @@
 package net.zscript.javaclient.commandbuilder;
 
-import static java.lang.String.format;
-
 public class ZscriptMissingFieldException extends ZscriptClientException {
 
     public ZscriptMissingFieldException(String format, Object... params) {
-        super(format(format, params));
+        super(format, params);
     }
 
-    public ZscriptMissingFieldException(String msg, Exception e) {
-        super(msg, e);
+    public ZscriptMissingFieldException(String format, Exception cause, Object... params) {
+        super(format, cause, params);
     }
-
 }
