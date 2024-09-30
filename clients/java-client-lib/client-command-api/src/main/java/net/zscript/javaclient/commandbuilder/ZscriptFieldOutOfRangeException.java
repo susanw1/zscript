@@ -1,14 +1,12 @@
 package net.zscript.javaclient.commandbuilder;
 
-import static java.lang.String.format;
-
 public class ZscriptFieldOutOfRangeException extends ZscriptClientException {
 
     public ZscriptFieldOutOfRangeException(String format, Object... params) {
-        super(format(format, params));
+        super(format, params);
     }
 
-    public ZscriptFieldOutOfRangeException(String msg, Exception e) {
-        super(msg, e);
+    public ZscriptFieldOutOfRangeException(String format, Exception e, Object... params) {
+        super(format, e, params);
     }
 }

@@ -281,8 +281,9 @@ public class MorseFullCli implements Callable<Integer> {
             throws InterruptedException {
         ResponseCaptor<PinsModule.CapabilitiesCommand.CapabilitiesResponse> captor = ResponseCaptor.create();
 
-        int pinCount = device.sendAndWaitExpectSuccess(
-                PinsModule.capabilitiesBuilder().capture(captor).build()).getResponseFor(captor).orElseThrow().getPinCount();
+        int pinCount = device.sendAndWaitExpectSuccess(PinsModule.capabilitiesBuilder().capture(captor).build())
+                .getResponseFor(captor)
+                .orElseThrow().getPinCount();
         System.out.println(name + " has " + pinCount + " pins");
         Set<Integer> pinsSupporting = new HashSet<>();
         // assemble a big command sequence to check pins in batches...
