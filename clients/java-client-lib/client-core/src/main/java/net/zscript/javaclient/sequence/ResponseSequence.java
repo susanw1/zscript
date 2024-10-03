@@ -9,7 +9,7 @@ import net.zscript.tokenizer.TokenBufferIterator;
 import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class ResponseSequence implements ByteAppendable {
+public final class ResponseSequence implements ByteAppendable {
     private final ResponseExecutionPath executionPath;
 
     private final int     echoField;

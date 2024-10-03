@@ -43,7 +43,7 @@ public class JavaCommandBuilderNotificationTest {
 
         final TestingModule.TestNtfBNotificationHandle handle = TestingModule.TestNtfBNotificationId.get().newHandle();
 
-        final CompleteAddressedResponse car = CompleteAddressedResponse.parse(buffer.getTokenReader());
+        final CompleteAddressedResponse car = CompleteAddressedResponse.parse(tokenReader);
         assertThat(car.asResponse().hasAddress()).isFalse();
         assertThat(car.getContent().getResponseValue()).isEqualTo(0x234);
 

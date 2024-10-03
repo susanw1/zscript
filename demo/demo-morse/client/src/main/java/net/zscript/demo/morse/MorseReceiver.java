@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import static net.zscript.model.modules.base.PinsModule.DigitalNotificationSectionContent.Value;
 
-import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
 import net.zscript.javaclient.devices.Device;
 import net.zscript.model.modules.base.OuterCoreModule;
 import net.zscript.model.modules.base.PinsModule;
@@ -39,12 +38,18 @@ public class MorseReceiver {
     public void startReceiving() {
         try {
             lastTimeNano = System.nanoTime();
-            ResponseCaptor<PinsModule.DigitalNotificationSectionContent> captor = ResponseCaptor.create();
-            device.getNotificationHandle(PinsModule.DigitalNotificationId.get())
-                    .getSection(PinsModule.DigitalNotificationSectionId.get())
-                    .setCaptor(captor);
-            device.setNotificationListener(PinsModule.DigitalNotificationId.get(), notificationSequenceCallback -> {
-                PinsModule.DigitalNotificationSectionContent content = notificationSequenceCallback.getResponseFor(captor).get();
+
+            // // Older notification registration system, using Captors.
+            //            ResponseCaptor<PinsModule.DigitalNotificationSectionContent> captor = ResponseCaptor.create();
+            //            device.getNotificationHandle(PinsModule.DigitalNotificationId.get())
+            //                    .getSection(PinsModule.DigitalNotificationSectionId.get())
+            //                    .setCaptor(captor);
+            //            device.setNotificationListener_Prev(PinsModule.DigitalNotificationId.get(), notificationSequenceCallback -> {
+            //                PinsModule.DigitalNotificationSectionContent content = notificationSequenceCallback.getResponseFor(captor).get();
+            //            });
+
+            device.setNotificationListener(PinsModule.DigitalNotificationId.get(), n -> {
+                PinsModule.DigitalNotificationSectionContent content = n.getDigitalSection();
 
                 long   current = System.nanoTime();
                 double time    = (current - lastTimeNano) / 1000.0 / ditPeriodMaxUs;
@@ -75,8 +80,14 @@ public class MorseReceiver {
                 }
                 lastTimeNano = current;
             });
-            device.sendAndWaitExpectSuccess(OuterCoreModule.channelSetupBuilder().setAssignNotification().build());
-            device.sendAndWaitExpectSuccess(PinsModule.digitalSetupBuilder().setPin(pin).setMode(Mode.Input).setNotificationMode(NotificationMode.OnChange).build());
+            device.sendAndWaitExpectSuccess(OuterCoreModule.channelSetupBuilder()
+                    .setAssignNotification()
+                    .build());
+            device.sendAndWaitExpectSuccess(PinsModule.digitalSetupBuilder()
+                    .setPin(pin)
+                    .setMode(Mode.Input).
+                    setNotificationMode(NotificationMode.OnChange)
+                    .build());
             exec.scheduleAtFixedRate(this::checkReceive, 100000, ditPeriodMaxUs * 4, TimeUnit.MICROSECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
