@@ -1,5 +1,6 @@
-// Individual Notification Sections, to be grouped into actual notifications. Processed separately from the actual notifications, because many Sections are
-// replicated identically across multiple notifications, and would otherwise create pointless duplicates.
+
+    // Individual Notification Sections, to be grouped into actual notifications. Processed separately from the actual notifications, because many Sections are
+    // replicated identically across multiple notifications, and would otherwise create pointless duplicates.
 
 {{#notificationSections}}
     /** Singleton identifier for specific notification section: {{description}} */
@@ -44,7 +45,6 @@
         }
 
         // Notification section field accessors
-
         {{#fields}}
             {{>responseField.mustache}}
         {{/fields}}
@@ -52,7 +52,7 @@
 
 {{/notificationSections}}
 
-// Notification-level classes.
+    // Notification-level classes.
 
 {{#notifications}}
     /** Singleton identifier for the {{notificationName}} notification: {{description}} */
@@ -93,8 +93,8 @@
     }
 
     /** Handle for {{#upperCamel}}{{notificationName}}{{/upperCamel}} Notifications, referencing the sections within. */
-    public static final class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle extends NotificationHandle {
-        private final LinkedHashMap<NotificationSectionId<?>, NotificationSection<?>> sections = new LinkedHashMap<>();
+    public static final class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle extends NotificationHandle<{{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification> {
+        private final Map<NotificationSectionId<?>, NotificationSection<?>> sections = new LinkedHashMap<>();
 
         public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle() {
             {{#sections}}
@@ -115,6 +115,38 @@
         public List<NotificationSection<?>> getSections() {
             return new ArrayList<>(sections.values());
         }
+
+        @Nonnull
+        @Override
+        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification createNotification(@Nonnull final ResponseExecutionPath responsePath) {
+            return new {{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification(this, responsePath);
+        }
     }
 
+    /** Notification object for {{#upperCamel}}{{notificationName}}{{/upperCamel}}, with section accessors. */
+    public static final class {{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification implements Notification {
+        {{#sections}}
+            {{#section}}
+        private final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent {{#lowerCamel}}{{name}}{{/lowerCamel}};
+            {{/section}}
+        {{/sections}}
+
+        {{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification(final {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle handle, final ResponseExecutionPath responsePath) {
+            Iterator<ZscriptResponse> responseIterator = handle.buildNotificationContent(responsePath).iterator();
+
+        {{#sections}}
+            {{#section}}
+            {{#lowerCamel}}{{name}}{{/lowerCamel}} = ({{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent) responseIterator.next();
+            {{/section}}
+        {{/sections}}
+        }
+
+        {{#sections}}
+            {{#section}}
+        public {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent get{{#upperCamel}}{{name}}{{/upperCamel}}Section() {
+            return {{#lowerCamel}}{{name}}{{/lowerCamel}};
+        }
+            {{/section}}
+        {{/sections}}
+    }
 {{/notifications}}

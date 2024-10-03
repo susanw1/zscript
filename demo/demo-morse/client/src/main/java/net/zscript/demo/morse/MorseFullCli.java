@@ -138,13 +138,20 @@ public class MorseFullCli implements Callable<Integer> {
         if (target != -1) {
             // Find the channel index for the current channel
             ResponseCaptor<CoreModule.ChannelInfoCommand.ChannelInfoResponse> infoResp = ResponseCaptor.create();
-            int currentChannelIndex = device.sendAndWaitExpectSuccess(
-                    CoreModule.channelInfoBuilder().capture(infoResp).build()).getResponseFor(infoResp).orElseThrow().getCurrentChannel();
+            int currentChannelIndex = device.sendAndWaitExpectSuccess(CoreModule.channelInfoBuilder()
+                            .capture(infoResp)
+                            .build())
+                    .getResponseFor(infoResp).orElseThrow()
+                    .getCurrentChannel();
 
             // get the detailed info on the current channel
             ResponseCaptor<UartModule.ChannelInfoCommand.ChannelInfoResponse> uartInfo = ResponseCaptor.create();
-            UartModule.ChannelInfoCommand.ChannelInfoResponse resp = device.sendAndWaitExpectSuccess(
-                    UartModule.channelInfoBuilder().setChannel(currentChannelIndex).capture(uartInfo).build()).getResponseFor(uartInfo).orElseThrow();
+            UartModule.ChannelInfoCommand.ChannelInfoResponse resp = device.sendAndWaitExpectSuccess(UartModule.channelInfoBuilder()
+                            .setChannel(currentChannelIndex)
+                            .capture(uartInfo)
+                            .build())
+                    .getResponseFor(uartInfo).orElseThrow();
+
             if (resp.getBitsetCapabilities().contains(UartModule.ChannelInfoCommand.ChannelInfoResponse.BitsetCapabilities.ArbitraryFrequency)) {
                 // if the channel supports free baud rate setting, use that to set the desired baud rate
                 return setBaudArbitrary(port, device, target, name, resp, currentChannelIndex);
@@ -173,9 +180,13 @@ public class MorseFullCli implements Callable<Integer> {
         boolean             hasFound = false;
         for (int i = 0; i < resp.getFrequenciesSupported().orElseThrow(); i++) {
             ResponseCaptor<UartModule.ChannelInfoCommand.ChannelInfoResponse> captor = ResponseCaptor.create();
-            node = node.andThen(UartModule.channelInfoBuilder().setChannel(currentChannelIndex).setFrequencySelection(i).capture(captor).build());
+            node = node.andThen(UartModule.channelInfoBuilder()
+                    .setChannel(currentChannelIndex)
+                    .setFrequencySelection(i).capture(captor)
+                    .build());
             captors.add(captor);
         }
+
         ResponseSequenceCallback result = device.sendAndWaitExpectSuccess(node);
         // iterate the frequency options looking for an exact match
         for (int i = 0; i < resp.getFrequenciesSupported().orElseThrow(); i++) {
@@ -184,7 +195,10 @@ public class MorseFullCli implements Callable<Integer> {
             int baudInt = parseBaud(respEach.getBaudRate());
             if (baudInt == target) {
                 hasFound = true;
-                device.sendAndWaitExpectSuccess(UartModule.channelSetupBuilder().setChannel(currentChannelIndex).setFrequencySelection(i).build());
+                device.sendAndWaitExpectSuccess(UartModule.channelSetupBuilder()
+                        .setChannel(currentChannelIndex)
+                        .setFrequencySelection(i)
+                        .build());
                 port.setBaudRate(target);
                 break;
             }
@@ -206,7 +220,11 @@ public class MorseFullCli implements Callable<Integer> {
         // send all the get commands in one batch, for fun
         for (int i = 0; i < resp.getFrequenciesSupported().orElseThrow(); i++) {
             ResponseCaptor<UartModule.ChannelInfoCommand.ChannelInfoResponse> captor = ResponseCaptor.create();
-            node = node.andThen(UartModule.channelInfoBuilder().setChannel(currentChannelIndex).setFrequencySelection(i).capture(captor).build());
+            node = node.andThen(UartModule.channelInfoBuilder()
+                    .setChannel(currentChannelIndex)
+                    .setFrequencySelection(i)
+                    .capture(captor)
+                    .build());
             captors.add(captor);
         }
         int[] freqChoices = new int[resp.getFrequenciesSupported().orElseThrow()];
@@ -236,7 +254,11 @@ public class MorseFullCli implements Callable<Integer> {
             return 1;
         }
         // apply chosen frequency
-        device.sendAndWaitExpectSuccess(UartModule.channelSetupBuilder().setChannel(currentChannelIndex).setFrequencySelection(choice).build());
+        device.sendAndWaitExpectSuccess(UartModule.channelSetupBuilder()
+                .setChannel(currentChannelIndex)
+                .setFrequencySelection(choice)
+                .build());
+
         port.setBaudRate(freqChoices[choice]);
         return 0;
     }
@@ -260,7 +282,10 @@ public class MorseFullCli implements Callable<Integer> {
             return 1;
         }
         byte[] baud = new byte[] { (byte) (actualTarget >> 16), (byte) (actualTarget >> 8), (byte) actualTarget };
-        device.sendAndWaitExpectSuccess(UartModule.channelSetupBuilder().setChannel(currentChannelIndex).setBaudRate(baud).build());
+        device.sendAndWaitExpectSuccess(UartModule.channelSetupBuilder()
+                .setChannel(currentChannelIndex)
+                .setBaudRate(baud)
+                .build());
         port.setBaudRate(actualTarget);
         return 0;
     }
@@ -281,9 +306,12 @@ public class MorseFullCli implements Callable<Integer> {
             throws InterruptedException {
         ResponseCaptor<PinsModule.CapabilitiesCommand.CapabilitiesResponse> captor = ResponseCaptor.create();
 
-        int pinCount = device.sendAndWaitExpectSuccess(PinsModule.capabilitiesBuilder().capture(captor).build())
+        int pinCount = device.sendAndWaitExpectSuccess(PinsModule.capabilitiesBuilder()
+                        .capture(captor)
+                        .build())
                 .getResponseFor(captor)
                 .orElseThrow().getPinCount();
+
         System.out.println(name + " has " + pinCount + " pins");
         Set<Integer> pinsSupporting = new HashSet<>();
         // assemble a big command sequence to check pins in batches...
@@ -297,7 +325,9 @@ public class MorseFullCli implements Callable<Integer> {
                     continue;
                 }
                 ResponseCaptor<DigitalSetupResponse> digitalCaptor = ResponseCaptor.create();
-                sequence = sequence.andThen(PinsModule.digitalSetupBuilder().setPin(i).capture(digitalCaptor).build());
+                sequence = sequence.andThen(PinsModule.digitalSetupBuilder()
+                        .setPin(i).capture(digitalCaptor)
+                        .build());
                 captors.add(digitalCaptor);
             }
             ResponseSequenceCallback resp = device.sendAndWaitExpectSuccess(sequence);

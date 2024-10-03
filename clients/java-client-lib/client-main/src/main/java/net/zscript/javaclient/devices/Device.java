@@ -22,6 +22,7 @@ import net.zscript.javaclient.commandbuilder.commandnodes.AndSequenceNode;
 import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.commandnodes.OrSequenceNode;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.notifications.Notification;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationHandle;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationId;
 import net.zscript.javaclient.nodes.ZscriptNode;
@@ -34,7 +35,7 @@ public class Device {
     private final ZscriptModel model;
     private final ZscriptNode  node;
 
-    private final Map<NotificationId<?>, NotificationHandle> handles = new HashMap<>();
+    private final Map<NotificationId<?>, NotificationHandle<?>> handles = new HashMap<>();
 
     public Device(ZscriptModel model, ZscriptNode node) {
         this.model = model;
@@ -42,11 +43,22 @@ public class Device {
     }
 
     @Nonnull
-    public <T extends NotificationHandle> T getNotificationHandle(NotificationId<T> id) {
+    public <N extends Notification, H extends NotificationHandle<N>> H getNotificationHandle(NotificationId<H> id) {
         return id.getHandleType().cast(handles.computeIfAbsent(id, NotificationId::newHandle));
     }
 
-    public <T extends NotificationHandle> void setNotificationListener(NotificationId<T> id, Consumer<NotificationSequenceCallback> listener) {
+    public <N extends Notification, H extends NotificationHandle<N>> void setNotificationListener(NotificationId<H> id, Consumer<? super N> listener) {
+        final H notificationHandle = getNotificationHandle(id);
+        node.setNotificationHandler(id.getId(), respSeq -> {
+            final N notification = notificationHandle.createNotification(respSeq.getExecutionPath());
+            listener.accept(notification);
+        });
+    }
+
+    /**
+     * @deprecated Use {@link #setNotificationListener(NotificationId, Consumer)} instead
+     */
+    public <N extends Notification, H extends NotificationHandle<N>> void setNotificationListener_Prev(NotificationId<H> id, Consumer<NotificationSequenceCallback> listener) {
         node.setNotificationHandler(id.getId(),
                 respSeq -> listener.accept(NotificationSequenceCallback.from(getNotificationHandle(id).getSections(), respSeq.getExecutionPath().getResponses())));
     }

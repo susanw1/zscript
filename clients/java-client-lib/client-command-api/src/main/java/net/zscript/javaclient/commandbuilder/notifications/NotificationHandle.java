@@ -10,13 +10,14 @@ import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandbuilder.ZscriptClientException;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 
-public abstract class NotificationHandle {
+public abstract class NotificationHandle<N extends Notification> {
     @Nonnull
     public abstract <T extends ZscriptResponse> NotificationSection<T> getSection(NotificationSectionId<T> response);
 
     @Nonnull
-    @Deprecated
     public abstract List<NotificationSection<?>> getSections();
+
+    public abstract N createNotification(@Nonnull final ResponseExecutionPath responsePath);
 
     /**
      * Creates a list of the right types of notification section content
