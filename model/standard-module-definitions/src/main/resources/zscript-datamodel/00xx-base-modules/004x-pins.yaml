@@ -2,11 +2,19 @@ name: Pins
 id: 4
 version: 0.0.1
 description: Basic pin functionality
+longDescription: |
+    This module provides commands and notifications for setting and getting the state of individual pins, controlling PWMs, and 
+    using AtoD and DtoA converters.
 
 commands:
 -   name: capabilities
     command: 0
     description: pin capabilities
+    longDescription: |
+        This command identifies the capabilities accessible through the 'pins' module: 
+            the available commands;
+            the number of controllable pins;
+            the availability of D-to-A and A-to-D converters.
     operation: get
     requestFields: [ ]
     responseFields:

@@ -29,6 +29,7 @@ public interface ZscriptDataModel {
         @JsonProperty(required = true)
         String getDescription();
 
+        @JsonProperty
         String getLongDescription();
     }
 
@@ -240,6 +241,13 @@ public interface ZscriptDataModel {
         List<Bit> getBits();
 
         abstract class Bit implements ModelComponent {
+            /**
+             * Facilitates disambiguating the name in templating engines. Identical to calling {@link #getName()}.
+             */
+            public String getBitName() {
+                return getName();
+            }
+
             @Override
             public String toString() {
                 return "Bit:[" + getName() + "]";

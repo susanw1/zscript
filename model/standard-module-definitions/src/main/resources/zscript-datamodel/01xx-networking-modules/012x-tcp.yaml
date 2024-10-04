@@ -494,7 +494,7 @@ notifications:
             description: data from a socket
             fields:
             -   key: +
-                name: data
+                name: receivedData
                 description: the data received
                 typeDefinition:
                     '@type': bytes
