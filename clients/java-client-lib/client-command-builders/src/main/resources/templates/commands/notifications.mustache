@@ -3,44 +3,52 @@
     // replicated identically across multiple notifications, and would otherwise create pointless duplicates.
 
 {{#notificationSections}}
-    /** Singleton identifier for specific notification section: {{description}} */
-    public static final class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId extends NotificationSectionId<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> {
-        private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId ID = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId();
+    /**
+     * Singleton identifier for specific '{{#upperCamel}}{{{sectionName}}}{{/upperCamel}}' notification section: {{description}}
+    {{#longDescription}}
+     * <p>
+     * {{longDescription}}
+    {{/longDescription}}
+     */
+    public static final class {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId extends NotificationSectionId<{{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent> {
+        private static final {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId ID = new {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId();
 
         @Nonnull
-        public static {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId {{#lowerCamel}}{{name}}{{/lowerCamel}}NotificationSectionId() {
+        public static {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId {{#lowerCamel}}{{{sectionName}}}{{/lowerCamel}}NotificationSectionId() {
             return ID;
         }
 
         @Nonnull
-        public static {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId get() {
+        public static {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId get() {
             return ID;
         }
 
-        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId() {
+        private {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId() {
             // prevent instantiation
         }
     }
 
-    public static final class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSection extends NotificationSection<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> {
+    public static final class {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSection extends NotificationSection<{{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent> {
         @Nonnull
         @Override
-        public Class<{{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent> getResponseType() {
-            return {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent.class;
+        public Class<{{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent> getResponseType() {
+            return {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent.class;
         }
 
         /** Constructs the correct notification object, representing the supplied Zscript response expression. */
         @Nonnull
         @Override
-        public {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent parseResponse(@Nonnull final ZscriptExpression expression) {
-            return new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent(expression);
+        public {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent parseResponse(@Nonnull final ZscriptExpression expression) {
+            return new {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent(expression);
         }
     }
 
-    /** Response wrapper for this section of the Notification, with accessors for the fields. */
-    public static final class {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent extends ValidatingResponse {
+    /**
+     * Response wrapper for the '{{#upperCamel}}{{{sectionName}}}{{/upperCamel}}' section of the Notification, with accessors for the fields.
+     */
+    public static final class {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent extends ValidatingResponse {
         /** Constructs the notification object, representing the supplied Zscript response expression. */
-        public {{#upperCamel}}{{name}}NotificationSectionContent{{/upperCamel}}(@Nonnull ZscriptExpression response) {
+        public {{#upperCamel}}{{{sectionName}}}NotificationSectionContent{{/upperCamel}}(@Nonnull ZscriptExpression response) {
             super(response, new byte[] { {{#fields}}{{#required}}(byte) '{{key}}', {{/required}}{{/fields}} });
         }
 
@@ -55,22 +63,28 @@
     // Notification-level classes.
 
 {{#notifications}}
-    /** Singleton identifier for the {{notificationName}} notification: {{description}} */
-    public static final class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId extends NotificationId<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle> {
-        public static final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications NTFN = {{#upperCamel}}{{moduleName}}{{/upperCamel}}Notifications.{{#upperCamel}}{{notificationName}}{{/upperCamel}};
-        private static final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId ID = new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId();
+    /**
+     * Singleton identifier for the '{{{notificationName}}}' notification: {{description}}
+    {{#longDescription}}
+     * <p>
+     * {{longDescription}}
+    {{/longDescription}}
+     */
+    public static final class {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationId extends NotificationId<{{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationHandle> {
+        public static final {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications NTFN = {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications.{{#upperCamel}}{{{notificationName}}}{{/upperCamel}};
+        private static final {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationId ID = new {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationId();
 
-        private {{#upperCamel}}{{name}}{{/upperCamel}}NotificationId() {
+        private {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationId() {
             // prevent instantiation
         }
 
         @Nonnull
-        public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId {{#lowerCamel}}{{notificationName}}{{/lowerCamel}}NotificationId() {
+        public static {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationId {{#lowerCamel}}{{{notificationName}}}{{/lowerCamel}}NotificationId() {
             return ID;
         }
 
         @Nonnull
-        public static {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationId get() {
+        public static {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationId get() {
             return ID;
         }
 
@@ -81,25 +95,27 @@
 
         @Nonnull
         @Override
-        public Class<{{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle> getHandleType() {
-            return {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle.class;
+        public Class<{{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationHandle> getHandleType() {
+            return {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationHandle.class;
         }
 
         @Nonnull
         @Override
-        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle newHandle() {
-            return new {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle();
+        public {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationHandle newHandle() {
+            return new {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationHandle();
         }
     }
 
-    /** Handle for {{#upperCamel}}{{notificationName}}{{/upperCamel}} Notifications, referencing the sections within. */
-    public static final class {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle extends NotificationHandle<{{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification> {
+    /**
+     * Handle for '{{#upperCamel}}{{{notificationName}}}{{/upperCamel}}' notifications, referencing the sections within.
+     */
+    public static final class {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationHandle extends NotificationHandle<{{#upperCamel}}{{{notificationName}}}{{/upperCamel}}Notification> {
         private final Map<NotificationSectionId<?>, NotificationSection<?>> sections = new LinkedHashMap<>();
 
-        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle() {
+        public {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationHandle() {
             {{#sections}}
                 {{#section}}
-            sections.put({{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionId.get(), new {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSection());
+            sections.put({{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId.get(), new {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSection());
                 {{/section}}
             {{/sections}}
         }
@@ -118,33 +134,46 @@
 
         @Nonnull
         @Override
-        public {{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification createNotification(@Nonnull final ResponseExecutionPath responsePath) {
-            return new {{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification(this, responsePath);
+        public {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}Notification createNotification(@Nonnull final ResponseExecutionPath responsePath) {
+            return new {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}Notification(this, responsePath);
         }
     }
 
-    /** Notification object for {{#upperCamel}}{{notificationName}}{{/upperCamel}}, with section accessors. */
-    public static final class {{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification implements Notification {
+    /**
+     * Notification object for the '{{#upperCamel}}{{{notificationName}}}{{/upperCamel}}' notification, with section accessors.
+    {{#longDescription}}
+     * <p>
+     * {{longDescription}}
+    {{/longDescription}}
+     */
+    public static final class {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}Notification implements Notification {
         {{#sections}}
             {{#section}}
-        private final {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent {{#lowerCamel}}{{name}}{{/lowerCamel}};
+        private final {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent {{#lowerCamel}}{{{sectionName}}}{{/lowerCamel}}Section;
             {{/section}}
         {{/sections}}
 
-        {{#upperCamel}}{{notificationName}}{{/upperCamel}}Notification(final {{#upperCamel}}{{notificationName}}{{/upperCamel}}NotificationHandle handle, final ResponseExecutionPath responsePath) {
+        {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}Notification(final {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationHandle handle, final ResponseExecutionPath responsePath) {
             Iterator<ZscriptResponse> responseIterator = handle.buildNotificationContent(responsePath).iterator();
 
         {{#sections}}
             {{#section}}
-            {{#lowerCamel}}{{name}}{{/lowerCamel}} = ({{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent) responseIterator.next();
+            this.{{#lowerCamel}}{{{sectionName}}}{{/lowerCamel}}Section = ({{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent) responseIterator.next();
             {{/section}}
         {{/sections}}
         }
 
         {{#sections}}
             {{#section}}
-        public {{#upperCamel}}{{name}}{{/upperCamel}}NotificationSectionContent get{{#upperCamel}}{{name}}{{/upperCamel}}Section() {
-            return {{#lowerCamel}}{{name}}{{/lowerCamel}};
+        /**
+         * Accesses the '{{#upperCamel}}{{{sectionName}}}{{/upperCamel}}' section of the notification: {{description}}
+        {{#longDescription}}
+         * <p>
+         * {{longDescription}}
+        {{/longDescription}}
+         */
+        public {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent get{{#upperCamel}}{{{sectionName}}}{{/upperCamel}}Section() {
+            return this.{{#lowerCamel}}{{{sectionName}}}{{/lowerCamel}}Section;
         }
             {{/section}}
         {{/sections}}
