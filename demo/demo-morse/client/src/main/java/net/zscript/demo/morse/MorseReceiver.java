@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import static net.zscript.model.modules.base.PinsModule.DigitalNotificationSectionContent.Value;
 
+import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
 import net.zscript.javaclient.devices.Device;
 import net.zscript.model.modules.base.OuterCoreModule;
 import net.zscript.model.modules.base.PinsModule;
@@ -40,13 +41,14 @@ public class MorseReceiver {
             lastTimeNano = System.nanoTime();
 
             // // Older notification registration system, using Captors.
-            //            ResponseCaptor<PinsModule.DigitalNotificationSectionContent> captor = ResponseCaptor.create();
-            //            device.getNotificationHandle(PinsModule.DigitalNotificationId.get())
-            //                    .getSection(PinsModule.DigitalNotificationSectionId.get())
-            //                    .setCaptor(captor);
-            //            device.setNotificationListener_Prev(PinsModule.DigitalNotificationId.get(), notificationSequenceCallback -> {
-            //                PinsModule.DigitalNotificationSectionContent content = notificationSequenceCallback.getResponseFor(captor).get();
-            //            });
+            ResponseCaptor<PinsModule.DigitalNotificationSectionContent> captor = ResponseCaptor.create();
+            device.getNotificationHandle(PinsModule.DigitalNotificationId.get())
+                    .getSection(PinsModule.DigitalNotificationSectionContent.class)
+                    .setCaptor(captor);
+            device.setNotificationListener_Prev(PinsModule.DigitalNotificationId.get(), notificationSequenceCallback -> {
+                PinsModule.DigitalNotificationSectionContent content = notificationSequenceCallback.getResponseFor(captor).get();
+
+            });
 
             device.setNotificationListener(PinsModule.DigitalNotificationId.get(), n -> {
                 PinsModule.DigitalNotificationSectionContent content = n.getDigitalSection();
