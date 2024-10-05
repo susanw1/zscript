@@ -16,8 +16,8 @@ import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
  */
 public class Utils {
     /**
-     * Converts a number representing an OR'ed set of bits into the corresponding values in an Enum, returned as an EnumSet. Bit 0 is the first value in the Enum, bit n is the 1<<n
-     * value etc.
+     * Converts a number representing an OR'ed set of bits into the corresponding values in an Enum, returned as an EnumSet. Bit 0 is the first value in the Enum, bit n is the
+     * 1&lt;&lt;n  value etc.
      *
      * @param bitFields an int representing a set of bits
      * @param enumClass the enum type to match

@@ -257,7 +257,7 @@
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @param value  the bit in the {{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}} to set, as an Optional enum  (if empty, then no change is made)
+             * @param bit    the bit in the {{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}} to set, as an Optional enum  (if empty, then no change is made)
              * @return this builder, to facilitate method chaining
              */
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(@Nonnull final Optional<{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}> bit) {
@@ -274,11 +274,11 @@
             {{/longDescription}}
              *
              * @param condition if true, then set the field; otherwise, no change is made
-             * @param value     the {{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}} to set
+             * @param bit       the {{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}} to set
              * @return this builder, to facilitate method chaining
              */
-            public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}If(final boolean condition, @Nonnull final {{#upperCamel}}{{{fieldName}}}{{/upperCamel}} value) {
-                return condition ? set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(value) : this;
+            public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}If(final boolean condition, @Nonnull final {{#upperCamel}}{{{fieldName}}}{{/upperCamel}} bit) {
+                return condition ? set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(bit) : this;
             }
             {{/required}}
                         {{/bitsetType}}
@@ -310,7 +310,7 @@
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @param text      the bytes to add to the big-field
+             * @param bytes     the bytes to add to the big-field
              * @return this builder, to facilitate method chaining
              */
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsBytes(@Nonnull final byte[] bytes) {
@@ -327,7 +327,7 @@
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @param text      the bytes to add to the big-field
+             * @param bytes     the bytes to add to the big-field
              * @return this builder, to facilitate method chaining
              */
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsSmallest(@Nonnull final byte[] bytes) {

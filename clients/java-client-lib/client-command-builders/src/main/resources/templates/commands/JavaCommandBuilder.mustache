@@ -44,7 +44,11 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
 
     {{! ============ COMMAND SUMMARY ENUM ============= }}
     /**
-     * Defines constants for the commands defined in the '{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}' module. Each command has a CMD field referencing its constant.
+     * Defines constants for the commands defined in the '{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}' module. Each command has a CMD field referencing its enum constant.
+    {{^commands}}
+    * <p>
+    * Note: There are <b>NO COMMANDS</b> defined in this module, which is why this enum appears empty.
+    {{/commands}}
      */
     public static enum {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands {
 {{#commands}}
@@ -75,7 +79,11 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
     {{! ============ NOTIFICATION SUMMARY ENUM ============= }}
 
     /**
-     * Defines the set of all notifications defined in the '{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}' module.
+     * Defines the set of all notifications defined in the '{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}' module. Each NotificationId has a NTFN field referencing its constant.
+    {{^notifications}}
+    * <p>
+    * Note: There are <b>NO NOTIFICATIONS</b> defined in this module, which is why this enum appears empty.
+    {{/notifications}}
      */
     public static enum {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications {
 {{#notifications}}
