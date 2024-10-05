@@ -12,7 +12,7 @@ import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 
 public abstract class NotificationHandle<N extends Notification> {
     @Nonnull
-    public abstract <T extends ZscriptResponse> NotificationSection<T> getSection(NotificationSectionId<T> response);
+    public abstract <T extends ZscriptResponse> NotificationSection<T> getSection(Class<T> response);
 
     @Nonnull
     public abstract List<NotificationSection<?>> getSections();

@@ -3,31 +3,6 @@
     // replicated identically across multiple notifications, and would otherwise create pointless duplicates.
 
 {{#notificationSections}}
-    /**
-     * Singleton identifier for specific '{{#upperCamel}}{{{sectionName}}}{{/upperCamel}}' notification section: {{description}}
-    {{#longDescription}}
-     * <p>
-     * {{longDescription}}
-    {{/longDescription}}
-     */
-    public static final class {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId extends NotificationSectionId<{{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent> {
-        private static final {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId ID = new {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId();
-
-        @Nonnull
-        public static {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId {{#lowerCamel}}{{{sectionName}}}{{/lowerCamel}}NotificationSectionId() {
-            return ID;
-        }
-
-        @Nonnull
-        public static {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId get() {
-            return ID;
-        }
-
-        private {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId() {
-            // prevent instantiation
-        }
-    }
-
     public static final class {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSection extends NotificationSection<{{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent> {
         @Nonnull
         @Override
@@ -45,6 +20,10 @@
 
     /**
      * Response wrapper for the '{{#upperCamel}}{{{sectionName}}}{{/upperCamel}}' section of the Notification, with accessors for the fields.
+    {{#longDescription}}
+     * <p>
+     * {{longDescription}}
+    {{/longDescription}}
      */
     public static final class {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionContent extends ValidatingResponse {
         /** Constructs the notification object, representing the supplied Zscript response expression. */
@@ -110,19 +89,19 @@
      * Handle for '{{#upperCamel}}{{{notificationName}}}{{/upperCamel}}' notifications, referencing the sections within.
      */
     public static final class {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationHandle extends NotificationHandle<{{#upperCamel}}{{{notificationName}}}{{/upperCamel}}Notification> {
-        private final Map<NotificationSectionId<?>, NotificationSection<?>> sections = new LinkedHashMap<>();
+        private final Map<Class<?>, NotificationSection<?>> sections = new LinkedHashMap<>();
 
         public {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationHandle() {
             {{#sections}}
                 {{#section}}
-            sections.put({{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSectionId.get(), new {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSection());
+            sections.put({{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSection.class, new {{#upperCamel}}{{{sectionName}}}{{/upperCamel}}NotificationSection());
                 {{/section}}
             {{/sections}}
         }
 
         @Nonnull
         @Override
-        public <T extends ZscriptResponse> NotificationSection<T> getSection(@Nonnull NotificationSectionId<T> response) {
+        public <T extends ZscriptResponse> NotificationSection<T> getSection(@Nonnull Class<T> response) {
             return (NotificationSection<T>) sections.get(response);
         }
 
