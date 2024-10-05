@@ -45,7 +45,7 @@ public interface TokenBuffer {
      */
     interface TokenWriter {
         /**
-         * Access the writer<->reader control flags.
+         * Access the writer&lt;-&gt;reader control flags.
          *
          * @return the buffer's flags
          */
@@ -154,7 +154,7 @@ public interface TokenBuffer {
      */
     interface TokenReader {
         /**
-         * Access the writer<->reader control flags.
+         * Access the writer&lt;-&gt;reader control flags.
          *
          * @return the buffer's flags
          */
