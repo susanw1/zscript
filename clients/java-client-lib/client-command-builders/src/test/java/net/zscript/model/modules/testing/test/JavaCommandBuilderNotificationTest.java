@@ -21,16 +21,16 @@ public class JavaCommandBuilderNotificationTest {
 
     @Test
     void shouldDefineNotificationClasses() {
-        TestingModule.TestNtfANotificationId ntfIdA = TestingModule.TestNtfANotificationId.get();
-        assertThat(ntfIdA.getHandleType()).isEqualTo(TestingModule.TestNtfANotificationHandle.class);
+        TestingModule.TestNtfANotification.TestNtfANotificationId ntfIdA = TestingModule.TestNtfANotification.ID;
+        assertThat(ntfIdA.getHandleType()).isEqualTo(TestingModule.TestNtfANotification.TestNtfANotificationHandle.class);
 
-        TestingModule.TestNtfANotificationHandle handleA   = ntfIdA.newHandle();
-        List<NotificationSection<?>>             sectionsA = handleA.getSections();
+        TestingModule.TestNtfANotification.TestNtfANotificationHandle handleA   = ntfIdA.newHandle();
+        List<NotificationSection<?>>                                  sectionsA = handleA.getSections();
         assertThat(sectionsA).hasSize(1);
         assertThat(sectionsA).hasExactlyElementsOfTypes(TestingModule.Expr1NotificationSection.class);
 
-        TestingModule.TestNtfBNotificationHandle handleB   = TestingModule.TestNtfBNotificationId.get().newHandle();
-        List<NotificationSection<?>>             sectionsB = handleB.getSections();
+        TestingModule.TestNtfBNotification.TestNtfBNotificationHandle handleB   = TestingModule.TestNtfBNotification.ID.newHandle();
+        List<NotificationSection<?>>                                  sectionsB = handleB.getSections();
         assertThat(sectionsB).hasSize(2);
         assertThat(sectionsB).hasExactlyElementsOfTypes(TestingModule.Expr1NotificationSection.class, TestingModule.Expr2NotificationSection.class);
 
@@ -41,7 +41,7 @@ public class JavaCommandBuilderNotificationTest {
     void shouldCreateNotificationWithRequiredFields() {
         "!234 Dab Lcd & Xef\n".chars().forEach(c -> tokenizer.accept((byte) c));
 
-        final TestingModule.TestNtfBNotificationHandle handle = TestingModule.TestNtfBNotificationId.get().newHandle();
+        final TestingModule.TestNtfBNotification.TestNtfBNotificationHandle handle = TestingModule.TestNtfBNotification.ID.newHandle();
 
         final CompleteAddressedResponse car = CompleteAddressedResponse.parse(tokenReader);
         assertThat(car.asResponse().hasAddress()).isFalse();

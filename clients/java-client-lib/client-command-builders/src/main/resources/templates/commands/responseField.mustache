@@ -353,8 +353,8 @@
              * @return the set of commands from this module implemented on the device
              */
             @Nonnull
-            public EnumSet<{{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands> get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
-                return bitsetToEnumSet(get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsInt(), {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands.class);
+            public EnumSet<All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands> get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
+                return bitsetToEnumSet(get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsInt(), All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands.class);
             }
 
             /**
@@ -367,7 +367,7 @@
              * @param       commands      a command to check
              * @return true if the specified command is implemented; false otherwise
              */
-            public boolean isImplementedIn{{#upperCamel}}{{moduleName}}{{/upperCamel}}Module(final {{#upperCamel}}{{moduleName}}{{/upperCamel}}Commands commands) {
+            public boolean isImplementedIn{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module(final All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands commands) {
                 return true;
             }
 

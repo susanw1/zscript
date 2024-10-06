@@ -49,7 +49,7 @@ public class Device {
 
     public <N extends Notification, H extends NotificationHandle<N>> void setNotificationListener(NotificationId<H> id, Consumer<? super N> listener) {
         final H notificationHandle = getNotificationHandle(id);
-        node.setNotificationHandler(id.getId(), respSeq -> {
+        node.setNotificationHandler(id.getNumericId(), respSeq -> {
             final N notification = notificationHandle.createNotification(respSeq.getExecutionPath());
             listener.accept(notification);
         });
@@ -59,7 +59,7 @@ public class Device {
      * @deprecated Use {@link #setNotificationListener(NotificationId, Consumer)} instead
      */
     public <N extends Notification, H extends NotificationHandle<N>> void setNotificationListener_Prev(NotificationId<H> id, Consumer<NotificationSequenceCallback> listener) {
-        node.setNotificationHandler(id.getId(),
+        node.setNotificationHandler(id.getNumericId(),
                 respSeq -> listener.accept(NotificationSequenceCallback.from(getNotificationHandle(id).getSections(), respSeq.getExecutionPath().getResponses())));
     }
 
