@@ -4,12 +4,12 @@ intrinsics:
         name: command
         description: which command to be executed
         typeDefinition:
-            '@type': command
+            '@type': cmd
         required: yes
     responseFields:
     -   key: S
         name: status
-        description: indicates success (0), failure (1-0xf) or error (0x10+)
+        description: indicates success (0), failure (0x1-0xf) or error (0x10+)
         typeDefinition:
             '@type': number
         required: yes

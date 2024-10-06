@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Arrays.stream;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -217,12 +219,27 @@ public interface ZscriptDataModel {
             @Type(value = FlagTypeDefinition.class, name = "flag"),
             @Type(value = TextTypeDefinition.class, name = "text"),
             @Type(value = BytesTypeDefinition.class, name = "bytes"),
+            @Type(value = CmdTypeDefinition.class, name = "cmd"),
             @Type(value = CommandsTypeDefinition.class, name = "commands"),
             @Type(value = ModulesTypeDefinition.class, name = "modules"),
             @Type(value = AnyTypeDefinition.class, name = "any"),
             @Type(value = CustomTypeDefinition.class, name = "custom"),
     })
     interface TypeDefinition {
+        /**
+         * A one-word description of the type of this field. It should be the same as the @Type field.
+         *
+         * @return a one-word description of the type of this field
+         */
+        default String getType() {
+            // Inefficient linear search - alas the generated bean Class doesn't know which @Type matched. It's used in code generation, so ok for now.
+            final Type[] types = TypeDefinition.class.getAnnotation(JsonSubTypes.class).value();
+            return stream(types)
+                    .filter(t -> t.value().isAssignableFrom(getClass())) // generated class implements respective interface
+                    .findAny()
+                    .map(Type::name)
+                    .orElse("unknown");
+        }
     }
 
     interface EnumTypeDefinition extends TypeDefinition {
@@ -298,6 +315,15 @@ public interface ZscriptDataModel {
 
     interface AnyTypeDefinition extends TypeDefinition {
         default boolean anyType() {
+            return true;
+        }
+    }
+
+    /**
+     * Special type for the 'Z' field - doesn't generate setter methods in code generation.
+     */
+    interface CmdTypeDefinition extends TypeDefinition {
+        default boolean cmdType() {
             return true;
         }
     }

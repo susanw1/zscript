@@ -43,7 +43,7 @@
 
 {{#notifications}}
     /**
-     * Notification object for the '{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}' module's '{{#upperCamel}}{{{notificationName}}}{{/upperCamel}}' notification: {{description}}.
+     * Notification object for the '{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}' module's '{{#upperCamel}}{{{notificationName}}}{{/upperCamel}}' ({@code !{{#toHex}}{{fullNotification}}{{/toHex}}}) notification: {{description}}.
     {{#longDescription}}
      * <p>
      * {{longDescription}}
@@ -56,7 +56,7 @@
      *          <li>Section '{@link #get{{#upperCamel}}{{{sectionName}}}{{/upperCamel}}Section() {{#lowerCamel}}{{{sectionName}}}{{/lowerCamel}}}': </li>
      *              <ul>
                 {{#fields}}
-     *                  <li><i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}', {{typeDefinition.@type}}){{^required}} <i>[opt]</i>{{/required}}: {{description}}</li>
+     *                  <li><i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') <i>[{{^required}}(optional) {{/required}}{{#typeDefinition}}{{type}}{{/typeDefinition}}]</i>: {{description}}</li>
                 {{/fields}}
      *              </ul>
      *      </ul>
@@ -64,7 +64,10 @@
         {{/sections}}
      */
     public static final class {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}Notification implements Notification {
+        /** Reference to an enum representing all the notifications in this module. **/
         public static final All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications NTFN = All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications.{{#upperCamel}}{{{notificationName}}}{{/upperCamel}};
+
+        /** The ID object to be used for registering callbacks for this type of Notification. **/
         public static final {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationId ID = new {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationId();
 
         {{#sections}}

@@ -26,6 +26,11 @@ import net.zscript.model.components.*;
  * <p>
  * {{longDescription}}
 {{/longDescription}}
+ * <p>
+ * This module has module ID {{#toHex}}{{id}}{{/toHex}}, in the module bank {{#moduleBank}}<i>"{{name}}"</i> (bank ID {{#toHex}}{{id}}{{/toHex}}){{/moduleBank}}.
+ * <p>
+ * {@link All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands Commands} in this module may therefore range from {@code Z{{#toHex}}{{fullModuleId}}{{/toHex}}0} to {@code Z{{#toHex}}{{fullModuleId}}{{/toHex}}f},
+ * and {@link All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications Notifications} from {@code !{{#toHex}}{{fullModuleId}}{{/toHex}}0} to {@code !{{#toHex}}{{fullModuleId}}{{/toHex}}f}.
  *
  * @see All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands
  * @see All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications
@@ -54,7 +59,7 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
      */
     public static enum All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands {
 {{#commands}}
-        /** {{description}} ({@link {{#upperCamel}}{{{commandName}}}{{/upperCamel}}Command}) */
+        /** {{description}} ({@link {{#upperCamel}}{{{commandName}}}{{/upperCamel}}Command}, {@code Z{{#toHex}}{{fullCommand}}{{/toHex}}}) */
         {{#upperCamel}}{{{commandName}}}{{/upperCamel}}({{command}}),
 {{/commands}}
         ;
@@ -89,7 +94,7 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
      */
     public static enum All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications {
 {{#notifications}}
-        /** {{description}} ({@link {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}Notification#NTFN}) */
+        /** {{description}} ({@link {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}Notification}, {@code Z{{#toHex}}{{fullNotification}}{{/toHex}}}) */
         {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}({{notification}}),
 {{/notifications}}
         ;
@@ -127,7 +132,7 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
 {{/commands}}
 {{#commands}}
     /**
-    * Defines the '{{#upperCamel}}{{{commandName}}}{{/upperCamel}}' ({@code Z{{fullCommand}}}) command: {{description}}.
+    * Defines the '{{#upperCamel}}{{{commandName}}}{{/upperCamel}}' ({@code Z{{#toHex}}{{fullCommand}}{{/toHex}}}) command: {{description}}.
     {{#longDescription}}
     * <p>
     * {{longDescription}}
@@ -136,26 +141,29 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
     * Fields in this command are:
     * <ul>
     {{#requestFields}}
-    * <li><i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}'){{^required}} <i>[opt.]</i>{{/required}}: {{description}}</li>
+    * <li><i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') <i>[{{^required}}(optional) {{/required}}{{#typeDefinition}}{{type}}{{/typeDefinition}}]</i>: {{description}}</li>
     {{/requestFields}}
     * </ul>
     * <p>
     * Fields in the response to this command are:
     * <ul>
     {{#responseFields}}
-    * <li><i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}'){{^required}} <i>[opt.]</i>{{/required}}: {{description}}</li>
+    * <li><i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') <i>[{{^required}}(optional) {{/required}}{{#typeDefinition}}{{type}}{{/typeDefinition}}]</i>: {{description}}</li>
     {{/responseFields}}
     * </ul>
+    * <p>
+    * Command semantics characterized as: {{operation}}.
     */
     public static final class {{#upperCamel}}{{{commandName}}}{{/upperCamel}}Command
             extends ZscriptCommandNode<{{#upperCamel}}{{{commandName}}}{{/upperCamel}}Command.{{#upperCamel}}{{{commandName}}}{{/upperCamel}}Response> {
+        /** Reference to an enum representing all the commands in this module. **/
         public static final All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands CMD = All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands.{{#upperCamel}}{{{commandName}}}{{/upperCamel}};
 
         private {{#upperCamel}}{{{commandName}}}Command{{/upperCamel}}(Builder builder) {
             super(builder);
         }
 
-        /** Constructs the command object. */
+        /** Creates a Builder for constructing this command. */
         @Nonnull
         public static Builder builder() {
             return new Builder();
@@ -181,9 +189,7 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
         }
 
         /**
-         * Builder for setting fields for: {{description}}
-         * <p>
-         * Command semantics characterized as: {{operation}}.
+         * Builder for setting the fields to construct a {@link {{#upperCamel}}{{{commandName}}}{{/upperCamel}}Command}.
          */
         public static final class Builder extends ZscriptCommandBuilder<{{#upperCamel}}{{{commandName}}}{{/upperCamel}}Response> {
 
@@ -192,9 +198,13 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
                 setField(Zchars.Z_CMD, {{fullCommand}});
             }
 
+            /**
+             * Builds the Command object. Note that the new Command object has no dependencies on its Builder, which may be used for further
+             * construction of additional commands.
+             */
             @Nonnull
             @Override
-            public {{#upperCamel}}{{{commandName}}}Command{{/upperCamel}} build() {
+            public {{#upperCamel}}{{{commandName}}}{{/upperCamel}}Command build() {
                 failIfInvalid();
                 return new {{#upperCamel}}{{{commandName}}}Command{{/upperCamel}}(this);
             }
