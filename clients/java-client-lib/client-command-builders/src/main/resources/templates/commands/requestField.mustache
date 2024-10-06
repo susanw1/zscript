@@ -2,14 +2,14 @@
     {{#enumType}}
     {{! ============ ENUM-TYPE SETTERS ============= }}
             /**
-             * Enum of acceptable values for '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field.
+             * Enum of acceptable values for <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field.
              */
             public static enum {{#upperCamel}}{{{fieldName}}}{{/upperCamel}} {
                 {{#values}}{{#upperCamel}}{{.}}{{/upperCamel}},{{/values}}
             }
 
             /**
-             * Sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -26,7 +26,7 @@
             }
 
             /**
-             * Sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -41,7 +41,7 @@
 
             {{^required}}
             /**
-             * Optionally sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Optionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -55,7 +55,7 @@
             }
 
             /**
-             * Optionally sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Optionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -69,7 +69,7 @@
             }
 
             /**
-             * Conditionally sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Conditionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -87,7 +87,7 @@
                             {{#numberType}}
                 {{! ============ NUMBER-TYPE SETTERS ============= }}
             /**
-             * Sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -103,7 +103,7 @@
 
             {{^required}}
             /**
-             * Optionally sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Optionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -117,7 +117,7 @@
             }
 
             /**
-             * Conditionally sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Conditionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -135,7 +135,7 @@
                             {{#flagType}}
                 {{! ============ FLAG-TYPE SETTERS ============= }}
             /**
-             * Sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -149,7 +149,7 @@
             }
 
             /**
-             * Sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -166,7 +166,7 @@
             {{#bitsetType}}
                 {{! ============ BITSET-TYPE SETTERS ============= }}
             /**
-             * Enum of acceptable values for '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field.
+             * Enum of acceptable values for <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field.
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -180,7 +180,7 @@
             }
 
             /**
-             * Sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -199,7 +199,7 @@
             }
 
             /**
-             * Sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -216,7 +216,7 @@
             }
 
             /**
-             * Sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
              * <p>
              * This ORs the supplied bit onto the field's existing value - it does NOT overwrite.
             {{#longDescription}}
@@ -224,7 +224,7 @@
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @param bit    the bit in the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' field to set, as a single enum (never null)
+             * @param bit    the bit in the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field to set, as a single enum (never null)
              * @return this builder, to facilitate method chaining
              */
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(@Nonnull final {{#upperCamel}}{{{fieldName}}}{{/upperCamel}} bit) {
@@ -233,7 +233,7 @@
 
             {{^required}}
             /**
-             * Optionally sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Optionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
              * <p>
              * If 'bits' is non-empty, this sets the whole field, overwriting any previously set bits.
             {{#longDescription}}
@@ -249,7 +249,7 @@
             }
 
             /**
-             * Optionally sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Optionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
              * <p>
              * If 'bit' is non-empty, then this ORs the supplied bit onto the field's existing value - it does NOT overwrite.
             {{#longDescription}}
@@ -265,7 +265,7 @@
             }
 
             /**
-             * Conditionally sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Conditionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
              * <p>
              * If 'set' is true, then this ORs the supplied bit onto the field's existing value - it does NOT overwrite.
             {{#longDescription}}
@@ -285,7 +285,7 @@
                         {{#textType}}
             {{! ============ TEXT-TYPE SETTERS ============= }}
             /**
-             * Appends the supplied text for the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' big-field: {{description}}
+             * Appends the supplied text for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
              * <p>
              * The string is encoded as UTF-8.
             {{#longDescription}}
@@ -302,7 +302,7 @@
             }
 
             /**
-             * Appends the supplied bytes for the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' big-field: {{description}}
+             * Appends the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
              * <p>
              * This field is defined as 'text' and will normally use the "..." form. This method overrides that, and uses the +1a2b... form.
             {{#longDescription}}
@@ -319,7 +319,7 @@
             }
 
             /**
-             * Appends the supplied bytes for the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' big-field: {{description}}
+             * Appends the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
              * <p>
              * This field is defined as 'text' and will normally use the "..." form. This method overrides that, and uses whichever form uses least bytes.
             {{#longDescription}}
@@ -337,7 +337,7 @@
 
             {{^required}}
             /**
-             * Optionally appends the supplied text for the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' big-field: {{description}}
+             * Optionally appends the supplied text for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
              * <p>
              * The string is encoded as UTF-8.
             {{#longDescription}}
@@ -353,7 +353,7 @@
             }
 
             /**
-             * Conditionally appends the supplied text for the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' big-field: {{description}}
+             * Conditionally appends the supplied text for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
              * <p>
              * The string is encoded as UTF-8.
             {{#longDescription}}
@@ -374,7 +374,7 @@
         {{#bytesType}}
         {{! ============ BYTES-TYPE SETTERS ============= }}
             /**
-             * Appends the supplied bytes for the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' big-field: {{description}}
+             * Appends the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -389,7 +389,7 @@
             }
 
             /**
-             * Appends the supplied text for the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' big-field: {{description}}
+             * Appends the supplied text for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
              * <p>
              * This field is defined as 'bytes' and will normally use the +1a2b... form. This method overrides that, and uses the "..." form.
              * <p>
@@ -408,7 +408,7 @@
             }
 
             /**
-             * Appends the supplied bytes for the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' big-field: {{description}}
+             * Appends the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
              * <p>
              * This field is defined as 'bytes' and will normally use the +1a2b... form. This method overrides that, and uses whichever form uses least bytes.
             {{#longDescription}}
@@ -426,7 +426,7 @@
 
             {{^required}}
             /**
-             * Optionally appends the supplied bytes for the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' big-field: {{description}}
+             * Optionally appends the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -440,7 +440,7 @@
             }
 
             /**
-             * Conditionally appends the supplied bytes for the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' big-field: {{description}}
+             * Conditionally appends the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
              * <p>
              * The string is encoded as UTF-8.
             {{#longDescription}}
@@ -491,7 +491,7 @@
             }
 
             /**
-             * Conditionally sets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}} field: {{description}}
+        * Conditionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}

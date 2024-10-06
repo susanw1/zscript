@@ -2,7 +2,7 @@
     {{#enumType}}
     {{! ============ ENUM GETTERS ============= }}
             /**
-             * Enum of acceptable values for the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) enum field.
+             * Enum of acceptable values for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') enum field.
              */
             public static enum {{#upperCamel}}{{{fieldName}}}{{/upperCamel}} {
             {{#values}}
@@ -12,7 +12,7 @@
 
         {{#required}}
             /**
-             * Gets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -29,7 +29,7 @@
             }
 
             /**
-             * Gets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -45,7 +45,7 @@
         {{/required}}
         {{^required}}
             /**
-             * Gets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -64,7 +64,7 @@
             }
 
             /**
-             * Gets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -80,7 +80,7 @@
             }
 
             /**
-             * Determines if the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field is set: {{description}}
+             * Determines if the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field is set: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -97,7 +97,7 @@
         {{! ============ NUMBER-TYPE GETTERS ============= }}
         {{#required}}
             /**
-             * Gets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -113,7 +113,7 @@
         {{/required}}
         {{^required}}
             /**
-             * Gets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -127,7 +127,7 @@
             }
 
             /**
-             * Determines if the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field is set: {{description}}
+             * Determines if the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field is set: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -143,7 +143,7 @@
     {{#flagType}}
         {{! ============ FLAG-TYPE GETTERS ============= }}
             /**
-             * Checks if the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field is set: {{description}}
+             * Checks if the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field is set: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -158,7 +158,7 @@
     {{#bitsetType}}
         {{! ============ BITSET-TYPE GETTERS ============= }}
             /**
-             * Enum of acceptable values for the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) bitset field.
+             * Enum of acceptable values for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') bitset field.
              */
             public static enum {{#upperCamel}}{{{fieldName}}}{{/upperCamel}} {
             {{#bits}}
@@ -169,7 +169,7 @@
 
         {{#required}}
             /**
-             * Gets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -186,7 +186,7 @@
             }
 
             /**
-             * Gets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -203,7 +203,7 @@
         {{/required}}
         {{^required}}
             /**
-             * Gets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -217,7 +217,7 @@
             }
 
             /**
-             * Gets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -232,7 +232,7 @@
             }
 
             /**
-             * Determines if the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field is set: {{description}}
+             * Determines if the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field is set: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -248,7 +248,7 @@
     {{#bigfieldType}}
         {{! ============ BIG-FIELD-TYPE GETTERS ============= }}
             /**
-             * Returns the big-field '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' data as bytes: {{description}}
+             * Returns the big-field <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as bytes: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -262,7 +262,7 @@
             }
 
             /**
-             * Returns the big-field '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' data as a String: {{description}}
+             * Returns the big-field <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as a String: {{description}}
              * <p>
              * The bytes are interpreted as encoded as UTF-8.
             {{#longDescription}}
@@ -279,7 +279,7 @@
 
         {{^required}}
             /**
-             * Determines whether a big-field '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' was supplied in the response: {{description}}
+             * Determines whether a big-field <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> was supplied in the response: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -295,7 +295,7 @@
     {{#textType}}
         {{! ============ TEXT-TYPE GETTERS ============= }}
             /**
-            * Returns the big-field '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' data as text: {{description}}
+            * Returns the big-field <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as text: {{description}}
             * <p>
             * The bytes are interpreted as encoded as UTF-8.
             {{#longDescription}}
@@ -313,7 +313,7 @@
     {{#bytesType}}
         {{! ============ BYTES-TYPE GETTERS ============= }}
             /**
-             * Returns the big-field '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' data as bytes: {{description}}
+             * Returns the big-field <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as bytes: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
@@ -329,7 +329,7 @@
     {{#commandsType}}
         {{! ============ COMMANDS-TYPE GETTERS ============= }}
             /**
-             * Gets the '{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}' ({@code {{key}}}) field: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}

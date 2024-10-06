@@ -40,7 +40,7 @@ public class ModelValidator {
                 throw new ZscriptModelException("ModuleBank Id should be 0x00-0xff [bank=%s, id=0x%x]", bank.getName(), bank.getId());
             }
             if (!stringUpperCamel(bank.getName())) {
-                throw new ZscriptModelException("ModuleBank names should be upper-camel-case, eg deviceReset [bank=%s, id=0x%x]", bank.getName(), bank.getId());
+                throw new ZscriptModelException("ModuleBank names should be upper-camel-case, eg DeviceReset [bank=%s, id=0x%x]", bank.getName(), bank.getId());
             }
 
             if (bank.getDefaultPackage() != null) {
@@ -87,8 +87,8 @@ public class ModelValidator {
             }
             for (NotificationModel n : module.getNotifications()) {
                 if (n.getModule() != module) {
-                    throw new ZscriptModelException("Notification definition must back-reference to its Module [module=%s, command=%s, back-ref=%s]", module.getName(), n.getName(),
-                            n.getModule());
+                    throw new ZscriptModelException("Notification definition must back-reference to its Module [module=%s, notification=%s, back-ref=%s]", module.getName(),
+                            n.getName(), n.getModule());
                 }
                 checkNotification(n);
             }
@@ -113,9 +113,7 @@ public class ModelValidator {
             throw new ZscriptModelException("Module has no 'sections' [name=%s, notification=0x%x]", notification.getName(), notification.getNotification());
         }
 
-        for (int i = 0; i < sections.size(); i++) {
-            NotificationSectionNodeModel sNode = sections.get(i);
-
+        for (NotificationSectionNodeModel sNode : sections) {
             if (sNode.getSection() == null) {
                 throw new ZscriptModelException("NotificationSectionNode must contain a 'section' definition [notification=%s]", notification.getNotificationName());
             }

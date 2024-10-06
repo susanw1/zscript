@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+import net.zscript.model.datamodel.ZscriptDataModel.CommandModel;
 import net.zscript.model.datamodel.ZscriptDataModel.ModuleModel;
 
 class ZscriptModelTest {
@@ -42,4 +43,14 @@ class ZscriptModelTest {
         assertThat(model.getNotification(0x7b94)).isPresent();
     }
 
+    @Test
+    void shouldIdentifyFieldTypeDefinition() {
+        ZscriptModel                 model   = ZscriptModel.standardModel();
+        final Optional<CommandModel> command = model.getCommand(0x0001);
+        assertThat(command).isPresent();
+
+        assertThat(command.get().getRequestFields()).hasSize(3)
+                .extracting(f -> f.getTypeDefinition().getType())
+                .contains("number", "any", "cmd");
+    }
 }
