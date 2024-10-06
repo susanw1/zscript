@@ -56,7 +56,7 @@ public class Utils {
     @Nonnull
     public static byte[] formatField(byte f, int value) {
         if (value >= 0x10000 || value < 0) {
-            throw new IllegalStateException("Command fields must be uint16s: " + value);
+            throw new IllegalArgumentException("Command fields must be uint16: 0x" + Integer.toHexString(value));
         }
         if (value == 0) {
             return new byte[] { f };

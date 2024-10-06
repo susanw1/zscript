@@ -23,7 +23,7 @@ import net.zscript.util.ByteString.ByteStringBuilder;
 /**
  * Represents a set of fields making up a Zscript expression (single command or response) that can be parsed from Tokens.
  */
-public class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
+public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
 
     private final List<BigField> bigFields;
     private final int[]          fields;

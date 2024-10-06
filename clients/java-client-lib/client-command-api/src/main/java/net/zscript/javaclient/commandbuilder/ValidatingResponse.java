@@ -5,7 +5,7 @@ import java.util.OptionalInt;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.ZscriptExpression;
 
-public abstract class ValidatingResponse implements ZscriptResponse {
+public class ValidatingResponse implements ZscriptResponse {
     protected final ZscriptExpression expression;
     private final   byte[]            requiredKeys;
 
