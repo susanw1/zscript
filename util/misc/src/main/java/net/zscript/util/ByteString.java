@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
@@ -642,7 +643,9 @@ public final class ByteString implements Iterable<Byte> {
      * @param <T> the type of object to append
      */
     public interface ByteAppender<T> {
-        ByteAppender<ByteAppendable> DEFAULT_APPENDER = ByteAppendable::appendTo;
+        ByteAppender<ByteAppendable> DEFAULT_APPENDER   = ByteAppendable::appendTo;
+        ByteAppender<String>         UTF8_APPENDER      = (s, builder) -> builder.appendUtf8(s);
+        ByteAppender<String>         ISOLATIN1_APPENDER = (s, builder) -> builder.appendRaw(s.getBytes(ISO_8859_1));
 
         /**
          * Defines how to perform the append for the supplied object

@@ -1,13 +1,14 @@
 package net.zscript.javaclient.commandPaths;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 import net.zscript.tokenizer.ZscriptField;
 import net.zscript.util.BlockIterator;
 import net.zscript.util.ByteString;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class NumberField implements ZscriptField, ByteString.ByteAppendable {
+public final class NumberField implements ZscriptField, ByteString.ByteAppendable {
     private final byte key;
     private final int  value;
 
@@ -44,6 +45,21 @@ public class NumberField implements ZscriptField, ByteString.ByteAppendable {
     @Override
     public void appendTo(ByteStringBuilder builder) {
         builder.appendByte(key).appendNumeric16(value);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof ZscriptField))
+            return false;
+        ZscriptField other = (ZscriptField) o;
+        return !other.isBigField() && key == other.getKey() && value == other.getValue();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value);
     }
 
     @Override

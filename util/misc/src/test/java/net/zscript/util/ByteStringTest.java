@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static net.zscript.util.ByteString.ByteAppender.ISOLATIN1_APPENDER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIndexOutOfBoundsException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -138,11 +139,10 @@ class ByteStringTest {
         assertThat(ByteString.from((byte) 'a').toByteArray()).containsExactly('a');
         assertThat(ByteString.from(new byte[] { 'a', 'b' }).toByteArray()).containsExactly('a', 'b');
 
-        ByteString.ByteAppender<String> appender = (object, builder) -> builder.appendUtf8(object);
-        assertThat(ByteString.concat(appender, "hello", " ", "world").asString()).isEqualTo("hello world");
-        assertThat(ByteString.concat(appender, List.of("hello", " ", "world")).asString()).isEqualTo("hello world");
+        assertThat(ByteString.concat(ISOLATIN1_APPENDER, "hello", " ", "world").asString()).isEqualTo("hello world");
+        assertThat(ByteString.concat(ISOLATIN1_APPENDER, List.of("hello", " ", "world")).asString()).isEqualTo("hello world");
 
-        assertThat(appender.toByteString("Hello")).isEqualTo(ByteString.builder().appendUtf8("Hello").build());
+        assertThat(ISOLATIN1_APPENDER.toByteString("Hello")).isEqualTo(ByteString.builder().appendUtf8("Hello").build());
     }
 
     @Test
