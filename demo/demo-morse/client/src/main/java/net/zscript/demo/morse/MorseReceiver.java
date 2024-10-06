@@ -42,15 +42,15 @@ public class MorseReceiver {
 
             // // Older notification registration system, using Captors.
             ResponseCaptor<PinsModule.DigitalNotificationSectionContent> captor = ResponseCaptor.create();
-            device.getNotificationHandle(PinsModule.DigitalNotificationId.get())
+            device.getNotificationHandle(PinsModule.DigitalNotification.ID)
                     .getSection(PinsModule.DigitalNotificationSectionContent.class)
                     .setCaptor(captor);
-            device.setNotificationListener_Prev(PinsModule.DigitalNotificationId.get(), notificationSequenceCallback -> {
+            device.setNotificationListener_Prev(PinsModule.DigitalNotification.ID, notificationSequenceCallback -> {
                 PinsModule.DigitalNotificationSectionContent content = notificationSequenceCallback.getResponseFor(captor).get();
 
             });
 
-            device.setNotificationListener(PinsModule.DigitalNotificationId.get(), n -> {
+            device.setNotificationListener(PinsModule.DigitalNotification.ID, n -> {
                 PinsModule.DigitalNotificationSectionContent content = n.getDigitalSection();
 
                 long   current = System.nanoTime();

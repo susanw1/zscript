@@ -27,6 +27,8 @@ import net.zscript.model.components.*;
  * {{longDescription}}
 {{/longDescription}}
  *
+ * @see All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands
+ * @see All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications
  * @version {{version}}
  */
 @Generated(value = "JavaCommandBuilder.mustache",
@@ -50,16 +52,16 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
     * Note: There are <b>NO COMMANDS</b> defined in this module, which is why this enum appears empty.
     {{/commands}}
      */
-    public static enum {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands {
+    public static enum All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands {
 {{#commands}}
-        /** {{description}} ({@link {{#upperCamel}}{{{commandName}}}{{/upperCamel}}Command#CMD}) */
+        /** {{description}} ({@link {{#upperCamel}}{{{commandName}}}{{/upperCamel}}Command}) */
         {{#upperCamel}}{{{commandName}}}{{/upperCamel}}({{command}}),
 {{/commands}}
         ;
 
         private final byte command;
 
-        private {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands(int command) {
+        private All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands(int command) {
             if ((command & ~0xf) != 0) {
                 throw new ZscriptModelException("Invalid command number: " + command);
             }
@@ -85,16 +87,16 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
     * Note: There are <b>NO NOTIFICATIONS</b> defined in this module, which is why this enum appears empty.
     {{/notifications}}
      */
-    public static enum {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications {
+    public static enum All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications {
 {{#notifications}}
-        /** {{description}} ({@link {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}NotificationId#NTFN}) */
+        /** {{description}} ({@link {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}Notification#NTFN}) */
         {{#upperCamel}}{{{notificationName}}}{{/upperCamel}}({{notification}}),
 {{/notifications}}
         ;
 
         private final byte notification;
 
-        private {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications(int notification) {
+        private All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Notifications(int notification) {
             if ((notification & ~0xf) != 0) {
                 throw new ZscriptModelException("Invalid notification number: " + notification);
             }
@@ -125,15 +127,29 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
 {{/commands}}
 {{#commands}}
     /**
-    * Defines the '{{#upperCamel}}{{{commandName}}}{{/upperCamel}}' command: {{description}}.
+    * Defines the '{{#upperCamel}}{{{commandName}}}{{/upperCamel}}' ({@code Z{{fullCommand}}}) command: {{description}}.
     {{#longDescription}}
     * <p>
     * {{longDescription}}
     {{/longDescription}}
+    * <p>
+    * Fields in this command are:
+    * <ul>
+    {{#requestFields}}
+    * <li><i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}'){{^required}} <i>[opt.]</i>{{/required}}: {{description}}</li>
+    {{/requestFields}}
+    * </ul>
+    * <p>
+    * Fields in the response to this command are:
+    * <ul>
+    {{#responseFields}}
+    * <li><i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}'){{^required}} <i>[opt.]</i>{{/required}}: {{description}}</li>
+    {{/responseFields}}
+    * </ul>
     */
     public static final class {{#upperCamel}}{{{commandName}}}{{/upperCamel}}Command
             extends ZscriptCommandNode<{{#upperCamel}}{{{commandName}}}{{/upperCamel}}Command.{{#upperCamel}}{{{commandName}}}{{/upperCamel}}Response> {
-        public static final {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands CMD = {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands.{{#upperCamel}}{{{commandName}}}{{/upperCamel}};
+        public static final All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands CMD = All{{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Commands.{{#upperCamel}}{{{commandName}}}{{/upperCamel}};
 
         private {{#upperCamel}}{{{commandName}}}Command{{/upperCamel}}(Builder builder) {
             super(builder);
@@ -191,7 +207,7 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
         }
 
         /**
-         * Defines the response to a '{{#upperCamel}}{{{commandName}}}{{/upperCamel}}' command: {{description}}
+         * Defines the response to a {@link {{#upperCamel}}{{{commandName}}}{{/upperCamel}}Command}: {{description}}
          */
         public static final class {{#upperCamel}}{{{commandName}}}{{/upperCamel}}Response extends ValidatingResponse {
             public {{#upperCamel}}{{{commandName}}}{{/upperCamel}}Response(ZscriptExpression response) {
