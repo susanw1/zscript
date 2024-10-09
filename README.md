@@ -1,9 +1,10 @@
 ![ZscriptLogo-1](https://github.com/susanw1/zscript/assets/54667166/782f22bc-a916-446f-a5f5-1de6e13dff60)
 
 [![Java Build](https://github.com/susanw1/zscript/actions/workflows/maven.yaml/badge.svg)](https://github.com/susanw1/zscript/actions/workflows/maven.yaml)
-[![codecov](https://codecov.io/gh/susanw1/zscript/graph/badge.svg?token=V4A5P958UU)](https://codecov.io/gh/susanw1/zscript)
-[![javadoc](https://javadoc.io/badge2/net.zscript/zscript-all/javadoc.svg)](https://javadoc.io/doc/net.zscript/zscript-all)
+[![Codecov](https://codecov.io/gh/susanw1/zscript/graph/badge.svg?token=V4A5P958UU)](https://codecov.io/gh/susanw1/zscript)
 [![CodeFactor](https://www.codefactor.io/repository/github/susanw1/zscript/badge)](https://www.codefactor.io/repository/github/susanw1/zscript)
+[![Javadoc](https://javadoc.io/badge2/net.zscript/zscript-all/javadoc.svg)](https://javadoc.io/doc/net.zscript/zscript-all)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ***
 
