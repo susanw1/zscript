@@ -21,12 +21,12 @@ import net.zscript.model.loader.ModuleBank;
 public class ZscriptModuleTemplatingContextLoader implements TemplatingPluginContextLoader {
 
     @Override
-    public List<LoadableEntities.LoadedEntityContent> loadAndMap(LoadableEntities entities) {
+    public List<LoadableEntities.LoadedEntityScopes> loadAndMap(LoadableEntities entities) {
         return entities.loadEntities(this::load);
     }
 
-    private List<LoadableEntities.LoadedEntityContent> load(LoadableEntities.LoadableEntity entity) {
-        List<LoadableEntities.LoadedEntityContent> result = new ArrayList<>();
+    private List<LoadableEntities.LoadedEntityScopes> load(LoadableEntities.LoadableEntity entity) {
+        List<LoadableEntities.LoadedEntityScopes> result = new ArrayList<>();
 
         try {
             final URL          fullPathAsUrl = entity.getFullPathAsUrl();
@@ -44,7 +44,7 @@ public class ZscriptModuleTemplatingContextLoader implements TemplatingPluginCon
                     final Path targetFileName = determineOutputPath(moduleBank.getDefaultPackage().stream(), capitalizedBankName, helper, entity.getFileSystem());
 
                     final List<Object> contents = List.of(helper, model.getIntrinsics());
-                    result.add(entity.withContents(contents, targetFileName));
+                    result.add(entity.withScopes(contents, targetFileName));
                 } else {
                     for (final ModuleModel module : moduleBank.modules()) {
                         final String       moduleName      = requireNonNull(module.getName(), "module name not defined");
@@ -58,7 +58,7 @@ public class ZscriptModuleTemplatingContextLoader implements TemplatingPluginCon
                         final Path targetFileName = determineOutputPath(Stream.concat(packageElements.stream(), Stream.of(bankName)), capitalizedClassFilename, helper,
                                 entity.getFileSystem());
                         final List<Object> contents = List.of(helper, model.getIntrinsics(), module);
-                        result.add(entity.withContents(contents, targetFileName));
+                        result.add(entity.withScopes(contents, targetFileName));
                     }
                 }
             }
@@ -70,9 +70,10 @@ public class ZscriptModuleTemplatingContextLoader implements TemplatingPluginCon
 
     private static Path determineOutputPath(Stream<String> packageElementStream, String fileName, ConversionHelper helper, FileSystem fs) {
         final List<String> fqcn = packageElementStream
-                .map(p -> p.toLowerCase().replaceAll("- ", "_"))
+                .map(p -> helper.fixNonJavaIdentifiers(p.toLowerCase()))
                 .collect(toList());
         helper.getAdditional().put("package-elements", String.join(".", fqcn));
+        // annoyingly separate list into "first"+"more" so that getPath can put them back together again!
         final Path packagePath = fs.getPath(fqcn.get(0), fqcn.subList(1, fqcn.size()).toArray(new String[0]));
         return packagePath.resolve(fileName);
     }

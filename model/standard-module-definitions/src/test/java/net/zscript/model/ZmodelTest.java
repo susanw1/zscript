@@ -30,7 +30,7 @@ class ZmodelTest {
     void shouldLoadDefinitionAndFetchModules() {
         ZscriptModel model = ZscriptModel.standardModel();
         assertThat(model.getModuleBank(MODULEBANK_BASE_NAME)).isPresent();
-        assertThat(model.getModuleBank(MODULEBANK_BASE_NAME).get().getModule(MODULE_BASE_CORE_NAME)).isPresent();
+        assertThat(model.getModuleBank(MODULEBANK_BASE_NAME).orElseThrow().getModule(MODULE_BASE_CORE_NAME)).isPresent();
         assertThat(model.getModule(MODULEBANK_BASE_NAME, MODULE_BASE_CORE_NAME)).isPresent();
         assertThat(model.getModule(MODULEBANK_BASE_NAME, "Boo")).isNotPresent();
         assertThat(model.getModule("Foo", MODULE_BASE_CORE_NAME)).isNotPresent();
