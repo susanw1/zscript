@@ -1,15 +1,17 @@
-package net.zscript.javareceiver.core;
+package net.zscript.javareceiver.testing;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+
+import net.zscript.javareceiver.core.AbstractOutStream;
 
 /**
  * Utility class for helping tests: AbstractOutStream implementation that collects bytes
  */
 public class OutputStreamOutStream<Z extends OutputStream> extends AbstractOutStream {
     private final Z output;
-    boolean         open = false;
+    boolean open = false;
 
     public OutputStreamOutStream(final Z output) {
         this.output = output;

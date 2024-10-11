@@ -14,9 +14,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class AcceptanceTestAssert extends AcceptanceTestMessageAssert {
     private final AcceptanceTestConnection connection;
-    private final byte[] toSend;
-    private final AcceptanceFuture future = new AcceptanceFuture();
-    private int otherMessagesInFlight;
+    private final byte[]                   toSend;
+    private final AcceptanceFuture         future = new AcceptanceFuture();
+    private       int                      otherMessagesInFlight;
 
     public AcceptanceTestAssert(AcceptanceTestConnection connection, byte[] toSend, int otherMessagesInFlight) {
         this.connection = connection;
@@ -41,10 +41,10 @@ public class AcceptanceTestAssert extends AcceptanceTestMessageAssert {
 
     private void acceptResponse(byte[] resp) {
         try {
-            PushbackInputStream in = new PushbackInputStream(new ByteArrayInputStream(resp));
-            AcceptanceTestResponseSequence seq = new AcceptanceTestResponseSequence();
-            int c = in.read();
-            String current = "";
+            PushbackInputStream            in      = new PushbackInputStream(new ByteArrayInputStream(resp));
+            AcceptanceTestResponseSequence seq     = new AcceptanceTestResponseSequence();
+            int                            c       = in.read();
+            String                         current = "";
             while (c != -1) {
                 in.unread(c);
                 AcceptanceTestResponse parsedResp = new AcceptanceTestResponse();
@@ -69,10 +69,10 @@ public class AcceptanceTestAssert extends AcceptanceTestMessageAssert {
     }
 
     private class AcceptanceFuture implements Future<Void> {
-        private final ReentrantLock lock = new ReentrantLock();
-        private final Condition complete = lock.newCondition();
-        private Throwable failure = null;
-        private boolean comp = false;
+        private final ReentrantLock lock     = new ReentrantLock();
+        private final Condition     complete = lock.newCondition();
+        private       Throwable     failure  = null;
+        private       boolean       comp     = false;
 
         public void complete() {
             lock.lock();

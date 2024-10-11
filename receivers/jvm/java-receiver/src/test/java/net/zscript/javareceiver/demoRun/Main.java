@@ -2,7 +2,6 @@ package net.zscript.javareceiver.demoRun;
 
 import javax.annotation.Nonnull;
 
-import net.zscript.javareceiver.core.OutputStreamOutStream;
 import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptChannel;
@@ -11,6 +10,7 @@ import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
 import net.zscript.javareceiver.modules.outerCore.ZscriptOuterCoreModule;
 import net.zscript.javareceiver.modules.scriptSpaces.ScriptSpaceModule;
 import net.zscript.javareceiver.scriptSpaces.ScriptSpace;
+import net.zscript.javareceiver.testing.OutputStreamOutStream;
 import net.zscript.tokenizer.TokenRingBuffer;
 import net.zscript.tokenizer.Tokenizer;
 

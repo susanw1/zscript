@@ -6,6 +6,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.output.WriterOutputStream;
 
+import net.zscript.javareceiver.testing.OutputStreamOutStream;
+
 /**
  * Utility class for helping tests: AbstractOutStream implementation that collects bytes
  */
