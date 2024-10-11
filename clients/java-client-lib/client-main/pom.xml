@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>zscript-java-client-main</artifactId>
-    <name>Java Client Main</name>
+    <name>Java Client Devices</name>
 
     <dependencies>
         <dependency>

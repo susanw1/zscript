@@ -1,5 +1,9 @@
 package net.zscript.javaclient.connectors.serial;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.function.Consumer;
+
 import static java.util.Objects.requireNonNull;
 
 import com.fazecast.jSerialComm.SerialPort;
@@ -8,10 +12,6 @@ import com.fazecast.jSerialComm.SerialPortIOException;
 import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.function.Consumer;
 
 import net.zscript.javaclient.connectors.RawConnection;
 
