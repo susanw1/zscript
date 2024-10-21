@@ -16,9 +16,9 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.zscript.javaclient.connectors.RawConnection;
+import net.zscript.javaclient.nodes.DirectConnection;
 
-public class TcpConnection extends RawConnection {
+public class TcpConnection extends DirectConnection {
     private static final Logger          LOG = LoggerFactory.getLogger(TcpConnection.class);
     private final        Socket          socket;
     private final        ExecutorService executor;

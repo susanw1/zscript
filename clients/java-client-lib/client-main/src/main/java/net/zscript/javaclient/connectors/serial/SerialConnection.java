@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.function.Consumer;
 
-import static java.util.Objects.requireNonNull;
-
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortIOException;
@@ -13,19 +11,19 @@ import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.zscript.javaclient.connectors.RawConnection;
+import net.zscript.javaclient.nodes.DirectConnection;
 
 /**
  *
  */
 // Note: SerialPort is hard to use in tests as it contains Android references which cause Mocking failure.
-public class SerialConnection extends RawConnection {
+public class SerialConnection extends DirectConnection {
     private static final Logger LOG = LoggerFactory.getLogger(SerialConnection.class);
 
     private final SerialPort   commPort;
     private final OutputStream out;
 
-    private Consumer<byte[]> handler;
+    private Consumer<byte[]> responseHandler;
 
     public SerialConnection(SerialPort commPort) throws IOException {
         this.commPort = commPort;
@@ -50,10 +48,11 @@ public class SerialConnection extends RawConnection {
      */
     @Override
     public void onReceiveBytes(final Consumer<byte[]> responseHandler) {
-        if (this.handler != null) {
-            throw new IllegalStateException("Handler already assigned");
+        if (this.responseHandler != null) {
+            commPort.removeDataListener();
         }
-        this.handler = requireNonNull(responseHandler, "handler");
+
+        this.responseHandler = responseHandler;
 
         commPort.addDataListener(new SerialPortMessageListenerWithExceptions() {
             @Override

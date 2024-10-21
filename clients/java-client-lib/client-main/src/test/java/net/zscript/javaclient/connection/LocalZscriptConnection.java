@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.zscript.javaclient.connectors.RawConnection;
+import net.zscript.javaclient.nodes.DirectConnection;
 import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptChannel;
@@ -22,7 +22,7 @@ import net.zscript.javareceiver.testing.OutputStreamOutStream;
 import net.zscript.tokenizer.TokenRingBuffer;
 import net.zscript.tokenizer.Tokenizer;
 
-public class LocalZscriptConnection extends RawConnection {
+public class LocalZscriptConnection extends DirectConnection {
     private static final Logger           LOG    = LoggerFactory.getLogger(LocalZscriptConnection.class);
     private final        ExecutorService  exec   = Executors.newSingleThreadExecutor();
     private final        Queue<byte[]>    dataIn = new ArrayDeque<>();

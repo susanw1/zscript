@@ -12,7 +12,7 @@ import io.cucumber.java.en.Given;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
 import net.zscript.javareceiver.modules.outerCore.ZscriptOuterCoreModule;
-import net.zscript.javareceiver.testing.IostreamChannel;
+import net.zscript.javareceiver.testing.LocalChannel;
 import net.zscript.tokenizer.TokenRingBuffer;
 
 public class JavaReceiverCucumberStartup {
@@ -32,7 +32,7 @@ public class JavaReceiverCucumberStartup {
             InputStream     commandStream  = new PipedInputStream();
             OutputStream    responseStream = new PipedOutputStream();
 
-            z.addChannel(new IostreamChannel(buffer, commandStream, responseStream));
+            z.addChannel(new LocalChannel(buffer, commandStream, responseStream));
 
             execs = Executors.newSingleThreadExecutor();
             execs.submit(() -> {
