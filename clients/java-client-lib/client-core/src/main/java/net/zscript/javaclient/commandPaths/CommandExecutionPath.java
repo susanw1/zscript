@@ -14,6 +14,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
@@ -25,6 +26,15 @@ import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 import net.zscript.util.OptIterator;
 
+/**
+ * A sendable, unaddressed command sequence, without locks and echo fields. It is composed of {@link Command} objects which are aware of what Commands follow on success/failure, so
+ * a CommandExecutionPath is essentially "execution-aware".
+ * <p>
+ * It's the bare "thing that we want executing", before adding the addressing and sequence-level fields which get it to the right place and in the right state. These might be added
+ * by a client runtime representing a device node hierarchy, see {@link net.zscript.javaclient.nodes.ZscriptNode#send(CommandExecutionPath, Consumer)}.
+ * <p>
+ * On execution, the corresponding response object is a {@link ResponseExecutionPath}.
+ */
 public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
 
     public static CommandExecutionPath parse(ReadToken start) {
@@ -203,6 +213,12 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         }
     }
 
+    /**
+     * Determines whether the supplied ResponseExecutionPath is a plausible response to these commands.
+     *
+     * @param resps a response path to check
+     * @return true if they match, false otherwise
+     */
     public boolean matchesResponses(ResponseExecutionPath resps) {
         try {
             compareResponses(resps);
@@ -212,6 +228,12 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         }
     }
 
+    /**
+     * Creates a list of response matches from the supplied response path, corresponding to this command path.
+     *
+     * @param resps a response path to match
+     * @return a list of these commands, matched to their corresponding responses
+     */
     public List<MatchedCommandResponse> compareResponses(ResponseExecutionPath resps) {
         Deque<Command> parenStarts = new ArrayDeque<>();
         // fill out parenStarts so that we can have as many ')' as we want...
@@ -309,7 +331,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         return new OptIterator<Command>() {
             final Set<Command> visited = new HashSet<>();
             Iterator<Command> toVisit = Set.of(firstCommand).iterator();
-            Set<Command> next = new HashSet<>();
+            Set<Command>      next    = new HashSet<>();
 
             @Nonnull
             @Override
@@ -356,6 +378,9 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         return model;
     }
 
+    /**
+     * Utility class representing a command element during the parse process.
+     */
     private static class CommandBuilder {
         ReadToken start = null;
 

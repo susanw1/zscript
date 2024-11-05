@@ -6,7 +6,7 @@ import net.zscript.util.ByteString;
 import net.zscript.util.ByteString.ByteAppendable;
 
 /**
- * Represents a single command within a command-sequence, with its fields; it keeps track of the commands that follow it onSuccess
+ * Represents a single command within a command-sequence, with its fields; it keeps track of the commands that follow it on success (ie AND_THEN) or on failure (ie OR_ELSE).
  */
 public class Command implements ByteAppendable {
     private final ZscriptFieldSet fieldSet;

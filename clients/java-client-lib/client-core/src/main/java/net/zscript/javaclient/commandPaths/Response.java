@@ -6,6 +6,9 @@ import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
+/**
+ * Component of a {@link net.zscript.javaclient.sequence.ResponseSequence}
+ */
 public final class Response implements ByteAppendable {
     private final ZscriptFieldSet fieldSet;
 
@@ -38,7 +41,7 @@ public final class Response implements ByteAppendable {
         fieldSet.appendTo(out);
     }
 
-    public void separatorBytes(ByteStringBuilder builder) {
+    void separatorBytes(ByteStringBuilder builder) {
         if (wasSuccess) {
             if (isOpenBracket) {
                 builder.appendByte(Zchars.Z_OPENPAREN);
@@ -64,15 +67,15 @@ public final class Response implements ByteAppendable {
         return fieldSet;
     }
 
-    public boolean hasOpenParen() {
+    boolean hasOpenParen() {
         return isOpenBracket;
     }
 
-    public boolean hasCloseParen() {
+    boolean hasCloseParen() {
         return isCloseBracket;
     }
 
-    public int getParenCount() {
+    int getParenCount() {
         return bracketCount;
     }
 }

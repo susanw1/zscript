@@ -1,9 +1,9 @@
 package net.zscript.demo.morse;
 
-import com.fazecast.jSerialComm.SerialPort;
-
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
+import com.fazecast.jSerialComm.SerialPort;
 
 import net.zscript.javaclient.connectors.serial.SerialConnection;
 import net.zscript.javaclient.devices.Device;
