@@ -116,7 +116,7 @@ public final class ByteString implements Iterable<Byte> {
     @Override
     @Nonnull
     public String toString() {
-        return "ByteString[" + asString() + "]";
+        return "ByteString[\"" + asString() + "\"]";
     }
 
     /**
@@ -605,7 +605,7 @@ public final class ByteString implements Iterable<Byte> {
         @Nonnull
         @Override
         public String toString() {
-            return "ByteStringBuilder[" + asString() + "]";
+            return "ByteStringBuilder[\"" + asString() + "\"]";
         }
 
         @Nonnull

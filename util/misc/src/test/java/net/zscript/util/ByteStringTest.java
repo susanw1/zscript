@@ -204,11 +204,11 @@ class ByteStringTest {
 
     @Test
     public void toStringContract() {
-        assertThat(ByteString.builder().appendByte('Z').appendNumeric16(0x12).build().toString()).isEqualTo("ByteString[Z12]");
+        assertThat(ByteString.builder().appendByte('Z').appendNumeric16(0x12).build().toString()).isEqualTo("ByteString[\"Z12\"]");
     }
 
     @Test
     public void builderToStringContract() {
-        assertThat(ByteString.builder().appendByte('Z').appendNumeric16(0x12).toString()).isEqualTo("ByteStringBuilder[Z12]");
+        assertThat(ByteString.builder().appendByte('Z').appendNumeric16(0x12).toString()).isEqualTo("ByteStringBuilder[\"Z12\"]");
     }
 }
