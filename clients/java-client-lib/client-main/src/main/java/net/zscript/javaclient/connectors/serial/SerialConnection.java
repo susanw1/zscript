@@ -47,12 +47,12 @@ public class SerialConnection extends DirectConnection {
      * {@inheritDoc}
      */
     @Override
-    public void onReceiveBytes(final Consumer<byte[]> responseHandler) {
+    public void onReceiveBytes(final Consumer<byte[]> bytesResponseHandler) {
         if (this.responseHandler != null) {
             commPort.removeDataListener();
         }
 
-        this.responseHandler = responseHandler;
+        this.responseHandler = bytesResponseHandler;
 
         commPort.addDataListener(new SerialPortMessageListenerWithExceptions() {
             @Override
@@ -68,7 +68,7 @@ public class SerialConnection extends DirectConnection {
             @Override
             public void serialEvent(SerialPortEvent serialPortEvent) {
                 if (serialPortEvent.getEventType() == SerialPort.LISTENING_EVENT_DATA_RECEIVED) {
-                    responseHandler.accept(serialPortEvent.getReceivedData());
+                    bytesResponseHandler.accept(serialPortEvent.getReceivedData());
                 }
             }
 

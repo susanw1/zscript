@@ -2,7 +2,6 @@ package net.zscript.javaclient.testing;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.function.Consumer;
 
@@ -19,8 +18,7 @@ import net.zscript.javaclient.nodes.DirectConnection;
 public class LocalConnection extends DirectConnection {
     private static final Logger LOG = LoggerFactory.getLogger(LocalConnection.class);
 
-    private OutputStream commandStream;
-    private InputStream  responseStream;
+    private final OutputStream commandStream;
 
     @Nullable
     private Consumer<byte[]> responseHandler;
@@ -28,13 +26,12 @@ public class LocalConnection extends DirectConnection {
     /**
      * Basic Connection that allows commands to be written to an outputStream, and responses/notifications to be read from an InputStream.
      *
-     * @param commandStream  commands are written here
-     * @param responseStream responses are read from here
+     * @param commandStream        commands are written here
+     * @param bytesResponseHandler responses are read from here
      */
-    public LocalConnection(OutputStream commandStream, InputStream responseStream) {
+    public LocalConnection(OutputStream commandStream, Consumer<byte[]> bytesResponseHandler) {
         this.commandStream = requireNonNull(commandStream, "commandStream");
-        this.responseStream = requireNonNull(responseStream, "responseStream");
-        this.responseHandler = null;
+        this.responseHandler = requireNonNull(bytesResponseHandler, "bytesResponseHandler");
     }
 
     @Override
@@ -43,11 +40,11 @@ public class LocalConnection extends DirectConnection {
     }
 
     /**
-     * @param responseHandler a consumer to process received bytes; if null, then receiver is unset
+     * @param bytesResponseHandler a consumer to process received bytes; if null, then receiver is unset
      */
     @Override
-    protected void onReceiveBytes(@Nullable Consumer<byte[]> responseHandler) {
-        this.responseHandler = responseHandler;
+    protected void onReceiveBytes(@Nullable Consumer<byte[]> bytesResponseHandler) {
+        this.responseHandler = bytesResponseHandler;
     }
 
     @Override

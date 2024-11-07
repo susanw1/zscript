@@ -30,7 +30,7 @@ class ZscriptBasicNode implements ZscriptNode {
     private final ConnectionBuffer connectionBuffer;
     private final Connection       parentConnection;
 
-    private QueuingStrategy strategy = new StandardQueuingStrategy(1000, TimeUnit.MILLISECONDS); // should be enough for almost all cases
+    private QueuingStrategy strategy = new StandardQueuingStrategy(1000, TimeUnit.SECONDS); // should be enough for almost all cases
 
     private BiConsumer<AddressedCommand, AddressedResponse> badCommandResponseMatchHandler = (cmd, resp) -> {
         LOG.error("Command and response do not match: {} ; {}", cmd.getContent().toByteString().asString(), resp.getContent().toByteString().asString());

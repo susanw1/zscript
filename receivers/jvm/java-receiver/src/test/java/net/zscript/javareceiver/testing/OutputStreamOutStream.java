@@ -7,7 +7,7 @@ import java.io.UncheckedIOException;
 import net.zscript.javareceiver.core.AbstractOutStream;
 
 /**
- * Utility class for helping tests: AbstractOutStream implementation that collects bytes
+ * Utility class for helping tests: AbstractOutStream implementation that collects bytes and writes them to a specified {@link java.io.OutputStream}.
  */
 public class OutputStreamOutStream<Z extends OutputStream> extends AbstractOutStream {
     private final Z output;

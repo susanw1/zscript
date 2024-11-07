@@ -22,6 +22,7 @@ import net.zscript.javareceiver.testing.OutputStreamOutStream;
 import net.zscript.tokenizer.TokenRingBuffer;
 import net.zscript.tokenizer.Tokenizer;
 
+@Deprecated
 public class LocalZscriptConnection extends DirectConnection {
     private static final Logger           LOG    = LoggerFactory.getLogger(LocalZscriptConnection.class);
     private final        ExecutorService  exec   = Executors.newSingleThreadExecutor();
@@ -68,10 +69,10 @@ public class LocalZscriptConnection extends DirectConnection {
         };
 
         zscript.addChannel(new ZscriptChannel(ringBuffer, outStream) {
-            final Tokenizer in = new Tokenizer(ringBuffer.getTokenWriter(), 2);
+            final Tokenizer tokenizer = new Tokenizer(ringBuffer.getTokenWriter(), 2);
 
             byte[] current = null;
-            int pos = 0;
+            int    pos     = 0;
 
             @Override
             public void moveAlong() {
@@ -82,7 +83,7 @@ public class LocalZscriptConnection extends DirectConnection {
                     current = dataIn.poll();
                     pos = 0;
                 }
-                while (pos < current.length && in.offer(current[pos])) {
+                while (pos < current.length && tokenizer.offer(current[pos])) {
                     pos++;
                 }
                 if (pos >= current.length) {
@@ -108,8 +109,8 @@ public class LocalZscriptConnection extends DirectConnection {
     }
 
     @Override
-    public void onReceiveBytes(@Nonnull Consumer<byte[]> responseHandler) {
-        this.responseHandler = responseHandler;
+    public void onReceiveBytes(@Nonnull Consumer<byte[]> bytesResponseHandler) {
+        this.responseHandler = bytesResponseHandler;
     }
 
     public void close() {

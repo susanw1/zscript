@@ -1,12 +1,10 @@
-package net.zscript.javareceiver.core;
+package net.zscript.javareceiver.testing;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.output.WriterOutputStream;
-
-import net.zscript.javareceiver.testing.OutputStreamOutStream;
 
 /**
  * Utility class for helping tests: AbstractOutStream implementation that collects bytes

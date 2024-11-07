@@ -27,7 +27,7 @@ public class TcpConnection extends DirectConnection {
     private final OutputStream out;
 
     private Future<?>        future;
-    private Consumer<byte[]> handler;
+    private Consumer<byte[]> bytesResponseHandler;
 
     @Override
     protected Logger getLogger() {
@@ -51,12 +51,12 @@ public class TcpConnection extends DirectConnection {
     }
 
     @Override
-    public void onReceiveBytes(final Consumer<byte[]> responseHandler) {
-        if (this.handler != null) {
+    public void onReceiveBytes(final Consumer<byte[]> bytesResponseHandler) {
+        if (this.bytesResponseHandler != null) {
             throw new IllegalStateException("Handler already assigned");
         }
 
-        this.handler = responseHandler;
+        this.bytesResponseHandler = bytesResponseHandler;
         this.future = executor.submit(this::readAndHandle);
     }
 
@@ -68,7 +68,7 @@ public class TcpConnection extends DirectConnection {
                 while ((ch = in.read()) != -1) {
                     baos.write(ch);
                     if (ch == '\n') {
-                        handler.accept(baos.toByteArray());
+                        bytesResponseHandler.accept(baos.toByteArray());
                         baos.reset();
                         break;
                     }

@@ -1,19 +1,21 @@
 package net.zscript.javareceiver.testing;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.Iterator;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import net.zscript.javareceiver.core.ZscriptChannel;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.tokenizer.TokenBuffer;
 import net.zscript.tokenizer.Tokenizer;
 import net.zscript.util.ByteString;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
 /**
  * Channel designed for testing. It reads commands from an InputStream and sends responses/notifications to an OutputStream.
@@ -27,17 +29,23 @@ public class LocalChannel extends ZscriptChannel {
     private final Tokenizer   tokenizer;
 
     /** Accumulation buffer for bytes from background thread */
-    private final AtomicReference<ByteString.ByteStringBuilder> byteAccumulator;
-    private       Iterator<Byte>                                byteIterator; // current bytes, or null if we're waiting for more
+    private final AtomicReference<ByteStringBuilder> byteAccumulator;
+    private       Iterator<Byte>                     byteIterator; // current bytes, or null if we're waiting for more
 
     /**
      * Channel reads commands and sends responses/notifications.
      *
-     * @param commandStream  the source of commands
-     * @param responseStream the return stream for responses/notifications
+     * @param commandStream   the source of commands
+     * @param responseHandler the consumer to send completed response sequences
      */
-    public LocalChannel(final TokenBuffer buffer, InputStream commandStream, OutputStream responseStream) {
-        super(buffer, new OutputStreamOutStream<>(responseStream));
+    public LocalChannel(TokenBuffer buffer, InputStream commandStream, Consumer<byte[]> responseHandler) {
+        super(buffer, new OutputStreamOutStream<>(new ByteArrayOutputStream()) {
+            @Override
+            public void close() {
+                responseHandler.accept(getOutputStream().toByteArray());
+                getOutputStream().reset();
+            }
+        });
         this.commandStream = commandStream;
         this.tokenizer = new Tokenizer(buffer.getTokenWriter());
 
@@ -55,7 +63,7 @@ public class LocalChannel extends ZscriptChannel {
     public void moveAlong() {
         // if we've not got any bytes to iterate, but there are more accumulated, then take them.
         if (byteIterator == null && byteAccumulator.get().size() > 0) {
-            ByteString.ByteStringBuilder existingBytes = byteAccumulator.getAndUpdate(b -> ByteString.builder());
+            ByteStringBuilder existingBytes = byteAccumulator.getAndUpdate(b -> ByteString.builder());
             byteIterator = existingBytes.build().iterator();
         }
         // if there are bytes to iterate, then process them

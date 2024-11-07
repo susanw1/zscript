@@ -1,4 +1,4 @@
-package net.zscript.javareceiver.fullRun;
+package net.zscript.javareceiver.testing;
 
 import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;
