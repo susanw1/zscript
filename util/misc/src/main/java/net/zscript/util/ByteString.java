@@ -308,6 +308,10 @@ public final class ByteString implements Iterable<Byte> {
 
         private final ExpandableBuffer buffer = new ExpandableBuffer(128);
 
+        private ByteStringBuilder() {
+            // prevent external instantiation
+        }
+
         /**
          * Writes the current contents of the builder to the specified OutputStream.
          *
@@ -339,6 +343,10 @@ public final class ByteString implements Iterable<Byte> {
             return buffer.getCount();
         }
 
+        public void reset() {
+            buffer.reset(false);
+        }
+
         /**
          * Appends the supplied single byte.
          *
@@ -349,7 +357,7 @@ public final class ByteString implements Iterable<Byte> {
         @Nonnull
         public ByteStringBuilder appendByte(int b) {
             if ((b & ~0xff) != 0) {
-                throw new IllegalArgumentException("Hexpair values must be 0x0-0xff: " + b);
+                throw new IllegalArgumentException("byte values must be 0x0-0xff: " + b);
             }
             return appendByte((byte) b);
         }

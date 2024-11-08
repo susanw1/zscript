@@ -198,6 +198,16 @@ class ByteStringTest {
     }
 
     @Test
+    public void shouldResetBuilder() {
+        var builder = ByteString.builder();
+        assertThat(builder.appendHexPair(0).toByteArray()).containsExactly('0', '0');
+        builder.reset();
+        assertThat(builder.size()).isZero();
+        assertThat(builder.toByteArray()).isEmpty();
+        assertThat(builder.appendHexPair(0x21).toByteArray()).containsExactly('2', '1');
+    }
+
+    @Test
     public void equalsContract() {
         EqualsVerifier.forClass(ByteString.class).verify();
     }
