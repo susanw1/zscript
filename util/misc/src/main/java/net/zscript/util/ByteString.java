@@ -1,6 +1,7 @@
 package net.zscript.util;
 
 import javax.annotation.Nonnull;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -38,6 +39,15 @@ public final class ByteString implements Iterable<Byte> {
     }
 
     /**
+     * Determines if this ByteString is empty.
+     *
+     * @return true is size is zero, false otherwise
+     */
+    public boolean isEmpty() {
+        return bytes.length == 0;
+    }
+
+    /**
      * Returns a block Iterator over the bytes in the string, with the default maximum block size set to the size of this ByteString.
      *
      * @return iterator a block iterator
@@ -68,6 +78,126 @@ public final class ByteString implements Iterable<Byte> {
      */
     public byte get(int index) {
         return bytes[index];
+    }
+
+    /**
+     * Finds the first instance of the specified byte, checking from the beginning of the byteString and working upwards, with similar semantics to {@link String#indexOf(int)}.
+     *
+     * @param b the byte to find
+     * @return the index of the first matching byte, or -1 if not found
+     */
+    public int indexOf(byte b) {
+        return indexOf(bytes, b, 0);
+    }
+
+    /**
+     * Finds the first instance of the specified byte, checking from the specified fromIndex and working upwards, with similar semantics to {@link String#indexOf(int, int)}.
+     *
+     * @param b         the byte to find
+     * @param fromIndex the index from which to search (negative is treated as zero; overlarge is treated as size())
+     * @return the index of the first matching byte, or -1 if not found
+     */
+
+    public int indexOf(byte b, int fromIndex) {
+        return indexOf(bytes, b, fromIndex);
+    }
+
+    /**
+     * Finds the first instance of the specified byte in the supplied byte[], checking from the specified fromIndex and working upwards.
+     *
+     * @see #indexOf(byte, int)
+     */
+    public static int indexOf(byte[] s, byte b, int fromIndex) {
+        final int start = Math.max(fromIndex, 0);
+        for (int i = start, n = s.length; i < n; i++) {
+            if (s[i] == b) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Finds the last instance of the specified byte, checking from the end of the byteString and working back, with similar semantics to {@link String#lastIndexOf(int)}.
+     *
+     * @param b the byte to find
+     * @return the index of the last matching byte, or -1 if not found
+     */
+    public int lastIndexOf(byte b) {
+        return lastIndexOf(b, bytes.length - 1);
+    }
+
+    /**
+     * Finds the last instance of the specified byte, checking from the specified fromIndex and working back, with similar semantics to {@link String#lastIndexOf(int, int)}.
+     *
+     * @param b         the byte to find
+     * @param fromIndex the index from which to search (negative is treated as zero; overlarge is treated as size()-1)
+     * @return the index of the last matching byte, or -1 if not found
+     */
+    public int lastIndexOf(byte b, int fromIndex) {
+        return lastIndexOf(bytes, b, fromIndex);
+    }
+
+    /**
+     * Finds the last instance of the specified byte in the supplied byte[], checking from the specified fromIndex and working back.
+     *
+     * @see #lastIndexOf(byte, int) full description
+     */
+    public int lastIndexOf(byte[] s, byte b, int fromIndex) {
+        final int start = Math.min(fromIndex, s.length - 1);
+        for (int i = start; i >= 0; i--) {
+            if (s[i] == b) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Counts the number of occurrences of the specified byte.
+     *
+     * @param b the byte to count
+     * @return the number of times this byte occurs
+     */
+    public int count(byte b) {
+        return count(bytes, b);
+    }
+
+    /**
+     * Counts the number of occurrences of the specified byte.
+     *
+     * @param s the bytes to search
+     * @param b the byte to count
+     * @return the number of times this byte occurs
+     */
+    public static int count(byte[] s, byte b) {
+        int n = 0;
+        for (byte c : s) {
+            if (b == c) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    /**
+     * Returns a byteString that is a substring of this string. The  substring begins at the specified {@code beginIndex} and extends to the byte at index {@code endIndex - 1}.
+     * Thus, the length of the substring is {@code endIndex-beginIndex}.
+     *
+     * @param beginIndex the beginning index, inclusive.
+     * @param endIndex   the ending index, exclusive.
+     * @return the specified substring.
+     * @throws IndexOutOfBoundsException if the {@code beginIndex} is negative, or {@code endIndex} is larger than the length of this {@code String} object, or {@code beginIndex}
+     *                                   is larger than {@code endIndex}.
+     */
+    public ByteString substring(int beginIndex, int endIndex) {
+        if (beginIndex < 0 || endIndex > bytes.length || beginIndex > endIndex) {
+            throw new IndexOutOfBoundsException(String.format("bounds [%d-%d) must be within range [0-%d)", beginIndex, endIndex, bytes.length));
+        }
+
+        byte[] copy = new byte[endIndex - beginIndex];
+        System.arraycopy(bytes, beginIndex, copy, 0, endIndex - beginIndex);
+        return new ByteString(copy);
     }
 
     /**
@@ -127,6 +257,16 @@ public final class ByteString implements Iterable<Byte> {
     @Nonnull
     public String asString() {
         return new String(bytes, UTF_8);
+    }
+
+    /**
+     * Returns an InputStream implementation wrapping the internal buffer. It is equivalent to {@code new ByteArrayInputStream(bs.toByteArray())}, but with no copy involved.
+     *
+     * @return a ByteArrayInputStream view of this ByteString
+     */
+    @Nonnull
+    public ByteArrayInputStream asInputStream() {
+        return new ByteArrayInputStream(bytes);
     }
 
     @Override
@@ -591,6 +731,29 @@ public final class ByteString implements Iterable<Byte> {
             }
             buffer.addByte(toHex(value & 0xF));
             return this;
+        }
+
+        /**
+         * Expresses this builder as an OutputStream, where writes are appended to the buffer. Note, no IOExceptions will ever really be thrown by this OutputStream's methods, and
+         * all writes are immediate (no additional buffering performed). No open/close semantics are provided - they're meaningless here.
+         * <p>
+         * This makes a ByteStringBuilder a possible alternative to a {@link java.io.ByteArrayOutputStream}
+         *
+         * @return an outputstream interface to this Builder
+         */
+        @Nonnull
+        public OutputStream asOutputStream() {
+            return new OutputStream() {
+                @Override
+                public void write(int b) {
+                    buffer.addByte((byte) b);
+                }
+
+                @Override
+                public void write(byte[] b, int off, int len) {
+                    buffer.addBytes(b, off, len);
+                }
+            };
         }
 
         /**
