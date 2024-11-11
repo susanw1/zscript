@@ -3,6 +3,8 @@ package net.zscript.javaclient.commandPaths;
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
+import static net.zscript.util.ByteString.byteString;
+
 import net.zscript.tokenizer.ZscriptField;
 import net.zscript.util.BlockIterator;
 import net.zscript.util.ByteString;
@@ -64,6 +66,6 @@ public final class NumberField implements ZscriptField, ByteString.ByteAppendabl
 
     @Override
     public String toString() {
-        return "NumberField[" + ByteString.from(this).asString() + "]";
+        return "NumberField[" + byteString(this).asString() + "]";
     }
 }

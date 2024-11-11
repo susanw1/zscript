@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.joining;
+import static net.zscript.util.ByteString.byteString;
 
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
@@ -79,7 +80,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
     @Nonnull
     @Override
     public ByteString getBigFieldAsByteString() {
-        return ByteString.from(bigFieldDataIterator());
+        return byteString(bigFieldDataIterator());
     }
 
     /**

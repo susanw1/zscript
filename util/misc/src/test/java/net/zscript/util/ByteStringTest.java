@@ -8,7 +8,8 @@ import java.util.NoSuchElementException;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static net.zscript.util.ByteString.ByteAppender.ISOLATIN1_APPENDER;
-import static net.zscript.util.ByteString.ByteAppender.UTF8_APPENDER;
+import static net.zscript.util.ByteString.byteString;
+import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIndexOutOfBoundsException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -165,7 +166,7 @@ class ByteStringTest {
         }
 
         assertThat(ByteString.builder(new TestAppendable(1)).build().asString()).isEqualTo("x=01");
-        assertThat(ByteString.from(new TestAppendable(1)).asString()).isEqualTo("x=01");
+        assertThat(byteString(new TestAppendable(1)).asString()).isEqualTo("x=01");
 
         assertThat(ByteString.builder(new TestAppendable(1), new TestAppendable(2)).build().asString()).isEqualTo("x=01x=02");
         assertThat(ByteString.concat(new TestAppendable(1), new TestAppendable(2)).asString()).isEqualTo("x=01x=02");
@@ -180,8 +181,8 @@ class ByteStringTest {
 
     @Test
     public void shouldCreateFromTypes() {
-        assertThat(ByteString.from((byte) 'a').toByteArray()).containsExactly('a');
-        assertThat(ByteString.from(new byte[] { 'a', 'b' }).toByteArray()).containsExactly('a', 'b');
+        assertThat(byteString((byte) 'a').toByteArray()).containsExactly('a');
+        assertThat(byteString(new byte[] { 'a', 'b' }).toByteArray()).containsExactly('a', 'b');
 
         assertThat(ByteString.concat(ISOLATIN1_APPENDER, "hello", " ", "world").asString()).isEqualTo("hello world");
         assertThat(ByteString.concat(ISOLATIN1_APPENDER, List.of("hello", " ", "world")).asString()).isEqualTo("hello world");
@@ -265,7 +266,7 @@ class ByteStringTest {
 
     @Test
     public void shouldProvideInputStreamView() throws IOException {
-        var    bs    = ByteString.from("abc", UTF8_APPENDER);
+        var    bs    = byteStringUtf8("abc");
         byte[] bytes = bs.asInputStream().readAllBytes();
 
         assertThat(bytes).containsExactly('a', 'b', 'c');

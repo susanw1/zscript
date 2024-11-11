@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 
+import static net.zscript.util.ByteString.byteString;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.zscript.javareceiver.core.AbstractOutStream;
-import net.zscript.util.ByteString;
 
 /**
  * Utility class for helping tests: AbstractOutStream implementation that collects bytes and writes them to a specified {@link java.io.OutputStream}.
@@ -54,7 +55,7 @@ public class OutputStreamOutStream<Z extends OutputStream> extends AbstractOutSt
 
     @Override
     protected void writeBytes(byte[] bytes, int count, boolean hexMode) {
-        LOG.atTrace().setMessage("writeBytes /{}/ (hex?={})").addArgument(() -> ByteString.from(bytes).substring(0, count).asString()).addArgument(hexMode).log();
+        LOG.atTrace().setMessage("writeBytes /{}/ (hex?={})").addArgument(() -> byteString(bytes, 0, count).asString()).addArgument(hexMode).log();
         try {
             if (hexMode) {
                 for (int i = 0; i < count; i++) {

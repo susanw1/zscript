@@ -14,6 +14,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * A buildable byte string to make it easy to work with byte-oriented text data.
  */
 public final class ByteString implements Iterable<Byte> {
+    public static final ByteString EMPTY = new ByteString(new byte[] {});
+
     private final byte[] bytes;
 
     private ByteString(final byte[] bytes) {
@@ -87,11 +89,12 @@ public final class ByteString implements Iterable<Byte> {
      * @return the index of the first matching byte, or -1 if not found
      */
     public int indexOf(byte b) {
-        return indexOf(bytes, b, 0);
+        return indexOf(b, 0, bytes);
     }
 
     /**
-     * Finds the first instance of the specified byte, checking from the specified fromIndex and working upwards, with similar semantics to {@link String#indexOf(int, int)}.
+     * Finds the first instance of the specified byte, checking from the specified {@code fromIndex} and working upwards, with similar semantics to
+     * {@link String#indexOf(int, int)}.
      *
      * @param b         the byte to find
      * @param fromIndex the index from which to search (negative is treated as zero; overlarge is treated as size())
@@ -99,15 +102,15 @@ public final class ByteString implements Iterable<Byte> {
      */
 
     public int indexOf(byte b, int fromIndex) {
-        return indexOf(bytes, b, fromIndex);
+        return indexOf(b, fromIndex, bytes);
     }
 
     /**
      * Finds the first instance of the specified byte in the supplied byte[], checking from the specified fromIndex and working upwards.
      *
-     * @see #indexOf(byte, int)
+     * @see #indexOf(byte, int) full description
      */
-    public static int indexOf(byte[] s, byte b, int fromIndex) {
+    public static int indexOf(byte b, int fromIndex, byte[] s) {
         final int start = Math.max(fromIndex, 0);
         for (int i = start, n = s.length; i < n; i++) {
             if (s[i] == b) {
@@ -128,22 +131,23 @@ public final class ByteString implements Iterable<Byte> {
     }
 
     /**
-     * Finds the last instance of the specified byte, checking from the specified fromIndex and working back, with similar semantics to {@link String#lastIndexOf(int, int)}.
+     * Finds the last instance of the specified byte, checking from the specified {@code fromIndex} and working back, with similar semantics to
+     * {@link String#lastIndexOf(int, int)}.
      *
      * @param b         the byte to find
      * @param fromIndex the index from which to search (negative is treated as zero; overlarge is treated as size()-1)
      * @return the index of the last matching byte, or -1 if not found
      */
     public int lastIndexOf(byte b, int fromIndex) {
-        return lastIndexOf(bytes, b, fromIndex);
+        return lastIndexOf(b, fromIndex, bytes);
     }
 
     /**
-     * Finds the last instance of the specified byte in the supplied byte[], checking from the specified fromIndex and working back.
+     * Finds the last instance of the specified byte in the supplied byte[], checking from the specified {@code fromIndex} and working back.
      *
      * @see #lastIndexOf(byte, int) full description
      */
-    public int lastIndexOf(byte[] s, byte b, int fromIndex) {
+    public static int lastIndexOf(byte b, int fromIndex, byte[] s) {
         final int start = Math.min(fromIndex, s.length - 1);
         for (int i = start; i >= 0; i--) {
             if (s[i] == b) {
@@ -160,17 +164,17 @@ public final class ByteString implements Iterable<Byte> {
      * @return the number of times this byte occurs
      */
     public int count(byte b) {
-        return count(bytes, b);
+        return count(b, bytes);
     }
 
     /**
-     * Counts the number of occurrences of the specified byte.
+     * Counts the number of occurrences of the specified byte in the supplied byte[].
      *
-     * @param s the bytes to search
      * @param b the byte to count
+     * @param s the bytes to search
      * @return the number of times this byte occurs
      */
-    public static int count(byte[] s, byte b) {
+    public static int count(byte b, byte[] s) {
         int n = 0;
         for (byte c : s) {
             if (b == c) {
@@ -194,10 +198,7 @@ public final class ByteString implements Iterable<Byte> {
         if (beginIndex < 0 || endIndex > bytes.length || beginIndex > endIndex) {
             throw new IndexOutOfBoundsException(String.format("bounds [%d-%d) must be within range [0-%d)", beginIndex, endIndex, bytes.length));
         }
-
-        byte[] copy = new byte[endIndex - beginIndex];
-        System.arraycopy(bytes, beginIndex, copy, 0, endIndex - beginIndex);
-        return new ByteString(copy);
+        return byteString(bytes, beginIndex, endIndex - beginIndex);
     }
 
     /**
@@ -285,6 +286,30 @@ public final class ByteString implements Iterable<Byte> {
         return Arrays.equals(bytes, ((ByteString) obj).bytes);
     }
 
+    @Deprecated(forRemoval = true)
+    @Nonnull
+    public static ByteString from(ByteAppendable a) {
+        return byteString(a);
+    }
+
+    @Deprecated(forRemoval = true)
+    @Nonnull
+    public static ByteString from(byte[] b) {
+        return byteString(b);
+    }
+
+    @Deprecated(forRemoval = true)
+    @Nonnull
+    public static ByteString from(byte b) {
+        return byteString(b);
+    }
+
+    @Deprecated(forRemoval = true)
+    @Nonnull
+    public static <T> ByteString from(T object, ByteAppender<? super T> appender) {
+        return byteString(object, appender);
+    }
+
     /**
      * Utility method to create a ByteString from a single Appendable
      *
@@ -292,8 +317,8 @@ public final class ByteString implements Iterable<Byte> {
      * @return the resulting ByteString
      */
     @Nonnull
-    public static ByteString from(ByteAppendable a) {
-        return from(a, ByteAppender.DEFAULT_APPENDER);
+    public static ByteString byteString(ByteAppendable a) {
+        return byteString(a, ByteAppender.DEFAULT_APPENDER);
     }
 
     /**
@@ -303,8 +328,24 @@ public final class ByteString implements Iterable<Byte> {
      * @return the resulting ByteString
      */
     @Nonnull
-    public static ByteString from(byte[] b) {
-        return from(b, (object, builder) -> builder.appendRaw(b));
+    public static ByteString byteString(byte[] b) {
+        return byteString(b, 0, b.length);
+    }
+
+    /**
+     * Utility method to create a ByteString from byte[]
+     *
+     * @param b the byte array to copy
+     * @return the resulting ByteString
+     */
+    @Nonnull
+    public static ByteString byteString(byte[] b, int offset, int len) {
+        if (len == 0) {
+            return EMPTY;
+        }
+        byte[] buf = new byte[len];
+        System.arraycopy(b, offset, buf, 0, len);
+        return new ByteString(buf);
     }
 
     /**
@@ -314,8 +355,8 @@ public final class ByteString implements Iterable<Byte> {
      * @return the resulting ByteString
      */
     @Nonnull
-    public static ByteString from(byte b) {
-        return from(b, (object, builder) -> builder.appendByte(b));
+    public static ByteString byteString(byte b) {
+        return new ByteString(new byte[] { b });
     }
 
     /**
@@ -327,8 +368,19 @@ public final class ByteString implements Iterable<Byte> {
      * @return the resulting ByteString
      */
     @Nonnull
-    public static <T> ByteString from(T object, ByteAppender<? super T> appender) {
+    public static <T> ByteString byteString(T object, ByteAppender<? super T> appender) {
         return builder().append(object, appender).build();
+    }
+
+    /**
+     * Utility method to create a ByteString from a String, using UTF8
+     *
+     * @param s the string to append
+     * @return the resulting ByteString
+     */
+    @Nonnull
+    public static ByteString byteStringUtf8(String s) {
+        return builder().appendUtf8(s).build();
     }
 
     /**
@@ -739,7 +791,7 @@ public final class ByteString implements Iterable<Byte> {
          * <p>
          * This makes a ByteStringBuilder a possible alternative to a {@link java.io.ByteArrayOutputStream}
          *
-         * @return an outputstream interface to this Builder
+         * @return an OutputStream interface to this Builder
          */
         @Nonnull
         public OutputStream asOutputStream() {
@@ -781,6 +833,9 @@ public final class ByteString implements Iterable<Byte> {
 
         @Nonnull
         public ByteString build() {
+            if (buffer.getCount() == 0) {
+                return EMPTY;
+            }
             return new ByteString(toByteArray());
         }
     }
@@ -788,6 +843,7 @@ public final class ByteString implements Iterable<Byte> {
     /**
      * Handy interface to allow classes to define their own means of being appended to a ByteString.
      */
+    @FunctionalInterface
     public interface ByteAppendable {
         /**
          * Defines how to be written to the supplied Builder
@@ -803,7 +859,7 @@ public final class ByteString implements Iterable<Byte> {
          */
         @Nonnull
         default ByteString toByteString() {
-            return ByteString.from(this);
+            return byteString(this);
         }
     }
 
@@ -813,6 +869,7 @@ public final class ByteString implements Iterable<Byte> {
      *
      * @param <T> the type of object to append
      */
+    @FunctionalInterface
     public interface ByteAppender<T> {
         ByteAppender<ByteAppendable> DEFAULT_APPENDER   = ByteAppendable::appendTo;
         ByteAppender<String>         UTF8_APPENDER      = (s, builder) -> builder.appendUtf8(s);
@@ -834,7 +891,7 @@ public final class ByteString implements Iterable<Byte> {
          */
         @Nonnull
         default ByteString toByteString(T object) {
-            return ByteString.from(object, this);
+            return ByteString.byteString(object, this);
         }
     }
 

@@ -10,6 +10,7 @@ import java.util.OptionalInt;
 
 import static java.util.Collections.emptyList;
 import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
+import static net.zscript.util.ByteString.byteString;
 
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer;
@@ -40,7 +41,7 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
         for (Optional<TokenBuffer.TokenReader.ReadToken> opt = iterator.next(); opt.filter(t -> !t.isMarker()).isPresent(); opt = iterator.next()) {
             TokenBuffer.TokenReader.ReadToken token = opt.get();
             if (Zchars.isBigField(token.getKey())) {
-                bigFields.add(new BigField(ByteString.from(token.dataIterator()), token.getKey() == Zchars.Z_BIGFIELD_QUOTED));
+                bigFields.add(new BigField(byteString(token.dataIterator()), token.getKey() == Zchars.Z_BIGFIELD_QUOTED));
             } else {
                 if (fields[token.getKey() - 'A'] != -1 || token.getDataSize() > 2 || !Zchars.isNumericKey(token.getKey())) {
                     hasClash = true;
