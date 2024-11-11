@@ -22,9 +22,32 @@
         </dependency>
 
         <dependency>
+            <!-- Get devices and actual direct connections -->
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-java-client-main</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>zscript-java-client-command-builders</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>java-receiver</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.zscript</groupId>
+            <artifactId>java-receiver</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+            <type>test-jar</type>
+        </dependency>
+
+        <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
-            <version>${version.junit-platform}</version>
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
