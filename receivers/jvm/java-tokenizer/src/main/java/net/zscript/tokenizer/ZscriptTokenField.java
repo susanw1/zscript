@@ -35,4 +35,9 @@ public class ZscriptTokenField implements ZscriptField {
     public BlockIterator iterator() {
         return token.dataIterator();
     }
+
+    @Override
+    public String toString() {
+        return token.toString();
+    }
 }

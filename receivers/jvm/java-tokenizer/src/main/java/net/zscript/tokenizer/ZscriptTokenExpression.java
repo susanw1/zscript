@@ -5,6 +5,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import static java.util.stream.Collectors.joining;
+
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.util.BlockIterator;
@@ -138,4 +140,8 @@ public class ZscriptTokenExpression implements ZscriptExpression {
         };
     }
 
+    @Override
+    public String toString() {
+        return "ZscriptExpression[" + iteratorToMarker().stream().map(Object::toString).collect(joining()) + "]";
+    }
 }

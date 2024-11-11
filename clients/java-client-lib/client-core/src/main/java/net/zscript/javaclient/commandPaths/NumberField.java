@@ -64,6 +64,6 @@ public final class NumberField implements ZscriptField, ByteString.ByteAppendabl
 
     @Override
     public String toString() {
-        return "NumberField[" + ByteString.from(this) + "]";
+        return "NumberField[" + ByteString.from(this).asString() + "]";
     }
 }

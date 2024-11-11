@@ -16,22 +16,22 @@ public class ZscriptCallbackThreadpool {
         this.callbackPool = callbackPool;
     }
 
-    public <T> void sendCallback(Consumer<T> callback, T content, Consumer<Exception> handler) {
+    public <T> void sendCallback(Consumer<T> callback, T content, Consumer<Exception> exceptionhandler) {
         callbackPool.submit(() -> {
             try {
                 callback.accept(content);
             } catch (Exception e) {
-                handler.accept(e);
+                exceptionhandler.accept(e);
             }
         });
     }
 
-    public <T, U> void sendCallback(BiConsumer<T, U> callback, T content1, U content2, Consumer<Exception> handler) {
+    public <T, U> void sendCallback(BiConsumer<T, U> callback, T content1, U content2, Consumer<Exception> exceptionhandler) {
         callbackPool.submit(() -> {
             try {
                 callback.accept(content1, content2);
             } catch (Exception e) {
-                handler.accept(e);
+                exceptionhandler.accept(e);
             }
         });
     }
@@ -40,12 +40,12 @@ public class ZscriptCallbackThreadpool {
         callbackPool.submit(() -> callback.accept(content));
     }
 
-    public void sendCallback(Runnable callback, Consumer<Exception> handler) {
+    public void sendCallback(Runnable callback, Consumer<Exception> exceptionhandler) {
         callbackPool.submit(() -> {
             try {
                 callback.run();
             } catch (Exception e) {
-                handler.accept(e);
+                exceptionhandler.accept(e);
             }
         });
     }

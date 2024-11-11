@@ -2,6 +2,9 @@ package net.zscript.javareceiver.modules;
 
 import java.util.OptionalInt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.execution.NotificationContext;
@@ -9,6 +12,8 @@ import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
 
 public class ZscriptModuleRegistry {
+    private static final Logger LOG = LoggerFactory.getLogger(ZscriptModuleRegistry.class);
+
     private static final int             MAX_SYSTEM_CMD = 0xF;
     private final        ZscriptModule[] modules        = new ZscriptModule[0x1000];
 
@@ -20,6 +25,8 @@ public class ZscriptModuleRegistry {
     }
 
     public void execute(CommandContext ctx) {
+        LOG.debug("Executing command: {}", ctx);
+
         // commands are completable unless explicitly marked otherwise by a command
         ctx.commandComplete();
         OptionalInt value = ctx.getField(Zchars.Z_CMD);
@@ -45,6 +52,7 @@ public class ZscriptModuleRegistry {
     }
 
     public void moveAlong(CommandContext ctx) {
+        LOG.debug("Moving along command: {}", ctx);
         ctx.commandComplete();
         int cmd = ctx.getField(Zchars.Z_CMD).getAsInt();
         modules[cmd >> 4].moveAlong(ctx, cmd & 0xF);
@@ -115,5 +123,4 @@ public class ZscriptModuleRegistry {
     public ZscriptModule getModule(int i) {
         return modules[i];
     }
-
 }

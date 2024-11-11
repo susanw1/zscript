@@ -9,6 +9,9 @@ import java.util.function.Consumer;
 
 import static java.util.Optional.ofNullable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.zscript.util.OptIterator;
 
 /**
@@ -17,6 +20,8 @@ import net.zscript.util.OptIterator;
  * @param <T> the type of item collected.
  */
 public class CollectingConsumer<T> implements Consumer<T> {
+    private static final Logger LOG = LoggerFactory.getLogger(CollectingConsumer.class);
+
     private final Queue<T> queue = new ConcurrentLinkedQueue<>();
 
     /**
@@ -27,6 +32,7 @@ public class CollectingConsumer<T> implements Consumer<T> {
     @Override
     public void accept(T item) {
         queue.add(item);
+        LOG.atTrace().setMessage("accepted item={}, queue.size={}").addArgument(item).addArgument(queue::size).log();
     }
 
     /**
@@ -67,4 +73,7 @@ public class CollectingConsumer<T> implements Consumer<T> {
         return asOptIterator().stream().iterator();
     }
 
+    public boolean isEmpty() {
+        return queue.isEmpty();
+    }
 }

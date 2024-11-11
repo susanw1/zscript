@@ -153,4 +153,9 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
     public int getChannelIndex() {
         return contextView.getChannelIndex();
     }
+
+    @Override
+    public String toString() {
+        return "CommandContext{" + "expression=" + expression + '}';
+    }
 }
