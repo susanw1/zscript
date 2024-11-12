@@ -26,12 +26,18 @@ class AddressingSystem {
         node.getParentConnection().send(cmd);
     }
 
-    public boolean response(AddressedResponse addrResp) {
-        AddressingConnection connection = connections.get(addrResp.getAddressSection());
-        if (connection == null) {
+    /**
+     * Pass this response back to child connection using the {@link AddressedResponse} object's address info.
+     *
+     * @param addressedResponse the response to pass on
+     * @return true if suitable connection found, false otherwise (response has not been passed on)
+     */
+    public boolean response(AddressedResponse addressedResponse) {
+        AddressingConnection childConnection = connections.get(addressedResponse.getAddressSection());
+        if (childConnection == null) {
             return false;
         }
-        connection.response(addrResp.getChild());
+        childConnection.response(addressedResponse.getChild());
         return true;
     }
 
@@ -60,8 +66,8 @@ class AddressingSystem {
         }
 
         @Override
-        public void onReceive(Consumer<AddressedResponse> resp) {
-            respConsumer = resp;
+        public void onReceive(Consumer<AddressedResponse> responseHandler) {
+            respConsumer = responseHandler;
         }
 
         public void response(AddressedResponse resp) {
@@ -71,8 +77,8 @@ class AddressingSystem {
         }
 
         @Override
-        public void responseReceived(AddressedCommand found) {
-            node.responseReceived(found);
+        public void notifyResponseMatched(AddressedCommand foundCommand) {
+            node.responseReceived(foundCommand);
         }
 
         @Override

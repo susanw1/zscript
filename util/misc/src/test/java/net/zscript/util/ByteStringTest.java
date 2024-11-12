@@ -265,7 +265,7 @@ class ByteStringTest {
     }
 
     @Test
-    public void shouldProvideInputStreamView() throws IOException {
+    public void shouldProvideInputStreamView() {
         var    bs    = byteStringUtf8("abc");
         byte[] bytes = bs.asInputStream().readAllBytes();
 

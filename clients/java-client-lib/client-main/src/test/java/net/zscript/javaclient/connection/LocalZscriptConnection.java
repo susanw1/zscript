@@ -65,6 +65,7 @@ public class LocalZscriptConnection extends DirectConnection {
             public void close() {
                 responseHandler.accept(getOutputStream().toByteArray());
                 getOutputStream().reset();
+                super.close();
             }
         };
 
@@ -104,7 +105,7 @@ public class LocalZscriptConnection extends DirectConnection {
     }
 
     @Override
-    public void send(@Nonnull byte[] data) {
+    public void sendBytes(@Nonnull byte[] data) {
         exec.submit(() -> dataIn.add(data));
     }
 

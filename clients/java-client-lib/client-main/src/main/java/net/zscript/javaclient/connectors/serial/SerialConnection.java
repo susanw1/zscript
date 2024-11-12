@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.function.Consumer;
 
+import static java.util.Objects.requireNonNull;
+
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortIOException;
@@ -23,7 +25,7 @@ public class SerialConnection extends DirectConnection {
     private final SerialPort   commPort;
     private final OutputStream out;
 
-    private Consumer<byte[]> responseHandler;
+    private Consumer<byte[]> bytesResponseHandler;
 
     public SerialConnection(SerialPort commPort) throws IOException {
         this.commPort = commPort;
@@ -39,7 +41,7 @@ public class SerialConnection extends DirectConnection {
         return LOG;
     }
 
-    public void send(final byte[] data) throws IOException {
+    public void sendBytes(final byte[] data) throws IOException {
         out.write(data);
     }
 
@@ -48,11 +50,10 @@ public class SerialConnection extends DirectConnection {
      */
     @Override
     public void onReceiveBytes(final Consumer<byte[]> bytesResponseHandler) {
-        if (this.responseHandler != null) {
-            commPort.removeDataListener();
+        if (this.bytesResponseHandler != null) {
+            throw new IllegalStateException("Handler already assigned");
         }
-
-        this.responseHandler = bytesResponseHandler;
+        this.bytesResponseHandler = requireNonNull(bytesResponseHandler, "bytesResponseHandler");
 
         commPort.addDataListener(new SerialPortMessageListenerWithExceptions() {
             @Override

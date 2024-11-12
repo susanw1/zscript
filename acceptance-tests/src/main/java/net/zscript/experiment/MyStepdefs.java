@@ -3,33 +3,14 @@ package net.zscript.experiment;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.cucumber.datatable.DataTable;
-import io.cucumber.java.Before;
-import io.cucumber.java.BeforeStep;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.platform.suite.api.AfterSuite;
 
 public class MyStepdefs {
     private DayMgr dayMgr;
     private String result;
-
-    @Before
-    public void xxx() {
-        System.out.println("Before...");
-        //        org.assertj.core.api.Assumptions.setPreferredAssumptionException(PreferredAssumptionException.JUNIT5);
-    }
-
-    @BeforeStep
-    public void xxy() {
-        System.out.println("BeforeStep...");
-    }
-
-    @AfterSuite
-    public void xxz1() {
-        System.out.println("AfterStep...");
-    }
 
     @Given("today is {word}")
     public void todayIsX(String day) {

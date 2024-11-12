@@ -1,3 +1,4 @@
+@Disabled
 Feature: Is it Friday yet?
     AS a human
     I WANT to know if it's a Friday, or any specified day

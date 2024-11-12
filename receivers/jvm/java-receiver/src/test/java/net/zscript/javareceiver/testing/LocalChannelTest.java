@@ -2,24 +2,23 @@ package net.zscript.javareceiver.testing;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.io.PrintStream;
-import java.io.UncheckedIOException;
 import java.util.Optional;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.Duration.ofSeconds;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import net.zscript.javareceiver.core.CommandOutStream;
+import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.tokenizer.TokenBuffer;
 import net.zscript.tokenizer.TokenBuffer.TokenReader;
@@ -29,21 +28,21 @@ import net.zscript.tokenizer.TokenRingBuffer;
 import net.zscript.tokenizer.Tokenizer;
 
 class LocalChannelTest {
-    private TokenBuffer        buffer;
-    private PrintStream        commands;
-    private CollectingConsumer responseCollector;
-    private LocalChannel       channel;
+    private static final Logger LOG = LoggerFactory.getLogger(LocalChannelTest.class);
+
+    private TokenBuffer                buffer;
+    private PrintStream                commands;
+    private CollectingConsumer<byte[]> responseCollector;
+    private LocalChannel               channel;
 
     @BeforeEach
     public void setup() throws IOException {
         buffer = TokenRingBuffer.createBufferWithCapacity(20);
 
-        // You don't see these often:
-        final PipedInputStream commandStream = new PipedInputStream();
-        commands = new PrintStream(new PipedOutputStream(commandStream), true);
+        responseCollector = new CollectingConsumer<>();
+        channel = new LocalChannel(buffer, responseCollector);
 
-        responseCollector = new CollectingConsumer();
-        channel = new LocalChannel(buffer, commandStream, responseCollector);
+        commands = new PrintStream(channel.getCommandOutputStream(), true);
     }
 
     // utility method for advancing the channel state
@@ -76,9 +75,12 @@ class LocalChannelTest {
 
         assertThat(tokenBufferIterator.next()).isNotPresent();
 
+        tokenBufferIterator.flushBuffer();
+
         // Second bit of test script
+        LOG.trace("Sending Y1\\n...");
+
         commands.println("Y1");
-        commands.close();
         await().atMost(ofSeconds(5)).until(() -> moveChannelAlong(channel, tokenReader));
 
         // This is a bit dodgy. Is it ok to call anything on an iterator after it's returned empty? It works for good reason, but...
@@ -97,24 +99,65 @@ class LocalChannelTest {
     }
 
     @Test
-    public void shouldThrowOnReadError() throws IOException {
+    public void shouldRegisterFailureOnReadError() throws IOException {
         // Force the InputStream to fail
         final InputStream cmdStream = mock(InputStream.class);
-        when(cmdStream.read()).thenReturn((int) 'Z').thenThrow(IOException.class);
+        when(cmdStream.read(Mockito.any(byte[].class))).thenReturn(0).thenThrow(new IOException("my test exception"));
 
-        LocalChannel brokenChannel = new LocalChannel(buffer, cmdStream, null);
-        assertThatThrownBy(() -> await().atMost(ofSeconds(5)).until(() -> moveChannelAlong(brokenChannel, buffer.getTokenReader())))
-                .isInstanceOf(UncheckedIOException.class);
+        LocalChannel brokenChannel = new LocalChannel(buffer, responseCollector);
+
+        brokenChannel.moveAlong();
+        brokenChannel.moveAlong();
+
+        final CommandContext    ctx               = mock(CommandContext.class);
+        final SequenceOutStream sequenceOutStream = brokenChannel.getOutStream(null);
+        when(ctx.getOutStream()).thenReturn(sequenceOutStream.asCommandOutStream());
+
+        sequenceOutStream.open();
+        brokenChannel.channelInfo(ctx);
+        sequenceOutStream.close();
+
+        // E3 implies ERROR
+        assertThat(responseCollector.next()).isPresent().get().isEqualTo("\"LocalChannel\"E3".getBytes(UTF_8));
+    }
+    //
+    //    @Test
+    //    public void shouldRegisterClosureOnEOF() throws IOException {
+    //        // Force the InputStream to fail
+    //        final InputStream cmdStream = mock(InputStream.class);
+    //        when(cmdStream.read(Mockito.any(byte[].class))).thenReturn(-1);
+    //
+    //        LocalChannel brokenChannel = new LocalChannel(buffer, cmdStream, responseCollector);
+    //
+    //        makeItRun(brokenChannel);
+    //        // E1 implies CLOSED
+    //        assertThat(responseCollector.next()).isPresent().get().isEqualTo("\"LocalChannel\"E1".getBytes(UTF_8));
+    //    }
+
+    private void makeItRun(LocalChannel brokenChannel) throws IOException {
+        brokenChannel.moveAlong();
+        brokenChannel.moveAlong();
+
+        final CommandContext    ctx               = mock(CommandContext.class);
+        final SequenceOutStream sequenceOutStream = brokenChannel.getOutStream(null);
+        when(ctx.getOutStream()).thenReturn(sequenceOutStream.asCommandOutStream());
+
+        sequenceOutStream.open();
+        brokenChannel.channelInfo(ctx);
+        sequenceOutStream.close();
     }
 
-    @Disabled("channel isn't feeding back yet")
     @Test
-    public void shouldOutputChannelInfo() throws InterruptedException {
-        final CommandContext   ctx              = mock(CommandContext.class);
-        final CommandOutStream commandOutStream = channel.getOutStream(null).asCommandOutStream();
-        when(ctx.getOutStream()).thenReturn(commandOutStream);
+    public void shouldOutputChannelInfo() {
+        final CommandContext    ctx               = mock(CommandContext.class);
+        final SequenceOutStream sequenceOutStream = channel.getOutStream(null);
+        when(ctx.getOutStream()).thenReturn(sequenceOutStream.asCommandOutStream());
+
+        sequenceOutStream.open();
         channel.channelInfo(ctx);
-        Thread.sleep(1000);
-        assertThat(responseCollector.next()).isEqualTo("\"LocalChannel\"");
+        sequenceOutStream.close();
+
+        await().atMost(ofSeconds(5)).until(() -> !responseCollector.isEmpty());
+        assertThat(responseCollector.next()).isPresent().get().isEqualTo("\"LocalChannel\"E".getBytes(UTF_8));
     }
 }

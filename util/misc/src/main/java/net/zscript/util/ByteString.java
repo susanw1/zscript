@@ -286,30 +286,6 @@ public final class ByteString implements Iterable<Byte> {
         return Arrays.equals(bytes, ((ByteString) obj).bytes);
     }
 
-    @Deprecated(forRemoval = true)
-    @Nonnull
-    public static ByteString from(ByteAppendable a) {
-        return byteString(a);
-    }
-
-    @Deprecated(forRemoval = true)
-    @Nonnull
-    public static ByteString from(byte[] b) {
-        return byteString(b);
-    }
-
-    @Deprecated(forRemoval = true)
-    @Nonnull
-    public static ByteString from(byte b) {
-        return byteString(b);
-    }
-
-    @Deprecated(forRemoval = true)
-    @Nonnull
-    public static <T> ByteString from(T object, ByteAppender<? super T> appender) {
-        return byteString(object, appender);
-    }
-
     /**
      * Utility method to create a ByteString from a single Appendable
      *

@@ -121,6 +121,7 @@ class ZscriptBasicNode implements ZscriptNode {
         strategy.send(path);
     }
 
+    @Deprecated
     public void send(AddressedCommand addr) {
         strategy.send(addr);
     }
@@ -156,11 +157,14 @@ class ZscriptBasicNode implements ZscriptNode {
             }
             callbackPool.sendCallback(unknownResponseHandler, resp, callbackExceptionHandler);
             return;
-        } else if (!found.getContent().getExecutionPath().matchesResponses(resp.getContent().getExecutionPath())) {
+        }
+
+        if (!found.getContent().getExecutionPath().matchesResponses(resp.getContent().getExecutionPath())) {
             callbackPool.sendCallback(badCommandResponseMatchHandler, found, resp, callbackExceptionHandler);
         }
+
         strategy.mayHaveSpace();
-        parentConnection.responseReceived(found);
+        parentConnection.notifyResponseMatched(found);
         Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getContent());
         if (seqCallback != null) {
             callbackPool.sendCallback(seqCallback, resp.getContent(), callbackExceptionHandler);
@@ -178,11 +182,16 @@ class ZscriptBasicNode implements ZscriptNode {
         return parentConnection;
     }
 
-    public void responseReceived(AddressedCommand found) {
-        if (connectionBuffer.responseReceived(found)) {
+    /**
+     * Notification passed up from child to root node to indicate that the supplied command has been matched to a response. Buffers may free records of that command.
+     *
+     * @param foundCommand
+     */
+    public void responseReceived(AddressedCommand foundCommand) {
+        if (connectionBuffer.responseMatched(foundCommand)) {
             strategy.mayHaveSpace();
         }
-        parentConnection.responseReceived(found);
+        parentConnection.notifyResponseMatched(foundCommand);
     }
 
     public void setNotificationHandler(int notification, Consumer<ResponseSequence> handler) {
