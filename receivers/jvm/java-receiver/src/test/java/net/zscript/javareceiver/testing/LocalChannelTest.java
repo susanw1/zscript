@@ -103,38 +103,29 @@ class LocalChannelTest {
         // Force the InputStream to fail
         final InputStream cmdStream = mock(InputStream.class);
         when(cmdStream.read(Mockito.any(byte[].class))).thenReturn(0).thenThrow(new IOException("my test exception"));
-
-        LocalChannel brokenChannel = new LocalChannel(buffer, responseCollector);
-
-        brokenChannel.moveAlong();
-        brokenChannel.moveAlong();
-
-        final CommandContext    ctx               = mock(CommandContext.class);
-        final SequenceOutStream sequenceOutStream = brokenChannel.getOutStream(null);
-        when(ctx.getOutStream()).thenReturn(sequenceOutStream.asCommandOutStream());
-
-        sequenceOutStream.open();
-        brokenChannel.channelInfo(ctx);
-        sequenceOutStream.close();
-
+        makeItRun(cmdStream);
         // E3 implies ERROR
         assertThat(responseCollector.next()).isPresent().get().isEqualTo("\"LocalChannel\"E3".getBytes(UTF_8));
     }
-    //
-    //    @Test
-    //    public void shouldRegisterClosureOnEOF() throws IOException {
-    //        // Force the InputStream to fail
-    //        final InputStream cmdStream = mock(InputStream.class);
-    //        when(cmdStream.read(Mockito.any(byte[].class))).thenReturn(-1);
-    //
-    //        LocalChannel brokenChannel = new LocalChannel(buffer, cmdStream, responseCollector);
-    //
-    //        makeItRun(brokenChannel);
-    //        // E1 implies CLOSED
-    //        assertThat(responseCollector.next()).isPresent().get().isEqualTo("\"LocalChannel\"E1".getBytes(UTF_8));
-    //    }
 
-    private void makeItRun(LocalChannel brokenChannel) throws IOException {
+    @Test
+    public void shouldRegisterClosureOnEOF() throws IOException {
+        // Force the InputStream to fail
+        final InputStream cmdStream = mock(InputStream.class);
+        when(cmdStream.read(Mockito.any(byte[].class))).thenReturn(-1);
+
+        makeItRun(cmdStream);
+        // E1 implies CLOSED
+        assertThat(responseCollector.next()).isPresent().get().isEqualTo("\"LocalChannel\"E1".getBytes(UTF_8));
+    }
+
+    private void makeItRun(InputStream cmdStream) throws IOException {
+        LocalChannel brokenChannel = new LocalChannel(buffer, responseCollector) {
+            @Override
+            void readBytesToQueue(InputStream s) throws IOException {
+                super.readBytesToQueue(cmdStream);
+            }
+        };
         brokenChannel.moveAlong();
         brokenChannel.moveAlong();
 

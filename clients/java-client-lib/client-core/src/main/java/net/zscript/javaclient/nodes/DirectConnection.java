@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 import static net.zscript.util.ByteString.byteString;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.addressing.AddressedResponse;
@@ -37,8 +36,6 @@ import net.zscript.util.ByteString.ByteStringBuilder;
  * DirectConnections are responsible for ensuring that split-up sequences of bytes are bundled into newline-terminated response sequences.
  */
 public abstract class DirectConnection implements Connection, Closeable {
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
-
     /** General thread pool for connection-related actions, eg blocking reads */
     private static final ScheduledExecutorService CONNECTION_EXEC = Executors.newScheduledThreadPool(0);
 

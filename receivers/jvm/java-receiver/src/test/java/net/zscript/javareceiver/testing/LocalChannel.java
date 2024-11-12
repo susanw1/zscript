@@ -107,9 +107,9 @@ public class LocalChannel extends ZscriptChannel {
     }
 
     /**
-     * An OutputStream for writing commands to this Channel. Ensure that {@link OutputStream#flush()} is called if the command data is sufficiently complete for processing.
+     * An OutputStream for writing commands to this Channel. Ensure that {@link OutputStream#flush()} is called when the command data is sufficiently complete for processing.
      *
-     * @return an OutputStream
+     * @return an OutputStream for writing commands
      */
     public OutputStream getCommandOutputStream() {
         return connCommandOutput;
@@ -118,9 +118,13 @@ public class LocalChannel extends ZscriptChannel {
     /**
      * An InputStream for reading responses from this Channel.
      *
-     * @return an InputStream, or null if this Channel has been given a responseHandler
+     * @return an InputStream
+     * @throws IllegalStateException if this {@link LocalChannel} was created with a callback
      */
     public InputStream getResponseInputStream() {
+        if (connResponseInput == null) {
+            throw new IllegalStateException("this LocalChannel provides a response callback, not a stream");
+        }
         return connResponseInput;
     }
 
@@ -165,14 +169,7 @@ public class LocalChannel extends ZscriptChannel {
      */
     private void commandReader() {
         try (InputStream s = channelCommandInput) {
-            byte[] buf = new byte[128];
-            int    len;
-            while ((len = s.read(buf)) != -1) {
-                if (len > 0) {
-                    incoming.add(byteString(buf, 0, len));
-                }
-            }
-            this.status = ChannelStatus.CLOSED;
+            readBytesToQueue(s);
         } catch (InterruptedIOException ex) {
             LOG.error("commandReader() interrupted");
             this.status = ChannelStatus.INTERRUPTED;
@@ -180,6 +177,18 @@ public class LocalChannel extends ZscriptChannel {
             LOG.error("commandReader() died", ex);
             this.status = ChannelStatus.ERROR;
         }
+    }
+
+    // VisibleForTesting
+    void readBytesToQueue(InputStream s) throws IOException {
+        byte[] buf = new byte[128];
+        int    len;
+        while ((len = s.read(buf)) != -1) {
+            if (len > 0) {
+                incoming.add(byteString(buf, 0, len));
+            }
+        }
+        this.status = ChannelStatus.CLOSED;
     }
 
     @Override

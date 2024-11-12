@@ -8,5 +8,5 @@ Feature: Zscript Echo Command
         And a connection to the device
 
     Scenario: Echo Command responds
-        When I send an echo command
-        Then I should receive an echo response
+        When I send "Z1A5" as a command
+        Then I should receive "!A5S" in response

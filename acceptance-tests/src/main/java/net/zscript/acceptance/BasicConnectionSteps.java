@@ -23,8 +23,8 @@ import net.zscript.model.modules.base.CoreModule;
 import net.zscript.tokenizer.TokenBuffer;
 import net.zscript.tokenizer.TokenRingBuffer;
 
-public class EchoCommandSteps {
-    private static final Logger LOG = LoggerFactory.getLogger(EchoCommandSteps.class);
+public class BasicConnectionSteps {
+    private static final Logger LOG = LoggerFactory.getLogger(BasicConnectionSteps.class);
 
     private Zscript zscript;
 
@@ -69,25 +69,24 @@ public class EchoCommandSteps {
         connectionToDevice();
     }
 
-    @When("I send an echo command")
-    public void sendAnEchoCommand() throws IOException {
-        LOG.debug("WHEN I send an echo command");
+    @When("I send {string} as a command")
+    public void sendAnEchoCommand(String command) throws IOException {
+        LOG.debug("WHEN I send " + command + " as a command");
         CoreModule c;
         LOG.debug("Sending... ");
-
-        conn.sendBytes(byteStringUtf8("Z1 A8\n").toByteArray());
+        conn.sendBytes(byteStringUtf8(command + "\n").toByteArray());
 
         //        testDevice.send(from("Z1\n", UTF8_APPENDER), bytesCollector);
         LOG.debug("Sent");
     }
 
-    @Then("I should receive an echo response")
-    public void shouldReceiveAnEchoResponse() {
-        LOG.debug("THEN I should receive an echo response");
+    @Then("I should receive {string} in response")
+    public void shouldReceiveAThisResponse(String response) {
+        LOG.debug("THEN I should receive " + response + " in response");
 
         await().atMost(ofSeconds(10)).until(() -> !zscript.progress() && !bytesCollector2.isEmpty());
 
         LOG.trace("bytesCollector2 empty? {}", bytesCollector2.isEmpty());
-        assertThat(bytesCollector2.next().get()).contains(byteStringUtf8("!A8S\n").toByteArray());
+        assertThat(bytesCollector2.next().get()).contains(byteStringUtf8(response + "\n").toByteArray());
     }
 }
