@@ -51,6 +51,7 @@ public class LocalConnection extends DirectConnection {
      */
     @Override
     public void onReceiveBytes(Consumer<byte[]> bytesResponseHandler) {
+        LOG.trace("register onReceiveBytes handler");
         startBlockingReadHelper(responseStream, bytesResponseHandler);
 
     }

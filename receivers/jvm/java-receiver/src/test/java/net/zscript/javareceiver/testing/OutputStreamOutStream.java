@@ -43,6 +43,7 @@ public class OutputStreamOutStream<Z extends OutputStream> extends AbstractOutSt
         open = false;
         try {
             output.flush();
+            LOG.trace("output.flush()'ed");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -73,6 +73,7 @@ public abstract class DirectConnection implements Connection, Closeable {
      */
     @Override
     public final void onReceive(Consumer<AddressedResponse> responseHandler) {
+        getLogger().atTrace().setMessage("register onReceive handler (via onReceiveBytes)").log();
         onReceiveBytes(bytes -> thread.moveOntoThread(() -> {
             getLogger().atTrace().setMessage("Received response: {}").addArgument(() -> byteString(bytes)).log();
             processReceivedBytes(bytes, responseHandler);
@@ -168,6 +169,7 @@ public abstract class DirectConnection implements Connection, Closeable {
             byte[] buf = new byte[1024];
             int    len;
             while (!Thread.interrupted() && (len = inResponseStream.read(buf)) != -1) {
+                getLogger().trace("blockingReadHelper read something len: {}", len);
                 if (len > 0) {
                     final var byteStringBuilder = ByteString.builder().appendRaw(buf, 0, len);
                     getLogger().trace("blockingReadHelper passed on: {}", byteStringBuilder);
