@@ -52,7 +52,7 @@ class LocalChannelTest {
     }
 
     @Test
-    public void shouldTokenizeSuppliedBytes() throws IOException {
+    public void shouldTokenizeSuppliedBytes() {
         final TokenReader tokenReader = buffer.getTokenReader();
 
         // First bit of test script
@@ -105,7 +105,7 @@ class LocalChannelTest {
         when(cmdStream.read(Mockito.any(byte[].class))).thenReturn(0).thenThrow(new IOException("my test exception"));
         makeItRun(cmdStream);
         // E3 implies ERROR
-        assertThat(responseCollector.next()).isPresent().get().isEqualTo("\"LocalChannel\"E3".getBytes(UTF_8));
+        assertThat(responseCollector.next()).hasValue("\"LocalChannel\"E3".getBytes(UTF_8));
     }
 
     @Test
@@ -116,10 +116,10 @@ class LocalChannelTest {
 
         makeItRun(cmdStream);
         // E1 implies CLOSED
-        assertThat(responseCollector.next()).isPresent().get().isEqualTo("\"LocalChannel\"E1".getBytes(UTF_8));
+        assertThat(responseCollector.next()).hasValue("\"LocalChannel\"E1".getBytes(UTF_8));
     }
 
-    private void makeItRun(InputStream cmdStream) throws IOException {
+    private void makeItRun(InputStream cmdStream) {
         LocalChannel brokenChannel = new LocalChannel(buffer, responseCollector) {
             @Override
             void readBytesToQueue(InputStream s) throws IOException {
@@ -149,6 +149,6 @@ class LocalChannelTest {
         sequenceOutStream.close();
 
         await().atMost(ofSeconds(5)).until(() -> !responseCollector.isEmpty());
-        assertThat(responseCollector.next()).isPresent().get().isEqualTo("\"LocalChannel\"E".getBytes(UTF_8));
+        assertThat(responseCollector.next()).hasValue("\"LocalChannel\"E".getBytes(UTF_8));
     }
 }
