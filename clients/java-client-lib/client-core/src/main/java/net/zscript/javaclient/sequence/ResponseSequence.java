@@ -2,6 +2,7 @@ package net.zscript.javaclient.sequence;
 
 import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
 
+import net.zscript.javaclient.ZscriptParseException;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer;
@@ -32,7 +33,7 @@ public final class ResponseSequence implements ByteAppendable {
 
         TokenBuffer.TokenReader.ReadToken current = iter.next().orElse(null);
         if (current == null || current.getKey() != Zchars.Z_RESPONSE_MARK) {
-            throw new IllegalArgumentException("Invalid response sequence without response mark");
+            throw new ZscriptParseException("Invalid response sequence without response marker [text=%s]", start);
         }
         responseField = current.getData16();
         current = iter.next().orElse(null);

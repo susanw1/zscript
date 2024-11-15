@@ -61,8 +61,9 @@ public class TokenBufferFlags {
     /**
      * Indicates whether the Reader is blocked (ie waiting for a Marker to say it can proceed with processing).
      * <p/>
-     * This allows the Tokenizer to decide whether there's any point rejecting an offered byte if there's no capacity, given that the Reader will never clear any space. This might
-     * happen if a single command exceeds the size of the buffer. Instead, it will add an OVERRUN marker which will cause the Reader to proceed into an error state.
+     * This allows a Writer (ie the Tokenizer) to decide whether there's any point rejecting an offered byte if there's no capacity, given that the Reader will never clear any
+     * space. This might happen if a single command exceeds the size of the buffer. Instead, it will add an OVERRUN marker which will cause the Reader to proceed into an error
+     * state.
      *
      * @return true if the reader is blocked, false otherwise
      */
@@ -71,9 +72,9 @@ public class TokenBufferFlags {
     }
 
     /**
-     * Indicates that the Reader is not (or no longer) blocked, and can proceed with processing tokens if given the chance. This is effectively an acknowledgement that a Marker has
-     * been identified.
-     * <p/>
+     * Used by a Reader to signal that it is not (or no longer) blocked, and can proceed with processing tokens if given the chance. This is effectively an acknowledgement that a
+     * Marker has been identified.
+     * <p>
      * If the Tokenizer has been struggling with buffer space, this allows it to start recovering.
      */
     public void clearReaderBlocked() {
@@ -81,7 +82,7 @@ public class TokenBufferFlags {
     }
 
     /**
-     * Indicates that the Reader is now blocked - it has processed everything it can and is awaiting more tokens.
+     * Used by a Reader to signal that it is now blocked - it has processed everything it can and is awaiting more tokens.
      * <p/>
      * This signals to the Tokenizer that the Reader needs feeding, and if the buffer is running out of space then it's not the Reader's fault.
      */

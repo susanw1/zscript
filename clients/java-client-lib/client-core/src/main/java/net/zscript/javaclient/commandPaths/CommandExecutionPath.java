@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
+import net.zscript.javaclient.ZscriptParseException;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBufferIterator;
@@ -135,9 +136,12 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
                         }
                     }
                 } else if (token.isSequenceEndMarker()) {
+                    if (token.getKey() != Tokenizer.NORMAL_SEQUENCE_END) {
+                        throw new ZscriptParseException("Syntax error [marker=%s, token=%s]", token, start);
+                    }
                     break;
                 } else {
-                    throw new IllegalStateException("Unknown separator: " + Integer.toHexString(Byte.toUnsignedInt(token.getKey())));
+                    throw new ZscriptParseException("Unknown separator [key=%s, token=%s]", Integer.toHexString(Byte.toUnsignedInt(token.getKey())), token);
                 }
                 last = next;
             }
@@ -255,52 +259,52 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
 
         while (currentResp != null) {
             if (currentCmd == null) {
-                throw new IllegalArgumentException("Command sequence ended before response - cannot match");
+                throw new ZscriptParseException("Command sequence ended before response - cannot match");
             }
             cmds.add(new MatchedCommandResponse(currentCmd, currentResp));
 
             if (lastSucceeded) {
                 if (lastEndedClose) {
                     if (parenStarts.peek().getOnFail() == currentCmd.getOnFail()) {
-                        throw new IllegalArgumentException("Response has ')' without valid opening '('");
+                        throw new ZscriptParseException("Response has ')' without valid opening '('");
                     }
                     Command tmp2 = parenStarts.pop().getOnFail();
                     while (tmp2 != null && tmp2 != currentCmd) {
                         tmp2 = tmp2.getOnSuccess();
                     }
                     if (tmp2 != currentCmd) {
-                        throw new IllegalArgumentException("Response has ')' without command sequence merging");
+                        throw new ZscriptParseException("Response has ')' without command sequence merging");
                     }
                     lastEndedClose = false;
                 } else if (lastEndedOpen) {
                     parenStarts.push(currentCmd);
                     lastEndedOpen = false;
                 } else if (lastFail != null && currentCmd.getOnFail() != lastFail) {
-                    throw new IllegalArgumentException("Fail conditions don't match up around '&'");
+                    throw new ZscriptParseException("Fail conditions don't match up around '&'");
                 }
             } else {
                 for (int i = 0; i < lastParenCount; i++) {
                     if (parenStarts.isEmpty()) {
-                        throw new IllegalArgumentException("Command sequence ran out of parens before response sequence");
+                        throw new ZscriptParseException("Command sequence ran out of parens before response sequence");
                     }
                     Command tmp3 = parenStarts.peek().getOnFail();
                     while (tmp3 != null && tmp3.getOnFail() != currentCmd) {
                         tmp3 = tmp3.getOnSuccess();
                     }
                     if (tmp3 == null) {
-                        throw new IllegalArgumentException("Response has ')' without command sequence merging");
+                        throw new ZscriptParseException("Response has ')' without command sequence merging");
                     }
                     tmp3 = parenStarts.peek().getOnFail();
                     while (tmp3 != null && tmp3 != currentCmd) {
                         tmp3 = tmp3.getOnFail();
                     }
                     if (tmp3 != currentCmd) {
-                        throw new IllegalArgumentException("Response has ')' without command sequence merging");
+                        throw new ZscriptParseException("Response has ')' without command sequence merging");
                     }
                     parenStarts.pop();
                 }
                 if (parenStarts.isEmpty() || parenStarts.peek().getOnFail() != currentCmd) {
-                    throw new IllegalArgumentException("Response has failure divergence without parenthesis");
+                    throw new ZscriptParseException("Response has failure divergence without parenthesis");
                 }
             }
             if (currentResp.wasSuccess()) {

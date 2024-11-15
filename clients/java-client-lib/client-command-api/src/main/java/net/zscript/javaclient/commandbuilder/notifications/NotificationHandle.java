@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.zscript.javaclient.ZscriptParseException;
 import net.zscript.javaclient.commandPaths.Response;
 import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
-import net.zscript.javaclient.commandbuilder.ZscriptClientException;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 
 public abstract class NotificationHandle<N extends Notification> {
@@ -36,7 +36,7 @@ public abstract class NotificationHandle<N extends Notification> {
             final Response               response = respIt.next();
             final ZscriptResponse        content  = section.parseResponse(response.getFields());
             if (!content.isValid()) {
-                throw new ZscriptClientException("Invalid notification section [ntf=%s, section#=%s, section=%s, text=%s]", this, i, section, response);
+                throw new ZscriptParseException("Invalid notification section [ntf=%s, section#=%s, section=%s, text=%s]", this, i, section, response);
             }
 
             actualResponses.add(content);

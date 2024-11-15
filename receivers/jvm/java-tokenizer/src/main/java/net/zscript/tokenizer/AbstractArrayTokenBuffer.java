@@ -58,8 +58,17 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
         return data;
     }
 
-    protected final int getDataSize() {
+    public final int getDataSize() {
         return data.length;
+    }
+
+    /**
+     * Reveals the start of writing space (first index above the last valid readable byte). Careful, this is tied up with the inner workings of the buffer.
+     *
+     * @return start of write space
+     */
+    protected final int getWriteStart() {
+        return writeStart;
     }
 
     protected final void importInternalDataFrom(final AbstractArrayTokenBuffer other) {
@@ -437,7 +446,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                     throw new IllegalStateException("Cannot get data from marker token");
                 }
                 return new BlockIterator() {
-                    private int itIndex = offset(index, 2);
+                    private int itIndex      = offset(index, 2);
                     private int segRemaining = getSegmentDataSize();
 
                     @Override

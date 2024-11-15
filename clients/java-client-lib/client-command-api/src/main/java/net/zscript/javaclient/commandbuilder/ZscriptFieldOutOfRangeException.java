@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandbuilder;
 
+import net.zscript.javaclient.ZscriptClientException;
+
 public class ZscriptFieldOutOfRangeException extends ZscriptClientException {
 
     public ZscriptFieldOutOfRangeException(String format, Object... params) {
