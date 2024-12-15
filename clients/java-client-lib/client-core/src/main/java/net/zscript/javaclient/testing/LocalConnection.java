@@ -37,7 +37,7 @@ public class LocalConnection extends DirectConnection {
 
     @Override
     public void sendBytes(byte[] data) throws IOException {
-        LOG.trace("sendBytes: {}", byteString(data));
+        LOG.atTrace().addArgument(() -> byteString(data)).log("sendBytes: [{}]");
         commandStream.write(data);
 
         // check from end as it's likely data is a complete '\n'-terminated line of Zscript
@@ -51,9 +51,7 @@ public class LocalConnection extends DirectConnection {
      */
     @Override
     public void onReceiveBytes(Consumer<byte[]> bytesResponseHandler) {
-        LOG.trace("register onReceiveBytes handler");
         startBlockingReadHelper(responseStream, bytesResponseHandler);
-
     }
 
     @Override

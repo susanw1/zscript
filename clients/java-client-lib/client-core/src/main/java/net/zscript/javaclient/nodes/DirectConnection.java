@@ -37,9 +37,9 @@ import net.zscript.util.ByteString.ByteStringBuilder;
  */
 public abstract class DirectConnection implements Connection, Closeable {
     /** General thread pool for connection-related actions, eg blocking reads */
-    private static final ScheduledExecutorService CONNECTION_EXEC = Executors.newScheduledThreadPool(0);
+    private final ScheduledExecutorService CONNECTION_EXEC = Executors.newScheduledThreadPool(0);
 
-    private Future<?> readingTaskFuture;
+    private volatile Future<?> readingTaskFuture;
 
     private final ZscriptWorkerThread thread = new ZscriptWorkerThread();
 
@@ -73,7 +73,7 @@ public abstract class DirectConnection implements Connection, Closeable {
      */
     @Override
     public final void onReceive(Consumer<AddressedResponse> responseHandler) {
-        getLogger().atTrace().setMessage("register onReceive handler (via onReceiveBytes)").log();
+        getLogger().atTrace().setMessage("register onReceive handler (using onReceiveBytes)").log();
         onReceiveBytes(bytes -> thread.moveOntoThread(() -> {
             getLogger().atTrace().setMessage("Received response: {}").addArgument(() -> byteString(bytes)).log();
             processReceivedBytes(bytes, responseHandler);
@@ -155,7 +155,11 @@ public abstract class DirectConnection implements Connection, Closeable {
     public abstract void onReceiveBytes(final Consumer<byte[]> bytesResponseHandler);
 
     protected void startBlockingReadHelper(InputStream inResponseStream, final Consumer<byte[]> bytesResponseHandler) {
+        if (readingTaskFuture != null) {
+            throw new IllegalStateException("onReceiveBytes handler already registered");
+        }
         readingTaskFuture = CONNECTION_EXEC.submit(() -> blockingReadHelper(inResponseStream, bytesResponseHandler));
+        getLogger().trace("blockingReadHelper submitted");
     }
 
     /**
@@ -164,16 +168,18 @@ public abstract class DirectConnection implements Connection, Closeable {
      * @param inResponseStream     the stream to read
      * @param bytesResponseHandler the handler to receive the response bytes
      */
-    protected void blockingReadHelper(InputStream inResponseStream, final Consumer<byte[]> bytesResponseHandler) {
+    protected void blockingReadHelper(final InputStream inResponseStream, final Consumer<byte[]> bytesResponseHandler) {
         try {
-            byte[] buf = new byte[1024];
-            int    len;
-            while (!Thread.interrupted() && (len = inResponseStream.read(buf)) != -1) {
-                getLogger().trace("blockingReadHelper read something len: {}", len);
+            final byte[] buf = new byte[1024];
+            int          len;
+            getLogger().trace("blockingReadHelper about to enter loop...");
+            while (!Thread.interrupted() && (len = doRead(inResponseStream, buf)) != -1) {
+                getLogger().trace("blockingReadHelper read something [len={}]", len);
                 if (len > 0) {
                     final var byteStringBuilder = ByteString.builder().appendRaw(buf, 0, len);
                     getLogger().trace("blockingReadHelper passed on: {}", byteStringBuilder);
                     bytesResponseHandler.accept(byteStringBuilder.toByteArray());
+                    getLogger().trace("blockingReadHelper accept() returned...");
                 }
             }
             inResponseStream.close();
@@ -182,16 +188,25 @@ public abstract class DirectConnection implements Connection, Closeable {
         }
     }
 
+    // adds logging to highlight where we're blocking
+    private int doRead(final InputStream inResponseStream, final byte[] buf) throws IOException {
+        getLogger().trace("getRead() entered");
+        final int read = inResponseStream.read(buf);
+        getLogger().trace("getRead() exited (return={})", read);
+        return read;
+    }
+
     @Override
     public void close() throws IOException {
         getLogger().trace("close()");
-        Future<?> r = readingTaskFuture;
+        final Future<?> r = readingTaskFuture;
         if (r != null) {
             r.cancel(true);
             try {
                 r.get();
             } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
+                // should this have additional handling for eg InterruptedIOException?
+                throw new IOException(e);
             } finally {
                 readingTaskFuture = null;
             }

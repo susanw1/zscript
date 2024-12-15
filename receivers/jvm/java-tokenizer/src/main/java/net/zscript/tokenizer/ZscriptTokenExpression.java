@@ -143,6 +143,6 @@ public class ZscriptTokenExpression implements ZscriptExpression {
 
     @Override
     public String toString() {
-        return "ZscriptExpression[" + iteratorToMarker().stream().map(Object::toString).collect(joining()) + "]";
+        return "ZscriptExpression[" + iteratorToMarker().stream().map(Object::toString).collect(joining(", ")) + "]";
     }
 }
