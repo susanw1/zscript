@@ -39,7 +39,7 @@ public class OutputStreamOutStream<Z extends OutputStream> extends AbstractOutSt
 
     @Override
     public void close() {
-        LOG.trace("close()");
+        LOG.trace("stream close()");
         open = false;
         try {
             output.flush();

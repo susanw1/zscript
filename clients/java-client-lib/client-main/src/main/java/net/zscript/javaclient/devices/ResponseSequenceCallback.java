@@ -22,6 +22,7 @@ import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.model.components.Zchars;
+import net.zscript.model.components.ZscriptStatus;
 
 public class ResponseSequenceCallback {
 
@@ -61,7 +62,7 @@ public class ResponseSequenceCallback {
         for (ZscriptCommandNode<?> node : nodes) {
             if (!notExecuted.add(node)) {
                 throw new IllegalStateException(
-                        "Command tree contains duplicate ZscriptCommandNode - this is not supported. Instead share the builder, and call it twice, or create the commands seperately.");
+                        "Command tree contains duplicate ZscriptCommandNode - this is not supported. Instead share the builder, and call it twice, or create the commands separately.");
             }
         }
         if (matchedCRs.isEmpty()) {
@@ -85,7 +86,7 @@ public class ResponseSequenceCallback {
             responses.put(node, summary.getResponse());
             if (cr.getResponse().wasSuccess()) {
                 succeeded.add(summary);
-            } else if (cr.getResponse().getFields().getField(Zchars.Z_STATUS).orElse(0) < 0x10) {
+            } else if (ZscriptStatus.isFailure(cr.getResponse().getFields().getField(Zchars.Z_STATUS).orElse(0))) {
                 failed.add(summary);
             } else {
                 if (abort != null) {

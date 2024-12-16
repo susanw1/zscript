@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -37,7 +38,7 @@ import net.zscript.util.ByteString.ByteStringBuilder;
  */
 public abstract class DirectConnection implements Connection, Closeable {
     /** General thread pool for connection-related actions, eg blocking reads */
-    private final ScheduledExecutorService CONNECTION_EXEC = Executors.newScheduledThreadPool(0);
+    private static final ScheduledExecutorService CONNECTION_EXEC = Executors.newScheduledThreadPool(0);
 
     private volatile Future<?> readingTaskFuture;
 
@@ -154,6 +155,13 @@ public abstract class DirectConnection implements Connection, Closeable {
      */
     public abstract void onReceiveBytes(final Consumer<byte[]> bytesResponseHandler);
 
+    /**
+     * Response-side helper method starts a background thread invoking {@link #blockingReadHelper(InputStream, Consumer)}, to read from the supplied stream and pass the bytes to
+     * the responseHandler. Will reject calls if a handler is already registered.
+     *
+     * @param inResponseStream     the stream to read
+     * @param bytesResponseHandler the handler to receive the response bytes
+     */
     protected void startBlockingReadHelper(InputStream inResponseStream, final Consumer<byte[]> bytesResponseHandler) {
         if (readingTaskFuture != null) {
             throw new IllegalStateException("onReceiveBytes handler already registered");
@@ -163,7 +171,7 @@ public abstract class DirectConnection implements Connection, Closeable {
     }
 
     /**
-     * Helper method that calls read() from a supplied stream and passes the bytes to the responseHandler
+     * Response-side helper method that calls read() from a supplied stream and passes the bytes to the responseHandler
      *
      * @param inResponseStream     the stream to read
      * @param bytesResponseHandler the handler to receive the response bytes
@@ -185,27 +193,31 @@ public abstract class DirectConnection implements Connection, Closeable {
             inResponseStream.close();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        } finally {
+            getLogger().trace("blockingReadHelper terminated");
         }
     }
 
-    // adds logging to highlight where we're blocking
+    // adds logging to highlight where we're blocking during response listening
     private int doRead(final InputStream inResponseStream, final byte[] buf) throws IOException {
-        getLogger().trace("getRead() entered");
+        getLogger().trace("response doRead() entered");
         final int read = inResponseStream.read(buf);
-        getLogger().trace("getRead() exited (return={})", read);
+        getLogger().trace("response doRead() return (return={})", read);
         return read;
     }
 
     @Override
     public void close() throws IOException {
-        getLogger().trace("close()");
+        getLogger().trace("DirectConnection close()");
         final Future<?> r = readingTaskFuture;
         if (r != null) {
             r.cancel(true);
             try {
                 r.get();
+                getLogger().trace("DirectConnection response-reader completed and closed");
+            } catch (CancellationException e) {
+                getLogger().trace("DirectConnection response-reader cancelled");
             } catch (InterruptedException | ExecutionException e) {
-                // should this have additional handling for eg InterruptedIOException?
                 throw new IOException(e);
             } finally {
                 readingTaskFuture = null;

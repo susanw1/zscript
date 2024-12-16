@@ -1,9 +1,10 @@
-<configuration debug="false">
+<configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} %-5level [%-16thread] %logger{48} - %msg%n</pattern>
         </encoder>
     </appender>
+    <!--    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>-->
 
     <!--    <logger name="net.zscript" level="trace"/>-->
 

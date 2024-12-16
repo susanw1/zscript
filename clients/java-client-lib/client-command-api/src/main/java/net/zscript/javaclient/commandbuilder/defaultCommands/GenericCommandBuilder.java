@@ -7,14 +7,6 @@ import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.tokenizer.ZscriptExpression;
 
 public class GenericCommandBuilder extends ZscriptCommandBuilder<DefaultResponse> {
-    public ZscriptCommandBuilder<DefaultResponse> setField(byte key, int value) {
-        return super.setField(key, value);
-    }
-
-    public ZscriptCommandBuilder<DefaultResponse> setField(char key, int value) {
-        return super.setField(key, value);
-    }
-
     public int getField(byte key) {
         return super.getField(key);
     }

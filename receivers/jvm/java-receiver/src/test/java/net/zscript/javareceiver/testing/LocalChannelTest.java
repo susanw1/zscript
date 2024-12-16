@@ -104,6 +104,7 @@ class LocalChannelTest {
         final InputStream cmdStream = mock(InputStream.class);
         when(cmdStream.read(Mockito.any(byte[].class))).thenReturn(0).thenThrow(new IOException("my test exception"));
         makeItRun(cmdStream);
+        await().atMost(ofSeconds(5)).until(() -> !responseCollector.isEmpty());
         // E3 implies ERROR
         assertThat(responseCollector.next()).hasValue("\"LocalChannel\"E3".getBytes(UTF_8));
     }
@@ -111,30 +112,31 @@ class LocalChannelTest {
     @Test
     public void shouldRegisterClosureOnEOF() throws IOException {
         // Force the InputStream to fail
-        final InputStream cmdStream = mock(InputStream.class);
-        when(cmdStream.read(Mockito.any(byte[].class))).thenReturn(-1);
+        final InputStream emptyStream = mock(InputStream.class);
+        when(emptyStream.read(Mockito.any(byte[].class))).thenReturn(-1);
 
-        makeItRun(cmdStream);
+        makeItRun(emptyStream);
+        await().atMost(ofSeconds(5)).until(() -> !responseCollector.isEmpty());
         // E1 implies CLOSED
         assertThat(responseCollector.next()).hasValue("\"LocalChannel\"E1".getBytes(UTF_8));
     }
 
     private void makeItRun(InputStream cmdStream) {
-        LocalChannel brokenChannel = new LocalChannel(buffer, responseCollector) {
+        LocalChannel testChannel = new LocalChannel(buffer, responseCollector) {
             @Override
             void readBytesToQueue(InputStream s) throws IOException {
                 super.readBytesToQueue(cmdStream);
             }
         };
-        brokenChannel.moveAlong();
-        brokenChannel.moveAlong();
+        testChannel.moveAlong();
+        testChannel.moveAlong();
 
         final CommandContext    ctx               = mock(CommandContext.class);
-        final SequenceOutStream sequenceOutStream = brokenChannel.getOutStream(null);
+        final SequenceOutStream sequenceOutStream = testChannel.getOutStream(null);
         when(ctx.getOutStream()).thenReturn(sequenceOutStream.asCommandOutStream());
 
         sequenceOutStream.open();
-        brokenChannel.channelInfo(ctx);
+        testChannel.channelInfo(ctx);
         sequenceOutStream.close();
     }
 

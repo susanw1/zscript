@@ -57,6 +57,7 @@ public class LocalConnection extends DirectConnection {
     @Override
     public void close() throws IOException {
         commandStream.close();
+        super.close();
     }
 
     @Override
