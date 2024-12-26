@@ -3,6 +3,7 @@ package net.zscript.acceptance;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
@@ -10,6 +11,8 @@ import java.util.function.BiFunction;
 
 import static java.util.Arrays.stream;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toSet;
+import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.cucumber.java.en.And;
@@ -18,14 +21,18 @@ import io.cucumber.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javaclient.devices.ResponseSequenceCallback;
+import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
+import net.zscript.tokenizer.ZscriptExpression;
+import net.zscript.tokenizer.ZscriptField;
 
 /**
- * Steps that relate to building commands and decoding responses.
+ * Steps that relate to building commands and decoding responses using the generated command API.
  */
 public class CommandSteps {
     private static final Logger LOG = LoggerFactory.getLogger(CommandSteps.class);
@@ -103,8 +110,10 @@ public class CommandSteps {
 
     @When("I send the command sequence to the device and receive a response sequence")
     public void sendCommandToDeviceAndResponse() throws InterruptedException, ExecutionException, TimeoutException {
-        final Future<ResponseSequenceCallback> future = connectionSteps.getTestDeviceHandle().send(combineCommands());
-        connectionSteps.progressLocalDevice();
+        final CommandSequenceNode              cmdSeq = combineCommands();
+        final Future<ResponseSequenceCallback> future = connectionSteps.getTestDeviceHandle().send(cmdSeq);
+        connectionSteps.progressLocalDeviceIfRequired();
+
         final ResponseSequenceCallback responseResult = future.get(10, SECONDS);
         currentResponseIndex = 0;
         responses = responseResult.getResponses();
@@ -130,6 +139,40 @@ public class CommandSteps {
         final ZscriptResponse currentResponse = responses.get(currentResponseIndex);
         final OptionalInt     actualValue     = currentResponse.getField((byte) asKey(key));
         assertThat(Integer.decode(value)).isEqualTo(actualValue.orElseThrow());
+    }
+
+    /**
+     * Checks for field equivalence (eg every listed field must have same value as that returned, though not necessarily same order or big-field configuration)
+     *
+     * @param responseExpression the expression to check against
+     */
+    @And("it should match {string}")
+    public void shouldMatch(String responseExpression) {
+        final ZscriptResponse      currentResponse = responses.get(currentResponseIndex);
+        final ExtendingTokenBuffer tokenize        = ExtendingTokenBuffer.tokenize(byteStringUtf8(responseExpression));
+        final ZscriptExpression    expected        = ZscriptFieldSet.fromTokens(tokenize.getTokenReader().getFirstReadToken());
+
+        final Set<ZscriptField> actualFields   = currentResponse.expression().fields().collect(toSet());
+        final Set<ZscriptField> expectedFields = expected.fields().collect(toSet());
+        assertThat(actualFields).containsExactlyInAnyOrderElementsOf(expectedFields);
+
+        assertThat(currentResponse.expression().hasBigField()).isEqualTo(expected.hasBigField());
+        assertThat(currentResponse.expression().getBigFieldAsByteString()).isEqualTo(expected.getBigFieldAsByteString());
+    }
+
+    @And("it should contain at least {string}")
+    public void shouldContainAtLeast(String responseExpression) {
+        final ZscriptResponse      currentResponse = responses.get(currentResponseIndex);
+        final ExtendingTokenBuffer tokenize        = ExtendingTokenBuffer.tokenize(byteStringUtf8(responseExpression));
+        final ZscriptExpression    expected        = ZscriptFieldSet.fromTokens(tokenize.getTokenReader().getFirstReadToken());
+
+        final Set<ZscriptField> actualFields   = currentResponse.expression().fields().collect(toSet());
+        final Set<ZscriptField> expectedFields = expected.fields().collect(toSet());
+        assertThat(actualFields).containsAll(expectedFields);
+
+        if (expected.hasBigField()) {
+            assertThat(currentResponse.expression().getBigFieldAsByteString()).isEqualTo(expected.getBigFieldAsByteString());
+        }
     }
 
     /**

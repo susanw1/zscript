@@ -31,6 +31,7 @@ import net.zscript.javaclient.commandbuilder.notifications.NotificationHandle;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationId;
 import net.zscript.javaclient.nodes.ZscriptNode;
 import net.zscript.javaclient.sequence.CommandSequence;
+import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.model.ZscriptModel;
 import net.zscript.tokenizer.TokenBuffer;
@@ -177,11 +178,7 @@ public class Device {
      * @param callback the response from that sequence
      */
     public void send(final ByteString cmdSeq, final Consumer<ByteString> callback) {
-        final ExtendingTokenBuffer buffer = new ExtendingTokenBuffer();
-        final Tokenizer            tok    = new Tokenizer(buffer.getTokenWriter());
-
-        cmdSeq.forEach(tok::accept);
-
+        final ExtendingTokenBuffer    buffer      = ExtendingTokenBuffer.tokenize(cmdSeq);
         final TokenBuffer.TokenReader tokenReader = buffer.getTokenReader();
 
         List<ReadToken>     sequenceMarkers = tokenReader.tokenIterator().stream().filter(ReadToken::isSequenceEndMarker).collect(toList());
@@ -202,6 +199,26 @@ public class Device {
         } else {
             node.send(sequence.getExecutionPath(), r -> callback.accept(r.toByteString()));
         }
+    }
+
+    /**
+     * Sends an unaddressed command sequence (optionally with locks and echo field), and posts the matching response sequence to the supplied callback.
+     *
+     * @param cmdSeq       the sequence to send
+     * @param respCallback the handler for the response sequence
+     */
+    public void send(final CommandSequence cmdSeq, final Consumer<ResponseSequence> respCallback) {
+        node.send(cmdSeq, respCallback);
+    }
+
+    /**
+     * Sends the supplied command path (without address, locks or echo), and posts the matching response to the supplied callback.
+     *
+     * @param cmdSeq       the sequence to send
+     * @param respCallback the handler for the response sequence
+     */
+    public void send(final CommandExecutionPath cmdSeq, final Consumer<ResponseExecutionPath> respCallback) {
+        node.send(cmdSeq, respCallback);
     }
 
     public static class CommandExecutionTask {

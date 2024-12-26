@@ -14,7 +14,8 @@ public class ValidatingResponse implements ZscriptResponse {
         this.requiredKeys = requiredKeys;
     }
 
-    public ZscriptExpression getExpression() {
+    @Override
+    public ZscriptExpression expression() {
         return expression;
     }
 

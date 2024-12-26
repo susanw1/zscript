@@ -3,6 +3,7 @@ package net.zscript.acceptance;
 import java.io.IOException;
 
 import static java.time.Duration.ofSeconds;
+import static java.util.Objects.requireNonNull;
 import static net.zscript.javaclient.tokens.ExtendingTokenBuffer.tokenize;
 import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +30,7 @@ import net.zscript.util.ByteString;
 public class ConnectionSteps {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectionSteps.class);
 
-    private final LocalDeviceSteps localDeviceSteps;
+    private final LocalJavaReceiverSteps localJavaReceiverSteps;
 
     private ZscriptModel     model;
     private Device           testDevice;
@@ -38,30 +39,46 @@ public class ConnectionSteps {
     private final CollectingConsumer<ByteString> deviceBytesCollector     = new CollectingConsumer<>();
     private final CollectingConsumer<byte[]>     connectionBytesCollector = new CollectingConsumer<>();
 
-    public ConnectionSteps(LocalDeviceSteps localDeviceSteps) {
-        this.localDeviceSteps = localDeviceSteps;
+    public ConnectionSteps(LocalJavaReceiverSteps localJavaReceiverSteps) {
+        this.localJavaReceiverSteps = localJavaReceiverSteps;
     }
 
     public Device getTestDeviceHandle() {
-        return testDevice;
+        return requireNonNull(testDevice);
     }
 
-    public void progressLocalDevice() {
-        // allow any "not progressing" to burn away, before trying to actually progress
-        await().atMost(ofSeconds(10)).until(localDeviceSteps::progressZscriptDevice);
-        while (localDeviceSteps.progressZscriptDevice()) {
-            LOG.trace("Progressed Zscript device...");
+    public ZscriptModel getModel() {
+        return requireNonNull(model);
+    }
+
+    public void progressLocalDeviceIfRequired() {
+        if (localJavaReceiverSteps != null) {
+            // allow any "not progressing" to burn away, before trying to actually progress
+            await().atMost(ofSeconds(10)).until(localJavaReceiverSteps::progressZscriptDevice);
+            while (localJavaReceiverSteps.progressZscriptDevice()) {
+                LOG.trace("Progressed Zscript device...");
+            }
         }
     }
 
     private DirectConnection createConnection() {
+        // If local device setup has been done, assume it overrides system-property settings
+        if (localJavaReceiverSteps.isConnected()) {
+            return localJavaReceiverSteps.getLocalConnection();
+        }
+
+        // Otherwise use those system settings
         if (Boolean.getBoolean("zscript.acceptance.conn.tcp")) {
-            throw new PendingException("Support for network interfaces is not implemented yet");
+            throw new PendingException("Support for tests over network interfaces is not implemented yet");
+        } else if (Boolean.getBoolean("zscript.acceptance.conn.serial")) {
+            throw new PendingException("Support for tests over serial interfaces is not implemented yet");
+        } else {
+            if (!Boolean.getBoolean("zscript.acceptance.conn.local.java")) {
+                LOG.warn("No acceptance test connection defined - defaulting to zscript.acceptance.conn.local.java");
+            }
+            localJavaReceiverSteps.runAndConnectToZscriptReceiver();
+            return localJavaReceiverSteps.getLocalConnection();
         }
-        if (Boolean.getBoolean("zscript.acceptance.conn.serial")) {
-            throw new PendingException("Support for network interfaces is not implemented yet");
-        }
-        return localDeviceSteps.getLocalConnection();
     }
 
     @After
@@ -73,13 +90,23 @@ public class ConnectionSteps {
         }
     }
 
-    @Given("a connected device handle")
-    public void deviceHandleConnected() {
-        if (testDevice != null || model != null || conn != null) {
+    @Given("a connection to the receiver")
+    public void connectionToReceiver() {
+        if (conn != null) {
             throw new IllegalStateException("Device/model/connection already initialized");
         }
         conn = createConnection();
+    }
 
+    @Given("a connected device handle")
+    public void deviceHandleConnected() {
+        if (testDevice != null || model != null) {
+            throw new IllegalStateException("Device/model already initialized");
+        }
+        if (conn != null) {
+            throw new IllegalStateException("connection already initialized");
+        }
+        conn = createConnection();
         final ZscriptNode node = ZscriptNode.newNode(conn);
         model = ZscriptModel.standardModel();
         testDevice = new Device(model, node);
@@ -87,18 +114,16 @@ public class ConnectionSteps {
 
     @When("I send {string} as a command to the connection")
     public void sendCommandToConnection(String command) throws IOException {
-        if (conn != null) {
-            throw new IllegalStateException("Connection already initialized");
+        if (conn == null) {
+            throw new IllegalStateException("Connection not initialized");
         }
-
-        conn = createConnection();
         conn.onReceiveBytes(connectionBytesCollector);
         conn.sendBytes(byteStringUtf8(command + "\n").toByteArray());
     }
 
     @Then("connection should receive exactly {string} in response")
     public void shouldReceiveConnectionResponse(String response) {
-        await().atMost(ofSeconds(10)).until(() -> !localDeviceSteps.progressZscriptDevice() && !connectionBytesCollector.isEmpty());
+        await().atMost(ofSeconds(10)).until(() -> !localJavaReceiverSteps.progressZscriptDevice() && !connectionBytesCollector.isEmpty());
         assertThat(connectionBytesCollector.next().get()).contains(byteStringUtf8(response + "\n").toByteArray());
     }
 
@@ -108,7 +133,7 @@ public class ConnectionSteps {
     }
 
     private void progressDeviceUntilResponseReceived() {
-        await().atMost(ofSeconds(10)).until(() -> !localDeviceSteps.progressZscriptDevice() && !deviceBytesCollector.isEmpty());
+        await().atMost(ofSeconds(10)).until(() -> !localJavaReceiverSteps.progressZscriptDevice() && !deviceBytesCollector.isEmpty());
     }
 
     @Then("device should answer with response sequence {string}")
@@ -127,20 +152,4 @@ public class ConnectionSteps {
         assertThat(response.getFields().getField(Zchars.Z_STATUS)).hasValue(status);
         assertThat(response.getFields().getField(field.charAt(0))).hasValue(Integer.decode(value));
     }
-
-    //    @When("I send {string} to the device using the high level interface")
-    //    public void sendCommandToDeviceUsingHLI(String command) {
-    //        ExtendingTokenBuffer buf = new ExtendingTokenBuffer();
-    //        Tokenizer            tok = new Tokenizer(buf.getTokenWriter());
-    //        byteStringUtf8(command).forEach(tok::accept);
-    //        CommandSequence seq = CommandSequence.parse(model, buf.getTokenReader().getFirstReadToken(), false);
-    //        testDevice.send(seq);
-    //    }
-
-    //    @Then("device should supply response sequence {string} in response")
-    //    public void shouldReceiveThisResponse(String response) {
-    //        await().atMost(ofSeconds(10)).until(() -> !zscript.progress() && !deviceBytesCollector.isEmpty());
-    //        assertThat(deviceBytesCollector.next().get()).isEqualTo(byteStringUtf8(response));
-    //    }
-
 }

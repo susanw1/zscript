@@ -91,13 +91,13 @@ public class ExtendingTokenBufferTest {
 
     @Test
     public void shouldCreateTokenBufferFromBytes() {
-        ExtendingTokenBuffer buf = new ExtendingTokenBuffer(byteString(new byte[] { '!', 0, 'S', 1, 5, Tokenizer.NORMAL_SEQUENCE_END }));
+        ExtendingTokenBuffer buf = ExtendingTokenBuffer.fromTokenBytes(byteString(new byte[] { '!', 0, 'S', 1, 5, Tokenizer.NORMAL_SEQUENCE_END }));
         assertThat(buf.getDataSize()).isEqualTo(6);
     }
 
     @Test
     public void shouldRejectTokenBufferFromIncorrectBytes() {
-        assertThatThrownBy(() -> new ExtendingTokenBuffer(byteString(new byte[] { '!', 0, 'S', 0, 5, Tokenizer.NORMAL_SEQUENCE_END })))
+        assertThatThrownBy(() -> ExtendingTokenBuffer.fromTokenBytes(byteString(new byte[] { '!', 0, 'S', 0, 5, Tokenizer.NORMAL_SEQUENCE_END })))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Not a valid token string");
     }
 }

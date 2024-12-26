@@ -227,7 +227,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         try {
             compareResponses(resps);
             return true;
-        } catch (IllegalArgumentException ex) {
+        } catch (ZscriptParseException ex) {
             return false;
         }
     }

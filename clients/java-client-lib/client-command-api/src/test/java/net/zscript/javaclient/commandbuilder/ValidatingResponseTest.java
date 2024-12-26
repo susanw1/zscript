@@ -18,7 +18,7 @@ public class ValidatingResponseTest {
                 Map.of((byte) 'A', 12, (byte) 'Z', 7, (byte) 'C', 0, (byte) 'D', 0x123));
 
         ValidatingResponse vr1 = new ValidatingResponse(fieldSet, new byte[] { 'A', 'D' });
-        assertThat(vr1.getExpression()).isSameAs(fieldSet);
+        assertThat(vr1.expression()).isSameAs(fieldSet);
         assertThat(vr1.isValid()).isTrue();
         assertThat(vr1.getField((byte) 'A')).isPresent().hasValue(0xc);
 

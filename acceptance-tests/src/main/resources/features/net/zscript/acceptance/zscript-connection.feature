@@ -4,8 +4,7 @@ Feature: Zscript Connection
     SO THAT I can perform basic sanity checking and logic
 
     Background:
-        Given a locally running zscript device
-        And a connection to that local device
+        Given a connection to the receiver
 
     Scenario: Echo Command responds
         When I send "Z1A5" as a command to the connection
