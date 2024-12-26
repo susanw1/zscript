@@ -18,6 +18,13 @@ public final class NumberField implements ZscriptField, ByteString.ByteAppendabl
         return new NumberField(key, value);
     }
 
+    public static NumberField fieldOf(ZscriptField f) {
+        if (f.isBigField()) {
+            throw new IllegalArgumentException("big field cannot be converted");
+        }
+        return f instanceof NumberField ? (NumberField) f : new NumberField(f.getKey(), f.getValue());
+    }
+
     public NumberField(byte key, int value) {
         this.key = key;
         this.value = value;

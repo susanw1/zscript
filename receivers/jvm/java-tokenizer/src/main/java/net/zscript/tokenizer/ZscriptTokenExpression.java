@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 import static net.zscript.util.ByteString.byteString;
@@ -45,6 +46,14 @@ public class ZscriptTokenExpression implements ZscriptExpression {
                 return internal.next().filter(t -> !t.isMarker());
             }
         };
+    }
+
+    @Nonnull
+    @Override
+    public Stream<ZscriptField> fields() {
+        return iteratorToMarker().stream()
+                .filter(tok -> Zchars.isNumericKey(tok.getKey()))
+                .map(ZscriptTokenField::new);
     }
 
     @Nonnull
@@ -143,6 +152,6 @@ public class ZscriptTokenExpression implements ZscriptExpression {
 
     @Override
     public String toString() {
-        return "ZscriptExpression[" + iteratorToMarker().stream().map(Object::toString).collect(joining(", ")) + "]";
+        return "ZscriptTokenExpression[" + iteratorToMarker().stream().map(Object::toString).collect(joining(", ")) + "]";
     }
 }

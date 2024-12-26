@@ -113,4 +113,9 @@ public class CommandSequence implements ByteAppendable {
     public int getBufferLength() {
         return executionPath.getBufferLength() + (echoField > 0xff ? 4 : 3) + (locks != null ? locks.getBufferLength() : 0);
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + ": " + toByteString().asString();
+    }
 }

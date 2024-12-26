@@ -86,4 +86,9 @@ public final class ResponseSequence implements ByteAppendable {
         }
         executionPath.appendTo(builder);
     }
+
+    @Override
+    public String toString() {
+        return "ResponseSequence{" + toByteString() + '}';
+    }
 }
