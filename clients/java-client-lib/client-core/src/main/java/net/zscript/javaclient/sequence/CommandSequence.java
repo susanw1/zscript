@@ -116,6 +116,7 @@ public class CommandSequence implements ByteAppendable {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + ": " + toByteString().asString();
+        return toStringImpl();
     }
+
 }

@@ -161,6 +161,7 @@ class ZscriptBasicNode implements ZscriptNode {
 
         if (!found.getContent().getExecutionPath().matchesResponses(resp.getContent().getExecutionPath())) {
             callbackPool.sendCallback(badCommandResponseMatchHandler, found, resp, callbackExceptionHandler);
+            return;
         }
 
         strategy.mayHaveSpace();

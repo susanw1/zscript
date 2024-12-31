@@ -33,16 +33,32 @@ public class ExtendingTokenBuffer extends AbstractArrayTokenBuffer {
      * @param sequence    the sequence to tokenize
      * @param autoNewline if true, then check to see if a newline might be needed and add it; if false, then treat an incomplete sequence as an error
      * @return the buffer containing the tokens
-     * @throws ZscriptParseException if this buffer does not contain a valid sequence
+     * @throws ZscriptParseException if this buffer does not contain a single valid sequence
      */
     public static ExtendingTokenBuffer tokenize(ByteString sequence, boolean autoNewline) {
+        return tokenizeImpl(sequence, autoNewline, true);
+    }
+
+    /**
+     * As per {@link #tokenize(ByteString, boolean)}, except parse errors are not rejected. ZscriptParseException is not thrown even if the sequence is malformed, in which case the
+     * buffer is returned with the tokenization error marker intact. A NORMAL_SEQUENCE_END is appended only if the sequence contains a newline after normal tokenization (ie
+     * 'autoNewline' is treated as false).
+     *
+     * @param sequence the sequence to tokenize, including newline if that is intended
+     * @return the buffer containing the tokens (possibly including error markers)
+     */
+    public static ExtendingTokenBuffer tokenizeWithoutRejection(ByteString sequence) {
+        return tokenizeImpl(sequence, false, false);
+    }
+
+    private static ExtendingTokenBuffer tokenizeImpl(ByteString sequence, boolean autoNewline, boolean rejectErrors) {
         final ExtendingTokenBuffer buf = new ExtendingTokenBuffer();
         final Tokenizer            tok = new Tokenizer(buf.getTokenWriter());
 
         final TokenBufferFlags flags = buf.getTokenReader().getFlags();
         for (int i = 0, n = sequence.size(); i < n; i++) {
             tok.accept(sequence.get(i));
-            if (flags.getAndClearSeqMarkerWritten()) {
+            if (rejectErrors && flags.getAndClearSeqMarkerWritten()) {
                 final byte key = buf.getTokenReader().tokenIterator().stream()
                         .filter(ReadToken::isSequenceEndMarker)
                         .findFirst().orElseThrow().getKey();

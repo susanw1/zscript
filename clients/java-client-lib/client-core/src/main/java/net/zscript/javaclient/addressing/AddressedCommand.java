@@ -51,4 +51,9 @@ public class AddressedCommand implements ByteAppendable {
         }
         return length;
     }
+
+    @Override
+    public String toString() {
+        return toStringImpl();
+    }
 }

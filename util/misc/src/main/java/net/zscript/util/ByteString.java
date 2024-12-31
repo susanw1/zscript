@@ -837,6 +837,26 @@ public final class ByteString implements Iterable<Byte> {
         default ByteString toByteString() {
             return byteString(this);
         }
+
+        /**
+         * Useful debug string implementation for calling in {@link #toString()} methods.
+         *
+         * @return a debug string of the form "MyClass{'string-content'}"
+         */
+        @Nonnull
+        default String toStringImpl() {
+            return getClass().getSimpleName() + ":{'" + asStringUtf8() + "'}";
+        }
+
+        /**
+         * Returns just this object as the UTF8-String equivalent of its ByteString representation.
+         *
+         * @return this object's ByteString for as a String
+         */
+        @Nonnull
+        default String asStringUtf8() {
+            return toByteString().asString();
+        }
     }
 
     /**

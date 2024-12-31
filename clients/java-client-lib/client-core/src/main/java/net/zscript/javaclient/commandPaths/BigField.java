@@ -120,4 +120,9 @@ public class BigField implements ZscriptField, ByteAppendable {
     public BlockIterator iterator() {
         return data.iterator();
     }
+
+    @Override
+    public String toString() {
+        return toStringImpl();
+    }
 }

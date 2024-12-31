@@ -20,6 +20,7 @@ import static net.zscript.util.ByteString.byteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.zscript.javaclient.ZscriptParseException;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer;
 import net.zscript.tokenizer.TokenBufferIterator;
@@ -50,14 +51,18 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
         final TokenBufferIterator iterator = start.tokenIterator();
         for (Optional<TokenBuffer.TokenReader.ReadToken> opt = iterator.next(); opt.filter(t -> !t.isMarker()).isPresent(); opt = iterator.next()) {
             final TokenBuffer.TokenReader.ReadToken token = opt.get();
-            if (Zchars.isBigField(token.getKey())) {
-                bigFields.add(new BigField(byteString(token.dataIterator()), token.getKey() == Zchars.Z_BIGFIELD_QUOTED));
+            final byte                              key   = token.getKey();
+
+            if (Zchars.isBigField(key)) {
+                bigFields.add(new BigField(byteString(token.dataIterator()), key == Zchars.Z_BIGFIELD_QUOTED));
             } else {
-                checkNumericKey(token.getKey());
-                if (fields[token.getKey() - 'A'] != UNSET || token.getDataSize() > 2 || !Zchars.isNumericKey(token.getKey())) {
+                if (!Zchars.isNumericKey(key)) {
+                    throw new ZscriptParseException("Invalid numeric key, must be 'A'-'Z' [key=0x%02x('%c')]", key, key);
+                }
+                if (fields[key - 'A'] != UNSET || token.getDataSize() > 2 || !Zchars.isNumericKey(key)) {
                     hasClash = true;
                 } else {
-                    fields[token.getKey() - 'A'] = token.getData16();
+                    fields[key - 'A'] = token.getData16();
                 }
             }
         }
@@ -236,5 +241,10 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
      */
     public boolean matches(ZscriptExpression other) {
         return matchDescription(other).isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        return toStringImpl();
     }
 }

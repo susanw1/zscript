@@ -27,11 +27,11 @@ class ZscriptAddressTest {
     public void shouldConstructFromNumericParts() {
         ZscriptAddress address1 = ZscriptAddress.from(1, 0xa3b, 0, 0xffff);
         assertThat(address1.size()).isEqualTo(4);
-        assertThat(address1.toString()).isEqualTo("@1.a3b..ffff");
+        assertThat(address1.asString()).isEqualTo("@1.a3b..ffff");
 
         ZscriptAddress address2 = ZscriptAddress.from(List.of(1, 0xa3b, 0, 0xffff));
         assertThat(address2.size()).isEqualTo(4);
-        assertThat(address2.toString()).isEqualTo("@1.a3b..ffff");
+        assertThat(address2.asString()).isEqualTo("@1.a3b..ffff");
 
         assertThat(address1).isEqualTo(address2);
 
