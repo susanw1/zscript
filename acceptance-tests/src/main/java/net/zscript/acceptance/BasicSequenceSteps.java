@@ -2,11 +2,9 @@ package net.zscript.acceptance;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.time.Duration.ofSeconds;
 import static net.zscript.util.ByteString.byteString;
 import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -19,31 +17,31 @@ import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 
 public class BasicSequenceSteps {
-    private static final Logger          LOG = LoggerFactory.getLogger(BasicSequenceSteps.class);
-    private final        ConnectionSteps connectionSteps;
+    private static final Logger LOG = LoggerFactory.getLogger(BasicSequenceSteps.class);
 
-    private ResponseExecutionPath actualExecutionPath;
+    private final DeviceSteps           deviceSteps;
+    private       ResponseExecutionPath actualExecutionPath;
 
-    public BasicSequenceSteps(ConnectionSteps connectionSteps) {
-        this.connectionSteps = connectionSteps;
+    public BasicSequenceSteps(DeviceSteps deviceSteps) {
+        this.deviceSteps = deviceSteps;
     }
 
-    @When("the command sequence {string} is sent to the device")
+    @When("the command sequence {string} is sent to the target")
     public void sendCommandSequence(String commandSequenceAsText) {
         final AtomicReference<ResponseExecutionPath> response = new AtomicReference<>();
 
         final ExtendingTokenBuffer buffer      = ExtendingTokenBuffer.tokenize(byteStringUtf8(commandSequenceAsText), true);
-        final CommandExecutionPath commandPath = CommandExecutionPath.parse(connectionSteps.getModel(), buffer.getTokenReader().getFirstReadToken());
+        final CommandExecutionPath commandPath = CommandExecutionPath.parse(deviceSteps.getModel(), buffer.getTokenReader().getFirstReadToken());
 
-        connectionSteps.getTestDeviceHandle().send(commandPath, response::set);
-        connectionSteps.progressLocalDeviceIfRequired();
-        await().atMost(ofSeconds(10)).until(() -> response.get() != null);
+        deviceSteps.getTestDeviceHandle().send(commandPath, response::set);
+
+        deviceSteps.progressDeviceWhile(t -> response.get() == null);
 
         actualExecutionPath = response.get();
     }
 
-    @Then("the response should match {string}")
-    public void responseShouldMatch(String responseSequenceAsText) {
+    @Then("the response sequence should match {string}")
+    public void responseSequenceShouldMatch(String responseSequenceAsText) {
         final ExtendingTokenBuffer buffer              = ExtendingTokenBuffer.tokenize(byteStringUtf8(responseSequenceAsText));
         final ResponseSequence     expectedResponseSeq = ResponseSequence.parse(buffer.getTokenReader().getFirstReadToken());
 

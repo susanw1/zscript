@@ -4,12 +4,12 @@ Feature: Zscript Connection
     SO THAT I can perform basic sanity checking and logic
 
     Background:
-        Given a connection to the receiver
+        Given a connection to the target
 
     Scenario: Echo Command responds
-        When I send "Z1A5" as a command to the connection
+        When I send exactly "Z1A5" as a command sequence to the connection
         Then connection should receive exactly "!A5S" in response
 
     Scenario: Two Echo Command responds
-        When I send "Z1A1 & Z1A2" as a command to the connection
+        When I send exactly "Z1A1 & Z1A2" as a command sequence to the connection
         Then connection should receive exactly "!A1S&A2S" in response

@@ -1,10 +1,13 @@
 package net.zscript.acceptance;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.function.Predicate;
 
 import static java.time.Duration.ofSeconds;
-import static java.util.Objects.requireNonNull;
+import static net.zscript.acceptance.CommandSteps.statusNameToValue;
 import static net.zscript.javaclient.tokens.ExtendingTokenBuffer.tokenize;
+import static net.zscript.util.ByteString.byteString;
 import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -18,51 +21,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.zscript.javaclient.commandPaths.Response;
-import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
-import net.zscript.javaclient.devices.Device;
+import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
 import net.zscript.javaclient.nodes.DirectConnection;
-import net.zscript.javaclient.nodes.ZscriptNode;
+import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.javareceiver.testing.CollectingConsumer;
-import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
-import net.zscript.util.ByteString;
 
+/**
+ * Steps involving low-level connection-based communication.
+ */
 public class ConnectionSteps {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectionSteps.class);
 
     private final LocalJavaReceiverSteps localJavaReceiverSteps;
 
-    private ZscriptModel     model;
-    private Device           testDevice;
     private DirectConnection conn;
 
-    private final CollectingConsumer<ByteString> deviceBytesCollector     = new CollectingConsumer<>();
-    private final CollectingConsumer<byte[]>     connectionBytesCollector = new CollectingConsumer<>();
+    private final CollectingConsumer<byte[]> connectionBytesCollector = new CollectingConsumer<>();
 
     public ConnectionSteps(LocalJavaReceiverSteps localJavaReceiverSteps) {
         this.localJavaReceiverSteps = localJavaReceiverSteps;
     }
 
-    public Device getTestDeviceHandle() {
-        return requireNonNull(testDevice);
-    }
-
-    public ZscriptModel getModel() {
-        return requireNonNull(model);
-    }
-
-    public void progressLocalDeviceIfRequired() {
-        if (localJavaReceiverSteps != null) {
-            // allow any "not progressing" to burn away, before trying to actually progress
-            await().atMost(ofSeconds(10)).until(localJavaReceiverSteps::progressZscriptDevice);
-            while (localJavaReceiverSteps.progressZscriptDevice()) {
-                LOG.trace("Progressed Zscript device...");
-            }
-        }
+    /**
+     * Repeatedly progresses any local Zscript device and checks the supplied predicate, until any local device stops progressing and the predicate fails. The predicate argument is
+     * always null.
+     *
+     * @param p some predicate to test (use t->false if only testing for device progression)
+     */
+    public void progressDeviceWhile(Predicate<?> p) {
+        await().atMost(ofSeconds(10))
+                .until(() -> (!localJavaReceiverSteps.isConnected() || !localJavaReceiverSteps.progressZscriptDevice()) && !p.test(null));
     }
 
     private DirectConnection createConnection() {
-        // If local device setup has been done, assume it overrides system-property settings
+        // If local device setup has been done (ie explicitly), assume it overrides system-property settings
         if (localJavaReceiverSteps.isConnected()) {
             return localJavaReceiverSteps.getLocalConnection();
         }
@@ -73,6 +66,7 @@ public class ConnectionSteps {
         } else if (Boolean.getBoolean("zscript.acceptance.conn.serial")) {
             throw new PendingException("Support for tests over serial interfaces is not implemented yet");
         } else {
+            // And then use the local java device as a default
             if (!Boolean.getBoolean("zscript.acceptance.conn.local.java")) {
                 LOG.warn("No acceptance test connection defined - defaulting to zscript.acceptance.conn.local.java");
             }
@@ -90,29 +84,22 @@ public class ConnectionSteps {
         }
     }
 
-    @Given("a connection to the receiver")
-    public void connectionToReceiver() {
+    public DirectConnection getConnection() {
+        if (conn == null) {
+            conn = createConnection();
+        }
+        return conn;
+    }
+
+    @Given("a connection to the target")
+    public void connectionToTarget() {
         if (conn != null) {
             throw new IllegalStateException("Device/model/connection already initialized");
         }
         conn = createConnection();
     }
 
-    @Given("a connected device handle")
-    public void deviceHandleConnected() {
-        if (testDevice != null || model != null) {
-            throw new IllegalStateException("Device/model already initialized");
-        }
-        if (conn != null) {
-            throw new IllegalStateException("connection already initialized");
-        }
-        conn = createConnection();
-        final ZscriptNode node = ZscriptNode.newNode(conn);
-        model = ZscriptModel.standardModel();
-        testDevice = new Device(model, node);
-    }
-
-    @When("I send {string} as a command to the connection")
+    @When("I send exactly {string} as a command sequence to the connection")
     public void sendCommandToConnection(String command) throws IOException {
         if (conn == null) {
             throw new IllegalStateException("Connection not initialized");
@@ -122,34 +109,37 @@ public class ConnectionSteps {
     }
 
     @Then("connection should receive exactly {string} in response")
-    public void shouldReceiveConnectionResponse(String response) {
-        await().atMost(ofSeconds(10)).until(() -> !localJavaReceiverSteps.progressZscriptDevice() && !connectionBytesCollector.isEmpty());
-        assertThat(connectionBytesCollector.next().get()).contains(byteStringUtf8(response + "\n").toByteArray());
+    public void shouldReceiveExactConnectionResponse(String expectedResponse) {
+        progressDeviceWhile(t -> connectionBytesCollector.isEmpty());
+        assertThat(connectionBytesCollector.next().get()).containsExactly(byteStringUtf8(expectedResponse + "\n").toByteArray());
     }
 
-    @When("I send {string} as a command to the device")
-    public void sendCommandToDevice(String command) {
-        testDevice.send(byteStringUtf8(command + "\n"), deviceBytesCollector);
+    @Then("connection should answer with response #{int} containing status value {word}")
+    public void shouldReceiveThisResponseStatusByValueFromConnection(int index, String statusValue) {
+        progressDeviceWhile(t -> connectionBytesCollector.isEmpty());
+
+        final byte[] actual = connectionBytesCollector.next().orElseThrow();
+        final List<Response> responses = ResponseSequence.parse(tokenize(byteString(actual)).getTokenReader().getFirstReadToken())
+                .getExecutionPath().getResponses();
+
+        assertThat(responses.get(index).getFields().getField(Zchars.Z_STATUS)).hasValue(Integer.decode(statusValue));
     }
 
-    private void progressDeviceUntilResponseReceived() {
-        await().atMost(ofSeconds(10)).until(() -> !localJavaReceiverSteps.progressZscriptDevice() && !deviceBytesCollector.isEmpty());
+    @Then("connection should answer with response element #{int} containing status {word}")
+    public void shouldReceiveThisResponseStatusByNameFromConnection(int index, String statusName) throws Exception {
+        shouldReceiveThisResponseStatusByValueFromConnection(index, String.valueOf(statusNameToValue(statusName)));
     }
 
-    @Then("device should answer with response sequence {string}")
-    public void shouldReceiveThisResponse(String response) {
-        progressDeviceUntilResponseReceived();
-        assertThat(deviceBytesCollector.next().get()).isEqualTo(byteStringUtf8(response));
+    @Then("connection should answer with response element #{int} should match {string}")
+    public void shouldReceiveMatchingResponseFromConnection(int index, String expectedResponse) {
+        progressDeviceWhile(t -> connectionBytesCollector.isEmpty());
+        final byte[] actual = connectionBytesCollector.next().orElseThrow();
+
+        final List<Response> actualResponses = ResponseSequence.parse(tokenize(byteString(actual)).getTokenReader().getFirstReadToken())
+                .getExecutionPath().getResponses();
+
+        final ZscriptFieldSet expectedFields = ZscriptFieldSet.fromTokens(tokenize(byteStringUtf8(expectedResponse)).getTokenReader().getFirstReadToken());
+        assertThat(actualResponses.get(index).getFields().matchDescription(expectedFields)).isEmpty();
     }
 
-    @Then("device should answer with response status {int} and field {word} = {word}")
-    public void shouldReceiveThisResponse(int status, String field, String value) {
-        progressDeviceUntilResponseReceived();
-
-        final ByteString actual   = deviceBytesCollector.next().orElseThrow();
-        final Response   response = ResponseExecutionPath.parse(tokenize(actual).getTokenReader().getFirstReadToken()).getFirstResponse();
-
-        assertThat(response.getFields().getField(Zchars.Z_STATUS)).hasValue(status);
-        assertThat(response.getFields().getField(field.charAt(0))).hasValue(Integer.decode(value));
-    }
 }

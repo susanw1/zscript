@@ -4,12 +4,12 @@ Feature: Zscript Logic Handling
     SO THAT my commands are known to run in a predictable way
 
     Background:
-        Given a connected device handle
+        Given a device handle connected to the target
 
 
     Scenario Outline: Sequences of empty commands
-        When the command sequence "<commands>" is sent to the device
-        Then the response should match "<responses>"
+        When the command sequence "<commands>" is sent to the target
+        Then the response sequence should match "<responses>"
 
         # Empty command sequences joined by &, | and grouped ()
         Examples:
@@ -28,8 +28,8 @@ Feature: Zscript Logic Handling
 
 
     Scenario Outline: Sequences of successful echo commands
-        When the command sequence "<commands>" is sent to the device
-        Then the response should match "<responses>"
+        When the command sequence "<commands>" is sent to the target
+        Then the response sequence should match "<responses>"
 
         # Echo command sequences joined by &, | and grouped () - all successful
         Examples:
@@ -48,8 +48,8 @@ Feature: Zscript Logic Handling
 
 
     Scenario Outline: Logic sequences of AND/ORed success/failure echo commands
-        When the command sequence "<commands>" is sent to the device
-        Then the response should match "<responses>"
+        When the command sequence "<commands>" is sent to the target
+        Then the response sequence should match "<responses>"
 
         # Echo command sequences joined by &, | and grouped () - various combinations of failure using S2 "programmatic" fail
         Examples:
@@ -66,8 +66,8 @@ Feature: Zscript Logic Handling
             | Z1A1 S2 \| Z1A2 S2 \| Z1A3 S2 \| Z1A4 S2 | ! S2A1 \| S2A2 \| S2A3 \| S2A4 | 4x ORed cmds, ALL failed, should all execute                      |
 
     Scenario Outline: Logic sequences of AND/ORed success/failure echo commands with more complex parens
-        When the command sequence "<commands>" is sent to the device
-        Then the response should match "<responses>"
+        When the command sequence "<commands>" is sent to the target
+        Then the response sequence should match "<responses>"
 
         Examples:
             | commands                                   | responses                             | description                                                               |
@@ -81,8 +81,8 @@ Feature: Zscript Logic Handling
             | ( Z1A1 S2 \| Z1A2 ) \| ( Z1A3 S2 \| Z1A4 ) | ! ( S2A1 \| S0A2 )                    | 2x ORed cmds in parens, ORed; should run 1st pair and skip 2nd pair       |
 
     Scenario Outline: Logic sequences of AND/ORed echo commands including ERROR responses
-        When the command sequence "<commands>" is sent to the device
-        Then the response should match "<responses>"
+        When the command sequence "<commands>" is sent to the target
+        Then the response sequence should match "<responses>"
 
         Examples:
             | commands                    | responses       | description                                                     |
@@ -93,8 +93,8 @@ Feature: Zscript Logic Handling
             | Z1A1 S2 \| Z1A2 S13 \| Z1A3 | ! S2A1 \| S13A2 | 3x cmds, 1st fails OR 2nd err, should run 1st+2nd only          |
 
     Scenario Outline: Logic sequences of AND/ORed echo commands including ERROR responses, in more complex parens
-        When the command sequence "<commands>" is sent to the device
-        Then the response should match "<responses>"
+        When the command sequence "<commands>" is sent to the target
+        Then the response sequence should match "<responses>"
 
         # note error expressions don't bother closing parens (instant death)
         Examples:

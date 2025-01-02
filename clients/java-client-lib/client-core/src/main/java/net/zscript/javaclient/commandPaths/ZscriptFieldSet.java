@@ -126,11 +126,6 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
         return fields[key - 'A'];
     }
 
-    public void setFieldVal(byte key, int value) {
-        checkNumericKey(key);
-        fields[key - 'A'] = value;
-    }
-
     private static void checkNumericKey(byte key) {
         if (!Zchars.isNumericKey(key)) {
             throw new IllegalArgumentException("numeric key must be A-Z, not " + key + "('" + (char) key + "')");
@@ -226,7 +221,11 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
         thisFields.removeAll(intersection);
         otherFields.removeAll(intersection);
 
-        ByteStringBuilder b = ByteString.builder(thisFields).appendUtf8(" <> ").append(otherFields);
+        final ByteStringBuilder b = ByteString.builder();
+
+        if (!thisFields.isEmpty() || !otherFields.isEmpty()) {
+            b.append(thisFields).appendUtf8(" <> ").append(otherFields);
+        }
         if (hasBigField() != other.hasBigField() || !getBigFieldAsByteString().equals(other.getBigFieldAsByteString())) {
             b.appendUtf8(" + ").append(getBigFieldAsByteString()).appendUtf8(" <> ").append(other.getBigFieldAsByteString());
         }

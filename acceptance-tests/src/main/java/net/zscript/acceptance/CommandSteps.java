@@ -28,6 +28,7 @@ import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javaclient.devices.ResponseSequenceCallback;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
+import net.zscript.model.components.ZscriptStatus;
 import net.zscript.tokenizer.ZscriptExpression;
 import net.zscript.tokenizer.ZscriptField;
 
@@ -37,7 +38,7 @@ import net.zscript.tokenizer.ZscriptField;
 public class CommandSteps {
     private static final Logger LOG = LoggerFactory.getLogger(CommandSteps.class);
 
-    private ConnectionSteps connectionSteps;
+    private final DeviceSteps deviceSteps;
 
     private Class<?>                 currentModule;
     private ZscriptCommandBuilder<?> nodeBuilder;
@@ -48,8 +49,8 @@ public class CommandSteps {
     private List<ZscriptResponse> responses;
     private int                   currentResponseIndex;
 
-    public CommandSteps(ConnectionSteps connectionSteps) {
-        this.connectionSteps = connectionSteps;
+    public CommandSteps(DeviceSteps deviceSteps) {
+        this.deviceSteps = deviceSteps;
     }
 
     @Given("the {word} command from the {word} module in {word}")
@@ -100,7 +101,6 @@ public class CommandSteps {
         prevCommandNode = combineCommands();
         nodeBuilder = getBuilder(currentModule, cmdName);
         prevCombiner = CommandSequenceNode::onFail;
-
     }
 
     private CommandSequenceNode combineCommands() {
@@ -108,11 +108,12 @@ public class CommandSteps {
         return prevCommandNode == null ? commandNode : prevCombiner.apply(prevCommandNode, commandNode);
     }
 
-    @When("I send the command sequence to the device and receive a response sequence")
-    public void sendCommandToDeviceAndResponse() throws InterruptedException, ExecutionException, TimeoutException {
+    @When("I send the command sequence to the target and receive a response sequence")
+    public void sendCommandToTargetAndResponse() throws InterruptedException, ExecutionException, TimeoutException {
         final CommandSequenceNode              cmdSeq = combineCommands();
-        final Future<ResponseSequenceCallback> future = connectionSteps.getTestDeviceHandle().send(cmdSeq);
-        connectionSteps.progressLocalDeviceIfRequired();
+        final Future<ResponseSequenceCallback> future = deviceSteps.getTestDeviceHandle().send(cmdSeq);
+
+        deviceSteps.progressDeviceWhile(t -> !future.isDone());
 
         final ResponseSequenceCallback responseResult = future.get(10, SECONDS);
         currentResponseIndex = 0;
@@ -180,8 +181,6 @@ public class CommandSteps {
      */
     @And("as successful, there should be a following response")
     public void shouldContainFollowingSuccessResponse() {
-        final ZscriptResponse currentResponse = responses.get(currentResponseIndex);
-
         currentResponseIndex++;
         assertThat(responses.size()).isGreaterThan(currentResponseIndex);
     }
@@ -202,6 +201,10 @@ public class CommandSteps {
     public void shouldContainNoMoreResponses() {
         currentResponseIndex++;
         assertThat(responses.size()).isEqualTo(currentResponseIndex);
+    }
+
+    static int statusNameToValue(String statusName) throws Exception {
+        return (byte) ZscriptStatus.class.getField(statusName).get(null);
     }
 
     private ZscriptCommandBuilder<?> getBuilder(Class<?> currentModule, String cmdName) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
