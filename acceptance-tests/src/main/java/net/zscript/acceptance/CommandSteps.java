@@ -151,14 +151,9 @@ public class CommandSteps {
     public void shouldMatch(String responseExpression) {
         final ZscriptResponse      currentResponse = responses.get(currentResponseIndex);
         final ExtendingTokenBuffer tokenize        = ExtendingTokenBuffer.tokenize(byteStringUtf8(responseExpression));
-        final ZscriptExpression    expected        = ZscriptFieldSet.fromTokens(tokenize.getTokenReader().getFirstReadToken());
+        final ZscriptFieldSet      expected        = ZscriptFieldSet.fromTokens(tokenize.getTokenReader().getFirstReadToken());
 
-        final Set<ZscriptField> actualFields   = currentResponse.expression().fields().collect(toSet());
-        final Set<ZscriptField> expectedFields = expected.fields().collect(toSet());
-        assertThat(actualFields).containsExactlyInAnyOrderElementsOf(expectedFields);
-
-        assertThat(currentResponse.expression().hasBigField()).isEqualTo(expected.hasBigField());
-        assertThat(currentResponse.expression().getBigFieldAsByteString()).isEqualTo(expected.getBigFieldAsByteString());
+        assertThat(expected.matchDescription(currentResponse.expression())).isEmpty();
     }
 
     @And("it should contain at least {string}")
@@ -179,7 +174,7 @@ public class CommandSteps {
     /**
      * This method moves us to the next response in the sequence.
      */
-    @And("as successful, there should be a following response")
+    @And("having succeeded, there should be a following response")
     public void shouldContainFollowingSuccessResponse() {
         currentResponseIndex++;
         assertThat(responses.size()).isGreaterThan(currentResponseIndex);
@@ -188,7 +183,7 @@ public class CommandSteps {
     /**
      * This method moves us to the next response in the sequence.
      */
-    @And("as failed, there should be a following response")
+    @And("having failed, there should be a following response")
     public void shouldContainFollowingFailResponse() {
         currentResponseIndex++;
         assertThat(responses.size()).isGreaterThan(currentResponseIndex);

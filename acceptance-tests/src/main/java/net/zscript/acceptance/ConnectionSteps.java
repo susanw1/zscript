@@ -123,7 +123,9 @@ public class ConnectionSteps {
         final List<Response> responses = ResponseSequence.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken())
                 .getExecutionPath().getResponses();
 
-        assertThat(responses.get(index).getFields().getField(Zchars.Z_STATUS)).hasValue(Integer.decode(statusValue));
+        assertThat(responses.get(index).getFields().getField(Zchars.Z_STATUS))
+                .as("actual response: %s", responseBytes.asString())
+                .hasValue(Integer.decode(statusValue));
     }
 
     @Then("connection response #{int} has status {word}")
@@ -137,6 +139,8 @@ public class ConnectionSteps {
                 .getExecutionPath().getResponses();
 
         final ZscriptFieldSet expectedFields = ZscriptFieldSet.fromTokens(tokenize(byteStringUtf8(expectedResponse)).getTokenReader().getFirstReadToken());
-        assertThat(actualResponses.get(index).getFields().matchDescription(expectedFields)).isEmpty();
+        assertThat(actualResponses.get(index).getFields().matchDescription(expectedFields))
+                .as("actual response: %s", responseBytes.asString())
+                .isEmpty();
     }
 }

@@ -32,6 +32,7 @@ public class DeviceSteps {
 
     private final ConnectionSteps                connectionSteps;
     private final CollectingConsumer<ByteString> deviceBytesCollector = new CollectingConsumer<>();
+    private       ByteString                     responseBytes;
 
     private ZscriptModel model;
     private Device       testDevice;
@@ -52,7 +53,7 @@ public class DeviceSteps {
         connectionSteps.progressDeviceWhile(p);
     }
 
-    @Given("a device handle connected to the target")
+    @Given("a device handle connected to the connection")
     public void deviceHandleConnected() {
         if (testDevice != null || model != null) {
             throw new IllegalStateException("Device/model already initialized");
@@ -67,20 +68,19 @@ public class DeviceSteps {
     @When("I send {string} as a command to the device")
     public void sendCommandToDevice(String command) {
         testDevice.send(byteStringUtf8(command + "\n"), deviceBytesCollector);
+        progressDeviceWhile(t -> deviceBytesCollector.isEmpty());
+
+        responseBytes = deviceBytesCollector.next().orElseThrow();
     }
 
-    @Then("device should answer with response sequence {string}")
+    @Then("device response sequence is exactly {string}")
     public void shouldReceiveThisResponseFromDevice(String response) {
-        progressDeviceWhile(t -> deviceBytesCollector.isEmpty());
-        assertThat(deviceBytesCollector.next().get()).isEqualTo(byteStringUtf8(response));
+        assertThat(responseBytes).isEqualTo(byteStringUtf8(response));
     }
 
     @Then("device should answer with response status value {word} and field {word} = {word}")
     public void shouldReceiveThisResponseFromDevice(String status, String field, String value) {
-        progressDeviceWhile(t -> deviceBytesCollector.isEmpty());
-
-        final ByteString actual   = deviceBytesCollector.next().orElseThrow();
-        final Response   response = ResponseExecutionPath.parse(tokenize(actual).getTokenReader().getFirstReadToken()).getFirstResponse();
+        final Response response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
 
         assertThat(response.getFields().getField(Zchars.Z_STATUS)).hasValue(Integer.decode(status));
         assertThat(response.getFields().getField(field.charAt(0))).hasValue(Integer.decode(value));
@@ -88,20 +88,14 @@ public class DeviceSteps {
 
     @Then("device should answer with status value {word}")
     public void shouldReceiveThisStatusValue(String statusValue) {
-        progressDeviceWhile(t -> deviceBytesCollector.isEmpty());
-
-        final ByteString actual   = deviceBytesCollector.next().orElseThrow();
-        final Response   response = ResponseExecutionPath.parse(tokenize(actual).getTokenReader().getFirstReadToken()).getFirstResponse();
+        final Response response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
 
         assertThat(response.getFields().getField(Zchars.Z_STATUS)).hasValue(Integer.decode(statusValue));
     }
 
     @Then("device should answer with status {word}")
     public void shouldReceiveThisStatus(String statusName) throws Exception {
-        progressDeviceWhile(t -> deviceBytesCollector.isEmpty());
-
-        final ByteString actual   = deviceBytesCollector.next().orElseThrow();
-        final Response   response = ResponseExecutionPath.parse(tokenize(actual).getTokenReader().getFirstReadToken()).getFirstResponse();
+        final Response response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
 
         assertThat(response.getFields().getField(Zchars.Z_STATUS)).hasValue(statusNameToValue(statusName));
     }

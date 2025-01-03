@@ -4,7 +4,7 @@ Feature: Zscript Logic Handling
     SO THAT my commands are known to run in a predictable way
 
     Background:
-        Given a device handle connected to the target
+        Given a device handle connected to the connection
 
 
     Scenario Outline: Sequences of empty commands

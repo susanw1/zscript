@@ -6,7 +6,7 @@ Feature: Zscript Local Device Representation for Java Receiver
     Background:
         Given a locally running zscript receiver
         And a connection to that local receiver
-        And a device handle connected to the target
+        And a device handle connected to the connection
 
     Scenario: Simple textual command responds with text
         When I send "Z1A7" as a command to the device
@@ -33,7 +33,7 @@ Feature: Zscript Local Device Representation for Java Receiver
         Then it should include a Status field set to 0
         And it should include a Version field set to 1
         And it should include a bigfield Ident set to ""
-        And as successful, there should be a following response
+        And having succeeded, there should be a following response
         And it should include a Status field set to 0
         And it should include a field key 'A' set to 0x14
         And there should be no additional responses
@@ -46,6 +46,6 @@ Feature: Zscript Local Device Representation for Java Receiver
         And it has the field key 'A' set to 0x14
         When I send the command sequence to the target and receive a response sequence
         Then it should match "C3117 M1 V1 S0"
-        And as successful, there should be a following response
+        And having succeeded, there should be a following response
         And it should match "A14 S0"
         And there should be no additional responses
