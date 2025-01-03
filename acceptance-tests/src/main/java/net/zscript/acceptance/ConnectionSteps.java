@@ -26,6 +26,7 @@ import net.zscript.javaclient.nodes.DirectConnection;
 import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.javareceiver.testing.CollectingConsumer;
 import net.zscript.model.components.Zchars;
+import net.zscript.util.ByteString;
 
 /**
  * Steps involving low-level connection-based communication.
@@ -38,6 +39,7 @@ public class ConnectionSteps {
     private DirectConnection conn;
 
     private final CollectingConsumer<byte[]> connectionBytesCollector = new CollectingConsumer<>();
+    private       ByteString                 responseBytes;
 
     public ConnectionSteps(LocalJavaReceiverSteps localJavaReceiverSteps) {
         this.localJavaReceiverSteps = localJavaReceiverSteps;
@@ -99,47 +101,42 @@ public class ConnectionSteps {
         conn = createConnection();
     }
 
-    @When("I send exactly {string} as a command sequence to the connection")
+    @When("I send exactly {string} as a command sequence to the connection, and capture the response")
     public void sendCommandToConnection(String command) throws IOException {
         if (conn == null) {
             throw new IllegalStateException("Connection not initialized");
         }
         conn.onReceiveBytes(connectionBytesCollector);
         conn.sendBytes(byteStringUtf8(command + "\n").toByteArray());
+
+        progressDeviceWhile(t -> connectionBytesCollector.isEmpty());
+        responseBytes = byteString(connectionBytesCollector.next().orElseThrow());
     }
 
-    @Then("connection should receive exactly {string} in response")
+    @Then("connection response is exactly {string}")
     public void shouldReceiveExactConnectionResponse(String expectedResponse) {
-        progressDeviceWhile(t -> connectionBytesCollector.isEmpty());
-        assertThat(connectionBytesCollector.next().get()).containsExactly(byteStringUtf8(expectedResponse + "\n").toByteArray());
+        assertThat(responseBytes).isEqualTo(byteStringUtf8(expectedResponse + "\n"));
     }
 
-    @Then("connection should answer with response #{int} containing status value {word}")
+    @Then("connection response #{int} has status value {word}")
     public void shouldReceiveThisResponseStatusByValueFromConnection(int index, String statusValue) {
-        progressDeviceWhile(t -> connectionBytesCollector.isEmpty());
-
-        final byte[] actual = connectionBytesCollector.next().orElseThrow();
-        final List<Response> responses = ResponseSequence.parse(tokenize(byteString(actual)).getTokenReader().getFirstReadToken())
+        final List<Response> responses = ResponseSequence.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken())
                 .getExecutionPath().getResponses();
 
         assertThat(responses.get(index).getFields().getField(Zchars.Z_STATUS)).hasValue(Integer.decode(statusValue));
     }
 
-    @Then("connection should answer with response element #{int} containing status {word}")
+    @Then("connection response #{int} has status {word}")
     public void shouldReceiveThisResponseStatusByNameFromConnection(int index, String statusName) throws Exception {
         shouldReceiveThisResponseStatusByValueFromConnection(index, String.valueOf(statusNameToValue(statusName)));
     }
 
-    @Then("connection should answer with response element #{int} should match {string}")
+    @Then("connection response #{int} is equivalent to {string}")
     public void shouldReceiveMatchingResponseFromConnection(int index, String expectedResponse) {
-        progressDeviceWhile(t -> connectionBytesCollector.isEmpty());
-        final byte[] actual = connectionBytesCollector.next().orElseThrow();
-
-        final List<Response> actualResponses = ResponseSequence.parse(tokenize(byteString(actual)).getTokenReader().getFirstReadToken())
+        final List<Response> actualResponses = ResponseSequence.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken())
                 .getExecutionPath().getResponses();
 
         final ZscriptFieldSet expectedFields = ZscriptFieldSet.fromTokens(tokenize(byteStringUtf8(expectedResponse)).getTokenReader().getFirstReadToken());
         assertThat(actualResponses.get(index).getFields().matchDescription(expectedFields)).isEmpty();
     }
-
 }
