@@ -7,19 +7,21 @@ import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.Duration.ofSeconds;
+import static net.zscript.util.ByteString.byteString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.execution.CommandContext;
+import net.zscript.javareceiver.testing.LocalChannel.ChannelStatus;
 import net.zscript.tokenizer.TokenBuffer;
 import net.zscript.tokenizer.TokenBuffer.TokenReader;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
@@ -102,26 +104,32 @@ class LocalChannelTest {
     public void shouldRegisterFailureOnReadError() throws IOException {
         // Force the InputStream to fail
         final InputStream cmdStream = mock(InputStream.class);
-        when(cmdStream.read(Mockito.any(byte[].class))).thenReturn(0).thenThrow(new IOException("my test exception"));
-        makeItRun(cmdStream);
+        when(cmdStream.read(any(byte[].class))).thenReturn(0).thenThrow(new IOException("my test exception"));
+        final LocalChannel testChannel = makeChannelAndRunIt(cmdStream);
         await().atMost(ofSeconds(5)).until(() -> !responseCollector.isEmpty());
         // E3 implies ERROR
-        assertThat(responseCollector.next()).hasValue("\"LocalChannel\"E3".getBytes(UTF_8));
+        final Optional<byte[]> resp = responseCollector.next();
+        final String           msg  = resp.map(b -> byteString(b).asString()).orElse("-empty-");
+        assertThat(resp).as(msg).hasValue("\"LocalChannel\"".getBytes(UTF_8));
+        assertThat(testChannel.getStatus()).isEqualTo(ChannelStatus.ERROR);
     }
 
     @Test
     public void shouldRegisterClosureOnEOF() throws IOException {
         // Force the InputStream to fail
         final InputStream emptyStream = mock(InputStream.class);
-        when(emptyStream.read(Mockito.any(byte[].class))).thenReturn(-1);
+        when(emptyStream.read(any(byte[].class))).thenReturn(-1);
 
-        makeItRun(emptyStream);
+        final LocalChannel testChannel = makeChannelAndRunIt(emptyStream);
         await().atMost(ofSeconds(5)).until(() -> !responseCollector.isEmpty());
         // E1 implies CLOSED
-        assertThat(responseCollector.next()).hasValue("\"LocalChannel\"E1".getBytes(UTF_8));
+        final Optional<byte[]> resp = responseCollector.next();
+        final String           msg  = resp.map(b -> byteString(b).asString()).orElse("-empty-");
+        assertThat(resp).as(msg).hasValue("\"LocalChannel\"".getBytes(UTF_8));
+        assertThat(testChannel.getStatus()).isEqualTo(ChannelStatus.CLOSED);
     }
 
-    private void makeItRun(InputStream cmdStream) {
+    private LocalChannel makeChannelAndRunIt(InputStream cmdStream) {
         LocalChannel testChannel = new LocalChannel(buffer, responseCollector) {
             @Override
             void readBytesToQueue(InputStream s) throws IOException {
@@ -138,6 +146,7 @@ class LocalChannelTest {
         sequenceOutStream.open();
         testChannel.channelInfo(ctx);
         sequenceOutStream.close();
+        return testChannel;
     }
 
     @Test
@@ -151,6 +160,7 @@ class LocalChannelTest {
         sequenceOutStream.close();
 
         await().atMost(ofSeconds(5)).until(() -> !responseCollector.isEmpty());
-        assertThat(responseCollector.next()).hasValue("\"LocalChannel\"E".getBytes(UTF_8));
+        assertThat(responseCollector.next()).hasValue("\"LocalChannel\"".getBytes(UTF_8));
+        assertThat(channel.getStatus()).isEqualTo(ChannelStatus.OK);
     }
 }

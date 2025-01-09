@@ -194,7 +194,7 @@ public class LocalChannel extends ZscriptChannel {
     @Override
     public void channelInfo(CommandContext ctx) {
         ctx.getOutStream().writeBigFieldQuoted("LocalChannel");
-        ctx.getOutStream().writeField('E', status.ordinal());
+        //        ctx.getOutStream().writeField('B', tokenizer.getBufferLength());  // bufferLength
     }
 
     @Override
@@ -219,6 +219,9 @@ public class LocalChannel extends ZscriptChannel {
                 commandReaderFuture = null;
             }
         }
-        ctx.getOutStream().writeField('E', status.ordinal());
+    }
+
+    ChannelStatus getStatus() {
+        return status;
     }
 }
