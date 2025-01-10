@@ -2,6 +2,8 @@ package net.zscript.model.modules.testing.test;
 
 import java.util.List;
 
+import static net.zscript.javaclient.tokens.ExtendingTokenBuffer.tokenize;
+import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -10,15 +12,8 @@ import net.zscript.client.modules.test.testing.TestingModule;
 import net.zscript.javaclient.addressing.CompleteAddressedResponse;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationSection;
-import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
-import net.zscript.tokenizer.TokenBuffer.TokenReader;
-import net.zscript.tokenizer.Tokenizer;
 
 public class JavaCommandBuilderNotificationTest {
-    final ExtendingTokenBuffer buffer      = new ExtendingTokenBuffer();
-    final Tokenizer            tokenizer   = new Tokenizer(buffer.getTokenWriter(), 2);
-    final TokenReader          tokenReader = buffer.getTokenReader();
-
     @Test
     void shouldDefineNotificationClasses() {
         TestingModule.TestNtfANotification.TestNtfANotificationId ntfIdA = TestingModule.TestNtfANotification.ID;
@@ -39,11 +34,10 @@ public class JavaCommandBuilderNotificationTest {
 
     @Test
     void shouldCreateNotificationWithRequiredFields() {
-        "!234 Dab Lcd & Xef\n".chars().forEach(c -> tokenizer.accept((byte) c));
+        final CompleteAddressedResponse car = CompleteAddressedResponse.parse(tokenize(byteStringUtf8("!234 Dab Lcd & Xef\n")).getTokenReader());
 
         final TestingModule.TestNtfBNotification.TestNtfBNotificationHandle handle = TestingModule.TestNtfBNotification.ID.newHandle();
 
-        final CompleteAddressedResponse car = CompleteAddressedResponse.parse(tokenReader);
         assertThat(car.asResponse().hasAddress()).isFalse();
         assertThat(car.getContent().getResponseValue()).isEqualTo(0x234);
 

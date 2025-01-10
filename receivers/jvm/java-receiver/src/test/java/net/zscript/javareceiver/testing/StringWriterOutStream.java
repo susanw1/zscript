@@ -1,4 +1,4 @@
-package net.zscript.javareceiver.core;
+package net.zscript.javareceiver.testing;
 
 import java.io.IOException;
 import java.io.StringWriter;

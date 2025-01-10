@@ -2,11 +2,14 @@ package net.zscript.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static net.zscript.util.ByteString.ByteAppender.ISOLATIN1_APPENDER;
+import static net.zscript.util.ByteString.byteString;
+import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIndexOutOfBoundsException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,9 +55,51 @@ class ByteStringTest {
         var strBuilder = ByteString.builder().appendByte(0x61).appendByte('b');
         assertThat(strBuilder.size()).isEqualTo(2);
         final ByteString str = strBuilder.build();
+        assertThat(str.size()).isEqualTo(2);
+        assertThat(str.isEmpty()).isFalse();
         assertThat(str.get(0)).isEqualTo((byte) 97);
         assertThat(str.get(1)).isEqualTo((byte) 98);
         assertThatIndexOutOfBoundsException().isThrownBy(() -> str.get(2));
+    }
+
+    @Test
+    public void shouldSearchBytes() {
+        var str = ByteString.builder().appendUtf8("a b c a b").build();
+        assertThat(str.size()).isEqualTo(9);
+        assertThat(str.indexOf((byte) 'a')).isEqualTo(0);
+        assertThat(str.indexOf((byte) 'Z')).isEqualTo(-1);
+        assertThat(str.indexOf((byte) 'a', 1)).isEqualTo(6);
+        assertThat(str.indexOf((byte) 'b', -10)).isEqualTo(2);
+        assertThat(str.indexOf((byte) 'b', 10)).isEqualTo(-1);
+
+        assertThat(str.lastIndexOf((byte) 'a')).isEqualTo(6);
+        assertThat(str.lastIndexOf((byte) 'Z')).isEqualTo(-1);
+        assertThat(str.lastIndexOf((byte) 'b', 8)).isEqualTo(8);
+        assertThat(str.lastIndexOf((byte) 'b', 7)).isEqualTo(2);
+        assertThat(str.lastIndexOf((byte) 'b', 18)).isEqualTo(8);
+        assertThat(str.lastIndexOf((byte) 'a', 0)).isEqualTo(0);
+        assertThat(str.lastIndexOf((byte) 'a', -1)).isEqualTo(-1);
+    }
+
+    @Test
+    public void shouldCountBytes() {
+        var str = ByteString.builder().appendUtf8("a b c a b").build();
+        assertThat(str.count((byte) 'a')).isEqualTo(2);
+        assertThat(str.count((byte) ' ')).isEqualTo(4);
+        assertThat(str.count((byte) 'x')).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldFindSubstring() {
+        var str = ByteString.builder().appendUtf8("a b c a b").build();
+        assertThat(str.substring(0, str.size())).isEqualTo(str);
+        assertThat(str.substring(2, 5).asString()).isEqualTo("b c");
+        assertThat(str.substring(8, 9).asString()).isEqualTo("b");
+        assertThat(str.substring(9, 9).isEmpty()).isTrue();
+
+        assertThatIndexOutOfBoundsException().isThrownBy(() -> str.substring(-1, 4));
+        assertThatIndexOutOfBoundsException().isThrownBy(() -> str.substring(1, 14));
+        assertThatIndexOutOfBoundsException().isThrownBy(() -> str.substring(5, 4));
     }
 
     @Test
@@ -121,7 +166,7 @@ class ByteStringTest {
         }
 
         assertThat(ByteString.builder(new TestAppendable(1)).build().asString()).isEqualTo("x=01");
-        assertThat(ByteString.from(new TestAppendable(1)).asString()).isEqualTo("x=01");
+        assertThat(byteString(new TestAppendable(1)).asString()).isEqualTo("x=01");
 
         assertThat(ByteString.builder(new TestAppendable(1), new TestAppendable(2)).build().asString()).isEqualTo("x=01x=02");
         assertThat(ByteString.concat(new TestAppendable(1), new TestAppendable(2)).asString()).isEqualTo("x=01x=02");
@@ -136,8 +181,8 @@ class ByteStringTest {
 
     @Test
     public void shouldCreateFromTypes() {
-        assertThat(ByteString.from((byte) 'a').toByteArray()).containsExactly('a');
-        assertThat(ByteString.from(new byte[] { 'a', 'b' }).toByteArray()).containsExactly('a', 'b');
+        assertThat(byteString((byte) 'a').toByteArray()).containsExactly('a');
+        assertThat(byteString(new byte[] { 'a', 'b' }).toByteArray()).containsExactly('a', 'b');
 
         assertThat(ByteString.concat(ISOLATIN1_APPENDER, "hello", " ", "world").asString()).isEqualTo("hello world");
         assertThat(ByteString.concat(ISOLATIN1_APPENDER, List.of("hello", " ", "world")).asString()).isEqualTo("hello world");
@@ -198,17 +243,47 @@ class ByteStringTest {
     }
 
     @Test
+    public void shouldResetBuilder() {
+        var builder = ByteString.builder();
+        assertThat(builder.appendHexPair(0).toByteArray()).containsExactly('0', '0');
+        builder.reset();
+        assertThat(builder.size()).isZero();
+        assertThat(builder.toByteArray()).isEmpty();
+        assertThat(builder.appendHexPair(0x21).toByteArray()).containsExactly('2', '1');
+    }
+
+    @Test
+    public void shouldProvideOutputStreamView() throws IOException {
+        var builder = ByteString.builder();
+        builder.appendByte(50);
+        try (var os = builder.asOutputStream()) {
+            os.write(65);
+            os.write("BC".getBytes(StandardCharsets.UTF_8));
+        }
+        builder.appendByte(51);
+        assertThat(builder.asString()).isEqualTo("2ABC3");
+    }
+
+    @Test
+    public void shouldProvideInputStreamView() {
+        var    bs    = byteStringUtf8("abc");
+        byte[] bytes = bs.asInputStream().readAllBytes();
+
+        assertThat(bytes).containsExactly('a', 'b', 'c');
+    }
+
+    @Test
     public void equalsContract() {
         EqualsVerifier.forClass(ByteString.class).verify();
     }
 
     @Test
     public void toStringContract() {
-        assertThat(ByteString.builder().appendByte('Z').appendNumeric16(0x12).build().toString()).isEqualTo("ByteString[Z12]");
+        assertThat(ByteString.builder().appendByte('Z').appendNumeric16(0x12).build().toString()).isEqualTo("ByteString[\"Z12\"]");
     }
 
     @Test
     public void builderToStringContract() {
-        assertThat(ByteString.builder().appendByte('Z').appendNumeric16(0x12).toString()).isEqualTo("ByteStringBuilder[Z12]");
+        assertThat(ByteString.builder().appendByte('Z').appendNumeric16(0x12).toString()).isEqualTo("ByteStringBuilder[\"Z12\"]");
     }
 }

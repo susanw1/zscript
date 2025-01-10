@@ -253,7 +253,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
             box.append(": ");
 
         }
-        box.append(target);
+        box.append(target.asStringUtf8());
         if (command == null || settings.getVerbosity().compareTo(VerbositySetting.NAME) <= 0) {
             return box;
         }

@@ -1,17 +1,18 @@
 package net.zscript.javareceiver_acceptancetests;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import io.cucumber.java.en.Given;
-import net.zscript.javareceiver.Zcode;
-import net.zscript.javareceiver.ZcodeBusInterruptSource;
-import net.zscript.javareceiver.ZcodeParameters;
-import net.zscript.javareceiver.commands.ZcodeActivateCommand;
-import net.zscript.javareceiver.commands.ZcodeCapabilitiesCommand;
-import net.zscript.javareceiver.commands.ZcodeEchoCommand;
-import net.zscript.javareceiver.parsing.ZcodeCommandChannel;
-import net.zscript.zscript_acceptance_tests.AcceptanceTestConnectionManager;
+
+import net.zscript.javareceiver.core.Zscript;
+import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
+import net.zscript.javareceiver.modules.outerCore.ZscriptOuterCoreModule;
+import net.zscript.tokenizer.TokenRingBuffer;
 
 public class JavaReceiverCucumberStartup {
     private static boolean         hasStarted = false;
@@ -21,23 +22,22 @@ public class JavaReceiverCucumberStartup {
     public void the_target_is_running_and_connected() {
         if (!hasStarted) {
             hasStarted = true;
-            final ZcodeParameters     params = new ZcodeParameters(false);
-            final Zcode               z      = new Zcode(params, new ZcodeBusInterruptSource[0]);
-            final LocalTestConnection con    = new LocalTestConnection(z, params, false);
 
-            z.setChannels(new ZcodeCommandChannel[] { con });
+            final Zscript z = new Zscript();
+            z.addModule(new ZscriptCoreModule());
+            z.addModule(new ZscriptOuterCoreModule());
 
-            z.getCommandFinder().registerCommand(new ZcodeIdentifyCommand())
-                    .registerCommand(new ZcodeEchoCommand())
-                    .registerCommand(new ZcodeCapabilitiesCommand(params, z))
-                    .registerCommand(new ZcodeActivateCommand());
+            TokenRingBuffer buffer         = TokenRingBuffer.createBufferWithCapacity(128);
+            InputStream     commandStream  = new PipedInputStream();
+            OutputStream    responseStream = new PipedOutputStream();
 
-            AcceptanceTestConnectionManager.registerConnection(con);
+            //            z.addChannel(new LocalChannel(buffer, commandStream, responseStream));
+
             execs = Executors.newSingleThreadExecutor();
             execs.submit(() -> {
                 try {
                     while (true) {
-                        z.progressZcode();
+                        z.progress();
                     }
                 } catch (final Throwable t) {
                     t.printStackTrace();

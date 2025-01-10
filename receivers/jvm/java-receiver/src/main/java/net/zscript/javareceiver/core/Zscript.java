@@ -27,7 +27,6 @@ public class Zscript {
         @Override
         public void close() {
             open = false;
-
         }
 
         @Override
@@ -96,5 +95,4 @@ public class Zscript {
     public void setNotificationOutStream(SequenceOutStream out) {
         this.notificationOutStream = out;
     }
-
 }

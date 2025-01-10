@@ -80,6 +80,13 @@ final class ExpandableBuffer {
         count += len;
     }
 
+    public void reset(boolean destructive) {
+        if (destructive) {
+            Arrays.fill(buf, (byte) 0);
+        }
+        count = 0;
+    }
+
     /**
      * Writes the accumulated bytes to the specified OutputStream.
      *

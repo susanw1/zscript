@@ -2,6 +2,7 @@ package net.zscript.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +52,23 @@ class ExpandableBufferTest {
         ByteArrayOutputStream s = new ByteArrayOutputStream();
         e.writeTo(s);
         assertThat(s.toByteArray()).containsExactly('a', 'b', 'c');
+    }
+
+    @Test
+    public void shouldReset() throws NoSuchFieldException, IllegalAccessException {
+        ExpandableBuffer e = new ExpandableBuffer(1);
+        e.addBytes("abc".getBytes(StandardCharsets.UTF_8), 0, 3);
+        assertThat(e.getCount()).isEqualTo(3);
+
+        Field f = ExpandableBuffer.class.getDeclaredField("buf");
+        f.setAccessible(true);
+        byte[] buf = (byte[]) f.get(e);
+
+        e.reset(false);
+        assertThat(e.getCount()).isZero();
+        assertThat(buf).containsExactly('a', 'b', 'c', 0);
+        e.reset(true);
+        assertThat(buf).containsOnly(0);
     }
 
 }

@@ -12,6 +12,9 @@ import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.Tokenizer;
 import net.zscript.util.OptIterator;
 
+/**
+ * Defines a Response sequence along with its address - this is the completed parse from a TokenReader.
+ */
 public class CompleteAddressedResponse {
     private final List<ZscriptAddress> addressSections;
     private final ResponseSequence     content;

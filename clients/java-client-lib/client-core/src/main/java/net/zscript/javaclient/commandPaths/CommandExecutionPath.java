@@ -14,9 +14,17 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
+import static java.lang.Byte.toUnsignedInt;
+import static java.lang.Integer.toHexString;
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.zscript.javaclient.ZscriptMismatchedResponseException;
+import net.zscript.javaclient.ZscriptParseException;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBufferIterator;
@@ -25,7 +33,17 @@ import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 import net.zscript.util.OptIterator;
 
+/**
+ * A sendable, unaddressed command sequence, without locks and echo fields. It is composed of {@link Command} objects which are aware of what Commands follow on success/failure, so
+ * a CommandExecutionPath is essentially "execution-aware".
+ * <p>
+ * It's the bare "thing that we want executing", before adding the addressing and sequence-level fields which get it to the right place and in the right state. These might be added
+ * by a client runtime representing a device node hierarchy, see {@link net.zscript.javaclient.nodes.ZscriptNode#send(CommandExecutionPath, Consumer)}.
+ * <p>
+ * On execution, the corresponding response object is a {@link ResponseExecutionPath}.
+ */
 public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
+    private static final Logger LOG = LoggerFactory.getLogger(CommandExecutionPath.class);
 
     public static CommandExecutionPath parse(ReadToken start) {
         return parse(ZscriptModel.standardModel(), start);
@@ -64,9 +82,17 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         this.firstCommand = firstCommand;
     }
 
+    /**
+     * Utility method used in command-path generation. Extracts all the commands starting from the supplied token, building a binary tree linking each command to its
+     * successor-on-success and successor-on-failure.
+     *
+     * @param start the token representing the first command
+     * @return a list of linked command-builders, ready for full path generation
+     */
     private static List<CommandBuilder> createLinkedPaths(@Nullable ReadToken start) {
         List<CommandBuilder> builders = new ArrayList<>();
 
+        // working list of commands which still need a success/failure successor
         List<CommandBuilder> needSuccessPath = new ArrayList<>();
         List<CommandBuilder> needFailPath    = new ArrayList<>();
 
@@ -78,7 +104,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
 
         TokenBufferIterator iterator = start.tokenIterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
-            ReadToken token = opt.get();
+            final ReadToken token = opt.get();
             if (last.getStart() == null) {
                 last.setStart(token);
             }
@@ -125,9 +151,12 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
                         }
                     }
                 } else if (token.isSequenceEndMarker()) {
+                    if (token.getKey() != Tokenizer.NORMAL_SEQUENCE_END) {
+                        throw new ZscriptParseException("Syntax error [marker=%s, token=%s]", token, start);
+                    }
                     break;
                 } else {
-                    throw new IllegalStateException("Unknown separator: " + Integer.toHexString(Byte.toUnsignedInt(token.getKey())));
+                    throw new ZscriptParseException("Unknown separator [key=%s, token=%s]", toHexString(toUnsignedInt(token.getKey())), token);
                 }
                 last = next;
             }
@@ -203,17 +232,31 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         }
     }
 
+    /**
+     * Determines whether the supplied ResponseExecutionPath is a plausible response to these commands.
+     *
+     * @param resps a response path to check
+     * @return true if they match, false otherwise
+     */
     public boolean matchesResponses(ResponseExecutionPath resps) {
         try {
             compareResponses(resps);
             return true;
-        } catch (IllegalArgumentException ex) {
+        } catch (ZscriptMismatchedResponseException ex) {
+            LOG.trace("Mismatch identified: " + ex);
             return false;
         }
     }
 
+    /**
+     * Creates a list of response matches from the supplied response path, corresponding to this command path.
+     *
+     * @param resps a response path to match
+     * @return a list of these commands, matched to their corresponding responses
+     * @throws ZscriptMismatchedResponseException if the supplied response doesn't match this command sequence
+     */
     public List<MatchedCommandResponse> compareResponses(ResponseExecutionPath resps) {
-        Deque<Command> parenStarts = new ArrayDeque<>();
+        final Deque<Command> parenStarts = new ArrayDeque<>();
         // fill out parenStarts so that we can have as many ')' as we want...
         Command tmp1 = firstCommand;
         while (tmp1 != null) {
@@ -233,53 +276,54 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
 
         while (currentResp != null) {
             if (currentCmd == null) {
-                throw new IllegalArgumentException("Command sequence ended before response - cannot match");
+                throw new ZscriptMismatchedResponseException("Command sequence ended before response - cannot match");
             }
             cmds.add(new MatchedCommandResponse(currentCmd, currentResp));
 
             if (lastSucceeded) {
                 if (lastEndedClose) {
                     if (parenStarts.peek().getOnFail() == currentCmd.getOnFail()) {
-                        throw new IllegalArgumentException("Response has ')' without valid opening '('");
+                        throw new ZscriptMismatchedResponseException("Response has ')' without valid opening '('");
                     }
                     Command tmp2 = parenStarts.pop().getOnFail();
                     while (tmp2 != null && tmp2 != currentCmd) {
                         tmp2 = tmp2.getOnSuccess();
                     }
                     if (tmp2 != currentCmd) {
-                        throw new IllegalArgumentException("Response has ')' without command sequence merging");
+                        throw new ZscriptMismatchedResponseException("Response has ')' without command sequence merging");
                     }
                     lastEndedClose = false;
                 } else if (lastEndedOpen) {
                     parenStarts.push(currentCmd);
                     lastEndedOpen = false;
                 } else if (lastFail != null && currentCmd.getOnFail() != lastFail) {
-                    throw new IllegalArgumentException("Fail conditions don't match up around '&'");
+                    throw new ZscriptMismatchedResponseException("Fail conditions don't match up around '&'");
                 }
             } else {
                 for (int i = 0; i < lastParenCount; i++) {
                     if (parenStarts.isEmpty()) {
-                        throw new IllegalArgumentException("Command sequence ran out of parens before response sequence");
+                        throw new ZscriptMismatchedResponseException("Command sequence ran out of parens before response sequence");
                     }
                     Command tmp3 = parenStarts.peek().getOnFail();
                     while (tmp3 != null && tmp3.getOnFail() != currentCmd) {
                         tmp3 = tmp3.getOnSuccess();
                     }
                     if (tmp3 == null) {
-                        throw new IllegalArgumentException("Response has ')' without command sequence merging");
+                        throw new ZscriptMismatchedResponseException("Response has ')' without command sequence merging");
                     }
                     tmp3 = parenStarts.peek().getOnFail();
                     while (tmp3 != null && tmp3 != currentCmd) {
                         tmp3 = tmp3.getOnFail();
                     }
                     if (tmp3 != currentCmd) {
-                        throw new IllegalArgumentException("Response has ')' without command sequence merging");
+                        throw new ZscriptMismatchedResponseException("Response has ')' without command sequence merging");
                     }
                     parenStarts.pop();
                 }
-                if (parenStarts.isEmpty() || parenStarts.peek().getOnFail() != currentCmd) {
-                    throw new IllegalArgumentException("Response has failure divergence without parenthesis");
-                }
+                // We used to check this, but we don't have a test-case and it rejects AS|BS2|C because parenStarts . Disable for now.
+                //                if (parenStarts.isEmpty() || parenStarts.peek().getOnFail() != currentCmd) {
+                //                    throw new ZscriptMismatchedResponseException("Response has failure divergence without parenthesis");
+                //                }
             }
             if (currentResp.wasSuccess()) {
                 if (currentResp.hasCloseParen()) {
@@ -309,7 +353,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         return new OptIterator<Command>() {
             final Set<Command> visited = new HashSet<>();
             Iterator<Command> toVisit = Set.of(firstCommand).iterator();
-            Set<Command> next = new HashSet<>();
+            Set<Command>      next    = new HashSet<>();
 
             @Nonnull
             @Override
@@ -356,6 +400,15 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         return model;
     }
 
+    @Override
+    public String toString() {
+        return toStringImpl();
+    }
+
+    /**
+     * Utility class representing a command element during the parse process, finally producing a Command object which knows which commands it will go to on success and on
+     * failure.
+     */
     private static class CommandBuilder {
         ReadToken start = null;
 

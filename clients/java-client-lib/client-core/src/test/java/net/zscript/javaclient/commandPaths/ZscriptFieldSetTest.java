@@ -7,14 +7,13 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
 import static net.zscript.util.ByteString.ByteAppender.ISOLATIN1_APPENDER;
+import static net.zscript.util.ByteString.byteString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
-import net.zscript.tokenizer.Tokenizer;
-import net.zscript.util.ByteString;
 
 public class ZscriptFieldSetTest {
     ZscriptFieldSet fieldSet = ZscriptFieldSet.fromMap(List.of(new byte[] { 'a', 'b' }, new byte[] { 'c', 'd', 'e' }), List.of(false, true),
@@ -46,7 +45,7 @@ public class ZscriptFieldSetTest {
 
     @Test
     public void shouldAppendToByteString() {
-        assertThat(ByteString.from(fieldSet).asString()).isEqualTo("Z7AcCD123+6162\"cde\"");
+        assertThat(byteString(fieldSet).asString()).isEqualTo("Z7AcCD123+6162\"cde\"");
     }
 
     @Test
@@ -65,10 +64,31 @@ public class ZscriptFieldSetTest {
 
     @Test
     public void shouldCreateFromTokens() {
-        ExtendingTokenBuffer buf = new ExtendingTokenBuffer();
-        Tokenizer            tok = new Tokenizer(buf.getTokenWriter(), 2);
-        ByteString.from("Z7Ac+6162\"cde\"", ISOLATIN1_APPENDER).forEach(tok::accept);
-        ZscriptFieldSet zfs = ZscriptFieldSet.fromTokens(buf.getTokenReader().getFirstReadToken());
-        assertThat(ByteString.from(zfs).asString()).isEqualTo("Z7Ac+6162\"cde\"");
+        final ExtendingTokenBuffer buf = ExtendingTokenBuffer.tokenize(byteString("Z7Ac+6162\"cde\"", ISOLATIN1_APPENDER));
+        final ZscriptFieldSet      zfs = ZscriptFieldSet.fromTokens(buf.getTokenReader().getFirstReadToken());
+        assertThat(byteString(zfs).asString()).isEqualTo("Z7Ac+6162\"cde\"");
     }
+
+    @Test
+    public void shouldMatchExpressionDescriptions() {
+        final ExtendingTokenBuffer buf1 = ExtendingTokenBuffer.tokenize(byteString("Z7 Ac +6162 \"cde\"", ISOLATIN1_APPENDER));
+        final ZscriptFieldSet      zfs1 = ZscriptFieldSet.fromTokens(buf1.getTokenReader().getFirstReadToken());
+        final ExtendingTokenBuffer buf2 = ExtendingTokenBuffer.tokenize(byteString("Z7 Ab B2 \"abc\"", ISOLATIN1_APPENDER));
+        final ZscriptFieldSet      zfs2 = ZscriptFieldSet.fromTokens(buf2.getTokenReader().getFirstReadToken());
+
+        assertThat(zfs1.matchDescription(zfs1)).isEmpty();
+        assertThat(zfs1.matches(zfs1)).isTrue();
+        assertThat(zfs2.matchDescription(zfs2)).isEmpty();
+        assertThat(zfs1.matches(zfs2)).isFalse();
+
+        assertThat(zfs1.matchDescription(zfs2)).isEqualTo("Ac <> B2Ab + abcde <> abc");
+        assertThat(zfs2.matchDescription(zfs1)).isEqualTo("B2Ab <> Ac + abc <> abcde");
+
+        final ExtendingTokenBuffer buf3 = ExtendingTokenBuffer.tokenize(byteString("Z7Ac", ISOLATIN1_APPENDER));
+        final ZscriptFieldSet      zfs3 = ZscriptFieldSet.fromTokens(buf3.getTokenReader().getFirstReadToken());
+        assertThat(zfs3.matchDescription(zfs3)).isEmpty();
+        assertThat(zfs1.matchDescription(zfs3)).isEqualTo(" + abcde <> ");
+        assertThat(zfs1.matches(zfs3)).isFalse();
+    }
+
 }

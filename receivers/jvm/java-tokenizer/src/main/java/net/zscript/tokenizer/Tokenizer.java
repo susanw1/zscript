@@ -42,6 +42,8 @@ public class Tokenizer {
     // Token for whole of rest of sequence following an address, representing the message to be passed downstream.
     public static final byte ADDRESSING_FIELD_KEY = (byte) 0x80;
 
+    private static final int DEFAULT_MAX_NUMERIC_BYTES = 2;
+
     /////////////// Sequence marker values (top 4 bits set) - signify sequence end (either normal, or error during tokenization)
 
     public static final byte NORMAL_SEQUENCE_END              = (byte) 0xf0;
@@ -72,6 +74,10 @@ public class Tokenizer {
     private boolean isText;
     private boolean isNormalString;
     private int     escapingCount; // 2 bit counter, from 2 to 0
+
+    public Tokenizer(final TokenWriter writer) {
+        this(writer, DEFAULT_MAX_NUMERIC_BYTES, false);
+    }
 
     public Tokenizer(final TokenWriter writer, final int maxNumericBytes) {
         this(writer, maxNumericBytes, false);

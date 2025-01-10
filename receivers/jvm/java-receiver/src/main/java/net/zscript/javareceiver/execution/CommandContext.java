@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import java.util.BitSet;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.stream.Stream;
 
 import net.zscript.javareceiver.core.CommandOutStream;
 import net.zscript.javareceiver.core.SequenceOutStream;
@@ -39,6 +40,12 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
     @Nonnull
     public CommandOutStream getOutStream() {
         return out.asCommandOutStream();
+    }
+
+    @Nonnull
+    @Override
+    public Stream<ZscriptField> fields() {
+        return expression.fields();
     }
 
     @Nonnull
@@ -152,5 +159,10 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
 
     public int getChannelIndex() {
         return contextView.getChannelIndex();
+    }
+
+    @Override
+    public String toString() {
+        return "CommandContext{" + "expression=" + expression + '}';
     }
 }

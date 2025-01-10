@@ -13,6 +13,11 @@ public class DefaultResponse implements ZscriptResponse {
     }
 
     @Override
+    public ZscriptExpression expression() {
+        return expression;
+    }
+
+    @Override
     public boolean isValid() {
         return true;
     }

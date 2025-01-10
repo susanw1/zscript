@@ -1,5 +1,9 @@
 package net.zscript.javaclient.connectors.serial;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.function.Consumer;
+
 import static java.util.Objects.requireNonNull;
 
 import com.fazecast.jSerialComm.SerialPort;
@@ -9,23 +13,19 @@ import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.function.Consumer;
-
-import net.zscript.javaclient.connectors.RawConnection;
+import net.zscript.javaclient.nodes.DirectConnection;
 
 /**
  *
  */
 // Note: SerialPort is hard to use in tests as it contains Android references which cause Mocking failure.
-public class SerialConnection extends RawConnection {
+public class SerialConnection extends DirectConnection {
     private static final Logger LOG = LoggerFactory.getLogger(SerialConnection.class);
 
     private final SerialPort   commPort;
     private final OutputStream out;
 
-    private Consumer<byte[]> handler;
+    private Consumer<byte[]> bytesResponseHandler;
 
     public SerialConnection(SerialPort commPort) throws IOException {
         this.commPort = commPort;
@@ -41,7 +41,7 @@ public class SerialConnection extends RawConnection {
         return LOG;
     }
 
-    public void send(final byte[] data) throws IOException {
+    public void sendBytes(final byte[] data) throws IOException {
         out.write(data);
     }
 
@@ -49,11 +49,11 @@ public class SerialConnection extends RawConnection {
      * {@inheritDoc}
      */
     @Override
-    public void onReceiveBytes(final Consumer<byte[]> responseHandler) {
-        if (this.handler != null) {
+    public void onReceiveBytes(final Consumer<byte[]> bytesResponseHandler) {
+        if (this.bytesResponseHandler != null) {
             throw new IllegalStateException("Handler already assigned");
         }
-        this.handler = requireNonNull(responseHandler, "handler");
+        this.bytesResponseHandler = requireNonNull(bytesResponseHandler, "bytesResponseHandler");
 
         commPort.addDataListener(new SerialPortMessageListenerWithExceptions() {
             @Override
@@ -69,7 +69,7 @@ public class SerialConnection extends RawConnection {
             @Override
             public void serialEvent(SerialPortEvent serialPortEvent) {
                 if (serialPortEvent.getEventType() == SerialPort.LISTENING_EVENT_DATA_RECEIVED) {
-                    responseHandler.accept(serialPortEvent.getReceivedData());
+                    bytesResponseHandler.accept(serialPortEvent.getReceivedData());
                 }
             }
 

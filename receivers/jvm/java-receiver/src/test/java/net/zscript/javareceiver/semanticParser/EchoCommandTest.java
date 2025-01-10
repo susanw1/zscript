@@ -12,9 +12,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import net.zscript.javareceiver.core.StringWriterOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
+import net.zscript.javareceiver.testing.StringWriterOutStream;
 import net.zscript.tokenizer.TokenBuffer;
 import net.zscript.tokenizer.TokenRingBuffer;
 import net.zscript.tokenizer.Tokenizer;

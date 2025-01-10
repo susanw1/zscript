@@ -7,12 +7,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+
+import static java.util.stream.Collectors.toList;
+import static net.zscript.util.ByteString.byteString;
 
 import net.zscript.javaclient.commandPaths.Command;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
@@ -27,9 +31,13 @@ import net.zscript.javaclient.commandbuilder.notifications.NotificationHandle;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationId;
 import net.zscript.javaclient.nodes.ZscriptNode;
 import net.zscript.javaclient.sequence.CommandSequence;
+import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.model.ZscriptModel;
+import net.zscript.tokenizer.TokenBuffer;
+import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.tokenizer.Tokenizer;
+import net.zscript.util.ByteString;
 
 public class Device {
     private final ZscriptModel model;
@@ -148,18 +156,69 @@ public class Device {
         }
     }
 
+    /**
+     * A byte[] interface to {@link #send(ByteString, Consumer)}.
+     *
+     * @param cmdSeq   the sequence to send
+     * @param callback the response from that sequence
+     */
     public void send(final byte[] cmdSeq, final Consumer<byte[]> callback) {
-        ExtendingTokenBuffer buffer = new ExtendingTokenBuffer();
-        Tokenizer            tok    = new Tokenizer(buffer.getTokenWriter(), 2);
-        for (byte b : cmdSeq) {
-            tok.accept(b);
+        send(byteString(cmdSeq), byteString -> callback.accept(byteString.toByteArray()));
+    }
+
+    /**
+     * Sends the supplied ByteString sequence, and delivers the ByteString response to the supplied callback. This is quite low-level, however the ByteString is locally validated
+     * to ensure:
+     * <ul>
+     *     <li> it tokenizes correctly, without syntax error.</li>
+     *     <li>it only has a single complete sequence, ending in a '\n'</li>
+     * </ul>
+     *
+     * @param cmdSeq   the sequence to send
+     * @param callback the response from that sequence
+     */
+    public void send(final ByteString cmdSeq, final Consumer<ByteString> callback) {
+        final ExtendingTokenBuffer    buffer      = ExtendingTokenBuffer.tokenize(cmdSeq);
+        final TokenBuffer.TokenReader tokenReader = buffer.getTokenReader();
+
+        List<ReadToken>     sequenceMarkers = tokenReader.tokenIterator().stream().filter(ReadToken::isSequenceEndMarker).collect(toList());
+        Optional<ReadToken> lastToken       = tokenReader.tokenIterator().stream().reduce((a, b) -> b);
+
+        if (sequenceMarkers.isEmpty()) {
+            throw new IllegalArgumentException("command sequence incomplete [bytes=" + cmdSeq.asString() + "]");
+        } else if (sequenceMarkers.get(0).getKey() != Tokenizer.NORMAL_SEQUENCE_END) {
+            // this should be a zscript exception
+            throw new IllegalArgumentException("command sequence tokenization failure: " + sequenceMarkers.get(0));
+        } else if (sequenceMarkers.size() > 1 || lastToken.isPresent() && !lastToken.get().isSequenceEndMarker()) {
+            throw new IllegalArgumentException("multiple sequences [bytes=" + cmdSeq + "]");
         }
-        CommandSequence sequence = CommandSequence.parse(model, buffer.getTokenReader().getFirstReadToken(), false);
+
+        final CommandSequence sequence = CommandSequence.parse(model, tokenReader.getFirstReadToken(), false);
         if (sequence.hasEchoField() || sequence.hasLockField()) {
-            node.send(sequence, r -> callback.accept(r.toByteString().toByteArray()));
+            node.send(sequence, r -> callback.accept(r.toByteString()));
         } else {
-            node.send(sequence.getExecutionPath(), r -> callback.accept(r.toByteString().toByteArray()));
+            node.send(sequence.getExecutionPath(), r -> callback.accept(r.toByteString()));
         }
+    }
+
+    /**
+     * Sends an unaddressed command sequence (optionally with locks and echo field), and posts the matching response sequence to the supplied callback.
+     *
+     * @param cmdSeq       the sequence to send
+     * @param respCallback the handler for the response sequence
+     */
+    public void send(final CommandSequence cmdSeq, final Consumer<ResponseSequence> respCallback) {
+        node.send(cmdSeq, respCallback);
+    }
+
+    /**
+     * Sends the supplied command path (without address, locks or echo), and posts the matching response to the supplied callback.
+     *
+     * @param cmdSeq       the sequence to send
+     * @param respCallback the handler for the response sequence
+     */
+    public void send(final CommandExecutionPath cmdSeq, final Consumer<ResponseExecutionPath> respCallback) {
+        node.send(cmdSeq, respCallback);
     }
 
     public static class CommandExecutionTask {
@@ -277,6 +336,7 @@ public class Device {
                 }
             }
         }
+
         CommandExecutionPath path = CommandExecutionPath.from(model, destinations.peek().success);
         return new CommandExecutionTask(path, resps -> {
             ResponseSequenceCallback rsCallback = ResponseSequenceCallback.from(path.compareResponses(resps), cmdSeq, commandMap);

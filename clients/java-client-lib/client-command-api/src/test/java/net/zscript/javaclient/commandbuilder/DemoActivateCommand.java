@@ -50,7 +50,7 @@ public class DemoActivateCommand extends ZscriptCommandNode<DemoActivateCommand.
         }
     }
 
-    static class DemoActivateCommandResponse extends ValidatingResponse {
+    public static class DemoActivateCommandResponse extends ValidatingResponse {
         private final boolean alreadyActivated;
 
         public DemoActivateCommandResponse(ZscriptExpression resp, byte[] requiredKeys, boolean alreadyActivated) {

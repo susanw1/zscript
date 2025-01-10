@@ -113,9 +113,13 @@ public class ZscriptAddress implements ByteAppendable {
      *
      * @return the address as a string
      */
+    public String asString() {
+        return toByteString().asString();
+    }
+
     @Override
     public String toString() {
-        return toByteString().asString();
+        return toStringImpl();
     }
 
     /**

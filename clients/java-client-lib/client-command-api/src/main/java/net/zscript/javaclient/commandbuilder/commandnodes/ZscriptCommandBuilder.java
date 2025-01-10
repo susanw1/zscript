@@ -30,7 +30,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
     /** Set of 26 numeric fields, and bigfield. Bits init'd on {@link #setRequiredFields(byte[])} and cleared when fields are set. */
     private final BitSet requiredFields = new BitSet();
 
-    protected ZscriptCommandBuilder<T> setField(byte key, int value) {
+    public ZscriptCommandBuilder<T> setField(byte key, int value) {
         if (!Zchars.isNumericKey(key)) {
             throw new IllegalArgumentException("Key not a valid Zscript Command key: " + (char) key);
         }
@@ -39,7 +39,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         return this;
     }
 
-    protected ZscriptCommandBuilder<T> setField(char key, int value) {
+    public ZscriptCommandBuilder<T> setField(char key, int value) {
         return setField((byte) key, value);
     }
 
@@ -107,7 +107,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
      *
      * @return true if required fields are all set, false otherwise
      */
-    public boolean isValid() {
+    public final boolean isValid() {
         return requiredFields.isEmpty();
     }
 

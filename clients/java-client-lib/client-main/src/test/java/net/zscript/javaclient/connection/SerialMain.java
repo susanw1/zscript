@@ -9,9 +9,9 @@ import com.fazecast.jSerialComm.SerialPort;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
-import net.zscript.javaclient.connectors.RawConnection;
 import net.zscript.javaclient.connectors.ZscriptConnectors;
 import net.zscript.javaclient.connectors.serial.SerialConnector;
+import net.zscript.javaclient.nodes.DirectConnection;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.model.modules.base.CoreModule;
@@ -85,14 +85,14 @@ class SerialMain {
         //            Thread.sleep(1000);
         //        }
 
-        try (RawConnection conn = connector.connect(commPort)) {
+        try (DirectConnection conn = connector.connect(commPort)) {
             conn.onReceive((response) -> {
                 System.out.println("Response: " + response.toString());
             });
             for (int i = 0; i < 10; i++) {
                 byte[]               ba     = CoreModule.echoBuilder().setAny('A', 35).build().asString().getBytes(StandardCharsets.UTF_8);
                 ExtendingTokenBuffer buffer = new ExtendingTokenBuffer();
-                Tokenizer            t      = new Tokenizer(buffer.getTokenWriter(), 2);
+                Tokenizer            t      = new Tokenizer(buffer.getTokenWriter());
                 for (byte b : ba) {
                     t.accept(b);
                 }
@@ -101,6 +101,7 @@ class SerialMain {
                 Thread.sleep(1000);
             }
         } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         Thread.sleep(1000);

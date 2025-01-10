@@ -2,6 +2,7 @@ package net.zscript.util;
 
 import java.util.NoSuchElementException;
 
+import static net.zscript.util.ByteString.byteString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -18,8 +19,8 @@ class BlockIteratorTest {
 
     @Test
     public void shouldAppendIterator() {
-        ByteString b1 = ByteString.from("this is a test", (s, b) -> b.appendUtf8(s));
-        ByteString b2 = ByteString.from(b1.iterator());
+        ByteString b1 = byteString("this is a test", (s, b) -> b.appendUtf8(s));
+        ByteString b2 = byteString(b1.iterator());
         assertThat(b2.asString()).isEqualTo("this is a test");
     }
 }

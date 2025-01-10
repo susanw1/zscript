@@ -5,9 +5,9 @@ import java.nio.charset.StandardCharsets;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
-import net.zscript.javaclient.connectors.RawConnection;
 import net.zscript.javaclient.connectors.ZscriptConnectors;
 import net.zscript.javaclient.connectors.ZscriptConnectors.ZscriptConnector;
+import net.zscript.javaclient.nodes.DirectConnection;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.model.modules.base.CoreModule;
@@ -19,7 +19,7 @@ class TcpMain {
 
         Socket s = new Socket("192.168.23.144", 8888);
 
-        try (RawConnection conn = connector.connect(s)) {
+        try (DirectConnection conn = connector.connect(s)) {
             conn.onReceive((response) -> {
                 System.out.println("Response: " + response.toString());
             });

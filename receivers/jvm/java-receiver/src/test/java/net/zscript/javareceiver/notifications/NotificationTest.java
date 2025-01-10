@@ -8,13 +8,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.javareceiver.core.LockSet;
-import net.zscript.javareceiver.core.StringWriterOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.execution.NotificationContext;
 import net.zscript.javareceiver.modules.ZscriptModule;
 import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
 import net.zscript.javareceiver.semanticParser.ContextView.AsyncActionNotifier;
+import net.zscript.javareceiver.testing.StringWriterOutStream;
 
 public class NotificationTest {
     private final Zscript zscript = new Zscript();

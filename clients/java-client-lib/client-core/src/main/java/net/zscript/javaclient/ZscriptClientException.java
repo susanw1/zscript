@@ -1,4 +1,4 @@
-package net.zscript.javaclient.commandbuilder;
+package net.zscript.javaclient;
 
 import static java.lang.String.format;
 
@@ -12,7 +12,7 @@ public class ZscriptClientException extends RuntimeException {
     public ZscriptClientException(String format, Object... params) {
         super(format(format, params));
     }
-    
+
     /**
      * Creates a generic zscript client exception, allowing a chained "cause" exception plus {@link String#format(String, Object...)}-style format strings with params. Annoyingly,
      * as the varargs param list has to be the last argument, the 'cause' is a bit stuck in the middle.

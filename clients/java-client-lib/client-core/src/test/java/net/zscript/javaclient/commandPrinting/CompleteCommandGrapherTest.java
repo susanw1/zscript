@@ -1,9 +1,9 @@
 package net.zscript.javaclient.commandPrinting;
 
-import java.nio.charset.StandardCharsets;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.joining;
+import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.of;
 
@@ -14,7 +14,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import net.zscript.ascii.AnsiCharacterStylePrinter;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
-import net.zscript.tokenizer.Tokenizer;
 
 public class CompleteCommandGrapherTest {
     CommandGraph.GraphPrintSettings basicSettings = new CommandGraph.GraphPrintSettings(new StandardCommandGrapher.CommandPrintSettings("  ", VerbositySetting.NAME), true, 2,
@@ -23,18 +22,16 @@ public class CompleteCommandGrapherTest {
     @ParameterizedTest
     @MethodSource
     public void shouldProduceGoodGraphs(final String input, final String output) {
-        ExtendingTokenBuffer bufferCmd    = new ExtendingTokenBuffer();
-        Tokenizer            tokenizerCmd = new Tokenizer(bufferCmd.getTokenWriter(), 2);
-        for (byte b : input.getBytes(StandardCharsets.UTF_8)) {
-            tokenizerCmd.accept(b);
-        }
-        CommandExecutionPath path = CommandExecutionPath.parse(bufferCmd.getTokenReader().getFirstReadToken());
+        final ExtendingTokenBuffer bufferCmd = ExtendingTokenBuffer.tokenize(byteStringUtf8(input), false);
+        final CommandExecutionPath path      = CommandExecutionPath.parse(bufferCmd.getTokenReader().getFirstReadToken());
 
         String ANSI_ANYTHING = "(\u001B[\\[\\d;]*m)*";
-        assertThat(new StandardCommandGrapher().graph(path, null, basicSettings).generateString(new AnsiCharacterStylePrinter()).replaceAll(ANSI_ANYTHING, "").lines()
-                .map(s -> s.stripTrailing() + "\n").collect(
-                        Collectors.joining())).
-                isEqualTo(output);
+        assertThat(new StandardCommandGrapher().graph(path, null, basicSettings)
+                .generateString(new AnsiCharacterStylePrinter())
+                .replaceAll(ANSI_ANYTHING, "")
+                .lines()
+                .map(s -> s.stripTrailing() + "\n").collect(joining()))
+                .isEqualTo(output);
     }
 
     private static Stream<Arguments> shouldProduceGoodGraphs() {

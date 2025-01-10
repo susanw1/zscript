@@ -4,6 +4,7 @@ import java.util.OptionalInt;
 
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
+import net.zscript.tokenizer.ZscriptExpression;
 
 public interface ZscriptResponse {
     /**
@@ -12,6 +13,13 @@ public interface ZscriptResponse {
      * @return true if response is valid, false otherwise
      */
     boolean isValid();
+
+    /**
+     * Accesses this response in expression form.
+     *
+     * @return a ZscriptExpression representation of this response
+     */
+    ZscriptExpression expression();
 
     OptionalInt getField(byte key);
 

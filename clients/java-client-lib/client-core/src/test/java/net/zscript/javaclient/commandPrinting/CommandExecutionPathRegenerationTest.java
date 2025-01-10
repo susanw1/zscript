@@ -1,8 +1,8 @@
 package net.zscript.javaclient.commandPrinting;
 
-import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
+import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.of;
 
@@ -12,19 +12,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
-import net.zscript.tokenizer.Tokenizer;
 
 public class CommandExecutionPathRegenerationTest {
 
     @ParameterizedTest
     @MethodSource
     public void shouldProduceActionsForLogicalCommandSeries(final String input, final String output) {
-        ExtendingTokenBuffer bufferCmd    = new ExtendingTokenBuffer();
-        Tokenizer            tokenizerCmd = new Tokenizer(bufferCmd.getTokenWriter(), 2);
-        for (byte b : input.getBytes(StandardCharsets.UTF_8)) {
-            tokenizerCmd.accept(b);
-        }
-        CommandExecutionPath path = CommandExecutionPath.parse(bufferCmd.getTokenReader().getFirstReadToken());
+        ExtendingTokenBuffer bufferCmd = ExtendingTokenBuffer.tokenize(byteStringUtf8(input), false);
+        CommandExecutionPath path      = CommandExecutionPath.parse(bufferCmd.getTokenReader().getFirstReadToken());
 
         assertThat(path.toByteString().asString()).isEqualTo(output);
     }

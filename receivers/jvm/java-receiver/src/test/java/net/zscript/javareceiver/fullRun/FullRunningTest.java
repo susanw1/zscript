@@ -7,9 +7,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javareceiver.core.StringWriterOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
+import net.zscript.javareceiver.testing.StringChannel;
+import net.zscript.javareceiver.testing.StringWriterOutStream;
 
 @SuppressWarnings("StatementWithEmptyBody")
 public class FullRunningTest {

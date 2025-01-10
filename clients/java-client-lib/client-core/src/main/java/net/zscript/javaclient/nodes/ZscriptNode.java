@@ -42,10 +42,25 @@ public interface ZscriptNode {
 
     Connection detach(ZscriptAddress address);
 
+    /**
+     * Sends an unaddressed command sequence (optionally with locks and echo field), and posts the matching response sequence to the supplied callback.
+     *
+     * @param seq      the sequence to send
+     * @param callback the handler for the response sequence
+     */
     void send(CommandSequence seq, Consumer<ResponseSequence> callback);
 
+    /**
+     * Sends the supplied command path (without address, locks or echo), and posts the matching response to the supplied callback.
+     *
+     * @param path     the command sequence to send
+     * @param callback the handler for the response sequence
+     */
     void send(CommandExecutionPath path, Consumer<ResponseExecutionPath> callback);
 
+    /**
+     * TODO: ??? is this needed? Where does the response go?
+     */
     void send(AddressedCommand addr);
 
     void setNotificationHandler(int notification, Consumer<ResponseSequence> handler);

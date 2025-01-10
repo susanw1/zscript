@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.javareceiver.core.CommandOutStream;
-import net.zscript.javareceiver.core.StringWriterOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.execution.AddressingContext;
 import net.zscript.javareceiver.execution.CommandContext;
@@ -18,6 +17,7 @@ import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
 import net.zscript.javareceiver.semanticParser.ContextView.AsyncActionNotifier;
 import net.zscript.javareceiver.semanticParser.SemanticAction.ActionType;
 import net.zscript.javareceiver.semanticParser.SemanticParser.State;
+import net.zscript.javareceiver.testing.StringWriterOutStream;
 import net.zscript.tokenizer.TokenBuffer;
 import net.zscript.tokenizer.TokenRingBuffer;
 import net.zscript.tokenizer.Tokenizer;

@@ -56,6 +56,11 @@ public class ZscriptLockSet implements ByteAppendable {
         builder.appendByte(Zchars.Z_LOCKS).appendNumeric32(data);
     }
 
+    @Override
+    public String toString() {
+        return toStringImpl();
+    }
+
     public boolean isAllSet() {
         return locks.nextClearBit(0) >= (supports32 ? 32 : 16);
     }

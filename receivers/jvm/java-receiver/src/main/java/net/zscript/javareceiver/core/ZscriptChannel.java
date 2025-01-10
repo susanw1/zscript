@@ -1,5 +1,7 @@
 package net.zscript.javareceiver.core;
 
+import javax.annotation.Nullable;
+
 import net.zscript.javareceiver.execution.ActionSource;
 import net.zscript.javareceiver.execution.CommandContext;
 import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
@@ -34,7 +36,7 @@ public abstract class ZscriptChannel implements ActionSource {
     }
 
     @Override
-    public SequenceOutStream getOutStream(Zscript zscript) {
+    public SequenceOutStream getOutStream(@Nullable Zscript zscript) {
         return out;
     }
 

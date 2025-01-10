@@ -13,6 +13,12 @@ import net.zscript.tokenizer.TokenBufferIterator;
 import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
+/**
+ * A sendable, unaddressed command sequence, optionally with locks (eg "%1a") and echo (eg "_c2") fields. It's a {@link CommandExecutionPath} with the extra sequence-level
+ * information.
+ * <p>
+ * As far as a specific device is concerned, executing a CommandSequence results in a corresponding {@link ResponseSequence}.
+ */
 public class CommandSequence implements ByteAppendable {
 
     public static CommandSequence from(CommandExecutionPath path, int echoField) {
@@ -107,4 +113,10 @@ public class CommandSequence implements ByteAppendable {
     public int getBufferLength() {
         return executionPath.getBufferLength() + (echoField > 0xff ? 4 : 3) + (locks != null ? locks.getBufferLength() : 0);
     }
+
+    @Override
+    public String toString() {
+        return toStringImpl();
+    }
+
 }

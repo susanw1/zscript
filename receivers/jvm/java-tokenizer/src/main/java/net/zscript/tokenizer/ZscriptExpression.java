@@ -3,6 +3,7 @@ package net.zscript.tokenizer;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.stream.Stream;
 
 import net.zscript.util.ByteString;
 
@@ -11,6 +12,14 @@ import net.zscript.util.ByteString;
  * sequence.
  */
 public interface ZscriptExpression {
+    /**
+     * Accesses all the numeric fields in indeterminate order.
+     *
+     * @return stream of numeric fields
+     */
+    @Nonnull
+    Stream<ZscriptField> fields();
+
     /**
      * Gets the ZscriptField representing the specified numeric field (key, value), if it exists.
      *

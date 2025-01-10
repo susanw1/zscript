@@ -9,7 +9,7 @@ import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
 /**
- * Represents a fixed command-sequence, augmented by the addresses of nodes it passes through to get to the target..
+ * Represents a fixed outgoing command-sequence, which accumulates the addresses of routing nodes it passes through to get to the target.
  */
 public class AddressedCommand implements ByteAppendable {
     private final Queue<ZscriptAddress> addressSections;
@@ -20,6 +20,11 @@ public class AddressedCommand implements ByteAppendable {
         this.content = content;
     }
 
+    /**
+     * Adds an Address (eg '{@code @5.0.12}') to this command. FIXME: should this be front, or back of queue? Why a Queue?
+     *
+     * @param section the address section to add
+     */
     public void addAddressLayer(ZscriptAddress section) {
         addressSections.add(section);
     }
@@ -45,5 +50,10 @@ public class AddressedCommand implements ByteAppendable {
             length += addr.getBufferLength();
         }
         return length;
+    }
+
+    @Override
+    public String toString() {
+        return toStringImpl();
     }
 }

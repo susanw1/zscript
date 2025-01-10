@@ -2,6 +2,9 @@ package net.zscript.javaclient.addressing;
 
 import net.zscript.javaclient.sequence.ResponseSequence;
 
+/**
+ * AddressedResponse that travels back through the device hierarchy aware of the  current address section offset within the full address path.
+ */
 public class AddressedResponse {
     private final CompleteAddressedResponse response;
     private final int                       offset;

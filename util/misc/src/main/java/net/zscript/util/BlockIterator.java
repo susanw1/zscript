@@ -31,7 +31,7 @@ public interface BlockIterator extends Iterator<Byte>, ByteString.ByteAppendable
      * As an ByteAppendable, it may be used like this:
      * <pre>{@code
      * BlockIterator iter = ...
-     * ByteString b = ByteString.from(iter);
+     * ByteString b = ByteString.byteString(iter);
      * }</pre>
      *
      * @param builder the builder to append to

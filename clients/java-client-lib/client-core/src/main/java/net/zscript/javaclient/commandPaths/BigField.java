@@ -2,6 +2,8 @@ package net.zscript.javaclient.commandPaths;
 
 import javax.annotation.Nonnull;
 
+import static net.zscript.util.ByteString.byteString;
+
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.ZscriptField;
 import net.zscript.util.BlockIterator;
@@ -22,7 +24,7 @@ public class BigField implements ZscriptField, ByteAppendable {
     }
 
     public BigField(byte[] data, boolean isString) {
-        this(ByteString.from(data), isString);
+        this(byteString(data), isString);
     }
 
     /**
@@ -117,5 +119,10 @@ public class BigField implements ZscriptField, ByteAppendable {
     @Override
     public BlockIterator iterator() {
         return data.iterator();
+    }
+
+    @Override
+    public String toString() {
+        return toStringImpl();
     }
 }

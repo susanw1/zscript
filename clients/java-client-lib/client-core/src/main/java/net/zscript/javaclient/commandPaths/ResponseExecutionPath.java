@@ -7,43 +7,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
+import java.util.function.Consumer;
 
+import static java.lang.Byte.toUnsignedInt;
+import static java.lang.Integer.toHexString;
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
+import net.zscript.javaclient.ZscriptParseException;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBufferIterator;
 import net.zscript.tokenizer.Tokenizer;
 import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
+/**
+ * A parseable, unaddressed response sequence, without response value ('!')  or echo ('_') fields. It is essentially a chain of {@link Response} objects which can be matched by a
+ * CommandExecutionPath (see {@link CommandExecutionPath#compareResponses(ResponseExecutionPath)}) to produce a complete comprehension of what happened during execution.
+ * <p>
+ * This class represents the result of execution of a {@link CommandExecutionPath} once the addressing and sequence-level fields have been processed, ie by a client runtime
+ * representing a device node hierarchy, see {@link net.zscript.javaclient.nodes.ZscriptNode#send(CommandExecutionPath, Consumer)}.
+ */
 public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable {
-
-    static class ResponseBuilder {
-        ReadToken start = null;
-
-        byte separator = 0;
-
-        public ReadToken getStart() {
-            return start;
-        }
-
-        public void setStart(ReadToken token) {
-            this.start = token;
-        }
-
-        public boolean isEmpty() {
-            return start.isMarker();
-        }
-
-        public boolean isUnexplainedFail() {
-            return separator == Zchars.Z_ORELSE && isEmpty();
-        }
-
-        @Nonnull
-        public Response generateResponse(@Nullable Response next, boolean unexplainedFail, int priorBrackets) {
-            return new Response(next, !(unexplainedFail || separator == Zchars.Z_ORELSE), separator == '(', separator == ')', priorBrackets, ZscriptFieldSet.fromTokens(start));
-        }
-    }
 
     @Nonnull
     private static List<ResponseBuilder> createLinkedPath(@Nullable ReadToken start) {
@@ -72,9 +56,12 @@ public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable
                 } else if (token.getKey() == Tokenizer.CMD_END_CLOSE_PAREN) {
                     last.separator = Zchars.Z_CLOSEPAREN;
                 } else if (token.isSequenceEndMarker()) {
+                    if (token.getKey() != Tokenizer.NORMAL_SEQUENCE_END) {
+                        throw new ZscriptParseException("Syntax error [marker=%s, token=%s]", token, start);
+                    }
                     break;
                 } else {
-                    throw new IllegalStateException("Unknown separator: " + Integer.toHexString(Byte.toUnsignedInt(token.getKey())));
+                    throw new ZscriptParseException("Unknown separator [key=%s, token=%s]", toHexString(toUnsignedInt(token.getKey())), token);
                 }
                 last = next;
             }
@@ -165,4 +152,35 @@ public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable
         }
     }
 
+    @Override
+    public String toString() {
+        return toStringImpl();
+    }
+
+    private static class ResponseBuilder {
+        ReadToken start = null;
+
+        byte separator = 0;
+
+        public ReadToken getStart() {
+            return start;
+        }
+
+        public void setStart(ReadToken token) {
+            this.start = token;
+        }
+
+        public boolean isEmpty() {
+            return start.isMarker();
+        }
+
+        public boolean isUnexplainedFail() {
+            return separator == Zchars.Z_ORELSE && isEmpty();
+        }
+
+        @Nonnull
+        public Response generateResponse(@Nullable Response next, boolean unexplainedFail, int priorBrackets) {
+            return new Response(next, !(unexplainedFail || separator == Zchars.Z_ORELSE), separator == '(', separator == ')', priorBrackets, ZscriptFieldSet.fromTokens(start));
+        }
+    }
 }

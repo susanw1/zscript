@@ -1,0 +1,37 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.zscript</groupId>
+        <artifactId>zscript-all</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>acceptance-tests-old</artifactId>
+    <name>Zscript Acceptance Tests (OLD)</name>
+
+    <dependencies>
+        <dependency>
+            <!-- Note: test dependencies are scoped here as "compile" because this is a test project -->
+            <groupId>net.zscript</groupId>
+            <artifactId>java-testing-deps</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.junit.vintage</groupId>-->
+        <!--            <artifactId>junit-vintage-engine</artifactId>-->
+        <!--        </dependency>-->
+    </dependencies>
+</project>

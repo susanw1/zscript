@@ -99,7 +99,7 @@ public class ConnectionBuffer {
         return timedOut;
     }
 
-    public boolean responseReceived(AddressedCommand cmd) {
+    public boolean responseMatched(AddressedCommand cmd) {
         boolean removeUpTo = true;
         for (Iterator<BufferElement> iter = buffer.iterator(); iter.hasNext(); ) {
             BufferElement element = iter.next();
