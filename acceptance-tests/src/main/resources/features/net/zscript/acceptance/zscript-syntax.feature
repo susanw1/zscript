@@ -6,6 +6,21 @@ Feature: Zscript Syntax Consistency
     Background:
         Given a connection to the target
 
+    @Standard-operation
+    Scenario: should allow up to 4 hex numeric digits in numeric fields
+        When I send exactly "Z1 A Ba C8f D3d4 E1a2b" as a command sequence to the connection, and capture the response
+        Then connection response #0 is equivalent to "S A Ba C8f D3d4 E1a2b"
+
+    @Standard-operation
+    Scenario: should allow any number of leading zeroes in numeric fields
+        When I send exactly "Z1 A00000 B00000a C008f D000003d4 E0001a2b" as a command sequence to the connection, and capture the response
+        Then connection response #0 is equivalent to "S A Ba C8f D3d4 E1a2b"
+
+    @Syntax-error
+    Scenario: should disallow more than 4 hex digits in numeric fields
+        When I send exactly "Z1 A12345" as a command sequence to the connection, and capture the response
+        Then connection response #0 has status FIELD_TOO_LONG
+
     @Syntax-error
     Scenario: should reject unterminated text big-field
         When I send exactly "Z1\"abc" as a command sequence to the connection, and capture the response
@@ -42,15 +57,20 @@ Feature: Zscript Syntax Consistency
         Then connection response #0 has status ESCAPING_ERROR
 
     @Syntax-error
+    Scenario: should reject unescaped '=' in text
+        When I send exactly "Z1 \"1+1=2\"" as a command sequence to the connection, and capture the response
+        Then connection response #0 has status ESCAPING_ERROR
+
+    @Standard-operation
+    Scenario: should allow escaped '=' in text
+        When I send exactly "Z1 \"1+1=3d2\"" as a command sequence to the connection, and capture the response
+        Then connection response #0 is equivalent to "S \"1+1\" +3d \"2\" "
+
+    @Syntax-error
     Scenario: should reject unterminated escapes in text big-fields
 #        # The quotes string finishes before the '=xx' escape is complete
         When I send exactly "Z1\"a=4\"" as a command sequence to the connection, and capture the response
         Then connection response #0 has status ESCAPING_ERROR
-
-#    @Syntax-error
-#    Scenario: should reject unterminated escapes in text big-fields
-#        When I send exactly "Z1\"a=4\"" as a command sequence to the connection, and capture the response
-#        Then connection response #0 has status ESCAPING_ERROR
 
     @Standard-operation
     Scenario: should allow single UTF-8 multibyte in text big-fields
@@ -66,6 +86,7 @@ Feature: Zscript Syntax Consistency
     Scenario: should reject disallowed chars in text big-fields
         When I send exactly "Z1\"=0a\"" as a command sequence to the connection, and capture the response
         Then connection response #0 is equivalent to "S +0a"
+
 
     @Standard-operation
     Scenario: should allow locking at start of sequence
