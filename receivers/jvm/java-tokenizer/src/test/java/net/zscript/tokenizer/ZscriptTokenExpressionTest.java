@@ -12,7 +12,7 @@ import net.zscript.util.BlockIterator;
 
 class ZscriptTokenExpressionTest {
     TokenBuffer             buffer      = TokenRingBuffer.createBufferWithCapacity(256);
-    Tokenizer               tokenizer   = new Tokenizer(buffer.getTokenWriter(), 2);
+    Tokenizer               tokenizer   = new Tokenizer(buffer.getTokenWriter(), false);
     TokenBuffer.TokenReader tokenReader = buffer.getTokenReader();
 
     ZscriptTokenExpression zscriptExpr = new ZscriptTokenExpression(() -> tokenReader.tokenIterator());

@@ -8,11 +8,12 @@ import java.util.NoSuchElementException;
 import net.zscript.javaclient.commandbuilder.defaultCommands.AbortCommandNode;
 import net.zscript.javaclient.commandbuilder.defaultCommands.BlankCommandNode;
 import net.zscript.javaclient.commandbuilder.defaultCommands.FailureCommandNode;
+import net.zscript.util.ByteString.ByteAppendable;
 
 /**
  * An element of a Command Sequence under construction, representing a node in the Syntax Tree of a sequence during building.
  */
-public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode<?>> {
+public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode<?>>, ByteAppendable {
     private CommandSequenceNode parent = null;
 
     void setParent(CommandSequenceNode parent) {
@@ -149,7 +150,7 @@ public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode
                     if (!children.hasNext()) {
                         throw new NoSuchElementException();
                     }
-                    CommandSequenceNode node = children.next();
+                    final CommandSequenceNode node = children.next();
                     if (node instanceof ZscriptCommandNode) {
                         return (ZscriptCommandNode<?>) node;
                     }
@@ -159,6 +160,4 @@ public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode
             }
         };
     }
-
-    public abstract String asString();
 }

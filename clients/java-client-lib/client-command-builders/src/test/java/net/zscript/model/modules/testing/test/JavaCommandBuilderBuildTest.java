@@ -271,7 +271,6 @@ public class JavaCommandBuilderBuildTest {
     }
 
     private String build(ZscriptCommandBuilder<?> b) {
-        // ISO8859, because we want an 8-bit byte in each char, and they *could* be non-printing / non-ascii if they're in Text
-        return b.build().asString();
+        return b.build().asStringUtf8();
     }
 }

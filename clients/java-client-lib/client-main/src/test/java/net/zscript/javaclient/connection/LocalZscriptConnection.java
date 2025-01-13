@@ -70,7 +70,7 @@ public class LocalZscriptConnection extends DirectConnection {
         };
 
         zscript.addChannel(new ZscriptChannel(ringBuffer, outStream) {
-            final Tokenizer tokenizer = new Tokenizer(ringBuffer.getTokenWriter(), 2);
+            final Tokenizer tokenizer = new Tokenizer(ringBuffer.getTokenWriter(), false);
 
             byte[] current = null;
             int    pos     = 0;

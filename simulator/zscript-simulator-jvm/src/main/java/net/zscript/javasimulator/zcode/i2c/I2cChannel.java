@@ -84,7 +84,7 @@ public class I2cChannel extends ZscriptChannel implements SimulatorConsumer<I2cP
         super(buffer, out);
         this.e = e;
         this.addr = addr;
-        this.in = new Tokenizer(buffer.getTokenWriter(), 2);
+        this.in = new Tokenizer(buffer.getTokenWriter(), false);
         this.outQueue = outQueue;
     }
 

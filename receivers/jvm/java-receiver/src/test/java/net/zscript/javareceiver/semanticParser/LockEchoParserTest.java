@@ -25,7 +25,7 @@ import net.zscript.tokenizer.Tokenizer;
 
 class LockEchoParserTest {
     private final TokenBuffer buffer    = TokenRingBuffer.createBufferWithCapacity(256);
-    private final Tokenizer   tokenizer = new Tokenizer(buffer.getTokenWriter(), 2);
+    private final Tokenizer   tokenizer = new Tokenizer(buffer.getTokenWriter(), false);
 
     private final SemanticParser parser = new SemanticParser(buffer.getTokenReader(), new ExecutionActionFactory());
 

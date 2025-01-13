@@ -2,6 +2,10 @@ package net.zscript.javaclient.commandbuilder.commandnodes;
 
 import java.util.List;
 
+import net.zscript.model.components.Zchars;
+import net.zscript.util.ByteString;
+import net.zscript.util.ByteString.ByteAppendable;
+
 public class OrSequenceNode extends CommandSequenceNode {
     final CommandSequenceNode before;
     final CommandSequenceNode after;
@@ -22,7 +26,7 @@ public class OrSequenceNode extends CommandSequenceNode {
     boolean isCommand() {
         return false;
     }
- 
+
     @Override
     CommandSequenceNode optimize() {
         if (!before.canFail()) {
@@ -35,7 +39,12 @@ public class OrSequenceNode extends CommandSequenceNode {
         return List.of(before, after);
     }
 
-    public String asString() {
-        return "(" + before.asString() + "|" + after.asString() + ")";
+    @Override
+    public void appendTo(ByteString.ByteStringBuilder builder) {
+        builder.appendByte(Zchars.Z_OPENPAREN)
+                .append((ByteAppendable) before)
+                .appendByte(Zchars.Z_ORELSE)
+                .append((ByteAppendable) after)
+                .appendByte(Zchars.Z_CLOSEPAREN);
     }
 }

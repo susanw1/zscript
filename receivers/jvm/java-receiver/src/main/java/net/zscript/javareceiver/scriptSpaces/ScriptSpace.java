@@ -23,7 +23,7 @@ public class ScriptSpace implements ActionSource {
     public static ScriptSpace from(Zscript z, String str) {
         ScriptSpaceTokenBuffer       buffer = new ScriptSpaceTokenBuffer();
         ScriptSpaceWriterTokenBuffer writer = buffer.fromStart();
-        Tokenizer                    tok    = new Tokenizer(writer.getTokenWriter(), 2);
+        Tokenizer                    tok    = new Tokenizer(writer.getTokenWriter(), false);
         for (byte b : str.getBytes(StandardCharsets.UTF_8)) {
             tok.accept(b);
         }

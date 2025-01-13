@@ -95,7 +95,7 @@ public abstract class DirectConnection implements Connection, Closeable {
             receivedBytes.appendRaw(bytes);
         } else {
             final TokenBuffer buffer = new ExtendingTokenBuffer();
-            final Tokenizer   t      = new Tokenizer(buffer.getTokenWriter(), 2);
+            final Tokenizer   t      = new Tokenizer(buffer.getTokenWriter(), true);
 
             // >0 incoming newlines, so we can use (and flush) any stashed bytes
             if (receivedBytes.size() > 0) {
@@ -110,7 +110,7 @@ public abstract class DirectConnection implements Connection, Closeable {
                 t.accept(b);
                 if (b == Zchars.Z_NEWLINE) {
                     try {
-                        AddressedResponse parsedResponse = CompleteAddressedResponse.parse(buffer.getTokenReader()).asResponse();
+                        AddressedResponse parsedResponse = CompleteAddressedResponse.parse(buffer.getTokenReader().getFirstReadToken()).asResponse();
                         responseHandler.accept(parsedResponse);
                     } catch (Exception e) {
                         parseFailHandler.accept(bytes, e);

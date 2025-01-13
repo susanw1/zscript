@@ -42,9 +42,10 @@ public class Tokenizer {
     // Token for whole of rest of sequence following an address, representing the message to be passed downstream.
     public static final byte ADDRESSING_FIELD_KEY = (byte) 0x80;
 
-    private static final int DEFAULT_MAX_NUMERIC_BYTES = 2;
+    // Normal max length of a numeric field's value (eg 0-0xffff)
+    public static final int DEFAULT_MAX_NUMERIC_BYTES = 2;
 
-    /////////////// Sequence marker values (top 4 bits set) - signify sequence end (either normal, or error during tokenization)
+    /// //////////// Sequence marker values (top 4 bits set) - signify sequence end (either normal, or error during tokenization)
 
     public static final byte NORMAL_SEQUENCE_END              = (byte) 0xf0;
     public static final byte ERROR_BUFFER_OVERRUN             = (byte) 0xf1;
@@ -54,7 +55,7 @@ public class Tokenizer {
     public static final byte ERROR_CODE_STRING_ESCAPING       = (byte) 0xf5;
     public static final byte ERROR_CODE_ILLEGAL_TOKEN         = (byte) 0xf6;
 
-    /////////////// Normal marker values (top 3 bits set) - signify command/response end, implies read processing may proceed
+    /// //////////// Normal marker values (top 3 bits set) - signify command/response end, implies read processing may proceed
 
     public static final byte CMD_END_ANDTHEN     = (byte) 0xe1;
     public static final byte CMD_END_ORELSE      = (byte) 0xe2;
@@ -75,14 +76,24 @@ public class Tokenizer {
     private boolean isNormalString;
     private int     escapingCount; // 2 bit counter, from 2 to 0
 
-    public Tokenizer(final TokenWriter writer) {
-        this(writer, DEFAULT_MAX_NUMERIC_BYTES, false);
+    /**
+     * @param writer             the writer to write tokens to
+     * @param parseOutAddressing true if addressed text should be written as normal tokens ("client"-style), false if they should be bundled into a singled ADDRESSING_FIELD_KEY
+     *                           token ("receiver"-style) ready for forwarding to its destination
+     */
+    public Tokenizer(final TokenWriter writer, final boolean parseOutAddressing) {
+        this(writer, DEFAULT_MAX_NUMERIC_BYTES, parseOutAddressing);
     }
 
-    public Tokenizer(final TokenWriter writer, final int maxNumericBytes) {
-        this(writer, maxNumericBytes, false);
-    }
-
+    /**
+     * Creates a new Tokenizer to write chars into tokens on the supplied writer. There are two primary modes: "client"-mode, where all tokens are written normally, and
+     * "receiver"-mode. In receiver-mode, everything after the first address (eg "@a.b.c") is written as a single large text token marked with {@link #ADDRESSING_FIELD_KEY}
+     *
+     * @param writer             the writer to write tokens to
+     * @param maxNumericBytes    the width of the largest numeric token to write (beyond which we write ERROR_CODE_FIELD_TOO_LONG)
+     * @param parseOutAddressing true if addressed text should be written as normal tokens ("client"-mode), false if they should be bundled into a singled ADDRESSING_FIELD_KEY
+     *                           token ("receiver"-mode) ready for forwarding to its destination
+     */
     public Tokenizer(final TokenWriter writer, final int maxNumericBytes, final boolean parseOutAddressing) {
         this.writer = writer;
         this.maxNumericBytes = maxNumericBytes;

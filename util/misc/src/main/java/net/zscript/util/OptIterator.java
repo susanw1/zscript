@@ -2,9 +2,11 @@ package net.zscript.util;
 
 import javax.annotation.Nonnull;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -69,6 +71,58 @@ public interface OptIterator<T> {
             @Override
             public Optional<T> next() {
                 return origIterator.hasNext() ? Optional.of(origIterator.next()) : Optional.empty();
+            }
+        };
+    }
+
+    /**
+     * Drains this OptIterator's items into a list (as per {@link Collectors#toList()}).
+     *
+     * @return a list of the items
+     */
+    @Nonnull
+    default List<T> toList() {
+        return stream().collect(Collectors.toList());
+    }
+
+    /**
+     * Converts this OptIterator into a simple Iterable with a corresponding Iterator.
+     * <p>
+     * This method is intended to facilitate usage in foreach loops:
+     * <pre>
+     * {@code
+     * for (Thing t : thingSource.things().toIterable()) {
+     *      System.out.println(t);
+     * }
+     * }
+     * </pre>
+     *
+     * Warning: using the returned Iterable and its corresponding Iterator will drain this OptIterator's items (they aren't stored or copied)! Dependence on exactly how this
+     * behaves or interacts with use of the original OptIterator is fragile.
+     *
+     * @return this OptIterator in Iterable form
+     */
+    default Iterable<T> toIterable() {
+        return new Iterable<>() {
+            @Override
+            @Nonnull
+            public Iterator<T> iterator() {
+                return new Iterator<>() {
+                    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+                    Optional<T> cur = OptIterator.this.next();
+
+                    @Override
+                    public boolean hasNext() {
+                        return cur.isPresent();
+                    }
+
+                    @Override
+                    public T next() {
+                        final T tmp = cur.orElseThrow(NoSuchElementException::new);
+                        cur = OptIterator.this.next();
+                        return tmp;
+                    }
+                };
             }
         };
     }

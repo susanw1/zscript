@@ -42,7 +42,7 @@ class TokenizerTest {
 
     @BeforeEach
     void setUp() {
-        tokenizer = new Tokenizer(writer, 2);
+        tokenizer = new Tokenizer(writer, false);
         when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
     }
 

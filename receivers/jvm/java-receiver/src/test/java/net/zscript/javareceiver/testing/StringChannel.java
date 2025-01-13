@@ -23,7 +23,7 @@ public class StringChannel extends ZscriptChannel {
 
     private StringChannel(TokenBuffer buffer, String input, SequenceOutStream out) {
         super(buffer, out);
-        this.in = new Tokenizer(buffer.getTokenWriter(), 2);
+        this.in = new Tokenizer(buffer.getTokenWriter(), false);
         this.input = input.getBytes(StandardCharsets.UTF_8);
     }
 
