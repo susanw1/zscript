@@ -89,7 +89,7 @@ public class LocalChannel extends ZscriptChannel {
 
     private LocalChannel(TokenBuffer buffer, OutputStreamOutStream<?> out, boolean createPipe) {
         super(buffer, out);
-        this.tokenizer = new Tokenizer(buffer.getTokenWriter());
+        this.tokenizer = new Tokenizer(buffer.getTokenWriter(), false);
 
         this.incoming = new ConcurrentLinkedQueue<>();
         this.byteIterator = null;

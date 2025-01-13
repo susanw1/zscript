@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static net.zscript.util.ByteString.ByteAppender.ISOLATIN1_APPENDER;
+import static net.zscript.util.ByteString.ByteAppender.UTF8_APPENDER;
 import static net.zscript.util.ByteString.byteString;
 import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -177,6 +178,14 @@ class ByteStringTest {
         assertThat(ByteString.builder().append(List.of(new TestAppendable(1), new TestAppendable(2))).asString()).isEqualTo("x=01x=02");
 
         assertThat(new TestAppendable(6).toByteString().asString()).isEqualTo("x=06");
+    }
+
+    @Test
+    public void shouldJoin() {
+        ByteString.ByteStringBuilder builder = ByteString.builder();
+        List<String>                 list    = List.of("green", "eggs", "and", "ham");
+        builder.appendJoining(UTF8_APPENDER, list, ByteString.byteStringUtf8("|-|").asAppendable());
+        assertThat(builder.asString()).isEqualTo("green|-|eggs|-|and|-|ham");
     }
 
     @Test

@@ -36,7 +36,7 @@ public class ExtendingTokenBuffer extends AbstractArrayTokenBuffer {
      * @throws ZscriptParseException if this buffer does not contain a single valid sequence
      */
     public static ExtendingTokenBuffer tokenize(ByteString sequence, boolean autoNewline) {
-        return tokenizeImpl(sequence, autoNewline, true);
+        return tokenizeImpl(sequence, autoNewline, true, true);
     }
 
     /**
@@ -48,12 +48,12 @@ public class ExtendingTokenBuffer extends AbstractArrayTokenBuffer {
      * @return the buffer containing the tokens (possibly including error markers)
      */
     public static ExtendingTokenBuffer tokenizeWithoutRejection(ByteString sequence) {
-        return tokenizeImpl(sequence, false, false);
+        return tokenizeImpl(sequence, false, false, true);
     }
 
-    private static ExtendingTokenBuffer tokenizeImpl(ByteString sequence, boolean autoNewline, boolean rejectErrors) {
+    private static ExtendingTokenBuffer tokenizeImpl(ByteString sequence, boolean autoNewline, boolean rejectErrors, boolean parseOutAddressing) {
         final ExtendingTokenBuffer buf = new ExtendingTokenBuffer();
-        final Tokenizer            tok = new Tokenizer(buf.getTokenWriter());
+        final Tokenizer            tok = new Tokenizer(buf.getTokenWriter(), Tokenizer.DEFAULT_MAX_NUMERIC_BYTES, parseOutAddressing);
 
         final TokenBufferFlags flags = buf.getTokenReader().getFlags();
         for (int i = 0, n = sequence.size(); i < n; i++) {
@@ -71,9 +71,10 @@ public class ExtendingTokenBuffer extends AbstractArrayTokenBuffer {
                 return buf;
             }
         }
-        buf.getTokenWriter().endToken();
         if (autoNewline) {
             tok.accept(Zchars.Z_NEWLINE);
+        } else {
+            buf.getTokenWriter().endToken();
         }
         return buf;
     }

@@ -1,7 +1,6 @@
 package net.zscript.javaclient.connection;
 
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.commandPaths.CommandExecutionPath;
@@ -11,7 +10,7 @@ import net.zscript.javaclient.nodes.DirectConnection;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.model.modules.base.CoreModule;
-import net.zscript.tokenizer.Tokenizer;
+import net.zscript.util.ByteString;
 
 class TcpMain {
     public static void main(String[] args) throws Exception {
@@ -23,11 +22,9 @@ class TcpMain {
             conn.onReceive((response) -> {
                 System.out.println("Response: " + response.toString());
             });
-            ExtendingTokenBuffer buffer = new ExtendingTokenBuffer();
-            Tokenizer            t      = new Tokenizer(buffer.getTokenWriter(), 2);
-            for (byte b : CoreModule.echoBuilder().setAny('A', 1234).build().asString().getBytes(StandardCharsets.UTF_8)) {
-                t.accept(b);
-            }
+
+            final ByteString     command = CoreModule.echoBuilder().setAny('A', 35).build().toByteString();
+            ExtendingTokenBuffer buffer  = ExtendingTokenBuffer.tokenize(command);
             conn.send(new AddressedCommand(CommandSequence.from(CommandExecutionPath.parse(buffer.getTokenReader().getFirstReadToken()), -1)));
         }
     }

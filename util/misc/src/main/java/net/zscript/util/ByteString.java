@@ -627,6 +627,18 @@ public final class ByteString implements Iterable<Byte> {
         }
 
         /**
+         * Appends each of the Appendables in the supplied collection, in iterator order, separated by the supplied separator.
+         *
+         * @param appendables zero or more Appendables
+         * @param sep         a separator object added between the main objects
+         * @return this builder, to facilitate chaining
+         */
+        @Nonnull
+        public ByteStringBuilder appendJoining(Iterable<? extends ByteAppendable> appendables, ByteAppendable sep) {
+            return appendJoining(ByteAppender.DEFAULT_APPENDER, appendables, sep);
+        }
+
+        /**
          * Appends each of the supplied objects using the supplied appender, in iterator order.
          *
          * @param appender the appender to use
@@ -637,6 +649,28 @@ public final class ByteString implements Iterable<Byte> {
         @Nonnull
         public <T> ByteStringBuilder append(ByteAppender<? super T> appender, Iterable<? extends T> objects) {
             objects.forEach(a -> appender.append(a, this));
+            return this;
+        }
+
+        /**
+         * Appends each of the supplied objects using the supplied appender, in iterator order, separated by the supplied separator.
+         *
+         * @param appender the appender to use
+         * @param objects  zero or more objects to be appended
+         * @param sep      a separator object added between the main objects
+         * @param <T>      the type of the objects
+         * @return this builder, to facilitate chaining
+         */
+        @Nonnull
+        public <T> ByteStringBuilder appendJoining(ByteAppender<? super T> appender, Iterable<? extends T> objects, ByteAppendable sep) {
+            boolean subsequent = false;
+            for (final T a : objects) {
+                if (subsequent) {
+                    append(sep);
+                }
+                subsequent = true;
+                appender.append(a, this);
+            }
             return this;
         }
 

@@ -1,49 +1,39 @@
 package net.zscript.javaclient.addressing;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
+import static net.zscript.javaclient.addressing.ZscriptAddress.address;
+import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
-import net.zscript.model.components.Zchars;
-import net.zscript.tokenizer.TokenBuffer;
-import net.zscript.tokenizer.TokenBuffer.TokenReader;
+import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
-import net.zscript.tokenizer.TokenRingBuffer;
-import net.zscript.tokenizer.Tokenizer;
 import net.zscript.util.ByteString;
 
 class ZscriptAddressTest {
-    TokenBuffer buffer      = TokenRingBuffer.createBufferWithCapacity(256);
-    Tokenizer   tokenizer   = new Tokenizer(buffer.getTokenWriter(), 2);
-    TokenReader tokenReader = buffer.getTokenReader();
-
     @Test
     public void shouldConstructFromNumericParts() {
         ZscriptAddress address1 = ZscriptAddress.from(1, 0xa3b, 0, 0xffff);
         assertThat(address1.size()).isEqualTo(4);
-        assertThat(address1.asString()).isEqualTo("@1.a3b..ffff");
+        assertThat(address1.asStringUtf8()).isEqualTo("@1.a3b..ffff");
 
         ZscriptAddress address2 = ZscriptAddress.from(List.of(1, 0xa3b, 0, 0xffff));
         assertThat(address2.size()).isEqualTo(4);
-        assertThat(address2.asString()).isEqualTo("@1.a3b..ffff");
+        assertThat(address2.asStringUtf8()).isEqualTo("@1.a3b..ffff");
 
         assertThat(address1).isEqualTo(address2);
-
-        EqualsVerifier.forClass(ZscriptAddress.class).verify();
     }
 
     @Test
     public void shouldParseSimpleAddress() {
-        tokenize("@12.34.ef Z1A2+34\n");
-        ReadToken            token = tokenReader.getFirstReadToken();
-        final ZscriptAddress a     = ZscriptAddress.parse(token);
-        assertThat(a.getAsInts()).containsExactly(0x12, 0x34, 0xef);
+        final ReadToken            token = ExtendingTokenBuffer.tokenize(byteStringUtf8("@12.34.ef Z1A2+34")).getTokenReader().getFirstReadToken();
+        final List<ZscriptAddress> a     = ZscriptAddress.parseAll(token);
+        assertThat(a).hasSize(1);
+        assertThat(a.get(0).getAsInts()).containsExactly(0x12, 0x34, 0xef);
     }
 
     /**
@@ -51,25 +41,20 @@ class ZscriptAddressTest {
      * token. That needs re-parsing in order to see the next level address.
      */
     @Test
-    public void shouldNotParseMultipleAddresses() {
-        tokenize("@12.34.56 @78.ab Z1A2+34\n");
+    public void shouldParseMultipleAddresses() {
+        final ReadToken token = ExtendingTokenBuffer.tokenize(byteStringUtf8("@12.34.56 @78.ab Z1A2+34")).getTokenReader().getFirstReadToken();
 
-        List<ZscriptAddress> addresses = tokenReader.tokenIterator().stream()
-                .filter(t -> t.getKey() == Zchars.Z_ADDRESSING)
-                .map(ZscriptAddress::parse)
-                .collect(toList());
+        List<ZscriptAddress> addresses = ZscriptAddress.parseAll(token);
 
-        // tokenReader.iterator().stream().forEach(System.out::println);
-
-        assertThat(addresses).hasSize(1);
+        assertThat(addresses).hasSize(2);
         assertThat(addresses.get(0).getAsInts()).containsExactly(0x12, 0x34, 0x56);
+        assertThat(addresses.get(1).getAsInts()).containsExactly(0x78, 0xab);
     }
 
     @Test
     public void shouldNotParseNonAddresses() {
-        tokenize("A\n");
-        ReadToken token = tokenReader.getFirstReadToken();
-        assertThatIllegalArgumentException().isThrownBy(() -> ZscriptAddress.parse(token));
+        final ReadToken token = ExtendingTokenBuffer.tokenize(byteStringUtf8("A\n")).getTokenReader().getFirstReadToken();
+        assertThat(ZscriptAddress.parseAll(token)).isEmpty();
     }
 
     @Test
@@ -80,7 +65,7 @@ class ZscriptAddressTest {
 
     @Test
     public void shouldWriteToByteString() {
-        ZscriptAddress address = ZscriptAddress.address(2, 1);
+        ZscriptAddress address = address(2, 1);
         assertThat(address.toByteString())
                 .isEqualTo(ByteString.concat((object, builder) -> builder.appendUtf8(object), "@2.1"));
     }
@@ -88,14 +73,18 @@ class ZscriptAddressTest {
     @Test
     public void shouldGetBufferLength() {
         // Number of bytes required in the TokenBuffer - 2 (tokens' key/len) + (0, 1, or 2) bytes, summed for each part.
-        ZscriptAddress address = ZscriptAddress.address(1, 0xa3b, 0, 0xffff);
+        ZscriptAddress address = address(1, 0xa3b, 0, 0xffff);
         // (a) 2+1, (b) 2+2, (c) 2+0, (d) 2+2   = 13
         assertThat(address.getBufferLength()).isEqualTo(13);
     }
 
-    private void tokenize(String z) {
-        for (byte c : z.getBytes(StandardCharsets.ISO_8859_1)) {
-            tokenizer.accept(c);
-        }
+    @Test
+    public void shouldImplementEquals() {
+        EqualsVerifier.forClass(ZscriptAddress.class).verify();
+    }
+
+    @Test
+    public void shouldImplementToString() {
+        assertThat(address(1, 0xa3b, 0, 0xffff)).hasToString("ZscriptAddress:{'@1.a3b..ffff'}");
     }
 }

@@ -34,7 +34,7 @@ public class JavaCommandBuilderNotificationTest {
 
     @Test
     void shouldCreateNotificationWithRequiredFields() {
-        final CompleteAddressedResponse car = CompleteAddressedResponse.parse(tokenize(byteStringUtf8("!234 Dab Lcd & Xef\n")).getTokenReader());
+        final CompleteAddressedResponse car = CompleteAddressedResponse.parse(tokenize(byteStringUtf8("!234 Dab Lcd & Xef\n")).getTokenReader().getFirstReadToken());
 
         final TestingModule.TestNtfBNotification.TestNtfBNotificationHandle handle = TestingModule.TestNtfBNotification.ID.newHandle();
 

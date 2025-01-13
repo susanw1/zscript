@@ -2,12 +2,12 @@ package net.zscript.javaclient.commandbuilder.commandnodes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import net.zscript.javaclient.commandbuilder.defaultCommands.AbortCommandNode;
 import net.zscript.javaclient.commandbuilder.defaultCommands.BlankCommandNode;
 import net.zscript.javaclient.commandbuilder.defaultCommands.FailureCommandNode;
 import net.zscript.model.components.Zchars;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
 public class AndSequenceNode extends CommandSequenceNode {
     private final List<CommandSequenceNode> elements;
@@ -84,7 +84,8 @@ public class AndSequenceNode extends CommandSequenceNode {
         return elements;
     }
 
-    public String asString() {
-        return elements.stream().map(CommandSequenceNode::asString).collect(Collectors.joining("" + (char) Zchars.Z_ANDTHEN));
+    @Override
+    public void appendTo(ByteStringBuilder builder) {
+        builder.appendJoining(elements, b -> b.appendByte(Zchars.Z_ANDTHEN));
     }
 }

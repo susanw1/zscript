@@ -44,7 +44,7 @@ public class ExtendingTokenBufferTest {
     @Test
     public void shouldTokenizeResponse() {
         final TokenBuffer       buf      = tokenize(byteStringUtf8("!S5"));
-        final AddressedResponse response = CompleteAddressedResponse.parse(buf.getTokenReader()).asResponse();
+        final AddressedResponse response = CompleteAddressedResponse.parse(buf.getTokenReader().getFirstReadToken()).asResponse();
         assertThat(response.hasAddress()).isFalse();
         final ZscriptFieldSet fields = response.getContent().getExecutionPath().getFirstResponse().getFields();
         assertThat(fields.getFieldCount()).isEqualTo(1);
@@ -54,7 +54,7 @@ public class ExtendingTokenBufferTest {
     @Test
     public void tokenizerShouldRejectBadResponse() {
         final TokenBuffer buf = tokenize(byteStringUtf8("S1 \n")); // missing '!'
-        assertThatThrownBy(() -> CompleteAddressedResponse.parse(buf.getTokenReader()))
+        assertThatThrownBy(() -> CompleteAddressedResponse.parse(buf.getTokenReader().getFirstReadToken()))
                 .isInstanceOf(ZscriptParseException.class).hasMessageContaining("Invalid response sequence");
     }
 
@@ -73,7 +73,7 @@ public class ExtendingTokenBufferTest {
     @Test
     public void shouldExpandBuffer() {
         final ExtendingTokenBuffer buf = new ExtendingTokenBuffer();
-        final Tokenizer            tok = new Tokenizer(buf.getTokenWriter());
+        final Tokenizer            tok = new Tokenizer(buf.getTokenWriter(), true);
 
         assertThat(buf.getDataSize()).isLessThan(500);
         tok.accept((byte) '"');

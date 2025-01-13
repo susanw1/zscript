@@ -1,8 +1,11 @@
 package net.zscript.javaclient.addressing;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
@@ -47,18 +50,31 @@ public class ZscriptAddress implements ByteAppendable {
         return new ZscriptAddress(addressParts.stream().mapToInt(i -> i).toArray());
     }
 
-    public static ZscriptAddress parse(ReadToken token) {
-        if (token.getKey() != Zchars.Z_ADDRESSING) {
-            throw new IllegalArgumentException("Cannot parse address from non-address fields");
+    public static List<ZscriptAddress> parseAll(ReadToken start) {
+        if (start.getKey() != Zchars.Z_ADDRESSING) {
+            return Collections.emptyList();
         }
 
-        // Note, tokenizer will only write one Address; subsequent addresses are inside the single token envelope.
-        int[] parts = token.tokenIterator().stream()
-                .takeWhile(t -> Zchars.isAddressing(t.getKey()))
-                .mapToInt(ReadToken::getData16)
-                .toArray();
+        final List<List<Integer>> addresses = new ArrayList<>();
+        List<Integer>             elements  = null;
 
-        return new ZscriptAddress(parts);
+        for (ReadToken token : start.tokenIterator().toIterable()) {
+            if (token.getKey() == Zchars.Z_ADDRESSING) {
+                elements = new ArrayList<>();
+                addresses.add(elements);
+                elements.add(token.getData16());
+            } else if (token.getKey() == Zchars.Z_ADDRESSING_CONTINUE) {
+                elements.add(token.getData16());
+            } else {
+                break;
+            }
+        }
+
+        return addresses.stream()
+                .map(list -> new ZscriptAddress(list.stream()
+                        .mapToInt(i -> i)
+                        .toArray()))
+                .collect(toList());
     }
 
     private ZscriptAddress(int[] addr) {
@@ -106,15 +122,6 @@ public class ZscriptAddress implements ByteAppendable {
         }
         ZscriptAddress other = (ZscriptAddress) obj;
         return Arrays.equals(addressParts, other.addressParts);
-    }
-
-    /**
-     * Presents this address in conventional "@3.6a.1" format, including empty field for zero.
-     *
-     * @return the address as a string
-     */
-    public String asString() {
-        return toByteString().asString();
     }
 
     @Override

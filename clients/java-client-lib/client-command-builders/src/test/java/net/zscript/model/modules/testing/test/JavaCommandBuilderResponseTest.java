@@ -25,7 +25,7 @@ import net.zscript.tokenizer.ZscriptTokenExpression;
 
 public class JavaCommandBuilderResponseTest {
     final ExtendingTokenBuffer buffer      = new ExtendingTokenBuffer();
-    final Tokenizer            tokenizer   = new Tokenizer(buffer.getTokenWriter(), 2);
+    final Tokenizer            tokenizer   = new Tokenizer(buffer.getTokenWriter(), true);
     final TokenReader          tokenReader = buffer.getTokenReader();
 
     @Test

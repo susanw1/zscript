@@ -1,16 +1,13 @@
 package net.zscript.javaclient.addressing;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static net.zscript.tokenizer.TokenBuffer.TokenReader;
-import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
-
+import net.zscript.javaclient.ZscriptParseException;
 import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.model.components.Zchars;
+import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.tokenizer.Tokenizer;
-import net.zscript.util.OptIterator;
 
 /**
  * Defines a Response sequence along with its address - this is the completed parse from a TokenReader.
@@ -19,30 +16,22 @@ public class CompleteAddressedResponse {
     private final List<ZscriptAddress> addressSections;
     private final ResponseSequence     content;
 
-    public static CompleteAddressedResponse parse(TokenReader reader) {
-        OptIterator<ReadToken> iterEnding = reader.tokenIterator();
-        for (Optional<ReadToken> opt = iterEnding.next(); opt.isPresent(); opt = iterEnding.next()) {
-            if (opt.get().isSequenceEndMarker()) {
-                if (opt.get().getKey() != Tokenizer.NORMAL_SEQUENCE_END) {
-                    throw new RuntimeException("Parse failed with Tokenizer error: " + Integer.toHexString(opt.get().getKey()));
-                }
-            }
+    public static CompleteAddressedResponse parse(ReadToken start) {
+        final Optional<ReadToken> endToken = start.tokenIterator().stream()
+                .filter(ReadToken::isSequenceEndMarker).findFirst();
+        if (endToken.isEmpty()) {
+            throw new ZscriptParseException("Parse failed, no terminating sequence marker");
+        } else if (endToken.get().getKey() != Tokenizer.NORMAL_SEQUENCE_END) {
+            throw new ZscriptParseException("Parse failed with Tokenizer error [marker=%s]", endToken.get());
         }
-        OptIterator<ReadToken> iter      = reader.tokenIterator();
-        List<ZscriptAddress>   addresses = new ArrayList<>();
-        ResponseSequence       seq       = null;
-        for (Optional<ReadToken> opt = iter.next(); opt.isPresent(); opt = iter.next()) {
-            ReadToken token = opt.get();
-            if (token.getKey() == Zchars.Z_ADDRESSING) {
-                addresses.add(ZscriptAddress.parse(token));
-            } else {
-                seq = ResponseSequence.parse(token);
-                break;
-            }
-        }
-        if (seq == null) {
-            seq = ResponseSequence.empty();
-        }
+
+        final List<ZscriptAddress> addresses = ZscriptAddress.parseAll(start);
+        final ResponseSequence seq = start.tokenIterator().stream()
+                .filter(t -> !Zchars.isAddressing(t.getKey()))
+                .findFirst()
+                .map(ResponseSequence::parse)
+                .orElseGet(ResponseSequence::empty);
+
         return new CompleteAddressedResponse(addresses, seq);
     }
 

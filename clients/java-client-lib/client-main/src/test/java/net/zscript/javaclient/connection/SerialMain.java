@@ -2,8 +2,6 @@ package net.zscript.javaclient.connection;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 import com.fazecast.jSerialComm.SerialPort;
 
@@ -15,7 +13,7 @@ import net.zscript.javaclient.nodes.DirectConnection;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.model.modules.base.CoreModule;
-import net.zscript.tokenizer.Tokenizer;
+import net.zscript.util.ByteString;
 
 class SerialMain {
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -90,14 +88,11 @@ class SerialMain {
                 System.out.println("Response: " + response.toString());
             });
             for (int i = 0; i < 10; i++) {
-                byte[]               ba     = CoreModule.echoBuilder().setAny('A', 35).build().asString().getBytes(StandardCharsets.UTF_8);
-                ExtendingTokenBuffer buffer = new ExtendingTokenBuffer();
-                Tokenizer            t      = new Tokenizer(buffer.getTokenWriter());
-                for (byte b : ba) {
-                    t.accept(b);
-                }
+                final ByteString     command = CoreModule.echoBuilder().setAny('A', 35).build().toByteString();
+                ExtendingTokenBuffer buffer  = ExtendingTokenBuffer.tokenize(command);
+
                 conn.send(new AddressedCommand(CommandSequence.from(CommandExecutionPath.parse(buffer.getTokenReader().getFirstReadToken()), -1)));
-                System.out.println("Sending: " + Arrays.toString(ba));
+                System.out.println("Sending: " + command);
                 Thread.sleep(1000);
             }
         } catch (Exception e) {

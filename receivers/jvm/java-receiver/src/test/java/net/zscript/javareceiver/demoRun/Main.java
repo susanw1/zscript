@@ -31,8 +31,8 @@ public class Main {
         TokenRingBuffer   rbuff = TokenRingBuffer.createBufferWithCapacity(100);
         SequenceOutStream out   = new OutputStreamOutStream<>(System.out);
         zscript.addChannel(new ZscriptChannel(rbuff, out) {
-            final Tokenizer in = new Tokenizer(rbuff.getTokenWriter(), 2);
-            private int i = 0;
+            final   Tokenizer in = new Tokenizer(rbuff.getTokenWriter(), false);
+            private int       i  = 0;
 
             @Override
             public void moveAlong() {
