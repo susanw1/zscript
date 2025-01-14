@@ -2,8 +2,8 @@ package net.zscript.javaclient.commandbuilder;
 
 import javax.annotation.Nonnull;
 
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.nodes.ZscriptCommandBuilder;
+import net.zscript.javaclient.commandbuilder.nodes.ZscriptCommandNode;
 import net.zscript.tokenizer.ZscriptExpression;
 
 public class DemoActivateCommand extends ZscriptCommandNode<DemoActivateCommand.DemoActivateCommandResponse> {

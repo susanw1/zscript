@@ -18,10 +18,10 @@ import java.util.function.Consumer;
 import static java.util.stream.Collectors.toList;
 import static net.zscript.util.ByteString.byteString;
 
-import net.zscript.javaclient.commandbuilder.commandnodes.AndSequenceNode;
-import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.commandnodes.OrSequenceNode;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.nodes.AndSequenceNode;
+import net.zscript.javaclient.commandbuilder.nodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.nodes.OrSequenceNode;
+import net.zscript.javaclient.commandbuilder.nodes.ZscriptCommandNode;
 import net.zscript.javaclient.commandbuilder.notifications.Notification;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationHandle;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationId;

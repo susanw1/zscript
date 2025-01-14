@@ -1,4 +1,4 @@
-package net.zscript.javaclient.commandbuilder.commandnodes;
+package net.zscript.javaclient.commandbuilder.nodes;
 
 import java.util.List;
 

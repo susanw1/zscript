@@ -7,7 +7,7 @@ import java.util.EnumSet;
 
 import static java.util.stream.Collectors.toCollection;
 
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.nodes.ZscriptCommandNode;
 
 /**
  * These utility functions make up a toolkit invoked by the generated Java client Command Builders, such as subclasses of {@link ZscriptCommandNode}.
