@@ -20,7 +20,7 @@ import io.cucumber.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.zscript.javaclient.commandpaths.Response;
+import net.zscript.javaclient.commandpaths.ResponseElement;
 import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 import net.zscript.javaclient.nodes.DirectConnection;
 import net.zscript.javaclient.sequence.ResponseSequence;
@@ -120,7 +120,7 @@ public class ConnectionSteps {
 
     @Then("connection response #{int} has status value {word}")
     public void shouldReceiveThisResponseStatusByValueFromConnection(int index, String statusValue) {
-        final List<Response> responses = ResponseSequence.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken())
+        final List<ResponseElement> responses = ResponseSequence.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken())
                 .getExecutionPath().getResponses();
 
         assertThat(responses.get(index).getFields().getField(Zchars.Z_STATUS))
@@ -135,7 +135,7 @@ public class ConnectionSteps {
 
     @Then("connection response #{int} is equivalent to {string}")
     public void shouldReceiveMatchingResponseFromConnection(int index, String expectedResponse) {
-        final List<Response> actualResponses = ResponseSequence.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken())
+        final List<ResponseElement> actualResponses = ResponseSequence.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken())
                 .getExecutionPath().getResponses();
 
         final ZscriptFieldSet expectedFields = ZscriptFieldSet.fromTokens(tokenize(byteStringUtf8(expectedResponse)).getTokenReader().getFirstReadToken());

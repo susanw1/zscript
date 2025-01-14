@@ -17,10 +17,10 @@ import net.zscript.ascii.AsciiFrame;
 import net.zscript.ascii.CharacterStyle;
 import net.zscript.ascii.TextBox;
 import net.zscript.ascii.TextColor;
-import net.zscript.javaclient.commandpaths.Command;
+import net.zscript.javaclient.commandpaths.CommandElement;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.commandpaths.MatchedCommandResponse;
-import net.zscript.javaclient.commandpaths.Response;
+import net.zscript.javaclient.commandpaths.ResponseElement;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 import net.zscript.model.ZscriptModel;
@@ -223,7 +223,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
     }
 
     @Nonnull
-    public AsciiFrame explainCommand(Command target, ZscriptModel model, CommandPrintSettings settings) {
+    public AsciiFrame explainCommand(CommandElement target, ZscriptModel model, CommandPrintSettings settings) {
         TextBox box = new TextBox(settings.indentString);
         box.setIndentOnWrap(1);
 
@@ -276,7 +276,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
     }
 
     @Nonnull
-    public AsciiFrame explainResponse(Command source, Response target, ZscriptModel model, CommandPrintSettings settings) {
+    public AsciiFrame explainResponse(CommandElement source, ResponseElement target, ZscriptModel model, CommandPrintSettings settings) {
         int             commandValue = source.getFields().getFieldVal(Zchars.Z_CMD);
         ZscriptFieldSet fieldSet     = target.getFields();
 
@@ -334,13 +334,13 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
     @Nonnull
     @Override
     public AsciiFrame graph(CommandExecutionPath path, @Nullable ResponseExecutionPath resps, CommandGraph.GraphPrintSettings settings) {
-        Command firstCommand = path.getFirstCommand();
+        CommandElement firstCommand = path.getFirstCommand();
 
         boolean skipImpossiblePaths = settings.skipImpossiblePaths();
 
         CommandGrapher.CommandDepth startDepth = new CommandGrapher.CommandDepth(0);
 
-        Map<Command, CommandGrapher.CommandGraphElement> commands = new HashMap<>();
+        Map<CommandElement, CommandGrapher.CommandGraphElement> commands = new HashMap<>();
 
         Deque<CommandGraphElement>                openedTrees  = new ArrayDeque<>();
         Deque<CommandGrapher.CommandGraphElement> workingTrees = new ArrayDeque<>();
@@ -353,7 +353,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         CommandGrapher.CommandDepth maxDepth = new CommandGrapher.CommandDepth(0);
         while (!workingTrees.isEmpty()) {
             CommandGrapher.CommandGraphElement current = workingTrees.peek();
-            Command                            cmd     = current.getCommand();
+            CommandElement                     cmd     = current.getCommand();
 
             CommandGrapher.CommandGraphElement latestOpenTree = openedTrees.peek();
             if (latestOpenTree != null && cmd.getOnFail() != latestOpenTree.getCommand()) {
@@ -361,8 +361,8 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
                 //   check if it closes the top open tree
                 //   which we can do by iterating forward to see if the top open tree re-merges here
                 // this operation makes our graph drawing O(n^2)
-                Command tmp        = latestOpenTree.getCommand();
-                boolean mergesHere = false;
+                CommandElement tmp        = latestOpenTree.getCommand();
+                boolean        mergesHere = false;
                 while (tmp != null) {
                     if (tmp == current.getCommand()) {
                         mergesHere = true;
@@ -439,7 +439,8 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         return new CommandGraph(path.getModel(), commands, elements, maxDepth, toHighlight, settings);
     }
 
-    private List<CommandGrapher.CommandGraphElement> skipEmpty(Map<Command, CommandGrapher.CommandGraphElement> commands, List<CommandGrapher.CommandGraphElement> elements) {
+    private List<CommandGrapher.CommandGraphElement> skipEmpty(Map<CommandElement, CommandGrapher.CommandGraphElement> commands,
+            List<CommandGrapher.CommandGraphElement> elements) {
         List<CommandGrapher.CommandGraphElement> compactedElements = new ArrayList<>();
         for (CommandGrapher.CommandGraphElement element : elements) {
             if (element.getCommand().isEmpty()) {

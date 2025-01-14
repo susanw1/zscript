@@ -10,7 +10,7 @@ import net.zscript.ascii.AsciiFrame;
 import net.zscript.ascii.CharacterStyle;
 import net.zscript.ascii.TextCanvas;
 import net.zscript.ascii.TextColor;
-import net.zscript.javaclient.commandpaths.Command;
+import net.zscript.javaclient.commandpaths.CommandElement;
 import net.zscript.javaclient.commandpaths.MatchedCommandResponse;
 import net.zscript.model.ZscriptModel;
 
@@ -35,20 +35,20 @@ public class CommandGraph extends TextCanvas {
         }
     }
 
-    private final ZscriptModel                                     model;
-    private final Map<Command, CommandGrapher.CommandGraphElement> commands;
-    private final List<CommandGrapher.CommandGraphElement>         elements;
-    private final CommandGrapher.CommandDepth                      maxDepth;
-    private final List<MatchedCommandResponse>                     toHighlight;
-    private       StandardCommandGrapher.CommandPrintSettings      settings;
-    private       int                                              spacing;
-    private       boolean                                          skipImpossiblePaths;
+    private final ZscriptModel                                            model;
+    private final Map<CommandElement, CommandGrapher.CommandGraphElement> commands;
+    private final List<CommandGrapher.CommandGraphElement>                elements;
+    private final CommandGrapher.CommandDepth                             maxDepth;
+    private final List<MatchedCommandResponse>                            toHighlight;
+    private       StandardCommandGrapher.CommandPrintSettings             settings;
+    private       int                                                     spacing;
+    private       boolean                                                 skipImpossiblePaths;
 
     public static GraphPrintSettings getDefaultSettings() {
         return new GraphPrintSettings(new StandardCommandGrapher.CommandPrintSettings("  ", VerbositySetting.BITFIELDS), false, 2, 80);
     }
 
-    public CommandGraph(ZscriptModel model, Map<Command, CommandGrapher.CommandGraphElement> commands,
+    public CommandGraph(ZscriptModel model, Map<CommandElement, CommandGrapher.CommandGraphElement> commands,
             List<CommandGrapher.CommandGraphElement> elements, CommandGrapher.CommandDepth maxDepth, List<MatchedCommandResponse> toHighlight,
             GraphPrintSettings settings) {
         super(settings.width, 2);
@@ -103,7 +103,7 @@ public class CommandGraph extends TextCanvas {
 
             CommandGrapher.CommandDepth oldHLDepth = currentHighlightDepth;
 
-            Command cmd = element.getCommand();
+            CommandElement cmd = element.getCommand();
             if (!cmd.isEmpty()) {
                 AsciiFrame cmdExp = g.explainCommand(cmd, model, settings);
                 cmdExp.setWidth(width - textHorizontal);
@@ -152,7 +152,7 @@ public class CommandGraph extends TextCanvas {
             }
             boolean drawSuccess = (!skipImpossiblePaths || cmd.canSucceed()) && cmd.getOnSuccess() != null;
             if (!skipImpossiblePaths && drawSuccess) {
-                Command tmp = cmd.getOnSuccess();
+                CommandElement tmp = cmd.getOnSuccess();
                 while (!elements.contains(commands.get(tmp)) && tmp.canSucceed() && tmp.getOnSuccess() != null && tmp.isEmpty()) {
                     tmp = tmp.getOnSuccess();
                 }
@@ -162,7 +162,7 @@ public class CommandGraph extends TextCanvas {
             }
             boolean drawFail = (!skipImpossiblePaths || cmd.canFail()) && cmd.getOnFail() != null;
             if (!skipImpossiblePaths && drawFail) {
-                Command tmp = cmd.getOnFail();
+                CommandElement tmp = cmd.getOnFail();
                 while (!elements.contains(commands.get(tmp)) && tmp.canSucceed() && tmp.getOnSuccess() != null && tmp.isEmpty()) {
                     tmp = tmp.getOnSuccess();
                 }

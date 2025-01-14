@@ -9,14 +9,14 @@ import net.zscript.util.ByteString.ByteStringBuilder;
 /**
  * Component of a {@link net.zscript.javaclient.sequence.ResponseSequence}
  */
-public final class Response implements ByteAppendable {
+public final class ResponseElement implements ByteAppendable {
     private final ZscriptFieldSet fieldSet;
 
-    private final Response next;
-    private final boolean  wasSuccess;
-    private final boolean  isOpenBracket;
-    private final boolean  isCloseBracket;
-    private final int      bracketCount;
+    private final ResponseElement next;
+    private final boolean         wasSuccess;
+    private final boolean         isOpenBracket;
+    private final boolean         isCloseBracket;
+    private final int             bracketCount;
 
     /**
      * Creates Response object, to be linked to represent an element of a response sequence, as per ResponseExecutionPath parser.
@@ -28,7 +28,7 @@ public final class Response implements ByteAppendable {
      * @param bracketCount
      * @param fieldSet       the fields relating to this response
      */
-    Response(@Nullable Response next, boolean wasSuccess, boolean isOpenBracket, boolean isCloseBracket, int bracketCount, ZscriptFieldSet fieldSet) {
+    ResponseElement(@Nullable ResponseElement next, boolean wasSuccess, boolean isOpenBracket, boolean isCloseBracket, int bracketCount, ZscriptFieldSet fieldSet) {
         this.next = next;
         this.wasSuccess = wasSuccess;
         this.isOpenBracket = isOpenBracket;
@@ -42,7 +42,7 @@ public final class Response implements ByteAppendable {
     }
 
     @Nullable
-    public Response getNext() {
+    public ResponseElement getNext() {
         return next;
     }
 

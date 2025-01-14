@@ -25,7 +25,7 @@ import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
 import net.zscript.javaclient.commandbuilder.notifications.Notification;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationHandle;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationId;
-import net.zscript.javaclient.commandpaths.Command;
+import net.zscript.javaclient.commandpaths.CommandElement;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
@@ -244,21 +244,21 @@ public class Device {
     @Nonnull
     CommandExecutionTask convert(CommandSequenceNode cmdSeq, Consumer<ResponseSequenceCallback> callback) {
         class Layer {
-            Command success;
-            Command failure;
-            boolean onSuccessHasOpenParen;
-            boolean onSuccessHasCloseParen;
+            CommandElement success;
+            CommandElement failure;
+            boolean        onSuccessHasOpenParen;
+            boolean        onSuccessHasCloseParen;
 
         }
-        Map<ZscriptCommandNode<?>, Command> commandMap = new HashMap<>();
+        final Map<ZscriptCommandNode<?>, CommandElement> commandMap = new HashMap<>();
 
-        Deque<ListIterator<CommandSequenceNode>> stack = new ArrayDeque<>();
-        Deque<CommandSequenceNode>               nodes = new ArrayDeque<>();
+        final Deque<ListIterator<CommandSequenceNode>> stack = new ArrayDeque<>();
+        final Deque<CommandSequenceNode>               nodes = new ArrayDeque<>();
 
-        Deque<Layer> destinations = new ArrayDeque<>();
+        final Deque<Layer> destinations = new ArrayDeque<>();
         stack.push(List.of(cmdSeq).listIterator(1));
 
-        Layer first = new Layer();
+        final Layer first = new Layer();
         first.success = null;
         first.failure = null;
         first.onSuccessHasOpenParen = false;
@@ -266,13 +266,13 @@ public class Device {
 
         while (true) {
             if (stack.peek().hasPrevious()) {
-                Layer layer = destinations.peek();
+                final Layer layer = destinations.peek();
                 if (layer == null) {
                     throw new NullPointerException("layer is null");
                 }
-                CommandSequenceNode next = stack.peek().previous();
+                final CommandSequenceNode next = stack.peek().previous();
                 if (next instanceof ZscriptCommandNode) {
-                    Command cmd = new Command(layer.success, layer.failure, ((ZscriptCommandNode<?>) next).asFieldSet());
+                    final CommandElement cmd = new CommandElement(layer.success, layer.failure, ((ZscriptCommandNode<?>) next).asFieldSet());
                     if (commandMap.containsKey(next)) {
                         throw new IllegalArgumentException(
                                 "Repeated use of CommandNode detected - this is not supported. Instead share the builder, and call it twice, or create the commands seperately.");
@@ -286,10 +286,10 @@ public class Device {
                         layer.onSuccessHasCloseParen = false;
                     }
                 } else if (next instanceof OrSequenceNode) {
-                    Layer nextLayer = new Layer();
+                    final Layer nextLayer = new Layer();
                     if (nodes.peek() instanceof AndSequenceNode) {
                         if (layer.onSuccessHasCloseParen) {
-                            layer.success = new Command(layer.success, layer.failure, ZscriptFieldSet.blank());
+                            layer.success = new CommandElement(layer.success, layer.failure, ZscriptFieldSet.blank());
                         }
                         layer.onSuccessHasCloseParen = true;
                     }
@@ -301,7 +301,7 @@ public class Device {
                     nodes.push(next);
                     destinations.push(nextLayer);
                 } else if (next instanceof AndSequenceNode) {
-                    Layer nextLayer = new Layer();
+                    final Layer nextLayer = new Layer();
                     nextLayer.failure = layer.failure;
                     nextLayer.success = layer.success;
                     nextLayer.onSuccessHasOpenParen = false;
@@ -317,15 +317,15 @@ public class Device {
                 if (nodes.isEmpty()) {
                     break;
                 }
-                CommandSequenceNode prev      = nodes.pop();
-                Layer               prevLayer = destinations.pop();
-                Layer               layer     = destinations.peek();
+                final CommandSequenceNode prev      = nodes.pop();
+                final Layer               prevLayer = destinations.pop();
+                final Layer               layer     = destinations.peek();
                 layer.onSuccessHasOpenParen = prevLayer.onSuccessHasOpenParen;
                 if (nodes.peek() instanceof AndSequenceNode) {
                     layer.success = prevLayer.success;
                     if (prev instanceof OrSequenceNode) {
                         if (prevLayer.onSuccessHasOpenParen) {
-                            layer.success = new Command(prevLayer.success, prevLayer.failure, ZscriptFieldSet.blank());
+                            layer.success = new CommandElement(prevLayer.success, prevLayer.failure, ZscriptFieldSet.blank());
                         }
                         layer.onSuccessHasOpenParen = true;
                     }
@@ -337,9 +337,9 @@ public class Device {
             }
         }
 
-        CommandExecutionPath path = CommandExecutionPath.from(model, destinations.peek().success);
+        final CommandExecutionPath path = CommandExecutionPath.from(model, destinations.peek().success);
         return new CommandExecutionTask(path, resps -> {
-            ResponseSequenceCallback rsCallback = ResponseSequenceCallback.from(path.compareResponses(resps), cmdSeq, commandMap);
+            final ResponseSequenceCallback rsCallback = ResponseSequenceCallback.from(path.compareResponses(resps), cmdSeq, commandMap);
             callback.accept(rsCallback);
         });
     }

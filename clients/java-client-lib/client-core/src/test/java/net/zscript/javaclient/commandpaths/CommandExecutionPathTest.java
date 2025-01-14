@@ -52,9 +52,9 @@ class CommandExecutionPathTest {
     public void shouldLinkCommandSequenceWithNoFailure() {
         final CommandExecutionPath cmdPath = getAndCheckCommandExecutionPath("A & B", "A&B");
 
-        final Command commandA = cmdPath.getFirstCommand();
+        final CommandElement commandA = cmdPath.getFirstCommand();
         assertThat(commandA).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("A");
-        final Command commandB = commandA.getOnSuccess();
+        final CommandElement commandB = commandA.getOnSuccess();
         assertThat(commandB).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("B");
 
         assertThat(commandA.getOnFail()).isNull();
@@ -67,11 +67,11 @@ class CommandExecutionPathTest {
         // if A or B fail, then branch to failure handler C
         final CommandExecutionPath cmdPath = getAndCheckCommandExecutionPath("A & B | C", "A&B|C");
 
-        final Command commandA = cmdPath.getFirstCommand();
+        final CommandElement commandA = cmdPath.getFirstCommand();
         assertThat(commandA).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("A");
-        final Command commandB = commandA.getOnSuccess();
+        final CommandElement commandB = commandA.getOnSuccess();
         assertThat(commandB).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("B");
-        final Command commandC = commandA.getOnFail();
+        final CommandElement commandC = commandA.getOnFail();
         assertThat(commandC).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("C");
 
         assertThat(commandB.getOnFail()).isSameAs(commandC);
@@ -85,15 +85,15 @@ class CommandExecutionPathTest {
         // try A (or-else B as fallback for A); if either succeeds, then do C
         final CommandExecutionPath cmdPath = getAndCheckCommandExecutionPath("(A | B) & C", "(A|B)&C");
 
-        final Command parenOpen = cmdPath.getFirstCommand();
+        final CommandElement parenOpen = cmdPath.getFirstCommand();
         assertThat(parenOpen).isNotNull();
-        final Command commandA = parenOpen.getOnSuccess();
+        final CommandElement commandA = parenOpen.getOnSuccess();
         assertThat(commandA).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("A");
-        final Command commandB = commandA.getOnFail();
+        final CommandElement commandB = commandA.getOnFail();
         assertThat(commandB).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("B");
-        final Command parenClose = commandA.getOnSuccess();
+        final CommandElement parenClose = commandA.getOnSuccess();
         assertThat(parenClose).isNotNull();
-        final Command commandC = parenClose.getOnSuccess();
+        final CommandElement commandC = parenClose.getOnSuccess();
         assertThat(commandC).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("C");
 
         assertThat(parenOpen.getOnFail()).isNull();
@@ -109,15 +109,15 @@ class CommandExecutionPathTest {
         final CommandExecutionPath cmdPath = getAndCheckCommandExecutionPath("A & (B | C)", "A&(B|C)");
 
         // Check main steps
-        final Command commandA = cmdPath.getFirstCommand();
+        final CommandElement commandA = cmdPath.getFirstCommand();
         assertThat(commandA).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("A");
-        final Command parenOpen = commandA.getOnSuccess();
+        final CommandElement parenOpen = commandA.getOnSuccess();
         assertThat(parenOpen).isNotNull();
-        final Command commandB = parenOpen.getOnSuccess();
+        final CommandElement commandB = parenOpen.getOnSuccess();
         assertThat(commandB).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("B");
-        final Command parenClose = commandB.getOnSuccess();
+        final CommandElement parenClose = commandB.getOnSuccess();
         assertThat(parenClose).isNotNull();
-        final Command commandC = commandB.getOnFail();
+        final CommandElement commandC = commandB.getOnFail();
         assertThat(commandC).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("C");
 
         // Check alternative
@@ -131,17 +131,17 @@ class CommandExecutionPathTest {
     public void shouldLinkCommandSequenceWithParenedFailure() {
         final CommandExecutionPath cmdPath = getAndCheckCommandExecutionPath("A | B & (C|D)", "A|B&(C|D)");
 
-        final Command commandA = cmdPath.getFirstCommand();
+        final CommandElement commandA = cmdPath.getFirstCommand();
         assertThat(commandA).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("A");
-        final Command commandB = commandA.getOnFail();
+        final CommandElement commandB = commandA.getOnFail();
         assertThat(commandB).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("B");
-        final Command parenOpen = commandB.getOnSuccess();
+        final CommandElement parenOpen = commandB.getOnSuccess();
         assertThat(parenOpen).isNotNull();
-        final Command commandC = parenOpen.getOnSuccess();
+        final CommandElement commandC = parenOpen.getOnSuccess();
         assertThat(commandC).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("C");
-        final Command commandD = commandC.getOnFail();
+        final CommandElement commandD = commandC.getOnFail();
         assertThat(commandD).isNotNull().extracting(ByteAppendable::asStringUtf8).isEqualTo("D");
-        final Command parenClose = commandC.getOnSuccess();
+        final CommandElement parenClose = commandC.getOnSuccess();
         assertThat(parenClose).isNotNull();
 
         assertThat(commandA.getOnSuccess()).isNull();
@@ -241,10 +241,10 @@ class CommandExecutionPathTest {
         assertThat(result).hasSize(elements.size());
 
         for (int i = 0; i < elements.size(); i++) {
-            List<String>  cmdResp = asList(elements.get(i).split(":", 2));
-            final Command command = result.get(i).getCommand();
+            List<String>         cmdResp = asList(elements.get(i).split(":", 2));
+            final CommandElement command = result.get(i).getCommand();
             assertThat(command.asStringUtf8()).isEqualTo(cmdResp.get(0));
-            final Response response = result.get(i).getResponse();
+            final ResponseElement response = result.get(i).getResponse();
             assertThat(response.asStringUtf8()).isEqualTo(cmdResp.get(1));
         }
     }
