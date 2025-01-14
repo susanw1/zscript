@@ -31,7 +31,7 @@ public class ResponseExecutionPath implements Iterable<ResponseElement>, ByteApp
 
     @Nonnull
     private static List<ResponseBuilder> createLinkedPath(@Nullable ReadToken start) {
-        List<ResponseBuilder> builders = new ArrayList<>();
+        final List<ResponseBuilder> builders = new ArrayList<>();
 
         ResponseBuilder last = new ResponseBuilder();
         builders.add(last);
@@ -40,28 +40,24 @@ public class ResponseExecutionPath implements Iterable<ResponseElement>, ByteApp
         }
         TokenBufferIterator iterator = start.tokenIterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
-            ReadToken token = opt.get();
+            final ReadToken token = opt.get();
             if (last.getStart() == null) {
                 last.setStart(token);
             }
             if (token.isMarker()) {
-                ResponseBuilder next = new ResponseBuilder();
+                final ResponseBuilder next = new ResponseBuilder();
                 builders.add(next);
-                if (token.getKey() == Tokenizer.CMD_END_ANDTHEN) {
-                    last.separator = Zchars.Z_ANDTHEN;
-                } else if (token.getKey() == Tokenizer.CMD_END_ORELSE) {
-                    last.separator = Zchars.Z_ORELSE;
-                } else if (token.getKey() == Tokenizer.CMD_END_OPEN_PAREN) {
-                    last.separator = Zchars.Z_OPENPAREN;
-                } else if (token.getKey() == Tokenizer.CMD_END_CLOSE_PAREN) {
-                    last.separator = Zchars.Z_CLOSEPAREN;
-                } else if (token.isSequenceEndMarker()) {
+                if (token.isSequenceEndMarker()) {
                     if (token.getKey() != Tokenizer.NORMAL_SEQUENCE_END) {
                         throw new ZscriptParseException("Syntax error [marker=%s, token=%s]", token, start);
                     }
                     break;
                 } else {
-                    throw new ZscriptParseException("Unknown separator [key=%s, token=%s]", toHexString(toUnsignedInt(token.getKey())), token);
+                    final byte keyChar = Tokenizer.markerToChar(token.getKey());
+                    if (keyChar == 0) {
+                        throw new ZscriptParseException("Unknown separator [key=%s, token=%s]", toHexString(toUnsignedInt(token.getKey())), token);
+                    }
+                    last.separator = keyChar;
                 }
                 last = next;
             }

@@ -4,9 +4,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 import static net.zscript.tokenizer.Tokenizer.NORMAL_SEQUENCE_END;
+import static net.zscript.tokenizer.Tokenizer.charToMarker;
+import static net.zscript.tokenizer.Tokenizer.markerToChar;
+import static net.zscript.util.ByteString.byteStringUtf8;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyByte;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +48,7 @@ class TokenizerTest {
     @BeforeEach
     void setUp() {
         tokenizer = new Tokenizer(writer, false);
-        when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
+        lenient().when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
     }
 
     @Test
@@ -244,6 +249,14 @@ class TokenizerTest {
         when(writer.getCurrentWriteTokenKey()).thenReturn(Zchars.Z_BIGFIELD_HEX);
         when(writer.isInNibble()).thenReturn(false).thenReturn(true).thenReturn(false).thenReturn(true).thenThrow(RuntimeException.class);
         validateZscriptActions("+12abc\nA\n", "s+n1n2nanbncf" + (char) Tokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH + "tAm" + END + "--");
+    }
+
+    @Test
+    public void shouldMapCharsAndMarkers() {
+        assertThat(markerToChar(Tokenizer.CMD_END_ANDTHEN)).isEqualTo(Zchars.Z_ANDTHEN);
+        for (byte b : byteStringUtf8("&|()")) {
+            assertThat(markerToChar(charToMarker(b))).isEqualTo(b);
+        }
     }
 
 }
