@@ -15,9 +15,9 @@ import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.EnumRespTestP;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.TestCommand0Response.EnumRespTestQ;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.nodes.ResponseCaptor;
+import net.zscript.javaclient.commandbuilder.nodes.ZscriptCommandBuilder;
+import net.zscript.javaclient.commandbuilder.nodes.ZscriptCommandNode;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.tokenizer.TokenBuffer.TokenReader;
 import net.zscript.tokenizer.Tokenizer;

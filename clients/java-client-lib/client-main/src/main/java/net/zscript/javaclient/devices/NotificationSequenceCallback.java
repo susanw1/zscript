@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
+import net.zscript.javaclient.commandbuilder.nodes.ResponseCaptor;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationSection;
 import net.zscript.javaclient.commandpaths.ResponseElement;
 

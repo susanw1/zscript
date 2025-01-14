@@ -38,5 +38,4 @@ public class ValidatingResponse implements ZscriptResponse {
     public OptionalInt getField(byte key) {
         return expression.getField(key);
     }
-
 }

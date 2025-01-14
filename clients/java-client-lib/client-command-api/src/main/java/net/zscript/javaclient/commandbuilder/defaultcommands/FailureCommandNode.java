@@ -4,8 +4,8 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Map;
 
-import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.nodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilder.nodes.ZscriptCommandNode;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
 import net.zscript.tokenizer.ZscriptExpression;

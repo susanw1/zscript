@@ -1,6 +1,6 @@
 package net.zscript.demo01.client;
 
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilder.nodes.ZscriptCommandNode;
 import net.zscript.model.modules.base.CoreModule;
 
 public class Main {

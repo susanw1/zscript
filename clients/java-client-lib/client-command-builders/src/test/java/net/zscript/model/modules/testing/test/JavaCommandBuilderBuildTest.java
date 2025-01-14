@@ -21,7 +21,7 @@ import net.zscript.client.modules.test.testing.TestingModule;
 import net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.BitsetReqTestE;
 import net.zscript.javaclient.commandbuilder.ZscriptFieldOutOfRangeException;
 import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
-import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandBuilder;
+import net.zscript.javaclient.commandbuilder.nodes.ZscriptCommandBuilder;
 
 public class JavaCommandBuilderBuildTest {
     @Test

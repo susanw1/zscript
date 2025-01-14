@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import static net.zscript.model.modules.base.PinsModule.DigitalNotificationSectionContent.Value;
 
-import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
+import net.zscript.javaclient.commandbuilder.nodes.ResponseCaptor;
 import net.zscript.javaclient.devices.Device;
 import net.zscript.model.modules.base.OuterCoreModule;
 import net.zscript.model.modules.base.PinsModule;

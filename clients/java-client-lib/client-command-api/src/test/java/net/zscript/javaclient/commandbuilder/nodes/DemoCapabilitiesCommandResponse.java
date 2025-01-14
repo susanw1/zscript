@@ -1,4 +1,4 @@
-package net.zscript.javaclient.commandbuilder.commandnodes;
+package net.zscript.javaclient.commandbuilder.nodes;
 
 import net.zscript.javaclient.commandbuilder.ValidatingResponse;
 import net.zscript.tokenizer.ZscriptExpression;
