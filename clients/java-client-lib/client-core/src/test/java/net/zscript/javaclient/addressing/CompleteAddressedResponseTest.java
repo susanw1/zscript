@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.javaclient.ZscriptParseException;
-import net.zscript.javaclient.commandPaths.Response;
+import net.zscript.javaclient.commandpaths.Response;
 import net.zscript.tokenizer.TokenBuffer;
 
 class CompleteAddressedResponseTest {
@@ -61,7 +61,7 @@ class CompleteAddressedResponseTest {
         assertThat(r.hasAddress(0)).isTrue();
         assertThat(r.getAddressSection(0)).isEqualTo(ZscriptAddress.from(0x12));
     }
-    
+
     @Test
     public void shouldFailResponseWithTokenizerError() {
         assertThatThrownBy(() -> {

@@ -9,11 +9,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import net.zscript.javaclient.commandPaths.CommandExecutionPath;
 import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.defaultCommands.AbortCommandNode;
-import net.zscript.javaclient.commandbuilder.defaultCommands.BlankCommandNode;
-import net.zscript.javaclient.commandbuilder.defaultCommands.FailureCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultcommands.AbortCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultcommands.BlankCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultcommands.FailureCommandNode;
+import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.modules.base.CoreModule;
 

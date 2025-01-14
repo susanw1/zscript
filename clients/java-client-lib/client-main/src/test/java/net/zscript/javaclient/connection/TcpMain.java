@@ -3,7 +3,7 @@ package net.zscript.javaclient.connection;
 import java.net.Socket;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
-import net.zscript.javaclient.commandPaths.CommandExecutionPath;
+import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.connectors.ZscriptConnectors;
 import net.zscript.javaclient.connectors.ZscriptConnectors.ZscriptConnector;
 import net.zscript.javaclient.nodes.DirectConnection;

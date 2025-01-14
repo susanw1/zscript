@@ -1,8 +1,7 @@
 package net.zscript.javaclient.sequence;
 
-
-import net.zscript.javaclient.commandPaths.Command;
-import net.zscript.javaclient.commandPaths.CommandExecutionPath;
+import net.zscript.javaclient.commandpaths.Command;
+import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 
 public abstract class AbstractLockCondition implements LockCondition {
     @Override

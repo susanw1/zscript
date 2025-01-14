@@ -11,7 +11,7 @@ import io.cucumber.java.en.Given;
 
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
-import net.zscript.javareceiver.modules.outerCore.ZscriptOuterCoreModule;
+import net.zscript.javareceiver.modules.outercore.ZscriptOuterCoreModule;
 import net.zscript.tokenizer.TokenRingBuffer;
 
 public class JavaReceiverCucumberStartup {

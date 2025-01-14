@@ -3,7 +3,7 @@ package net.zscript.javareceiver.execution;
 import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
-import net.zscript.javareceiver.semanticParser.ContextView.AsyncActionNotifier;
+import net.zscript.javareceiver.semanticparser.ContextView.AsyncActionNotifier;
 
 public class NotificationContext {
     private final ZscriptNotificationSource source;

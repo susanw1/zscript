@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
+import static net.zscript.javaclient.commandpaths.NumberField.fieldOf;
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 import net.zscript.model.components.Zchars;

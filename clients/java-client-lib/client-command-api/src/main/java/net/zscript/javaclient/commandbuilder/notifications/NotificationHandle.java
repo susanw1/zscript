@@ -6,9 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.zscript.javaclient.ZscriptParseException;
-import net.zscript.javaclient.commandPaths.Response;
-import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
+import net.zscript.javaclient.commandpaths.Response;
+import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 
 public abstract class NotificationHandle<N extends Notification> {
     @Nonnull

@@ -3,10 +3,10 @@ package net.zscript.javaclient.sequence;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
-import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
+import static net.zscript.javaclient.commandpaths.NumberField.fieldOf;
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
-import net.zscript.javaclient.commandPaths.CommandExecutionPath;
+import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBufferIterator;

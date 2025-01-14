@@ -10,9 +10,9 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.joining;
 
-import net.zscript.javaclient.commandPaths.BigField;
 import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
+import net.zscript.javaclient.commandpaths.BigField;
 import net.zscript.model.components.Zchars;
 
 /**

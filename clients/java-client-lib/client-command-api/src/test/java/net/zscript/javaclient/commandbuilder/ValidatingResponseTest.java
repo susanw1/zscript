@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
+import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 import net.zscript.tokenizer.ZscriptExpression;
 
 public class ValidatingResponseTest {
