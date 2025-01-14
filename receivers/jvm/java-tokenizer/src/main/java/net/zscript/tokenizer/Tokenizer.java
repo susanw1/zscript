@@ -267,22 +267,7 @@ public class Tokenizer {
         }
 
         if (Zchars.isSeparator(b)) {
-            byte marker = 0;
-            switch (b) {
-            case Zchars.Z_ANDTHEN:
-                marker = CMD_END_ANDTHEN;
-                break;
-            case Zchars.Z_ORELSE:
-                marker = CMD_END_ORELSE;
-                break;
-            case Zchars.Z_OPENPAREN:
-                marker = CMD_END_OPEN_PAREN;
-                break;
-            case Zchars.Z_CLOSEPAREN:
-                marker = CMD_END_CLOSE_PAREN;
-                break;
-            // more for other constructs?
-            }
+            byte marker = charToMarker(b);
             if (marker != 0) {
                 writer.writeMarker(marker);
                 return;
@@ -314,5 +299,45 @@ public class Tokenizer {
             isNormalString = true;
             escapingCount = 0;
         }
+    }
+
+    /**
+     * Translates a byte character in the Zscript stream to a corresponding marker. Inverse function to {@link #markerToChar(byte)}.
+     *
+     * @param ch the character to map
+     * @return the Tokenizer marker
+     */
+    public static byte charToMarker(final byte ch) {
+        switch (ch) {
+        case Zchars.Z_ANDTHEN:
+            return CMD_END_ANDTHEN;
+        case Zchars.Z_ORELSE:
+            return CMD_END_ORELSE;
+        case Zchars.Z_OPENPAREN:
+            return CMD_END_OPEN_PAREN;
+        case Zchars.Z_CLOSEPAREN:
+            return CMD_END_CLOSE_PAREN;
+        }
+        return 0;
+    }
+
+    /**
+     * Translates a marker to a corresponding byte character. Inverse function to {@link #charToMarker(byte)}.
+     *
+     * @param m the Tokenizer marker to map
+     * @return the corresponding character
+     */
+    public static byte markerToChar(final byte m) {
+        switch (m) {
+        case CMD_END_ANDTHEN:
+            return Zchars.Z_ANDTHEN;
+        case CMD_END_ORELSE:
+            return Zchars.Z_ORELSE;
+        case CMD_END_OPEN_PAREN:
+            return Zchars.Z_OPENPAREN;
+        case CMD_END_CLOSE_PAREN:
+            return Zchars.Z_CLOSEPAREN;
+        }
+        return 0;
     }
 }

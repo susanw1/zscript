@@ -630,17 +630,17 @@ public class SemanticParser implements ParseState, ContextView {
     }
 
     @Override
-    public void setCommandComplete(final boolean isComplete) {
+    public void setCommandComplete(final boolean b) {
         switch (state) {
         case STOPPING:
             break;
         case ADDRESSING_COMPLETE:
         case ADDRESSING_INCOMPLETE:
-            state = isComplete ? State.ADDRESSING_COMPLETE : State.ADDRESSING_INCOMPLETE;
+            state = b ? State.ADDRESSING_COMPLETE : State.ADDRESSING_INCOMPLETE;
             break;
         case COMMAND_COMPLETE:
         case COMMAND_INCOMPLETE:
-            state = isComplete ? State.COMMAND_COMPLETE : State.COMMAND_INCOMPLETE;
+            state = b ? State.COMMAND_COMPLETE : State.COMMAND_INCOMPLETE;
             break;
         case COMMAND_FAILED:
             //  FIXME: state = errorState(OTHER_ERROR);break; -- should we do this?
