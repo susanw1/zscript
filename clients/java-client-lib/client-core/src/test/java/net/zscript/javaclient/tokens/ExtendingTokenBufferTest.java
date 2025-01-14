@@ -46,7 +46,7 @@ public class ExtendingTokenBufferTest {
         final TokenBuffer       buf      = tokenize(byteStringUtf8("!S5"));
         final AddressedResponse response = CompleteAddressedResponse.parse(buf.getTokenReader().getFirstReadToken()).asResponse();
         assertThat(response.hasAddress()).isFalse();
-        final ZscriptFieldSet fields = response.getContent().getExecutionPath().getFirstResponse().getFields();
+        final ZscriptFieldSet fields = response.getResponseSequence().getExecutionPath().getFirstResponse().getFields();
         assertThat(fields.getFieldCount()).isEqualTo(1);
         assertThat(fields.getField('S')).isPresent().hasValue(5);
     }

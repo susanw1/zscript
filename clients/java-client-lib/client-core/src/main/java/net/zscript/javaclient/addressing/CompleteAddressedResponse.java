@@ -14,7 +14,7 @@ import net.zscript.tokenizer.Tokenizer;
  */
 public class CompleteAddressedResponse {
     private final List<ZscriptAddress> addressSections;
-    private final ResponseSequence     content;
+    private final ResponseSequence     responseSequence;
 
     public static CompleteAddressedResponse parse(ReadToken start) {
         final Optional<ReadToken> endToken = start.tokenIterator().stream()
@@ -35,9 +35,9 @@ public class CompleteAddressedResponse {
         return new CompleteAddressedResponse(addresses, seq);
     }
 
-    private CompleteAddressedResponse(List<ZscriptAddress> addressSections, ResponseSequence content) {
+    private CompleteAddressedResponse(List<ZscriptAddress> addressSections, ResponseSequence responseSequence) {
         this.addressSections = addressSections;
-        this.content = content;
+        this.responseSequence = responseSequence;
     }
 
     public ZscriptAddress getAddressSection(int offset) {
@@ -45,11 +45,11 @@ public class CompleteAddressedResponse {
     }
 
     public boolean hasAddress(int offset) {
-        return addressSections.size() > offset;
+        return offset < addressSections.size();
     }
 
-    public ResponseSequence getContent() {
-        return content;
+    public ResponseSequence getResponseSequence() {
+        return responseSequence;
     }
 
     public AddressedResponse asResponse() {

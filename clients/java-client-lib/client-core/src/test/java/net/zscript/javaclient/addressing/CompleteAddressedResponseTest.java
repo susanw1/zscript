@@ -17,7 +17,7 @@ class CompleteAddressedResponseTest {
     @Test
     public void shouldParseUnaddressedResponse() {
         CompleteAddressedResponse r = getAndCheckCommandExecutionPath("!2 A1S\n", "!2A1S");
-        assertThat(r.getContent().getResponseValue()).isEqualTo(2);
+        assertThat(r.getResponseSequence().getResponseFieldValue()).isEqualTo(2);
         assertThat(r.hasAddress(0)).isFalse();
     }
 
@@ -39,10 +39,10 @@ class CompleteAddressedResponseTest {
     @Test
     public void shouldParseEmptyResponse() {
         CompleteAddressedResponse r = getAndCheckCommandExecutionPath("!4 \n", "!4");
-        assertThat(r.getContent().getResponseValue()).isEqualTo(4);
+        assertThat(r.getResponseSequence().getResponseFieldValue()).isEqualTo(4);
         assertThat(r.hasAddress(0)).isFalse();
 
-        final List<ResponseElement> responses = r.getContent().getExecutionPath().getResponses();
+        final List<ResponseElement> responses = r.getResponseSequence().getExecutionPath().getResponses();
         assertThat(responses).hasSize(1);
         assertThat(responses.get(0).getNext()).isNull();
     }
@@ -50,14 +50,14 @@ class CompleteAddressedResponseTest {
     @Test
     public void shouldParseAndedEmptyResponses() {
         CompleteAddressedResponse r = getAndCheckCommandExecutionPath("!6 & \n", "!6&");
-        assertThat(r.getContent().getResponseValue()).isEqualTo(6);
+        assertThat(r.getResponseSequence().getResponseFieldValue()).isEqualTo(6);
         assertThat(r.hasAddress(0)).isFalse();
     }
 
     @Test
     public void shouldParseEmptyResponsesWithAddress() {
         CompleteAddressedResponse r = getAndCheckCommandExecutionPath("@12 !", "!");
-        assertThat(r.getContent().getResponseValue()).isEqualTo(0);
+        assertThat(r.getResponseSequence().getResponseFieldValue()).isEqualTo(0);
         assertThat(r.hasAddress(0)).isTrue();
         assertThat(r.getAddressSection(0)).isEqualTo(ZscriptAddress.from(0x12));
     }
@@ -88,7 +88,7 @@ class CompleteAddressedResponseTest {
     private static CompleteAddressedResponse getAndCheckCommandExecutionPath(String cmds, String expectedSequence) {
         TokenBuffer.TokenReader.ReadToken token   = tokenize(byteStringUtf8(cmds), true).getTokenReader().getFirstReadToken();
         CompleteAddressedResponse         cmdPath = CompleteAddressedResponse.parse(token);
-        assertThat(cmdPath.getContent().asStringUtf8()).isEqualTo(expectedSequence);
+        assertThat(cmdPath.getResponseSequence().asStringUtf8()).isEqualTo(expectedSequence);
         return cmdPath;
     }
 }

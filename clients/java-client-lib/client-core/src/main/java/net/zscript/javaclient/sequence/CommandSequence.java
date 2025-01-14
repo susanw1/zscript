@@ -6,6 +6,7 @@ import java.util.Collection;
 import static net.zscript.javaclient.commandpaths.NumberField.fieldOf;
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
+import net.zscript.javaclient.ZscriptParseException;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;
@@ -54,12 +55,12 @@ public class CommandSequence implements ByteAppendable {
         while (current != null && (current.getKey() == Zchars.Z_LOCKS || current.getKey() == Zchars.Z_ECHO)) {
             if (current.getKey() == Zchars.Z_LOCKS) {
                 if (locks != null) {
-                    throw new IllegalArgumentException("Tokens contained two lock fields");
+                    throw new ZscriptParseException("Tokens contained two lock fields");
                 }
                 locks = ZscriptLockSet.parse(current, supports32Locks);
             } else {
                 if (echoField != -1) {
-                    throw new IllegalArgumentException("Tokens contained two echo fields");
+                    throw new ZscriptParseException("Tokens contained two echo fields");
                 }
                 echoField = current.getData16();
             }
