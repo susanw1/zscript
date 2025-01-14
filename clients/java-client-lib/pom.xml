@@ -18,6 +18,7 @@
         <module>client-command-builders</module>
         <module>client-main</module>
         <module>client-core</module>
+        <module>tools</module>
     </modules>
 
     <dependencies>
