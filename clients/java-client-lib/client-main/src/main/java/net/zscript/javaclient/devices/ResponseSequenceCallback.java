@@ -18,9 +18,9 @@ import net.zscript.javaclient.commandbuilder.Respondable;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
-import net.zscript.javaclient.commandpaths.Command;
+import net.zscript.javaclient.commandpaths.CommandElement;
 import net.zscript.javaclient.commandpaths.MatchedCommandResponse;
-import net.zscript.javaclient.commandpaths.Response;
+import net.zscript.javaclient.commandpaths.ResponseElement;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
 
@@ -31,7 +31,7 @@ public class ResponseSequenceCallback {
         private final T                     response;
 
         @Nonnull
-        public static <T extends ZscriptResponse> CommandExecutionSummary<T> generateExecutionSummary(ZscriptCommandNode<T> command, Response response) {
+        public static <T extends ZscriptResponse> CommandExecutionSummary<T> generateExecutionSummary(ZscriptCommandNode<T> command, ResponseElement response) {
             return new CommandExecutionSummary<>(command, command.parseResponse(response.getFields()));
         }
 
@@ -57,7 +57,8 @@ public class ResponseSequenceCallback {
     }
 
     @Nonnull
-    public static ResponseSequenceCallback from(List<MatchedCommandResponse> matchedCRs, Iterable<ZscriptCommandNode<?>> nodes, Map<ZscriptCommandNode<?>, Command> commandMap) {
+    public static ResponseSequenceCallback from(List<MatchedCommandResponse> matchedCRs, Iterable<ZscriptCommandNode<?>> nodes,
+            Map<ZscriptCommandNode<?>, CommandElement> commandMap) {
         Set<ZscriptCommandNode<?>> notExecuted = new HashSet<>();
         for (ZscriptCommandNode<?> node : nodes) {
             if (!notExecuted.add(node)) {
@@ -69,8 +70,8 @@ public class ResponseSequenceCallback {
             // if nothing was executed:
             return new ResponseSequenceCallback(notExecuted);
         }
-        Map<Command, ZscriptCommandNode<?>> nodeMap = new HashMap<>();
-        for (Map.Entry<ZscriptCommandNode<?>, Command> e : commandMap.entrySet()) {
+        Map<CommandElement, ZscriptCommandNode<?>> nodeMap = new HashMap<>();
+        for (Map.Entry<ZscriptCommandNode<?>, CommandElement> e : commandMap.entrySet()) {
             nodeMap.put(e.getValue(), e.getKey());
         }
 

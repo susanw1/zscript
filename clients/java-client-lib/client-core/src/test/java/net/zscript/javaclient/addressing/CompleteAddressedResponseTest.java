@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.javaclient.ZscriptParseException;
-import net.zscript.javaclient.commandpaths.Response;
+import net.zscript.javaclient.commandpaths.ResponseElement;
 import net.zscript.tokenizer.TokenBuffer;
 
 class CompleteAddressedResponseTest {
@@ -42,7 +42,7 @@ class CompleteAddressedResponseTest {
         assertThat(r.getContent().getResponseValue()).isEqualTo(4);
         assertThat(r.hasAddress(0)).isFalse();
 
-        final List<Response> responses = r.getContent().getExecutionPath().getResponses();
+        final List<ResponseElement> responses = r.getContent().getExecutionPath().getResponses();
         assertThat(responses).hasSize(1);
         assertThat(responses.get(0).getNext()).isNull();
     }

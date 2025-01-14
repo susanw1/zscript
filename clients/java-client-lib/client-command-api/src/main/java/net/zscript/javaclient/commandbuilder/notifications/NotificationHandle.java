@@ -7,7 +7,7 @@ import java.util.List;
 
 import net.zscript.javaclient.ZscriptParseException;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javaclient.commandpaths.Response;
+import net.zscript.javaclient.commandpaths.ResponseElement;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 
 public abstract class NotificationHandle<N extends Notification> {
@@ -29,11 +29,11 @@ public abstract class NotificationHandle<N extends Notification> {
         final List<ZscriptResponse> actualResponses = new ArrayList<>();
 
         final Iterator<NotificationSection<?>> sectionIt = getSections().iterator();
-        final Iterator<Response>               respIt    = responsePath.iterator();
+        final Iterator<ResponseElement>        respIt    = responsePath.iterator();
 
         for (int i = 0; sectionIt.hasNext() && respIt.hasNext(); i++) {
             final NotificationSection<?> section  = sectionIt.next();
-            final Response               response = respIt.next();
+            final ResponseElement        response = respIt.next();
             final ZscriptResponse        content  = section.parseResponse(response.getFields());
             if (!content.isValid()) {
                 throw new ZscriptParseException("Invalid notification section [ntf=%s, section#=%s, section=%s, text=%s]", this, i, section, response);

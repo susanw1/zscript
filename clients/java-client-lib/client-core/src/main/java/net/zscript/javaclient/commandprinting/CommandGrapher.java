@@ -1,8 +1,8 @@
 package net.zscript.javaclient.commandprinting;
 
-import net.zscript.javaclient.commandpaths.Command;
+import net.zscript.javaclient.commandpaths.CommandElement;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
-import net.zscript.javaclient.commandpaths.Response;
+import net.zscript.javaclient.commandpaths.ResponseElement;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 import net.zscript.model.ZscriptModel;
 
@@ -16,9 +16,9 @@ public interface CommandGrapher<T, C, S> {
 
     T graph(CommandExecutionPath path, ResponseExecutionPath resps, S settings);
 
-    T explainCommand(Command target, ZscriptModel model, C settings);
+    T explainCommand(CommandElement target, ZscriptModel model, C settings);
 
-    T explainResponse(Command source, Response target, ZscriptModel model, C settings);
+    T explainResponse(CommandElement source, ResponseElement target, ZscriptModel model, C settings);
 
     S getDefaultGraphSettings();
 
@@ -57,16 +57,16 @@ public interface CommandGrapher<T, C, S> {
     }
 
     class CommandGraphElement {
-        private final Command command;
+        private final CommandElement command;
 
         private final CommandDepth depth;
 
-        CommandGraphElement(Command command, CommandDepth depth) {
+        CommandGraphElement(CommandElement command, CommandDepth depth) {
             this.command = command;
             this.depth = depth;
         }
 
-        public Command getCommand() {
+        public CommandElement getCommand() {
             return command;
         }
 

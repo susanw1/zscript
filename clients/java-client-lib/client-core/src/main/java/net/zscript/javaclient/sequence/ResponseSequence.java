@@ -77,8 +77,8 @@ public final class ResponseSequence implements ByteAppendable {
 
     @Override
     public void appendTo(ByteStringBuilder builder) {
-        // TODO: decide should there only be a '!' when it's been set? Can this even happen?
         if (responseField != -1) {
+            // this might be skipped if ResponseSequence is blank or timedOut
             fieldOf(Zchars.Z_RESPONSE_MARK, responseField).appendTo(builder);
         }
         if (echoField != -1) {

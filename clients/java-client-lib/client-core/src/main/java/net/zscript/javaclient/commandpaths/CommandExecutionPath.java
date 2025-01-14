@@ -34,15 +34,15 @@ import net.zscript.util.ByteString.ByteStringBuilder;
 import net.zscript.util.OptIterator;
 
 /**
- * A sendable, unaddressed command sequence, without locks and echo fields. It is composed of {@link Command} objects which are aware of what Commands follow on success/failure, so
- * a CommandExecutionPath is essentially "execution-aware".
+ * A sendable, unaddressed command sequence, without locks and echo fields. It is composed of {@link CommandElement} objects which are aware of what Commands follow on
+ * success/failure, so a CommandExecutionPath is essentially "execution-aware".
  * <p>
  * It's the bare "thing that we want executing", before adding the addressing and sequence-level fields which get it to the right place and in the right state. These might be added
  * by a client runtime representing a device node hierarchy, see {@link net.zscript.javaclient.nodes.ZscriptNode#send(CommandExecutionPath, Consumer)}.
  * <p>
  * On execution, the corresponding response object is a {@link ResponseExecutionPath}.
  */
-public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
+public class CommandExecutionPath implements Iterable<CommandElement>, ByteAppendable {
     private static final Logger LOG = LoggerFactory.getLogger(CommandExecutionPath.class);
 
     public static CommandExecutionPath parse(ReadToken start) {
@@ -50,11 +50,11 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
     }
 
     public static CommandExecutionPath parse(ZscriptModel model, @Nullable ReadToken start) {
-        List<CommandBuilder> builders = createLinkedPaths(start);
+        final List<CommandBuilder> builders = createLinkedPaths(start);
 
-        Map<CommandBuilder, Command> commands = new HashMap<>();
+        final Map<CommandBuilder, CommandElement> commands = new HashMap<>();
         for (ListIterator<CommandBuilder> iter = builders.listIterator(builders.size()); iter.hasPrevious(); ) {
-            CommandBuilder b = iter.previous();
+            final CommandBuilder b = iter.previous();
             if (b.start != null) {
                 commands.put(b, b.generateCommand(commands));
             }
@@ -62,7 +62,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         return new CommandExecutionPath(model, commands.get(builders.get(0)));
     }
 
-    public static CommandExecutionPath from(ZscriptModel model, Command success) {
+    public static CommandExecutionPath from(ZscriptModel model, CommandElement success) {
         return new CommandExecutionPath(model, success);
     }
 
@@ -74,10 +74,10 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         return new CommandExecutionPath(model, null);
     }
 
-    private final ZscriptModel model;
-    private final Command      firstCommand;
+    private final ZscriptModel   model;
+    private final CommandElement firstCommand;
 
-    private CommandExecutionPath(ZscriptModel model, @Nullable Command firstCommand) {
+    private CommandExecutionPath(ZscriptModel model, @Nullable CommandElement firstCommand) {
         this.model = model;
         this.firstCommand = firstCommand;
     }
@@ -90,11 +90,11 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
      * @return a list of linked command-builders, ready for full path generation
      */
     private static List<CommandBuilder> createLinkedPaths(@Nullable ReadToken start) {
-        List<CommandBuilder> builders = new ArrayList<>();
+        final List<CommandBuilder> builders = new ArrayList<>();
 
         // working list of commands which still need a success/failure successor
-        List<CommandBuilder> needSuccessPath = new ArrayList<>();
-        List<CommandBuilder> needFailPath    = new ArrayList<>();
+        final List<CommandBuilder> needSuccessPath = new ArrayList<>();
+        final List<CommandBuilder> needFailPath    = new ArrayList<>();
 
         CommandBuilder last = new CommandBuilder();
         builders.add(last);
@@ -102,14 +102,14 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
             return builders;
         }
 
-        TokenBufferIterator iterator = start.tokenIterator();
+        final TokenBufferIterator iterator = start.tokenIterator();
         for (Optional<ReadToken> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             final ReadToken token = opt.get();
             if (last.getStart() == null) {
                 last.setStart(token);
             }
             if (token.isMarker()) {
-                CommandBuilder next = new CommandBuilder();
+                final CommandBuilder next = new CommandBuilder();
                 builders.add(next);
                 if (token.getKey() == Tokenizer.CMD_END_ANDTHEN) {
                     last.setOnSuccess(next);
@@ -118,7 +118,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
                     needSuccessPath.add(last);
                     last.setOnFail(next);
                     for (Iterator<CommandBuilder> iter = needFailPath.iterator(); iter.hasNext(); ) {
-                        CommandBuilder b = iter.next();
+                        final CommandBuilder b = iter.next();
                         if (b.failBracketCount == 0) {
                             b.setOnFail(next);
                             iter.remove();
@@ -142,7 +142,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
                         }
                     }
                     for (Iterator<CommandBuilder> iter = needSuccessPath.iterator(); iter.hasNext(); ) {
-                        CommandBuilder b = iter.next();
+                        final CommandBuilder b = iter.next();
                         if (b.successBracketCount == 0) {
                             b.setOnSuccess(next);
                             iter.remove();
@@ -166,24 +166,24 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
 
     @Override
     public void appendTo(ByteStringBuilder builder) {
-        Deque<Command> openedTrees  = new ArrayDeque<>();
-        Deque<Command> workingTrees = new ArrayDeque<>();
+        final Deque<CommandElement> openedTrees  = new ArrayDeque<>();
+        final Deque<CommandElement> workingTrees = new ArrayDeque<>();
         if (firstCommand != null) {
             workingTrees.push(firstCommand);
         }
         boolean needsAnd  = false;
         boolean needsOpen = false;
         while (!workingTrees.isEmpty()) {
-            Command current = workingTrees.peek();
+            final CommandElement current = workingTrees.peek();
 
-            Command latestOpenTree = openedTrees.peek();
+            CommandElement latestOpenTree = openedTrees.peek();
             if (latestOpenTree != null && current.getOnFail() != latestOpenTree) {
                 // if there are opened trees, and this command doesn't add to the top open tree,
                 //   check if it closes the top open tree
                 //   which we can do by iterating forward to see if the top open tree re-merges here
                 // this operation makes the method O(n^2)
-                Command tmp        = latestOpenTree;
-                boolean mergesHere = false;
+                CommandElement tmp        = latestOpenTree;
+                boolean        mergesHere = false;
                 while (tmp != null) {
                     if (tmp == current) {
                         mergesHere = true;
@@ -256,9 +256,9 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
      * @throws ZscriptMismatchedResponseException if the supplied response doesn't match this command sequence
      */
     public List<MatchedCommandResponse> compareResponses(ResponseExecutionPath resps) {
-        final Deque<Command> parenStarts = new ArrayDeque<>();
+        final Deque<CommandElement> parenStarts = new ArrayDeque<>();
         // fill out parenStarts so that we can have as many ')' as we want...
-        Command tmp1 = firstCommand;
+        CommandElement tmp1 = firstCommand;
         while (tmp1 != null) {
             parenStarts.add(tmp1);
             tmp1 = tmp1.getOnFail();
@@ -270,9 +270,9 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
         int     lastParenCount = 0;
 
         List<MatchedCommandResponse> cmds        = new ArrayList<>();
-        Command                      currentCmd  = firstCommand;
-        Response                     currentResp = resps.getFirstResponse();
-        Command                      lastFail    = null;
+        CommandElement               currentCmd  = firstCommand;
+        ResponseElement              currentResp = resps.getFirstResponse();
+        CommandElement               lastFail    = null;
 
         while (currentResp != null) {
             if (currentCmd == null) {
@@ -285,7 +285,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
                     if (parenStarts.peek().getOnFail() == currentCmd.getOnFail()) {
                         throw new ZscriptMismatchedResponseException("Response has ')' without valid opening '('");
                     }
-                    Command tmp2 = parenStarts.pop().getOnFail();
+                    CommandElement tmp2 = parenStarts.pop().getOnFail();
                     while (tmp2 != null && tmp2 != currentCmd) {
                         tmp2 = tmp2.getOnSuccess();
                     }
@@ -304,7 +304,7 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
                     if (parenStarts.isEmpty()) {
                         throw new ZscriptMismatchedResponseException("Command sequence ran out of parens before response sequence");
                     }
-                    Command tmp3 = parenStarts.peek().getOnFail();
+                    CommandElement tmp3 = parenStarts.peek().getOnFail();
                     while (tmp3 != null && tmp3.getOnFail() != currentCmd) {
                         tmp3 = tmp3.getOnSuccess();
                     }
@@ -346,28 +346,28 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
     }
 
     @Nonnull
-    public Iterator<Command> iterator() {
+    public Iterator<CommandElement> iterator() {
         if (firstCommand == null) {
             return Collections.emptyListIterator();
         }
-        return new OptIterator<Command>() {
-            final Set<Command> visited = new HashSet<>();
-            Iterator<Command> toVisit = Set.of(firstCommand).iterator();
-            Set<Command>      next    = new HashSet<>();
+        return new OptIterator<CommandElement>() {
+            final Set<CommandElement> visited = new HashSet<>();
+            Iterator<CommandElement> toVisit = Set.of(firstCommand).iterator();
+            Set<CommandElement>      next    = new HashSet<>();
 
             @Nonnull
             @Override
-            public Optional<Command> next() {
+            public Optional<CommandElement> next() {
                 while (true) {
                     while (toVisit.hasNext()) {
-                        Command c = toVisit.next();
+                        CommandElement c = toVisit.next();
                         if (c != null && !visited.contains(c)) {
                             visited.add(c);
-                            Command s = c.getOnSuccess();
+                            CommandElement s = c.getOnSuccess();
                             if (!visited.contains(s)) {
                                 next.add(s);
                             }
-                            Command f = c.getOnFail();
+                            CommandElement f = c.getOnFail();
                             if (!visited.contains(f)) {
                                 next.add(f);
                             }
@@ -386,13 +386,13 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
 
     public int getBufferLength() {
         int length = 0;
-        for (Command c : this) {
+        for (CommandElement c : this) {
             length += c.getBufferLength() + 1;
         }
         return length;
     }
 
-    public Command getFirstCommand() {
+    public CommandElement getFirstCommand() {
         return firstCommand;
     }
 
@@ -433,8 +433,8 @@ public class CommandExecutionPath implements Iterable<Command>, ByteAppendable {
             this.start = token;
         }
 
-        public Command generateCommand(Map<CommandBuilder, Command> commands) {
-            return new Command(commands.get(onSuccess), commands.get(onFail), ZscriptFieldSet.fromTokens(start));
+        public CommandElement generateCommand(Map<CommandBuilder, CommandElement> commands) {
+            return new CommandElement(commands.get(onSuccess), commands.get(onFail), ZscriptFieldSet.fromTokens(start));
         }
     }
 }

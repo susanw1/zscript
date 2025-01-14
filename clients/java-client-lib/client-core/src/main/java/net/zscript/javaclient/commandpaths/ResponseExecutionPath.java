@@ -21,13 +21,13 @@ import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
 /**
- * A parseable, unaddressed response sequence, without response value ('!')  or echo ('_') fields. It is essentially a chain of {@link Response} objects which can be matched by a
- * CommandExecutionPath (see {@link CommandExecutionPath#compareResponses(ResponseExecutionPath)}) to produce a complete comprehension of what happened during execution.
+ * A parseable, unaddressed response sequence, without response value ('!')  or echo ('_') fields. It is essentially a chain of {@link ResponseElement} objects which can be matched
+ * by a CommandExecutionPath (see {@link CommandExecutionPath#compareResponses(ResponseExecutionPath)}) to produce a complete comprehension of what happened during execution.
  * <p>
  * This class represents the result of execution of a {@link CommandExecutionPath} once the addressing and sequence-level fields have been processed, ie by a client runtime
  * representing a device node hierarchy, see {@link net.zscript.javaclient.nodes.ZscriptNode#send(CommandExecutionPath, Consumer)}.
  */
-public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable {
+public class ResponseExecutionPath implements Iterable<ResponseElement>, ByteAppendable {
 
     @Nonnull
     private static List<ResponseBuilder> createLinkedPath(@Nullable ReadToken start) {
@@ -78,9 +78,9 @@ public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable
     public static ResponseExecutionPath parse(@Nullable ReadToken start) {
         List<ResponseBuilder> builders = createLinkedPath(start);
 
-        Response prev               = null;
-        boolean  hasUnexplainedFail = false;
-        int      bracketCount       = 0;
+        ResponseElement prev               = null;
+        boolean         hasUnexplainedFail = false;
+        int             bracketCount       = 0;
         for (ListIterator<ResponseBuilder> iter = builders.listIterator(builders.size()); iter.hasPrevious(); ) {
             ResponseBuilder b = iter.previous();
             if (b.start != null) {
@@ -103,19 +103,19 @@ public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable
         return new ResponseExecutionPath(prev);
     }
 
-    private final Response firstResponse;
+    private final ResponseElement firstResponse;
 
-    private ResponseExecutionPath(@Nullable Response firstResponse) {
+    private ResponseExecutionPath(@Nullable ResponseElement firstResponse) {
         this.firstResponse = firstResponse;
     }
 
-    public Response getFirstResponse() {
+    public ResponseElement getFirstResponse() {
         return firstResponse;
     }
 
-    public List<Response> getResponses() {
-        List<Response> resps = new ArrayList<>();
-        for (Response r = firstResponse; r != null; r = r.getNext()) {
+    public List<ResponseElement> getResponses() {
+        List<ResponseElement> resps = new ArrayList<>();
+        for (ResponseElement r = firstResponse; r != null; r = r.getNext()) {
             resps.add(r);
         }
         return resps;
@@ -123,9 +123,9 @@ public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable
 
     @Nonnull
     @Override
-    public Iterator<Response> iterator() {
+    public Iterator<ResponseElement> iterator() {
         return new Iterator<>() {
-            Response r = firstResponse;
+            ResponseElement r = firstResponse;
 
             @Override
             public boolean hasNext() {
@@ -133,8 +133,8 @@ public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable
             }
 
             @Override
-            public Response next() {
-                Response tmp = r;
+            public ResponseElement next() {
+                ResponseElement tmp = r;
                 r = r.getNext();
                 return tmp;
             }
@@ -143,8 +143,8 @@ public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable
 
     @Override
     public void appendTo(ByteStringBuilder builder) {
-        for (Iterator<Response> iter = iterator(); iter.hasNext(); ) {
-            Response r = iter.next();
+        for (Iterator<ResponseElement> iter = iterator(); iter.hasNext(); ) {
+            ResponseElement r = iter.next();
             r.appendTo(builder);
             if (iter.hasNext()) {
                 r.separatorBytes(builder);
@@ -179,8 +179,9 @@ public class ResponseExecutionPath implements Iterable<Response>, ByteAppendable
         }
 
         @Nonnull
-        public Response generateResponse(@Nullable Response next, boolean unexplainedFail, int priorBrackets) {
-            return new Response(next, !(unexplainedFail || separator == Zchars.Z_ORELSE), separator == '(', separator == ')', priorBrackets, ZscriptFieldSet.fromTokens(start));
+        public ResponseElement generateResponse(@Nullable ResponseElement next, boolean unexplainedFail, int priorBrackets) {
+            return new ResponseElement(next, !(unexplainedFail || separator == Zchars.Z_ORELSE), separator == '(', separator == ')', priorBrackets,
+                    ZscriptFieldSet.fromTokens(start));
         }
     }
 }

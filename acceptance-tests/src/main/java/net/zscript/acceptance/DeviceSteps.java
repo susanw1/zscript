@@ -14,7 +14,7 @@ import io.cucumber.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.zscript.javaclient.commandpaths.Response;
+import net.zscript.javaclient.commandpaths.ResponseElement;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 import net.zscript.javaclient.devices.Device;
 import net.zscript.javaclient.nodes.DirectConnection;
@@ -80,22 +80,22 @@ public class DeviceSteps {
 
     @Then("device should answer with response status value {word} and field {word} = {word}")
     public void shouldReceiveThisResponseFromDevice(String status, String field, String value) {
-        final Response response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
-
+        final ResponseElement response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
+ 
         assertThat(response.getFields().getField(Zchars.Z_STATUS)).hasValue(Integer.decode(status));
         assertThat(response.getFields().getField(field.charAt(0))).hasValue(Integer.decode(value));
     }
 
     @Then("device should answer with status value {word}")
     public void shouldReceiveThisStatusValue(String statusValue) {
-        final Response response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
+        final ResponseElement response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
 
         assertThat(response.getFields().getField(Zchars.Z_STATUS)).hasValue(Integer.decode(statusValue));
     }
 
     @Then("device should answer with status {word}")
     public void shouldReceiveThisStatus(String statusName) throws Exception {
-        final Response response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
+        final ResponseElement response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
 
         assertThat(response.getFields().getField(Zchars.Z_STATUS)).hasValue(statusNameToValue(statusName));
     }

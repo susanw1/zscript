@@ -38,9 +38,9 @@ class ResponseExecutionPathTest {
     public void shouldLinkResponses() {
         final ResponseExecutionPath respPath = getAndCheckResponseExecutionPath("AS & BS2", "AS&BS2");
 
-        final Response responseA = respPath.getFirstResponse();
+        final ResponseElement responseA = respPath.getFirstResponse();
         assertThat(responseA).isNotNull().extracting(ByteString.ByteAppendable::asStringUtf8).isEqualTo("AS");
-        final Response responseB = responseA.getNext();
+        final ResponseElement responseB = responseA.getNext();
         assertThat(responseB).isNotNull().extracting(ByteString.ByteAppendable::asStringUtf8).isEqualTo("BS2");
 
         assertThat(responseA.wasSuccess()).isTrue();
@@ -51,11 +51,11 @@ class ResponseExecutionPathTest {
     @Test
     public void shouldGetAllResponses() {
         final ResponseExecutionPath respPath1     = getAndCheckResponseExecutionPath("AS & BS", "AS&BS");
-        final List<Response>        responseList1 = OptIterator.of(respPath1).stream().collect(toList());
+        final List<ResponseElement> responseList1 = OptIterator.of(respPath1).stream().collect(toList());
         assertThat(responseList1).hasSize(2);
 
         final ResponseExecutionPath respPath2     = getAndCheckResponseExecutionPath("(AS2 | BS) & (CS2 | DS2)", "(AS2|BS)&(CS2|DS2)");
-        final List<Response>        responseList2 = OptIterator.of(respPath2).stream().collect(toList());
+        final List<ResponseElement> responseList2 = OptIterator.of(respPath2).stream().collect(toList());
         assertThat(responseList2).hasSize(8);
     }
 

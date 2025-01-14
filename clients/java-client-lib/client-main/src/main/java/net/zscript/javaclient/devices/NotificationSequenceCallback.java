@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
 import net.zscript.javaclient.commandbuilder.notifications.NotificationSection;
-import net.zscript.javaclient.commandpaths.Response;
+import net.zscript.javaclient.commandpaths.ResponseElement;
 
 public class NotificationSequenceCallback {
 
@@ -20,7 +20,7 @@ public class NotificationSequenceCallback {
         private final T                      response;
 
         @Nonnull
-        public static <T extends ZscriptResponse> NotificationSectionSummary<T> generateExecutionSummary(NotificationSection<T> notif, Response response) {
+        public static <T extends ZscriptResponse> NotificationSectionSummary<T> generateExecutionSummary(NotificationSection<T> notif, ResponseElement response) {
             return new NotificationSectionSummary<>(notif, notif.parseResponse(response.getFields()));
         }
 
@@ -46,11 +46,11 @@ public class NotificationSequenceCallback {
     }
 
     @Nonnull
-    public static NotificationSequenceCallback from(List<NotificationSection<?>> sections, List<Response> responses) {
+    public static NotificationSequenceCallback from(List<NotificationSection<?>> sections, List<ResponseElement> responses) {
         LinkedHashMap<NotificationSection<?>, ZscriptResponse> map = new LinkedHashMap<>();
 
         Iterator<NotificationSection<?>> sectionIt = sections.iterator();
-        Iterator<Response>               respIt    = responses.iterator();
+        Iterator<ResponseElement>        respIt    = responses.iterator();
 
         while (sectionIt.hasNext() && respIt.hasNext()) {
             NotificationSection<?> section = sectionIt.next();

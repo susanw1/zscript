@@ -10,13 +10,13 @@ import net.zscript.util.ByteString.ByteAppendable;
 /**
  * Represents a single command within a command-sequence, with its fields; it keeps track of the commands that follow it on success (ie AND_THEN) or on failure (ie OR_ELSE).
  */
-public class Command implements ByteAppendable {
+public class CommandElement implements ByteAppendable {
     private final ZscriptFieldSet fieldSet;
 
-    private final Command onSuccess;
-    private final Command onFail;
+    private final CommandElement onSuccess;
+    private final CommandElement onFail;
 
-    public Command(@Nullable Command onSuccess, @Nullable Command onFail, ZscriptFieldSet fieldSet) {
+    public CommandElement(@Nullable CommandElement onSuccess, @Nullable CommandElement onFail, ZscriptFieldSet fieldSet) {
         this.onSuccess = onSuccess;
         this.onFail = onFail;
         this.fieldSet = fieldSet;
@@ -28,7 +28,7 @@ public class Command implements ByteAppendable {
      * @return the command to run on success, or null if there is no following command to run on success
      */
     @Nullable
-    public Command getOnSuccess() {
+    public CommandElement getOnSuccess() {
         return onSuccess;
     }
 
@@ -39,7 +39,7 @@ public class Command implements ByteAppendable {
      * @return the command to run on failure, or null if there is no following command to run on failure
      */
     @Nullable
-    public Command getOnFail() {
+    public CommandElement getOnFail() {
         return onFail;
     }
 
