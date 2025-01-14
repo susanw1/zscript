@@ -20,8 +20,8 @@ import io.cucumber.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.zscript.javaclient.commandPaths.Response;
-import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
+import net.zscript.javaclient.commandpaths.Response;
+import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 import net.zscript.javaclient.nodes.DirectConnection;
 import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.javareceiver.testing.CollectingConsumer;

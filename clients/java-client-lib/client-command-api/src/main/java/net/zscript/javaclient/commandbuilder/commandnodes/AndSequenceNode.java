@@ -3,9 +3,9 @@ package net.zscript.javaclient.commandbuilder.commandnodes;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.zscript.javaclient.commandbuilder.defaultCommands.AbortCommandNode;
-import net.zscript.javaclient.commandbuilder.defaultCommands.BlankCommandNode;
-import net.zscript.javaclient.commandbuilder.defaultCommands.FailureCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultcommands.AbortCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultcommands.BlankCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultcommands.FailureCommandNode;
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString.ByteStringBuilder;
 

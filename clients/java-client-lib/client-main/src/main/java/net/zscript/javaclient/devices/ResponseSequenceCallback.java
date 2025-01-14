@@ -14,13 +14,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.zscript.javaclient.commandPaths.Command;
-import net.zscript.javaclient.commandPaths.MatchedCommandResponse;
-import net.zscript.javaclient.commandPaths.Response;
 import net.zscript.javaclient.commandbuilder.Respondable;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
 import net.zscript.javaclient.commandbuilder.commandnodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandpaths.Command;
+import net.zscript.javaclient.commandpaths.MatchedCommandResponse;
+import net.zscript.javaclient.commandpaths.Response;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
 

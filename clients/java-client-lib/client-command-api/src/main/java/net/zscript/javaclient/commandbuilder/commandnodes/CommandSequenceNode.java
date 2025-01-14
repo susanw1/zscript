@@ -5,9 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import net.zscript.javaclient.commandbuilder.defaultCommands.AbortCommandNode;
-import net.zscript.javaclient.commandbuilder.defaultCommands.BlankCommandNode;
-import net.zscript.javaclient.commandbuilder.defaultCommands.FailureCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultcommands.AbortCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultcommands.BlankCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultcommands.FailureCommandNode;
 import net.zscript.util.ByteString.ByteAppendable;
 
 /**

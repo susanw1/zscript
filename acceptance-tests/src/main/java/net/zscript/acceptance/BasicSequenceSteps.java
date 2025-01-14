@@ -11,8 +11,8 @@ import io.cucumber.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.zscript.javaclient.commandPaths.CommandExecutionPath;
-import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
+import net.zscript.javaclient.commandpaths.CommandExecutionPath;
+import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 

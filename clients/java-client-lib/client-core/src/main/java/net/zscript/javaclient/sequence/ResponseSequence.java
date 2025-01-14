@@ -1,9 +1,9 @@
 package net.zscript.javaclient.sequence;
 
-import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
+import static net.zscript.javaclient.commandpaths.NumberField.fieldOf;
 
 import net.zscript.javaclient.ZscriptParseException;
-import net.zscript.javaclient.commandPaths.ResponseExecutionPath;
+import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.tokenizer.TokenBufferIterator;

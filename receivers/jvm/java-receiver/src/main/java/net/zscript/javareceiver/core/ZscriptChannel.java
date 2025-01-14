@@ -4,9 +4,9 @@ import javax.annotation.Nullable;
 
 import net.zscript.javareceiver.execution.ActionSource;
 import net.zscript.javareceiver.execution.CommandContext;
-import net.zscript.javareceiver.semanticParser.ExecutionActionFactory;
-import net.zscript.javareceiver.semanticParser.SemanticAction;
-import net.zscript.javareceiver.semanticParser.SemanticParser;
+import net.zscript.javareceiver.semanticparser.ExecutionActionFactory;
+import net.zscript.javareceiver.semanticparser.SemanticAction;
+import net.zscript.javareceiver.semanticparser.SemanticParser;
 import net.zscript.tokenizer.TokenBuffer;
 
 /**

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import net.zscript.javaclient.ZscriptParseException;
 import net.zscript.javaclient.addressing.AddressedResponse;
 import net.zscript.javaclient.addressing.CompleteAddressedResponse;
-import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
+import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.model.ZscriptModel;
 import net.zscript.tokenizer.TokenBuffer;

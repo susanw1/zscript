@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
-import static net.zscript.javaclient.commandPaths.NumberField.fieldOf;
+import static net.zscript.javaclient.commandpaths.NumberField.fieldOf;
 
-import net.zscript.javaclient.commandPaths.BigField;
-import net.zscript.javaclient.commandPaths.ZscriptFieldSet;
 import net.zscript.javaclient.commandbuilder.Respondable;
 import net.zscript.javaclient.commandbuilder.ZscriptResponse;
+import net.zscript.javaclient.commandpaths.BigField;
+import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 import net.zscript.tokenizer.ZscriptExpression;
 import net.zscript.util.ByteString.ByteStringBuilder;
 

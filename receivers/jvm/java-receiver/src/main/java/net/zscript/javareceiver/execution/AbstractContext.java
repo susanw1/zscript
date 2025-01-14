@@ -1,7 +1,7 @@
 package net.zscript.javareceiver.execution;
 
-import net.zscript.javareceiver.semanticParser.ContextView;
-import net.zscript.javareceiver.semanticParser.ContextView.AsyncActionNotifier;
+import net.zscript.javareceiver.semanticparser.ContextView;
+import net.zscript.javareceiver.semanticparser.ContextView.AsyncActionNotifier;
 
 abstract class AbstractContext {
     protected final ContextView contextView;

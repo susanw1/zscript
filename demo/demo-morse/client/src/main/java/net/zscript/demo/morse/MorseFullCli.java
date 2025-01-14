@@ -21,7 +21,7 @@ import picocli.CommandLine.Parameters;
 
 import net.zscript.javaclient.commandbuilder.commandnodes.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilder.commandnodes.ResponseCaptor;
-import net.zscript.javaclient.commandbuilder.defaultCommands.BlankCommandNode;
+import net.zscript.javaclient.commandbuilder.defaultcommands.BlankCommandNode;
 import net.zscript.javaclient.connectors.serial.SerialConnection;
 import net.zscript.javaclient.devices.Device;
 import net.zscript.javaclient.devices.ResponseSequenceCallback;

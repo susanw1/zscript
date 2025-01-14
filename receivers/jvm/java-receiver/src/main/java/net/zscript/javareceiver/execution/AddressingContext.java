@@ -6,7 +6,7 @@ import java.util.Optional;
 import net.zscript.javareceiver.core.CommandOutStream;
 import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
-import net.zscript.javareceiver.semanticParser.ContextView;
+import net.zscript.javareceiver.semanticparser.ContextView;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;

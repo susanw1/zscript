@@ -7,7 +7,7 @@ import net.zscript.javareceiver.core.SequenceOutStream;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.execution.ActionSource;
 import net.zscript.javareceiver.notifications.ZscriptNotificationAction.NotificationActionType;
-import net.zscript.javareceiver.semanticParser.ContextView.AsyncActionNotifier;
+import net.zscript.javareceiver.semanticparser.ContextView.AsyncActionNotifier;
 
 public class ZscriptNotificationSource implements ActionSource {
     enum NotificationSourceState {

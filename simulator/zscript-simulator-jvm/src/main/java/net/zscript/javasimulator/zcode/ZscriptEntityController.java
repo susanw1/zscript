@@ -12,7 +12,7 @@ import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.core.ZscriptChannel;
 import net.zscript.javareceiver.modules.ZscriptModule;
 import net.zscript.javareceiver.modules.core.ZscriptCoreModule;
-import net.zscript.javareceiver.modules.outerCore.ZscriptOuterCoreModule;
+import net.zscript.javareceiver.modules.outercore.ZscriptOuterCoreModule;
 import net.zscript.javareceiver.notifications.ZscriptNotificationSource;
 import net.zscript.javasimulator.BlankCommunicationResponse;
 import net.zscript.javasimulator.CommunicationPacket;
@@ -22,13 +22,13 @@ import net.zscript.javasimulator.ProtocolCategory;
 import net.zscript.javasimulator.ProtocolConnection;
 
 public class ZscriptEntityController extends EntityController {
-    private final Map<Class<? extends ProtocolConnection<?, ?>>, List<SimulatorConsumer<? extends ProtocolCategory>>> modules          = new HashMap<>();
-    private final ExecutorService                                                                                          mainExec         = Executors.newSingleThreadExecutor();
-    private final ExecutorService                                                                                          interruptExec    = Executors.newSingleThreadExecutor();
-    private final Thread                                                                                                   mainCurrent      = findCurrentMain();
-    private final Thread                                                                                                   interruptCurrent = findCurrentInterrupt();
-    private final Zscript                                                                                                    zscript            = new Zscript();
-    private volatile boolean                                                                                               hasNonWait       = false;
+    private final    Map<Class<? extends ProtocolConnection<?, ?>>, List<SimulatorConsumer<? extends ProtocolCategory>>> modules          = new HashMap<>();
+    private final    ExecutorService                                                                                     mainExec         = Executors.newSingleThreadExecutor();
+    private final    ExecutorService                                                                                     interruptExec    = Executors.newSingleThreadExecutor();
+    private final    Thread                                                                                              mainCurrent      = findCurrentMain();
+    private final    Thread                                                                                              interruptCurrent = findCurrentInterrupt();
+    private final    Zscript                                                                                             zscript          = new Zscript();
+    private volatile boolean                                                                                             hasNonWait       = false;
 
     private Thread findCurrentMain() {
         try {
