@@ -25,7 +25,7 @@ public class CommandPathTreeTest {
         CommandExecutionPath path = d.convert(input, r -> {
         }).getPath();
 
-        assertThat(path.toByteString().asString()).isEqualTo(output);
+        assertThat(path.asStringUtf8()).isEqualTo(output);
     }
 
     private static Stream<Arguments> shouldCreateBytesForSingleCommands() {
@@ -44,7 +44,7 @@ public class CommandPathTreeTest {
         CommandExecutionPath path = d.convert(input, r -> {
         }).getPath();
 
-        assertThat(path.toByteString().asString()).isEqualTo(output);
+        assertThat(path.asStringUtf8()).isEqualTo(output);
     }
 
     private static Stream<Arguments> shouldCreateBytesForAndSequences() {
@@ -65,7 +65,7 @@ public class CommandPathTreeTest {
         CommandExecutionPath path = d.convert(input, r -> {
         }).getPath();
 
-        assertThat(path.toByteString().asString()).isEqualTo(output);
+        assertThat(path.asStringUtf8()).isEqualTo(output);
     }
 
     private static Stream<Arguments> shouldCreateBytesForOrSequences() {
@@ -86,7 +86,7 @@ public class CommandPathTreeTest {
         CommandExecutionPath path = d.convert(input, r -> {
         }).getPath();
 
-        assertThat(path.toByteString().asString()).isEqualTo(output);
+        assertThat(path.asStringUtf8()).isEqualTo(output);
     }
 
     private static Stream<Arguments> shouldCreateBytesForMixedSequences() {

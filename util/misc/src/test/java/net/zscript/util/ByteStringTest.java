@@ -177,7 +177,7 @@ class ByteStringTest {
         assertThat(ByteString.concat(List.of(new TestAppendable(3), new TestAppendable(4))).asString()).isEqualTo("x=03x=04");
         assertThat(ByteString.builder().append(List.of(new TestAppendable(1), new TestAppendable(2))).asString()).isEqualTo("x=01x=02");
 
-        assertThat(new TestAppendable(6).toByteString().asString()).isEqualTo("x=06");
+        assertThat(new TestAppendable(6).asStringUtf8()).isEqualTo("x=06");
     }
 
     @Test

@@ -21,7 +21,7 @@ public class CommandExecutionPathRegenerationTest {
         ExtendingTokenBuffer bufferCmd = ExtendingTokenBuffer.tokenize(byteStringUtf8(input), false);
         CommandExecutionPath path      = CommandExecutionPath.parse(bufferCmd.getTokenReader().getFirstReadToken());
 
-        assertThat(path.toByteString().asString()).isEqualTo(output);
+        assertThat(path.asStringUtf8()).isEqualTo(output);
     }
 
     private static Stream<Arguments> shouldProduceActionsForLogicalCommandSeries() {
