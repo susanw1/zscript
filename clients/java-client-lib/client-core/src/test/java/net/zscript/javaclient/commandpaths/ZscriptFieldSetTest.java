@@ -4,19 +4,18 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static net.zscript.javaclient.commandpaths.NumberField.fieldOf;
 import static net.zscript.util.ByteString.ByteAppender.ISOLATIN1_APPENDER;
 import static net.zscript.util.ByteString.byteString;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 
 public class ZscriptFieldSetTest {
-    ZscriptFieldSet fieldSet = ZscriptFieldSet.fromMap(List.of(new byte[] { 'a', 'b' }, new byte[] { 'c', 'd', 'e' }), List.of(false, true),
+    ZscriptFieldSet fieldSet = ZscriptFieldSet.fromMap(
+            List.of(new BigField(new byte[] { 'a', 'b' }, false), new BigField(new byte[] { 'c', 'd', 'e' }, true)),
             Map.of((byte) 'A', 12, (byte) 'Z', 7, (byte) 'C', 0, (byte) 'D', 0x123));
 
     @Test
@@ -39,11 +38,6 @@ public class ZscriptFieldSetTest {
     }
 
     @Test
-    public void shouldFailToInitializeFromUnequalLists() {
-        assertThatThrownBy(() -> ZscriptFieldSet.fromMap(List.of(new byte[] { 'b' }), List.of(false, true), emptyMap())).isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
     public void shouldAppendToByteString() {
         assertThat(byteString(fieldSet).asString()).isEqualTo("Z7AcCD123+6162\"cde\"");
     }
@@ -53,7 +47,7 @@ public class ZscriptFieldSetTest {
         assertThat(fieldSet.isEmpty()).isFalse();
         assertThat(ZscriptFieldSet.blank().isEmpty()).isTrue();
         assertThat(ZscriptFieldSet.blank().hasBigField()).isFalse();
-        assertThat(ZscriptFieldSet.fromMap(emptyList(), emptyList(), Map.of((byte) 'Z', 4)).isEmpty()).isFalse();
+        assertThat(ZscriptFieldSet.fromMap(emptyList(), Map.of((byte) 'Z', 4)).isEmpty()).isFalse();
     }
 
     @Test
@@ -90,5 +84,4 @@ public class ZscriptFieldSetTest {
         assertThat(zfs1.matchDescription(zfs3)).isEqualTo(" + abcde <> ");
         assertThat(zfs1.matches(zfs3)).isFalse();
     }
-
 }

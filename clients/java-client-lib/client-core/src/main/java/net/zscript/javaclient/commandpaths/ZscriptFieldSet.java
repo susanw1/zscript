@@ -69,19 +69,11 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
         return new ZscriptFieldSet(bigFields, fields, hasClash);
     }
 
-    // FIXME - this can be improved, only used once
-    public static ZscriptFieldSet fromMap(List<byte[]> inBigFields, List<Boolean> bigFieldStrings, Map<Byte, Integer> inFields) {
+    public static ZscriptFieldSet fromMap(List<BigField> bigFields, Map<Byte, Integer> inFields) {
         final int[] fields = new int[26];
         Arrays.fill(fields, UNSET);
         for (final Map.Entry<Byte, Integer> e : inFields.entrySet()) {
             fields[e.getKey() - 'A'] = e.getValue();
-        }
-        if (inBigFields.size() != bigFieldStrings.size()) {
-            throw new IllegalArgumentException();
-        }
-        final List<BigField> bigFields = new ArrayList<>();
-        for (int i = 0; i < inBigFields.size(); i++) {
-            bigFields.add(new BigField(inBigFields.get(i), bigFieldStrings.get(i)));
         }
         return new ZscriptFieldSet(bigFields, fields, false);
     }
@@ -93,7 +85,7 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
     }
 
     private ZscriptFieldSet(List<BigField> bigFields, int[] fields, boolean hasClash) {
-        this.bigFields = bigFields;
+        this.bigFields = List.copyOf(bigFields);
         this.fields = fields;
         this.hasClash = hasClash;
     }

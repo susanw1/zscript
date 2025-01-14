@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.stream.Collectors.toList;
 import static net.zscript.javaclient.commandpaths.NumberField.fieldOf;
 
 import net.zscript.javaclient.commandbuilder.Respondable;
@@ -58,8 +57,7 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
 
     @Nonnull
     public ZscriptFieldSet asFieldSet() {
-        return ZscriptFieldSet.fromMap(bigFields.stream().map(BigField::getData).collect(toList()),
-                bigFields.stream().map(BigField::isString).collect(toList()), fields);
+        return ZscriptFieldSet.fromMap(bigFields, fields);
     }
 
     @Override
