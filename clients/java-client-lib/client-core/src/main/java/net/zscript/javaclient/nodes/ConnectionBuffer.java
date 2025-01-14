@@ -52,7 +52,7 @@ public class ConnectionBuffer {
     }
 
     public AddressedCommand match(ResponseSequence sequence) {
-        if (sequence.getResponseValue() != 0) {
+        if (sequence.getResponseFieldValue() != 0) {
             throw new IllegalArgumentException("Cannot match notification sequence with command sequence");
         }
         if (!sequence.hasEchoValue()) {

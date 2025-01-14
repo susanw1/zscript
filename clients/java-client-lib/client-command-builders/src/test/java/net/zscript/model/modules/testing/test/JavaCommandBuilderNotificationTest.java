@@ -39,9 +39,9 @@ public class JavaCommandBuilderNotificationTest {
         final TestingModule.TestNtfBNotification.TestNtfBNotificationHandle handle = TestingModule.TestNtfBNotification.ID.newHandle();
 
         assertThat(car.asResponse().hasAddress()).isFalse();
-        assertThat(car.getContent().getResponseValue()).isEqualTo(0x234);
+        assertThat(car.getResponseSequence().getResponseFieldValue()).isEqualTo(0x234);
 
-        final List<ZscriptResponse> sections = handle.buildNotificationContent(car.getContent().getExecutionPath());
+        final List<ZscriptResponse> sections = handle.buildNotificationContent(car.getResponseSequence().getExecutionPath());
         assertThat(sections)
                 .hasExactlyElementsOfTypes(TestingModule.Expr1NotificationSectionContent.class, TestingModule.Expr2NotificationSectionContent.class);
 

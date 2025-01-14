@@ -3,30 +3,30 @@ package net.zscript.javaclient.addressing;
 import net.zscript.javaclient.sequence.ResponseSequence;
 
 /**
- * AddressedResponse that travels back through the device hierarchy aware of the  current address section offset within the full address path.
+ * AddressedResponse that travels back through the device hierarchy aware of the current address section offset within the full address path.
  */
 public class AddressedResponse {
-    private final CompleteAddressedResponse response;
+    private final CompleteAddressedResponse addressedResponse;
     private final int                       offset;
 
-    public AddressedResponse(CompleteAddressedResponse response, int offset) {
-        this.response = response;
+    public AddressedResponse(CompleteAddressedResponse addressedResponse, int offset) {
+        this.addressedResponse = addressedResponse;
         this.offset = offset;
     }
 
     public ZscriptAddress getAddressSection() {
-        return response.getAddressSection(offset);
+        return addressedResponse.getAddressSection(offset);
     }
 
     public boolean hasAddress() {
-        return response.hasAddress(offset);
+        return addressedResponse.hasAddress(offset);
     }
 
-    public ResponseSequence getContent() {
-        return response.getContent();
+    public ResponseSequence getResponseSequence() {
+        return addressedResponse.getResponseSequence();
     }
 
     public AddressedResponse getChild() {
-        return new AddressedResponse(response, offset + 1);
+        return new AddressedResponse(addressedResponse, offset + 1);
     }
 }

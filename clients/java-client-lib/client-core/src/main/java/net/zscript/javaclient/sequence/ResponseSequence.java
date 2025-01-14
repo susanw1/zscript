@@ -26,8 +26,7 @@ public final class ResponseSequence implements ByteAppendable {
     private final boolean timedOut;
 
     public static ResponseSequence parse(ReadToken start) {
-        int echoField     = -1;
-        int responseField = -1;
+        int echoField = -1;
 
         TokenBufferIterator iter = start.tokenIterator();
 
@@ -35,7 +34,7 @@ public final class ResponseSequence implements ByteAppendable {
         if (current == null || current.getKey() != Zchars.Z_RESPONSE_MARK) {
             throw new ZscriptParseException("Invalid response sequence without response marker [text=%s]", start);
         }
-        responseField = current.getData16();
+        final int responseField = current.getData16();
         current = iter.next().orElse(null);
         if (current != null && current.getKey() == Zchars.Z_ECHO) {
             echoField = current.getData16();
@@ -71,8 +70,12 @@ public final class ResponseSequence implements ByteAppendable {
         return echoField != -1;
     }
 
-    public int getResponseValue() {
+    public int getResponseFieldValue() {
         return responseField;
+    }
+
+    public boolean isTimedOut() {
+        return timedOut;
     }
 
     @Override

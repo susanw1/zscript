@@ -33,15 +33,15 @@ class ZscriptBasicNode implements ZscriptNode {
     private QueuingStrategy strategy = new StandardQueuingStrategy(1000, TimeUnit.SECONDS); // should be enough for almost all cases
 
     private BiConsumer<AddressedCommand, AddressedResponse> badCommandResponseMatchHandler = (cmd, resp) -> {
-        LOG.error("Command and response do not match: {} ; {}", cmd.getContent().toByteString().asString(), resp.getContent().toByteString().asString());
+        LOG.error("Command and response do not match: {} ; {}", cmd.getContent().asStringUtf8(), resp.getResponseSequence().asStringUtf8());
     };
 
     private Consumer<AddressedResponse> unknownNotificationHandler = resp -> {
-        LOG.warn("Unknown notification received: {}", resp.getContent().toByteString().asString());
+        LOG.warn("Unknown notification received: {}", resp.getResponseSequence().asStringUtf8());
     };
 
     private Consumer<AddressedResponse> unknownResponseHandler = resp -> {
-        throw new IllegalStateException("Unknown response received: " + resp.getContent().toByteString().asString());
+        throw new IllegalStateException("Unknown response received: " + resp.getResponseSequence().asStringUtf8());
     };
 
     private Consumer<Exception> callbackExceptionHandler = e -> {
@@ -140,26 +140,26 @@ class ZscriptBasicNode implements ZscriptNode {
     }
 
     private void response(AddressedResponse resp) {
-        if (resp.getContent().getResponseValue() != 0) {
-            Consumer<ResponseSequence> handler = notificationHandlers.get(resp.getContent().getResponseValue());
+        if (resp.getResponseSequence().getResponseFieldValue() != 0) {
+            Consumer<ResponseSequence> handler = notificationHandlers.get(resp.getResponseSequence().getResponseFieldValue());
             if (handler != null) {
-                callbackPool.sendCallback(handler, resp.getContent(), callbackExceptionHandler);
+                callbackPool.sendCallback(handler, resp.getResponseSequence(), callbackExceptionHandler);
             } else {
                 callbackPool.sendCallback(unknownNotificationHandler, resp, callbackExceptionHandler);
             }
             return;
         }
-        AddressedCommand found = connectionBuffer.match(resp.getContent());
+        AddressedCommand found = connectionBuffer.match(resp.getResponseSequence());
         if (found == null) {
             // if it's a recently timed out message, ignore it.
-            if (resp.getContent().hasEchoValue() && echoSystem.unmatchedReceive(resp.getContent().getEchoValue())) {
+            if (resp.getResponseSequence().hasEchoValue() && echoSystem.unmatchedReceive(resp.getResponseSequence().getEchoValue())) {
                 return;
             }
             callbackPool.sendCallback(unknownResponseHandler, resp, callbackExceptionHandler);
             return;
         }
 
-        if (!found.getContent().getExecutionPath().matchesResponses(resp.getContent().getExecutionPath())) {
+        if (!found.getContent().getExecutionPath().matchesResponses(resp.getResponseSequence().getExecutionPath())) {
             callbackPool.sendCallback(badCommandResponseMatchHandler, found, resp, callbackExceptionHandler);
             return;
         }
@@ -168,11 +168,11 @@ class ZscriptBasicNode implements ZscriptNode {
         parentConnection.notifyResponseMatched(found);
         Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getContent());
         if (seqCallback != null) {
-            callbackPool.sendCallback(seqCallback, resp.getContent(), callbackExceptionHandler);
+            callbackPool.sendCallback(seqCallback, resp.getResponseSequence(), callbackExceptionHandler);
         } else {
             Consumer<ResponseExecutionPath> pathCallback = pathCallbacks.remove(found.getContent().getExecutionPath());
             if (pathCallback != null) {
-                callbackPool.sendCallback(pathCallback, resp.getContent().getExecutionPath(), callbackExceptionHandler);
+                callbackPool.sendCallback(pathCallback, resp.getResponseSequence().getExecutionPath(), callbackExceptionHandler);
             } else {
                 callbackPool.sendCallback(unknownResponseHandler, resp, callbackExceptionHandler);
             }
@@ -186,7 +186,7 @@ class ZscriptBasicNode implements ZscriptNode {
     /**
      * Notification passed up from child to root node to indicate that the supplied command has been matched to a response. Buffers may free records of that command.
      *
-     * @param foundCommand
+     * @param foundCommand the command we've received a response for
      */
     public void responseReceived(AddressedCommand foundCommand) {
         if (connectionBuffer.responseMatched(foundCommand)) {
