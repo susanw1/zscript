@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package net.zscript.javaclient.commandbuilderapi.defaultcommands;
+
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javaclient.commandbuilder.nodes.ResponseCaptor;
-import net.zscript.javaclient.commandbuilder.notifications.NotificationSection;
+import net.zscript.javaclient.commandbuilderapi.ZscriptResponse;
+import net.zscript.javaclient.commandbuilderapi.nodes.ResponseCaptor;
+import net.zscript.javaclient.commandbuilderapi.notifications.NotificationSection;
 import net.zscript.javaclient.commandpaths.ResponseElement;
 
 public class NotificationSequenceCallback {
