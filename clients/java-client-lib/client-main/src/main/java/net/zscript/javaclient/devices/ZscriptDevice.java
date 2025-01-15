@@ -29,7 +29,7 @@ import net.zscript.javaclient.commandpaths.CommandElement;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
-import net.zscript.javaclient.nodes.ZscriptNode;
+import net.zscript.javaclient.devicenodes.ZscriptNode;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;

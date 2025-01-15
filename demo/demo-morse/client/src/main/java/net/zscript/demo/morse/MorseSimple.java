@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 import com.fazecast.jSerialComm.SerialPort;
 
 import net.zscript.javaclient.connectors.serial.SerialConnection;
+import net.zscript.javaclient.devicenodes.ZscriptNode;
 import net.zscript.javaclient.devices.ZscriptDevice;
-import net.zscript.javaclient.nodes.ZscriptNode;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.modules.base.CoreModule;
 

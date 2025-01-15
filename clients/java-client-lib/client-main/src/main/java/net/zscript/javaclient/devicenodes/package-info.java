@@ -1,4 +1,4 @@
 @ParametersAreNonnullByDefault
-package net.zscript.javaclient.nodes;
+package net.zscript.javaclient.devicenodes;
 
 import javax.annotation.ParametersAreNonnullByDefault;

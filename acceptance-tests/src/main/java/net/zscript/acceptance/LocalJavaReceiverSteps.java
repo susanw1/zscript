@@ -6,7 +6,7 @@ import io.cucumber.java.en.Given;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.zscript.javaclient.nodes.DirectConnection;
+import net.zscript.javaclient.devicenodes.DirectConnection;
 import net.zscript.javaclient.testing.LocalConnection;
 import net.zscript.javareceiver.core.Zscript;
 import net.zscript.javareceiver.modules.core.ZscriptCoreModule;

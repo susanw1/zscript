@@ -38,7 +38,7 @@ import net.zscript.util.OptIterator;
  * success/failure, so a CommandExecutionPath is essentially "execution-aware".
  * <p>
  * It's the bare "thing that we want executing", before adding the addressing and sequence-level fields which get it to the right place and in the right state. These might be added
- * by a client runtime representing a device node hierarchy, see {@link net.zscript.javaclient.nodes.ZscriptNode#send(CommandExecutionPath, Consumer)}.
+ * by a client runtime representing a device node hierarchy, see {@link net.zscript.javaclient.devicenodes.ZscriptNode#send(CommandExecutionPath, Consumer)}.
  * <p>
  * On execution, the corresponding response object is a {@link ResponseExecutionPath}.
  */

@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import net.zscript.javaclient.commandpaths.ResponseElement;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
+import net.zscript.javaclient.devicenodes.DirectConnection;
+import net.zscript.javaclient.devicenodes.ZscriptNode;
 import net.zscript.javaclient.devices.ZscriptDevice;
-import net.zscript.javaclient.nodes.DirectConnection;
-import net.zscript.javaclient.nodes.ZscriptNode;
 import net.zscript.javareceiver.testing.CollectingConsumer;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.components.Zchars;

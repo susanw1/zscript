@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.zscript.javaclient.nodes.DirectConnection;
+import net.zscript.javaclient.devicenodes.DirectConnection;
 
 public class TcpConnection extends DirectConnection {
     private static final Logger LOG = LoggerFactory.getLogger(TcpConnection.class);

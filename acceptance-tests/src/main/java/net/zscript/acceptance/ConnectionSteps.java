@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import net.zscript.javaclient.commandpaths.ResponseElement;
 import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
-import net.zscript.javaclient.nodes.DirectConnection;
+import net.zscript.javaclient.devicenodes.DirectConnection;
 import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.javareceiver.testing.CollectingConsumer;
 import net.zscript.model.components.Zchars;

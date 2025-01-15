@@ -25,7 +25,7 @@ import net.zscript.util.ByteString.ByteStringBuilder;
  * by a CommandExecutionPath (see {@link CommandExecutionPath#compareResponses(ResponseExecutionPath)}) to produce a complete comprehension of what happened during execution.
  * <p>
  * This class represents the result of execution of a {@link CommandExecutionPath} once the addressing and sequence-level fields have been processed, ie by a client runtime
- * representing a device node hierarchy, see {@link net.zscript.javaclient.nodes.ZscriptNode#send(CommandExecutionPath, Consumer)}.
+ * representing a device node hierarchy, see {@link net.zscript.javaclient.devicenodes.ZscriptNode#send(CommandExecutionPath, Consumer)}.
  */
 public class ResponseExecutionPath implements Iterable<ResponseElement>, ByteAppendable {
 

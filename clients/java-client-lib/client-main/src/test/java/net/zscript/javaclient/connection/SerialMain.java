@@ -9,7 +9,7 @@ import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.connectors.ZscriptConnectors;
 import net.zscript.javaclient.connectors.serial.SerialConnector;
-import net.zscript.javaclient.nodes.DirectConnection;
+import net.zscript.javaclient.devicenodes.DirectConnection;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.model.modules.base.CoreModule;
