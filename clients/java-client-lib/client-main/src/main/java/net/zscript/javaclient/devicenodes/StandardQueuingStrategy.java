@@ -1,4 +1,4 @@
-package net.zscript.javaclient.nodes;
+package net.zscript.javaclient.devicenodes;
 
 import java.util.ArrayDeque;
 import java.util.Queue;

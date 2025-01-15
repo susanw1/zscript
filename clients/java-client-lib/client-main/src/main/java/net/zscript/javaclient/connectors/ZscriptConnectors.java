@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 import net.zscript.javaclient.connectors.serial.SerialConnector;
 import net.zscript.javaclient.connectors.tcp.TcpConnector;
-import net.zscript.javaclient.nodes.DirectConnection;
+import net.zscript.javaclient.devicenodes.DirectConnection;
 
 public class ZscriptConnectors {
     public static final TcpConnector    TCP    = new TcpConnector();

@@ -1,4 +1,4 @@
-package net.zscript.javaclient.nodes;
+package net.zscript.javaclient.devicenodes;
 
 import java.lang.reflect.Proxy;
 import java.util.concurrent.TimeUnit;

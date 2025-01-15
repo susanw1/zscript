@@ -1,4 +1,4 @@
-package net.zscript.javaclient.nodes;
+package net.zscript.javaclient.devicenodes;
 
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
