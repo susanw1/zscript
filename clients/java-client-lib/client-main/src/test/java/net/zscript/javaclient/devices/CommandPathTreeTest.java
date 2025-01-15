@@ -9,10 +9,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import net.zscript.javaclient.commandbuilder.defaultcommands.AbortCommandNode;
-import net.zscript.javaclient.commandbuilder.defaultcommands.BlankCommandNode;
-import net.zscript.javaclient.commandbuilder.defaultcommands.FailureCommandNode;
-import net.zscript.javaclient.commandbuilder.nodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilderapi.defaultcommands.AbortCommandNode;
+import net.zscript.javaclient.commandbuilderapi.defaultcommands.BlankCommandNode;
+import net.zscript.javaclient.commandbuilderapi.defaultcommands.FailureCommandNode;
+import net.zscript.javaclient.commandbuilderapi.nodes.CommandSequenceNode;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.modules.base.CoreModule;
@@ -21,7 +21,7 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForSingleCommands(final CommandSequenceNode input, final String output) {
-        Device d = new Device(ZscriptModel.standardModel(), null);
+        ZscriptDevice d = new ZscriptDevice(ZscriptModel.standardModel(), null);
         CommandExecutionPath path = d.convert(input, r -> {
         }).getPath();
 
@@ -40,7 +40,7 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForAndSequences(final CommandSequenceNode input, final String output) {
-        Device d = new Device(ZscriptModel.standardModel(), null);
+        ZscriptDevice d = new ZscriptDevice(ZscriptModel.standardModel(), null);
         CommandExecutionPath path = d.convert(input, r -> {
         }).getPath();
 
@@ -61,7 +61,7 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForOrSequences(final CommandSequenceNode input, final String output) {
-        Device d = new Device(ZscriptModel.standardModel(), null);
+        ZscriptDevice d = new ZscriptDevice(ZscriptModel.standardModel(), null);
         CommandExecutionPath path = d.convert(input, r -> {
         }).getPath();
 
@@ -82,7 +82,7 @@ public class CommandPathTreeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldCreateBytesForMixedSequences(final CommandSequenceNode input, final String output) {
-        Device d = new Device(ZscriptModel.standardModel(), null);
+        ZscriptDevice d = new ZscriptDevice(ZscriptModel.standardModel(), null);
         CommandExecutionPath path = d.convert(input, r -> {
         }).getPath();
 

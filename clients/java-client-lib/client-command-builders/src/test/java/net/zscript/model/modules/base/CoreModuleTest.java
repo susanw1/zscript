@@ -6,8 +6,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javaclient.commandbuilder.ZscriptMissingFieldException;
-import net.zscript.javaclient.commandbuilder.nodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilderapi.ZscriptMissingFieldException;
+import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandNode;
 import net.zscript.model.modules.base.CoreModule.ActivateCommand.ActivateResponse;
 import net.zscript.model.modules.base.CoreModule.CapabilitiesCommand.CapabilitiesResponse;
 import net.zscript.model.modules.base.CoreModule.EchoCommand.EchoResponse;

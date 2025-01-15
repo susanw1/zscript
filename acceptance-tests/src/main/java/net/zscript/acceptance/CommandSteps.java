@@ -21,10 +21,10 @@ import io.cucumber.java.en.When;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javaclient.commandbuilder.nodes.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.nodes.ZscriptCommandBuilder;
-import net.zscript.javaclient.commandbuilder.nodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandbuilderapi.ZscriptResponse;
+import net.zscript.javaclient.commandbuilderapi.nodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandBuilder;
+import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandNode;
 import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 import net.zscript.javaclient.devices.ResponseSequenceCallback;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;

@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 
 import static net.zscript.model.modules.base.PinsModule.DigitalNotificationSectionContent.Value;
 
-import net.zscript.javaclient.commandbuilder.nodes.ResponseCaptor;
-import net.zscript.javaclient.devices.Device;
+import net.zscript.javaclient.commandbuilderapi.nodes.ResponseCaptor;
+import net.zscript.javaclient.devices.ZscriptDevice;
 import net.zscript.model.modules.base.OuterCoreModule;
 import net.zscript.model.modules.base.PinsModule;
 import net.zscript.model.modules.base.PinsModule.DigitalSetupCommand.Builder.Mode;
@@ -19,7 +19,7 @@ public class MorseReceiver {
     private final ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
 
     private final MorseTranslator translator;
-    private final Device          device;
+    private final ZscriptDevice   device;
     private final long            ditPeriodMaxUs;
     private final int             pin;
 
@@ -29,7 +29,7 @@ public class MorseReceiver {
     private boolean isHigh       = false;
     private boolean hasWrittenWS = true;
 
-    public MorseReceiver(MorseTranslator translator, Device device, long ditPeriodMaxUs, int pin) {
+    public MorseReceiver(MorseTranslator translator, ZscriptDevice device, long ditPeriodMaxUs, int pin) {
         this.translator = translator;
         this.device = device;
         this.ditPeriodMaxUs = ditPeriodMaxUs;

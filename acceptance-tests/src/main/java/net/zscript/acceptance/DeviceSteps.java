@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import net.zscript.javaclient.commandpaths.ResponseElement;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
-import net.zscript.javaclient.devices.Device;
+import net.zscript.javaclient.devices.ZscriptDevice;
 import net.zscript.javaclient.nodes.DirectConnection;
 import net.zscript.javaclient.nodes.ZscriptNode;
 import net.zscript.javareceiver.testing.CollectingConsumer;
@@ -34,14 +34,14 @@ public class DeviceSteps {
     private final CollectingConsumer<ByteString> deviceBytesCollector = new CollectingConsumer<>();
     private       ByteString                     responseBytes;
 
-    private ZscriptModel model;
-    private Device       testDevice;
+    private ZscriptModel  model;
+    private ZscriptDevice testDevice;
 
     public DeviceSteps(ConnectionSteps connectionSteps) {
         this.connectionSteps = connectionSteps;
     }
 
-    public Device getTestDeviceHandle() {
+    public ZscriptDevice getTestDeviceHandle() {
         return requireNonNull(testDevice);
     }
 
@@ -62,7 +62,7 @@ public class DeviceSteps {
 
         final ZscriptNode node = ZscriptNode.newNode(conn);
         model = ZscriptModel.standardModel();
-        testDevice = new Device(model, node);
+        testDevice = new ZscriptDevice(model, node);
     }
 
     @When("I send {string} as a command to the device")
@@ -81,7 +81,7 @@ public class DeviceSteps {
     @Then("device should answer with response status value {word} and field {word} = {word}")
     public void shouldReceiveThisResponseFromDevice(String status, String field, String value) {
         final ResponseElement response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
- 
+
         assertThat(response.getFields().getField(Zchars.Z_STATUS)).hasValue(Integer.decode(status));
         assertThat(response.getFields().getField(field.charAt(0))).hasValue(Integer.decode(value));
     }

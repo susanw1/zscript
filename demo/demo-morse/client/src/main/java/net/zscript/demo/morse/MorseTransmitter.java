@@ -1,20 +1,20 @@
 package net.zscript.demo.morse;
 
-import static net.zscript.model.modules.base.PinsModule.digitalWriteBuilder;
-
 import java.util.List;
 
-import net.zscript.javaclient.devices.Device;
+import static net.zscript.model.modules.base.PinsModule.digitalWriteBuilder;
+
+import net.zscript.javaclient.devices.ZscriptDevice;
 import net.zscript.model.modules.base.PinsModule;
 import net.zscript.model.modules.base.PinsModule.DigitalSetupCommand.Builder.Mode;
 import net.zscript.model.modules.base.PinsModule.DigitalWriteCommand.Builder.Value;
 
 public class MorseTransmitter {
-    private final Device device;
-    private final long   ditPeriodUs;
-    private final int    pin;
+    private final ZscriptDevice device;
+    private final long          ditPeriodUs;
+    private final int           pin;
 
-    public MorseTransmitter(Device device, long ditPeriodUs, int pin) {
+    public MorseTransmitter(ZscriptDevice device, long ditPeriodUs, int pin) {
         this.device = device;
         this.ditPeriodUs = ditPeriodUs;
         this.pin = pin;

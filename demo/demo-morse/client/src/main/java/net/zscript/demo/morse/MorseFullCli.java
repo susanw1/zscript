@@ -19,12 +19,12 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-import net.zscript.javaclient.commandbuilder.defaultcommands.BlankCommandNode;
-import net.zscript.javaclient.commandbuilder.nodes.CommandSequenceNode;
-import net.zscript.javaclient.commandbuilder.nodes.ResponseCaptor;
+import net.zscript.javaclient.commandbuilderapi.defaultcommands.BlankCommandNode;
+import net.zscript.javaclient.commandbuilderapi.nodes.CommandSequenceNode;
+import net.zscript.javaclient.commandbuilderapi.nodes.ResponseCaptor;
 import net.zscript.javaclient.connectors.serial.SerialConnection;
-import net.zscript.javaclient.devices.Device;
 import net.zscript.javaclient.devices.ResponseSequenceCallback;
+import net.zscript.javaclient.devices.ZscriptDevice;
 import net.zscript.javaclient.nodes.ZscriptNode;
 import net.zscript.model.ZscriptModel;
 import net.zscript.model.modules.base.CoreModule;
@@ -127,7 +127,7 @@ public class MorseFullCli implements Callable<Integer> {
         return selected;
     }
 
-    private int negotiateBaud(SerialPort port, Device device, int target, String name) throws InterruptedException {
+    private int negotiateBaud(SerialPort port, ZscriptDevice device, int target, String name) throws InterruptedException {
         if (target > 16000000) {
             System.err.println("Cannot negotiate to frequencies over 16MHz");
             return 1;
@@ -171,7 +171,7 @@ public class MorseFullCli implements Callable<Integer> {
         return 0;
     }
 
-    private int setBaudSearchMenu(SerialPort port, Device device, int target, String name, UartModule.ChannelInfoCommand.ChannelInfoResponse resp, int currentChannelIndex)
+    private int setBaudSearchMenu(SerialPort port, ZscriptDevice device, int target, String name, UartModule.ChannelInfoCommand.ChannelInfoResponse resp, int currentChannelIndex)
             throws InterruptedException {
         // find all the frequency options
         List<ResponseCaptor<UartModule.ChannelInfoCommand.ChannelInfoResponse>> captors = new ArrayList<>();
@@ -210,7 +210,7 @@ public class MorseFullCli implements Callable<Integer> {
         return 0;
     }
 
-    private int setBaudInteractiveMenu(SerialPort port, Device device, String name, UartModule.ChannelInfoCommand.ChannelInfoResponse resp, int currentChannelIndex)
+    private int setBaudInteractiveMenu(SerialPort port, ZscriptDevice device, String name, UartModule.ChannelInfoCommand.ChannelInfoResponse resp, int currentChannelIndex)
             throws InterruptedException {
         System.out.println(name + " available frequencies: ");
 
@@ -263,7 +263,7 @@ public class MorseFullCli implements Callable<Integer> {
         return 0;
     }
 
-    private int setBaudArbitrary(SerialPort port, Device device, int target, String name, UartModule.ChannelInfoCommand.ChannelInfoResponse resp, int currentChannelIndex)
+    private int setBaudArbitrary(SerialPort port, ZscriptDevice device, int target, String name, UartModule.ChannelInfoCommand.ChannelInfoResponse resp, int currentChannelIndex)
             throws InterruptedException {
         int baudMax      = parseBaud(resp.getBaudRate());
         int actualTarget = target;
@@ -302,7 +302,7 @@ public class MorseFullCli implements Callable<Integer> {
         return baudInt;
     }
 
-    private int parsePin(Device device, String name, String verb, Predicate<DigitalSetupResponse> requirements, int toIgnore, String requirementName)
+    private int parsePin(ZscriptDevice device, String name, String verb, Predicate<DigitalSetupResponse> requirements, int toIgnore, String requirementName)
             throws InterruptedException {
         ResponseCaptor<PinsModule.CapabilitiesCommand.CapabilitiesResponse> captor = ResponseCaptor.create();
 
@@ -443,10 +443,10 @@ public class MorseFullCli implements Callable<Integer> {
                 return 1;
             }
         }
-        Device rxDevice = null;
+        ZscriptDevice rxDevice = null;
         if (rx != null) {
             rx.setBaudRate(receiveBaud == -1 ? generalBaud : receiveBaud);
-            rxDevice = new Device(ZscriptModel.standardModel(), ZscriptNode.newNode(new SerialConnection(rx)));
+            rxDevice = new ZscriptDevice(ZscriptModel.standardModel(), ZscriptNode.newNode(new SerialConnection(rx)));
             Thread.sleep(2000);
             rxDevice.sendAndWaitExpectSuccess(CoreModule.activateBuilder().build());
             if (negotiateBaud(rx, rxDevice, receiveBaudNegotiate == -1 ? generalBaudNegotiate : receiveBaudNegotiate, "Receive device") != 0) {
@@ -464,13 +464,13 @@ public class MorseFullCli implements Callable<Integer> {
                 }
             }
         }
-        Device txDevice = null;
+        ZscriptDevice txDevice = null;
         if (tx != null) {
             if (rx != null && tx.getSystemPortName().equals(rx.getSystemPortName())) {
                 txDevice = rxDevice;
             } else {
                 tx.setBaudRate(transmitBaud == -1 ? generalBaud : transmitBaud);
-                txDevice = new Device(ZscriptModel.standardModel(), ZscriptNode.newNode(new SerialConnection(tx)));
+                txDevice = new ZscriptDevice(ZscriptModel.standardModel(), ZscriptNode.newNode(new SerialConnection(tx)));
                 Thread.sleep(2000);
                 txDevice.sendAndWaitExpectSuccess(CoreModule.activateBuilder().build());
                 if (negotiateBaud(tx, txDevice, transmitBaudNegotiate == -1 ? generalBaudNegotiate : transmitBaudNegotiate, "Transmit device") != 0) {

@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import net.zscript.client.modules.test.testing.TestingModule;
 import net.zscript.javaclient.addressing.CompleteAddressedResponse;
-import net.zscript.javaclient.commandbuilder.ZscriptResponse;
-import net.zscript.javaclient.commandbuilder.notifications.NotificationSection;
+import net.zscript.javaclient.commandbuilderapi.ZscriptResponse;
+import net.zscript.javaclient.commandbuilderapi.notifications.NotificationSection;
 
 public class JavaCommandBuilderNotificationTest {
     @Test
