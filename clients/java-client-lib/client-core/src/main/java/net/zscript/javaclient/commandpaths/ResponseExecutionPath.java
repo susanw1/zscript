@@ -105,10 +105,12 @@ public class ResponseExecutionPath implements Iterable<ResponseElement>, ByteApp
         this.firstResponse = firstResponse;
     }
 
+    @Nullable
     public ResponseElement getFirstResponse() {
         return firstResponse;
     }
 
+    @Nonnull
     public List<ResponseElement> getResponses() {
         List<ResponseElement> resps = new ArrayList<>();
         for (ResponseElement r = firstResponse; r != null; r = r.getNext()) {

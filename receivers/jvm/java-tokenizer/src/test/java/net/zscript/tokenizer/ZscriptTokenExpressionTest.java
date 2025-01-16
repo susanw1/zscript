@@ -36,6 +36,14 @@ class ZscriptTokenExpressionTest {
     }
 
     @Test
+    public void shouldGetAllFields() {
+        tokenize("Z12 A34 BCffff +12\n");
+        assertThat(zscriptExpr.fields()).hasSize(4)
+                .extracting(f -> (char) f.getKey()).containsOnly('A', 'B', 'C', 'Z');
+
+    }
+
+    @Test
     public void shouldGetBigFields() {
         tokenize("Z12 A34 BCffff \"Hello\" \n");
         assertThat(zscriptExpr.getFieldCount()).isEqualTo(4);

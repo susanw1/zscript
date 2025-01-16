@@ -153,7 +153,8 @@ public class ConnectionBuffer {
     }
 
     public boolean send(CommandExecutionPath path, boolean ignoreLength, long timeout, TimeUnit unit) {
-        return send(new BufferElement(path, System.nanoTime() + unit.toNanos(timeout)), ignoreLength);
+        final CommandSequence seq = CommandSequence.from(path, echo.getEcho(), supports32Locks, lockConditions);
+        return send(new BufferElement(seq, System.nanoTime() + unit.toNanos(timeout)), ignoreLength);
     }
 
     public boolean hasNonAddressedInBuffer() {
@@ -177,7 +178,7 @@ public class ConnectionBuffer {
         this.bufferSize = bufferSize;
     }
 
-    class BufferElement {
+    static class BufferElement {
         private final AddressedCommand cmd;
         private final boolean          sameLayer;
         private final boolean          hadEchoBefore;
@@ -188,15 +189,6 @@ public class ConnectionBuffer {
             this.cmd = new AddressedCommand(seq);
             this.sameLayer = true;
             this.hadEchoBefore = true;
-            this.length = seq.getBufferLength();
-            this.nanoTimeTimeout = nanoTimeTimeout;
-        }
-
-        BufferElement(CommandExecutionPath cmd, long nanoTimeTimeout) {
-            CommandSequence seq = CommandSequence.from(cmd, echo.getEcho(), supports32Locks, lockConditions);
-            this.cmd = new AddressedCommand(seq);
-            this.sameLayer = true;
-            this.hadEchoBefore = false;
             this.length = seq.getBufferLength();
             this.nanoTimeTimeout = nanoTimeTimeout;
         }
