@@ -1,5 +1,6 @@
 package net.zscript.javaclient.devicenodes;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.zscript.javaclient.ZscriptClientException;
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.addressing.AddressedResponse;
 import net.zscript.javaclient.addressing.ZscriptAddress;
@@ -30,30 +32,14 @@ class ZscriptBasicNode implements ZscriptNode {
     private final ConnectionBuffer connectionBuffer;
     private final Connection       parentConnection;
 
-    private QueuingStrategy strategy = new StandardQueuingStrategy(1000, TimeUnit.SECONDS); // should be enough for almost all cases
-
-    private BiConsumer<AddressedCommand, AddressedResponse> badCommandResponseMatchHandler = (cmd, resp) -> {
-        LOG.error("Command and response do not match: {} ; {}", cmd.getContent().asStringUtf8(), resp.getResponseSequence().asStringUtf8());
-    };
-
-    private Consumer<AddressedResponse> unknownNotificationHandler = resp -> {
-        LOG.warn("Unknown notification received: {}", resp.getResponseSequence().asStringUtf8());
-    };
-
-    private Consumer<AddressedResponse> unknownResponseHandler = resp -> {
-        throw new IllegalStateException("Unknown response received: " + resp.getResponseSequence().asStringUtf8());
-    };
-
-    private Consumer<Exception> callbackExceptionHandler = e -> {
-        LOG.error("Exception caught from callback: ", e);
-    };
+    private final EchoAssigner echoSystem;
 
     private final Map<Integer, Consumer<ResponseSequence>> notificationHandlers = new HashMap<>();
 
     private final Map<CommandExecutionPath, Consumer<ResponseExecutionPath>> pathCallbacks         = new HashMap<>();
     private final Map<CommandSequence, Consumer<ResponseSequence>>           fullSequenceCallbacks = new HashMap<>();
 
-    private final EchoAssigner echoSystem;
+    private QueuingStrategy strategy = new StandardQueuingStrategy(1000, TimeUnit.SECONDS); // should be enough for almost all cases
 
     ZscriptBasicNode(ZscriptCallbackThreadpool callbackPool, Connection parentConnection, int bufferSize) {
         this(callbackPool, parentConnection, bufferSize, 100, TimeUnit.MILLISECONDS);
@@ -63,9 +49,11 @@ class ZscriptBasicNode implements ZscriptNode {
         this.callbackPool = callbackPool;
         this.addressingSystem = new AddressingSystem(this);
         this.parentConnection = parentConnection;
+
         this.echoSystem = new EchoAssigner(unit.toNanos(minSegmentChangeTime));
         this.connectionBuffer = new ConnectionBuffer(parentConnection, echoSystem, bufferSize);
         this.strategy.setBuffer(connectionBuffer);
+
         parentConnection.onReceive(resp -> {
             try {
                 if (resp.hasAddress()) {
@@ -79,23 +67,6 @@ class ZscriptBasicNode implements ZscriptNode {
                 callbackPool.sendCallback(callbackExceptionHandler, e); // catches all callback exceptions
             }
         });
-    }
-
-    public void setUnknownResponseHandler(Consumer<AddressedResponse> unknownResponseHandler) {
-        this.unknownResponseHandler = unknownResponseHandler;
-    }
-
-    public void setUnknownNotificationHandler(Consumer<AddressedResponse> unknownNotificationHandler) {
-        this.unknownNotificationHandler = unknownNotificationHandler;
-    }
-
-    public void setBadCommandResponseMatchHandler(
-            BiConsumer<AddressedCommand, AddressedResponse> badCommandResponseMatchHandler) {
-        this.badCommandResponseMatchHandler = badCommandResponseMatchHandler;
-    }
-
-    public void setCallbackExceptionHandler(Consumer<Exception> callbackExceptionHandler) {
-        this.callbackExceptionHandler = callbackExceptionHandler;
     }
 
     public void setStrategy(QueuingStrategy strategy) {
@@ -141,6 +112,7 @@ class ZscriptBasicNode implements ZscriptNode {
 
     private void response(AddressedResponse resp) {
         if (resp.getResponseSequence().getResponseFieldValue() != 0) {
+            // it's a notification
             Consumer<ResponseSequence> handler = notificationHandlers.get(resp.getResponseSequence().getResponseFieldValue());
             if (handler != null) {
                 callbackPool.sendCallback(handler, resp.getResponseSequence(), callbackExceptionHandler);
@@ -206,5 +178,65 @@ class ZscriptBasicNode implements ZscriptNode {
     @Override
     public void setBufferSize(int bufferSize) {
         connectionBuffer.setBufferSize(bufferSize);
+    }
+
+    private BiConsumer<AddressedCommand, AddressedResponse> badCommandResponseMatchHandler = ZscriptBasicNode::defaultBadCommandResponseMatchHandler;
+    private Consumer<AddressedResponse>                     unknownResponseHandler         = ZscriptBasicNode::defaultUnknownResponseHandler;
+    private Consumer<AddressedResponse>                     unknownNotificationHandler     = ZscriptBasicNode::defaultUnknownNotificationHandler;
+    private Consumer<Exception>                             callbackExceptionHandler       = ZscriptBasicNode::defaultCallbackExceptionHandler;
+
+    private static void defaultBadCommandResponseMatchHandler(AddressedCommand cmd, AddressedResponse resp) {
+        LOG.error("Command and response do not match: {} ; {}", cmd.getContent().asStringUtf8(), resp.getResponseSequence().asStringUtf8());
+    }
+
+    private static void defaultUnknownResponseHandler(AddressedResponse resp) {
+        throw new ZscriptClientException("Unknown response received: " + resp.getResponseSequence().asStringUtf8());
+    }
+
+    private static void defaultUnknownNotificationHandler(AddressedResponse resp) {
+        LOG.warn("Unknown notification received: {}", resp.getResponseSequence().asStringUtf8());
+    }
+
+    private static void defaultCallbackExceptionHandler(Exception e) {
+        LOG.error("Exception caught from callback: ", e);
+    }
+
+    /**
+     * Sets the handler for when a response is received for a command, but where its response sequence doesn't match its corresponding command sequence. This would imply something
+     * bad has happened in the Zscript processing on the target device - sounds like a bug!
+     *
+     * @param badCommandResponseMatchHandler the new handler, or null to restore the default handler
+     */
+    public void setBadCommandResponseMatchHandler(@Nullable BiConsumer<AddressedCommand, AddressedResponse> badCommandResponseMatchHandler) {
+        this.badCommandResponseMatchHandler = badCommandResponseMatchHandler != null ? badCommandResponseMatchHandler : ZscriptBasicNode::defaultBadCommandResponseMatchHandler;
+    }
+
+    /**
+     * Sets the handler for when a response is received that cannot be related to a known sent command. This would normally mean something weird has happened - it probably
+     * shouldn't happen.
+     *
+     * @param unknownResponseHandler the new handler, or null to restore the default handler
+     */
+    public void setUnknownResponseHandler(@Nullable Consumer<AddressedResponse> unknownResponseHandler) {
+        this.unknownResponseHandler = unknownResponseHandler != null ? unknownResponseHandler : ZscriptBasicNode::defaultUnknownResponseHandler;
+    }
+
+    /**
+     * Sets the handler for when a notification is received for which no listener is registered. This might be unexpected and worth knowing about, but may easily be ignored.
+     *
+     * @param unknownNotificationHandler the new handler, or null to restore the default handler
+     */
+    public void setUnknownNotificationHandler(@Nullable Consumer<AddressedResponse> unknownNotificationHandler) {
+        this.unknownNotificationHandler = unknownNotificationHandler != null ? unknownNotificationHandler : ZscriptBasicNode::defaultUnknownNotificationHandler;
+    }
+
+    /**
+     * Sets the handler for when a response is received for a command, but where its response sequence doesn't match its corresponding command sequence. This would imply something
+     * bad has happened in the Zscript processing on the target device - sounds like a bug!
+     *
+     * @param callbackExceptionHandler the new handler, or null to restore the default handler
+     */
+    public void setCallbackExceptionHandler(@Nullable Consumer<Exception> callbackExceptionHandler) {
+        this.callbackExceptionHandler = callbackExceptionHandler != null ? callbackExceptionHandler : ZscriptBasicNode::defaultCallbackExceptionHandler;
     }
 }

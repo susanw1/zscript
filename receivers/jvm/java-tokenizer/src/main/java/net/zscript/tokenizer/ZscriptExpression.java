@@ -13,7 +13,7 @@ import net.zscript.util.ByteString;
  */
 public interface ZscriptExpression {
     /**
-     * Accesses all the numeric fields in indeterminate order.
+     * Accesses all the numeric fields in indeterminate order (not big-fields - use {@link #getBigFieldAsByteString()}).
      *
      * @return stream of numeric fields
      */
