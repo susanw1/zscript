@@ -61,10 +61,14 @@ public final class ResponseElement implements ByteAppendable {
                 builder.appendByte(Zchars.Z_ANDTHEN);
             }
         } else {
-            for (int i = 0; i < bracketCount; i++) {
+            if (isCloseBracket) {
                 builder.appendByte(Zchars.Z_CLOSEPAREN);
+            } else {
+                for (int i = 0; i < bracketCount; i++) {
+                    builder.appendByte(Zchars.Z_CLOSEPAREN);
+                }
+                builder.appendByte(Zchars.Z_ORELSE);
             }
-            builder.appendByte(Zchars.Z_ORELSE);
         }
     }
 

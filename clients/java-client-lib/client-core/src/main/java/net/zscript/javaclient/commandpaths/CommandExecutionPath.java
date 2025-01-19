@@ -243,7 +243,7 @@ public class CommandExecutionPath implements Iterable<CommandElement>, ByteAppen
             compareResponses(resps);
             return true;
         } catch (ZscriptMismatchedResponseException ex) {
-            LOG.trace("Mismatch identified: " + ex);
+            LOG.atTrace().addArgument(() -> ex).log("Mismatch identified: {}");
             return false;
         }
     }
@@ -269,15 +269,12 @@ public class CommandExecutionPath implements Iterable<CommandElement>, ByteAppen
         boolean lastSucceeded  = true;
         int     lastParenCount = 0;
 
-        List<MatchedCommandResponse> cmds        = new ArrayList<>();
-        CommandElement               currentCmd  = firstCommand;
-        ResponseElement              currentResp = resps.getFirstResponse();
-        CommandElement               lastFail    = null;
+        final List<MatchedCommandResponse> cmds        = new ArrayList<>();
+        CommandElement                     currentCmd  = firstCommand;
+        ResponseElement                    currentResp = resps.getFirstResponse();
+        CommandElement                     lastFail    = null;
 
-        while (currentResp != null) {
-            if (currentCmd == null) {
-                throw new ZscriptMismatchedResponseException("Command sequence ended before response - cannot match");
-            }
+        while (currentResp != null && currentCmd != null) {
             cmds.add(new MatchedCommandResponse(currentCmd, currentResp));
 
             if (lastSucceeded) {
@@ -320,7 +317,7 @@ public class CommandExecutionPath implements Iterable<CommandElement>, ByteAppen
                     }
                     parenStarts.pop();
                 }
-                // We used to check this, but we don't have a test-case and it rejects AS|BS2|C because parenStarts . Disable for now.
+                // We used to check this, but we don't have a test-case and it rejects AS|BS2|C because parenStarts doesn't progress. Disable for now.
                 //                if (parenStarts.isEmpty() || parenStarts.peek().getOnFail() != currentCmd) {
                 //                    throw new ZscriptMismatchedResponseException("Response has failure divergence without parenthesis");
                 //                }
@@ -342,6 +339,11 @@ public class CommandExecutionPath implements Iterable<CommandElement>, ByteAppen
             }
             currentResp = currentResp.getNext();
         }
+
+        if (currentCmd == null && currentResp != null && (!currentResp.getFields().isEmpty() || currentResp.getNext() != null)) {
+            throw new ZscriptMismatchedResponseException("Command sequence ended before response - cannot match");
+        }
+
         return cmds;
     }
 
