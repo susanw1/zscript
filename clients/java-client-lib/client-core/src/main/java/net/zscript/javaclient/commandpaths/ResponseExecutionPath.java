@@ -11,6 +11,8 @@ import java.util.function.Consumer;
 
 import static java.lang.Byte.toUnsignedInt;
 import static java.lang.Integer.toHexString;
+import static net.zscript.model.components.ZscriptStatus.SUCCESS;
+import static net.zscript.model.components.ZscriptStatus.isSuccess;
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 import net.zscript.javaclient.ZscriptParseException;
@@ -178,8 +180,10 @@ public class ResponseExecutionPath implements Iterable<ResponseElement>, ByteApp
 
         @Nonnull
         public ResponseElement generateResponse(@Nullable ResponseElement next, boolean unexplainedFail, int priorBrackets) {
-            return new ResponseElement(next, !(unexplainedFail || separator == Zchars.Z_ORELSE), separator == '(', separator == ')', priorBrackets,
-                    ZscriptFieldSet.fromTokens(start));
+            final ZscriptFieldSet fieldSet = ZscriptFieldSet.fromTokens(start);
+            return new ResponseElement(next,
+                    isSuccess(fieldSet.getField(Zchars.Z_STATUS, SUCCESS)) && !(unexplainedFail || separator == Zchars.Z_ORELSE),
+                    separator == '(', separator == ')', priorBrackets, fieldSet);
         }
     }
 }

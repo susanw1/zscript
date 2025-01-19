@@ -18,15 +18,15 @@ import net.zscript.util.OptIterator;
 class ResponseExecutionPathTest {
     @ParameterizedTest
     @CsvSource({
-            "'',                                ''",
-            "SA1,                               A1S",
-            "BaA01S,                             A1BaS",
-            "AS & BS,                             AS&BS",
-            "AS | BS,                       AS|BS",
-            "A+ab | B,                    A+ab|B",
-            "A,                                 A",
-            "A & B,                             A&B",
-            "A | B,                             A|B",
+            "'',                        ''",
+            "SA1,                       A1S",
+            "BaA01S,                    A1BaS",
+            "AS & BS,                   AS&BS",
+            "AS | BS,                   AS|BS",
+            "A+ab | B,                  A+ab|B",
+            "A,                         A",
+            "A & B,                     A&B",
+            "A | B,                     A|B",
             "(A | B) & C,               (A|B)&C",
             "(A | B) & (C | D),         (A|B)&(C|D)",
     })
@@ -44,8 +44,7 @@ class ResponseExecutionPathTest {
         assertThat(responseB).isNotNull().extracting(ByteString.ByteAppendable::asStringUtf8).isEqualTo("BS2");
 
         assertThat(responseA.wasSuccess()).isTrue();
-        // TODO - check if this should be false? Response status indicates it failed, but there's no '|' as it's the last response.
-        assertThat(responseB.wasSuccess()).isTrue();
+        assertThat(responseB.wasSuccess()).isFalse();
     }
 
     @Test

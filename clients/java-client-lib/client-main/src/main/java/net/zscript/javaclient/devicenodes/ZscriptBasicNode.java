@@ -113,7 +113,7 @@ class ZscriptBasicNode implements ZscriptNode {
     private void response(AddressedResponse resp) {
         if (resp.getResponseSequence().getResponseFieldValue() != 0) {
             // it's a notification
-            Consumer<ResponseSequence> handler = notificationHandlers.get(resp.getResponseSequence().getResponseFieldValue());
+            final Consumer<ResponseSequence> handler = notificationHandlers.get(resp.getResponseSequence().getResponseFieldValue());
             if (handler != null) {
                 callbackPool.sendCallback(handler, resp.getResponseSequence(), callbackExceptionHandler);
             } else {
@@ -121,7 +121,7 @@ class ZscriptBasicNode implements ZscriptNode {
             }
             return;
         }
-        AddressedCommand found = connectionBuffer.match(resp.getResponseSequence());
+        final AddressedCommand found = connectionBuffer.match(resp.getResponseSequence());
         if (found == null) {
             // if it's a recently timed out message, ignore it.
             if (resp.getResponseSequence().hasEchoValue() && echoSystem.unmatchedReceive(resp.getResponseSequence().getEchoValue())) {
@@ -138,11 +138,12 @@ class ZscriptBasicNode implements ZscriptNode {
 
         strategy.mayHaveSpace();
         parentConnection.notifyResponseMatched(found);
-        Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getContent());
+
+        final Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getContent());
         if (seqCallback != null) {
             callbackPool.sendCallback(seqCallback, resp.getResponseSequence(), callbackExceptionHandler);
         } else {
-            Consumer<ResponseExecutionPath> pathCallback = pathCallbacks.remove(found.getContent().getExecutionPath());
+            final Consumer<ResponseExecutionPath> pathCallback = pathCallbacks.remove(found.getContent().getExecutionPath());
             if (pathCallback != null) {
                 callbackPool.sendCallback(pathCallback, resp.getResponseSequence().getExecutionPath(), callbackExceptionHandler);
             } else {
