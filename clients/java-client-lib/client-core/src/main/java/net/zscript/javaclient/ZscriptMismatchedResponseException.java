@@ -1,6 +1,6 @@
 package net.zscript.javaclient;
 
-public class ZscriptMismatchedResponseException extends ZscriptParseException {
+public class ZscriptMismatchedResponseException extends ZscriptClientException {
     public ZscriptMismatchedResponseException(String format, Object... params) {
         super(format, params);
     }

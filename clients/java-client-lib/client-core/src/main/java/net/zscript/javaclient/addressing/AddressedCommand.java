@@ -13,11 +13,11 @@ import net.zscript.util.ByteString.ByteStringBuilder;
  */
 public class AddressedCommand implements ByteAppendable {
     private final Queue<ZscriptAddress> addressSections;
-    private final CommandSequence       content;
+    private final CommandSequence       commandSequence;
 
-    public AddressedCommand(CommandSequence content) {
+    public AddressedCommand(CommandSequence commandSequence) {
         this.addressSections = new ArrayDeque<>();
-        this.content = content;
+        this.commandSequence = commandSequence;
     }
 
     /**
@@ -32,12 +32,12 @@ public class AddressedCommand implements ByteAppendable {
     @Override
     public void appendTo(ByteStringBuilder builder) {
         builder.append(addressSections)
-                .append(content)
+                .append(commandSequence)
                 .appendByte(Zchars.Z_NEWLINE);
     }
 
-    public CommandSequence getContent() {
-        return content;
+    public CommandSequence getCommandSequence() {
+        return commandSequence;
     }
 
     public boolean hasAddressLayer() {
@@ -45,7 +45,7 @@ public class AddressedCommand implements ByteAppendable {
     }
 
     public int getBufferLength() {
-        int length = content.getBufferLength();
+        int length = commandSequence.getBufferLength();
         for (ZscriptAddress addr : addressSections) {
             length += addr.getBufferLength();
         }

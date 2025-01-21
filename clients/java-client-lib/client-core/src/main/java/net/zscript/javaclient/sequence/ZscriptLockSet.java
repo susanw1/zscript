@@ -23,7 +23,7 @@ public class ZscriptLockSet implements ByteAppendable {
     }
 
     public static ZscriptLockSet allLocked(boolean supports32) {
-        return new ZscriptLockSet(true, supports32 ? 0xFFFFFFFFL : 0xFFFF);
+        return new ZscriptLockSet(supports32, supports32 ? 0xFFFFFFFFL : 0xFFFF);
     }
 
     public static ZscriptLockSet noneLocked(boolean supports32) {
@@ -52,7 +52,7 @@ public class ZscriptLockSet implements ByteAppendable {
         if (isAllSet()) {
             return;
         }
-        long data = locks.toLongArray()[0];
+        final long data = locks.isEmpty() ? 0 : locks.toLongArray()[0];
         builder.appendByte(Zchars.Z_LOCKS).appendNumeric32(data);
     }
 
@@ -69,7 +69,7 @@ public class ZscriptLockSet implements ByteAppendable {
         if (isAllSet()) {
             return 0;
         }
-        long value = locks.toLongArray()[0];
+        final long value = locks.isEmpty() ? 0 : locks.toLongArray()[0];
         if (value > 0xFFFFFF) {
             return 6;
         } else if (value > 0xFFFF) {
