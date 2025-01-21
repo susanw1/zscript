@@ -7,10 +7,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
-import net.zscript.tokenizer.TokenBuffer;
+import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 class ZscriptLockSetTest {
-
     @Test
     public void shouldSetAllLocks() {
         final ZscriptLockSet locks16 = ZscriptLockSet.allLocked(false);
@@ -53,35 +52,43 @@ class ZscriptLockSetTest {
 
     @Test
     public void shouldParseNormalLocks() {
-        final ZscriptLockSet locks16 = ZscriptLockSet.parse(tokenize(byteStringUtf8("%52c"), true)
-                .getTokenReader().getFirstReadToken(), false);
+        final ZscriptLockSet locks16 = ZscriptLockSet.parse(parse("%52c"), false);
         assertThat(locks16.isAllSet()).isFalse();
         assertThat(locks16.asStringUtf8()).isEqualTo("%52c0");
     }
 
     @Test
     public void shouldParseEmptyLocks() {
-        final ZscriptLockSet locks16 = ZscriptLockSet.parse(tokenize(byteStringUtf8("%"), true)
-                .getTokenReader().getFirstReadToken(), false);
+        final ZscriptLockSet locks16 = ZscriptLockSet.parse(parse("%"), false);
         assertThat(locks16.isAllSet()).isFalse();
         assertThat(locks16.asStringUtf8()).isEqualTo("%");
     }
 
     @Test
     public void shouldRejectParsingNoLocks() {
-        final TokenBuffer.TokenReader.ReadToken token = tokenize(byteStringUtf8("A1"), true).getTokenReader().getFirstReadToken();
+        final ReadToken token = parse("A1");
         assertThatThrownBy(() -> ZscriptLockSet.parse(token, false))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Cannot parse lock set");
     }
 
     @Test
     public void shouldRejectParsingLongLockField() {
-        final TokenBuffer.TokenReader.ReadToken token16 = tokenize(byteStringUtf8("%12345"), true).getTokenReader().getFirstReadToken();
+        final ReadToken token16 = parse("%12345");
         assertThatThrownBy(() -> ZscriptLockSet.parse(token16, false))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Lock field too long");
 
-        final TokenBuffer.TokenReader.ReadToken token32 = tokenize(byteStringUtf8("%12345678a"), true).getTokenReader().getFirstReadToken();
+        final ReadToken token32 = parse("%12345678a");
         assertThatThrownBy(() -> ZscriptLockSet.parse(token32, true))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Lock field too long");
+    }
+
+    @Test
+    public void shouldImplementToString() {
+        final ZscriptLockSet locks16 = ZscriptLockSet.parse(parse("%52c"), false);
+        assertThat(locks16).hasToString("ZscriptLockSet:{'%52c0'}");
+    }
+
+    private static ReadToken parse(String s) {
+        return tokenize(byteStringUtf8(s), true).getTokenReader().getFirstReadToken();
     }
 }
