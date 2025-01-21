@@ -1,8 +1,13 @@
 package net.zscript.javaclient.commandpaths;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
+import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
 import static net.zscript.javaclient.tokens.ExtendingTokenBuffer.tokenize;
 import static net.zscript.javaclient.tokens.ExtendingTokenBuffer.tokenizeWithoutRejection;
 import static net.zscript.util.ByteString.byteStringUtf8;
@@ -11,7 +16,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
@@ -152,6 +159,25 @@ class CommandExecutionPathTest {
         assertThat(commandD.getOnFail()).isNull();
     }
 
+    @Test
+    public void shouldIterateEmptyCommand() {
+        final CommandExecutionPath cmdPath = CommandExecutionPath.parse(tokenize(byteStringUtf8(""), true).getTokenReader().getFirstReadToken());
+        Iterator<CommandElement>   iter    = cmdPath.iterator();
+        assertThat(iter.hasNext()).isTrue();
+        assertThat(iter.next().isEmpty()).isTrue();
+        assertThat(iter.hasNext()).isFalse();
+    }
+
+    @Test
+    public void shouldIterateComplexCommand() {
+        final CommandExecutionPath cmdPath = CommandExecutionPath.parse(tokenize(byteStringUtf8("A&(B|C)&D"), true).getTokenReader().getFirstReadToken());
+
+        Iterator<CommandElement> iter = cmdPath.iterator();
+        assertThat(iter.hasNext()).isTrue();
+        final List<CommandElement> elements = stream(spliteratorUnknownSize(iter, 0), false).collect(toList());
+        assertThat(elements).extracting(ByteAppendable::asStringUtf8).containsExactlyInAnyOrder("A", "", "B", "", "C", "D");
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
             "x\n",
@@ -185,56 +211,9 @@ class CommandExecutionPathTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "A,                         AS,                 'A:AS'",
-            "A,                         AS2,                'A:AS2'",
-            "A & B,                     AS2,                'A:AS2'",
-            "A | B,                     AS,                 'A:AS'",
-            "A | B,                     AS2 | BS,           'A:AS2; B:BS'",
-            "A | B,                     AS2 | BS2,          'A:AS2; B:BS2'",
-            "A & B & C,                 AS & BS & CS,       'A:AS; B:BS; C:CS'",
-            "A & B & C,                 AS & BS & CS2,      'A:AS; B:BS; C:CS2'",
-            "A & B & C,                 AS & BS2,           'A:AS; B:BS2'",
-            "A & B & C,                 AS2,                'A:AS2'",
-            "A | B | C,                 AS2 | BS,           'A:AS2; B:BS'",
-            "A | B | C,                 AS2 | BS2 | CS,     'A:AS2; B:BS2; C:CS'",
-
-            "A & B | C,                 AS & BS,            'A:AS; B:BS'",
-            "A & B | C,                 AS & BS2 | CS,      'A:AS; B:BS2; C:CS'",
-            "A & B | C,                 AS2 | CS,           'A:AS2; C:CS'",
-            "A & B | C,                 AS2 | CS2,          'A:AS2; C:CS2'",
-
-            "A | B & C,                 AS,                 'A:AS'",
-            "A | B & C,                 AS2 | BS & CS,      'A:AS2; B:BS; C:CS'",
-            "A | B & C,                 AS2 | BS & CS2,     'A:AS2; B:BS; C:CS2'",
-            "A | B & C,                 AS2 | BS2,          'A:AS2; B:BS2'",
-
-            "A & (B | C),                AS & (BS),          'A:AS; :; B:BS; :'",
-            "A & (B | C),                AS & (BS2 | CS),    'A:AS; :; B:BS2; C:CS;  :'",
-            "A & (B | C),                AS & (BS2 | CS2),   'A:AS; :; B:BS2; C:CS2'",
-            "A & (B | C),                AS2,                'A:AS2'",
-
-            "A & (B | C,                 AS & (BS,           'A:AS; :; B:BS'",
-            "A & (B | C,                 AS & (BS2 | CS,     'A:AS; :; B:BS2; C:CS'",
-            "A & (B | C,                 AS & (BS2 | CS2,    'A:AS; :; B:BS2; C:CS2'",
-            "A & (B | C,                 AS2,                'A:AS2'",
-
-            "(A | B) & C,                (AS) & CS,          ':; A:AS; :; C:CS'",
-            "(A | B) & C,                (AS) & CS2,         ':; A:AS; :; C:CS2'",
-            "(A | B) & C,                (AS2 | BS) & CS,    ':; A:AS2; B:BS; :; C:CS'",
-            "(A | B) & C,                (AS2 | BS2),        ':; A:AS2; B:BS2'",
-
-            "A | B) & C,                 AS) & CS,           'A:AS; :; C:CS'",
-            "A | B) & C,                 AS) & CS2,          'A:AS; :; C:CS2'",
-            "A | B) & C,                 AS2 | BS) & CS,     'A:AS2; B:BS; :; C:CS'",
-            "A | B) & C,                 AS2 | BS2),         'A:AS2; B:BS2'",
-
-            "(A | B) & (C | D) & E,      (AS) & (CS) & ES,    ':; A:AS; :; :; C:CS; :; E:ES'",
-            "(A | B) & (C | D) & E,      (AS2 | BS) & (CS),   ':; A:AS2; B:BS; :; :; C:CS; :;'",
-            "(A | B) & (C | D) & E,      (AS2|BS2),           ':; A:AS2; B:BS2'",
-    })
+    @MethodSource("validCommandResponses")
     public void shouldMatchCommandToResponse(String cmd, String resp, String matchExpr) {
-        final List<MatchedCommandResponse> result = compare(cmd, resp);
+        final List<MatchedCommandResponse> result = compare(cmd, resp, true);
 
         // matchExpr is ';'-sep'd list of 'cmd:resp' pairs
         final List<String> elements = asList(matchExpr.split("; *"));
@@ -249,31 +228,88 @@ class CommandExecutionPathTest {
         }
     }
 
+    private static Stream<Arguments> validCommandResponses() {
+        return Stream.of(
+                Arguments.of("A", "AS", "A:AS"),
+                Arguments.of("A", "AS2", "A:AS2"),
+                Arguments.of("A & B", "AS2", "A:AS2"),
+                Arguments.of("A | B", "AS", "A:AS"),
+                Arguments.of("A | B", "AS2 | BS", "A:AS2; B:BS"),
+                Arguments.of("A | B", "AS2 | BS2", "A:AS2; B:BS2"),
+                Arguments.of("A & B & C", "AS & BS & CS", "A:AS; B:BS; C:CS"),
+                Arguments.of("A & B & C", "AS & BS & CS2", "A:AS; B:BS; C:CS2"),
+                Arguments.of("A & B & C", "AS & BS2", "A:AS; B:BS2"),
+                Arguments.of("A & B & C", "AS2", "A:AS2"),
+                Arguments.of("A | B | C", "AS2 | BS", "A:AS2; B:BS"),
+                Arguments.of("A | B | C", "AS2 | BS2 | CS", "A:AS2; B:BS2; C:CS"),
+
+                Arguments.of("A & B | C", "AS & BS", "A:AS; B:BS"),
+                Arguments.of("A & B | C", "AS & BS2 | CS", "A:AS; B:BS2; C:CS"),
+                Arguments.of("A & B | C", "AS2 | CS", "A:AS2; C:CS"),
+                Arguments.of("A & B | C", "AS2 | CS2", "A:AS2; C:CS2"),
+
+                Arguments.of("A | B & C", "AS", "A:AS"),
+                Arguments.of("A | B & C", "AS2 | BS & CS", "A:AS2; B:BS; C:CS"),
+                Arguments.of("A | B & C", "AS2 | BS & CS2", "A:AS2; B:BS; C:CS2"),
+                Arguments.of("A | B & C", "AS2 | BS2", "A:AS2; B:BS2"),
+
+                Arguments.of("A & (B | C)", "AS & (BS)", "A:AS; :; B:BS; :"),
+                Arguments.of("A & (B | C)", "AS & (BS2 | CS)", "A:AS; :; B:BS2; C:CS;  :"),
+                Arguments.of("A & (B | C)", "AS & (BS2 | CS2)", "A:AS; :; B:BS2; C:CS2"),
+                Arguments.of("A & (B | C)", "AS2", "A:AS2"),
+
+                Arguments.of("A & (B | C", "AS & (BS", "A:AS; :; B:BS"),
+                Arguments.of("A & (B | C", "AS & (BS2 | CS", "A:AS; :; B:BS2; C:CS"),
+                Arguments.of("A & (B | C", "AS & (BS2 | CS2", "A:AS; :; B:BS2; C:CS2"),
+                Arguments.of("A & (B | C", "AS2", "A:AS2"),
+
+                Arguments.of("(A | B) & C", "(AS) & CS", ":; A:AS; :; C:CS"),
+                Arguments.of("(A | B) & C", "(AS) & CS2", ":; A:AS; :; C:CS2"),
+                Arguments.of("(A | B) & C", "(AS2 | BS) & CS", ":; A:AS2; B:BS; :; C:CS"),
+                Arguments.of("(A | B) & C", "(AS2 | BS2)", ":; A:AS2; B:BS2"),
+
+                Arguments.of("A | B) & C", "AS) & CS", "A:AS; :; C:CS"),
+                Arguments.of("A | B) & C", "AS) & CS2", "A:AS; :; C:CS2"),
+                Arguments.of("A | B) & C", "AS2 | BS) & CS", "A:AS2; B:BS; :; C:CS"),
+                Arguments.of("A | B) & C", "AS2 | BS2)", "A:AS2; B:BS2"),
+
+                Arguments.of("(A | B) & (C | D) & E", "(AS) & (CS) & ES", ":; A:AS; :; :; C:CS; :; E:ES"),
+                Arguments.of("(A | B) & (C | D) & E", "(AS2 | BS) & (CS)", ":; A:AS2; B:BS; :; :; C:CS; :;"),
+                Arguments.of("(A | B) & (C | D) & E", "(AS2|BS2)", ":; A:AS2; B:BS2")
+        );
+    }
+
     @ParameterizedTest
-    @CsvSource({
-            "A,                         AS & S,                 ended before response",
-            //            "A & B,                     AS2 & BS,               ", // impossible, but uncaught
-            //            "A | B,                     AS | BS,                ", // impossible, but uncaught
-            "A | B,                     AS & BS,                ended before response",
-            "A & B,                     AS | BS,                ended before response",
-            "A & B,                     AS),                    Response has ')' without valid opening '('",
-    })
+    @MethodSource("invalidCommandResponses")
     public void shouldRejectUnmatchedCommandToResponse(String cmd, String resp, String errorText) {
-        assertThatThrownBy(() -> compare(cmd, resp))
+        assertThatThrownBy(() -> compare(cmd, resp, false))
                 .isInstanceOf(ZscriptMismatchedResponseException.class)
                 .hasMessageContaining(errorText);
     }
 
+    private static Stream<Arguments> invalidCommandResponses() {
+        return Stream.of(
+                Arguments.of("A", "AS & S", "ended before response"),
+                Arguments.of("A & B", "AS2 & BS", "ended before response"),
+                //                Arguments.of("A | B", "AS | BS", "ended before response"), // impossible, but uncaught
+
+                Arguments.of("A | B", "AS & BS", "ended before response"),
+                Arguments.of("A & B", "AS | BS", "ended before response"),
+                Arguments.of("A & B", "AS)", "Response has ')' without valid opening '('")
+        );
+    }
+
     private static CommandExecutionPath getAndCheckCommandExecutionPath(String cmds, String expected) {
-        final ReadToken      token   = tokenize(byteStringUtf8(cmds), true).getTokenReader().getFirstReadToken();
-        CommandExecutionPath cmdPath = CommandExecutionPath.parse(token);
+        final ReadToken            token   = tokenize(byteStringUtf8(cmds), true).getTokenReader().getFirstReadToken();
+        final CommandExecutionPath cmdPath = CommandExecutionPath.parse(token);
         assertThat(cmdPath.asStringUtf8()).isEqualTo(expected);
         return cmdPath;
     }
 
-    private static List<MatchedCommandResponse> compare(String cmd, String resp) {
+    private static List<MatchedCommandResponse> compare(String cmd, String resp, boolean expectMatch) {
         final CommandExecutionPath  cmdPath  = CommandExecutionPath.parse(tokenize(byteStringUtf8(cmd), true).getTokenReader().getFirstReadToken());
         final ResponseExecutionPath respPath = ResponseExecutionPath.parse(tokenize(byteStringUtf8(resp), true).getTokenReader().getFirstReadToken());
+        assertThat(cmdPath.matchesResponses(respPath)).isEqualTo(expectMatch);
         return cmdPath.compareResponses(respPath);
     }
 

@@ -131,7 +131,7 @@ class ZscriptBasicNode implements ZscriptNode {
             return;
         }
 
-        if (!found.getContent().getExecutionPath().matchesResponses(resp.getResponseSequence().getExecutionPath())) {
+        if (!found.getCommandSequence().getExecutionPath().matchesResponses(resp.getResponseSequence().getExecutionPath())) {
             callbackPool.sendCallback(badCommandResponseMatchHandler, found, resp, callbackExceptionHandler);
             return;
         }
@@ -139,11 +139,11 @@ class ZscriptBasicNode implements ZscriptNode {
         strategy.mayHaveSpace();
         parentConnection.notifyResponseMatched(found);
 
-        final Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getContent());
+        final Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getCommandSequence());
         if (seqCallback != null) {
             callbackPool.sendCallback(seqCallback, resp.getResponseSequence(), callbackExceptionHandler);
         } else {
-            final Consumer<ResponseExecutionPath> pathCallback = pathCallbacks.remove(found.getContent().getExecutionPath());
+            final Consumer<ResponseExecutionPath> pathCallback = pathCallbacks.remove(found.getCommandSequence().getExecutionPath());
             if (pathCallback != null) {
                 callbackPool.sendCallback(pathCallback, resp.getResponseSequence().getExecutionPath(), callbackExceptionHandler);
             } else {
@@ -187,7 +187,7 @@ class ZscriptBasicNode implements ZscriptNode {
     private Consumer<Exception>                             callbackExceptionHandler       = ZscriptBasicNode::defaultCallbackExceptionHandler;
 
     private static void defaultBadCommandResponseMatchHandler(AddressedCommand cmd, AddressedResponse resp) {
-        LOG.error("Command and response do not match: {} ; {}", cmd.getContent().asStringUtf8(), resp.getResponseSequence().asStringUtf8());
+        LOG.error("Command and response do not match: {} ; {}", cmd.getCommandSequence().asStringUtf8(), resp.getResponseSequence().asStringUtf8());
     }
 
     private static void defaultUnknownResponseHandler(AddressedResponse resp) {

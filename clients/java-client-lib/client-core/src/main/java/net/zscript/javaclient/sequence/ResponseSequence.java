@@ -44,7 +44,7 @@ public final class ResponseSequence implements ByteAppendable {
     }
 
     public static ResponseSequence empty() {
-        return new ResponseSequence(ResponseExecutionPath.blank(), -1, -1, false);
+        return new ResponseSequence(ResponseExecutionPath.blank(), 0, -1, false);
     }
 
     public static ResponseSequence timedOut() {

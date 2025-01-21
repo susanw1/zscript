@@ -4,4 +4,12 @@ import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 
 public interface LockCondition {
     void apply(CommandExecutionPath path, ZscriptLockSet locks);
+
+    static LockCondition createFromBits(int... lockBits) {
+        return (path, locks) -> {
+            for (int b : lockBits) {
+                locks.setLock(b);
+            }
+        };
+    }
 }

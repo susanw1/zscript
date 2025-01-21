@@ -2,6 +2,8 @@ package net.zscript.javaclient.commandpaths;
 
 import javax.annotation.Nullable;
 
+import static java.lang.System.identityHashCode;
+
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
 import net.zscript.util.ByteString;
@@ -101,5 +103,26 @@ public class CommandElement implements ByteAppendable {
 
     public ZscriptFieldSet getFields() {
         return fieldSet;
+    }
+
+    /**
+     * Equality checks are identity-based.
+     *
+     * @return the identityHashCode
+     */
+    @Override
+    public final int hashCode() {
+        return identityHashCode(this);
+    }
+
+    /**
+     * Equality checks are identity-based.
+     *
+     * @param obj the object to compare
+     * @return true if this == obj, false otherwise
+     */
+    @Override
+    public final boolean equals(Object obj) {
+        return this == obj;
     }
 }

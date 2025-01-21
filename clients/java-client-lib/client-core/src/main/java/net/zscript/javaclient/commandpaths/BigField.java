@@ -66,7 +66,7 @@ public class BigField implements ZscriptField, ByteAppendable {
     }
 
     /**
-     * Writes the big-field in its preferred form to the ByteStringBuilder.
+     * Writes the big-field in its preferred form (including '+' prefix or enclosing quotes and escaping) to the ByteStringBuilder.
      *
      * @param builder the builder to append to
      */

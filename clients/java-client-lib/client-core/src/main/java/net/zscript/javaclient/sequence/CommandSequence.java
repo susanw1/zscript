@@ -31,19 +31,14 @@ public class CommandSequence implements ByteAppendable {
     }
 
     public static CommandSequence from(CommandExecutionPath path, int echoField, boolean supports32Locks, Collection<LockCondition> lockConditions) {
-        ZscriptLockSet locks;
-        if (lockConditions.isEmpty()) {
-            locks = ZscriptLockSet.allLocked(supports32Locks);
-        } else {
-            locks = ZscriptLockSet.noneLocked(supports32Locks);
-            for (LockCondition c : lockConditions) {
-                c.apply(path, locks);
-            }
+        ZscriptLockSet locks = ZscriptLockSet.noneLocked(supports32Locks);
+        for (LockCondition c : lockConditions) {
+            c.apply(path, locks);
         }
         return new CommandSequence(path, echoField, locks);
     }
 
-    public static CommandSequence from(CommandExecutionPath path, int echoField, ZscriptLockSet locks) {
+    public static CommandSequence from(CommandExecutionPath path, int echoField, @Nullable ZscriptLockSet locks) {
         return new CommandSequence(path, echoField, locks);
     }
 
@@ -71,6 +66,7 @@ public class CommandSequence implements ByteAppendable {
 
     private final CommandExecutionPath executionPath;
     private final int                  echoField;
+    @Nullable
     private final ZscriptLockSet       locks;
 
     private CommandSequence(CommandExecutionPath executionPath, int echoField, @Nullable ZscriptLockSet locks) {
@@ -102,7 +98,7 @@ public class CommandSequence implements ByteAppendable {
         return locks != null;
     }
 
-    public int getEchoValue() { //-1 if there isn't one
+    public int getEchoValue() { // -1 if there isn't one
         return echoField;
     }
 

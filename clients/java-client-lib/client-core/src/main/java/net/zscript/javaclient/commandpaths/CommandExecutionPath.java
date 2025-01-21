@@ -62,7 +62,7 @@ public class CommandExecutionPath implements Iterable<CommandElement>, ByteAppen
         return new CommandExecutionPath(model, commands.get(builders.get(0)));
     }
 
-    public static CommandExecutionPath from(ZscriptModel model, CommandElement success) {
+    public static CommandExecutionPath from(ZscriptModel model, @Nullable CommandElement success) {
         return new CommandExecutionPath(model, success);
     }
 
@@ -347,13 +347,18 @@ public class CommandExecutionPath implements Iterable<CommandElement>, ByteAppen
         return cmds;
     }
 
+    /**
+     * Iterates the CommandElements of this Path in an arbitrary order.
+     *
+     * @return an unordered iterator
+     */
     @Nonnull
     public Iterator<CommandElement> iterator() {
         if (firstCommand == null) {
             return Collections.emptyListIterator();
         }
         return new OptIterator<CommandElement>() {
-            final Set<CommandElement> visited = new HashSet<>();
+            final Set<CommandElement> alreadyVisited = new HashSet<>();
             Iterator<CommandElement> toVisit = Set.of(firstCommand).iterator();
             Set<CommandElement>      next    = new HashSet<>();
 
@@ -363,14 +368,14 @@ public class CommandExecutionPath implements Iterable<CommandElement>, ByteAppen
                 while (true) {
                     while (toVisit.hasNext()) {
                         CommandElement c = toVisit.next();
-                        if (c != null && !visited.contains(c)) {
-                            visited.add(c);
+                        if (c != null && !alreadyVisited.contains(c)) {
+                            alreadyVisited.add(c);
                             CommandElement s = c.getOnSuccess();
-                            if (!visited.contains(s)) {
+                            if (!alreadyVisited.contains(s)) {
                                 next.add(s);
                             }
                             CommandElement f = c.getOnFail();
-                            if (!visited.contains(f)) {
+                            if (!alreadyVisited.contains(f)) {
                                 next.add(f);
                             }
                             return Optional.of(c);
