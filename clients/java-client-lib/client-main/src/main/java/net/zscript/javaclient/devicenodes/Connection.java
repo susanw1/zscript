@@ -6,7 +6,7 @@ import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.addressing.AddressedResponse;
 import net.zscript.javaclient.threading.ZscriptWorkerThread;
 
-public interface Connection {
+public interface Connection extends ResponseMatchedListener {
     /**
      * Sends the supplied command up towards to root node of the device tree, or transforms it to bytes for transmission over the wire.
      *
@@ -20,13 +20,6 @@ public interface Connection {
      * @param responseHandler the response handler to register
      */
     void onReceive(Consumer<AddressedResponse> responseHandler);
-
-    /**
-     * Notification that the supplied command has been matched to a response.
-     *
-     * @param foundCommand the command that has been found
-     */
-    void notifyResponseMatched(AddressedCommand foundCommand);
 
     ZscriptWorkerThread getAssociatedThread();
 }

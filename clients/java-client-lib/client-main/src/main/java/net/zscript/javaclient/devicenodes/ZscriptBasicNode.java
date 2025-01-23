@@ -27,12 +27,12 @@ class ZscriptBasicNode implements ZscriptNode {
 
     private final ZscriptCallbackThreadpool callbackPool;
 
-    private final AddressingSystem addressingSystem;
-
     private final ConnectionBuffer connectionBuffer;
     private final Connection       parentConnection;
 
     private final EchoAssigner echoSystem;
+
+    private final Map<ZscriptAddress, AddressingConnection> connections = new HashMap<>();
 
     private final Map<Integer, Consumer<ResponseSequence>> notificationHandlers = new HashMap<>();
 
@@ -47,7 +47,6 @@ class ZscriptBasicNode implements ZscriptNode {
 
     ZscriptBasicNode(ZscriptCallbackThreadpool callbackPool, Connection parentConnection, int bufferSize, long minSegmentChangeTime, TimeUnit unit) {
         this.callbackPool = callbackPool;
-        this.addressingSystem = new AddressingSystem(this);
         this.parentConnection = parentConnection;
 
         this.echoSystem = new EchoAssigner(unit.toNanos(minSegmentChangeTime));
@@ -57,8 +56,11 @@ class ZscriptBasicNode implements ZscriptNode {
         parentConnection.onReceive(resp -> {
             try {
                 if (resp.hasAddress()) {
-                    if (!addressingSystem.response(resp)) {
+                    AddressingConnection childConnection = connections.get(resp.getAddressSection());
+                    if (childConnection == null) {
                         callbackPool.sendCallback(unknownResponseHandler, resp, callbackExceptionHandler);
+                    } else {
+                        childConnection.response(resp.getChild());
                     }
                 } else {
                     response(resp);
@@ -75,11 +77,17 @@ class ZscriptBasicNode implements ZscriptNode {
     }
 
     public Connection attach(ZscriptAddress address) {
-        return addressingSystem.attach(address);
+        final AddressingConnection connection = new AddressingConnection(address, getParentConnection(), foundCommand -> {
+            if (connectionBuffer.responseMatched(foundCommand)) {
+                strategy.mayHaveSpace();
+            }
+        });
+        connections.put(address, connection);
+        return connection;
     }
 
     public Connection detach(ZscriptAddress address) {
-        return addressingSystem.detach(address);
+        return connections.remove(address);
     }
 
     public void send(CommandSequence seq, Consumer<ResponseSequence> callback) {
@@ -137,7 +145,7 @@ class ZscriptBasicNode implements ZscriptNode {
         }
 
         strategy.mayHaveSpace();
-        parentConnection.notifyResponseMatched(found);
+        parentConnection.onResponseMatched(found);
 
         final Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getCommandSequence());
         if (seqCallback != null) {
@@ -154,18 +162,6 @@ class ZscriptBasicNode implements ZscriptNode {
 
     public Connection getParentConnection() {
         return parentConnection;
-    }
-
-    /**
-     * Notification passed up from child to root node to indicate that the supplied command has been matched to a response. Buffers may free records of that command.
-     *
-     * @param foundCommand the command we've received a response for
-     */
-    public void responseReceived(AddressedCommand foundCommand) {
-        if (connectionBuffer.responseMatched(foundCommand)) {
-            strategy.mayHaveSpace();
-        }
-        parentConnection.notifyResponseMatched(foundCommand);
     }
 
     public void setNotificationHandler(int notification, Consumer<ResponseSequence> handler) {
