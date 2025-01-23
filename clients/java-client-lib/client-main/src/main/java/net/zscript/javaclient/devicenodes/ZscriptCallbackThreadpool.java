@@ -1,4 +1,4 @@
-package net.zscript.javaclient.threading;
+package net.zscript.javaclient.devicenodes;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -9,7 +9,7 @@ public class ZscriptCallbackThreadpool {
     private final ExecutorService callbackPool;
 
     public ZscriptCallbackThreadpool() {
-        this.callbackPool = Executors.newCachedThreadPool();
+        this(Executors.newCachedThreadPool());
     }
 
     public ZscriptCallbackThreadpool(ExecutorService callbackPool) {
