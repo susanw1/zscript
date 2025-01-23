@@ -127,7 +127,7 @@ public abstract class DirectConnection implements Connection, Closeable {
     }
 
     @Override
-    public void notifyResponseMatched(AddressedCommand foundCommand) {
+    public void onResponseMatched(AddressedCommand foundCommand) {
         // direct connection does nothing here: this is just the notification from a child node that the foundCommand has been successfully matched to a response
     }
 
