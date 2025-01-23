@@ -27,23 +27,23 @@ public class CommandSequence implements ByteAppendable {
     }
 
     public static CommandSequence from(CommandExecutionPath path, int echoField, boolean supports32Locks) {
-        return new CommandSequence(path, echoField, ZscriptLockSet.allLocked(supports32Locks));
+        return new CommandSequence(path, echoField, LockSet.allLocked(supports32Locks));
     }
 
     public static CommandSequence from(CommandExecutionPath path, int echoField, boolean supports32Locks, Collection<LockCondition> lockConditions) {
-        ZscriptLockSet locks = ZscriptLockSet.noneLocked(supports32Locks);
+        LockSet locks = LockSet.noneLocked(supports32Locks);
         for (LockCondition c : lockConditions) {
             c.apply(path, locks);
         }
         return new CommandSequence(path, echoField, locks);
     }
 
-    public static CommandSequence from(CommandExecutionPath path, int echoField, @Nullable ZscriptLockSet locks) {
+    public static CommandSequence from(CommandExecutionPath path, int echoField, @Nullable LockSet locks) {
         return new CommandSequence(path, echoField, locks);
     }
 
     public static CommandSequence parse(ZscriptModel model, ReadToken start, boolean supports32Locks) {
-        ZscriptLockSet      locks     = null;
+        LockSet             locks     = null;
         int                 echoField = -1;
         TokenBufferIterator iter      = start.tokenIterator();
         ReadToken           current   = iter.next().orElse(null);
@@ -52,7 +52,7 @@ public class CommandSequence implements ByteAppendable {
                 if (locks != null) {
                     throw new ZscriptParseException("Tokens contained two lock fields");
                 }
-                locks = ZscriptLockSet.parse(current, supports32Locks);
+                locks = LockSet.parse(current, supports32Locks);
             } else {
                 if (echoField != -1) {
                     throw new ZscriptParseException("Tokens contained two echo fields");
@@ -67,9 +67,9 @@ public class CommandSequence implements ByteAppendable {
     private final CommandExecutionPath executionPath;
     private final int                  echoField;
     @Nullable
-    private final ZscriptLockSet       locks;
+    private final LockSet              locks;
 
-    private CommandSequence(CommandExecutionPath executionPath, int echoField, @Nullable ZscriptLockSet locks) {
+    private CommandSequence(CommandExecutionPath executionPath, int echoField, @Nullable LockSet locks) {
         this.executionPath = executionPath;
         this.echoField = echoField;
         this.locks = locks;
@@ -103,7 +103,7 @@ public class CommandSequence implements ByteAppendable {
     }
 
     @Nullable
-    public ZscriptLockSet getLocks() {
+    public LockSet getLocks() {
         return locks;
     }
 

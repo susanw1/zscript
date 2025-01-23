@@ -3,7 +3,7 @@ package net.zscript.javaclient.sequence;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 
 public interface LockCondition {
-    void apply(CommandExecutionPath path, ZscriptLockSet locks);
+    void apply(CommandExecutionPath path, LockSet locks);
 
     static LockCondition createFromBits(int... lockBits) {
         return (path, locks) -> {

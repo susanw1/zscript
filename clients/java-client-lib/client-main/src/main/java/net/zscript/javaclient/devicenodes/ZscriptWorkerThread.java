@@ -1,4 +1,4 @@
-package net.zscript.javaclient.threading;
+package net.zscript.javaclient.devicenodes;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

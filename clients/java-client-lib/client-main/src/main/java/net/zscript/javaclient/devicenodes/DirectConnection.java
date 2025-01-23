@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.addressing.AddressedResponse;
 import net.zscript.javaclient.addressing.CompleteAddressedResponse;
-import net.zscript.javaclient.threading.ZscriptWorkerThread;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer;

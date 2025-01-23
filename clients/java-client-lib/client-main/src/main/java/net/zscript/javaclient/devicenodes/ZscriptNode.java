@@ -11,7 +11,6 @@ import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.ResponseSequence;
-import net.zscript.javaclient.threading.ZscriptWorkerThread;
 
 /**
  * Defines the core interface for a device as a node in the zscript device-tree.
