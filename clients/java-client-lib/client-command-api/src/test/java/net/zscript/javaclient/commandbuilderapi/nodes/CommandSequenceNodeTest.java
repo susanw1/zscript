@@ -1,11 +1,15 @@
 package net.zscript.javaclient.commandbuilderapi.nodes;
 
 import javax.annotation.Nullable;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.params.provider.Arguments.of;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -121,6 +125,35 @@ public class CommandSequenceNodeTest {
                         .andThen(makeActivateCommand(2).onFail(makeActivateCommand(3).andThen(makeActivateCommand(4).onFail(new FailureCommandNode()))))
                         .andThen(new AbortCommandNode()), "Z2K1&(Z2K2|Z2K3&(Z2K4|Z1S2))&Z1S13", null)
         );
+    }
+
+    @Test
+    public void shouldIterateSingleNodes() {
+        final DemoActivateCommand             node = makeActivateCommand();
+        final Iterator<ZscriptCommandNode<?>> iter = node.iterator();
+        assertThat(iter.hasNext()).isTrue();
+        assertThat(iter.next()).isSameAs(node);
+        assertThat(iter.hasNext()).isFalse();
+    }
+
+    @Test
+    public void shouldIterateMultipleNodes() {
+        final CommandSequenceNode             node = makeActivateCommand(1).onFail(makeActivateCommand(2).andThen(makeActivateCommand(3)));
+        final Iterator<ZscriptCommandNode<?>> iter = node.iterator();
+        assertThat(iter.hasNext()).isTrue();
+        assertThat(iter.next().asStringUtf8()).isEqualTo("Z2K1");
+        assertThat(iter.hasNext()).isTrue();
+        assertThat(iter.next().asStringUtf8()).isEqualTo("Z2K2");
+        assertThat(iter.hasNext()).isTrue();
+        assertThat(iter.next().asStringUtf8()).isEqualTo("Z2K3");
+        assertThat(iter.hasNext()).isFalse();
+        assertThatThrownBy(iter::next).isInstanceOf(NoSuchElementException.class);
+    }
+
+    @Test
+    public void shouldGetChildren() {
+        assertThat(makeActivateCommand(1).getChildren()).isEmpty();
+        assertThat(makeActivateCommand(1).andThen(makeActivateCommand()).getChildren()).hasSize(2);
     }
 
     private static DemoActivateCommand makeActivateCommand(int challenge) {
