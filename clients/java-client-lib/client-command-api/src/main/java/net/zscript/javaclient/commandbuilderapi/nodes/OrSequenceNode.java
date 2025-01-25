@@ -1,50 +1,64 @@
 package net.zscript.javaclient.commandbuilderapi.nodes;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.Arrays.asList;
 
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString;
-import net.zscript.util.ByteString.ByteAppendable;
 
-public class OrSequenceNode extends CommandSequenceNode {
-    final CommandSequenceNode before;
-    final CommandSequenceNode after;
+public final class OrSequenceNode extends AbstractLogicSequenceNode {
+    public OrSequenceNode(CommandSequenceNode... elements) {
+        this(asList(elements));
+    }
 
-    public OrSequenceNode(CommandSequenceNode before, CommandSequenceNode after) {
-        this.before = before;
-        this.after = after;
-        before.setParent(this);
-        after.setParent(this);
+    public OrSequenceNode(List<CommandSequenceNode> elements) {
+        super(elements);
     }
 
     @Override
     protected boolean canFail() {
-        return after.canFail();
+        return elements.get(elements.size() - 1).canFail();
     }
 
     @Override
-    boolean isCommand() {
-        return false;
+    public CommandSequenceNode onFail(CommandSequenceNode next) {
+        List<CommandSequenceNode> newEls = new ArrayList<>(elements);
+        if (next.getClass() == OrSequenceNode.class) {
+            newEls.addAll(((OrSequenceNode) next).elements);
+        } else {
+            newEls.add(next);
+        }
+        return new OrSequenceNode(newEls);
     }
 
     @Override
     CommandSequenceNode optimize() {
-        if (!before.canFail()) {
-            return before.optimize();
+        List<CommandSequenceNode> newEls = new ArrayList<>();
+        for (CommandSequenceNode e : elements) {
+            final CommandSequenceNode optimized = e.optimize();
+            if (optimized.getClass() == OrSequenceNode.class) {
+                newEls.addAll(((OrSequenceNode) optimized).elements);
+            } else {
+                newEls.add(optimized);
+            }
+            if (!e.canFail()) {
+                break;
+            }
         }
-        return new OrSequenceNode(before.optimize(), after.optimize());
-    }
-
-    public List<CommandSequenceNode> getChildren() {
-        return List.of(before, after);
+        return new OrSequenceNode(newEls);
     }
 
     @Override
     public void appendTo(ByteString.ByteStringBuilder builder) {
-        builder.appendByte(Zchars.Z_OPENPAREN)
-                .append((ByteAppendable) before)
-                .appendByte(Zchars.Z_ORELSE)
-                .append((ByteAppendable) after)
-                .appendByte(Zchars.Z_CLOSEPAREN);
+        final boolean p = getParent() != null;
+        if (p) {
+            builder.appendByte(Zchars.Z_OPENPAREN);
+        }
+        builder.appendJoining(elements, b -> b.appendByte(Zchars.Z_ORELSE));
+        if (p) {
+            builder.appendByte(Zchars.Z_CLOSEPAREN);
+        }
     }
 }

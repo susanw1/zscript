@@ -33,7 +33,7 @@ public class CoreModuleTest {
         ZscriptCommandNode<ActivateResponse> c = CoreModule.ActivateCommand.builder()
                 .setChallenge(3)
                 .build();
-        assertThat(c.asStringUtf8()).isEqualTo("K3Z2");
+        assertThat(c.asStringUtf8()).isEqualTo("Z2K3");
     }
 
     @Test
@@ -41,7 +41,7 @@ public class CoreModuleTest {
         ZscriptCommandNode<EchoResponse> c = CoreModule.echoBuilder()
                 .setAny('J', 123)
                 .build();
-        assertThat(c.asStringUtf8()).isEqualTo("J7bZ1");
+        assertThat(c.asStringUtf8()).isEqualTo("Z1J7b");
     }
 
     @Test
@@ -50,7 +50,7 @@ public class CoreModuleTest {
                 .setIdType(TemporaryId)
                 .setMatchId(new byte[] { 0x3a, 0x42 })
                 .build();
-        assertThat(c.asStringUtf8()).isEqualTo("IZ4+3a42");
+        assertThat(c.asStringUtf8()).isEqualTo("Z4I+3a42");
     }
 
     @Test

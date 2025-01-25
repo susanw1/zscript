@@ -13,7 +13,7 @@ public class SequenceNodeTest {
                 .setVersionType(DemoCapabilitiesCommandBuilder.PLATFORM_FIRMWARE)
                 .addBigField("abc")
                 .build();
-        assertThat(seq.asStringUtf8()).isEqualTo("V2Z\"abc\"");
+        assertThat(seq.asStringUtf8()).isEqualTo("ZV2\"abc\"");
     }
 
     @Test
@@ -25,7 +25,7 @@ public class SequenceNodeTest {
                 .andThen(DemoActivateCommand.builder()
                         .setField('A', 0x1234)
                         .build());
-        assertThat(seq.asStringUtf8()).isEqualTo("V2Z+0506077f&A1234Z2");
+        assertThat(seq.asStringUtf8()).isEqualTo("ZV2+0506077f&Z2A1234");
     }
 
 }
