@@ -23,10 +23,10 @@ public class BlankCommandNode extends ZscriptCommandNode<DefaultResponse> {
         return next;
     }
 
-    @Override
-    public CommandSequenceNode dropFailureCondition() {
-        return this;
-    }
+    //    @Override
+    //    public CommandSequenceNode dropFailureCondition() {
+    //        return this;
+    //    }
 
     @Override
     public CommandSequenceNode abortOnFail() {
@@ -43,10 +43,10 @@ public class BlankCommandNode extends ZscriptCommandNode<DefaultResponse> {
         return failure -> success -> success;
     }
 
-    @Override
-    public CommandSequenceNode onFail(CommandSequenceNode next) {
-        return this;
-    }
+    //    @Override
+    //    public CommandSequenceNode onFail(CommandSequenceNode next) {
+    //        return this;
+    //    }
 
     @Override
     protected boolean canFail() {

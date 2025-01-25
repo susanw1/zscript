@@ -38,26 +38,27 @@ public final class AndSequenceNode extends AbstractLogicSequenceNode {
 
     @Override
     CommandSequenceNode optimize() {
-        final List<CommandSequenceNode> els = new ArrayList<>();
+        final List<CommandSequenceNode> newEls = new ArrayList<>();
         for (final CommandSequenceNode element : elements) {
             if (element.getClass() == FailureCommandNode.class || element.getClass() == AbortCommandNode.class) {
-                els.add(element);
+                newEls.add(element);
                 break;
             } else if (element.getClass() == AndSequenceNode.class) {
-                els.addAll(((AndSequenceNode) element).elements);
+                newEls.addAll(((AndSequenceNode) element).elements);
 
             } else if (element.getClass() == BlankCommandNode.class || element instanceof ZscriptCommandNode && ((ZscriptCommandNode<?>) element).asFieldSet().isEmpty()) {
+                // just skip it
             } else {
-                els.add(element.optimize());
+                newEls.add(element.optimize());
             }
         }
-        if (els.isEmpty()) {
+        if (newEls.isEmpty()) {
             return new BlankCommandNode();
         }
-        if (els.size() == 1) {
-            return els.get(0);
+        if (newEls.size() == 1) {
+            return newEls.get(0);
         }
-        return new AndSequenceNode(els);
+        return new AndSequenceNode(newEls);
     }
 
     //|| element.getClass() == ZscriptCommandNode.class

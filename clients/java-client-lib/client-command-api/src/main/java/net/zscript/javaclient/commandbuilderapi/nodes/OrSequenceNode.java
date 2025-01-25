@@ -5,6 +5,7 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
+import net.zscript.javaclient.commandbuilderapi.defaultcommands.BlankCommandNode;
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString;
 
@@ -35,8 +36,8 @@ public final class OrSequenceNode extends AbstractLogicSequenceNode {
 
     @Override
     CommandSequenceNode optimize() {
-        List<CommandSequenceNode> newEls = new ArrayList<>();
-        for (CommandSequenceNode e : elements) {
+        final List<CommandSequenceNode> newEls = new ArrayList<>();
+        for (final CommandSequenceNode e : elements) {
             final CommandSequenceNode optimized = e.optimize();
             if (optimized.getClass() == OrSequenceNode.class) {
                 newEls.addAll(((OrSequenceNode) optimized).elements);
@@ -46,6 +47,12 @@ public final class OrSequenceNode extends AbstractLogicSequenceNode {
             if (!e.canFail()) {
                 break;
             }
+        }
+        if (newEls.isEmpty()) {
+            return new BlankCommandNode();
+        }
+        if (newEls.size() == 1) {
+            return newEls.get(0);
         }
         return new OrSequenceNode(newEls);
     }
