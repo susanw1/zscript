@@ -1,8 +1,9 @@
 package net.zscript.javaclient.commandbuilderapi.defaultcommands;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
 import java.util.Map;
+
+import static java.util.Collections.emptyList;
 
 import net.zscript.javaclient.commandbuilderapi.nodes.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandNode;
@@ -13,7 +14,7 @@ import net.zscript.tokenizer.ZscriptExpression;
 public class FailureCommandNode extends ZscriptCommandNode<DefaultResponse> {
 
     public FailureCommandNode() {
-        super(null, Collections.emptyList(), Map.of(Zchars.Z_CMD, 1, Zchars.Z_STATUS, (int) ZscriptStatus.COMMAND_FAIL_CONTROL));
+        super(null, emptyList(), Map.of(Zchars.Z_CMD, 1, Zchars.Z_STATUS, (int) ZscriptStatus.COMMAND_FAIL_CONTROL));
     }
 
     @Override

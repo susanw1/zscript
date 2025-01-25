@@ -30,7 +30,7 @@ public class DemoActivateCommand extends ZscriptCommandNode<DemoActivateCommand.
 
     @Override
     public boolean canFail() {
-        return false;
+        return true;
     }
 
     public static class DemoActivateCommandBuilder extends ZscriptCommandBuilder<DemoActivateCommandResponse> {
@@ -39,14 +39,19 @@ public class DemoActivateCommand extends ZscriptCommandNode<DemoActivateCommand.
             setField('Z', 2);
         }
 
+        public DemoActivateCommandBuilder setChallenge(int challenge) {
+            setField('K', challenge);
+            return this;
+        }
+
         @Nonnull
         @Override
         public DemoActivateCommand build() {
             return new DemoActivateCommand(this);
         }
 
-        public ZscriptCommandBuilder<DemoActivateCommandResponse> setField(char key, int value) {
-            return super.setField(key, value);
+        public DemoActivateCommandBuilder setField(char key, int value) {
+            return (DemoActivateCommandBuilder) super.setField(key, value);
         }
     }
 

@@ -68,6 +68,16 @@ class CommandSequenceTest {
     }
 
     @Test
+    public void shouldParseFullLocksAndMapThemAsDefault() {
+        final CommandSequence cmdSeq = parse(" %ffff AS");
+        assertThat(cmdSeq.hasLockField()).isTrue();
+        assertThat(cmdSeq.getLocks().asStringUtf8()).isEqualTo("");
+        assertThat(cmdSeq.hasEchoField()).isFalse();
+        assertThat(cmdSeq.asStringUtf8()).isEqualTo("AS");
+        assertThat(cmdSeq.getExecutionPath().asStringUtf8()).isEqualTo("AS");
+    }
+
+    @Test
     public void shouldFailWithResponseMarker() {
         assertThatThrownBy(() -> parse("!"))
                 .isInstanceOf(ZscriptParseException.class)

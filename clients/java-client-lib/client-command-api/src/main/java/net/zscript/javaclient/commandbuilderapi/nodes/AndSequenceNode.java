@@ -1,6 +1,7 @@
 package net.zscript.javaclient.commandbuilderapi.nodes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.zscript.javaclient.commandbuilderapi.defaultcommands.AbortCommandNode;
@@ -9,22 +10,13 @@ import net.zscript.javaclient.commandbuilderapi.defaultcommands.FailureCommandNo
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
-public class AndSequenceNode extends CommandSequenceNode {
-    private final List<CommandSequenceNode> elements;
-
+public final class AndSequenceNode extends AbstractLogicSequenceNode {
     AndSequenceNode(List<CommandSequenceNode> elements) {
-        this.elements = elements;
-        for (CommandSequenceNode el : elements) {
-            el.setParent(this);
-        }
+        super(elements);
     }
 
-    AndSequenceNode(CommandSequenceNode el1, CommandSequenceNode el2) {
-        this.elements = new ArrayList<>();
-        elements.add(el1);
-        elements.add(el2);
-        el1.setParent(this);
-        el2.setParent(this);
+    AndSequenceNode(CommandSequenceNode... el) {
+        this(Arrays.asList(el));
     }
 
     @Override
@@ -40,33 +32,21 @@ public class AndSequenceNode extends CommandSequenceNode {
 
     @Override
     public boolean canFail() {
-        for (CommandSequenceNode element : elements) {
-            if (element.canFail()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean isCommand() {
-        return false;
+        return elements.stream()
+                .anyMatch(CommandSequenceNode::canFail);
     }
 
     @Override
     CommandSequenceNode optimize() {
-        List<CommandSequenceNode> els = new ArrayList<>();
-        for (CommandSequenceNode element : elements) {
-            if (element.getClass() == FailureCommandNode.class) {
-                els.add(element);
-                break;
-            }
-            if (element.getClass() == AbortCommandNode.class) {
+        final List<CommandSequenceNode> els = new ArrayList<>();
+        for (final CommandSequenceNode element : elements) {
+            if (element.getClass() == FailureCommandNode.class || element.getClass() == AbortCommandNode.class) {
                 els.add(element);
                 break;
             } else if (element.getClass() == AndSequenceNode.class) {
                 els.addAll(((AndSequenceNode) element).elements);
-            } else if (element.getClass() == BlankCommandNode.class) {
+
+            } else if (element.getClass() == BlankCommandNode.class || element instanceof ZscriptCommandNode && ((ZscriptCommandNode<?>) element).asFieldSet().isEmpty()) {
             } else {
                 els.add(element.optimize());
             }
@@ -80,10 +60,7 @@ public class AndSequenceNode extends CommandSequenceNode {
         return new AndSequenceNode(els);
     }
 
-    public List<CommandSequenceNode> getChildren() {
-        return elements;
-    }
-
+    //|| element.getClass() == ZscriptCommandNode.class
     @Override
     public void appendTo(ByteStringBuilder builder) {
         builder.appendJoining(elements, b -> b.appendByte(Zchars.Z_ANDTHEN));

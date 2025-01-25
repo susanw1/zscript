@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static net.zscript.javaclient.commandpaths.NumberField.fieldOf;
-
 import net.zscript.javaclient.commandbuilderapi.Respondable;
 import net.zscript.javaclient.commandbuilderapi.ZscriptResponse;
 import net.zscript.javaclient.commandpaths.BigField;
@@ -18,9 +16,7 @@ import net.zscript.util.ByteString.ByteStringBuilder;
 public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends CommandSequenceNode implements Respondable<T> {
 
     private final ResponseCaptor<T> captor;
-
-    private final List<BigField>     bigFields;
-    private final Map<Byte, Integer> fields;
+    private final ZscriptFieldSet   fieldSet;
 
     protected ZscriptCommandNode(ZscriptCommandBuilder<T> builder) {
         this(builder.captor, List.copyOf(builder.bigFields), Map.copyOf(builder.fields));
@@ -32,8 +28,7 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
 
     protected ZscriptCommandNode(@Nullable ResponseCaptor<T> captor, List<BigField> bigFields, Map<Byte, Integer> fields) {
         this.captor = captor;
-        this.bigFields = bigFields;
-        this.fields = fields;
+        this.fieldSet = ZscriptFieldSet.fromMap(bigFields, fields);
         if (captor != null) {
             captor.setSource(this);
         }
@@ -57,19 +52,11 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
 
     @Nonnull
     public ZscriptFieldSet asFieldSet() {
-        return ZscriptFieldSet.fromMap(bigFields, fields);
+        return fieldSet;
     }
 
     @Override
     public void appendTo(ByteStringBuilder b) {
-        for (int i = 'A'; i <= 'Z'; i++) {
-            if (fields.get((byte) i) != null) {
-                int value = fields.get((byte) i);
-                fieldOf((byte) i, value).appendTo(b);
-            }
-        }
-        for (BigField f : bigFields) {
-            f.appendTo(b);
-        }
+        asFieldSet().appendTo(b);
     }
 }
