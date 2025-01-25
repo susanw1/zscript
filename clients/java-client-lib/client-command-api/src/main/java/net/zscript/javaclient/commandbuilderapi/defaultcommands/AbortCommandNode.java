@@ -57,11 +57,6 @@ public class AbortCommandNode extends ZscriptCommandNode<DefaultResponse> {
         return this;
     }
 
-    @Override
-    protected boolean canFail() {
-        return false;
-    }
-
     @Nonnull
     @Override
     public DefaultResponse parseResponse(ZscriptExpression response) {

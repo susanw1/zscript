@@ -7,34 +7,44 @@ import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandNode;
 import net.zscript.tokenizer.ZscriptExpression;
 
 public class GenericCommandBuilder extends ZscriptCommandBuilder<DefaultResponse> {
+    @Override
     public int getField(byte key) {
         return super.getField(key);
     }
 
+    @Override
     public int getField(char key) {
         return super.getField(key);
     }
 
-    public ZscriptCommandBuilder<DefaultResponse> addBigField(byte[] data) {
-        return super.addBigField(data);
+    public GenericCommandBuilder setField(char key, int value) {
+        return (GenericCommandBuilder) setField((byte) key, value);
     }
 
-    public ZscriptCommandBuilder<DefaultResponse> addBigField(byte[] data, boolean asString) {
-        return super.addBigField(data, asString);
+    @Override
+    public GenericCommandBuilder addBigField(byte[] data) {
+        return (GenericCommandBuilder) super.addBigField(data);
     }
 
-    public ZscriptCommandBuilder<DefaultResponse> addBigFieldAsSmallest(byte[] data) {
-        return super.addBigField(data);
+    @Override
+    public GenericCommandBuilder addBigField(byte[] data, boolean asString) {
+        return (GenericCommandBuilder) super.addBigField(data, asString);
     }
 
-    public ZscriptCommandBuilder<DefaultResponse> addBigField(String data) {
-        return super.addBigField(data);
+    @Override
+    public GenericCommandBuilder addBigFieldAsSmallest(byte[] data) {
+        return (GenericCommandBuilder) super.addBigFieldAsSmallest(data);
+    }
+
+    @Override
+    public GenericCommandBuilder addBigField(String text) {
+        return (GenericCommandBuilder) super.addBigField(text);
     }
 
     @Nonnull
     @Override
     public ZscriptCommandNode<DefaultResponse> build() {
-        return new ZscriptCommandNode<>() {
+        return new ZscriptCommandNode<>(this) {
             @Nonnull
             @Override
             public DefaultResponse parseResponse(ZscriptExpression response) {

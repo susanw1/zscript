@@ -72,7 +72,7 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
                 bigFieldStrLen += 2;
             }
         }
-        addBigFieldImpl(new BigField(data, bigFieldStrLen > bigFieldPlusLen));
+        addBigFieldImpl(new BigField(data, bigFieldStrLen < bigFieldPlusLen));
         return this;
     }
 

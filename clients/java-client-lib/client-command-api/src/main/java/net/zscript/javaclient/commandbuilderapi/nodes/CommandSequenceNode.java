@@ -24,22 +24,6 @@ public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode
         return parent;
     }
 
-    public interface SuccessConditional {
-        SuccessConditionalElse then(CommandSequenceNode cmdsOnSuccess);
-    }
-
-    public interface SuccessConditionalElse {
-        CommandSequenceNode otherwise(CommandSequenceNode cmdsOnFail);
-    }
-
-    public interface FailureConditional {
-        SuccessConditionalElse then(CommandSequenceNode cmdsOnFail);
-    }
-
-    public interface FailureConditionalElse {
-        CommandSequenceNode otherwise(CommandSequenceNode cmdsOnSuccess);
-    }
-
     public static SuccessConditional ifSucceeds(CommandSequenceNode condition) {
         return condition.ifSucceeds();
     }
@@ -160,4 +144,21 @@ public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode
             }
         };
     }
+
+    public interface SuccessConditional {
+        SuccessConditionalElse then(CommandSequenceNode cmdsOnSuccess);
+    }
+
+    public interface SuccessConditionalElse {
+        CommandSequenceNode otherwise(CommandSequenceNode cmdsOnFail);
+    }
+
+    public interface FailureConditional {
+        SuccessConditionalElse then(CommandSequenceNode cmdsOnFail);
+    }
+
+    public interface FailureConditionalElse {
+        CommandSequenceNode otherwise(CommandSequenceNode cmdsOnSuccess);
+    }
+
 }

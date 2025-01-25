@@ -2,14 +2,8 @@ package net.zscript.javaclient.commandbuilderapi.nodes;
 
 import java.util.List;
 
-import static java.util.Arrays.asList;
-
 public abstract class AbstractLogicSequenceNode extends CommandSequenceNode {
     final List<CommandSequenceNode> elements;
-
-    public AbstractLogicSequenceNode(CommandSequenceNode... elements) {
-        this(asList(elements));
-    }
 
     public AbstractLogicSequenceNode(List<CommandSequenceNode> elements) {
         if (elements.isEmpty()) {
