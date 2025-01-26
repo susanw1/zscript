@@ -45,7 +45,6 @@ public final class AndSequenceNode extends AbstractLogicSequenceNode {
                 break;
             } else if (element.getClass() == AndSequenceNode.class) {
                 newEls.addAll(((AndSequenceNode) element).elements);
-
             } else if (element.getClass() == BlankCommandNode.class || element instanceof ZscriptCommandNode && ((ZscriptCommandNode<?>) element).asFieldSet().isEmpty()) {
                 // just skip it
             } else {
