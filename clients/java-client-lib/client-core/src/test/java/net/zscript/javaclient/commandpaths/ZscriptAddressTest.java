@@ -1,8 +1,8 @@
-package net.zscript.javaclient.addressing;
+package net.zscript.javaclient.commandpaths;
 
 import java.util.List;
 
-import static net.zscript.javaclient.addressing.ZscriptAddress.address;
+import static net.zscript.javaclient.commandpaths.ZscriptAddress.address;
 import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

@@ -2,9 +2,7 @@ package net.zscript.javaclient.devicenodes;
 
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.addressing.AddressedCommand;
-import net.zscript.javaclient.addressing.AddressedResponse;
-import net.zscript.javaclient.addressing.ZscriptAddress;
+import net.zscript.javaclient.commandpaths.ZscriptAddress;
 
 /**
  * A connection representing a join between one node and its parent (as opposed to a connection hooking a root node to an actual means of interfacing with hardware - see

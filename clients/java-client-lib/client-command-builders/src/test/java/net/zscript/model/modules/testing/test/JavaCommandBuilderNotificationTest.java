@@ -9,9 +9,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.client.modules.test.testing.TestingModule;
-import net.zscript.javaclient.addressing.CompleteAddressedResponse;
 import net.zscript.javaclient.commandbuilderapi.ZscriptResponse;
 import net.zscript.javaclient.commandbuilderapi.notifications.NotificationSection;
+import net.zscript.javaclient.commandpaths.CompleteAddressedResponse;
 
 public class JavaCommandBuilderNotificationTest {
     @Test
@@ -38,7 +38,7 @@ public class JavaCommandBuilderNotificationTest {
 
         final TestingModule.TestNtfBNotification.TestNtfBNotificationHandle handle = TestingModule.TestNtfBNotification.ID.newHandle();
 
-        assertThat(car.asResponse().hasAddress()).isFalse();
+        assertThat(car.hasAddress()).isFalse();
         assertThat(car.getResponseSequence().getResponseFieldValue()).isEqualTo(0x234);
 
         final List<ZscriptResponse> sections = handle.buildNotificationContent(car.getResponseSequence().getExecutionPath());

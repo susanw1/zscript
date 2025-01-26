@@ -1,5 +1,7 @@
-package net.zscript.javaclient.addressing;
+package net.zscript.javaclient.devicenodes;
 
+import net.zscript.javaclient.commandpaths.CompleteAddressedResponse;
+import net.zscript.javaclient.commandpaths.ZscriptAddress;
 import net.zscript.javaclient.sequence.ResponseSequence;
 
 /**
@@ -9,7 +11,11 @@ public class AddressedResponse {
     private final CompleteAddressedResponse addressedResponse;
     private final int                       offset;
 
-    public AddressedResponse(CompleteAddressedResponse addressedResponse, int offset) {
+    public AddressedResponse(CompleteAddressedResponse addressedResponse) {
+        this(addressedResponse, 0);
+    }
+
+    private AddressedResponse(CompleteAddressedResponse addressedResponse, int offset) {
         this.addressedResponse = addressedResponse;
         this.offset = offset;
     }
@@ -19,7 +25,7 @@ public class AddressedResponse {
     }
 
     public boolean hasAddress() {
-        return addressedResponse.hasAddress(offset);
+        return offset < addressedResponse.getAddressSectionCount();
     }
 
     public ResponseSequence getResponseSequence() {

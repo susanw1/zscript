@@ -1,6 +1,5 @@
 package net.zscript.javaclient.devicenodes;
 
-import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.sequence.CommandSequence;
 

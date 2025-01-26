@@ -16,9 +16,7 @@ import static net.zscript.util.ByteString.byteString;
 
 import org.slf4j.Logger;
 
-import net.zscript.javaclient.addressing.AddressedCommand;
-import net.zscript.javaclient.addressing.AddressedResponse;
-import net.zscript.javaclient.addressing.CompleteAddressedResponse;
+import net.zscript.javaclient.commandpaths.CompleteAddressedResponse;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer;
@@ -109,7 +107,7 @@ public abstract class DirectConnection implements Connection, Closeable {
                 t.accept(b);
                 if (b == Zchars.Z_NEWLINE) {
                     try {
-                        AddressedResponse parsedResponse = CompleteAddressedResponse.parse(buffer.getTokenReader().getFirstReadToken()).asResponse();
+                        AddressedResponse parsedResponse = new AddressedResponse(CompleteAddressedResponse.parse(buffer.getTokenReader().getFirstReadToken()));
                         responseHandler.accept(parsedResponse);
                     } catch (Exception e) {
                         parseFailHandler.accept(bytes, e);

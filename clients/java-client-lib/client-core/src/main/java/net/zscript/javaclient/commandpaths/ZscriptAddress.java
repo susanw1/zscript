@@ -1,4 +1,4 @@
-package net.zscript.javaclient.addressing;
+package net.zscript.javaclient.commandpaths;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +16,7 @@ import net.zscript.util.ByteString.ByteStringBuilder;
 /**
  * Representation of a single address, as per <code>@1.5.192</code>, where each element is a uint16.
  * <p/>
- * Aggregation to create a full multi-hop address is managed by {@link AddressedCommand} and {@link CompleteAddressedResponse}
+ * Aggregation to create a full multi-hop response address is managed by {@link CompleteAddressedResponse}
  */
 public class ZscriptAddress implements ByteAppendable {
     private final int[] addressParts;

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import net.zscript.javaclient.addressing.AddressedCommand;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.LockCondition;

@@ -2,9 +2,6 @@ package net.zscript.javaclient.devicenodes;
 
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.addressing.AddressedCommand;
-import net.zscript.javaclient.addressing.AddressedResponse;
-
 public interface Connection extends ResponseMatchedListener {
     /**
      * Sends the supplied command up towards to root node of the device tree, or transforms it to bytes for transmission over the wire.

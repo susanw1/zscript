@@ -4,11 +4,9 @@ import java.lang.reflect.Proxy;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import net.zscript.javaclient.addressing.AddressedCommand;
-import net.zscript.javaclient.addressing.AddressedResponse;
-import net.zscript.javaclient.addressing.ZscriptAddress;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
+import net.zscript.javaclient.commandpaths.ZscriptAddress;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.ResponseSequence;
 

@@ -1,4 +1,4 @@
-package net.zscript.javaclient.addressing;
+package net.zscript.javaclient.commandpaths;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,19 +40,32 @@ public class CompleteAddressedResponse {
         this.responseSequence = responseSequence;
     }
 
+    /**
+     * Determines the address section at the specified offset (eg, if this is a multi-element address with multiple '@' elements, like {@code "@12.3 @4"}, then element 1 is
+     * {@code "@4"}).
+     *
+     * @param offset the offset into the address sections to check
+     * @return the address section at the supplied offset
+     * @throws IndexOutOfBoundsException if offset is negative or >= the address section count
+     */
     public ZscriptAddress getAddressSection(int offset) {
         return addressSections.get(offset);
     }
 
-    public boolean hasAddress(int offset) {
-        return offset < addressSections.size();
+    /**
+     * Determines whether there are any address sections in this response.
+     *
+     * @return true if there are any address sections, false otherwise
+     */
+    public boolean hasAddress() {
+        return !addressSections.isEmpty();
+    }
+
+    public int getAddressSectionCount() {
+        return addressSections.size();
     }
 
     public ResponseSequence getResponseSequence() {
         return responseSequence;
-    }
-
-    public AddressedResponse asResponse() {
-        return new AddressedResponse(this, 0);
     }
 }

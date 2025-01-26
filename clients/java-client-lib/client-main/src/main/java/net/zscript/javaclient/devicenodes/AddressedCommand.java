@@ -1,8 +1,9 @@
-package net.zscript.javaclient.addressing;
+package net.zscript.javaclient.devicenodes;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+import net.zscript.javaclient.commandpaths.ZscriptAddress;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString.ByteAppendable;
