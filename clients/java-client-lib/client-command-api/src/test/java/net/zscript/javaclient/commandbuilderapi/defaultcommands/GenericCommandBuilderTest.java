@@ -37,6 +37,14 @@ class GenericCommandBuilderTest {
     }
 
     @Test
+    public void shouldAddBytes() {
+        final GenericCommandBuilder builder = new GenericCommandBuilder();
+        builder.addBigField(byteStringUtf8("hello").toByteArray());
+        builder.addBigField(byteStringUtf8("hello").toByteArray(), true);
+        assertThat(builder.build().asFieldSet().asStringUtf8()).isEqualTo("+68656c6c6f\"hello\"");
+    }
+
+    @Test
     public void shouldAddBytesAsBigFieldSmallest() {
         final GenericCommandBuilder builder = new GenericCommandBuilder();
         builder.addBigFieldAsSmallest(byteStringUtf8("\n\0=\"\n").toByteArray());

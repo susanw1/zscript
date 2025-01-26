@@ -2,10 +2,11 @@ package net.zscript.javaclient.commandbuilderapi.nodes;
 
 import javax.annotation.Nonnull;
 
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
-
 import net.zscript.tokenizer.ZscriptExpression;
 
+/**
+ * Test object - works like a generated capabilities command. Many methods exposed for testing.
+ */
 public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> {
     public static final int USER_FIRMWARE     = 0;
     public static final int USER_HARDWARE     = 1;
@@ -14,6 +15,8 @@ public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCa
     public static final int CORE_ZSCRIPT      = 4;
 
     public DemoCapabilitiesCommandBuilder() {
+        // enforce 'V' for testing
+        setRequiredFields(new byte[] { 'V' });
         setField('Z', 0);
     }
 
@@ -61,7 +64,7 @@ class DemoCapabilities extends ZscriptCommandNode<DemoCapabilitiesCommandRespons
     @Nonnull
     @Override
     public DemoCapabilitiesCommandResponse parseResponse(@Nonnull ZscriptExpression resp) {
-        return new DemoCapabilitiesCommandResponse(resp, new byte[] {}, resp.getField('V').getAsInt(), new String(resp.getBigFieldData(), ISO_8859_1));
+        return new DemoCapabilitiesCommandResponse(resp, new byte[] {}, resp.getField('V').orElseThrow(), resp.getBigFieldAsByteString().asString());
     }
 
     @Nonnull

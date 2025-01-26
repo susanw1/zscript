@@ -1,5 +1,7 @@
 package net.zscript.javaclient.commandbuilderapi.defaultcommands;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static net.zscript.javaclient.commandbuilderapi.nodes.CommandSequenceNode.ifFails;
@@ -13,6 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import net.zscript.javaclient.commandbuilderapi.nodes.CommandSequenceNode;
 import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 
 class ConditionalNodeTest {
     static final ZscriptCommandNode<DefaultResponse> cmd1 = new GenericCommandBuilder().setField('A', 0).build();
@@ -81,4 +84,23 @@ class ConditionalNodeTest {
                 of(new FailureCommandNode().dropFailureCondition(), "")
         );
     }
+
+    @ParameterizedTest
+    @MethodSource
+    public void shouldParseResponses(final ZscriptCommandNode<DefaultResponse> node) {
+        final ZscriptFieldSet fieldSet = ZscriptFieldSet.fromMap(Collections.emptyList(), Map.of((byte) 'A', 12));
+        DefaultResponse       br       = node.parseResponse(fieldSet);
+        assertThat(br.getField((byte) 'A')).hasValue(12);
+        assertThat(node.getResponseType()).isEqualTo(DefaultResponse.class);
+    }
+
+    private static Stream<Arguments> shouldParseResponses() {
+        return Stream.of(
+                of(new GenericCommandBuilder().build()),
+                of(new BlankCommandNode()),
+                of(new AbortCommandNode()),
+                of(new FailureCommandNode())
+        );
+    }
+
 }

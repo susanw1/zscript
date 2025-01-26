@@ -6,6 +6,9 @@ import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandNode;
 import net.zscript.tokenizer.ZscriptExpression;
 
+/**
+ * Test object - works like a generated capabilities command.
+ */
 public class DemoActivateCommand extends ZscriptCommandNode<DemoActivateCommand.DemoActivateCommandResponse> {
     //    private final boolean alreadyActivated;
     DemoActivateCommand(DemoActivateCommandBuilder builder) {

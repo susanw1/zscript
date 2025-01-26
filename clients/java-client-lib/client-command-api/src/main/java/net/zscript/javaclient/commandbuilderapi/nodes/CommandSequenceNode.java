@@ -102,22 +102,8 @@ public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode
     @Nonnull
     @Override
     public Iterator<ZscriptCommandNode<?>> iterator() {
-        if (this instanceof ZscriptCommandNode) {
-            ZscriptCommandNode<?> cmd = (ZscriptCommandNode<?>) this;
-            return new Iterator<>() {
-                boolean has = true;
-
-                @Override
-                public boolean hasNext() {
-                    return has;
-                }
-
-                @Override
-                public ZscriptCommandNode<?> next() {
-                    has = false;
-                    return cmd;
-                }
-            };
+        if (this instanceof ZscriptCommandNode<?>) {
+            return List.<ZscriptCommandNode<?>>of((ZscriptCommandNode<?>) this).iterator();
         }
         return new Iterator<>() {
             final Iterator<CommandSequenceNode> children = getChildren().iterator();

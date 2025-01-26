@@ -156,6 +156,7 @@ public class CommandSequenceNodeTest {
         assertThat(makeActivateCommand(1).andThen(makeActivateCommand()).getChildren()).hasSize(2);
     }
 
+
     private static DemoActivateCommand makeActivateCommand(int challenge) {
         return new DemoActivateCommand.DemoActivateCommandBuilder().setChallenge(challenge).build();
     }

@@ -10,11 +10,11 @@ import net.zscript.model.components.Zchars;
 import net.zscript.util.ByteString;
 
 public final class OrSequenceNode extends AbstractLogicSequenceNode {
-    public OrSequenceNode(CommandSequenceNode... elements) {
+    OrSequenceNode(CommandSequenceNode... elements) {
         this(asList(elements));
     }
 
-    public OrSequenceNode(List<CommandSequenceNode> elements) {
+    OrSequenceNode(List<CommandSequenceNode> elements) {
         super(elements);
     }
 
@@ -48,7 +48,7 @@ public final class OrSequenceNode extends AbstractLogicSequenceNode {
                 break;
             }
         }
-        if (newEls.isEmpty()) {
+        if (newEls.isEmpty()) { // is this even possible?
             return new BlankCommandNode();
         }
         if (newEls.size() == 1) {
