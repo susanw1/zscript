@@ -9,8 +9,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.javaclient.ZscriptParseException;
-import net.zscript.javaclient.addressing.AddressedResponse;
-import net.zscript.javaclient.addressing.CompleteAddressedResponse;
+import net.zscript.javaclient.commandpaths.CompleteAddressedResponse;
 import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.model.ZscriptModel;
@@ -43,8 +42,8 @@ public class ExtendingTokenBufferTest {
 
     @Test
     public void shouldTokenizeResponse() {
-        final TokenBuffer       buf      = tokenize(byteStringUtf8("!S5"));
-        final AddressedResponse response = CompleteAddressedResponse.parse(buf.getTokenReader().getFirstReadToken()).asResponse();
+        final TokenBuffer               buf      = tokenize(byteStringUtf8("!S5"));
+        final CompleteAddressedResponse response = CompleteAddressedResponse.parse(buf.getTokenReader().getFirstReadToken());
         assertThat(response.hasAddress()).isFalse();
         final ZscriptFieldSet fields = response.getResponseSequence().getExecutionPath().getFirstResponse().getFields();
         assertThat(fields.getFieldCount()).isEqualTo(1);

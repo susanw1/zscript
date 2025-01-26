@@ -1,6 +1,6 @@
-package net.zscript.javaclient.addressing;
+package net.zscript.javaclient.devicenodes;
 
-import static net.zscript.javaclient.addressing.ZscriptAddress.address;
+import static net.zscript.javaclient.commandpaths.ZscriptAddress.address;
 import static net.zscript.javaclient.tokens.ExtendingTokenBuffer.tokenize;
 import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;

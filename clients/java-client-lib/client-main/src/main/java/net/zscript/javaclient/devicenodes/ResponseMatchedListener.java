@@ -1,7 +1,5 @@
 package net.zscript.javaclient.devicenodes;
 
-import net.zscript.javaclient.addressing.AddressedCommand;
-
 public interface ResponseMatchedListener {
     /**
      * Notification that the supplied command has been matched to a response.
