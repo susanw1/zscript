@@ -6,8 +6,8 @@ import static java.lang.System.identityHashCode;
 
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
-import net.zscript.util.ByteString;
 import net.zscript.util.ByteString.ByteAppendable;
+import net.zscript.util.ByteString.ByteStringBuilder;
 
 /**
  * Represents a single command within a command-sequence, with its fields; it keeps track of the commands that follow it on success (ie AND_THEN) or on failure (ie OR_ELSE).
@@ -46,7 +46,7 @@ public class CommandElement implements ByteAppendable {
     }
 
     @Override
-    public void appendTo(ByteString.ByteStringBuilder builder) {
+    public void appendTo(ByteStringBuilder builder) {
         fieldSet.appendTo(builder);
     }
 
