@@ -38,7 +38,7 @@ public interface OptIterator<T> {
      *
      * @param action a consumer that will be fed the items until they run out
      */
-    default void forEach(final Consumer<? super T> action) {
+    default void forEachRemaining(final Consumer<? super T> action) {
         Optional<T> t;
         while ((t = next()).isPresent()) {
             action.accept(t.get());

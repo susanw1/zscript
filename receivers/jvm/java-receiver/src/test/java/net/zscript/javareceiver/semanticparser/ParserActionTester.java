@@ -33,7 +33,7 @@ class ParserActionTester {
         // feed all chars into tokens/buffer
         text.chars().forEachOrdered(c -> tokenizer.accept((byte) c));
 
-        buffer.getTokenReader().tokenIterator().forEach(t -> System.out.print(t + " "));
+        buffer.getTokenReader().tokenIterator().forEachRemaining(t -> System.out.print(t + " "));
         System.out.println();
 
         actionTypes.forEach(t -> {
@@ -52,7 +52,7 @@ class ParserActionTester {
         // feed all chars into tokens/buffer
         text.chars().forEachOrdered(c -> tokenizer.accept((byte) c));
 
-        buffer.getTokenReader().tokenIterator().forEach(t -> System.out.print(t + " "));
+        buffer.getTokenReader().tokenIterator().forEachRemaining(t -> System.out.print(t + " "));
         System.out.println();
 
         SemanticAction a1;
@@ -68,7 +68,7 @@ class ParserActionTester {
         // feed all chars into tokens/buffer
         text.chars().forEachOrdered(c -> tokenizer.accept((byte) c));
 
-        buffer.getTokenReader().tokenIterator().forEach(t -> System.out.print(t + " "));
+        buffer.getTokenReader().tokenIterator().forEachRemaining(t -> System.out.print(t + " "));
         System.out.println();
 
         SemanticAction action = parser.getAction();

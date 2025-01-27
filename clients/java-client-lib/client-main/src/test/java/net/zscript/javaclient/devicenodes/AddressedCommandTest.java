@@ -15,11 +15,11 @@ class AddressedCommandTest {
     public void shouldCreateAddressedCommand() {
         final CommandSequence  seq = parse("%1_2A3B4");
         final AddressedCommand cmd = new AddressedCommand(seq);
-        cmd.addAddressLayer(address(10, 11));
-        cmd.addAddressLayer(address(14));
-        assertThat(cmd.asStringUtf8()).isEqualTo("@a.b@e%10_2A3B4\n");
+        cmd.prefixAddressLayer(address(10, 11));
+        cmd.prefixAddressLayer(address(14));
+        assertThat(cmd.asStringUtf8()).isEqualTo("@e@a.b%10_2A3B4\n");
         assertThat(seq).isSameAs(cmd.getCommandSequence());
-        assertThat(cmd.hasAddressLayer()).isTrue();
+        assertThat(cmd.hasAddress()).isTrue();
     }
 
     @Test
@@ -28,13 +28,13 @@ class AddressedCommandTest {
         final AddressedCommand cmd = new AddressedCommand(seq);
         assertThat(cmd.asStringUtf8()).isEqualTo("A\n");
         assertThat(seq).isSameAs(cmd.getCommandSequence());
-        assertThat(cmd.hasAddressLayer()).isFalse();
+        assertThat(cmd.hasAddress()).isFalse();
     }
 
     @Test
     public void shouldImplementToString() {
         final AddressedCommand cmd = new AddressedCommand(parse("A"));
-        cmd.addAddressLayer(address(12, 13, 14));
+        cmd.prefixAddressLayer(address(12, 13, 14));
         assertThat(cmd).hasToString("AddressedCommand:{'@c.d.eA\n'}");
     }
 

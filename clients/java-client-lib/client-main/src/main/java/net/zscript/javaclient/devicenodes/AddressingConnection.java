@@ -9,21 +9,21 @@ import net.zscript.javaclient.commandpaths.ZscriptAddress;
  * {@link DirectConnection}).
  */
 class AddressingConnection implements Connection {
-    private final ZscriptAddress          address;
-    private final Connection              parentConnection;
-    private final ResponseMatchedListener responseMatchedListener;
+    private final ZscriptAddress        address;
+    private final Connection            parentConnection;
+    private final ResponseMatchListener responseMatchListener;
 
     private Consumer<AddressedResponse> responseHandler = null;
 
-    public AddressingConnection(ZscriptAddress address, Connection parentConnection, ResponseMatchedListener responseMatchedListener) {
+    public AddressingConnection(ZscriptAddress address, Connection parentConnection, ResponseMatchListener responseMatchListener) {
         this.address = address;
         this.parentConnection = parentConnection;
-        this.responseMatchedListener = responseMatchedListener;
+        this.responseMatchListener = responseMatchListener;
     }
 
     @Override
     public void send(AddressedCommand cmd) {
-        cmd.addAddressLayer(address);
+        cmd.prefixAddressLayer(address);
         parentConnection.send(cmd);
     }
 
@@ -39,9 +39,9 @@ class AddressingConnection implements Connection {
     }
 
     @Override
-    public void onResponseMatched(AddressedCommand foundCommand) {
-        responseMatchedListener.onResponseMatched(foundCommand);
-        parentConnection.onResponseMatched(foundCommand);
+    public void responseHasMatched(AddressedCommand foundCommand) {
+        responseMatchListener.responseHasMatched(foundCommand);
+        parentConnection.responseHasMatched(foundCommand);
     }
 
     @Override

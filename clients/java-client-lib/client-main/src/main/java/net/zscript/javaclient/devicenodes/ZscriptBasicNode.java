@@ -142,7 +142,7 @@ class ZscriptBasicNode implements ZscriptNode {
         }
 
         strategy.mayHaveSpace();
-        parentConnection.onResponseMatched(found);
+        parentConnection.responseHasMatched(found);
 
         final Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getCommandSequence());
         if (seqCallback != null) {

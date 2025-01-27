@@ -38,34 +38,7 @@ public class TcpConnection extends DirectConnection {
     public void onReceiveBytes(final Consumer<byte[]> bytesResponseHandler) {
         startBlockingReadHelper(sockIn, bytesResponseHandler);
     }
-
-    //    private void blockingReadAndHandle() {
-    //        try {
-    //            ByteString.ByteStringBuilder builder = ByteString.builder();
-    //            while (!Thread.interrupted()) {
-    //                int ch;
-    //                while ((ch = in.read()) != -1) {
-    //                    builder.appendByte(ch);
-    //                    if (ch == '\n') {
-    //                        bytesResponseHandler.accept(builder.toByteArray());
-    //                        builder = ByteString.builder();
-    //                        break;
-    //                    }
-    //                }
-    //            }
-    //            in.close();
-    //            socket.close();
-    //        } catch (IOException e) {
-    //            throw new UncheckedIOException(e);
-    //        } finally {
-    //            try {
-    //                socket.close();
-    //            } catch (IOException e) {
-    //                throw new UncheckedIOException(e);
-    //            }
-    //        }
-    //    }
-
+    
     @Override
     public void close() throws IOException {
         sockOut.close();
