@@ -2,7 +2,7 @@ package net.zscript.javaclient.devicenodes;
 
 import java.util.function.Consumer;
 
-public interface Connection extends ResponseMatchedListener {
+public interface Connection extends ResponseMatchListener {
     /**
      * Sends the supplied command up towards to root node of the device tree, or transforms it to bytes for transmission over the wire.
      *

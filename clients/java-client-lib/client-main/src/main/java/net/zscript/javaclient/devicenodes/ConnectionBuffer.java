@@ -191,7 +191,7 @@ public class ConnectionBuffer {
 
         BufferElement(AddressedCommand cmd, long nanoTimeTimeout, boolean hadEchoBefore) {
             this.cmd = cmd;
-            this.sameLayer = !cmd.hasAddressLayer();
+            this.sameLayer = !cmd.hasAddress();
             this.hadEchoBefore = hadEchoBefore;
             this.length = cmd.getBufferLength();
             this.nanoTimeTimeout = nanoTimeTimeout;

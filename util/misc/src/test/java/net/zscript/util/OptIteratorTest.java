@@ -34,9 +34,9 @@ class OptIteratorTest {
     }
 
     @Test
-    void shouldExecuteForEach() {
+    void shouldExecuteForEachRemaining() {
         AtomicInteger total = new AtomicInteger(); // using this as a mutable int
-        simpleListIterator.forEach(total::addAndGet);
+        simpleListIterator.forEachRemaining(total::addAndGet);
         assertThat(total.get()).isEqualTo(9);
     }
 

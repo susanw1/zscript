@@ -124,7 +124,7 @@ public abstract class DirectConnection implements Connection, Closeable {
     }
 
     @Override
-    public void onResponseMatched(AddressedCommand foundCommand) {
+    public void responseHasMatched(AddressedCommand foundCommand) {
         // direct connection does nothing here: this is just the notification from a child node that the foundCommand has been successfully matched to a response
     }
 
@@ -140,11 +140,9 @@ public abstract class DirectConnection implements Connection, Closeable {
     /**
      * Should be defined to provide the lower-level implementation of "check for received Zscript response-sequence encoded bytes" (responses or notifications) from the Zscript
      * Receiver devices, and once read in, the response bytes should be passed to the supplied consumer.
-     * <p>
-     * Supports registering a single listener, once only.
-     * <p>
-     * This method is invoked by the {@link DirectConnection#onReceive(Consumer)} method, which parses the byte[] into {@link AddressedResponse}. The bytes may represent partial
-     * responses, ie it is not required that the implementation send single complete sequences; the bytes may be split up over multiple successive in-order calls, and the
+     * <p> Supports registering a single listener, once only.
+     * <p> This method is invoked by the {@link DirectConnection#onReceive(Consumer)} method, which parses the byte[] into {@link AddressedResponse}. The bytes may represent
+     * partial responses, ie it is not required that the implementation send single complete sequences; the bytes may be split up over multiple successive in-order calls, and the
      * {@link #onReceive(Consumer)} method reassembles them.
      *
      * @param bytesResponseHandler the DirectConnection's consumer to process received bytes
