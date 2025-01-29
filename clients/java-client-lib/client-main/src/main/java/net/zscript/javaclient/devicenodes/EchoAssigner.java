@@ -30,33 +30,12 @@ public class EchoAssigner {
     /** Start offset of the first and lowest assigned block. */
     private final static int LOWEST_BLOCK_LEVEL               = 0x0100;
 
-    private final long       minBlockChangeTimeNanos;
-    private final TimeSource timeSource;
+    private Block currentBlock;
+    private Block previousBlock;
 
-    private BitSet inFlightReservations = new BitSet(BLOCK_SIZE);
-    private BitSet previousReservations = new BitSet(0);
-
-    private int currentBlockBaseOffset  = LOWEST_BLOCK_LEVEL;
-    private int previousBlockBaseOffset = LOWEST_BLOCK_LEVEL;
-
-    /**  */
-    private int timeoutCount      = 0;
-    /** Number of reserved echo values on in-flight messages awaiting response */
-    private int reservationCount  = 0;
-    /** The offset in the current block for the echo value which is next available (see {@link #getEcho()}) - this should always reference an available value in the current block */
-    private int currentEchoOffset = 0;
-
-    private final long lastBlockChangeTimeNanos;
-
-    public EchoAssigner(long minBlockChangeTimeNanos) {
-        this(minBlockChangeTimeNanos, System::nanoTime);
-    }
-
-    EchoAssigner(long minBlockChangeTimeNanos, TimeSource timeSource) {
-        this.minBlockChangeTimeNanos = minBlockChangeTimeNanos;
-        this.timeSource = timeSource;
-
-        this.lastBlockChangeTimeNanos = timeSource.nanoTime();
+    EchoAssigner() {
+        currentBlock = new Block();
+        previousBlock = currentBlock;
     }
 
     /**
@@ -65,7 +44,7 @@ public class EchoAssigner {
      * @return an available echo value
      */
     public int getEcho() {
-        return currentEchoOffset + currentBlockBaseOffset;
+        return currentBlock.getCurrentEchoValue();
     }
 
     /**
@@ -75,22 +54,7 @@ public class EchoAssigner {
      * @throws IllegalStateException if the current echo is already "in flight", or no values are available.
      */
     public void moveEcho() {
-        if (reservationCount >= BLOCK_MAX_RESERVATIONS) {
-            LOG.warn("Too many messages waiting for response ({}). Reduce command rate or latency.", reservationCount);
-        }
-        if (inFlightReservations.get(currentEchoOffset)) {
-            throw new IllegalStateException("Current echo value already set");
-        }
-        inFlightReservations.set(currentEchoOffset);
-        currentEchoOffset = inFlightReservations.nextClearBit(currentEchoOffset + 1);
-        if (currentEchoOffset == BLOCK_SIZE) {
-            // search again, starting at the beginning of the block
-            currentEchoOffset = inFlightReservations.nextClearBit(0);
-            if (currentEchoOffset == BLOCK_SIZE) {
-                throw new IllegalStateException("Ran out of echo values to assign");
-            }
-        }
-        reservationCount++;
+        currentBlock.moveEcho();
     }
 
     /**
@@ -100,23 +64,10 @@ public class EchoAssigner {
      * @param echo the echo value to mark
      */
     public void manualEchoUse(int echo) {
-        int relativeEchoOffset = echo - currentBlockBaseOffset;
-        if (relativeEchoOffset >= 0 && relativeEchoOffset < BLOCK_SIZE) {
-            if (inFlightReservations.get(relativeEchoOffset)) {
-                LOG.warn("Echo manually reused before timed out: 0x{}", Integer.toHexString(echo));
-            } else if (relativeEchoOffset == currentEchoOffset) {
-                moveEcho();
-            } else {
-                inFlightReservations.set(relativeEchoOffset);
-                reservationCount++;
-            }
-        }
-        int relativeEchoPrev = echo - previousBlockBaseOffset;
-        if (relativeEchoPrev >= 0 && relativeEchoPrev < BLOCK_SIZE) {
-            if (previousReservations.get(relativeEchoPrev)) {
-                LOG.warn("Echo manually reused when timed out: 0x{}", Integer.toHexString(echo));
-            }
-            previousReservations.set(relativeEchoPrev);
+        if (currentBlock.inRange(echo)) {
+            currentBlock.manualEchoUse(echo);
+        } else if (previousBlock.inRange(echo)) {
+            previousBlock.setReservation(echo);
         }
     }
 
@@ -127,15 +78,7 @@ public class EchoAssigner {
      * @return true if it's reserved, false otherwise
      */
     public boolean isReserved(int echo) {
-        int relativeEcho = echo - currentBlockBaseOffset;
-        if (relativeEcho >= 0 && relativeEcho < BLOCK_SIZE) {
-            return inFlightReservations.get(relativeEcho);
-        }
-        int relativeEchoPrev = echo - previousBlockBaseOffset;
-        if (relativeEchoPrev >= 0 && relativeEchoPrev < BLOCK_SIZE) {
-            return previousReservations.get(relativeEchoPrev);
-        }
-        return false;
+        return currentBlock.isReserved(echo) || previousBlock.isReserved(echo);
     }
 
     /**
@@ -144,23 +87,14 @@ public class EchoAssigner {
      * @param echo the echo value to be released
      */
     public void responseArrivedNormal(int echo) {
-        int     relativeEcho   = echo - currentBlockBaseOffset;
-        BitSet  messagesTarget = inFlightReservations;
-        boolean count          = true;
-        if (relativeEcho < 0 || relativeEcho >= BLOCK_SIZE) {
-            relativeEcho = echo - previousBlockBaseOffset;
-            if (relativeEcho < 0 || relativeEcho >= BLOCK_SIZE) {
+        Block b = currentBlock;
+        if (!b.inRange(echo)) {
+            b = previousBlock;
+            if (!b.inRange(echo)) {
                 return;
             }
-            messagesTarget = previousReservations;
-            count = false;
         }
-        if (messagesTarget.get(relativeEcho)) {
-            messagesTarget.clear(relativeEcho);
-            if (count) {
-                reservationCount--;
-            }
-        }
+        b.clearReservation(echo);
     }
 
     /**
@@ -170,32 +104,14 @@ public class EchoAssigner {
      * @param echo the echo value of the message that has timed out
      */
     public void timeout(int echo) {
-        int relativeEcho = echo - currentBlockBaseOffset;
-        if (relativeEcho < 0 || relativeEcho >= BLOCK_SIZE) {
-            // if in previous block, no action required
+        if (!currentBlock.inRange(echo)) {
             return;
         }
-        // if not a current message, no action needed
-        if (inFlightReservations.get(relativeEcho)) {
-            timeoutCount++;
-            if (timeoutCount >= BLOCK_MAX_TIMEOUTS_BEFORE_CHANGE) {
-                long time = timeSource.nanoTime();
-                if (time - lastBlockChangeTimeNanos < minBlockChangeTimeNanos) {
-                    LOG.error("Connection timing out too much.");
-                } else {
-                    LOG.info("Lingering timeout count: ({}). Changing echo value block.", timeoutCount);
-                }
-                timeoutCount = 0;
-                reservationCount = 0;
-                currentEchoOffset = 0;
-                previousReservations = inFlightReservations;
-                inFlightReservations = new BitSet(BLOCK_SIZE);
-                previousBlockBaseOffset = currentBlockBaseOffset;
-                currentBlockBaseOffset += BLOCK_SIZE;
-                if (currentBlockBaseOffset + BLOCK_SIZE > 0x10000) {
-                    currentBlockBaseOffset = LOWEST_BLOCK_LEVEL; // to leave space for manual echo
-                }
-            }
+
+        if (currentBlock.isReserved(echo) && currentBlock.timeout(echo)) {
+            LOG.info("Lingering timeout count: ({}). Changing echo value block.", currentBlock.timeoutCount);
+            previousBlock = currentBlock;
+            currentBlock = currentBlock.createNext();
         }
     }
 
@@ -206,46 +122,114 @@ public class EchoAssigner {
      * @return true if the value was reserved, false otherwise
      */
     public boolean unmatchedReceive(int echo) {
-        int     relativeEcho   = echo - currentBlockBaseOffset;
-        BitSet  messagesTarget = inFlightReservations;
-        boolean count          = true;
-        if (relativeEcho < 0 || relativeEcho >= BLOCK_SIZE) {
-            relativeEcho = echo - previousBlockBaseOffset;
-            if (relativeEcho < 0 || relativeEcho >= BLOCK_SIZE) {
-                // go to the unmatched handler, as message is very old (or not one we're keeping track of)
+        Block b = currentBlock;
+        if (!b.inRange(echo)) {
+            b = previousBlock;
+            if (!b.inRange(echo)) {
                 return false;
             }
-            messagesTarget = previousReservations;
-            count = false;
         }
-        if (messagesTarget.get(relativeEcho)) {
-            messagesTarget.clear(relativeEcho);
-            if (count) {
-                reservationCount--;
-                if (timeoutCount > 0) {
-                    timeoutCount--;
-                }
-            }
-            return true;
-        } else {
-            // goes to the unmatched handler
-            return false;
-        }
+        return b.clearReservation(echo);
     }
 
     int getTimeoutCount() {
-        return timeoutCount;
+        return currentBlock.timeoutCount;
     }
 
     int getReservationCount() {
-        return reservationCount;
+        return currentBlock.reservationCount;
     }
 
-    /**
-     * Abstraction of System.nanoTime() to allow time-injection for testing.
-     */
-    @FunctionalInterface
-    interface TimeSource {
-        long nanoTime();
+    static class Block {
+        private       BitSet reservations = new BitSet(BLOCK_SIZE);
+        private final int    baseOffset;
+
+        private int timeoutCount      = 0;
+        /** Number of reserved echo values on in-flight messages awaiting response */
+        private int reservationCount  = 0;
+        /**
+         * The offset in the current block for the echo value which is next available (see {@link #getEcho()}) - this always references an available value in the current block
+         */
+        private int currentEchoOffset = 0;
+
+        Block() {
+            this.baseOffset = LOWEST_BLOCK_LEVEL;
+        }
+
+        Block(int baseOffset) {
+            this.baseOffset = baseOffset;
+        }
+
+        Block createNext() {
+            return new Block(baseOffset + BLOCK_SIZE < 0xffff ? baseOffset + BLOCK_SIZE : LOWEST_BLOCK_LEVEL);
+        }
+
+        boolean inRange(int echoValue) {
+            return echoValue >= baseOffset && echoValue < baseOffset + BLOCK_SIZE;
+        }
+
+        public int getCurrentEchoValue() {
+            return currentEchoOffset + baseOffset;
+        }
+
+        public void moveEcho() {
+            if (reservationCount >= BLOCK_MAX_RESERVATIONS) {
+                LOG.warn("Too many messages waiting for response ({}). Reduce command rate or latency.", reservationCount);
+            }
+            if (reservations.get(currentEchoOffset)) {
+                throw new IllegalStateException("Current echo value already set");
+            }
+            reservations.set(currentEchoOffset);
+            currentEchoOffset = reservations.nextClearBit(currentEchoOffset + 1);
+            if (currentEchoOffset == BLOCK_SIZE) {
+                // search again, starting at the beginning of the block
+                currentEchoOffset = reservations.nextClearBit(0);
+                if (currentEchoOffset == BLOCK_SIZE) {
+                    throw new IllegalStateException("Ran out of echo values to assign");
+                }
+            }
+            reservationCount++;
+        }
+
+        public void manualEchoUse(int echo) {
+            int relativeEchoOffset = echo - baseOffset;
+            if (relativeEchoOffset >= 0 && relativeEchoOffset < BLOCK_SIZE) {
+                if (reservations.get(relativeEchoOffset)) {
+                    LOG.warn("Echo manually reused before timed out: 0x{}", Integer.toHexString(echo));
+                } else if (relativeEchoOffset == currentEchoOffset) {
+                    moveEcho();
+                } else {
+                    reservations.set(relativeEchoOffset);
+                    reservationCount++;
+                }
+            }
+        }
+
+        public boolean clearReservation(int echo) {
+            if (inRange(echo) && reservations.get(echo - baseOffset)) {
+                reservations.clear(echo - baseOffset);
+                reservationCount--;
+                return true;
+            }
+            return false;
+        }
+
+        public void setReservation(int echo) {
+            if (inRange(echo)) {
+                if (!reservations.get(echo - baseOffset)) {
+                    reservationCount++;
+                }
+                reservations.set(echo - baseOffset);
+            }
+        }
+
+        public boolean isReserved(int echo) {
+            return inRange(echo) && reservations.get(echo - baseOffset);
+        }
+
+        public boolean timeout(int echo) {
+            timeoutCount++;
+            return timeoutCount >= BLOCK_MAX_TIMEOUTS_BEFORE_CHANGE;
+        }
     }
 }

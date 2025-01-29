@@ -215,4 +215,12 @@ public class ConnectionBuffer {
             return nanoTimeTimeout;
         }
     }
+
+    /**
+     * Abstraction of System.nanoTime() to allow time-injection for testing.
+     */
+    @FunctionalInterface
+    interface TimeSource {
+        long nanoTime();
+    }
 }

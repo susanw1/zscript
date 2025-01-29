@@ -42,11 +42,11 @@ class ZscriptBasicNode implements ZscriptNode {
         this(callbackPool, parentConnection, bufferSize, 100, TimeUnit.MILLISECONDS);
     }
 
-    ZscriptBasicNode(ZscriptCallbackThreadpool callbackPool, Connection parentConnection, int bufferSize, long minSegmentChangeTime, TimeUnit unit) {
+    ZscriptBasicNode(ZscriptCallbackThreadpool callbackPool, Connection parentConnection, int bufferSize, long minEchoBlockChangeTime, TimeUnit unit) {
         this.callbackPool = callbackPool;
         this.parentConnection = parentConnection;
 
-        this.echoSystem = new EchoAssigner(unit.toNanos(minSegmentChangeTime));
+        this.echoSystem = new EchoAssigner();
         this.connectionBuffer = new ConnectionBuffer(parentConnection, echoSystem, bufferSize);
         this.strategy.setBuffer(connectionBuffer);
 

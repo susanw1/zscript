@@ -14,4 +14,14 @@ class ConnectionBufferTest {
 
         Assertions.assertThat(0).isEqualTo(0);
     }
+
+    static class MutableTimeSource implements ConnectionBuffer.TimeSource {
+        long t = 0;
+
+        @Override
+        public long nanoTime() {
+            return t;
+        }
+    }
+
 }

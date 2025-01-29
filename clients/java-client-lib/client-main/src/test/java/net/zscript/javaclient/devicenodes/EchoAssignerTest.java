@@ -6,21 +6,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javaclient.devicenodes.EchoAssigner.TimeSource;
-
 class EchoAssignerTest {
-    EchoAssigner      echoAssigner;
-    MutableTimeSource timeSource;
+    EchoAssigner echoAssigner;
 
     @BeforeEach
     void setUp() {
-        timeSource = new MutableTimeSource();
-        echoAssigner = new EchoAssigner(1000000, timeSource);
+        echoAssigner = new EchoAssigner();
     }
 
     @Test
     public void shouldGetEchoAndMoveAlong() {
-        timeSource.t = 0;
         assertThat(echoAssigner.getEcho()).isEqualTo(0x100);
         assertThat(echoAssigner.getEcho()).isEqualTo(0x100);
         assertThat(echoAssigner.isReserved(0x100)).isFalse();
@@ -201,15 +196,6 @@ class EchoAssignerTest {
         }
         for (int i = 0; i < timeouts; i++) {
             echoAssigner.timeout(startValue + i);
-        }
-    }
-
-    static class MutableTimeSource implements TimeSource {
-        long t = 0;
-
-        @Override
-        public long nanoTime() {
-            return t;
         }
     }
 
