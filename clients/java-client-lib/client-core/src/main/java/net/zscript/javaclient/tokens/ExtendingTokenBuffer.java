@@ -28,7 +28,7 @@ public class ExtendingTokenBuffer extends AbstractArrayTokenBuffer {
 
     /**
      * Tokenizes the supplied bytes representing a single Zscript sequence, and returns the resulting buffer. If autoNewline is set and the tokens do NOT end a sequence, then a
-     * {@code Zchars#Z_NEWLINE} may be appended automatically.
+     * {@code Zchars#Z_NEWLINE} may be appended automatically, for convenience.
      *
      * @param sequence    the sequence to tokenize
      * @param autoNewline if true, then check to see if a newline might be needed and add it; if false, then treat an incomplete sequence as an error
@@ -37,6 +37,17 @@ public class ExtendingTokenBuffer extends AbstractArrayTokenBuffer {
      */
     public static ExtendingTokenBuffer tokenize(ByteString sequence, boolean autoNewline) {
         return tokenizeImpl(sequence, autoNewline, true, true);
+    }
+
+    /**
+     * Tokenizes the supplied bytes representing a single Zscript sequence with no auto-newline, and _without_ {@code parseOutAddressing} mode, so once an address field is read,
+     * the rest is parsed as a single large token. and returns the resulting buffer.
+     *
+     * @param sequence the sequence to tokenize
+     * @throws ZscriptParseException if this buffer does not contain a single valid sequence
+     */
+    public static ExtendingTokenBuffer tokenizeAsReceiver(ByteString sequence) {
+        return tokenizeImpl(sequence, false, true, false);
     }
 
     /**

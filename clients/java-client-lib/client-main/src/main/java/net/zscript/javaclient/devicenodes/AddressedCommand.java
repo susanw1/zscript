@@ -12,15 +12,17 @@ import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
 /**
- * Represents a fixed outgoing command-sequence, which accumulates the addresses of routing nodes it passes through to get to the target.
+ * Represents a fixed outgoing command-sequence, along with the addresses of routing nodes it passes through to get to the target.
  */
 public class AddressedCommand implements ByteAppendable {
     private final LinkedList<ZscriptAddress> addressSections;
     private final CommandSequence            commandSequence;
+    private final int                        sequenceTokensLength;
 
     public AddressedCommand(CommandSequence commandSequence) {
         this.addressSections = new LinkedList<>();
         this.commandSequence = commandSequence;
+        this.sequenceTokensLength = commandSequence.getBufferLength();
     }
 
     /**
@@ -32,6 +34,11 @@ public class AddressedCommand implements ByteAppendable {
         addressSections.addFirst(section);
     }
 
+    /**
+     * Writes the complete Zscript message, including addresses and terminating newline, to the specified byteString builder.
+     *
+     * @param builder the builder to append to
+     */
     @Override
     public void appendTo(ByteStringBuilder builder) {
         builder.append(addressSections)
@@ -52,7 +59,7 @@ public class AddressedCommand implements ByteAppendable {
     }
 
     public int getBufferLength() {
-        int length = commandSequence.getBufferLength();
+        int length = sequenceTokensLength;
         for (ZscriptAddress addr : addressSections) {
             length += addr.getBufferLength();
         }

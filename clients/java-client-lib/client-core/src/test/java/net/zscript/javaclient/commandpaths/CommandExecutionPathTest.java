@@ -322,6 +322,15 @@ class CommandExecutionPathTest {
     }
 
     @Test
+    public void shouldCreateBlank() {
+        final ZscriptModel         model   = Mockito.mock(ZscriptModel.class);
+        final CommandExecutionPath cmdPath = CommandExecutionPath.blank(model);
+        assertThat(cmdPath.getModel()).isSameAs(model);
+        assertThat(cmdPath.asStringUtf8()).isEqualTo("");
+        assertThat(cmdPath.getFirstCommand()).isNull();
+    }
+
+    @Test
     public void shouldSupportToString() {
         final ReadToken            token   = tokenize(byteStringUtf8("A1B2"), true).getTokenReader().getFirstReadToken();
         final CommandExecutionPath cmdPath = CommandExecutionPath.parse(token);

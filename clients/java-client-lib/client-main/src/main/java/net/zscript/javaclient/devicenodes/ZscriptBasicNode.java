@@ -76,7 +76,7 @@ class ZscriptBasicNode implements ZscriptNode {
     public Connection attach(ZscriptAddress address) {
         final AddressingConnection connection = new AddressingConnection(address, getParentConnection(), foundCommand -> {
             if (connectionBuffer.responseMatched(foundCommand)) {
-                strategy.mayHaveSpace();
+                strategy.bufferSpaceFreed();
             }
         });
         connections.put(address, connection);
@@ -98,8 +98,8 @@ class ZscriptBasicNode implements ZscriptNode {
     }
 
     @Deprecated
-    public void send(AddressedCommand addr) {
-        strategy.send(addr);
+    public void forward(AddressedCommand addr) {
+        strategy.forward(addr);
     }
 
     public void checkTimeouts() {
@@ -141,7 +141,7 @@ class ZscriptBasicNode implements ZscriptNode {
             return;
         }
 
-        strategy.mayHaveSpace();
+        strategy.bufferSpaceFreed();
         parentConnection.responseHasMatched(found);
 
         final Consumer<ResponseSequence> seqCallback = fullSequenceCallbacks.remove(found.getCommandSequence());

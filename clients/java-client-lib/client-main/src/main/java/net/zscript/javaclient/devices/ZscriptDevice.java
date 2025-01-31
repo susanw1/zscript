@@ -50,11 +50,6 @@ public class ZscriptDevice {
         this.node = node;
     }
 
-    @Nonnull
-    public <N extends Notification, H extends NotificationHandle<N>> H getNotificationHandle(NotificationId<H> id) {
-        return id.getHandleType().cast(handles.computeIfAbsent(id, NotificationId::newHandle));
-    }
-
     public <N extends Notification, H extends NotificationHandle<N>> void setNotificationListener(NotificationId<H> id, Consumer<? super N> listener) {
         final H notificationHandle = getNotificationHandle(id);
         node.setNotificationHandler(id.getNumericId(), respSeq -> {
@@ -69,6 +64,12 @@ public class ZscriptDevice {
     public <N extends Notification, H extends NotificationHandle<N>> void setNotificationListener_Prev(NotificationId<H> id, Consumer<NotificationSequenceCallback> listener) {
         node.setNotificationHandler(id.getNumericId(),
                 respSeq -> listener.accept(NotificationSequenceCallback.from(getNotificationHandle(id).getSections(), respSeq.getExecutionPath().getResponses())));
+    }
+
+    // Utility which gets the Handle and ensure its type is right.
+    @Nonnull
+    private <N extends Notification, H extends NotificationHandle<N>> H getNotificationHandle(NotificationId<H> id) {
+        return id.getHandleType().cast(handles.computeIfAbsent(id, NotificationId::newHandle));
     }
 
     public void sendAsync(final CommandSequenceNode cmdSeq, final Consumer<ResponseSequenceCallback> callback) {
@@ -221,7 +222,10 @@ public class ZscriptDevice {
         node.send(cmdSeq, respCallback);
     }
 
-    public static class CommandExecutionTask {
+    /**
+     * Binds a CommandExecutionPath to its registered ResponseExecutionPath consumer.
+     */
+    static class CommandExecutionTask {
         private final CommandExecutionPath            path;
         private final Consumer<ResponseExecutionPath> callback;
 
@@ -243,6 +247,11 @@ public class ZscriptDevice {
 
     @Nonnull
     CommandExecutionTask convert(CommandSequenceNode cmdSeq, Consumer<ResponseSequenceCallback> callback) {
+        return convert(model, cmdSeq, callback);
+    }
+
+    @Nonnull
+    static CommandExecutionTask convert(ZscriptModel model, CommandSequenceNode cmdSeq, Consumer<ResponseSequenceCallback> callback) {
         class Layer {
             CommandElement success;
             CommandElement failure;
@@ -275,7 +284,7 @@ public class ZscriptDevice {
                     final CommandElement cmd = new CommandElement(layer.success, layer.failure, ((ZscriptCommandNode<?>) next).asFieldSet());
                     if (commandMap.containsKey(next)) {
                         throw new IllegalArgumentException(
-                                "Repeated use of CommandNode detected - this is not supported. Instead share the builder, and call it twice, or create the commands seperately.");
+                                "Repeated use of CommandNode detected - this is not supported. Instead share the builder, and call it twice, or create the commands separately.");
                     }
                     commandMap.put((ZscriptCommandNode<?>) next, cmd);
                     if (nodes.peek() instanceof OrSequenceNode && stack.peek().hasPrevious()) {

@@ -4,9 +4,12 @@ import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.sequence.CommandSequence;
 
 public interface QueuingStrategy {
-    void mayHaveSpace();
+    /**
+     * Performs the necessary strategic actions when buffer space may have been freed, allowing more messages to be fed towards the target.
+     */
+    void bufferSpaceFreed();
 
-    void send(AddressedCommand seq);
+    void forward(AddressedCommand seq);
 
     void send(CommandSequence seq);
 

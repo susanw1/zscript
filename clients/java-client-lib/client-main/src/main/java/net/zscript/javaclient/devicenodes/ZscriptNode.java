@@ -55,10 +55,7 @@ public interface ZscriptNode {
      */
     void send(CommandExecutionPath path, Consumer<ResponseExecutionPath> callback);
 
-    /**
-     * TODO: ??? is this needed? Where does the response go?
-     */
-    void send(AddressedCommand addr);
+    void forward(AddressedCommand addr);
 
     void setNotificationHandler(int notification, Consumer<ResponseSequence> handler);
 
