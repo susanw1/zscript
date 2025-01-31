@@ -26,10 +26,15 @@ public class StandardQueuingStrategy implements QueuingStrategy {
     }
 
     @Override
-    public void mayHaveSpace() {
+    public void bufferSpaceFreed() {
+        // Use the estimated token-buffer length to decide whether to feed more messages from the waiting queue up into the ConnectionBuffer and beyond
         while (!waiting.isEmpty() && waiting.peek().addToBuffer(false)) {
             waiting.poll();
         }
+
+        // If buffer only has "addressed" items (ie it's all routing), we can only know the real device has
+        // passed them on when they've gone through and been answered. This means we don't know how full the
+        // device's buffer is. Let's send a tiny dummy Blank command to elicit an immediate echo-valued response.
         if (!waiting.isEmpty() && !buffer.hasNonAddressedInBuffer()) {
             buffer.send(CommandExecutionPath.blank(), true, timeout, unit);
         }
@@ -39,7 +44,7 @@ public class StandardQueuingStrategy implements QueuingStrategy {
         boolean wasEmpty = waiting.isEmpty();
         waiting.add(el);
         if (wasEmpty) {
-            mayHaveSpace();
+            bufferSpaceFreed();
         }
     }
 
@@ -54,7 +59,7 @@ public class StandardQueuingStrategy implements QueuingStrategy {
     }
 
     @Override
-    public void send(AddressedCommand addr) {
+    public void forward(AddressedCommand addr) {
         send(new AddressedQueueElement(addr));
     }
 
@@ -109,7 +114,7 @@ public class StandardQueuingStrategy implements QueuingStrategy {
 
         @Override
         public boolean addToBuffer(boolean ignoreLength) {
-            return buffer.send(addr, ignoreLength, timeout, unit);
+            return buffer.forward(addr, ignoreLength, timeout, unit);
         }
     }
 }

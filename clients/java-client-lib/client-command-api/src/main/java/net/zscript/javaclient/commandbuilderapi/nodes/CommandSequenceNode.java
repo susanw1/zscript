@@ -80,16 +80,17 @@ public abstract class CommandSequenceNode implements Iterable<ZscriptCommandNode
     }
 
     /**
-     * Override if command never produces a FAIL (S1-Sf) condition, which allows builder to ignore ORELSE choices (this is an optimization, if in doubt, leave it!).
+     * Override if command never produces a FAIL (S1-Sf) condition, which allows builder to ignore ORELSE choices (this is an optimization, if in doubt, leave it!). Note that this
+     * isn't to do with ERROR statuses (which any command may produce), only FAIL ones.
      *
-     * @return true if command may fail, false otherwise
+     * @return true if command may fail, false if it absolutely can't
      */
     protected boolean canFail() {
         return true;
     }
 
     /**
-     * Allows a node to be optimized to remove unused structured, esp for commands with no "failure" conditions.
+     * Allows a node to be optimized to remove unused structures, esp for commands with no "failure" conditions.
      *
      * @return a rewritten node.
      */

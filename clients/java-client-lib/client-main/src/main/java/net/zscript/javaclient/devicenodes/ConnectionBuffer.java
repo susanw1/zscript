@@ -15,32 +15,90 @@ import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.LockCondition;
 import net.zscript.javaclient.sequence.ResponseSequence;
 
+/**
+ * Stores up command-sequences in a queue, forwarding them to the target by tracking the amount of token buffer space on the target and only sending messages when there is
+ * processing space.
+ */
 public class ConnectionBuffer {
     private final Connection           connection;
-    private final Queue<BufferElement> buffer = new ArrayDeque<>();
+    private final Queue<BufferElement> outgoingQueue = new ArrayDeque<>();
 
-    private final EchoAssigner echo;
+    private final EchoAssigner echoAssigner;
+    private final TimeSource   timeSource;
 
     private int bufferSize;
     private int currentBufferContent = 0;
 
-    private Collection<LockCondition> lockConditions  = new ArrayList<>();
+    private Collection<LockCondition> lockConditions  = List.of();
     private boolean                   supports32Locks = false;
 
-    public ConnectionBuffer(Connection connection, EchoAssigner echo, int bufferSize) {
+    public ConnectionBuffer(Connection connection, EchoAssigner echoAssigner, int bufferSize) {
+        this(connection, echoAssigner, bufferSize, System::nanoTime);
+    }
+
+    ConnectionBuffer(Connection connection, EchoAssigner echoAssigner, int bufferSize, TimeSource timeSource) {
         this.connection = connection;
-        this.echo = echo;
+        this.echoAssigner = echoAssigner;
         this.bufferSize = bufferSize;
+        this.timeSource = timeSource;
     }
 
-    public void setLockConditions(Collection<LockCondition> lockConditions, boolean supports32Locks) {
-        this.lockConditions = lockConditions;
-        this.supports32Locks = supports32Locks;
+    public boolean forward(AddressedCommand cmd, boolean ignoreLength, long timeout, TimeUnit unit) {
+        return addBufferElementToBuffer(new BufferElement(cmd, timeSource.nanoTime() + unit.toNanos(timeout), cmd.getCommandSequence().hasEchoField()), ignoreLength);
     }
 
+    /**
+     * Queues the supplied command sequence to be sent. The sequence optionally contains an echo field, otherwise one will be added.
+     *
+     * @param sequence     the command sequence to send
+     * @param ignoreLength set to true to enqueue regardless of the buffer considerations
+     * @param timeout      how long before command sequence is consider "late"
+     * @param unit         the units for the timeout
+     * @return true if successfully enqueued, false otherwise
+     */
+    public boolean send(CommandSequence sequence, boolean ignoreLength, long timeout, TimeUnit unit) {
+        return addBufferElementToBuffer(new BufferElement(sequence, timeSource.nanoTime() + unit.toNanos(timeout), sequence.hasEchoField()), ignoreLength);
+    }
+
+    public boolean send(CommandExecutionPath path, boolean ignoreLength, long timeout, TimeUnit unit) {
+        final CommandSequence seq = CommandSequence.from(path, echoAssigner.getEcho(), supports32Locks, lockConditions);
+        return addBufferElementToBuffer(new BufferElement(seq, timeSource.nanoTime() + unit.toNanos(timeout), false), ignoreLength);
+    }
+
+    private boolean addBufferElementToBuffer(BufferElement element, boolean ignoreLength) {
+        if (element.isSameLayer()) {
+            final int echoVal = element.getEchoValue();
+            for (final BufferElement el : outgoingQueue) {
+                if (el.getEchoValue() == echoVal) {
+                    return false;
+                }
+            }
+        }
+        if (!ignoreLength && element.length + currentBufferContent >= bufferSize) {
+            return false;
+        }
+        // make sure echo system knows about echo usage...
+        if (element.hadEchoBefore) {
+            if (element.isSameLayer()) {
+                echoAssigner.manualEchoUse(element.getEchoValue());
+            }
+        } else {
+            echoAssigner.moveEcho();
+        }
+        outgoingQueue.add(element);
+        currentBufferContent += element.length;
+        connection.send(element.getCommand());
+        return true;
+    }
+
+    /**
+     * Removes elements in the queue, starting from 0 up to (and including) the supplied element.
+     *
+     * @param el the element to match
+     */
     private void clearOutTo(BufferElement el) {
-        for (Iterator<BufferElement> iter = buffer.iterator(); iter.hasNext(); ) {
-            BufferElement current = iter.next();
+        for (final Iterator<BufferElement> iter = outgoingQueue.iterator(); iter.hasNext(); ) {
+            final BufferElement current = iter.next();
             if (current == el) {
                 iter.remove();
                 currentBufferContent -= current.length;
@@ -53,23 +111,23 @@ public class ConnectionBuffer {
     }
 
     @Nullable
-    public AddressedCommand match(ResponseSequence sequence) {
-        if (sequence.getResponseFieldValue() != 0) {
+    public AddressedCommand match(ResponseSequence responseSequence) {
+        if (responseSequence.getResponseFieldValue() != 0) {
             throw new IllegalArgumentException("Cannot match notification sequence with command sequence");
         }
-        if (!sequence.hasEchoValue()) {
+        if (!responseSequence.hasEchoValue()) {
             return null;
         }
         boolean removeUpTo = true;
-        for (Iterator<BufferElement> iter = buffer.iterator(); iter.hasNext(); ) {
-            BufferElement element = iter.next();
+        for (Iterator<BufferElement> iter = outgoingQueue.iterator(); iter.hasNext(); ) {
+            final BufferElement element = iter.next();
             // re-jig this logic a little...extract element.isSameLayer() condition
-            if (element.isSameLayer() && element.getCommand().getCommandSequence().getEchoValue() == sequence.getEchoValue()) {
-                if (!element.getCommand().getCommandSequence().getExecutionPath().matchesResponses(sequence.getExecutionPath())) {
+            if (element.isSameLayer() && element.getEchoValue() == responseSequence.getEchoValue()) {
+                if (!element.getCommand().getCommandSequence().getExecutionPath().matchesResponses(responseSequence.getExecutionPath())) {
                     return element.getCommand();
                 }
                 // if the echo value is auto-generated, clear the marker
-                echo.responseArrivedNormal(sequence.getEchoValue());
+                echoAssigner.responseArrivedNormal(responseSequence.getEchoValue());
                 if (removeUpTo) {
                     clearOutTo(element);
                 } else {
@@ -87,15 +145,15 @@ public class ConnectionBuffer {
     @Nonnull
     public Collection<CommandSequence> checkTimeouts() {
         final List<CommandSequence> timedOut    = new ArrayList<>(2);
-        final long                  currentNano = System.nanoTime();
+        final long                  currentNano = timeSource.nanoTime();
 
-        for (final Iterator<BufferElement> iter = buffer.iterator(); iter.hasNext(); ) {
+        for (final Iterator<BufferElement> iter = outgoingQueue.iterator(); iter.hasNext(); ) {
             final BufferElement element = iter.next();
             //subtracting first to avoid wrapping issues.
             if (currentNano - element.getNanoTimeTimeout() > 0) {
                 if (element.isSameLayer()) {
                     timedOut.add(element.getCommand().getCommandSequence());
-                    echo.timeout(element.getCommand().getCommandSequence().getEchoValue());
+                    echoAssigner.timeout(element.getEchoValue());
                 }
                 iter.remove();
                 currentBufferContent -= element.length;
@@ -106,7 +164,7 @@ public class ConnectionBuffer {
 
     public boolean responseMatched(AddressedCommand cmd) {
         boolean removeUpTo = true;
-        for (Iterator<BufferElement> iter = buffer.iterator(); iter.hasNext(); ) {
+        for (Iterator<BufferElement> iter = outgoingQueue.iterator(); iter.hasNext(); ) {
             BufferElement element = iter.next();
             if (element.getCommand() == cmd) {
                 if (removeUpTo) {
@@ -123,47 +181,8 @@ public class ConnectionBuffer {
         return false;
     }
 
-    private boolean addBufferElementToBuffer(BufferElement element, boolean ignoreLength) {
-        if (element.isSameLayer()) {
-            int echoVal = element.getCommand().getCommandSequence().getEchoValue();
-            for (BufferElement el : buffer) {
-                if (el.getCommand().getCommandSequence().getEchoValue() == echoVal) {
-                    return false;
-                }
-            }
-        }
-        if (!ignoreLength && element.length + currentBufferContent >= bufferSize) {
-            return false;
-        }
-        // make sure echo system knows about echo usage...
-        if (element.hadEchoBefore) {
-            if (element.isSameLayer()) {
-                echo.manualEchoUse(element.getCommand().getCommandSequence().getEchoValue());
-            }
-        } else {
-            echo.moveEcho();
-        }
-        buffer.add(element);
-        currentBufferContent += element.length;
-        connection.send(element.getCommand());
-        return true;
-    }
-
-    public boolean send(AddressedCommand cmd, boolean ignoreLength, long timeout, TimeUnit unit) {
-        return addBufferElementToBuffer(new BufferElement(cmd, System.nanoTime() + unit.toNanos(timeout), true), ignoreLength);
-    }
-
-    public boolean send(CommandSequence seq, boolean ignoreLength, long timeout, TimeUnit unit) {
-        return addBufferElementToBuffer(new BufferElement(seq, System.nanoTime() + unit.toNanos(timeout), true), ignoreLength);
-    }
-
-    public boolean send(CommandExecutionPath path, boolean ignoreLength, long timeout, TimeUnit unit) {
-        final CommandSequence seq = CommandSequence.from(path, echo.getEcho(), supports32Locks, lockConditions);
-        return addBufferElementToBuffer(new BufferElement(seq, System.nanoTime() + unit.toNanos(timeout), false), ignoreLength);
-    }
-
     public boolean hasNonAddressedInBuffer() {
-        for (BufferElement element : buffer) {
+        for (BufferElement element : outgoingQueue) {
             if (element.isSameLayer()) {
                 return true;
             }
@@ -171,16 +190,41 @@ public class ConnectionBuffer {
         return false;
     }
 
+    public void setLockConditions(Collection<LockCondition> lockConditions, boolean supports32Locks) {
+        this.lockConditions = lockConditions;
+        this.supports32Locks = supports32Locks;
+    }
+
+    /**
+     * Determines the number of outgoing messages currently queued for sending.
+     *
+     * @return the current number of queued messages
+     */
+    public int getQueueLength() {
+        return outgoingQueue.size();
+    }
+
+    /**
+     * Gets the presumed size of the token buffer on the target device, which allows us to determine the maximum number of token bytes that can be sent without triggering buffer
+     * overflow. ("presumed" means this is the size we've been told to use, which might have involved communicating with the device, or might just be a default or estimate).
+     *
+     * @return presumed size of the token buffer on the target
+     */
     public int getBufferSize() {
         return bufferSize;
     }
 
-    public int getCurrentBufferContent() {
-        return currentBufferContent;
-    }
-
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
+    }
+
+    /**
+     * Indicates how much of the target's token buffer is in actual use, based on what has been sent and what has come back.
+     *
+     * @return
+     */
+    public int getCurrentBufferContent() {
+        return currentBufferContent;
     }
 
     private static class BufferElement {
@@ -213,6 +257,10 @@ public class ConnectionBuffer {
 
         public long getNanoTimeTimeout() {
             return nanoTimeTimeout;
+        }
+
+        public int getEchoValue() {
+            return cmd.getCommandSequence().getEchoValue();
         }
     }
 
