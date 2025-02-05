@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
@@ -20,8 +19,8 @@ import net.zscript.javaclient.sequence.ResponseSequence;
  * processing space.
  */
 public class ConnectionBuffer {
-    private final Connection           connection;
-    private final Queue<BufferElement> outgoingQueue = new ArrayDeque<>();
+    private final Connection                connection;
+    private final ArrayDeque<BufferElement> sentQueue = new ArrayDeque<>();
 
     private final EchoAssigner echoAssigner;
     private final TimeSource   timeSource;
@@ -68,7 +67,7 @@ public class ConnectionBuffer {
     private boolean addBufferElementToBuffer(BufferElement element, boolean ignoreLength) {
         if (element.isSameLayer()) {
             final int echoVal = element.getEchoValue();
-            for (final BufferElement el : outgoingQueue) {
+            for (final BufferElement el : sentQueue) {
                 if (el.getEchoValue() == echoVal) {
                     return false;
                 }
@@ -85,7 +84,7 @@ public class ConnectionBuffer {
         } else {
             echoAssigner.moveEcho();
         }
-        outgoingQueue.add(element);
+        sentQueue.add(element);
         currentBufferContent += element.length;
         connection.send(element.getCommand());
         return true;
@@ -97,7 +96,7 @@ public class ConnectionBuffer {
      * @param el the element to match
      */
     private void clearOutTo(BufferElement el) {
-        for (final Iterator<BufferElement> iter = outgoingQueue.iterator(); iter.hasNext(); ) {
+        for (final Iterator<BufferElement> iter = sentQueue.iterator(); iter.hasNext(); ) {
             final BufferElement current = iter.next();
             if (current == el) {
                 iter.remove();
@@ -112,18 +111,19 @@ public class ConnectionBuffer {
 
     @Nullable
     public AddressedCommand match(ResponseSequence responseSequence) {
-        if (responseSequence.getResponseFieldValue() != 0) {
+        if (responseSequence.getResponseFieldValue() > 0) {
             throw new IllegalArgumentException("Cannot match notification sequence with command sequence");
         }
         if (!responseSequence.hasEchoValue()) {
             return null;
         }
         boolean removeUpTo = true;
-        for (Iterator<BufferElement> iter = outgoingQueue.iterator(); iter.hasNext(); ) {
+        for (Iterator<BufferElement> iter = sentQueue.iterator(); iter.hasNext(); ) {
             final BufferElement element = iter.next();
             // re-jig this logic a little...extract element.isSameLayer() condition
             if (element.isSameLayer() && element.getEchoValue() == responseSequence.getEchoValue()) {
                 if (!element.getCommand().getCommandSequence().getExecutionPath().matchesResponses(responseSequence.getExecutionPath())) {
+                    // confused here. It had right echo, but didn't match, right?
                     return element.getCommand();
                 }
                 // if the echo value is auto-generated, clear the marker
@@ -147,7 +147,7 @@ public class ConnectionBuffer {
         final List<CommandSequence> timedOut    = new ArrayList<>(2);
         final long                  currentNano = timeSource.nanoTime();
 
-        for (final Iterator<BufferElement> iter = outgoingQueue.iterator(); iter.hasNext(); ) {
+        for (final Iterator<BufferElement> iter = sentQueue.iterator(); iter.hasNext(); ) {
             final BufferElement element = iter.next();
             //subtracting first to avoid wrapping issues.
             if (currentNano - element.getNanoTimeTimeout() > 0) {
@@ -164,8 +164,8 @@ public class ConnectionBuffer {
 
     public boolean responseMatched(AddressedCommand cmd) {
         boolean removeUpTo = true;
-        for (Iterator<BufferElement> iter = outgoingQueue.iterator(); iter.hasNext(); ) {
-            BufferElement element = iter.next();
+        for (final Iterator<BufferElement> iter = sentQueue.iterator(); iter.hasNext(); ) {
+            final BufferElement element = iter.next();
             if (element.getCommand() == cmd) {
                 if (removeUpTo) {
                     clearOutTo(element);
@@ -181,8 +181,13 @@ public class ConnectionBuffer {
         return false;
     }
 
+    /**
+     * Determines whether all the messages are forwarded from sub-devices, rather than actually targeting this one.
+     *
+     * @return true if all forwarded, false if any are actually targeted to this device (or if empty)
+     */
     public boolean hasNonAddressedInBuffer() {
-        for (BufferElement element : outgoingQueue) {
+        for (final BufferElement element : sentQueue) {
             if (element.isSameLayer()) {
                 return true;
             }
@@ -201,7 +206,16 @@ public class ConnectionBuffer {
      * @return the current number of queued messages
      */
     public int getQueueLength() {
-        return outgoingQueue.size();
+        return sentQueue.size();
+    }
+
+    /**
+     * For testing: return the nth item in the queue. Not efficient.
+     *
+     * @return the nth queue item
+     */
+    AddressedCommand getQueueItem(int n) {
+        return List.copyOf(sentQueue).get(n).getCommand();
     }
 
     /**
@@ -221,7 +235,7 @@ public class ConnectionBuffer {
     /**
      * Indicates how much of the target's token buffer is in actual use, based on what has been sent and what has come back.
      *
-     * @return
+     * @return estimated currrent buffer content size
      */
     public int getCurrentBufferContent() {
         return currentBufferContent;
@@ -248,6 +262,10 @@ public class ConnectionBuffer {
 
         public boolean isSameLayer() {
             return sameLayer;
+        }
+
+        public boolean isForwarded() {
+            return !sameLayer;
         }
 
         @Nonnull
