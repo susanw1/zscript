@@ -41,7 +41,7 @@ class ExpandableBufferTest {
         ExpandableBuffer e = new ExpandableBuffer(1);
         e.addBytes("x £5 y".getBytes(StandardCharsets.UTF_8), 0, 7);
         assertThat(e.getCount()).isEqualTo(7);
-        assertThat(e.asString()).isEqualTo("x £5 y");
+        assertThat(e.asStringUtf8()).isEqualTo("x £5 y");
         assertThat(e.toString()).isEqualTo("x £5 y");
     }
 

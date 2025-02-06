@@ -831,14 +831,14 @@ public final class ByteString implements Iterable<Byte> {
         }
 
         @Nonnull
-        public String asString() {
-            return buffer.asString();
+        public String asStringUtf8() {
+            return buffer.asStringUtf8();
         }
 
         @Nonnull
         @Override
         public String toString() {
-            return "ByteStringBuilder[\"" + asString() + "\"]";
+            return "ByteStringBuilder[\"" + asStringUtf8() + "\"]";
         }
 
         @Nonnull
