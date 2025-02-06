@@ -71,7 +71,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
                     builder.appendHexPair(b);
                     builder.appendByte(' ');
                 }
-                box.append(builder.asString());
+                box.append(builder.asStringUtf8());
             }
         }
 

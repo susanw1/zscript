@@ -141,7 +141,7 @@ class ByteStringTest {
     public void shouldInitializeNewBuilderWithMultipleExistingContent() {
         var b1 = ByteString.builder().appendByte('Z').appendNumeric16(0x02);
         var b2 = ByteString.builder().appendByte('Y').appendNumeric16(0x03);
-        assertThat(ByteString.builder(b1.asAppendable(), b2.asAppendable()).appendByte('X').appendNumeric16(0x1a2b).asString()).isEqualTo("Z2Y3X1a2b");
+        assertThat(ByteString.builder(b1.asAppendable(), b2.asAppendable()).appendByte('X').appendNumeric16(0x1a2b).asStringUtf8()).isEqualTo("Z2Y3X1a2b");
     }
 
     @Test
@@ -171,11 +171,11 @@ class ByteStringTest {
 
         assertThat(ByteString.builder(new TestAppendable(1), new TestAppendable(2)).build().asString()).isEqualTo("x=01x=02");
         assertThat(ByteString.concat(new TestAppendable(1), new TestAppendable(2)).asString()).isEqualTo("x=01x=02");
-        assertThat(ByteString.builder().append(new TestAppendable(1), new TestAppendable(2)).asString()).isEqualTo("x=01x=02");
+        assertThat(ByteString.builder().append(new TestAppendable(1), new TestAppendable(2)).asStringUtf8()).isEqualTo("x=01x=02");
 
         assertThat(ByteString.builder(List.of(new TestAppendable(3), new TestAppendable(4))).build().asString()).isEqualTo("x=03x=04");
         assertThat(ByteString.concat(List.of(new TestAppendable(3), new TestAppendable(4))).asString()).isEqualTo("x=03x=04");
-        assertThat(ByteString.builder().append(List.of(new TestAppendable(1), new TestAppendable(2))).asString()).isEqualTo("x=01x=02");
+        assertThat(ByteString.builder().append(List.of(new TestAppendable(1), new TestAppendable(2))).asStringUtf8()).isEqualTo("x=01x=02");
 
         assertThat(new TestAppendable(6).asStringUtf8()).isEqualTo("x=06");
     }
@@ -185,7 +185,7 @@ class ByteStringTest {
         ByteString.ByteStringBuilder builder = ByteString.builder();
         List<String>                 list    = List.of("green", "eggs", "and", "ham");
         builder.appendJoining(UTF8_APPENDER, list, ByteString.byteStringUtf8("|-|").asAppendable());
-        assertThat(builder.asString()).isEqualTo("green|-|eggs|-|and|-|ham");
+        assertThat(builder.asStringUtf8()).isEqualTo("green|-|eggs|-|and|-|ham");
     }
 
     @Test
@@ -270,7 +270,7 @@ class ByteStringTest {
             os.write("BC".getBytes(StandardCharsets.UTF_8));
         }
         builder.appendByte(51);
-        assertThat(builder.asString()).isEqualTo("2ABC3");
+        assertThat(builder.asStringUtf8()).isEqualTo("2ABC3");
     }
 
     @Test

@@ -113,13 +113,13 @@ final class ExpandableBuffer {
      * @return string representing the bytes so far
      */
     @Nonnull
-    public String asString() {
+    public String asStringUtf8() {
         return new String(buf, 0, count, UTF_8);
     }
 
     @Nonnull
     @Override
     public String toString() {
-        return asString();
+        return asStringUtf8();
     }
 }
