@@ -202,7 +202,7 @@ public final class ByteString implements Iterable<Byte> {
     }
 
     /**
-     * Writes this ByteString to the specified OutputStream.
+     * Writes this ByteString to the specified OutputStream (and flushes it).
      *
      * @param out the stream to write
      * @return this ByteString, to facilitate chaining
@@ -211,6 +211,7 @@ public final class ByteString implements Iterable<Byte> {
     @Nonnull
     public ByteString writeTo(final OutputStream out) throws IOException {
         out.write(bytes);
+        out.flush();
         return this;
     }
 

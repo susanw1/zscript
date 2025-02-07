@@ -40,7 +40,7 @@ public class StandardQueuingStrategy implements QueuingStrategy {
         }
     }
 
-    private void send(QueueElement el) {
+    private void addToQueue(QueueElement el) {
         boolean wasEmpty = waiting.isEmpty();
         waiting.add(el);
         if (wasEmpty) {
@@ -50,17 +50,17 @@ public class StandardQueuingStrategy implements QueuingStrategy {
 
     @Override
     public void send(CommandSequence seq) {
-        send(new SequenceQueueElement(seq));
+        addToQueue(new SequenceQueueElement(seq));
     }
 
     @Override
     public void send(CommandExecutionPath path) {
-        send(new PathQueueElement(path));
+        addToQueue(new PathQueueElement(path));
     }
 
     @Override
     public void forward(AddressedCommand addr) {
-        send(new AddressedQueueElement(addr));
+        addToQueue(new AddressedQueueElement(addr));
     }
 
     /**

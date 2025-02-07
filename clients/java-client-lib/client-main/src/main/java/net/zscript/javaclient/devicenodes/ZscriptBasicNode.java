@@ -50,7 +50,7 @@ class ZscriptBasicNode implements ZscriptNode {
         this.connectionBuffer = new ConnectionBuffer(parentConnection, echoSystem, bufferSize);
         this.strategy.setBuffer(connectionBuffer);
 
-        parentConnection.onReceive(resp -> {
+        this.parentConnection.onReceive(resp -> {
             try {
                 if (resp.hasAddress()) {
                     AddressingConnection childConnection = connections.get(resp.getAddressSection());
@@ -97,7 +97,6 @@ class ZscriptBasicNode implements ZscriptNode {
         strategy.send(path);
     }
 
-    @Deprecated
     public void forward(AddressedCommand addr) {
         strategy.forward(addr);
     }
@@ -116,7 +115,7 @@ class ZscriptBasicNode implements ZscriptNode {
     }
 
     private void response(AddressedResponse resp) {
-        if (resp.getResponseSequence().getResponseFieldValue() != 0) {
+        if (resp.getResponseSequence().getResponseFieldValue() > 0) {
             // it's a notification
             final Consumer<ResponseSequence> handler = notificationHandlers.get(resp.getResponseSequence().getResponseFieldValue());
             if (handler != null) {

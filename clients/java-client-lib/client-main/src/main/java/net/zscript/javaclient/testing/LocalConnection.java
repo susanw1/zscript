@@ -27,8 +27,8 @@ public class LocalConnection extends DirectConnection {
     /**
      * Basic Connection that allows commands to be written to an outputStream, and responses/notifications to be read from an InputStream.
      *
-     * @param commandStream  commands are written here
-     * @param responseStream responses are read from here
+     * @param commandStream  when commands are sent to the client, they are written here to be picked up
+     * @param responseStream connection reads responses from here and feeds them back through the client
      */
     public LocalConnection(OutputStream commandStream, InputStream responseStream) {
         this.commandStream = requireNonNull(commandStream, "commandStream");
