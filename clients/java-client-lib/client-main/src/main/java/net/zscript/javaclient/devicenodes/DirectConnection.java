@@ -107,7 +107,7 @@ public abstract class DirectConnection implements Connection, Closeable {
                 t.accept(b);
                 if (b == Zchars.Z_NEWLINE) {
                     try {
-                        AddressedResponse parsedResponse = new AddressedResponse(CompleteAddressedResponse.parse(buffer.getTokenReader().getFirstReadToken()));
+                        final AddressedResponse parsedResponse = new AddressedResponse(CompleteAddressedResponse.parse(buffer.getTokenReader().getFirstReadToken()));
                         responseHandler.accept(parsedResponse);
                     } catch (Exception e) {
                         parseFailHandler.accept(bytes, e);

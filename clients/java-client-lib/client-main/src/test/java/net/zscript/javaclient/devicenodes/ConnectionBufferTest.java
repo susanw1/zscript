@@ -275,12 +275,12 @@ class ConnectionBufferTest {
         assertThat(buffer.getQueueLength()).isEqualTo(bufCCount);
     }
 
-    private static CommandSequence parseToSequence(String s) {
+    static CommandSequence parseToSequence(String s) {
         return CommandSequence.parse(ZscriptModel.standardModel(),
                 tokenize(byteStringUtf8(s), true).getTokenReader().getFirstReadToken(), false);
     }
 
-    private static ResponseSequence parseToResponse(String s) {
+    static ResponseSequence parseToResponse(String s) {
         return ResponseSequence.parse(tokenize(byteStringUtf8(s), true).getTokenReader().getFirstReadToken());
     }
 
