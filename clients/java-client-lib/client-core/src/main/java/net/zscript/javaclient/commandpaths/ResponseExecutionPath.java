@@ -112,6 +112,15 @@ public class ResponseExecutionPath implements Iterable<ResponseElement>, ByteApp
         return firstResponse;
     }
 
+    /**
+     * Determines if this Response is just blank.
+     *
+     * @return true if blank, false otherwise
+     */
+    public boolean isBlank() {
+        return firstResponse == null;
+    }
+
     @Nonnull
     public List<ResponseElement> getResponses() {
         List<ResponseElement> resps = new ArrayList<>();

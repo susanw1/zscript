@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static net.zscript.javaclient.devicenodes.ConnectionBuffer.TimeSource.NANOTIME;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +17,7 @@ import net.zscript.javaclient.ZscriptClientException;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandpaths.ZscriptAddress;
+import net.zscript.javaclient.devicenodes.ConnectionBuffer.TimeSource;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.ResponseSequence;
 
@@ -36,18 +39,24 @@ class ZscriptBasicNode implements ZscriptNode {
     private final Map<CommandExecutionPath, Consumer<ResponseExecutionPath>> pathCallbacks         = new HashMap<>();
     private final Map<CommandSequence, Consumer<ResponseSequence>>           fullSequenceCallbacks = new HashMap<>();
 
-    private QueuingStrategy strategy = new StandardQueuingStrategy(1000, TimeUnit.SECONDS); // should be enough for almost all cases
+    private QueuingStrategy strategy = new StandardQueuingStrategy(5, TimeUnit.SECONDS); // should be enough for almost all cases, can be reassigned
 
     ZscriptBasicNode(ZscriptCallbackThreadpool callbackPool, Connection parentConnection, int bufferSize) {
-        this(callbackPool, parentConnection, bufferSize, 100, TimeUnit.MILLISECONDS);
+        this(callbackPool, parentConnection, bufferSize, 100, TimeUnit.MILLISECONDS, NANOTIME);
     }
 
-    ZscriptBasicNode(ZscriptCallbackThreadpool callbackPool, Connection parentConnection, int bufferSize, long minEchoBlockChangeTime, TimeUnit unit) {
+    ZscriptBasicNode(ZscriptCallbackThreadpool callbackPool, Connection parentConnection, int bufferSize,
+            long minEchoBlockChangeTime, TimeUnit unit) {
+        this(callbackPool, parentConnection, bufferSize, minEchoBlockChangeTime, unit, NANOTIME);
+    }
+
+    ZscriptBasicNode(ZscriptCallbackThreadpool callbackPool, Connection parentConnection, int bufferSize,
+            long minEchoBlockChangeTime, TimeUnit unit, TimeSource timeSource) {
         this.callbackPool = callbackPool;
         this.parentConnection = parentConnection;
 
         this.echoSystem = new EchoAssigner();
-        this.connectionBuffer = new ConnectionBuffer(parentConnection, echoSystem, bufferSize);
+        this.connectionBuffer = new ConnectionBuffer(parentConnection, echoSystem, bufferSize, timeSource);
         this.strategy.setBuffer(connectionBuffer);
 
         this.parentConnection.onReceive(resp -> {
@@ -68,35 +77,50 @@ class ZscriptBasicNode implements ZscriptNode {
         });
     }
 
+    @Override
     public void setStrategy(QueuingStrategy strategy) {
         this.strategy = strategy;
         this.strategy.setBuffer(connectionBuffer);
     }
 
+    @Override
     public Connection attach(ZscriptAddress address) {
+        if (connections.containsKey(address)) {
+            throw new IllegalArgumentException("address already assigned: " + address);
+        }
         final AddressingConnection connection = new AddressingConnection(address, getParentConnection(), foundCommand -> {
             if (connectionBuffer.responseMatchedBySubnode(foundCommand)) {
                 strategy.bufferSpaceFreed();
             }
         });
+
         connections.put(address, connection);
         return connection;
     }
 
+    @Override
     public Connection detach(ZscriptAddress address) {
         return connections.remove(address);
     }
 
+    @Override
+    public boolean isAttached(ZscriptAddress address) {
+        return connections.containsKey(address);
+    }
+
+    @Override
     public void send(CommandSequence seq, Consumer<ResponseSequence> callback) {
         fullSequenceCallbacks.put(seq, callback);
         strategy.send(seq);
     }
 
+    @Override
     public void send(CommandExecutionPath path, Consumer<ResponseExecutionPath> callback) {
         pathCallbacks.put(path, callback);
         strategy.send(path);
     }
 
+    @Override
     public void forward(AddressedCommand addr) {
         strategy.forward(addr);
     }
@@ -117,7 +141,7 @@ class ZscriptBasicNode implements ZscriptNode {
     /** Processes the response when it has finally arrived at the correct node. Calls the appropriate callback function. */
     private void responseHasLanded(AddressedResponse resp) {
         if (resp.hasAddress()) {
-            throw new IllegalArgumentException("");
+            throw new IllegalArgumentException("resp has address (" + resp.getAddressSection() + ") - must not be called except with response targeted at exactly this node");
         }
         if (resp.getResponseSequence().getResponseFieldValue() > 0) {
             // it's a notification
@@ -164,10 +188,17 @@ class ZscriptBasicNode implements ZscriptNode {
         return parentConnection;
     }
 
+    // Testing only
+    ConnectionBuffer getConnectionBuffer() {
+        return connectionBuffer;
+    }
+
+    @Override
     public void setNotificationHandler(int notification, Consumer<ResponseSequence> handler) {
         notificationHandlers.put(notification, handler);
     }
 
+    @Override
     public void removeNotificationHandler(int notification) {
         notificationHandlers.remove(notification);
     }
