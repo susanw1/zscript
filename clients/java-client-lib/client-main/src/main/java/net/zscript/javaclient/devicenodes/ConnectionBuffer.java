@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static net.zscript.javaclient.devicenodes.ConnectionBuffer.TimeSource.NANOTIME;
+
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.LockCondition;
@@ -34,7 +36,7 @@ public class ConnectionBuffer {
     private boolean                   supports32Locks = false;
 
     public ConnectionBuffer(Connection connection, EchoAssigner echoAssigner, int bufferSize) {
-        this(connection, echoAssigner, bufferSize, System::nanoTime);
+        this(connection, echoAssigner, bufferSize, NANOTIME);
     }
 
     ConnectionBuffer(Connection connection, EchoAssigner echoAssigner, int bufferSize, TimeSource timeSource) {
@@ -306,6 +308,8 @@ public class ConnectionBuffer {
      */
     @FunctionalInterface
     interface TimeSource {
+        TimeSource NANOTIME = System::nanoTime;
+
         long nanoTime();
     }
 }

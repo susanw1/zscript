@@ -35,9 +35,29 @@ public interface ZscriptNode {
 
     void setCallbackExceptionHandler(Consumer<Exception> callbackExceptionHandler);
 
+    /**
+     * Creates a Connection associated with the supplied Address.
+     *
+     * @param address an address to attach - must not already be attached
+     * @return a Connection that can be used as the parentConnection to a sub-node
+     */
     Connection attach(ZscriptAddress address);
 
+    /**
+     * Detaches the Connection associated with the supplied Address.
+     *
+     * @param address the address to detach
+     * @return the previously attached Connection, or null if none
+     */
     Connection detach(ZscriptAddress address);
+
+    /**
+     * Determines whether the supplied address corresponds to a known Connection
+     *
+     * @param address the address to check
+     * @return true if attached, false otherwise
+     */
+    boolean isAttached(ZscriptAddress address);
 
     /**
      * Sends an unaddressed command sequence (optionally with locks and echo field), and posts the matching response sequence to the supplied callback.
