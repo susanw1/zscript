@@ -32,7 +32,7 @@ class AddressingConnection implements Connection {
         this.responseHandler = responseHandler;
     }
 
-    public void response(AddressedResponse resp) {
+    public void responseToChild(AddressedResponse resp) {
         if (responseHandler != null) {
             responseHandler.accept(resp);
         }

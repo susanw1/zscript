@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 
 import static java.time.Duration.ofSeconds;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static net.zscript.javaclient.commandpaths.ZscriptAddress.address;
 import static net.zscript.javaclient.devicenodes.ConnectionBufferTest.parseToResponse;
 import static net.zscript.javaclient.devicenodes.ConnectionBufferTest.parseToSequence;
 import static net.zscript.util.ByteString.byteStringUtf8;
@@ -32,7 +33,7 @@ import net.zscript.util.ByteString;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
 class ZscriptBasicNodeTest {
-    private static final Duration AWAIT_TIMEOUT = ofSeconds(2000);
+    private static final Duration AWAIT_TIMEOUT = ofSeconds(2);
 
     private ZscriptCallbackThreadpool pool;
 
@@ -141,6 +142,26 @@ class ZscriptBasicNodeTest {
     }
 
     @Test
+    public void shouldCallUnknownResponseHandlerOnUnknownAddress() throws IOException {
+        final AtomicReference<AddressedResponse> unknownResponseHandler = new AtomicReference<>();
+        node.setUnknownResponseHandler(unknownResponseHandler::set);
+
+        final AtomicReference<ResponseExecutionPath> handler = new AtomicReference<>();
+        setupHandlerAndSend("Z1", "%_100Z1\n", handler::set);
+
+        // Note unregistered address
+        byteStringUtf8("@1 ! _100 S\n").writeTo(responseSender);
+
+        await().atMost(AWAIT_TIMEOUT).until(() -> unknownResponseHandler.get() != null);
+        assertThat(handler).hasNullValue();
+
+        final ResponseExecutionPath responsePath = parseToResponse("!S").getExecutionPath();
+        assertThat(unknownResponseHandler).doesNotHaveNullValue();
+        assertThat(unknownResponseHandler.get().getResponseSequence().getExecutionPath().asStringUtf8())
+                .isEqualTo(responsePath.asStringUtf8());
+    }
+
+    @Test
     public void shouldCallBadCommandResponseMatchHandler() throws IOException {
         final AtomicReference<AddressedResponse> badMatchHandler = new AtomicReference<>();
         node.setBadCommandResponseMatchHandler((cmd, resp) -> badMatchHandler.set(resp));
@@ -166,7 +187,7 @@ class ZscriptBasicNodeTest {
 
         // response handler throws exception to trigger exception handler
         setupHandlerAndSend("Z1", "%_100Z1\n", r -> {
-            throw new RuntimeException("Test Dummy");
+            throw new RuntimeException("dummy exception (broken response handler)");
         });
 
         byteStringUtf8("! _100 S \n").writeTo(responseSender);
@@ -192,6 +213,49 @@ class ZscriptBasicNodeTest {
         final ResponseSequence responseSequence = parseToResponse("!3 S");
         assertThat(badMatchHandler).doesNotHaveNullValue();
         assertThat(badMatchHandler.get().getResponseSequence().asStringUtf8()).isEqualTo(responseSequence.asStringUtf8());
+    }
+
+    @Test
+    public void shouldSendOverMultipleNodeLayers() {
+        final ZscriptBasicNode subSubNode = makeNestedNodes();
+
+        final AtomicReference<ResponseExecutionPath> subSubHandler = new AtomicReference<>();
+        final CommandExecutionPath                   seq           = parseToSequence("Z1").getExecutionPath();
+        subSubNode.send(seq, subSubHandler::set);
+
+        verify(connection).send(any());
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("@1.2@3.4%_100Z1\n");
+        assertThat(subSubHandler).hasNullValue();
+    }
+
+    @Test
+    public void shouldReceiveOverMultipleNodeLayers() throws IOException {
+        final ZscriptBasicNode subSubNode = makeNestedNodes();
+
+        final AtomicReference<ResponseExecutionPath> handler = new AtomicReference<>();
+
+        final CommandExecutionPath path = parseToSequence("Z1").getExecutionPath();
+        subSubNode.send(path, handler::set);
+        verify(connection).send(any());
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("@1.2@3.4%_100Z1\n");
+
+        byteStringUtf8("@1.2 @3.4 ! _100 S \n").writeTo(responseSender);
+
+        await().atMost(AWAIT_TIMEOUT).until(() -> handler.get() != null);
+
+        final ResponseExecutionPath responsePath = parseToResponse("!S").getExecutionPath();
+        assertThat(handler).doesNotHaveNullValue();
+        assertThat(handler.get().asStringUtf8()).isEqualTo(responsePath.asStringUtf8());
+    }
+
+
+
+    private ZscriptBasicNode makeNestedNodes() {
+        final Connection       subConn    = node.attach(address(1, 2));
+        final ZscriptBasicNode subNode    = new ZscriptBasicNode(node.getParentConnection().getAssociatedThread().getCallbackPool(), subConn, 128, 3, SECONDS);
+        final Connection       subSubConn = subNode.attach(address(3, 4));
+        final ZscriptBasicNode subSubNode = new ZscriptBasicNode(subNode.getParentConnection().getAssociatedThread().getCallbackPool(), subSubConn, 128, 3, SECONDS);
+        return subSubNode;
     }
 
     private void setupHandlerAndSend(String z, String expected, Consumer<ResponseExecutionPath> handler) {
