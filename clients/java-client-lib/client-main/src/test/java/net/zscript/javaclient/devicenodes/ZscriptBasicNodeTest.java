@@ -28,9 +28,9 @@ import org.junit.jupiter.api.Test;
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 import net.zscript.javaclient.devicenodes.ConnectionBufferTest.MutableTimeSource;
+import net.zscript.javaclient.local.LocalConnection;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.ResponseSequence;
-import net.zscript.javaclient.testing.LocalConnection;
 import net.zscript.util.ByteString;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
