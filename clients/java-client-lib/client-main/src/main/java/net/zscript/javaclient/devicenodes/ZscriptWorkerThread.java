@@ -26,6 +26,7 @@ public class ZscriptWorkerThread {
     public ZscriptWorkerThread(ZscriptCallbackThreadpool threadpool) {
         this.threadpool = threadpool;
         try {
+            // identify our thread, so we can avoid resubmitting unnecessarily
             execThread = exec.submit(Thread::currentThread).get();
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);

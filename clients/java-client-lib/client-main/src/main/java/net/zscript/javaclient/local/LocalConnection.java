@@ -1,4 +1,4 @@
-package net.zscript.javaclient.testing;
+package net.zscript.javaclient.local;
 
 import java.io.IOException;
 import java.io.InputStream;

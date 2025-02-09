@@ -1,4 +1,4 @@
 @ParametersAreNonnullByDefault
-package net.zscript.javaclient.testing;
+package net.zscript.javaclient.local;
 
 import javax.annotation.ParametersAreNonnullByDefault;
