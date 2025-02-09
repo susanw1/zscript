@@ -56,12 +56,12 @@ class AddressingConnectionTest {
     public void shouldReceive() {
         final AddressingConnection mainConn = new AddressingConnection(address(1, 2), parentConnection, matchListener);
         final AddressedResponse    addrResp = mock(AddressedResponse.class);
-        mainConn.response(addrResp);
+        mainConn.responseToChild(addrResp);
 
         mainConn.onReceive(r -> {
             assertThat(r).isSameAs(addrResp);
         });
-        mainConn.response(addrResp);
+        mainConn.responseToChild(addrResp);
     }
 
     @Test

@@ -20,12 +20,14 @@ import net.zscript.javaclient.sequence.ResponseSequence;
  */
 public class ConnectionBuffer {
     private final Connection                connection;
-    private final ArrayDeque<BufferElement> sentQueue = new ArrayDeque<>();
+    private final ArrayDeque<BufferElement> sentList = new ArrayDeque<>();
 
     private final EchoAssigner echoAssigner;
     private final TimeSource   timeSource;
 
+    /** Estimate size of this device's buffer, for fullness estimation - may be changed if true buffer-size is discovered later. */
     private int bufferSize;
+    /** Keeps track of the number of bytes currently in this device's buffer to prevent overflows. */
     private int currentBufferContent = 0;
 
     private Collection<LockCondition> lockConditions  = List.of();
@@ -47,7 +49,8 @@ public class ConnectionBuffer {
     }
 
     /**
-     * Queues the supplied command sequence to be sent. The sequence optionally contains an echo field, otherwise one will be added.
+     * Queues the supplied command sequence to be sent. The sequence optionally contains an echo field, otherwise one will be added. The message may be refused if a supplied echo
+     * value is already in use, or if the command buffer on the corresponding device would become full.
      *
      * @param sequence     the command sequence to send
      * @param ignoreLength set to true to enqueue regardless of the buffer considerations
@@ -64,10 +67,18 @@ public class ConnectionBuffer {
         return addBufferElementToBuffer(new BufferElement(seq, timeSource.nanoTime() + unit.toNanos(timeout), false), ignoreLength);
     }
 
+    /**
+     * Takes a wrapped AddressedCommand, ensures it's not an echo-duplicate and that it will fit in the target's buffer, then buffers it (so we know when we've removed it) and
+     * totals the estimated buffer usage for this device.
+     *
+     * @param element      the command to buffer
+     * @param ignoreLength true if it is ok to ignore the buffer length requirement, false otherwise (normal)
+     * @return true if sent, false if rejected (buffer full, echo already assigned)
+     */
     private boolean addBufferElementToBuffer(BufferElement element, boolean ignoreLength) {
         if (element.isSameLayer()) {
             final int echoVal = element.getEchoValue();
-            for (final BufferElement el : sentQueue) {
+            for (final BufferElement el : sentList) {
                 if (el.getEchoValue() == echoVal) {
                     return false;
                 }
@@ -84,7 +95,7 @@ public class ConnectionBuffer {
         } else {
             echoAssigner.moveEcho();
         }
-        sentQueue.add(element);
+        sentList.add(element);
         currentBufferContent += element.length;
         connection.send(element.getCommand());
         return true;
@@ -96,7 +107,7 @@ public class ConnectionBuffer {
      * @param el the element to match
      */
     private void clearOutTo(BufferElement el) {
-        for (final Iterator<BufferElement> iter = sentQueue.iterator(); iter.hasNext(); ) {
+        for (final Iterator<BufferElement> iter = sentList.iterator(); iter.hasNext(); ) {
             final BufferElement current = iter.next();
             if (current == el) {
                 iter.remove();
@@ -118,7 +129,7 @@ public class ConnectionBuffer {
             return null;
         }
         boolean removeUpTo = true;
-        for (Iterator<BufferElement> iter = sentQueue.iterator(); iter.hasNext(); ) {
+        for (Iterator<BufferElement> iter = sentList.iterator(); iter.hasNext(); ) {
             final BufferElement element = iter.next();
             // re-jig this logic a little...extract element.isSameLayer() condition
             if (element.isSameLayer() && element.getEchoValue() == responseSequence.getEchoValue()) {
@@ -147,7 +158,7 @@ public class ConnectionBuffer {
         final List<CommandSequence> timedOut    = new ArrayList<>(2);
         final long                  currentNano = timeSource.nanoTime();
 
-        for (final Iterator<BufferElement> iter = sentQueue.iterator(); iter.hasNext(); ) {
+        for (final Iterator<BufferElement> iter = sentList.iterator(); iter.hasNext(); ) {
             final BufferElement element = iter.next();
             //subtracting first to avoid wrapping issues.
             if (currentNano - element.getNanoTimeTimeout() > 0) {
@@ -162,9 +173,17 @@ public class ConnectionBuffer {
         return timedOut;
     }
 
-    public boolean responseMatched(AddressedCommand cmd) {
+    /**
+     * If the supplied cmd has been matched by a sub-node, then it should be removed from the sent-list. In addition, any earlier forwarded (addressed) sub-node commands are
+     * removed too, because if _this_ command was executed, its predecessors can no longer be in the buffer using up space. Note that "removal" in this sense is important only in
+     * order to keep the currentBufferContent fullness estimate accurate.
+     *
+     * @param cmd the command to be removed
+     * @return true if any removed, false if buffer is unchanged (cmd wasn't found)
+     */
+    public boolean responseMatchedBySubnode(AddressedCommand cmd) {
         boolean removeUpTo = true;
-        for (final Iterator<BufferElement> iter = sentQueue.iterator(); iter.hasNext(); ) {
+        for (final Iterator<BufferElement> iter = sentList.iterator(); iter.hasNext(); ) {
             final BufferElement element = iter.next();
             if (element.getCommand() == cmd) {
                 if (removeUpTo) {
@@ -187,7 +206,7 @@ public class ConnectionBuffer {
      * @return true if all forwarded, false if any are actually targeted to this device (or if empty)
      */
     public boolean hasNonAddressedInBuffer() {
-        for (final BufferElement element : sentQueue) {
+        for (final BufferElement element : sentList) {
             if (element.isSameLayer()) {
                 return true;
             }
@@ -206,7 +225,7 @@ public class ConnectionBuffer {
      * @return the current number of queued messages
      */
     public int getQueueLength() {
-        return sentQueue.size();
+        return sentList.size();
     }
 
     /**
@@ -215,7 +234,7 @@ public class ConnectionBuffer {
      * @return the nth queue item
      */
     AddressedCommand getQueueItem(int n) {
-        return List.copyOf(sentQueue).get(n).getCommand();
+        return List.copyOf(sentList).get(n).getCommand();
     }
 
     /**

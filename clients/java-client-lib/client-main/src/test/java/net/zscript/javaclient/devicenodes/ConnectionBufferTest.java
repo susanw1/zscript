@@ -216,7 +216,7 @@ class ConnectionBufferTest {
         forwardSeq("_102 Z1C", address(1), true, 3);
 
         assertThat(buffer.getQueueLength()).isEqualTo(3);
-        assertThat(buffer.responseMatched(buffer.getQueueItem(1))).isTrue();
+        assertThat(buffer.responseMatchedBySubnode(buffer.getQueueItem(1))).isTrue();
         assertThat(buffer.getQueueLength()).isEqualTo(1);
     }
 
@@ -229,7 +229,7 @@ class ConnectionBufferTest {
 
         assertThat(buffer.getQueueLength()).isEqualTo(3);
         AddressedCommand cmd = new AddressedCommand(parseToSequence("_105 S"));
-        assertThat(buffer.responseMatched(cmd)).isFalse();
+        assertThat(buffer.responseMatchedBySubnode(cmd)).isFalse();
         assertThat(buffer.getQueueLength()).isEqualTo(3);
     }
 

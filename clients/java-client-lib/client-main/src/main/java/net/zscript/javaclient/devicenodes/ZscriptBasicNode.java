@@ -57,10 +57,10 @@ class ZscriptBasicNode implements ZscriptNode {
                     if (childConnection == null) {
                         callbackPool.sendCallback(unknownResponseHandler, resp, callbackExceptionHandler);
                     } else {
-                        childConnection.response(resp.getChild());
+                        childConnection.responseToChild(resp.getChild());
                     }
                 } else {
-                    response(resp);
+                    responseHasLanded(resp);
                 }
             } catch (Exception e) {
                 callbackPool.sendCallback(callbackExceptionHandler, e); // catches all callback exceptions
@@ -75,7 +75,7 @@ class ZscriptBasicNode implements ZscriptNode {
 
     public Connection attach(ZscriptAddress address) {
         final AddressingConnection connection = new AddressingConnection(address, getParentConnection(), foundCommand -> {
-            if (connectionBuffer.responseMatched(foundCommand)) {
+            if (connectionBuffer.responseMatchedBySubnode(foundCommand)) {
                 strategy.bufferSpaceFreed();
             }
         });
@@ -114,7 +114,11 @@ class ZscriptBasicNode implements ZscriptNode {
         }
     }
 
-    private void response(AddressedResponse resp) {
+    /** Processes the response when it has finally arrived at the correct node. Calls the appropriate callback function. */
+    private void responseHasLanded(AddressedResponse resp) {
+        if (resp.hasAddress()) {
+            throw new IllegalArgumentException("");
+        }
         if (resp.getResponseSequence().getResponseFieldValue() > 0) {
             // it's a notification
             final Consumer<ResponseSequence> handler = notificationHandlers.get(resp.getResponseSequence().getResponseFieldValue());
