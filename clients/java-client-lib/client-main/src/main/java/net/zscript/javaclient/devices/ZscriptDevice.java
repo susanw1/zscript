@@ -30,6 +30,7 @@ import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;
 import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 import net.zscript.javaclient.devicenodes.ZscriptNode;
+import net.zscript.javaclient.devices.ResponseSequenceCallback.CommandExecutionSummary;
 import net.zscript.javaclient.sequence.CommandSequence;
 import net.zscript.javaclient.sequence.ResponseSequence;
 import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
@@ -101,7 +102,7 @@ public class ZscriptDevice {
                 future.completeExceptionally(new NoResponseException());
                 return;
             }
-            List<ResponseSequenceCallback.CommandExecutionSummary<?>> l = resp.getExecutionSummary();
+            final List<CommandExecutionSummary<?>> l = resp.getExecutionSummary();
             if (l.get(l.size() - 1).getResponse().succeeded()) {
                 future.complete(resp);
             } else {
@@ -179,7 +180,7 @@ public class ZscriptDevice {
      * @param callback the response from that sequence
      */
     public void send(final ByteString cmdSeq, final Consumer<ByteString> callback) {
-        final ExtendingTokenBuffer    buffer      = ExtendingTokenBuffer.tokenize(cmdSeq);
+        final ExtendingTokenBuffer    buffer      = ExtendingTokenBuffer.tokenizeWithoutRejection(cmdSeq);
         final TokenBuffer.TokenReader tokenReader = buffer.getTokenReader();
 
         List<ReadToken>     sequenceMarkers = tokenReader.tokenIterator().stream().filter(ReadToken::isSequenceEndMarker).collect(toList());
@@ -257,7 +258,6 @@ public class ZscriptDevice {
             CommandElement failure;
             boolean        onSuccessHasOpenParen;
             boolean        onSuccessHasCloseParen;
-
         }
         final Map<ZscriptCommandNode<?>, CommandElement> commandMap = new HashMap<>();
 
