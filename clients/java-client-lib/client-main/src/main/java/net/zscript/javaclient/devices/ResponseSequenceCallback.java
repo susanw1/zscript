@@ -26,36 +26,6 @@ import net.zscript.model.components.ZscriptStatus;
 
 public class ResponseSequenceCallback {
 
-    public static class CommandExecutionSummary<T extends ZscriptResponse> {
-        private final ZscriptCommandNode<T> command;
-        private final T                     response;
-
-        @Nonnull
-        public static <T extends ZscriptResponse> CommandExecutionSummary<T> generateExecutionSummary(ZscriptCommandNode<T> command, ResponseElement response) {
-            return new CommandExecutionSummary<>(command, command.parseResponse(response.getFields()));
-        }
-
-        public CommandExecutionSummary(ZscriptCommandNode<T> command, T response) {
-            this.command = command;
-            this.response = response;
-        }
-
-        @Nonnull
-        public ZscriptCommandNode<T> getCommand() {
-            return command;
-        }
-
-        @Nonnull
-        public T getResponse() {
-            return response;
-        }
-
-        @Nonnull
-        public Class<T> getResponseType() {
-            return command.getResponseType();
-        }
-    }
-
     @Nonnull
     public static ResponseSequenceCallback from(List<MatchedCommandResponse> matchedCRs, Iterable<ZscriptCommandNode<?>> nodes,
             Map<ZscriptCommandNode<?>, CommandElement> commandMap) {
@@ -174,5 +144,40 @@ public class ResponseSequenceCallback {
 
     public boolean wasExecuted() {
         return wasExecuted;
+    }
+
+    /**
+     * Pair wrapper that binds a ZscriptCommandNode and its response.
+     *
+     * @param <T> the type of response
+     */
+    public static class CommandExecutionSummary<T extends ZscriptResponse> {
+        private final ZscriptCommandNode<T> command;
+        private final T                     response;
+
+        @Nonnull
+        public static <T extends ZscriptResponse> CommandExecutionSummary<T> generateExecutionSummary(ZscriptCommandNode<T> command, ResponseElement response) {
+            return new CommandExecutionSummary<>(command, command.parseResponse(response.getFields()));
+        }
+
+        public CommandExecutionSummary(ZscriptCommandNode<T> command, T response) {
+            this.command = command;
+            this.response = response;
+        }
+
+        @Nonnull
+        public ZscriptCommandNode<T> getCommand() {
+            return command;
+        }
+
+        @Nonnull
+        public T getResponse() {
+            return response;
+        }
+
+        @Nonnull
+        public Class<T> getResponseType() {
+            return command.getResponseType();
+        }
     }
 }

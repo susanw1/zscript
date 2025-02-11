@@ -64,44 +64,44 @@ class LocalConnectionTest {
 
     @Test
     public void shouldReceiveAddressedResponse() throws IOException {
-        AtomicReference<AddressedResponse> responseCaptor = new AtomicReference<>();
-        connection.onReceive(responseCaptor::set);
+        AtomicReference<AddressedResponse> responseHolder = new AtomicReference<>();
+        connection.onReceive(responseHolder::set);
         byteStringUtf8("!S \n").writeTo(responseSender);
-        await().atMost(AWAIT_TIMEOUT).until(() -> responseCaptor.get() != null);
-        assertThat(responseCaptor.get().getResponseSequence().asStringUtf8()).isEqualTo("!S");
+        await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
+        assertThat(responseHolder.get().getResponseSequence().asStringUtf8()).isEqualTo("!S");
     }
 
     @Test
     public void shouldReceiveAddressedResponseInPartialBlocks() throws IOException {
-        AtomicReference<AddressedResponse> responseCaptor = new AtomicReference<>();
-        connection.onReceive(responseCaptor::set);
+        AtomicReference<AddressedResponse> responseHolder = new AtomicReference<>();
+        connection.onReceive(responseHolder::set);
 
         byteStringUtf8("!S").writeTo(responseSender);
         byteStringUtf8(" A1").writeTo(responseSender);
-        assertThat(responseCaptor).hasNullValue();
+        assertThat(responseHolder).hasNullValue();
         byteStringUtf8("\n!S B").writeTo(responseSender);
-        await().atMost(AWAIT_TIMEOUT).until(() -> responseCaptor.get() != null);
-        assertThat(responseCaptor.get().getResponseSequence().asStringUtf8()).isEqualTo("!A1S");
+        await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
+        assertThat(responseHolder.get().getResponseSequence().asStringUtf8()).isEqualTo("!A1S");
 
-        // clear responseCaptor so we can tell when next response arrives
-        responseCaptor.set(null);
+        // clear responseHolder so we can tell when next response arrives
+        responseHolder.set(null);
         byteStringUtf8("2\n").writeTo(responseSender);
-        await().atMost(AWAIT_TIMEOUT).until(() -> responseCaptor.get() != null);
-        assertThat(responseCaptor.get().getResponseSequence().asStringUtf8()).isEqualTo("!B2S");
+        await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
+        assertThat(responseHolder.get().getResponseSequence().asStringUtf8()).isEqualTo("!B2S");
     }
 
     @Test
     public void shouldFlushOnClose() throws IOException {
-        AtomicReference<AddressedResponse> responseCaptor = new AtomicReference<>();
-        connection.onReceive(responseCaptor::set);
+        AtomicReference<AddressedResponse> responseHolder = new AtomicReference<>();
+        connection.onReceive(responseHolder::set);
         // ensure receiver thread is alive
         byteStringUtf8("!S\n").writeTo(responseSender);
-        await().atMost(AWAIT_TIMEOUT).until(() -> responseCaptor.get() != null);
-        responseCaptor.set(null);
+        await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
+        responseHolder.set(null);
         byteStringUtf8("!AS\n").writeTo(responseSender);
         connection.close();
-        await().atMost(AWAIT_TIMEOUT).until(() -> responseCaptor.get() != null);
-        assertThat(responseCaptor.get().getResponseSequence().asStringUtf8()).isEqualTo("!AS");
+        await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
+        assertThat(responseHolder.get().getResponseSequence().asStringUtf8()).isEqualTo("!AS");
     }
 
     @Test

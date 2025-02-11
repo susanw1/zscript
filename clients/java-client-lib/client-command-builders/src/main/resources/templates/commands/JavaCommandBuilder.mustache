@@ -176,10 +176,10 @@ public final class {{#upperCamel}}{{{moduleName}}}{{/upperCamel}}Module {
             return {{#upperCamel}}{{{commandName}}}{{/upperCamel}}Response.class;
         }
 
-        @Override
-        protected boolean canFail() {
-            return {{#status}}true|{{/status}}{{^status}}false|{{/status}}false;
-        }
+//        @Override
+//        protected boolean canFail() {
+//            return {{#status}}true|{{/status}}{{^status}}false|{{/status}}false;
+//        }
 
         /** Constructs the correct response object to this type of command, representing the supplied Zscript response expression. */
         @Nonnull
