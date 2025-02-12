@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.counting;
@@ -67,8 +68,8 @@ public class ModelValidator {
             if (!stringUpperCamel(module.getName())) {
                 throw new ZscriptModelException("Module names must be upper-camel-case, eg 'ThisAndThat' [module=%s, id=0x%x]", module.getName(), module.getId());
             }
-            if (module.getName().matches("[Mm]odule$")) {
-                throw new ZscriptModelException("Module names mustn't end with 'Module' (we generally append that) [module=%s, id=0x%x]", module.getName(), module.getId());
+            if (module.getName().matches(".*[Mm]odule")) {
+                throw new ZscriptModelException("Module names must not end with 'Module' (we generally append that) [module=%s, id=0x%x]", module.getName(), module.getId());
             }
             if (!fitsBits(module.getId(), 4)) {
                 throw new ZscriptModelException("Module Id must be 0x0-0xf [module=%s, id=0x%x]", module.getName(), module.getId());
@@ -104,13 +105,17 @@ public class ModelValidator {
             throw new ZscriptModelException("Notification names must be lower-camel-case, eg 'i2cInterface' [name=%s, notification=0x%x]", notification.getName(),
                     notification.getNotification());
         }
+        if (notification.getName().matches(".*[Nn]otification")) {
+            throw new ZscriptModelException("Notification names must not end with 'Notification' (we generally append that) [module=%s, id=0x%x]", notification.getName(),
+                    notification.getNotification());
+        }
         if (!fitsBits(notification.getNotification(), 4)) {
             throw new ZscriptModelException("Notification number must be 0x0-0xf [name=%s, notification=0x%x]", notification.getName(), notification.getNotification());
         }
 
         List<NotificationSectionNodeModel> sections = notification.getSections();
         if (sections == null || sections.isEmpty()) {
-            throw new ZscriptModelException("Module has no 'sections' [name=%s, notification=0x%x]", notification.getName(), notification.getNotification());
+            throw new ZscriptModelException("Notification has no 'sections' [name=%s, notification=0x%x]", notification.getName(), notification.getNotification());
         }
 
         for (NotificationSectionNodeModel sNode : sections) {
@@ -129,28 +134,17 @@ public class ModelValidator {
         NotificationSectionModel section = sectionNode.getSection();
         if (!stringLowerCamel(section.getName())) {
             throw new ZscriptModelException("NotificationSection names must be lower-camel-case, eg 'pinChange' [name=%s, notification=0x%x]", section.getName(),
-                    sectionNode.getNotification());
+                    sectionNode.getNotification().getNotification());
         }
-        checkFields(section, section.getFields(), "fields", NotificationFieldModel::getNotificationSection);
 
-        if (section.getFields() == null) {
-            throw new ZscriptModelException("Notification has no 'fields' section (must exist, even if empty) [name=%s, notification=0x%x]", section.getName(),
-                    sectionNode.getNotification());
-        }
-        for (NotificationFieldModel f : section.getFields()) {
-            if (f.getNotificationSection() != section) {
-                throw new ZscriptModelException("NotificationSection Field must back-reference to its NotificationSection [section=%s, field=%s, back-ref=%s]", section.getName(),
-                        f.getName(), f.getNotificationSection());
-            }
-            checkField(section, f);
-        }
+        checkFields(section, section.getFields(), "fields", NotificationFieldModel::getNotificationSection);
     }
 
     void checkCommand(CommandModel command) {
         if (!stringLowerCamel(command.getName())) {
             throw new ZscriptModelException("Command names must be lower-camel-case, eg 'i2cInterface' [name=%s, command=0x%x]", command.getName(), command.getCommand());
         }
-        if (command.getName().matches("[Cc]ommand$")) {
+        if (command.getName().matches(".*[Cc]ommand")) {
             throw new ZscriptModelException("Command names mustn't end with 'Command' (we generally append that) [name=%s, id=0x%x]", command.getName(), command.getCommand());
         }
 
@@ -188,13 +182,8 @@ public class ModelValidator {
             throw new ZscriptModelException("Field names must be lower-camel-case, eg 'i2cInterface' [parent=%s, field=%s, key='%c']",
                     parent.getName(), field.getName(), field.getKey());
         }
-        if (field.getName().matches("^(set|get)[^a-z]")) {
+        if (field.getName().matches("(set|get)[^a-z].*")) {
             throw new ZscriptModelException("Field names mustn't start with 'set' or 'get' (we generally prepend that) [parent=%s, field=%s, key='%c']",
-                    parent.getName(), field.getName(), field.getKey());
-        }
-
-        if (!String.valueOf(field.getKey()).matches("[A-Z+\"]") && field.getKey() != 0) {
-            throw new ZscriptModelException("Field key must be A-Z, '+' [parent=%s, field=%s, key='%c']",
                     parent.getName(), field.getName(), field.getKey());
         }
 
@@ -202,6 +191,12 @@ public class ModelValidator {
             throw new ZscriptModelException("Field has no 'typeDefinition' section [parent=%s, field=%s, key='%c']",
                     parent.getName(), field.getName(), field.getKey());
         }
+
+        if (!String.valueOf(field.getKey()).matches("[A-Z+\"]") && !(field.getKey() == 0 && field.getTypeDefinition() instanceof AnyTypeDefinition)) {
+            throw new ZscriptModelException("Field key must be A-Z, '+' [parent=%s, field=%s, key='%c']",
+                    parent.getName(), field.getName(), field.getKey());
+        }
+
         if (field.getTypeDefinition() instanceof AnyTypeDefinition) {
             if (field.getKey() != 0) {
                 throw new ZscriptModelException("Field with typeDefinition = 'any' must not have a key field [parent=%s, field=%s]",
@@ -242,12 +237,16 @@ public class ModelValidator {
                 .map(Map.Entry::getKey).collect(toList());
     }
 
+    private final Pattern LOWER_CAMEL = Pattern.compile("^\\p{Lower}\\p{Alnum}*$");
+
     boolean stringLowerCamel(String name) {
-        return name != null && !name.isEmpty() && name.matches("^\\p{Lower}\\p{Alnum}*$");
+        return name != null && !name.isEmpty() && LOWER_CAMEL.matcher(name).matches();
     }
 
+    private final Pattern UPPER_CAMEL = Pattern.compile("^\\p{Upper}\\p{Alnum}*$");
+
     boolean stringUpperCamel(String name) {
-        return name != null && !name.isEmpty() && name.matches("^\\p{Upper}\\p{Alnum}*$");
+        return name != null && !name.isEmpty() && UPPER_CAMEL.matcher(name).matches();
     }
 
     boolean fitsBits(int value, int nBits) {

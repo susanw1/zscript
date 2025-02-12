@@ -29,15 +29,6 @@ public class ZscriptModel {
 
     private final ModelValidator validator;
 
-    private ZscriptModel() {
-        try {
-            modelLoader = new ModelLoader();
-            validator = new ModelValidator(this);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     public static ZscriptModel rawModel() {
         return new ZscriptModel();
     }
@@ -52,6 +43,16 @@ public class ZscriptModel {
         }
         model.validate();
         return model;
+    }
+
+    /** Instantiate through factory methods */
+    private ZscriptModel() {
+        try {
+            modelLoader = new ModelLoader();
+            validator = new ModelValidator(this);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private void validate() {
@@ -92,7 +93,7 @@ public class ZscriptModel {
 
     public Optional<ZscriptDataModel.NotificationModel> getNotification(int id) {
         if (id < 0 || id > 0xFFFF) {
-            throw new IllegalArgumentException("Command IDs must be valid 16 bit unsigned ints");
+            throw new IllegalArgumentException("Notification IDs must be valid 16 bit unsigned ints");
         }
         return Optional.ofNullable(moduleBanksById.get((id >> 8) & 0xFF))
                 .flatMap(b -> b.getModule((id >> 4) & 0xF))
@@ -100,8 +101,8 @@ public class ZscriptModel {
     }
 
     public Optional<StatusModel> getStatus(int value) {
-        Intrinsics intrinsics = getIntrinsics();
-        for (StatusModel status : intrinsics.getStatus()) {
+        final Intrinsics intrinsics = getIntrinsics();
+        for (final StatusModel status : intrinsics.getStatus()) {
             if (status.getId() == value) {
                 return Optional.of(status);
             } else if (status.getId() > value) {
