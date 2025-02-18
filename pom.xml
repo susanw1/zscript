@@ -20,14 +20,14 @@
         <version.logback>1.5.13</version.logback>
         <version.jackson>2.18.2</version.jackson>
         <version.antlr>4.13.2</version.antlr>
-        <version.spotbugs>4.8.6</version.spotbugs>
+        <version.spotbugs>4.9.1</version.spotbugs>
         <version.picocli>4.7.6</version.picocli>
         <version.javafx>18.0.2</version.javafx>
 
         <!-- test dependency versions -->
         <version.junit>5.11.4</version.junit>
         <version.junit-platform>1.11.4</version.junit-platform>
-        <version.cucumber>7.20.1</version.cucumber>
+        <version.cucumber>7.21.1</version.cucumber>
         <version.cucumber-reporting>5.8.2</version.cucumber-reporting>
         <version.assertj>3.26.3</version.assertj>
         <version.mockito>5.15.2</version.mockito>
