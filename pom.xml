@@ -14,6 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.source.version>11</java.source.version>
         <java.target.version>11</java.target.version>
+        <version.min.maven>3.9.9</version.min.maven>
 
         <version.slf4j>2.0.16</version.slf4j>
         <version.logback>1.5.13</version.logback>
@@ -214,7 +215,7 @@
                             <configuration>
                                 <rules>
                                     <requireMavenVersion>
-                                        <version>3.6.3</version>
+                                        <version>${version.min.maven}</version>
                                     </requireMavenVersion>
                                 </rules>
                             </configuration>
