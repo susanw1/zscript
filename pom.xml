@@ -39,17 +39,17 @@
         <!-- plugin dependency versions -->
         <version.nar-maven-plugin>3.10.2-alpha</version.nar-maven-plugin>
         <version.jacoco-maven-plugin>0.8.12</version.jacoco-maven-plugin>
-        <version.exec-maven-plugin>3.4.1</version.exec-maven-plugin>
+        <version.exec-maven-plugin>3.5.0</version.exec-maven-plugin>
         <version.maven-compiler-plugin>3.13.0</version.maven-compiler-plugin>
-        <version.maven-surefire-plugin>3.5.1</version.maven-surefire-plugin>
-        <version.maven-failsafe-plugin>3.5.1</version.maven-failsafe-plugin>
-        <version.maven-spotbugs-plugin>4.8.6.4</version.maven-spotbugs-plugin>
+        <version.maven-surefire-plugin>3.5.2</version.maven-surefire-plugin>
+        <version.maven-failsafe-plugin>3.5.2</version.maven-failsafe-plugin>
+        <version.maven-spotbugs-plugin>4.9.1.0</version.maven-spotbugs-plugin>
         <version.maven-assembly-plugin>3.7.1</version.maven-assembly-plugin>
         <version.maven-jar-plugin>3.4.2</version.maven-jar-plugin>
         <version.maven-enforcer-plugin>3.5.0</version.maven-enforcer-plugin>
         <version.mustache-templating-maven-plugin>1.0.0</version.mustache-templating-maven-plugin>
 
-        <version.maven-javadoc-plugin>3.10.1</version.maven-javadoc-plugin>
+        <version.maven-javadoc-plugin>3.11.2</version.maven-javadoc-plugin>
         <version.maven-source-plugin>3.3.1</version.maven-source-plugin>
         <version.maven-gpg-plugin>3.2.7</version.maven-gpg-plugin>
         <version.maven-release-plugin>3.1.1</version.maven-release-plugin>
