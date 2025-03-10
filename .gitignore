@@ -32,7 +32,6 @@ RemoteSystemTempFiles/
 
 # C/C++ IDE
 .cproject
-CMakeLists.txt
 cmake-build-debug
 
 # C/C++ output
@@ -42,4 +41,3 @@ cmake-build-debug
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-
