@@ -47,7 +47,7 @@
         <version.maven-assembly-plugin>3.7.1</version.maven-assembly-plugin>
         <version.maven-jar-plugin>3.4.2</version.maven-jar-plugin>
         <version.maven-enforcer-plugin>3.5.0</version.maven-enforcer-plugin>
-        <version.cmake-maven-plugin>3.31.5-b3-SNAPSHOT</version.cmake-maven-plugin>
+        <version.cmake-maven-plugin>3.31.6-b1</version.cmake-maven-plugin>
         <version.mustache-templating-maven-plugin>1.0.0</version.mustache-templating-maven-plugin>
         <version.build-helper-maven-plugin>3.6.0</version.build-helper-maven-plugin>
 
@@ -162,7 +162,7 @@
                 </plugin>
                 <plugin>
                     <groupId>io.github.cmake-maven-plugin</groupId>
-                    <artifactId>cmake</artifactId>
+                    <artifactId>cmake-maven-plugin</artifactId>
                     <version>${version.cmake-maven-plugin}</version>
                 </plugin>
                 <plugin>

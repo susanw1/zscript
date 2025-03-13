@@ -1,0 +1,47 @@
+/*
+* Zscript Library - Command System for Microcontrollers
+* Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
+*
+* SPDX-License-Identifier: MIT
+*/
+#ifndef _ZS_ZRESPONSESTATUS_H
+#define _ZS_ZRESPONSESTATUS_H
+
+#include <stdint.h>
+
+/**
+ * Constants generated from the Status intrinsics.
+ *
+ * Status code values are significant:
+ * <dl>
+ *   <dt>00</dt><dd>Success</dd>
+ *   <dt>01-0f</dt><dd>Failure (allows ORELSE logic)</dd>
+ *   <dt>0f-ff</dt><dd>Error (unexpected, or not immediately recoverable)</dd>
+ * </dl>
+ *
+ * Generated(value = "CppZscriptStatus.mustache",
+ *  date = "{{timeNow}}",
+ *  comments = "Zscript Response Status list, using {{additional.context-source}}")
+*/
+enum ZS_Zstatus {
+{{#status}}
+    /** {{description}} (category: {{#category}}{{name}}{{/category}}) */
+    ZS_Zstatus_{{#upperUnderscore}}{{name}}{{/upperUnderscore}} = 0x{{#toHex}}{{id}}{{/toHex}},
+
+{{/status}}
+};
+
+static bool ZS_Zstatus_isSuccess(uint8_t code) {
+    return code == ZS_Zstatus_SUCCESS;
+}
+
+static bool ZS_Zstatus_isError(uint8_t code) {
+    return (code & ~0xf) != 0;
+}
+
+static bool ZS_Zstatus_isFailure(uint8_t code) {
+    return (code & ~0xf) == 0 && code != ZS_Zstatus_SUCCESS;
+}
+
+
+#endif /* _ZS_ZRESPONSESTATUS_H */
