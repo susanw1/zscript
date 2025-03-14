@@ -3,11 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 cmake_minimum_required(VERSION 3.23)
+
 project(zscript-generic-core
     VERSION     ${ZSCRIPT_CORE_VERSION}
     LANGUAGES   C
 )
 
+# Dependencies
 find_package(zscript-model-components REQUIRED)
 
 ###### Compiler configuration
@@ -34,29 +36,29 @@ add_subdirectory(src/test/c)
 ###### Installation
 
 # Install the target (header-only library) and headers
-install(TARGETS     ZscriptGenericCore
+install(TARGETS     ZscriptSub
     EXPORT      zscript-generic-core-targets
     FILE_SET    HEADERS
     DESTINATION include
 )
 
 # Export targets and configuration file for downstream users
-#install(EXPORT      zscript-generic-core-targets
-#    FILE        zscript-generic-core-targets.cmake
-#    NAMESPACE   zscript::generic-core::
-#    DESTINATION lib/cmake/zscript-generic-core
-#)
+install(EXPORT      zscript-generic-core-targets
+    FILE        zscript-generic-core-targets.cmake
+    NAMESPACE   zscript::generic-core::
+    DESTINATION lib/cmake/zscript-generic-core
+)
 
 # Create the package configuration file
-#include(CMakePackageConfigHelpers)
+include(CMakePackageConfigHelpers)
 
-#configure_package_config_file(
-#    ${CMAKE_CURRENT_LIST_DIR}/src/main/cmake/zscript-generic-core-config.cmake.in
-#    ${CMAKE_BINARY_DIR}/zscript-generic-core-config.cmake
-#    INSTALL_DESTINATION lib/cmake/zscript-generic-core
-#)
+configure_package_config_file(
+    ${CMAKE_CURRENT_LIST_DIR}/src/main/cmake/zscript-generic-core-config.cmake.in
+    ${CMAKE_BINARY_DIR}/zscript-generic-core-config.cmake
+    INSTALL_DESTINATION lib/cmake/zscript-generic-core
+)
 
-#install(
-#    FILES ${CMAKE_BINARY_DIR}/zscript-generic-core-config.cmake
-#    DESTINATION lib/cmake/zscript-generic-core
-#)
+install(
+    FILES ${CMAKE_BINARY_DIR}/zscript-generic-core-config.cmake
+    DESTINATION lib/cmake/zscript-generic-core
+)
