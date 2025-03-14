@@ -60,8 +60,8 @@
                                     <option>-DZSCRIPT_CORE_DESCRIPTION=${project.description}</option>
                                     <option>-DZSCRIPT_CORE_LICENSE=${zscript.license.name}</option>
 
-                                    <!--                                    <option>-DCMAKE_INSTALL_PREFIX=${cmake.install-prefix}</option>-->
-                                    <option>-DCMAKE_PREFIX_PATH=${cmake.install-prefix}</option>
+                                    <option>-DCMAKE_INSTALL_PREFIX=${cmake.install-prefix}</option>
+                                    <!--                                    <option>-DCMAKE_PREFIX_PATH=${cmake.install-prefix}</option>-->
 
                                     <!-- FOR DEBUGGING LINK ISSUE -->
                                     <option>-DUSE_INSTALLED_ZSCRIPT=ON</option>
@@ -107,14 +107,14 @@
             <id>build-native</id>
             <modules>
                 <module>c-model-components</module>
-                <!--                <module>generic-core</module>-->
+                <module>c-generic-core</module>
             </modules>
         </profile>
         <profile>
             <id>build-arduino</id>
             <modules>
                 <module>c-model-components</module>
-                <!--                <module>generic-core</module>-->
+                <module>c-generic-core</module>
                 <!--                <module>arduino</module>-->
             </modules>
         </profile>
@@ -122,7 +122,7 @@
             <id>build-arm</id>
             <modules>
                 <module>c-model-components</module>
-                <!--                <module>generic-core</module>-->
+                <module>c-generic-core</module>
                 <!--                <module>arm</module>-->
             </modules>
         </profile>

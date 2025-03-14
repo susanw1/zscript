@@ -1,15 +1,11 @@
 /*
- * Zcode Library - Command System for Microcontrollers)
- * Copyright (c) 2023 Zcode team (Susan Witts, Alicia Witts)
- *
+ * Zscript - Command System for Microcontrollers
+ * Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
  * SPDX-License-Identifier: MIT
  */
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
 
 #include <zscript/model/Zchars.h>
 #include <zscript/model/Zstatus.h>

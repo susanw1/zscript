@@ -1,6 +1,5 @@
-# Zscript Library - Command System for Microcontrollers
+# Zscript - Command System for Microcontrollers
 # Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
-#
 # SPDX-License-Identifier: MIT
 
 cmake_minimum_required(VERSION 3.23)
@@ -17,8 +16,8 @@ target_compile_features(zs_core_compiler_flags
 
 ###### Compile and Testing
 
-
-include_directories(${CMAKE_SOURCE_DIR}/target/generated-sources/c)
+## Do I need this??
+#include_directories(${CMAKE_SOURCE_DIR}/target/generated-sources/c)
 
 add_library(ZscriptModelComponents INTERFACE)
 target_include_directories(ZscriptModelComponents INTERFACE
@@ -29,8 +28,6 @@ target_include_directories(ZscriptModelComponents INTERFACE
 file(GLOB_RECURSE GENERATED_HEADERS
     "${CMAKE_SOURCE_DIR}/target/generated-sources/c/*.h"
 )
-
-message(STATUS "*** ZscriptModelComponents GENERATED_HEADERS: ${GENERATED_HEADERS}")
 
 target_sources(ZscriptModelComponents INTERFACE
     FILE_SET HEADERS
