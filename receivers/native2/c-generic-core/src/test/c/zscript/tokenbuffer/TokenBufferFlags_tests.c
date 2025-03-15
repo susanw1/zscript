@@ -23,7 +23,7 @@ void test_markerWritten() {
 
     assertEquals("Check marker not written", bufferFlags.markerWritten, false);
     zstok_setMarkerWritten(&bufferFlags);
-    assertEquals("Check marker after writing", bufferFlags.markerWritten, false);
+    assertEquals("Check marker after writing", bufferFlags.markerWritten, true);
     assertEquals("Check getAndClear", zstok_getAndClearMarkerWritten(&bufferFlags), true);
     assertEquals("Check marker after getAndClear", bufferFlags.markerWritten, false);
 }
