@@ -8,12 +8,6 @@
 #define _ZS_TOKENBUFFER_H
 
 #include <stdint.h>
-typedef uint8_t tokunit;
-
-typedef struct {
-    tokunit *buffer;
-} TokenBuffer ;
-
-static void zs_initTokenBuffer(TokenBuffer *tb);
+#include <stdbool.h>
 
 #endif // _ZS_TOKENBUFFER_H

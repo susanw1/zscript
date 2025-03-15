@@ -26,7 +26,7 @@ add_subdirectory(src/main/c)
 
 target_link_libraries(ZscriptGenericCore
     INTERFACE
-        ZscriptSub
+        ZscriptGenCoreImpl
         zscript::model-components::ZscriptModelComponents
 )
 
@@ -36,7 +36,7 @@ add_subdirectory(src/test/c)
 ###### Installation
 
 # Install the target (header-only library) and headers
-install(TARGETS     ZscriptSub
+install(TARGETS     ZscriptGenCoreImpl
     EXPORT      zscript-generic-core-targets
     FILE_SET    HEADERS
     DESTINATION include

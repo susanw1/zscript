@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #include <zscript/model/Zchars.h>
-#include <zscript/tokenbuffer/tokenbuffer_defs.h>
+#include <zscript/model/Zstatus.h>
 
 int main() {
     #if __STDC_VERSION__ == 201112L
@@ -20,6 +20,6 @@ int main() {
         printf("C Standard: Unknown\n");
     #endif
 
-    zs_initTokenBuffer(NULL);
-    printf("Morning, c = %c!\n", ZS_Zchars_CMD);
+    printf("Checking Zchars, c = %c\n", ZS_Zchars_CMD);
+    printf("Checking Zstatus, S = %x\n", ZS_Zstatus_SUCCESS);
 }
