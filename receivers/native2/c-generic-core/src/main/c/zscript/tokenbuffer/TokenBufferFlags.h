@@ -10,9 +10,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
-typedef struct zstok_BufferFlags ZStok_BufferFlags;
-
+typedef struct {
+    volatile bool markerWritten :1;
+    volatile bool seqMarkerWritten :1;
+    volatile bool readerBlocked :1;
+    volatile bool fatalBufferError :1;
+} ZStok_BufferFlags;
 
 static void zstok_initBufferFlags(ZStok_BufferFlags *bf);
 
@@ -29,5 +32,9 @@ static bool zstok_isReaderBlocked(const ZStok_BufferFlags *bf);
 static void zstok_setReaderBlocked(ZStok_BufferFlags *bf);
 
 static void zstok_clearReaderBlocked(ZStok_BufferFlags *bf);
+
+static bool zstok_isFatalBufferError(const ZStok_BufferFlags *bf);
+
+static void zstok_setFatalBufferError(ZStok_BufferFlags *bf);
 
 #endif // _ZS_TOKENBUFFERFLAGS_H

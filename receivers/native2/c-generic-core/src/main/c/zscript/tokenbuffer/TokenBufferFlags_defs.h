@@ -9,19 +9,13 @@
 #endif
 #define _ZS_TOKENBUFFERFLAGS_DEFS_H
 
-#include <stdio.h>
 #include "TokenBufferFlags.h"
-
-typedef struct zstok_BufferFlags{
-    volatile bool markerWritten :1;
-    volatile bool seqMarkerWritten :1;
-    volatile bool readerBlocked :1;
-} ZStok_BufferFlags;
 
 static void zstok_initBufferFlags(ZStok_BufferFlags *bf) {
     bf->markerWritten = false;
     bf->seqMarkerWritten = false;
     bf->readerBlocked = true;
+    bf->fatalBufferError = false;
 }
 
 static void zstok_setMarkerWritten(ZStok_BufferFlags *bf) {
@@ -58,4 +52,12 @@ static void zstok_setReaderBlocked(ZStok_BufferFlags *bf) {
 
 static void zstok_clearReaderBlocked(ZStok_BufferFlags *bf) {
     bf->readerBlocked = false;
+}
+
+static bool zstok_isFatalBufferError(const ZStok_BufferFlags *bf) {
+    return bf->fatalBufferError;
+}
+
+static void zstok_setFatalBufferError(ZStok_BufferFlags *bf) {
+    bf->fatalBufferError = true;
 }

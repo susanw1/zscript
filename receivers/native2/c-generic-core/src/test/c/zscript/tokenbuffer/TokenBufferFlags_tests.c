@@ -42,12 +42,27 @@ void test_seqMarkerWritten() {
 void test_readerBlocked() {
     ZStok_BufferFlags bufferFlags;
     zstok_initBufferFlags(&bufferFlags);
-    assertEquals("Check readerBlocked", bufferFlags.readerBlocked, true);
+    assertEquals("Check readerBlocked", zstok_isReaderBlocked(&bufferFlags), true);
+
+    zstok_setReaderBlocked(&bufferFlags);
+    assertEquals("Check readerBlocked set", zstok_isReaderBlocked(&bufferFlags), true);
+    zstok_clearReaderBlocked(&bufferFlags);
+    assertEquals("Check fatalBufferError clear", zstok_isReaderBlocked(&bufferFlags), false);
+}
+
+void test_fatalBufferError() {
+    ZStok_BufferFlags bufferFlags;
+    zstok_initBufferFlags(&bufferFlags);
+    assertEquals("Check fatalBufferError", zstok_isFatalBufferError(&bufferFlags), false);
+
+    zstok_setFatalBufferError(&bufferFlags);
+    assertEquals("Check fatalBufferError set", zstok_isFatalBufferError(&bufferFlags), true);
 }
 
 int main() {
     test_markerWritten();
     test_seqMarkerWritten();
     test_readerBlocked();
+    test_fatalBufferError();
     return 0;
 }

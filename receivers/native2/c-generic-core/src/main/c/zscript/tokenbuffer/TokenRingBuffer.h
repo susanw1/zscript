@@ -10,4 +10,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <zscript/misc/General.h>
+
+
+
 #endif // _ZS_TOKENBUFFER_H

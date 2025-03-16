@@ -24,7 +24,6 @@ int main() {
     uint8_t buffer[BUF_LEN];
 
     ZStok_TokenBuffer ringBuffer;
-
     zstok_initTokenBuffer(&ringBuffer, buffer, BUF_LEN);
 
     test_initTokenBuffer(&ringBuffer);

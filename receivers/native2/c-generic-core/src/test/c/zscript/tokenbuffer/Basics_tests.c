@@ -9,6 +9,8 @@
 #include <zscript/model/Zchars.h>
 #include <zscript/model/Zstatus.h>
 
+// Simple test to ensure that cross-module includes are working, and to output version info under ctest -V
+
 int main() {
     #if __STDC_VERSION__ == 201112L
         printf("C Standard: C11\n");
