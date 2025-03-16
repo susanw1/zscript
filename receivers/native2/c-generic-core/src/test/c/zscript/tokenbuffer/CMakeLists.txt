@@ -8,13 +8,9 @@ set(link_libs
     zscript::model-components::ZscriptModelComponents
 )
 
+# Fix the libs above, so we don't have to supply them in every test
 macro(invoke_test test_name)
-    add_executable(${test_name} ${test_name}_tests.c)
-    target_compile_options(${test_name}
-        PRIVATE     ${test_compiler_options}
-    )
-    target_link_libraries(${test_name} PRIVATE ${link_libs})
-    add_test(NAME ${test_name} COMMAND ${test_name})
+    invoke_test_with_libs("${test_name}" "${link_libs}")
 endmacro()
 
 invoke_test(Basics)

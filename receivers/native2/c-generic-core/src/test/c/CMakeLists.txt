@@ -21,5 +21,15 @@ elseif (MSVC)
 )
 endif()
 
+# defines a standard test/include/link/invoke invoker.
+macro(invoke_test_with_libs test_name libs)
+    add_executable(${test_name} ${test_name}_tests.c)
+    target_compile_options(${test_name}
+        PRIVATE     ${test_compiler_options}
+    )
+    target_link_libraries(${test_name} PRIVATE ${libs})
+    add_test(NAME ${test_name} COMMAND ${test_name})
+endmacro()
+
 add_subdirectory(zscript/tokenbuffer)
 #add_subdirectory(zscript/sys)
