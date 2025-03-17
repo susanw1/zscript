@@ -30,10 +30,10 @@
 #endif
 
 /**
- * Array based implementation of a TokenBuffer - the tokens making up incoming command or response sequences are encoded and accessed here. Rules are:
+ * Array ring-buffer implementation of a TokenBuffer - the tokens making up incoming sequences are encoded and accessed here. Rules are:
  * <ol>
- * <li>There is a writable area, owned by a TokenWriter, in the space <i>writeStart &lt;= i &lt; readStart</i>.</li>
- * <li>There is a readable area, owned by a TokenIterator, in the space <i>readStart &lt;= i &lt; writeStart</i>.</li>
+ * <li>There is a writable area, owned by a single TokenWriter, in the space <i>writeStart &lt;= i &lt; readStart</i> (modulo bufLen).</li>
+ * <li>There is a readable area, owned by a TokenIterator, in the space <i>readStart &lt;= i &lt; writeStart</i> (modulo bufLen).</li>
  * <li>A token is written as &gt;=2 bytes at <i>writeStart</i>: <code>key | datalen | [data]</code> - so tokens can be iterated by adding (datalen+2) to an existing token start.</li>
  * <li>A marker is written as 1 byte at <i>writeStart</i>, indicating a dataless key - markers are identified as a key with top 3 bits set (eg from 0xe0-0xff).</li>
  * <li>Tokens may exceed datalen of 255 using additional new token with special key <i>ZSTOK_TOKEN_EXTENSION</i></li>
@@ -42,6 +42,7 @@
 typedef struct {
     // fixed pointer to the token memory buffer, of size bufLen
     uint8_t             *data;
+    // length of usable data
     zstok_bufsz_t       bufLen;
 
     zstok_bufsz_t       readStart;
@@ -54,8 +55,9 @@ typedef struct {
     zstok_bufsz_t       writeLastLen;
     /** the current write index into data array */
     zstok_bufsz_t       writeCursor;
-
+    /** are we in the middle of writing a 2-nibble value? */
     bool            inNibble :1;
+    /** are we writing a nibble-based "numeric" field (even or odd number of nibbles), or a strictly hex-pair field? */
     bool            numeric :1;
 } ZStok_TokenBuffer;
 
@@ -63,13 +65,14 @@ typedef struct {
 /**
  * Type used for performing writes to the token-buffer. Zs_TokenWriter objects are deliberately small and stateless, so they
  * should ALWAYS be passed by value, not reference. They exist in order to keep "reader"-side operations distinct from
- * "writer"-side ones.
+ * "writer"-side ones. Their state lives in fields on the buffer itself.
  */
 typedef struct {
     ZStok_TokenBuffer      *tokenBuffer;
 } Zs_TokenWriter;
 
 
+// General TokenBuffer functions
 static void zstok_initTokenBuffer(ZStok_TokenBuffer *tb, uint8_t *bufSpace, const zstok_bufsz_t bufLen);
 
 static bool zstok_isMarker(const uint8_t key);
@@ -87,20 +90,22 @@ static void zstok_endToken(Zs_TokenWriter tbw);
 static void zstok_writeMarker(Zs_TokenWriter tbw, uint8_t key);
 static void zstok_fail(Zs_TokenWriter tbw, uint8_t errorCode);
 
-
 // status checks
 static bool zstok_isInNibble(Zs_TokenWriter tbw);
 static uint8_t zstok_getCurrentWriteTokenKey(Zs_TokenWriter tbw);
+static zstok_bufsz_t zstok_getCurrentWriteTokenLength(Zs_TokenWriter tbw);
 static bool zstok_isTokenComplete(Zs_TokenWriter tbw);
-
 
 // Private functions not used outside this unit
 static bool zstok_isNumeric_priv(Zs_TokenWriter tbw);
 static void zstok_moveCursor_priv(Zs_TokenWriter tbw);
-static zstok_bufsz_t zstok_getCurrentWriteTokenLength_priv(Zs_TokenWriter tbw);
 static void zstok_writeNewTokenStart_priv(Zs_TokenWriter tbw, uint8_t key);
 static uint16_t zstok_highestPowerOf2_priv(uint16_t n);
 static void zstok_fatalError_priv(Zs_TokenWriter tbw, ZS_SystemErrorType systemErrorCode);
+
+static bool zstok_checkAvailableCapacity(Zs_TokenWriter tbw, zstok_bufsz_t size);
+static zstok_bufsz_t zstok_getAvailableWrite_priv(Zs_TokenWriter tbw);
+
 
 /**
  * Initializes a TokenBuffer, overwriting all fields, using the supplied `bufSpace` as a ring-buffer. The amount of space used must be a power
@@ -183,8 +188,8 @@ static Zs_TokenWriter zstok_getTokenWriter(ZStok_TokenBuffer *tb) {
 static void zstok_moveCursor_priv(Zs_TokenWriter tbw) {
     zstok_bufsz_t nextCursor = zstok_offset(tbw.tokenBuffer, tbw.tokenBuffer->writeCursor, 1);
     if (nextCursor == tbw.tokenBuffer->readStart) {
-        // this should never happen - someone should have made sure there was space
-//        throw new IllegalStateException("Out of buffer - should have reserved more");
+        zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_FATAL_OVERFLOW);   // "Out of buffer - should have reserved more"
+        return;
     }
     tbw.tokenBuffer->writeCursor = nextCursor;
 }
@@ -203,7 +208,7 @@ static void zstok_startToken(Zs_TokenWriter tbw, uint8_t key, bool numeric) {
 }
 
 /**
- * Adds a new nibble to the current token.
+ * Adds a new nibble to the current token. Fatal Error if not writing a token, or nibble is out of range.
  *
  * @param b the nibble to add, with value in range 0-0xf
  * @throws IllegalStateException    if no token has been started
@@ -237,7 +242,7 @@ static void zstok_continueTokenNibble(Zs_TokenWriter tbw, uint8_t nibble) {
 }
 
 /**
- * Adds a new byte to the current token.
+ * Adds a new byte to the current token. Fatal Error if not writing a token, or state is partway through a nibble.
  *
  * @param b the byte to add
  */
@@ -286,24 +291,20 @@ static void zstok_endToken(Zs_TokenWriter tbw) {
     tbw.tokenBuffer->inNibble = false;
 }
 
-#if 0
-        /**
-         * Determines whether the buffer has the specified number of bytes available.
-         *
-         * @return true if there is space; false otherwise
-         */
-        static bool zstok_checkAvailableCapacity(Zs_TokenWriter tbw, zstok_bufsz_t size) {
-            return zstok_checkAvailableCapacityFrom(tbw, tbw.tokenBuffer->writeCursor, size);
-        }
+static zstok_bufsz_t zstok_getAvailableWrite_priv(Zs_TokenWriter tbw) {
+    return (tbw.tokenBuffer->writeCursor >= tbw.tokenBuffer->readStart ? tbw.tokenBuffer->bufLen : 0)
+            + tbw.tokenBuffer->readStart - tbw.tokenBuffer->writeCursor - 1;
+}
 
-        static zstok_bufsz_t zstok_getAvailableWrite_priv(Zs_TokenWriter tbw, zstok_bufsz_t writeCursor) {
-            return (writeCursor >= getReadStart() ? getDataSize() : 0) + getReadStart() - writeCursor - 1;
-        }
+/**
+ * Determines whether the buffer has the specified number of bytes available.
+ *
+ * @return true if there is space; false otherwise
+ */
+static bool zstok_checkAvailableCapacity(Zs_TokenWriter tbw, zstok_bufsz_t size) {
+    return zstok_getAvailableWrite_priv(tbw) >= size;
+}
 
-        static bool zstok_checkAvailableCapacityFrom_priv(Zs_TokenWriter tbw, zstok_bufsz_t writeCursor, zstok_bufsz_t size) {
-            return zstok_getAvailableWrite(tbw, writeCursor) >= size;
-        }
-#endif
 
 /**
  * Determines whether the writer is in the middle of writing a nibble (ie there have been an odd number of nibbles so far).
@@ -324,10 +325,9 @@ static bool zstok_isNumeric_priv(Zs_TokenWriter tbw) {
 }
 
 /**
- * Gets the key of the current token.
+ * Gets the key of the current token. Fatal Error if no token is being written!
  *
  * @return the key
- * @throws IllegalStateException if no token is being written
  */
 static uint8_t zstok_getCurrentWriteTokenKey(Zs_TokenWriter tbw) {
     if (zstok_isTokenComplete(tbw)) {
@@ -338,13 +338,13 @@ static uint8_t zstok_getCurrentWriteTokenKey(Zs_TokenWriter tbw) {
 }
 
 /**
- * Gets the current length of the current token.
+ * Gets the current length of the current token. Fatal Error if no token is being written.
  *
  * @return the length
- * @throws IllegalStateException if no token is being written
  */
-static zstok_bufsz_t zstok_getCurrentWriteTokenLength_priv(Zs_TokenWriter tbw) {
+static zstok_bufsz_t zstok_getCurrentWriteTokenLength(Zs_TokenWriter tbw) {
     if (zstok_isTokenComplete(tbw)) {
+        zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_NOT_IN_TOKEN);   // "no token being written"
         return 0;   // "no token being written"
     }
     return tbw.tokenBuffer->data[zstok_offset(tbw.tokenBuffer, tbw.tokenBuffer->writeStart, 1)];
@@ -363,8 +363,9 @@ static bool zstok_isTokenComplete(Zs_TokenWriter tbw) {
  * Writes the specified Marker. If a token is already being written, then it is finished off first. Markers are used to indicate that a parsable sequence of tokens has been
  * written which may trigger some reading activity.
  *
+ * Fatal Error if key is not a marker.
+ *
  * @param key the marker's key, as per {@link TokenBuffer#isMarker(byte)}
- * @throws IllegalArgumentException if key is not a marker
  */
 static void zstok_writeMarker(Zs_TokenWriter tbw, uint8_t key) {
     if (!zstok_isMarker(key)) {
@@ -383,7 +384,7 @@ static void zstok_writeMarker(Zs_TokenWriter tbw, uint8_t key) {
 }
 
 /**
- * Utility to initialize a new token
+ * Utility to initialize a new token. Fatal Error if key is a marker.
  *
  * @param key the token's key - must not be a marker
  */
