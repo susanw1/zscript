@@ -41,11 +41,9 @@ void assertStartsWith(const char *msg, uint8_t contents[], zstok_bufsz_t len) {
 
 void verifyBufferState1(bool tokenComplete, int availableWrite) {
     assertEquals("TokenComplete", zstok_isTokenComplete(testWriter), tokenComplete);
-    assertEquals("AvailableWrite", zstok_checkAvailableCapacity(testWriter, availableWrite), true);
-    assertEquals("AvailableWrite+1", zstok_checkAvailableCapacity(testWriter, availableWrite + 1), false);
-
-    //assertThat(writer.checkAvailableCapacity(availableWrite)).as("AvailableWrite").isTrue();
-    //assertThat(writer.checkAvailableCapacity(availableWrite + 1)).as("AvailableWrite+1").isFalse();
+    assertEquals("AvailableWrite sz", zstok_getAvailableWrite_priv(testWriter), availableWrite);
+    assertEquals("AvailableCapacity", zstok_checkAvailableCapacity(testWriter, availableWrite), true);
+    assertEquals("AvailableCapacity+1", zstok_checkAvailableCapacity(testWriter, availableWrite + 1), false);
 }
 
 void verifyBufferState2(bool tokenComplete, int availableWrite, int currentTokenKey, bool inNibble, int tokenLength) {
@@ -59,8 +57,15 @@ void verifyBufferState2(bool tokenComplete, int availableWrite, int currentToken
 
 void shouldInitialize() {
     setup();
-
-    // assertEquals("");
+    assertEquals("init tokenbuffer buffer", testRingBuffer.data == NULL, false);
+    assertEquals("init tokenbuffer bufLen", testRingBuffer.bufLen, 16);
+    assertEquals("init tokenbuffer readStart", testRingBuffer.readStart, 0);
+    assertEquals("init tokenbuffer writeStart", testRingBuffer.writeStart, 0);
+    assertEquals("init tokenbuffer writeLastLen", testRingBuffer.writeLastLen, 0);
+    assertEquals("init tokenbuffer writeCursor", testRingBuffer.writeCursor, 0);
+    assertEquals("init tokenbuffer inNibble", testRingBuffer.inNibble, false);
+    assertEquals("init tokenbuffer numeric", testRingBuffer.numeric, false);
+    verifyBufferState1(true, TEST_BUF_LEN - 1);
 }
 
 void shouldTokenizeNumericFieldWithNoValue() {
