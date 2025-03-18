@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include <zscript/model/Zchars.h>
 #include <zscript/model/Zstatus.h>
@@ -21,13 +22,13 @@ void assertEquals(const char *msg, const int expected, const int actual) {
     }
 }
 
-void shouldFindZcharConstants() {
+void shouldFindZcharConstants(void) {
     assertEquals("ZS_Zchars_CMD", 'Z', ZS_Zchars_CMD);
     assertEquals("ZS_Zchars_OPENPAREN", '(', ZS_Zchars_OPENPAREN);
     assertEquals("ZS_Zchars_NULL_CHAR", '\0', ZS_Zchars_NULL_CHAR);
 }
 
-void shouldValidateZcharConstants() {
+void shouldValidateZcharConstants(void) {
     assertEquals("alwaysIgnore(ZchaZS_Zstatus_Z_NULL_CHAR)", true, ZS_Zchars_alwaysIgnore(ZS_Zchars_NULL_CHAR));
     assertEquals("alwaysIgnore('a')", false, ZS_Zchars_alwaysIgnore('a'));
     assertEquals("alwaysIgnore(' ')", false, ZS_Zchars_alwaysIgnore(' '));
@@ -41,7 +42,7 @@ void shouldValidateZcharConstants() {
     assertEquals("isSeparator('\\n')", true, ZS_Zchars_isSeparator('\n'));
 }
 
-void shouldValidateZscriptStatus() {
+void shouldValidateZscriptStatus(void) {
     assertEquals("ZS_Zstatus_SUCCESS", 0, ZS_Zstatus_SUCCESS);
     assertEquals("ZS_Zstatus_COMMAND_FAIL", 1, ZS_Zstatus_COMMAND_FAIL);
     assertEquals("ZS_Zstatus_BUFFER_OVR_ERROR", 0x10, ZS_Zstatus_BUFFER_OVR_ERROR);

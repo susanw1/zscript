@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 cmake_minimum_required(VERSION 3.23)
+
 project(zscript-model-components
     VERSION     ${ZSCRIPT_CORE_VERSION}
     LANGUAGES   C
@@ -15,9 +16,6 @@ target_compile_features(zs_core_compiler_flags
 )
 
 ###### Compile and Testing
-
-## Do I need this??
-#include_directories(${CMAKE_SOURCE_DIR}/target/generated-sources/c)
 
 add_library(ZscriptModelComponents INTERFACE)
 target_include_directories(ZscriptModelComponents INTERFACE

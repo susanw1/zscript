@@ -19,11 +19,18 @@ uint8_t testBufferSpace[TEST_BUF_LEN];
 ZStok_TokenBuffer testRingBuffer;
 Zs_TokenWriter testWriter;
 
-void setup() {
+void setup(void) {
     zs_errno = 0; // Clear error state
     memset(testBufferSpace, 0, TEST_BUF_LEN);
     zstok_initTokenBuffer(&testRingBuffer, testBufferSpace, TEST_BUF_LEN);
     testWriter = zstok_getTokenWriter(&testRingBuffer);
+}
+
+void checkErrno(void) {
+    if (zs_errno) {
+        fprintf (stderr, "*********** ERRNO IS SET: %d\n", zs_errno);
+        exit(1);
+    }
 }
 
 void assertEquals(const char *msg, int p1, int p2) {
@@ -40,14 +47,14 @@ void assertNotEquals(const char *msg, int p1, int p2) {
     }
 }
 
-void assertTrue(const char *msg, int expected) {
+void assertTrue(const char *msg, bool expected) {
     if (!expected) {
         fprintf (stderr, "*********** Expected true: %s\n", msg);
         exit(1);
     }
 }
 
-void assertFalse(const char *msg, int expected) {
+void assertFalse(const char *msg, bool expected) {
     if (expected) {
         fprintf (stderr, "*********** Expected true: %s\n", msg);
         exit(1);
@@ -55,17 +62,23 @@ void assertFalse(const char *msg, int expected) {
 }
 
 void assertContainsAt(const char *msg, Zs_TokenWriter tbw, zstok_bufsz_t start, uint8_t contents[], zstok_bufsz_t len) {
+    checkErrno();
     uint8_t *datap = tbw.tokenBuffer->data;
     for (zstok_bufsz_t i = 0; i < len; i++) {
         uint8_t c = datap[start + i];
         if (c != contents[i]) {
-            fprintf (stderr, "Expected: ");
+            fprintf (stderr, "  Buffer: ");
+            for (zstok_bufsz_t t = 0; t < tbw.tokenBuffer->bufLen; t++) {
+                fprintf (stderr, "%02x ", datap[zstok_offset(tbw.tokenBuffer, 0, t)]);
+            }
+
+            fprintf (stderr, "\n\nExpected: ");
             for (zstok_bufsz_t t = 0; t < len; t++) {
                 fprintf (stderr, "%02x ", contents[t]);
             }
             fprintf (stderr, "\n  Actual: ");
             for (zstok_bufsz_t t = 0; t < len; t++) {
-                fprintf (stderr, "%02x ", datap[start + t]);
+                fprintf (stderr, "%02x ", datap[zstok_offset(tbw.tokenBuffer, start, t)]);
             }
             fprintf (stderr, "\n          ");
             for (zstok_bufsz_t t = 0; t < i; t++) {
@@ -143,9 +156,15 @@ void insertByteToken(int count) {
     verifyBufferState2(false, TEST_BUF_LEN - 3 - count, '+', false, count);
 }
 
-void shouldInitialize() {
+void shouldInitialize(void) {
     setup();
-    assertEquals("init tokenbuffer buffer", testRingBuffer.data == NULL, false);
+    insertNumericTokenNibbles('A', 1, 5);
+    assertEquals("init tokenbuffer inNibble", testRingBuffer.inNibble, true);
+    assertEquals("init tokenbuffer numeric", testRingBuffer.numeric, true);
+
+    zstok_initTokenBuffer(&testRingBuffer, testBufferSpace, TEST_BUF_LEN);
+
+    assertTrue("init tokenbuffer buffer", testRingBuffer.data == testBufferSpace);
     assertEquals("init tokenbuffer bufLen", testRingBuffer.bufLen, 16);
     assertEquals("init tokenbuffer readStart", testRingBuffer.readStart, 0);
     assertEquals("init tokenbuffer writeStart", testRingBuffer.writeStart, 0);
@@ -156,7 +175,7 @@ void shouldInitialize() {
     verifyBufferState1(true, TEST_BUF_LEN - 1);
 }
 
-void shouldTokenizeNumericFieldWithNoValue() {
+void shouldTokenizeNumericFieldWithNoValue(void) {
     setup();
     zstok_startToken(testWriter, 'A', true);
     uint8_t exp1[] = { 'A', 0, 0 };
@@ -166,7 +185,7 @@ void shouldTokenizeNumericFieldWithNoValue() {
     verifyBufferState1(true, 13);
 }
 
-void shouldTokenizeNumericFieldWithNibbleValue() {
+void shouldTokenizeNumericFieldWithNibbleValue(void) {
     setup();
     zstok_startToken(testWriter, 'A', true);
     zstok_continueTokenNibble(testWriter, 5);
@@ -179,7 +198,7 @@ void shouldTokenizeNumericFieldWithNibbleValue() {
     verifyBufferState1(true, 12);
 }
 
-void shouldTokenizeNumericFieldWithByteValue() {
+void shouldTokenizeNumericFieldWithByteValue(void) {
     setup();
     insertNumericToken('A', 1, 234); // 1 is the number of vararg bytes following, not actually the datalen!
 
@@ -188,7 +207,7 @@ void shouldTokenizeNumericFieldWithByteValue() {
     verifyBufferState2(false, 12, 'A', false, 1);
 }
 
-void shouldTokenizeNumericFieldWith2ByteValue() {
+void shouldTokenizeNumericFieldWith2ByteValue(void) {
     setup();
     insertNumericToken('A', 2, 234, 123);
 
@@ -197,7 +216,7 @@ void shouldTokenizeNumericFieldWith2ByteValue() {
     verifyBufferState2(false, 11, 'A', false, 2);
 }
 
-void shouldFailToAcceptByteIfNoTokenStarted() {
+void shouldFailToAcceptByteIfNoTokenStarted(void) {
     setup();
     zstok_continueTokenByte(testWriter, 0xA2);
     assertEquals("shouldFailToAcceptByteIfNoTokenStarted:errno", ZS_SystemErrorType_TOKBUF_STATE_NOT_IN_TOKEN, zs_errno);
@@ -205,7 +224,7 @@ void shouldFailToAcceptByteIfNoTokenStarted() {
     verifyBufferState1(true, 15);
 }
 
-void shouldFailToAcceptNibbleIfNoTokenStarted() {
+void shouldFailToAcceptNibbleIfNoTokenStarted(void) {
     setup();
     zstok_continueTokenNibble(testWriter, 3);
     assertEquals("shouldFailToAcceptNibbleIfNoTokenStarted:errno", ZS_SystemErrorType_TOKBUF_STATE_NOT_IN_TOKEN, zs_errno);
@@ -213,7 +232,7 @@ void shouldFailToAcceptNibbleIfNoTokenStarted() {
     verifyBufferState1(true, 15);
 }
 
-void shouldFailToTokenizeNumericFieldWithOddNibbleAndByteValue() {
+void shouldFailToTokenizeNumericFieldWithOddNibbleAndByteValue(void) {
     setup();
     zstok_startToken(testWriter, 'A', true);
     zstok_continueTokenNibble(testWriter, 3);
@@ -224,7 +243,7 @@ void shouldFailToTokenizeNumericFieldWithOddNibbleAndByteValue() {
     verifyBufferState1(true, 12);
 }
 
-void shouldTokenizeNumericFieldWith2NibbleValue() {
+void shouldTokenizeNumericFieldWith2NibbleValue(void) {
     setup();
     insertNumericTokenNibbles('A', 2, 5, 0xd);
     assertEquals("zs_errno", 0, zs_errno);
@@ -232,7 +251,7 @@ void shouldTokenizeNumericFieldWith2NibbleValue() {
     assertStartsWith("shouldTokenizeNumericFieldWith2NibbleValue", testWriter, exp1, sizeof exp1);
 }
 
-void shouldHandleFailingMidNibble() {
+void shouldHandleFailingMidNibble(void) {
     setup();
     insertNumericTokenNibbles('C', 1, 6);
     insertNumericTokenNibbles('A', 1, 5);
@@ -242,7 +261,7 @@ void shouldHandleFailingMidNibble() {
     assertStartsWith("shouldHandleFailingMidNibble", testWriter, exp2, sizeof exp2);
 }
 
-void shouldHandleFailingMidToken() {
+void shouldHandleFailingMidToken(void) {
     setup();
     insertNumericTokenNibbles('C', 1, 6);
     insertNumericTokenNibbles('A', 2, 5, 2);
@@ -252,7 +271,7 @@ void shouldHandleFailingMidToken() {
     assertStartsWith("shouldHandleFailingMidToken", testWriter, exp1, sizeof exp1);
 }
 
-void shouldTokenizeNumericFieldWith3NibbleValue() {
+void shouldTokenizeNumericFieldWith3NibbleValue(void) {
     setup();
     insertNumericTokenNibbles('A', 3, 5, 0xd, 0xa);
 
@@ -263,7 +282,7 @@ void shouldTokenizeNumericFieldWith3NibbleValue() {
     assertStartsWith("shouldTokenizeNumericFieldWith3NibbleValue", testWriter, exp2, sizeof exp2);
 }
 
-void shouldTokenizeNumericFieldWith4NibbleValue() {
+void shouldTokenizeNumericFieldWith4NibbleValue(void) {
     setup();
     insertNumericTokenNibbles('A', 4, 5, 0xd, 0xa, 0x3);
 
@@ -274,7 +293,7 @@ void shouldTokenizeNumericFieldWith4NibbleValue() {
     assertStartsWith("shouldTokenizeNumericFieldWith4NibbleValue", testWriter, exp3, sizeof exp3);
 }
 
-void shouldTokenizeNumericFieldWith5NibbleValue() {
+void shouldTokenizeNumericFieldWith5NibbleValue(void) {
     setup();
     insertNumericTokenNibbles('A', 5, 5, 0xd, 0xa, 0x3, 0xe);
 
@@ -285,7 +304,7 @@ void shouldTokenizeNumericFieldWith5NibbleValue() {
     assertStartsWith("shouldTokenizeNumericFieldWith5NibbleValue", testWriter, exp4, sizeof exp4);
 }
 
-void shouldTokenize2NumericFields() {
+void shouldTokenize2NumericFields(void) {
     setup();
     zstok_startToken(testWriter, 'A', true);
     zstok_endToken(testWriter);
@@ -298,7 +317,7 @@ void shouldTokenize2NumericFields() {
     verifyBufferState1(true, 11);
 }
 
-void shouldTokenize2NumericFieldsWithValues() {
+void shouldTokenize2NumericFieldsWithValues(void) {
     setup();
     zstok_startToken(testWriter, 'A', true);
     zstok_continueTokenNibble(testWriter, 5);
@@ -312,7 +331,7 @@ void shouldTokenize2NumericFieldsWithValues() {
     verifyBufferState1(true, 10);
 }
 
-void shouldTokenizeNonNumericField() {
+void shouldTokenizeNonNumericField(void) {
     setup();
     zstok_startToken(testWriter, '+', false);
     verifyBufferState2(false, 13, '+', false, 0);
@@ -323,7 +342,7 @@ void shouldTokenizeNonNumericField() {
     verifyBufferState1(true, 13);
 }
 
-void shouldTokenize2NonNumericFields() {
+void shouldTokenize2NonNumericFields(void) {
     setup();
     zstok_startToken(testWriter, '+', false);
     zstok_endToken(testWriter);
@@ -334,7 +353,7 @@ void shouldTokenize2NonNumericFields() {
     assertStartsWith("shouldTokenize2NonNumericFields", testWriter, exp4, sizeof exp4);
 }
 
-void shouldTokenize2NonNumericFieldsWithValues() {
+void shouldTokenize2NonNumericFieldsWithValues(void) {
     setup();
     insertNonNumericTokenNibbles('+', 2, 5, 0xa);
     zstok_endToken(testWriter);
@@ -345,7 +364,7 @@ void shouldTokenize2NonNumericFieldsWithValues() {
     assertStartsWith("shouldTokenize2NonNumericFieldsWithValues", testWriter, exp5, sizeof exp5);
 }
 
-void shouldTokenizeMixedFieldsWithOddNibbleValues() {
+void shouldTokenizeMixedFieldsWithOddNibbleValues(void) {
     setup();
     insertNumericTokenNibbles('A', 3, 5, 0xa, 0xb);
     verifyBufferState2(false, 12, 'A', true, 2);
@@ -359,7 +378,7 @@ void shouldTokenizeMixedFieldsWithOddNibbleValues() {
     verifyBufferState1(true, 9);
 }
 
-void shouldTokenizeMixedFieldsWithValues() {
+void shouldTokenizeMixedFieldsWithValues(void) {
     setup();
     insertNumericTokenNibbles('A', 3, 5, 0xa, 0xb);
     zstok_endToken(testWriter);
@@ -371,7 +390,7 @@ void shouldTokenizeMixedFieldsWithValues() {
     assertStartsWith("shouldTokenizeMixedFieldsWithValues", testWriter, exp2, sizeof exp2);
 }
 
-void shouldTokenizeNonNumericFieldWithOddNibbles() {
+void shouldTokenizeNonNumericFieldWithOddNibbles(void) {
     setup();
     insertNonNumericTokenNibbles('+', 3, 0xa, 0xb, 0xc);
     zstok_endToken(testWriter);
@@ -381,7 +400,7 @@ void shouldTokenizeNonNumericFieldWithOddNibbles() {
     verifyBufferState1(true, 11);
 }
 
-void shouldWriteBufferOverflowOnTokenKey() {
+void shouldWriteBufferOverflowOnTokenKey(void) {
     setup();
     insertByteToken(5);
     zstok_endToken(testWriter);
@@ -394,7 +413,7 @@ void shouldWriteBufferOverflowOnTokenKey() {
     assertStartsWith("shouldWriteBufferOverflowOnTokenKey", testWriter, exp1, sizeof exp1);
 }
 
-void shouldWriteBufferOverflowOnTokenData() {
+void shouldWriteBufferOverflowOnTokenData(void) {
     setup();
     insertByteToken(3);
     zstok_endToken(testWriter);
@@ -409,28 +428,34 @@ void shouldWriteBufferOverflowOnTokenData() {
     assertStartsWith("shouldWriteBufferOverflowOnTokenData", testWriter, exp2, sizeof exp2);
 }
 
-void shouldTokenizeContinuedBigField() {
-    uint8_t bigBufferSpace[300];
+void shouldTokenizeContinuedBigField(void) {
+    // Must validate that this test is possible
+    assertEquals("shouldTokenizeContinuedBigField - sizeof buffer check", sizeof(zstok_bufsz_t), 2);
+
+    const int BIG_BUF_LEN = 512;
+    uint8_t bigBufferSpace[BIG_BUF_LEN];
+    memset(bigBufferSpace, 0, BIG_BUF_LEN);
+
     ZStok_TokenBuffer bigRingBuffer;
     Zs_TokenWriter bigWriter;
     zstok_initTokenBuffer(&bigRingBuffer, bigBufferSpace, sizeof bigBufferSpace);
     bigWriter = zstok_getTokenWriter(&bigRingBuffer);
 
     zstok_startToken(bigWriter, '+', false);
-    for (int i = 0; i < 258; i++) {
+    for (zstok_bufsz_t i = 0; i < 258; i++) {
         zstok_continueTokenNibble(bigWriter, 4);
         zstok_continueTokenNibble(bigWriter, i & 0xf);
     }
     zstok_endToken(bigWriter);
 
     uint8_t exp1[] = { '+', 255, 64, 65, };
-    uint8_t exp2[] = { 77, 78, 129, 3, 79, 64, 65, 0 };
+    uint8_t exp2[] = { 0x4c, 0x4d, 0x4e, 0x81, 0x3, 0x4f, 0x40, 0x41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    assertStartsWith("shouldTokenizeContinuedBigField", bigWriter, exp1, sizeof exp1);
-//    assertContainsAt("shouldTokenizeContinuedBigField", bigWriter, 250, exp2, sizeof exp2);
+    assertStartsWith("shouldTokenizeContinuedBigField - start", bigWriter, exp1, sizeof exp1);
+    assertContainsAt("shouldTokenizeContinuedBigField - cont", bigWriter, 254, exp2, sizeof exp2);
 }
 
-int main() {
+int main(void) {
     shouldInitialize();
     shouldTokenizeNumericFieldWithNoValue();
     shouldTokenizeNumericFieldWithNibbleValue();

@@ -14,5 +14,5 @@ macro(invoke_test test_name)
 endmacro()
 
 invoke_test(Basics)
-invoke_test(TokenRingBuffer)
+invoke_test(TokenRingBuffer_Writer)
 invoke_test(TokenBufferFlags)

@@ -11,7 +11,7 @@
 
 // Simple test to ensure that cross-module includes are working, and to output version info under ctest -V
 
-int main() {
+int main(void) {
     #if __STDC_VERSION__ == 201112L
         printf("C Standard: C11\n");
     #elif __STDC_VERSION__ == 199901L

@@ -114,18 +114,19 @@ static zstok_bufsz_t zstok_getAvailableWrite_priv(Zs_TokenWriter tbw);
  *
  * @param   tb          the tokenBuffer to initialize
  * @param   bufSpace    pointer to space to use for buffer
- * @param   bufLen      the length of bufSpace - should be power of 2, or will be rounded down
+ * @param   bufLen      the length of bufSpace - should be power of 2, or will be rounded down!
  */
-static void zstok_initTokenBuffer(ZStok_TokenBuffer *tb, uint8_t *bufSpace, const zstok_bufsz_t bufLen) {
-    tb->data = bufSpace;
+static void zstok_initTokenBuffer(ZStok_TokenBuffer *tb, uint8_t *bufferSpace, const zstok_bufsz_t bufLen) {
+    tb->data = bufferSpace;
     tb->bufLen =  zstok_highestPowerOf2_priv(bufLen);
     tb->readStart = 0;
     tb->writeStart = 0;
     tb->writeLastLen = 0;
     tb->writeCursor = 0;
+    tb->inNibble = false;
+    tb->numeric = false;
     zstok_initBufferFlags(&tb->flags);
 }
-
 
 /**
  * Determines whether the supplied byte is a valid "marker" key (including sequence marker).
@@ -248,7 +249,7 @@ static void zstok_continueTokenNibble(Zs_TokenWriter tbw, uint8_t nibble) {
  */
 static void zstok_continueTokenByte(Zs_TokenWriter tbw, uint8_t b) {
     if (zstok_isInNibble(tbw)) {
-        zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_IN_NIBBLE);   // "Incomplete nibble"
+        zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_IN_NIBBLE);      // "Incomplete nibble"
         return;
     }
     if (zstok_isTokenComplete(tbw)) {
@@ -291,6 +292,12 @@ static void zstok_endToken(Zs_TokenWriter tbw) {
     tbw.tokenBuffer->inNibble = false;
 }
 
+/**
+ * Determines the amount of writable space available, after the current writeCursor and before hitting the readStart.
+ *
+ * @param tbw the writer to check
+ * @return the amount of writable space available
+ */
 static zstok_bufsz_t zstok_getAvailableWrite_priv(Zs_TokenWriter tbw) {
     return (tbw.tokenBuffer->writeCursor >= tbw.tokenBuffer->readStart ? tbw.tokenBuffer->bufLen : 0)
             + tbw.tokenBuffer->readStart - tbw.tokenBuffer->writeCursor - 1;
@@ -299,6 +306,7 @@ static zstok_bufsz_t zstok_getAvailableWrite_priv(Zs_TokenWriter tbw) {
 /**
  * Determines whether the buffer has the specified number of bytes available.
  *
+ * @param size the size to check
  * @return true if there is space; false otherwise
  */
 static bool zstok_checkAvailableCapacity(Zs_TokenWriter tbw, zstok_bufsz_t size) {
@@ -444,10 +452,6 @@ static uint16_t zstok_highestPowerOf2_priv(uint16_t n) {
     n |= n >> 8;
     return n - (n >> 1);
 }
-
-
-
-
 
 
 //class RingBufferTokenIterator;
