@@ -15,9 +15,9 @@
 #define TEST_BUF_LEN        16
 static const uint8_t ERROR_BUFFER_OVERRUN = 0xf1;
 
-uint8_t testBufferSpace[TEST_BUF_LEN];
+uint8_t           testBufferSpace[TEST_BUF_LEN];
 ZStok_TokenBuffer testRingBuffer;
-Zs_TokenWriter testWriter;
+Zs_TokenWriter    testWriter;
 
 void setup(void) {
     zs_errno = 0; // Clear error state
@@ -28,35 +28,35 @@ void setup(void) {
 
 void checkErrno(void) {
     if (zs_errno) {
-        fprintf (stderr, "*********** ERRNO IS SET: %d\n", zs_errno);
+        fprintf(stderr, "*********** ERRNO IS SET: %d\n", zs_errno);
         exit(1);
     }
 }
 
 void assertEquals(const char *msg, int p1, int p2) {
     if (p1 != p2) {
-        fprintf (stderr, "*********** Unexpected mismatch: p1 = %d, p2 = %d: %s\n", p1, p2, msg);
+        fprintf(stderr, "*********** Unexpected mismatch: p1 = %d, p2 = %d: %s\n", p1, p2, msg);
         exit(1);
     }
 }
 
 void assertNotEquals(const char *msg, int p1, int p2) {
     if (p1 == p2) {
-        fprintf (stderr, "*********** Unexpected match: p1 = %d, p2 = %d: %s\n", p1, p2, msg);
+        fprintf(stderr, "*********** Unexpected match: p1 = %d, p2 = %d: %s\n", p1, p2, msg);
         exit(1);
     }
 }
 
 void assertTrue(const char *msg, bool expected) {
     if (!expected) {
-        fprintf (stderr, "*********** Expected true: %s\n", msg);
+        fprintf(stderr, "*********** Expected true: %s\n", msg);
         exit(1);
     }
 }
 
 void assertFalse(const char *msg, bool expected) {
     if (expected) {
-        fprintf (stderr, "*********** Expected true: %s\n", msg);
+        fprintf(stderr, "*********** Expected true: %s\n", msg);
         exit(1);
     }
 }
@@ -64,27 +64,28 @@ void assertFalse(const char *msg, bool expected) {
 void assertContainsAt(const char *msg, Zs_TokenWriter tbw, zstok_bufsz_t start, uint8_t contents[], zstok_bufsz_t len) {
     checkErrno();
     uint8_t *datap = tbw.tokenBuffer->data;
+
     for (zstok_bufsz_t i = 0; i < len; i++) {
         uint8_t c = datap[start + i];
         if (c != contents[i]) {
-            fprintf (stderr, "  Buffer: ");
-            for (zstok_bufsz_t t = 0; t < tbw.tokenBuffer->bufLen; t++) {
-                fprintf (stderr, "%02x ", datap[zstok_offset(tbw.tokenBuffer, 0, t)]);
-            }
+//            fprintf (stderr, "  Buffer: ");
+//            for (zstok_bufsz_t t = 0; t < tbw.tokenBuffer->bufLen; t++) {
+//                fprintf (stderr, "%02x ", datap[zstok_offset(tbw.tokenBuffer, 0, t)]);
+//            }
 
-            fprintf (stderr, "\n\nExpected: ");
+            fprintf(stderr, "\n\nExpected: ");
             for (zstok_bufsz_t t = 0; t < len; t++) {
-                fprintf (stderr, "%02x ", contents[t]);
+                fprintf(stderr, "%02x ", contents[t]);
             }
-            fprintf (stderr, "\n  Actual: ");
+            fprintf(stderr, "\n  Actual: ");
             for (zstok_bufsz_t t = 0; t < len; t++) {
-                fprintf (stderr, "%02x ", datap[zstok_offset(tbw.tokenBuffer, start, t)]);
+                fprintf(stderr, "%02x ", datap[zstok_offset(tbw.tokenBuffer, start, t)]);
             }
-            fprintf (stderr, "\n          ");
+            fprintf(stderr, "\n          ");
             for (zstok_bufsz_t t = 0; t < i; t++) {
-                fprintf (stderr, "   ");
+                fprintf(stderr, "   ");
             }
-            fprintf (stderr, "^^\n*********** Expected=%02x(%c), actual=%02x(%c); pos=%d: %s\n", contents[i], contents[i], c, (c < ' '? '?' : c), i, msg);
+            fprintf(stderr, "^^\n*********** Expected=%02x(%c), actual=%02x(%c); pos=%d: %s\n", contents[i], contents[i], c, (c < ' ' ? '?' : c), i, msg);
             exit(1);
         }
     }
@@ -257,7 +258,7 @@ void shouldHandleFailingMidNibble(void) {
     insertNumericTokenNibbles('A', 1, 5);
     zstok_fail(testWriter, ERROR_BUFFER_OVERRUN);
 
-    uint8_t exp2[] = { 'C', 1, 6, ERROR_BUFFER_OVERRUN};
+    uint8_t exp2[] = { 'C', 1, 6, ERROR_BUFFER_OVERRUN };
     assertStartsWith("shouldHandleFailingMidNibble", testWriter, exp2, sizeof exp2);
 }
 
@@ -433,11 +434,11 @@ void shouldTokenizeContinuedBigField(void) {
     assertEquals("shouldTokenizeContinuedBigField - sizeof buffer check", sizeof(zstok_bufsz_t), 2);
 
     const int BIG_BUF_LEN = 512;
-    uint8_t bigBufferSpace[BIG_BUF_LEN];
+    uint8_t   bigBufferSpace[BIG_BUF_LEN];
     memset(bigBufferSpace, 0, BIG_BUF_LEN);
 
     ZStok_TokenBuffer bigRingBuffer;
-    Zs_TokenWriter bigWriter;
+    Zs_TokenWriter    bigWriter;
     zstok_initTokenBuffer(&bigRingBuffer, bigBufferSpace, sizeof bigBufferSpace);
     bigWriter = zstok_getTokenWriter(&bigRingBuffer);
 
