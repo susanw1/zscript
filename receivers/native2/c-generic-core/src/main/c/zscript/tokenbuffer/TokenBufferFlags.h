@@ -20,7 +20,7 @@ typedef struct {
     volatile bool fatalBufferError : 1;
 } ZStok_BufferFlags;
 
-static void zstok_initBufferFlags(ZStok_BufferFlags *bf);
+static ZStok_BufferFlags zstok_createBufferFlags(void);
 
 static void zstok_setMarkerWritten(ZStok_BufferFlags *bf);
 

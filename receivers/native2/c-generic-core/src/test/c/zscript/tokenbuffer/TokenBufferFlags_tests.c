@@ -18,8 +18,7 @@ void assertEquals(const char *msg, int expected, int actual) {
 }
 
 void test_markerWritten(void) {
-    ZStok_BufferFlags bufferFlags;
-    zstok_initBufferFlags(&bufferFlags);
+    ZStok_BufferFlags bufferFlags = zstok_createBufferFlags();
 
     assertEquals("Check marker not written", bufferFlags.markerWritten, false);
     zstok_setMarkerWritten(&bufferFlags);
@@ -28,8 +27,7 @@ void test_markerWritten(void) {
 }
 
 void test_seqMarkerWritten(void) {
-    ZStok_BufferFlags bufferFlags;
-    zstok_initBufferFlags(&bufferFlags);
+    ZStok_BufferFlags bufferFlags = zstok_createBufferFlags();
 
     assertEquals("Check seqMarker not written", bufferFlags.seqMarkerWritten, false);
     zstok_setSeqMarkerWritten(&bufferFlags);
@@ -38,8 +36,7 @@ void test_seqMarkerWritten(void) {
 }
 
 void test_readerBlocked(void) {
-    ZStok_BufferFlags bufferFlags;
-    zstok_initBufferFlags(&bufferFlags);
+    ZStok_BufferFlags bufferFlags = zstok_createBufferFlags();
     assertEquals("Check readerBlocked", zstok_isReaderBlocked(&bufferFlags), true);
 
     zstok_setReaderBlocked(&bufferFlags);
@@ -49,8 +46,7 @@ void test_readerBlocked(void) {
 }
 
 void test_fatalBufferError(void) {
-    ZStok_BufferFlags bufferFlags;
-    zstok_initBufferFlags(&bufferFlags);
+    ZStok_BufferFlags bufferFlags = zstok_createBufferFlags();
     assertEquals("Check fatalBufferError", zstok_isFatalBufferError(&bufferFlags), false);
 
     zstok_setFatalBufferError(&bufferFlags);

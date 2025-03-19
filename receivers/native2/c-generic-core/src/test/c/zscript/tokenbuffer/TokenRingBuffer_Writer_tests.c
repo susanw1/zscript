@@ -436,9 +436,8 @@ void shouldTokenizeContinuedBigField_util(bool useTextMode) {
     memset(bigBufferSpace, 0, BIG_BUF_LEN);
 
     ZStok_TokenBuffer bigRingBuffer;
-    Zs_TokenWriter    bigWriter;
     zstok_initTokenBuffer(&bigRingBuffer, bigBufferSpace, sizeof bigBufferSpace);
-    bigWriter = zstok_getTokenWriter(&bigRingBuffer);
+    Zs_TokenWriter bigWriter = zstok_getTokenWriter(&bigRingBuffer);
 
     zstok_startToken(bigWriter, '+', false);
     for (zstok_bufsz_t i = 0; i < 258; i++) {
@@ -474,9 +473,8 @@ void shouldFailOnHugeNumeric(void) {
     memset(bigBufferSpace, 0, BIG_BUF_LEN);
 
     ZStok_TokenBuffer bigRingBuffer;
-    Zs_TokenWriter    bigWriter;
     zstok_initTokenBuffer(&bigRingBuffer, bigBufferSpace, sizeof bigBufferSpace);
-    bigWriter = zstok_getTokenWriter(&bigRingBuffer);
+    Zs_TokenWriter bigWriter = zstok_getTokenWriter(&bigRingBuffer);
 
     zstok_startToken(bigWriter, 'A', true);
     for (zstok_bufsz_t i = 0; i < 255; i++) {

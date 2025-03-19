@@ -141,7 +141,7 @@ static void zstok_initTokenBuffer(ZStok_TokenBuffer *tb, uint8_t *bufferSpace, c
     tb->writeCursor  = 0;
     tb->inNibble     = false;
     tb->numeric      = false;
-    zstok_initBufferFlags(&tb->flags);
+    tb->flags        = zstok_createBufferFlags();
 }
 
 /**
@@ -197,9 +197,7 @@ static bool zstok_isInReadableArea(const ZStok_TokenBuffer *tb, const zstok_bufs
  * "writer"-side ones.
  */
 static Zs_TokenWriter zstok_getTokenWriter(ZStok_TokenBuffer *tb) {
-    Zs_TokenWriter w;
-    w.tokenBuffer = tb;
-    return w;
+    return (Zs_TokenWriter) { tb };
 }
 
 static void zstok_moveCursor_priv(Zs_TokenWriter tbw) {
@@ -469,6 +467,28 @@ static uint16_t zstok_highestPowerOf2_priv(uint16_t n) {
     return n - (n >> 1);
 }
 
+
+typedef struct {
+    // fixed pointer to the token memory buffer, of size bufLen
+    ZStok_TokenBuffer *tokenBuffer;
+
+} ZStok_TokenReader;
+
+typedef struct {
+    // fixed pointer to the token memory buffer, of size bufLen
+    ZStok_TokenBuffer *tokenBuffer;
+    zstok_bufsz_t     index;
+} ZStok_TokenBufferIterator;
+
+typedef struct {
+    // fixed pointer to the token memory buffer, of size bufLen
+    const ZStok_TokenBuffer *tokenBuffer;
+    const zstok_bufsz_t     index;
+} ZStok_ReadToken;
+
+
+
+//
 
 //class RingBufferTokenIterator;
 //class RingBufferToken;
