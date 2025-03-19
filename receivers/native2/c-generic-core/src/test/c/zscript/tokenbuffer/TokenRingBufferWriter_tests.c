@@ -9,7 +9,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include <zscript/tokenbuffer/TokenRingBuffer_defs.h>
+#include <zscript/tokenbuffer/TokenRingBufferWriter_defs.h>
 
 // handy test instances used by most tests
 #define TEST_BUF_LEN        16

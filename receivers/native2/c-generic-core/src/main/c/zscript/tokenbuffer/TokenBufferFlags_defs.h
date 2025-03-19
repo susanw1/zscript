@@ -4,9 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifdef _ZS_TOKENBUFFERFLAGS_DEFS_H
-#error _ZS_TOKENBUFFERFLAGS_DEFS_H already defined - file should only be included once
-#endif
+#ifndef _ZS_TOKENBUFFERFLAGS_DEFS_H
 #define _ZS_TOKENBUFFERFLAGS_DEFS_H
 
 #include "TokenBufferFlags.h"
@@ -124,3 +122,5 @@ static bool zstok_isFatalBufferError(const ZStok_BufferFlags *bf) {
 static void zstok_setFatalBufferError(ZStok_BufferFlags *bf) {
     bf->fatalBufferError = true;
 }
+
+#endif // _ZS_TOKENBUFFERFLAGS_DEFS_H
