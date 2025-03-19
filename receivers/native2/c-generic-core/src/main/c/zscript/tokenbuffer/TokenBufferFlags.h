@@ -10,6 +10,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/**
+ * Flags to indicate current status, acting as a communication channel between the TokenWriter and TokenReader.
+ */
 typedef struct {
     volatile bool markerWritten : 1;
     volatile bool seqMarkerWritten : 1;
