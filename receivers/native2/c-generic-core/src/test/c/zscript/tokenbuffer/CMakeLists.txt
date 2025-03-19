@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 set(link_libs
-    zs_core_compiler_flags
-    ZscriptGenCoreImpl
-    zscript::model-components::ZscriptModelComponents
+        zs_core_compiler_flags
+        ZscriptGenCoreImpl
+        zscript::model-components::ZscriptModelComponents
 )
 
 # Fix the libs above, so we don't have to supply them in every test

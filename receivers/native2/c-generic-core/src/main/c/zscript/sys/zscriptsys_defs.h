@@ -13,7 +13,6 @@
 #include "zscriptsys.h"
 
 
-
 static ZscriptSystem zscript;
 
 void setupZscript() {

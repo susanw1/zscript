@@ -14,14 +14,14 @@ typedef enum ZS_SystemErrorType {
     ZS_SystemErrorType_NONE = 0,
 
     ZS_SystemErrorType_TOKBUF_STATE_NOT_IN_TOKEN = 1,
-    ZS_SystemErrorType_TOKBUF_STATE_IN_TOKEN = 2,
+    ZS_SystemErrorType_TOKBUF_STATE_IN_TOKEN     = 2,
 
-    ZS_SystemErrorType_TOKBUF_ARG_NIBBLE_RANGE = 3,
-    ZS_SystemErrorType_TOKBUF_ARG_NOT_MARKER = 4,
-    ZS_SystemErrorType_TOKBUF_ARG_NOT_TOKENKEY = 5,
+    ZS_SystemErrorType_TOKBUF_ARG_NIBBLE_RANGE       = 3,
+    ZS_SystemErrorType_TOKBUF_ARG_NOT_MARKER         = 4,
+    ZS_SystemErrorType_TOKBUF_ARG_NOT_TOKENKEY       = 5,
     ZS_SystemErrorType_TOKBUF_STATE_NUMERIC_TOO_LONG = 6,
-    ZS_SystemErrorType_TOKBUF_STATE_IN_NIBBLE = 7,
-    ZS_SystemErrorType_TOKBUF_FATAL_OVERFLOW = 8,
+    ZS_SystemErrorType_TOKBUF_STATE_IN_NIBBLE        = 7,
+    ZS_SystemErrorType_TOKBUF_FATAL_OVERFLOW         = 8,
 } ZS_SystemErrorType;
 
 static ZS_SystemErrorType zs_errno = ZS_SystemErrorType_NONE;

@@ -11,10 +11,10 @@
 #include <stdbool.h>
 
 typedef struct {
-    volatile bool markerWritten :1;
-    volatile bool seqMarkerWritten :1;
-    volatile bool readerBlocked :1;
-    volatile bool fatalBufferError :1;
+    volatile bool markerWritten : 1;
+    volatile bool seqMarkerWritten : 1;
+    volatile bool readerBlocked : 1;
+    volatile bool fatalBufferError : 1;
 } ZStok_BufferFlags;
 
 static void zstok_initBufferFlags(ZStok_BufferFlags *bf);

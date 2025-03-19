@@ -13,5 +13,4 @@
 #include <zscript/misc/General.h>
 
 
-
 #endif // _ZS_TOKENBUFFER_H

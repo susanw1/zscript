@@ -12,9 +12,9 @@
 #include "TokenBufferFlags.h"
 
 static void zstok_initBufferFlags(ZStok_BufferFlags *bf) {
-    bf->markerWritten = false;
+    bf->markerWritten    = false;
     bf->seqMarkerWritten = false;
-    bf->readerBlocked = true;
+    bf->readerBlocked    = true;
     bf->fatalBufferError = false;
 }
 

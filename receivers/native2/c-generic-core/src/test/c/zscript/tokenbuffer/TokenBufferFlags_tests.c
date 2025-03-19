@@ -12,7 +12,7 @@
 
 void assertEquals(const char *msg, int expected, int actual) {
     if (expected != actual) {
-        fprintf (stderr, "*********** Expected = %d, actual = %d: %s\n", expected, actual, msg);
+        fprintf(stderr, "*********** Expected = %d, actual = %d: %s\n", expected, actual, msg);
         exit(1);
     }
 }
