@@ -429,10 +429,8 @@ void shouldWriteBufferOverflowOnTokenData(void) {
     assertStartsWith("shouldWriteBufferOverflowOnTokenData", testWriter, exp2, sizeof exp2);
 }
 
-void shouldTokenizeContinuedBigField(void) {
-    // Must validate that this test is possible
-    assertEquals("shouldTokenizeContinuedBigField - sizeof buffer check", sizeof(zstok_bufsz_t), 2);
-
+// handy test that checks continuation tokens in both text and nibble modes
+void shouldTokenizeContinuedBigField_util(bool useTextMode) {
     const int BIG_BUF_LEN = 512;
     uint8_t   bigBufferSpace[BIG_BUF_LEN];
     memset(bigBufferSpace, 0, BIG_BUF_LEN);
@@ -444,17 +442,97 @@ void shouldTokenizeContinuedBigField(void) {
 
     zstok_startToken(bigWriter, '+', false);
     for (zstok_bufsz_t i = 0; i < 258; i++) {
-        zstok_continueTokenNibble(bigWriter, 4);
-        zstok_continueTokenNibble(bigWriter, i & 0xf);
+        if (useTextMode) {
+            zstok_continueTokenByte(bigWriter, 0x40 + (i & 0xf));
+        } else {
+            zstok_continueTokenNibble(bigWriter, 4);
+            zstok_continueTokenNibble(bigWriter, i & 0xf);
+        }
     }
     zstok_endToken(bigWriter);
 
+    // verify that we didn't run out of space
+    checkErrno();
     uint8_t exp1[] = { '+', 255, 64, 65, };
-    uint8_t exp2[] = { 0x4c, 0x4d, 0x4e, 0x81, 0x3, 0x4f, 0x40, 0x41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
     assertStartsWith("shouldTokenizeContinuedBigField - start", bigWriter, exp1, sizeof exp1);
+
+    uint8_t exp2[] = { 0x4c, 0x4d, 0x4e, 0x81, 0x3, 0x4f, 0x40, 0x41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     assertContainsAt("shouldTokenizeContinuedBigField - cont", bigWriter, 254, exp2, sizeof exp2);
 }
+
+void shouldTokenizeContinuedTextBigField(void) {
+    shouldTokenizeContinuedBigField_util(true);
+}
+
+void shouldTokenizeContinuedHexBigField(void) {
+    shouldTokenizeContinuedBigField_util(false);
+}
+
+void shouldFailOnHugeNumeric(void) {
+    const int BIG_BUF_LEN = 512;
+    uint8_t   bigBufferSpace[BIG_BUF_LEN];
+    memset(bigBufferSpace, 0, BIG_BUF_LEN);
+
+    ZStok_TokenBuffer bigRingBuffer;
+    Zs_TokenWriter    bigWriter;
+    zstok_initTokenBuffer(&bigRingBuffer, bigBufferSpace, sizeof bigBufferSpace);
+    bigWriter = zstok_getTokenWriter(&bigRingBuffer);
+
+    zstok_startToken(bigWriter, 'A', true);
+    for (zstok_bufsz_t i = 0; i < 255; i++) {
+        zstok_continueTokenByte(bigWriter, 0x40 + (i & 0xf));
+    }
+    checkErrno();
+    zstok_continueTokenByte(bigWriter, 'x');
+    assertEquals("shouldFailOnHugeNumeric:errno", ZS_SystemErrorType_TOKBUF_STATE_NUMERIC_TOO_LONG, zs_errno);
+}
+
+
+void shouldFailToAcceptNibbleOutOfRange(void) {
+    setup();
+    zstok_startToken(testWriter, 'A', true);
+    zstok_continueTokenNibble(testWriter, 17);
+    assertEquals("shouldFailToAcceptNibbleOutOfRange:errno", ZS_SystemErrorType_TOKBUF_ARG_NIBBLE_RANGE, zs_errno);
+    verifyBufferState1(false, 13);
+    zstok_endToken(testWriter);
+    verifyBufferState1(true, 13);
+}
+
+void shouldFailToGetTokenKeyWhenNoTokenInPlay(void) {
+    setup();
+    zstok_getCurrentWriteTokenKey(testWriter);
+    assertEquals("shouldFailToGetTokenKeyWhenNoTokenInPlay:errno", ZS_SystemErrorType_TOKBUF_STATE_NOT_IN_TOKEN, zs_errno);
+}
+
+void shouldFailToGetTokenLengthWhenNoTokenInPlay(void) {
+    setup();
+    zstok_getCurrentWriteTokenLength(testWriter);
+    assertEquals("shouldFailToGetTokenLengthWhenNoTokenInPlay:errno", ZS_SystemErrorType_TOKBUF_STATE_NOT_IN_TOKEN, zs_errno);
+}
+
+void shouldFailToWriteNonMarkerAsMarker(void) {
+    setup();
+    zstok_writeMarker(testWriter, 'A');
+    assertEquals("shouldFailToWriteNonMarkerAsMarker:errno", ZS_SystemErrorType_TOKBUF_ARG_NOT_MARKER, zs_errno);
+}
+
+void shouldFailToWriteMarkerAsToken(void) {
+    setup();
+    zstok_startToken(testWriter, ERROR_BUFFER_OVERRUN, true);
+    assertEquals("shouldFailToWriteMarkerAsToken:errno", ZS_SystemErrorType_TOKBUF_ARG_NOT_TOKENKEY, zs_errno);
+}
+
+void shouldFailOnOverrun(void) {
+    setup();
+    zstok_startToken(testWriter, 'A', true);
+    for (zstok_bufsz_t i = 0; i < 13; i++) {
+        zstok_continueTokenByte(testWriter, 0x40 + (i & 0xf));
+    }
+    checkErrno();
+    zstok_continueTokenByte(testWriter, 'x');
+    assertEquals("shouldFailOnOverrun:errno", ZS_SystemErrorType_TOKBUF_FATAL_OVERFLOW, zs_errno);
+}
+
 
 int main(void) {
     shouldInitialize();
@@ -481,5 +559,13 @@ int main(void) {
     shouldTokenizeNonNumericFieldWithOddNibbles();
     shouldWriteBufferOverflowOnTokenKey();
     shouldWriteBufferOverflowOnTokenData();
-    shouldTokenizeContinuedBigField();
+    shouldTokenizeContinuedHexBigField();
+    shouldTokenizeContinuedTextBigField();
+    shouldFailOnHugeNumeric();
+    shouldFailToAcceptNibbleOutOfRange();
+    shouldFailToGetTokenKeyWhenNoTokenInPlay();
+    shouldFailToGetTokenLengthWhenNoTokenInPlay();
+    shouldFailToWriteNonMarkerAsMarker();
+    shouldFailToWriteMarkerAsToken();
+    shouldFailOnOverrun();
 }

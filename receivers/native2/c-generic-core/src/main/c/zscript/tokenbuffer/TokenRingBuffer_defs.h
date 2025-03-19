@@ -56,7 +56,7 @@ typedef struct {
     zstok_bufsz_t writeCursor;
     /** are we in the middle of writing a 2-nibble value? */
     bool inNibble : 1;
-    /** are we writing a nibble-based "numeric" field (even or odd number of nibbles), or a strictly hex-pair field? */
+    /** have we started writing a nibble-based "numeric" field (even or odd number of nibbles), or a strictly hex-pair field? */
     bool numeric : 1;
 
 } ZStok_TokenBuffer;
