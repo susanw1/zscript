@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef _ZS_GENERAL_DEFS_H
-#define _ZS_GENERAL_DEFS_H
+#ifndef _ZS_SYSERRORS_DEFS_H
+#define _ZS_SYSERRORS_DEFS_H
 
-#include "General.h"
+#include "SysErrors.h"
 
 static void zs_setErrno(const ZS_SystemErrorType newValue) {
     if (zs_errno == ZS_SystemErrorType_NONE) {
@@ -15,4 +15,4 @@ static void zs_setErrno(const ZS_SystemErrorType newValue) {
     }
 }
 
-#endif // _ZS_GENERAL_DEFS_H
+#endif // _ZS_SYSERRORS_DEFS_H

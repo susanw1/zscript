@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef _ZS_GENERAL_H
-#define _ZS_GENERAL_H
+#ifndef _ZS_SYSERRORS_H
+#define _ZS_SYSERRORS_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -22,8 +22,8 @@ typedef enum ZS_SystemErrorType {
     ZS_SystemErrorType_TOKBUF_STATE_IN_NIBBLE        = 7,
 } ZS_SystemErrorType;
 
-static ZS_SystemErrorType zs_errno = ZS_SystemErrorType_NONE;
+static volatile ZS_SystemErrorType zs_errno = ZS_SystemErrorType_NONE;
 
 static void zs_setErrno(const ZS_SystemErrorType newValue);
 
-#endif // _ZS_GENERAL_H
+#endif // _ZS_SYSERRORS_H
