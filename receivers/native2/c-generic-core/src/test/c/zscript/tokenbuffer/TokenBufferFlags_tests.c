@@ -23,9 +23,8 @@ void test_markerWritten(void) {
 
     assertEquals("Check marker not written", bufferFlags.markerWritten, false);
     zstok_setMarkerWritten(&bufferFlags);
-    assertEquals("Check marker after writing", bufferFlags.markerWritten, true);
     assertEquals("Check getAndClear", zstok_getAndClearMarkerWritten(&bufferFlags), true);
-    assertEquals("Check marker after getAndClear", bufferFlags.markerWritten, false);
+    assertEquals("Check getAndClear 2nd", zstok_getAndClearMarkerWritten(&bufferFlags), false);
 }
 
 void test_seqMarkerWritten(void) {
@@ -34,9 +33,8 @@ void test_seqMarkerWritten(void) {
 
     assertEquals("Check seqMarker not written", bufferFlags.seqMarkerWritten, false);
     zstok_setSeqMarkerWritten(&bufferFlags);
-    assertEquals("Check seqMarker after writing", bufferFlags.seqMarkerWritten, true);
-    assertEquals("Check seq getAndClear", zstok_getAndClearSeqMarkerWritten(&bufferFlags), true);
-    assertEquals("Check seqMarker after getAndClear", bufferFlags.seqMarkerWritten, false);
+    assertEquals("Check seq getAndClear after writing", zstok_getAndClearSeqMarkerWritten(&bufferFlags), true);
+    assertEquals("Check seq getAndClear 2nd", zstok_getAndClearSeqMarkerWritten(&bufferFlags), false);
 }
 
 void test_readerBlocked(void) {

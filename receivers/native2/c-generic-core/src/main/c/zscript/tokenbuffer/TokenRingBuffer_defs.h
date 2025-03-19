@@ -473,5 +473,4 @@ static uint16_t zstok_highestPowerOf2_priv(uint16_t n) {
 //class RingBufferTokenIterator;
 //class RingBufferToken;
 //class RawTokenBlockIterator;
-//class TokenRingWriter
 //class TokenRingReader {
