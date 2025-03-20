@@ -1,8 +1,6 @@
-/*
- * Zscript - Command System for Microcontrollers
- * Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
- * SPDX-License-Identifier: MIT
- */
+// Zscript - Command System for Microcontrollers
+// Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
+// SPDX-License-Identifier: MIT
 
 #ifndef _ZS_TOKENBUFFER_DEFS_H
 #define _ZS_TOKENBUFFER_DEFS_H
@@ -71,29 +69,6 @@ static zstok_bufsz_t zstok_offset(const ZStok_TokenBuffer *tb, zstok_bufsz_t ind
 
 
 /**
- * Utility for determining whether the specified index is in the current readable area, defined as readStart <= index < writeStart (but accounting for this being a
- * ringbuffer).
- *
- * Everything included in the readable area is committed and immutable.
- *
- * @param index the index to check
- * @return true if in readable area; false otherwise
- */
-static bool zstok_isInReadableArea(const ZStok_TokenBuffer *tb, const zstok_bufsz_t index) {
-    return (tb->writeStart >= tb->readStart && tb->readStart <= index && index < tb->writeStart)
-           || (tb->writeStart < tb->readStart && (index < tb->writeStart || index >= tb->readStart));
-}
-
-/**
- * Creates a copy of an initialized Zs_TokenWriter. Zs_TokenWriter objects are deliberately small and stateless, so they
- * should ALWAYS be passed by value, not reference. They exist in order to keep "reader"-side operations distinct from
- * "writer"-side ones.
- */
-static Zs_TokenWriter zstok_getTokenWriter(ZStok_TokenBuffer *tb) {
-    return (Zs_TokenWriter) { tb };
-}
-
-/**
  * Determines the highest power of two that's <= n. Eg 127->64, 128->128, 129->128, and 0->0.
  *
  * @param n the input number
@@ -107,5 +82,6 @@ static uint16_t zstok_highestPowerOf2_priv(uint16_t n) {
     n |= n >> 8;
     return n - (n >> 1);
 }
+
 
 #endif // _ZS_TOKENBUFFER_DEFS_H

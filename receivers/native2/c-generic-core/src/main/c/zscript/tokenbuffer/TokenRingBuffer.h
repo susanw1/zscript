@@ -1,8 +1,6 @@
-/*
- * Zscript - Command System for Microcontrollers
- * Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
- * SPDX-License-Identifier: MIT
- */
+// Zscript - Command System for Microcontrollers
+// Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
+// SPDX-License-Identifier: MIT
 
 #ifndef _ZS_TOKENBUFFER_H
 #define _ZS_TOKENBUFFER_H
@@ -59,26 +57,7 @@ typedef struct {
 
 } ZStok_TokenBuffer;
 
-
-/**
- * Type used for performing writes to the token-buffer. Zs_TokenWriter objects are deliberately small and stateless, so they
- * should ALWAYS be passed by value, not reference. They exist in order to keep "reader"-side operations distinct from
- * "writer"-side ones. Their state lives in fields on the buffer itself.
- */
-typedef struct {
-    ZStok_TokenBuffer *tokenBuffer;
-} Zs_TokenWriter;
-
-/**
- * Type used for performing reads from the token-buffer. ZStok_TokenReader objects are deliberately small and stateless, so they
- * should ALWAYS be passed by value, not reference. They exist in order to keep "reader"-side operations distinct from
- * "writer"-side ones. Their state lives in fields on the buffer itself.
- */
-typedef struct {
-    ZStok_TokenBuffer *tokenBuffer;
-} ZStok_TokenReader;
-
-
+ 
 // General TokenBuffer functions
 static void zstok_initTokenBuffer(ZStok_TokenBuffer *tb, uint8_t *bufSpace, zstok_bufsz_t bufLen);
 
@@ -87,10 +66,6 @@ static bool zstok_isMarker(uint8_t key);
 static bool zstok_isSequenceEndMarker(uint8_t key);
 
 static zstok_bufsz_t zstok_offset(const ZStok_TokenBuffer *tb, zstok_bufsz_t index, zstok_bufsz_t offset);
-
-static bool zstok_isInReadableArea(const ZStok_TokenBuffer *tb, zstok_bufsz_t index);
-
-static Zs_TokenWriter zstok_getTokenWriter(ZStok_TokenBuffer *tb);
 
 
 #endif // _ZS_TOKENBUFFER_H

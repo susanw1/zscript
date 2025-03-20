@@ -1,15 +1,13 @@
-/*
- * Zscript - Command System for Microcontrollers
- * Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
- * SPDX-License-Identifier: MIT
- */
+// Zscript - Command System for Microcontrollers
+// Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
+// SPDX-License-Identifier: MIT
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
 #include <zscript/tokenbuffer/TokenRingBufferWriter_defs.h>
+
+#include "../testing/TestTools.h"
 
 // handy test instances used by most tests
 #define TEST_BUF_LEN        16
@@ -17,7 +15,7 @@ static const uint8_t ERROR_BUFFER_OVERRUN = 0xf1;
 
 uint8_t           testBufferSpace[TEST_BUF_LEN];
 ZStok_TokenBuffer testRingBuffer;
-Zs_TokenWriter    testWriter;
+ZStok_TokenWriter testWriter;
 
 void setup(void) {
     zs_errno = 0; // Clear error state
@@ -26,73 +24,19 @@ void setup(void) {
     testWriter = zstok_getTokenWriter(&testRingBuffer);
 }
 
-void checkErrno(void) {
-    if (zs_errno) {
-        fprintf(stderr, "*********** ERRNO IS SET: %d\n", zs_errno);
-        exit(1);
-    }
-}
-
-void assertEquals(const char *msg, int p1, int p2) {
-    if (p1 != p2) {
-        fprintf(stderr, "*********** Unexpected mismatch: p1 = %d, p2 = %d: %s\n", p1, p2, msg);
-        exit(1);
-    }
-}
-
-void assertNotEquals(const char *msg, int p1, int p2) {
-    if (p1 == p2) {
-        fprintf(stderr, "*********** Unexpected match: p1 = %d, p2 = %d: %s\n", p1, p2, msg);
-        exit(1);
-    }
-}
-
-void assertTrue(const char *msg, bool expected) {
-    if (!expected) {
-        fprintf(stderr, "*********** Expected true: %s\n", msg);
-        exit(1);
-    }
-}
-
-void assertFalse(const char *msg, bool expected) {
-    if (expected) {
-        fprintf(stderr, "*********** Expected true: %s\n", msg);
-        exit(1);
-    }
-}
-
-void assertContainsAt(const char *msg, Zs_TokenWriter tbw, zstok_bufsz_t start, uint8_t contents[], zstok_bufsz_t len) {
+void assertBufferContainsAt(const char *msg, ZStok_TokenWriter tbw, zstok_bufsz_t start, uint8_t contents[], zstok_bufsz_t len) {
     checkErrno();
-    uint8_t *datap = tbw.tokenBuffer->data;
-
-    for (zstok_bufsz_t i = 0; i < len; i++) {
-        uint8_t c = datap[start + i];
-        if (c != contents[i]) {
-//            fprintf (stderr, "  Buffer: ");
-//            for (zstok_bufsz_t t = 0; t < tbw.tokenBuffer->bufLen; t++) {
-//                fprintf (stderr, "%02x ", datap[zstok_offset(tbw.tokenBuffer, 0, t)]);
-//            }
-
-            fprintf(stderr, "\n\nExpected: ");
-            for (zstok_bufsz_t t = 0; t < len; t++) {
-                fprintf(stderr, "%02x ", contents[t]);
-            }
-            fprintf(stderr, "\n  Actual: ");
-            for (zstok_bufsz_t t = 0; t < len; t++) {
-                fprintf(stderr, "%02x ", datap[zstok_offset(tbw.tokenBuffer, start, t)]);
-            }
-            fprintf(stderr, "\n          ");
-            for (zstok_bufsz_t t = 0; t < i; t++) {
-                fprintf(stderr, "   ");
-            }
-            fprintf(stderr, "^^\n*********** Expected=%02x(%c), actual=%02x(%c); pos=%d: %s\n", contents[i], contents[i], c, (c < ' ' ? '?' : c), i, msg);
-            exit(1);
-        }
+    if (start + len <= tbw.tokenBuffer->bufLen) {
+        assertContains(msg, tbw.tokenBuffer->data + start, contents, len);
+    } else {
+        int l1 = tbw.tokenBuffer->bufLen - start;
+        assertContains(msg, tbw.tokenBuffer->data + start, contents, l1);
+        assertContains(msg, tbw.tokenBuffer->data, contents + l1, len - l1);
     }
 }
 
-void assertStartsWith(const char *msg, Zs_TokenWriter tbw, uint8_t contents[], zstok_bufsz_t len) {
-    assertContainsAt(msg, tbw, 0, contents, len);
+void assertStartsWith(const char *msg, ZStok_TokenWriter tbw, uint8_t contents[], zstok_bufsz_t len) {
+    assertBufferContainsAt(msg, tbw, 0, contents, len);
 }
 
 void verifyBufferState1(bool tokenComplete, int availableWrite) {
@@ -437,7 +381,7 @@ void shouldTokenizeContinuedBigField_util(bool useTextMode) {
 
     ZStok_TokenBuffer bigRingBuffer;
     zstok_initTokenBuffer(&bigRingBuffer, bigBufferSpace, sizeof bigBufferSpace);
-    Zs_TokenWriter bigWriter = zstok_getTokenWriter(&bigRingBuffer);
+    ZStok_TokenWriter bigWriter = zstok_getTokenWriter(&bigRingBuffer);
 
     zstok_startToken(bigWriter, '+', false);
     for (zstok_bufsz_t i = 0; i < 258; i++) {
@@ -456,7 +400,7 @@ void shouldTokenizeContinuedBigField_util(bool useTextMode) {
     assertStartsWith("shouldTokenizeContinuedBigField - start", bigWriter, exp1, sizeof exp1);
 
     uint8_t exp2[] = { 0x4c, 0x4d, 0x4e, 0x81, 0x3, 0x4f, 0x40, 0x41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    assertContainsAt("shouldTokenizeContinuedBigField - cont", bigWriter, 254, exp2, sizeof exp2);
+    assertBufferContainsAt("shouldTokenizeContinuedBigField - cont", bigWriter, 254, exp2, sizeof exp2);
 }
 
 void shouldTokenizeContinuedTextBigField(void) {
@@ -474,7 +418,7 @@ void shouldFailOnHugeNumeric(void) {
 
     ZStok_TokenBuffer bigRingBuffer;
     zstok_initTokenBuffer(&bigRingBuffer, bigBufferSpace, sizeof bigBufferSpace);
-    Zs_TokenWriter bigWriter = zstok_getTokenWriter(&bigRingBuffer);
+    ZStok_TokenWriter bigWriter = zstok_getTokenWriter(&bigRingBuffer);
 
     zstok_startToken(bigWriter, 'A', true);
     for (zstok_bufsz_t i = 0; i < 255; i++) {

@@ -1,8 +1,6 @@
-/*
- * Zscript - Command System for Microcontrollers
- * Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
- * SPDX-License-Identifier: MIT
- */
+// Zscript - Command System for Microcontrollers
+// Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
+// SPDX-License-Identifier: MIT
 
 #ifndef _ZS_TOKENBUFFERWRITER_DEFS_H
 #define _ZS_TOKENBUFFERWRITER_DEFS_H
@@ -15,18 +13,30 @@
 #include "TokenRingBufferWriter.h"
 
 // Private functions not used outside this unit
-static bool zstok_isNumeric_priv(Zs_TokenWriter tbw);
+static bool zstok_isNumeric_priv(ZStok_TokenWriter tbw);
 
-static void zstok_moveCursor_priv(Zs_TokenWriter tbw);
+static void zstok_moveCursor_priv(ZStok_TokenWriter tbw);
 
-static void zstok_writeNewTokenStart_priv(Zs_TokenWriter tbw, uint8_t key);
+static void zstok_writeNewTokenStart_priv(ZStok_TokenWriter tbw, uint8_t key);
 
-static void zstok_fatalError_priv(Zs_TokenWriter tbw, ZS_SystemErrorType systemErrorCode);
+static void zstok_fatalError_priv(ZStok_TokenWriter tbw, ZS_SystemErrorType systemErrorCode);
 
-static zstok_bufsz_t zstok_getAvailableWrite_priv(Zs_TokenWriter tbw);
+static zstok_bufsz_t zstok_getAvailableWrite_priv(ZStok_TokenWriter tbw);
 
-static void zstok_moveCursor_priv(Zs_TokenWriter tbw) {
-    zstok_bufsz_t nextCursor = zstok_offset(tbw.tokenBuffer, tbw.tokenBuffer->writeCursor, 1);
+/**
+ * Creates a copy of an initialized Zs_TokenWriter. Zs_TokenWriter objects are deliberately small and stateless, so they
+ * should ALWAYS be passed by value, not reference. They exist in order to keep "reader"-side operations distinct from
+ * "writer"-side ones.
+ */
+static ZStok_TokenWriter zstok_getTokenWriter(ZStok_TokenBuffer *tb) {
+    return (ZStok_TokenWriter) { tb };
+}
+
+/**
+ * Moves the writeCursor along by just one position. Fatal Error if space runs out.
+ */
+static void zstok_moveCursor_priv(const ZStok_TokenWriter tbw) {
+    const zstok_bufsz_t nextCursor = zstok_offset(tbw.tokenBuffer, tbw.tokenBuffer->writeCursor, 1);
     if (nextCursor == tbw.tokenBuffer->readStart) {
         zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_FATAL_OVERFLOW);   // "Out of buffer - should have reserved more"
         return;
@@ -41,7 +51,7 @@ static void zstok_moveCursor_priv(Zs_TokenWriter tbw) {
  * @param key     the byte to use as the key
  * @param numeric true if numeric nibble aggregation should be used, false otherwise
  */
-static void zstok_startToken(Zs_TokenWriter tbw, uint8_t key, bool numeric) {
+static void zstok_startToken(ZStok_TokenWriter tbw, uint8_t key, bool numeric) {
     zstok_endToken(tbw);
     tbw.tokenBuffer->numeric = numeric;
     zstok_writeNewTokenStart_priv(tbw, key);
@@ -54,7 +64,7 @@ static void zstok_startToken(Zs_TokenWriter tbw, uint8_t key, bool numeric) {
  * @throws IllegalStateException    if no token has been started
  * @throws IllegalArgumentException if the nibble is out of range, or this is a numeric token and we've exceeded the maximum size
  */
-static void zstok_continueTokenNibble(Zs_TokenWriter tbw, uint8_t nibble) {
+static void zstok_continueTokenNibble(ZStok_TokenWriter tbw, uint8_t nibble) {
     if (zstok_isTokenComplete(tbw)) {
         zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_NOT_IN_TOKEN);   // "Digit with missing field key"
         return;
@@ -86,7 +96,7 @@ static void zstok_continueTokenNibble(Zs_TokenWriter tbw, uint8_t nibble) {
  *
  * @param b the byte to add
  */
-static void zstok_continueTokenByte(Zs_TokenWriter tbw, uint8_t b) {
+static void zstok_continueTokenByte(ZStok_TokenWriter tbw, uint8_t b) {
     if (zstok_isInNibble(tbw)) {
         zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_IN_NIBBLE);      // "Incomplete nibble"
         return;
@@ -111,7 +121,7 @@ static void zstok_continueTokenByte(Zs_TokenWriter tbw, uint8_t b) {
 /**
  * Forces the current token to be finished (eg on close-quote), wrapping up any numeric nibbles and resetting the state flags.
  */
-static void zstok_endToken(Zs_TokenWriter tbw) {
+static void zstok_endToken(ZStok_TokenWriter tbw) {
     if (zstok_isInNibble(tbw)) {
         if (zstok_isNumeric_priv(tbw)) {
             // if odd nibble count, then shuffle nibbles through token's data to ensure "right-aligned", eg 4ad0 really means 04ad
@@ -137,7 +147,7 @@ static void zstok_endToken(Zs_TokenWriter tbw) {
  * @param tbw the writer to check
  * @return the amount of writable space available
  */
-static zstok_bufsz_t zstok_getAvailableWrite_priv(Zs_TokenWriter tbw) {
+static zstok_bufsz_t zstok_getAvailableWrite_priv(ZStok_TokenWriter tbw) {
     return (tbw.tokenBuffer->writeCursor >= tbw.tokenBuffer->readStart ? tbw.tokenBuffer->bufLen : 0)
            + tbw.tokenBuffer->readStart - tbw.tokenBuffer->writeCursor - 1;
 }
@@ -148,7 +158,7 @@ static zstok_bufsz_t zstok_getAvailableWrite_priv(Zs_TokenWriter tbw) {
  * @param size the size to check
  * @return true if there is space; false otherwise
  */
-static bool zstok_checkAvailableCapacity(Zs_TokenWriter tbw, zstok_bufsz_t size) {
+static bool zstok_checkAvailableCapacity(ZStok_TokenWriter tbw, zstok_bufsz_t size) {
     return zstok_getAvailableWrite_priv(tbw) >= size;
 }
 
@@ -158,7 +168,7 @@ static bool zstok_checkAvailableCapacity(Zs_TokenWriter tbw, zstok_bufsz_t size)
  *
  * @return true if there is a nibble being constructed; false otherwise
  */
-static bool zstok_isInNibble(Zs_TokenWriter tbw) {
+static bool zstok_isInNibble(ZStok_TokenWriter tbw) {
     return tbw.tokenBuffer->inNibble;
 }
 
@@ -167,7 +177,7 @@ static bool zstok_isInNibble(Zs_TokenWriter tbw) {
  *
  * @return true if there is a numeric token being constructed; false otherwise
  */
-static bool zstok_isNumeric_priv(Zs_TokenWriter tbw) {
+static bool zstok_isNumeric_priv(ZStok_TokenWriter tbw) {
     return tbw.tokenBuffer->numeric;
 }
 
@@ -176,7 +186,7 @@ static bool zstok_isNumeric_priv(Zs_TokenWriter tbw) {
  *
  * @return the key
  */
-static uint8_t zstok_getCurrentWriteTokenKey(Zs_TokenWriter tbw) {
+static uint8_t zstok_getCurrentWriteTokenKey(ZStok_TokenWriter tbw) {
     if (zstok_isTokenComplete(tbw)) {
         zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_NOT_IN_TOKEN);   // "no token being written"
         return 0;
@@ -189,7 +199,7 @@ static uint8_t zstok_getCurrentWriteTokenKey(Zs_TokenWriter tbw) {
  *
  * @return the length
  */
-static zstok_bufsz_t zstok_getCurrentWriteTokenLength(Zs_TokenWriter tbw) {
+static zstok_bufsz_t zstok_getCurrentWriteTokenLength(ZStok_TokenWriter tbw) {
     if (zstok_isTokenComplete(tbw)) {
         zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_NOT_IN_TOKEN);   // "no token being written"
         return 0;   // "no token being written"
@@ -202,7 +212,7 @@ static zstok_bufsz_t zstok_getCurrentWriteTokenLength(Zs_TokenWriter tbw) {
  *
  * @return true if complete; false if there's a token still being formed
  */
-static bool zstok_isTokenComplete(Zs_TokenWriter tbw) {
+static bool zstok_isTokenComplete(ZStok_TokenWriter tbw) {
     return tbw.tokenBuffer->writeStart == tbw.tokenBuffer->writeCursor;
 }
 
@@ -214,7 +224,7 @@ static bool zstok_isTokenComplete(Zs_TokenWriter tbw) {
  *
  * @param key the marker's key, as per {@link TokenBuffer#isMarker(byte)}
  */
-static void zstok_writeMarker(Zs_TokenWriter tbw, uint8_t key) {
+static void zstok_writeMarker(ZStok_TokenWriter tbw, uint8_t key) {
     if (!zstok_isMarker(key)) {
         zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_ARG_NOT_MARKER);   // "invalid marker [key=0x" + key + "]""
         return;
@@ -235,7 +245,7 @@ static void zstok_writeMarker(Zs_TokenWriter tbw, uint8_t key) {
  *
  * @param key the token's key - must not be a marker
  */
-static void zstok_writeNewTokenStart_priv(Zs_TokenWriter tbw, uint8_t key) {
+static void zstok_writeNewTokenStart_priv(ZStok_TokenWriter tbw, uint8_t key) {
     if (zstok_isMarker(key)) {
         zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_ARG_NOT_TOKENKEY);   // "invalid token [key=0x" + key + "]""
         return;
@@ -256,7 +266,7 @@ static void zstok_writeNewTokenStart_priv(Zs_TokenWriter tbw, uint8_t key) {
  *
  * @param errorCode a marker key to signal an error
  */
-static void zstok_fail(Zs_TokenWriter tbw, uint8_t errorCode) {
+static void zstok_fail(ZStok_TokenWriter tbw, uint8_t errorCode) {
     if (!zstok_isTokenComplete(tbw)) {
         // reset current token back to writeStart
         tbw.tokenBuffer->writeCursor = tbw.tokenBuffer->writeStart;
@@ -271,7 +281,7 @@ static void zstok_fail(Zs_TokenWriter tbw, uint8_t errorCode) {
  *
  * @param systemErrorCode       a ZS_SystemErrorType to signal an error
  */
-static void zstok_fatalError_priv(Zs_TokenWriter tbw, ZS_SystemErrorType systemErrorCode) {
+static void zstok_fatalError_priv(ZStok_TokenWriter tbw, ZS_SystemErrorType systemErrorCode) {
     zs_setErrno(systemErrorCode);
     zstok_setFatalBufferError(&tbw.tokenBuffer->flags);
 }

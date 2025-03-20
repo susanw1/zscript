@@ -4,18 +4,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <zscript/model/Zchars.h>
 #include <zscript/tokenbuffer/TokenBufferFlags_defs.h>
 
-void assertEquals(const char *msg, int expected, int actual) {
-    if (expected != actual) {
-        fprintf(stderr, "*********** Expected = %d, actual = %d: %s\n", expected, actual, msg);
-        exit(1);
-    }
-}
+#include "../testing/TestTools.h"
 
 void test_markerWritten(void) {
     ZStok_BufferFlags bufferFlags = zstok_createBufferFlags();

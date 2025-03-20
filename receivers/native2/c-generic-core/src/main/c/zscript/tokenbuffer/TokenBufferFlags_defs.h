@@ -1,8 +1,6 @@
-/*
- * Zscript - Command System for Microcontrollers
- * Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
- * SPDX-License-Identifier: MIT
- */
+// Zscript - Command System for Microcontrollers
+// Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
+// SPDX-License-Identifier: MIT
 
 #ifndef _ZS_TOKENBUFFERFLAGS_DEFS_H
 #define _ZS_TOKENBUFFERFLAGS_DEFS_H
