@@ -9,10 +9,10 @@
 
 #include "../testing/TestTools.h"
 
-// handy test instances used by most tests
-#define TEST_BUF_LEN        16
 static const uint8_t ERROR_BUFFER_OVERRUN = 0xf1;
 
+// handy test instances used by most tests
+#define TEST_BUF_LEN        16
 uint8_t           testBufferSpace[TEST_BUF_LEN];
 ZStok_TokenBuffer testRingBuffer;
 ZStok_TokenWriter testWriter;

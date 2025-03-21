@@ -52,6 +52,10 @@ static void zstok_moveCursor_priv(const ZStok_TokenWriter tbw) {
  * @param numeric true if numeric nibble aggregation should be used, false otherwise
  */
 static void zstok_startToken(ZStok_TokenWriter tbw, uint8_t key, bool numeric) {
+    if (key < 0x20 || key >= 0x80) {
+        zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_ARG_NOT_TOKENKEY);   // "invalid token [key=0x" + key + "]""
+        return;
+    }
     zstok_endToken(tbw);
     tbw.tokenBuffer->numeric = numeric;
     zstok_writeNewTokenStart_priv(tbw, key);
@@ -65,12 +69,12 @@ static void zstok_startToken(ZStok_TokenWriter tbw, uint8_t key, bool numeric) {
  * @throws IllegalArgumentException if the nibble is out of range, or this is a numeric token and we've exceeded the maximum size
  */
 static void zstok_continueTokenNibble(ZStok_TokenWriter tbw, uint8_t nibble) {
-    if (zstok_isTokenComplete(tbw)) {
-        zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_NOT_IN_TOKEN);   // "Digit with missing field key"
-        return;
-    }
     if (nibble > 0xf) {
         zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_ARG_NIBBLE_RANGE);    // "Nibble value out of range"
+        return;
+    }
+    if (zstok_isTokenComplete(tbw)) {
+        zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_NOT_IN_TOKEN);   // "Digit with missing field key"
         return;
     }
 
@@ -202,7 +206,7 @@ static uint8_t zstok_getCurrentWriteTokenKey(ZStok_TokenWriter tbw) {
 static zstok_bufsz_t zstok_getCurrentWriteTokenLength(ZStok_TokenWriter tbw) {
     if (zstok_isTokenComplete(tbw)) {
         zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_NOT_IN_TOKEN);   // "no token being written"
-        return 0;   // "no token being written"
+        return 0;
     }
     return tbw.tokenBuffer->data[zstok_offset(tbw.tokenBuffer, tbw.tokenBuffer->writeStart, 1)];
 }
@@ -246,10 +250,6 @@ static void zstok_writeMarker(ZStok_TokenWriter tbw, uint8_t key) {
  * @param key the token's key - must not be a marker
  */
 static void zstok_writeNewTokenStart_priv(ZStok_TokenWriter tbw, uint8_t key) {
-    if (zstok_isMarker(key)) {
-        zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_ARG_NOT_TOKENKEY);   // "invalid token [key=0x" + key + "]""
-        return;
-    }
     tbw.tokenBuffer->data[tbw.tokenBuffer->writeCursor] = key;
     zstok_moveCursor_priv(tbw);
     tbw.tokenBuffer->data[tbw.tokenBuffer->writeCursor] = 0;

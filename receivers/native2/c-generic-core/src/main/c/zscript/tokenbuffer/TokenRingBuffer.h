@@ -21,7 +21,7 @@
 #ifndef ZSTOK_DEFINED_BUFSZ_TYPE
 #define ZSTOK_DEFINED_BUFSZ_TYPE 1
 
-// represents the size of an index into the token buffer - may reasonably be uint16_t or uint8_t.
+// represents the size of (or index into) a token buffer - may reasonably be uint16_t or uint8_t.
 typedef uint16_t zstok_bufsz_t;
 #endif
 
@@ -57,7 +57,7 @@ typedef struct {
 
 } ZStok_TokenBuffer;
 
- 
+
 // General TokenBuffer functions
 static void zstok_initTokenBuffer(ZStok_TokenBuffer *tb, uint8_t *bufSpace, zstok_bufsz_t bufLen);
 

@@ -15,22 +15,38 @@
 
 // TokenBuffer operations for constructing/using ReadTokens:
 
-static bool zstok_hasReadToken(const ZStok_TokenBuffer *tb);
-
 static ZStok_ReadToken zstok_getFirstReadToken(ZStok_TokenBuffer *tb);
 
-static void zstok_flushToToken(ZStok_ReadToken token);
-
+static bool zstok_hasReadToken(const ZStok_TokenBuffer *tb);
 
 // ReadToken operations:
+static uint8_t zstok_getReadTokenKey(ZStok_ReadToken token);
 
-static ZStok_ReadToken zstok_getNextToken(ZStok_ReadToken token);
+uint16_t zstok_getReadTokenData16(ZStok_ReadToken token);
 
+static zstok_bufsz_t zstok_getReadTokenDataLength(ZStok_ReadToken token);
+
+
+static bool zstok_isReadTokenMarker(ZStok_ReadToken token);
+
+static bool zstok_isReadTokenSequenceEndMarker(ZStok_ReadToken token);
+
+static ZStok_ReadToken zstok_getNextReadToken(ZStok_ReadToken token);
+
+static ZStok_ReadToken zstok_getNextReadTokenAndFlush(ZStok_ReadToken token);
+
+static bool zstok_isValidReadToken(ZStok_ReadToken token);
+
+static bool zstok_isEmptyReadToken(ZStok_ReadToken token);
 
 // Private functions not used outside this unit:
 static bool zstok_isInReadableArea_priv(const ZStok_TokenBuffer *tb, zstok_bufsz_t index);
 
 static ZStok_ReadToken zstok_createEmptyReadToken_priv(void);
+
+zstok_bufsz_t zstok_getSegmentDataSizeNonMarker_priv(ZStok_ReadToken token);
+
+zstok_bufsz_t zstok_getSegmentDataSize_priv(ZStok_ReadToken token);
 
 /**
  * Utility for determining whether the specified index is in the current readable area, defined as readStart <= index < writeStart (but accounting for this being a
@@ -68,7 +84,7 @@ static ZStok_ReadToken zstok_getFirstReadToken(ZStok_TokenBuffer *tb) {
 }
 
 /**
- * Creates an empty ReadToken, whose fields are NULL/zero. This is for use as an error value, eg when seeking beyond the current readable area of the buffer.
+ * Creates an empty ReadToken, whose fields are NULL/zero. This signifies an "end-of-tokens" condition, when we've read up to the writeStart position.
  *
  * @return an empty ReadToken
  */
@@ -76,8 +92,12 @@ static ZStok_ReadToken zstok_createEmptyReadToken_priv(void) {
     return (ZStok_ReadToken) { .tokenBuffer = NULL, .index = 0 };
 }
 
-static bool zstok_isEmptyReadToken_priv(const ZStok_ReadToken token) {
+static bool zstok_isEmptyReadToken(const ZStok_ReadToken token) {
     return token.tokenBuffer == NULL;
+}
+
+static bool zstok_isValidReadToken(const ZStok_ReadToken token) {
+    return token.tokenBuffer != NULL;
 }
 
 /**
@@ -116,8 +136,8 @@ static bool zstok_isReadTokenSequenceEndMarker(const ZStok_ReadToken token) {
  *
  * @return the "real" size of this token, including following extension segments, or zero if token is a marker.
  */
-static zstok_bufsz_t zstok_getDataLength(const ZStok_ReadToken token) {
-    if (zstok_isEmptyReadToken_priv(token) || zstok_isReadTokenMarker(token)) {
+static zstok_bufsz_t zstok_getReadTokenDataLength(const ZStok_ReadToken token) {
+    if (zstok_isEmptyReadToken(token) || zstok_isReadTokenMarker(token)) {
         return 0;
     }
 
@@ -159,8 +179,8 @@ zstok_bufsz_t zstok_getSegmentDataSize_priv(const ZStok_ReadToken token) {
  *
  * @return the value of the data, as a 2 byte number
  */
-uint16_t zstok_getData16(const ZStok_ReadToken token) {
-    if (zstok_isReadTokenMarker(token)) {
+uint16_t zstok_getReadTokenData16(const ZStok_ReadToken token) {
+    if (zstok_isEmptyReadToken(token) || zstok_isReadTokenMarker(token)) {
         return 0;
     }
     uint16_t           value = 0;
@@ -176,15 +196,15 @@ uint16_t zstok_getData16(const ZStok_ReadToken token) {
 }
 
 /**
- * Creates a ReadToken representing the next readable token in the buffer after this one. If no readable next token exists, then the returned token will be NULL/zero.
+ * Creates a ReadToken representing the next readable token in the buffer after this one, skipping extension tokens. If there is no such token (ie we have reached writeStart), then the returned token will be NULL/zero.
  *
  * @return a ReadToken representing the following token if any, or an empty token
  */
-static ZStok_ReadToken zstok_getNextToken(const ZStok_ReadToken token) {
-    if (zstok_isEmptyReadToken_priv(token)) {
+static ZStok_ReadToken zstok_getNextReadToken(const ZStok_ReadToken token) {
+    if (zstok_isEmptyReadToken(token)) {
         return token;
     }
-    
+
     const ZStok_TokenBuffer *buf           = token.tokenBuffer;
     zstok_bufsz_t           nextStartIndex = token.index;
 
@@ -193,7 +213,7 @@ static ZStok_ReadToken zstok_getNextToken(const ZStok_ReadToken token) {
     } else {
         do {
             int tokenDataLength = buf->data[zstok_offset(buf, nextStartIndex, 1)];
-            nextStartIndex = zstok_offset(buf, token.index, tokenDataLength + 2);
+            nextStartIndex = zstok_offset(buf, nextStartIndex, tokenDataLength + 2);
         } while (buf->data[nextStartIndex] == ZSTOK_TOKEN_EXTENSION);
     }
     return nextStartIndex == buf->writeStart
@@ -202,19 +222,22 @@ static ZStok_ReadToken zstok_getNextToken(const ZStok_ReadToken token) {
 }
 
 /**
- * Clears any data read thus far from the buffer up to (and including) the most recently-read item. The next call to {@link #next()} will just return whatever token would have
- * been returned (which is now the new 'first item'), so the actual iteration flow is unaffected. This method allows a Parser to say "I've finished with everything I've seen so
- * far", potentially allowing the writer side to use the newly freed space in the case of a ring-buffer.
+ * Clears any data read thus far from the buffer up and including this token, returning the "next" token - which is also the new "first" token. This method allows a Parser to
+ * say "I've finished with everything I've seen so far", also allowing the writer side to use the newly freed space in the case of a ring-buffer.
  * <p/>
  * Caution: Note that calling this method affects the state of the underlying buffer, unlike other "read"-side operations. In particular, it could cause any retained ReadTokens
- * or other existing iterators to find themselves dangling, pointing into "writer"-space which is subject to change without notice by the Writer. Call with care!
+ * (including the supplied one) to find themselves dangling, pointing into "writer"-space which is subject to change without notice by the Writer. Call with care!
  * <p/>
  * Generally, avoid retaining existing ReadTokens or related objects after calling this.
+ * @param token the token to be flushed (along with any predecessor)
+ * @return the next token (which may be empty if we've reached end-of-tokens
  */
-static void zstok_flushToToken(const ZStok_ReadToken token) {
-    if (token.tokenBuffer != NULL) {
-        token.tokenBuffer->readStart = token.index;
-    }
+static ZStok_ReadToken zstok_getNextReadTokenAndFlush(const ZStok_ReadToken token) {
+    const ZStok_ReadToken next = zstok_getNextReadToken(token);
+    token.tokenBuffer->readStart = (next.tokenBuffer != NULL)
+                                   ? next.index
+                                   : next.tokenBuffer->writeStart;
+    return next;
 }
 
 

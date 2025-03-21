@@ -15,5 +15,5 @@ endmacro()
 
 invoke_test(Basics)
 invoke_test(TokenBufferFlags)
-invoke_test(TokenRingBufferWriter)
 invoke_test(TokenRingBufferReader)
+invoke_test(TokenRingBufferWriter)

@@ -1,8 +1,6 @@
-/*
- * Zscript - Command System for Microcontrollers
- * Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
- * SPDX-License-Identifier: MIT
- */
+// Zscript - Command System for Microcontrollers
+// Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
+// SPDX-License-Identifier: MIT
 
 #include <stdarg.h>
 #include <string.h>
@@ -12,10 +10,12 @@
 
 #include "../testing/TestTools.h"
 
-// handy test instances used by most tests
-#define TEST_BUF_LEN        16
+static const uint8_t CMD_END_ANDTHEN      = 0xe1;
+static const uint8_t NORMAL_SEQUENCE_END  = 0xf0;
 static const uint8_t ERROR_BUFFER_OVERRUN = 0xf1;
 
+// handy test instances used by most tests
+#define TEST_BUF_LEN        1024
 uint8_t           testBufferSpace[TEST_BUF_LEN];
 ZStok_TokenBuffer testRingBuffer;
 ZStok_TokenWriter testWriter;
@@ -43,23 +43,10 @@ void assertStartsWith(const char *msg, ZStok_TokenWriter tbw, uint8_t contents[]
     assertBufferContainsAt(msg, tbw, 0, contents, len);
 }
 
-
-void verifyBufferState1(bool tokenComplete, int availableWrite) {
-    assertEquals("TokenComplete", zstok_isTokenComplete(testWriter), tokenComplete);
-    assertEquals("AvailableWrite sz", zstok_getAvailableWrite_priv(testWriter), availableWrite);
-    assertEquals("AvailableCapacity", zstok_checkAvailableCapacity(testWriter, availableWrite), true);
-    assertEquals("AvailableCapacity+1", zstok_checkAvailableCapacity(testWriter, availableWrite + 1), false);
-}
-
-void verifyBufferState2(bool tokenComplete, int availableWrite, int currentTokenKey, bool inNibble, int tokenLength) {
-    verifyBufferState1(tokenComplete, availableWrite);
-    assertEquals("isTokenComplete", zstok_isTokenComplete(testWriter), false);
-
-    if (!zstok_isTokenComplete(testWriter)) {
-        assertEquals("CurrentWriteTokenKey", zstok_getCurrentWriteTokenKey(testWriter), currentTokenKey);
-        assertEquals("CurrentWriteTokenLength", zstok_getCurrentWriteTokenLength(testWriter), tokenLength);
-        assertEquals("InNibble", zstok_isInNibble(testWriter), inNibble);
-    }
+void checkToken(const char *msg, ZStok_ReadToken tok, uint8_t key, uint8_t len, uint16_t value) {
+    assertEquals(msg, zstok_getReadTokenKey(tok), key);
+    assertEquals(msg, zstok_getReadTokenDataLength(tok), len);
+    assertEquals(msg, zstok_getReadTokenData16(tok), value);
 }
 
 void insertNumericToken(char key, int count, ...) {
@@ -103,28 +90,79 @@ void insertByteToken(int count) {
 
     uint8_t exp[] = { '+', count, 0xa0, 0xa1 };
     assertStartsWith("insertByteToken initial check", testWriter, exp, sizeof exp);
-    verifyBufferState2(false, TEST_BUF_LEN - 3 - count, '+', false, count);
 }
 
-void shouldInitialize(void) {
+void shouldReadSingleToken(void) {
     setup();
-    insertNumericTokenNibbles('A', 1, 5);
-    assertEquals("init tokenbuffer inNibble", testRingBuffer.inNibble, true);
-    assertEquals("init tokenbuffer numeric", testRingBuffer.numeric, true);
+    assertFalse("shouldReadSingleToken:hasReadToken before", zstok_hasReadToken(&testRingBuffer));
+    insertNumericTokenNibbles('A', 3, 6, 7, 8);
+    assertFalse("shouldReadSingleToken:hasReadToken during", zstok_hasReadToken(&testRingBuffer));
+    zstok_endToken(testWriter);
+    assertTrue("shouldReadSingleToken:hasReadToken after", zstok_hasReadToken(&testRingBuffer));
 
-    zstok_initTokenBuffer(&testRingBuffer, testBufferSpace, TEST_BUF_LEN);
+    const ZStok_ReadToken tok = zstok_getFirstReadToken(&testRingBuffer);
+    assertTrue("shouldReadSingleToken:zstok_getFirstReadToken", zstok_isValidReadToken(tok));
 
-    assertTrue("init tokenbuffer buffer", testRingBuffer.data == testBufferSpace);
-    assertEquals("init tokenbuffer bufLen", testRingBuffer.bufLen, 16);
-    assertEquals("init tokenbuffer readStart", testRingBuffer.readStart, 0);
-    assertEquals("init tokenbuffer writeStart", testRingBuffer.writeStart, 0);
-    assertEquals("init tokenbuffer writeLastLen", testRingBuffer.writeLastLen, 0);
-    assertEquals("init tokenbuffer writeCursor", testRingBuffer.writeCursor, 0);
-    assertEquals("init tokenbuffer inNibble", testRingBuffer.inNibble, false);
-    assertEquals("init tokenbuffer numeric", testRingBuffer.numeric, false);
-    verifyBufferState1(true, TEST_BUF_LEN - 1);
+    assertEquals("shouldReadSingleToken:zstok_getReadTokenKey", zstok_getReadTokenKey(tok), 'A');
+    assertEquals("shouldReadSingleToken:DataLength", zstok_getReadTokenDataLength(tok), 2);
+    assertEquals("shouldReadSingleToken:Data16", zstok_getReadTokenData16(tok), 0x0678);
+    const ZStok_ReadToken tok2 = zstok_getNextReadToken(tok);
+    assertFalse("shouldReadSingleToken:zstok_getNextReadToken", zstok_isValidReadToken(tok2));
 }
+
+void shouldReadNoTokenAtStart(void) {
+    setup();
+    assertFalse("shouldReadSingleToken:hasReadToken before", zstok_hasReadToken(&testRingBuffer));
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    assertFalse("shouldReadSingleToken:empty token1", zstok_isValidReadToken(tok1));
+
+    const ZStok_ReadToken tok2 = zstok_getNextReadToken(tok1);
+    assertFalse("shouldReadSingleToken:empty token2", zstok_isValidReadToken(tok1));
+}
+
+
+void shouldReadSingleTokenAfterMarker(void) {
+    setup();
+    zstok_writeMarker(testWriter, NORMAL_SEQUENCE_END);
+    insertNumericTokenNibbles('Z', 3, 0xf, 0xf, 0xf);
+    zstok_endToken(testWriter);
+    zstok_writeMarker(testWriter, NORMAL_SEQUENCE_END);
+    assertTrue("shouldReadSingleTokenAfterMarker:hasReadToken after", zstok_hasReadToken(&testRingBuffer));
+
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    assertTrue("shouldReadSingleTokenAfterMarker:isReadTokenSequenceEndMarker", zstok_isReadTokenSequenceEndMarker(tok1));
+    checkToken("shouldReadSingleToken:token1", tok1, NORMAL_SEQUENCE_END, 0, 0);
+
+    const ZStok_ReadToken tok2 = zstok_getNextReadToken(tok1);
+    checkToken("shouldReadSingleTokenAfterMarker:token2", tok2, 'Z', 2, 0x0fff);
+
+    const ZStok_ReadToken tok3 = zstok_getNextReadToken(tok2);
+    checkToken("shouldReadSingleTokenAfterMarker:token3", tok3, NORMAL_SEQUENCE_END, 0, 0);
+
+    const ZStok_ReadToken endTok = zstok_getNextReadToken(tok3);
+    assertTrue("shouldReadSingleTokenAfterMarker:endTok-valid", !zstok_isValidReadToken(endTok));
+    checkToken("shouldReadSingleTokenAfterMarker:endTok", endTok, 0, 0, 0);
+}
+
+void shouldReadNoTokenAfterFlush(void) {
+    setup();
+    insertNumericTokenNibbles('A', 3, 0xf, 0xf, 0xf);
+    zstok_endToken(testWriter);
+    insertNumericTokenNibbles('B', 4, 0xe, 0xe, 0xe, 0xe);
+    zstok_endToken(testWriter);
+
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    checkToken("shouldReadNoTokenAfterFlush:tok1", tok1, 'A', 2, 0xfff);
+    const ZStok_ReadToken tok2 = zstok_getNextReadTokenAndFlush(tok1);
+    checkToken("shouldReadNoTokenAfterFlush:tok2", tok2, 'B', 2, 0xeeee);
+    const ZStok_ReadToken tok2a = zstok_getFirstReadToken(&testRingBuffer);
+    assertEquals("shouldReadNoTokenAfterFlush:check new", tok2.index, tok2a.index);
+}
+
 
 int main(void) {
-    shouldInitialize();
+    shouldReadSingleToken();
+    shouldReadNoTokenAtStart();
+    shouldReadSingleTokenAfterMarker();
+    shouldReadNoTokenAfterFlush();
 }
