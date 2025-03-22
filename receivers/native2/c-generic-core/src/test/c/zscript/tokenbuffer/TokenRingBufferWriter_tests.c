@@ -427,6 +427,11 @@ void shouldFailOnHugeNumeric(void) {
     assertEquals("shouldFailOnHugeNumeric:errno", ZS_SystemErrorType_TOKBUF_STATE_NUMERIC_TOO_LONG, zs_errno);
 }
 
+/**
+ * Test adds:
+ * * a 260 byte token (so, extended once: 0-256,257:263)
+ * * a 750 byte token (extended 3 times: 264:520,521:777,778:1019)
+ */
 void shouldWriteExtendedTokens(void) {
     setup();
     const int BIG_BUF_LEN = 1024;
@@ -454,8 +459,8 @@ void shouldWriteExtendedTokens(void) {
 
     uint8_t exp2[] = { 'I', 'J', '+', 0xff, 'B', 'C', 'D', 'E' };
     assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#2", bigWriter, 262, exp2, sizeof exp2);
-    uint8_t exp3[] = { 'F', 0x81, 0xff, 'G', 'H', 'I', 'J' };
-    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#3", bigWriter, 520, exp3, sizeof exp3);
+    uint8_t exp3[] = { 'E', 'F', 0x81, 0xff, 'G', 'H', 'I', 'J' };
+    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#3", bigWriter, 519, exp3, sizeof exp3);
     uint8_t exp4[] = { 'J', 'K', 0x81, 0xf0, 'L', 'M', 'N' };
     assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#4", bigWriter, 776, exp4, sizeof exp4);
     uint8_t exp5[] = { 'p', 'q', 'r', 's', 0 };

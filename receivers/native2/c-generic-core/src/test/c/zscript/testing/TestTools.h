@@ -44,7 +44,7 @@ void assertFalse(const char *msg, bool expected) {
     }
 }
 
-void assertContains(const char *msg, uint8_t actual[], uint8_t expected[], int len) {
+void assertContains(const char *msg, const uint8_t actual[], const uint8_t expected[], int len) {
     for (int i = 0; i < len; i++) {
         uint8_t c = expected[i];
         if (c != actual[i]) {

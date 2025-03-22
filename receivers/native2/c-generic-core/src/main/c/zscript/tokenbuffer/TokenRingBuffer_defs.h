@@ -41,7 +41,7 @@ static void zstok_initTokenBuffer(ZStok_TokenBuffer *tb, uint8_t *bufferSpace, c
  * @param key any byte
  * @return true if it's a marker; false otherwise
  */
-static bool zstok_isMarker(const uint8_t key) {
+inline static bool zstok_isMarker(const uint8_t key) {
     return (key & 0xe0) == 0xe0;
 }
 
@@ -52,7 +52,7 @@ static bool zstok_isMarker(const uint8_t key) {
  * @param       key any byte
  * @return true if it's a sequence-end marker; false otherwise
  */
-static bool zstok_isSequenceEndMarker(const uint8_t key) {
+inline static bool zstok_isSequenceEndMarker(const uint8_t key) {
     return (key & 0xf0) == 0xf0;
 }
 
@@ -60,13 +60,15 @@ static bool zstok_isSequenceEndMarker(const uint8_t key) {
 /**
  * For a given `index`, calculate the new index having added the `offset`, wrapping around the ring-buffer as required.
  *
- * @param       key any byte
- * @return true if it's a sequence-end marker; false otherwise
+ * @param tb the tokenBuffer whose length we are wrapping
+ * @param index the index to be offset
+ * @param offset the offset to add
+ * @return the index+offset, wrapped
  */
-static zstok_bufsz_t zstok_offset(const ZStok_TokenBuffer *tb, zstok_bufsz_t index, zstok_bufsz_t offset) {
+inline static zstok_bufsz_t zstok_offset(const ZStok_TokenBuffer *tb, zstok_bufsz_t index, zstok_bufsz_t offset) {
+    // assumes bufLen is a power of 2, so that bufLen-1 is a valid bitmask
     return (index + offset) & (tb->bufLen - 1);
 }
-
 
 /**
  * Determines the highest power of two that's <= n. Eg 127->64, 128->128, 129->128, and 0->0.

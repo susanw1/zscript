@@ -26,7 +26,7 @@ void setup(void) {
 }
 
 
-void assertBufferContainsAt(const char *msg, ZStok_TokenWriter tbw, zstok_bufsz_t start, uint8_t contents[], zstok_bufsz_t len) {
+void assertBufferContainsAt(const char *msg, ZStok_TokenWriter tbw, zstok_bufsz_t start, const uint8_t contents[], zstok_bufsz_t len) {
     checkErrno();
     if (start + len > tbw.tokenBuffer->bufLen) {
         fprintf(stderr, "start(%d) + len(%d) goes off the end(%d)!\n", start, len, tbw.tokenBuffer->bufLen);
@@ -110,7 +110,7 @@ void shouldReadNoTokenAtStart(void) {
     assertFalse("shouldReadSingleToken:empty token1", zstok_isValidReadToken(tok1));
 
     const ZStok_ReadToken tok2 = zstok_getNextReadToken(tok1);
-    assertFalse("shouldReadSingleToken:empty token2", zstok_isValidReadToken(tok1));
+    assertFalse("shouldReadSingleToken:empty token2", zstok_isValidReadToken(tok2));
 }
 
 
@@ -152,14 +152,22 @@ void shouldReadNoTokenAfterFlush(void) {
     assertEquals("shouldReadNoTokenAfterFlush:check new", tok2.index, tok2a.index);
 }
 
+void shouldSafelyFlushWithNoTokens(void) {
+    setup();
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    assertFalse("shouldSafelyFlushWithNoTokens:tok1-valid", zstok_isValidReadToken(tok1));
+    const ZStok_ReadToken tok2 = zstok_getNextReadTokenAndFlush(tok1);
+    assertFalse("shouldSafelyFlushWithNoTokens:tok2-valid", zstok_isValidReadToken(tok2));
+}
+
 /**
  * Test adds:
- * * a 260 byte token (so, extended once)
- * * a 750 byte token (extended 3 times)
- * * a 258 byte token (extended once and wrapped, only after flushing first token)
- * * a final marker
+ * * a 260 byte token (so, extended once: 0-256,257:263), but flushed
+ * * a 750 byte token (extended 3 times: 264:520,521:777,778:1019)
+ * * a 258 byte token (extended once and wrapped, 1020:252,253:257, only after flushing first token)
+ * * a final marker (258)
  */
-void shouldReadExtendedTokens(void) {
+void setupExtendedTokenScenario_priv(void) {
     // assumes buffer is 1024 bytes long
     setup();
     insertByteToken(260, 'A');
@@ -182,11 +190,11 @@ void shouldReadExtendedTokens(void) {
     const ZStok_ReadToken endTok = zstok_getNextReadToken(tok2);
     assertTrue("shouldReadExtendedTokens:endTok-valid", !zstok_isValidReadToken(endTok));
 
-    insertByteToken(258, 'A');
+    insertByteToken(258, 'C');
     zstok_endToken(testWriter);
-    uint8_t exp3a[] = { '+', 0xff, 'A', 'B' };
-    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#3a", testWriter, 1020, exp3a, sizeof exp3a);
-    uint8_t exp3b[] = { 'C', 'D', 'E', 'F' };
+    uint8_t exp3a[] = { 'r', 's', '+', 0xff, 'C', 'D' };
+    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#3a", testWriter, 1018, exp3a, sizeof exp3a);
+    uint8_t exp3b[] = { 'E', 'F', 'G', 'H' };
     assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#3b", testWriter, 0, exp3b, sizeof exp3b);
 
     const ZStok_ReadToken tok3 = zstok_getNextReadToken(tok2);
@@ -196,8 +204,200 @@ void shouldReadExtendedTokens(void) {
     zstok_writeMarker(testWriter, NORMAL_SEQUENCE_END);
 
     // Includes tok3's extension, the marker (0xf0), and the detritus from tok1
-    uint8_t exp4[] = { 'C', 'D', 'E', 0x81, 3, 'F', 'G', 'H', 0xf0, 'F', 'G', 'H' };
+    const uint8_t exp4[] = { 'E', 'F', 'G', 0x81, 3, 'H', 'I', 'J', 0xf0, 'F', 'G', 'H' };
     assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#4", testWriter, 250, exp4, sizeof exp4);
+}
+
+void shouldReadExtendedTokens(void) {
+    setupExtendedTokenScenario_priv();
+}
+
+void shouldFlushCorrectlyWithWrappedToken(void) {
+    setupExtendedTokenScenario_priv();
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    assertEquals("shouldFlushCorrectlyWithWrappedToken:tok1", zstok_getReadTokenDataLength(tok1), 750);
+    const ZStok_ReadToken tok2 = zstok_getNextReadTokenAndFlush(tok1);
+    assertEquals("shouldFlushCorrectlyWithWrappedToken:tok2", zstok_getReadTokenDataLength(tok2), 258);
+    const ZStok_ReadToken tok3 = zstok_getNextReadTokenAndFlush(tok2);
+    assertEquals("shouldFlushCorrectlyWithWrappedToken:tok3 marker", zstok_getReadTokenDataLength(tok3), 0);
+    assertTrue("shouldFlushCorrectlyWithWrappedToken:tok3-valid", zstok_isValidReadToken(tok3));
+    const ZStok_ReadToken endTok = zstok_getNextReadTokenAndFlush(tok3);
+    assertFalse("shouldFlushCorrectlyWithWrappedToken:endTok-empty", zstok_isValidReadToken(endTok));
+    // and just to make sure, do it once more!
+    const ZStok_ReadToken endTok2 = zstok_getNextReadTokenAndFlush(endTok);
+    assertFalse("shouldFlushCorrectlyWithWrappedToken:endTok2-empty", zstok_isValidReadToken(endTok2));
+}
+
+
+void shouldIterateNoTokens(void) {
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    ZStok_BlockIterator   it   = zstok_getReadTokenDataIterator(tok1);
+    assertFalse("shouldIterateNoTokens:hasNext", zstok_hasNextIteratorBlock(&it));
+    ZS_ByteString block = zstok_nextContiguousIteratorBlock(&it, 100);
+    assertTrue("shouldIterateNoTokens:next", block.data == NULL);
+    assertEquals("shouldIterateNoTokens:next", block.length, 0);
+    // This would be silly, but let's verify doing it again to ensure it's safe
+    ZS_ByteString block2 = zstok_nextContiguousIteratorBlock(&it, 100);
+    assertTrue("shouldIterateNoTokens:next", block2.data == NULL);
+    assertEquals("shouldIterateNoTokens:next", block2.length, 0);
+}
+
+void shouldIterateSingleToken(void) {
+    insertNonNumericTokenNibbles('+', 6, 1, 2, 3, 4, 5, 6);
+    zstok_endToken(testWriter);
+
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    ZStok_BlockIterator   it   = zstok_getReadTokenDataIterator(tok1);
+    assertTrue("shouldIterateSingleToken:hasNext1", zstok_hasNextIteratorBlock(&it));
+    ZS_ByteString block = zstok_nextContiguousIteratorBlock(&it, 100);
+    assertTrue("shouldIterateSingleToken:next1", *block.data == 0x12);
+    assertEquals("shouldIterateSingleToken:next1 len", block.length, 3);
+
+    ZS_ByteString block2 = zstok_nextContiguousIteratorBlock(&it, 100);
+    assertTrue("shouldIterateSingleToken:next2", block2.data == NULL);
+    assertEquals("shouldIterateSingleToken:next2 len", block2.length, 0);
+}
+
+void shouldIterateSingleTokenWithMaxLength(void) {
+    insertNonNumericTokenNibbles('+', 6, 1, 2, 3, 4, 5, 6);
+    zstok_endToken(testWriter);
+
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    ZStok_BlockIterator   it   = zstok_getReadTokenDataIterator(tok1);
+    assertTrue("shouldIterateSingleToken:hasNext1", zstok_hasNextIteratorBlock(&it));
+    ZS_ByteString block = zstok_nextContiguousIteratorBlock(&it, 2);
+    assertEquals("shouldIterateSingleToken:next1", *block.data, 0x12);
+    assertEquals("shouldIterateSingleToken:next1 len", block.length, 2);
+
+    assertTrue("shouldIterateSingleToken:hasNext2", zstok_hasNextIteratorBlock(&it));
+    ZS_ByteString block2 = zstok_nextContiguousIteratorBlock(&it, 2);
+    assertEquals("shouldIterateSingleToken:next2", *block2.data, 0x56);
+    assertEquals("shouldIterateSingleToken:next2 len", block2.length, 1);
+}
+
+
+void shouldIterateExtendedTokens(void) {
+    setupExtendedTokenScenario_priv();
+
+    // Dissect first scenario 750-byte token at 264:520,521:777,778:1019
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    ZStok_BlockIterator   it   = zstok_getReadTokenDataIterator(tok1);
+
+    // 264:520: Read in 2 x chunks of 240
+    assertTrue("shouldIterateExtendedTokens:hasNext1a", zstok_hasNextIteratorBlock(&it));
+    ZS_ByteString block1a = zstok_nextContiguousIteratorBlock(&it, 240);
+    assertEquals("shouldIterateExtendedTokens:next1a", *block1a.data, 'B');
+    assertEquals("shouldIterateExtendedTokens:next1a len", block1a.length, 240);
+
+    assertTrue("shouldIterateExtendedTokens:hasNext1b", zstok_hasNextIteratorBlock(&it));
+    ZS_ByteString block1b = zstok_nextContiguousIteratorBlock(&it, 240);
+    assertEquals("shouldIterateExtendedTokens:next1b", *block1b.data, 'j');
+    assertEquals("shouldIterateExtendedTokens:next1b len", block1b.length, 15);
+
+    // 521:777
+    assertTrue("shouldIterateExtendedTokens:hasNext2", zstok_hasNextIteratorBlock(&it));
+    ZS_ByteString block2 = zstok_nextContiguousIteratorBlock(&it, 255);
+    assertEquals("shouldIterateExtendedTokens:next2", *block2.data, 'G');
+    assertEquals("shouldIterateExtendedTokens:next2 len", block2.length, 255);
+
+    // 778:1019
+    assertTrue("shouldIterateExtendedTokens:hasNext2", zstok_hasNextIteratorBlock(&it));
+    ZS_ByteString block3 = zstok_nextContiguousIteratorBlock(&it, 255);
+    assertEquals("shouldIterateExtendedTokens:next3 len", block3.length, 240);
+
+    ZS_ByteString empty = zstok_nextContiguousIteratorBlock(&it, 255);
+    assertEquals("shouldIterateExtendedTokens:next4 len", empty.length, 0);
+}
+
+void shouldIterateWrappedTokens(void) {
+    setupExtendedTokenScenario_priv();
+
+    // Dissect second scenario 258-byte token at 1020:252,253:257 - reading in chunks of 128
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    const ZStok_ReadToken tok2 = zstok_getNextReadToken(tok1);
+
+    ZStok_BlockIterator it = zstok_getReadTokenDataIterator(tok2);
+
+    // 1020:1023 - first part up to end of buffer
+    assertTrue("shouldIterateWrappedTokens:hasNext1", zstok_hasNextIteratorBlock(&it));
+    ZS_ByteString block1 = zstok_nextContiguousIteratorBlock(&it, 128);
+    const uint8_t exp1[] = { 'C', 'D' };
+    assertContains("shouldIterateWrappedTokens:next1", block1.data, exp1, sizeof exp1);
+    assertEquals("shouldIterateWrappedTokens:next1 len", block1.length, 2);
+
+    // 0:252: truncated to 0:127 by maxLength
+    assertTrue("shouldIterateWrappedTokens:hasNext2", zstok_hasNextIteratorBlock(&it));
+    ZS_ByteString block2 = zstok_nextContiguousIteratorBlock(&it, 128);
+    assertEquals("shouldIterateWrappedTokens:next2", *block2.data, 'E');
+    assertEquals("shouldIterateWrappedTokens:next2 len", block2.length, 128);
+
+    // 0:252 pt2: read 128:252
+    assertTrue("shouldIterateWrappedTokens:hasNext3", zstok_hasNextIteratorBlock(&it));
+    ZS_ByteString block3 = zstok_nextContiguousIteratorBlock(&it, 128);
+    assertEquals("shouldIterateWrappedTokens:next3", *block3.data, 'a');
+    assertEquals("shouldIterateWrappedTokens:next3 len", block3.length, 125);
+
+    // last little bit: 253:257
+    assertTrue("shouldIterateWrappedTokens:hasNext4", zstok_hasNextIteratorBlock(&it));
+    ZS_ByteString block4 = zstok_nextContiguousIteratorBlock(&it, 128);
+    assertEquals("shouldIterateWrappedTokens:next4", *block4.data, 'H');
+    assertEquals("shouldIterateWrappedTokens:next4 len", block4.length, 3);
+
+    assertFalse("shouldIterateWrappedTokens:hasNext5", zstok_hasNextIteratorBlock(&it));
+}
+
+/* *********************************************************
+ * ForEach block tests
+ ***********************************************************/
+
+bool myLengthAccumAction(ZS_ByteString bytes, void *p) {
+    *((int *) p) += bytes.length;
+    return true;
+}
+
+void shouldIterateWithForEach(void) {
+    setupExtendedTokenScenario_priv();
+
+    const ZStok_ReadToken tok1     = zstok_getFirstReadToken(&testRingBuffer);
+    int                   totalLen = 0;
+    const bool            res      = zstok_forEachDataBlock(tok1, 255, &totalLen, myLengthAccumAction);
+    assertTrue("shouldIterateWithForEach action result", res);
+    assertEquals("shouldIterateWithForEach total", totalLen, 750);
+}
+
+void shouldIterateEmptyBufferWithForEach(void) {
+    setup();
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    const bool            res  = zstok_forEachDataBlock(tok1, 255, NULL, myLengthAccumAction);
+    assertTrue("shouldIterateWithForEach action result", res);
+}
+
+struct foreach_testdata {
+    int totalLen, count, maxCount;
+};
+
+// add up all the block lengths until we hit one that's longer than a max value, just as a demo
+bool myEarlyTerminateAccumAction(ZS_ByteString bytes, void *p) {
+    struct foreach_testdata *dp = (struct foreach_testdata *) p;
+    if (dp->count < dp->maxCount) {
+        dp->totalLen += bytes.length;
+        dp->count++;
+        return true;
+    }
+    return false;
+}
+
+void shouldTerminateForEachEarly(void) {
+    setupExtendedTokenScenario_priv();
+
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+
+    // maxCount=2 should get the first two blocks, then stop
+    struct foreach_testdata testData = { .totalLen= 0, .count=0, .maxCount=2 };
+    const bool              res      = zstok_forEachDataBlock(tok1, 255, &testData, myEarlyTerminateAccumAction);
+    assertFalse("shouldTerminateForEachEarly action result", res);
+    assertEquals("shouldTerminateForEachEarly count", testData.count, 2);
+    assertEquals("shouldTerminateForEachEarly total", testData.totalLen, 510);
 }
 
 
@@ -206,5 +406,15 @@ int main(void) {
     shouldReadNoTokenAtStart();
     shouldReadSingleTokenAfterMarker();
     shouldReadNoTokenAfterFlush();
+    shouldSafelyFlushWithNoTokens();
     shouldReadExtendedTokens();
+    shouldFlushCorrectlyWithWrappedToken();
+    shouldIterateNoTokens();
+    shouldIterateSingleToken();
+    shouldIterateSingleTokenWithMaxLength();
+    shouldIterateExtendedTokens();
+    shouldIterateWrappedTokens();
+    shouldIterateWithForEach();
+    shouldIterateEmptyBufferWithForEach();
+    shouldTerminateForEachEarly();
 }

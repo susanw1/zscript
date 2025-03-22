@@ -40,10 +40,9 @@ typedef struct {
  * This is useful for streaming a token's data via eg a DMA system.
  */
 typedef struct {
-    ZStok_TokenBuffer *const tokenBuffer; // NULL if token is empty; can't be const* because flush mutates readStart
-    const zstok_bufsz_t tokenIndex;
-    const zstok_bufsz_t byteIndex;
-    const zstok_bufsz_t segRemaining;
+    const ZStok_ReadToken token;
+    zstok_bufsz_t         byteIndex;
+    zstok_bufsz_t         segRemaining;
 } ZStok_BlockIterator;
 
 
