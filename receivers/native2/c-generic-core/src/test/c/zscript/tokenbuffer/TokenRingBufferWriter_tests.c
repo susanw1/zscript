@@ -26,13 +26,11 @@ void setup(void) {
 
 void assertBufferContainsAt(const char *msg, ZStok_TokenWriter tbw, zstok_bufsz_t start, uint8_t contents[], zstok_bufsz_t len) {
     checkErrno();
-    if (start + len <= tbw.tokenBuffer->bufLen) {
-        assertContains(msg, tbw.tokenBuffer->data + start, contents, len);
-    } else {
-        int l1 = tbw.tokenBuffer->bufLen - start;
-        assertContains(msg, tbw.tokenBuffer->data + start, contents, l1);
-        assertContains(msg, tbw.tokenBuffer->data, contents + l1, len - l1);
+    if (start + len > tbw.tokenBuffer->bufLen) {
+        fprintf(stderr, "start(%d) + len(%d) goes off the end(%d)!\n", start, len, tbw.tokenBuffer->bufLen);
+        exit(1);
     }
+    assertContains(msg, tbw.tokenBuffer->data + start, contents, len);
 }
 
 void assertStartsWith(const char *msg, ZStok_TokenWriter tbw, uint8_t contents[], zstok_bufsz_t len) {
@@ -89,16 +87,12 @@ void insertNonNumericTokenNibbles(char key, int count, ...) {
     va_end(args);
 }
 
-void insertByteToken(int count) {
+void insertByteToken(int count, uint8_t firstByte) {
     zstok_startToken(testWriter, '+', false);
 
     for (int i = 0; i < count; i++) {
-        zstok_continueTokenByte(testWriter, 0xa0 + i);
+        zstok_continueTokenByte(testWriter, firstByte + (i % 50));
     }
-
-    uint8_t exp[] = { '+', count, 0xa0, 0xa1 };
-    assertStartsWith("insertByteToken initial check", testWriter, exp, sizeof exp);
-    verifyBufferState2(false, TEST_BUF_LEN - 3 - count, '+', false, count);
 }
 
 void shouldInitialize(void) {
@@ -347,7 +341,8 @@ void shouldTokenizeNonNumericFieldWithOddNibbles(void) {
 
 void shouldWriteBufferOverflowOnTokenKey(void) {
     setup();
-    insertByteToken(5);
+    insertByteToken(5, 0xa0);
+    verifyBufferState2(false, TEST_BUF_LEN - 3 - 5, '+', false, 5);
     zstok_endToken(testWriter);
     verifyBufferState1(true, 8);
 
@@ -360,7 +355,8 @@ void shouldWriteBufferOverflowOnTokenKey(void) {
 
 void shouldWriteBufferOverflowOnTokenData(void) {
     setup();
-    insertByteToken(3);
+    insertByteToken(3, 0xa0);
+    verifyBufferState2(false, TEST_BUF_LEN - 3 - 3, '+', false, 3);
     zstok_endToken(testWriter);
     verifyBufferState1(true, 10);
 
@@ -375,6 +371,7 @@ void shouldWriteBufferOverflowOnTokenData(void) {
 
 // handy test that checks continuation tokens in both text and nibble modes
 void shouldTokenizeContinuedBigField_util(bool useTextMode) {
+    setup();
     const int BIG_BUF_LEN = 512;
     uint8_t   bigBufferSpace[BIG_BUF_LEN];
     memset(bigBufferSpace, 0, BIG_BUF_LEN);
@@ -412,6 +409,7 @@ void shouldTokenizeContinuedHexBigField(void) {
 }
 
 void shouldFailOnHugeNumeric(void) {
+    setup();
     const int BIG_BUF_LEN = 512;
     uint8_t   bigBufferSpace[BIG_BUF_LEN];
     memset(bigBufferSpace, 0, BIG_BUF_LEN);
@@ -429,6 +427,40 @@ void shouldFailOnHugeNumeric(void) {
     assertEquals("shouldFailOnHugeNumeric:errno", ZS_SystemErrorType_TOKBUF_STATE_NUMERIC_TOO_LONG, zs_errno);
 }
 
+void shouldWriteExtendedTokens(void) {
+    setup();
+    const int BIG_BUF_LEN = 1024;
+    uint8_t   bigBufferSpace[BIG_BUF_LEN];
+    memset(bigBufferSpace, 0, BIG_BUF_LEN);
+
+    ZStok_TokenBuffer bigRingBuffer;
+    zstok_initTokenBuffer(&bigRingBuffer, bigBufferSpace, sizeof bigBufferSpace);
+    ZStok_TokenWriter bigWriter = zstok_getTokenWriter(&bigRingBuffer);
+
+    zstok_startToken(bigWriter, '+', false);
+    for (int i = 0; i < 260; i++) {
+        zstok_continueTokenByte(bigWriter, 'A' + (i % 50));
+    }
+    zstok_endToken(bigWriter);
+
+    uint8_t exp1[] = { '+', 0xff, 'A', 'B' };
+    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#1", bigWriter, 0, exp1, sizeof exp1);
+
+    zstok_startToken(bigWriter, '+', false);
+    for (int i = 0; i < 750; i++) {
+        zstok_continueTokenByte(bigWriter, 'B' + (i % 50));
+    }
+    zstok_endToken(bigWriter);
+
+    uint8_t exp2[] = { 'I', 'J', '+', 0xff, 'B', 'C', 'D', 'E' };
+    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#2", bigWriter, 262, exp2, sizeof exp2);
+    uint8_t exp3[] = { 'F', 0x81, 0xff, 'G', 'H', 'I', 'J' };
+    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#3", bigWriter, 520, exp3, sizeof exp3);
+    uint8_t exp4[] = { 'J', 'K', 0x81, 0xf0, 'L', 'M', 'N' };
+    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#4", bigWriter, 776, exp4, sizeof exp4);
+    uint8_t exp5[] = { 'p', 'q', 'r', 's', 0 };
+    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#5", bigWriter, 1016, exp5, sizeof exp5);
+}
 
 void shouldFailToAcceptNibbleOutOfRange(void) {
     setup();
@@ -504,6 +536,7 @@ int main(void) {
     shouldTokenizeContinuedHexBigField();
     shouldTokenizeContinuedTextBigField();
     shouldFailOnHugeNumeric();
+    shouldWriteExtendedTokens();
     shouldFailToAcceptNibbleOutOfRange();
     shouldFailToGetTokenKeyWhenNoTokenInPlay();
     shouldFailToGetTokenLengthWhenNoTokenInPlay();

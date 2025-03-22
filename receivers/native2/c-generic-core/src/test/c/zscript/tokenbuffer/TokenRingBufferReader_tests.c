@@ -10,9 +10,7 @@
 
 #include "../testing/TestTools.h"
 
-static const uint8_t CMD_END_ANDTHEN      = 0xe1;
-static const uint8_t NORMAL_SEQUENCE_END  = 0xf0;
-static const uint8_t ERROR_BUFFER_OVERRUN = 0xf1;
+static const uint8_t NORMAL_SEQUENCE_END = 0xf0;
 
 // handy test instances used by most tests
 #define TEST_BUF_LEN        1024
@@ -30,13 +28,11 @@ void setup(void) {
 
 void assertBufferContainsAt(const char *msg, ZStok_TokenWriter tbw, zstok_bufsz_t start, uint8_t contents[], zstok_bufsz_t len) {
     checkErrno();
-    if (start + len <= tbw.tokenBuffer->bufLen) {
-        assertContains(msg, tbw.tokenBuffer->data + start, contents, len);
-    } else {
-        int l1 = tbw.tokenBuffer->bufLen - start;
-        assertContains(msg, tbw.tokenBuffer->data + start, contents, l1);
-        assertContains(msg, tbw.tokenBuffer->data, contents + l1, len - l1);
+    if (start + len > tbw.tokenBuffer->bufLen) {
+        fprintf(stderr, "start(%d) + len(%d) goes off the end(%d)!\n", start, len, tbw.tokenBuffer->bufLen);
+        exit(1);
     }
+    assertContains(msg, tbw.tokenBuffer->data + start, contents, len);
 }
 
 void assertStartsWith(const char *msg, ZStok_TokenWriter tbw, uint8_t contents[], zstok_bufsz_t len) {
@@ -81,15 +77,12 @@ void insertNonNumericTokenNibbles(char key, int count, ...) {
     va_end(args);
 }
 
-void insertByteToken(int count) {
+void insertByteToken(int count, uint8_t firstByte) {
     zstok_startToken(testWriter, '+', false);
 
     for (int i = 0; i < count; i++) {
-        zstok_continueTokenByte(testWriter, 0xa0 + i);
+        zstok_continueTokenByte(testWriter, firstByte + (i % 50));
     }
-
-    uint8_t exp[] = { '+', count, 0xa0, 0xa1 };
-    assertStartsWith("insertByteToken initial check", testWriter, exp, sizeof exp);
 }
 
 void shouldReadSingleToken(void) {
@@ -159,10 +152,59 @@ void shouldReadNoTokenAfterFlush(void) {
     assertEquals("shouldReadNoTokenAfterFlush:check new", tok2.index, tok2a.index);
 }
 
+/**
+ * Test adds:
+ * * a 260 byte token (so, extended once)
+ * * a 750 byte token (extended 3 times)
+ * * a 258 byte token (extended once and wrapped, only after flushing first token)
+ * * a final marker
+ */
+void shouldReadExtendedTokens(void) {
+    // assumes buffer is 1024 bytes long
+    setup();
+    insertByteToken(260, 'A');
+    zstok_endToken(testWriter);
+    uint8_t exp1[] = { '+', 0xff, 'A', 'B' };
+    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#1", testWriter, 0, exp1, sizeof exp1);
+
+    insertByteToken(750, 'B');
+    zstok_endToken(testWriter);
+    uint8_t exp2[] = { 'p', 'q', 'r', 's', 0 };
+    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#2", testWriter, 1016, exp2, sizeof exp2);
+
+    ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    assertEquals("shouldReadExtendedTokens:tok1", zstok_getReadTokenDataLength(tok1), 260);
+    assertEquals("shouldReadExtendedTokens:tok1-seg", zstok_getSegmentDataSize_priv(tok1), 255);
+
+    ZStok_ReadToken tok2 = zstok_getNextReadTokenAndFlush(tok1);
+    assertEquals("shouldReadExtendedTokens:tok2", zstok_getReadTokenDataLength(tok2), 750);
+
+    const ZStok_ReadToken endTok = zstok_getNextReadToken(tok2);
+    assertTrue("shouldReadExtendedTokens:endTok-valid", !zstok_isValidReadToken(endTok));
+
+    insertByteToken(258, 'A');
+    zstok_endToken(testWriter);
+    uint8_t exp3a[] = { '+', 0xff, 'A', 'B' };
+    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#3a", testWriter, 1020, exp3a, sizeof exp3a);
+    uint8_t exp3b[] = { 'C', 'D', 'E', 'F' };
+    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#3b", testWriter, 0, exp3b, sizeof exp3b);
+
+    const ZStok_ReadToken tok3 = zstok_getNextReadToken(tok2);
+    assertTrue("shouldReadExtendedTokens:tok3-valid", zstok_isValidReadToken(tok3));
+    assertEquals("shouldReadExtendedTokens:tok3", zstok_getReadTokenDataLength(tok3), 258);
+
+    zstok_writeMarker(testWriter, NORMAL_SEQUENCE_END);
+
+    // Includes tok3's extension, the marker (0xf0), and the detritus from tok1
+    uint8_t exp4[] = { 'C', 'D', 'E', 0x81, 3, 'F', 'G', 'H', 0xf0, 'F', 'G', 'H' };
+    assertBufferContainsAt("shouldReadExtendedTokens:insertByteToken check#4", testWriter, 250, exp4, sizeof exp4);
+}
+
 
 int main(void) {
     shouldReadSingleToken();
     shouldReadNoTokenAtStart();
     shouldReadSingleTokenAfterMarker();
     shouldReadNoTokenAfterFlush();
+    shouldReadExtendedTokens();
 }
