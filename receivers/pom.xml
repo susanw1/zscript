@@ -18,6 +18,7 @@
     <modules>
         <module>jvm</module>
         <module>native</module>
+        <module>native2</module>
     </modules>
 
     <profiles>

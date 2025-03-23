@@ -5,16 +5,16 @@
 
     <parent>
         <groupId>net.zscript</groupId>
-        <artifactId>zscript-receivers-native1</artifactId>
+        <artifactId>zscript-receivers-native</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zscript-cpp-model-components</artifactId>
-    <packaging>nar</packaging>
-    <name>C++ Model Components (Generated)</name>
+    <artifactId>zscript-c-model-components</artifactId>
+    <packaging>jar</packaging>
+    <name>C Model Components (Generated)</name>
 
     <properties>
-        <generated-code-path>${project.build.directory}/generated-sources/zscript/c++</generated-code-path>
+        <generated-code-path>${project.build.directory}/generated-sources/c</generated-code-path>
         <build-native-gcc.skip>true</build-native-gcc.skip>
     </properties>
 
@@ -45,97 +45,71 @@
                 <configuration>
                     <outputDirectory>${generated-code-path}</outputDirectory>
                     <contextLoaderClass>net.zscript.model.templating.contextloader.ZscriptModuleTemplatingContextLoader</contextLoaderClass>
-                    <fileTypeSuffix>hpp</fileTypeSuffix>
+                    <fileTypeSuffix>h</fileTypeSuffix>
                 </configuration>
 
                 <executions>
                     <execution>
-                        <id>templating-zchars-cpp</id>
+                        <id>templating-zchars-c</id>
                         <goals>
                             <goal>transform</goal>
                         </goals>
                         <configuration>
-                            <mainTemplate>CppZchars.mustache</mainTemplate>
+                            <mainTemplate>C-Zchars.mustache</mainTemplate>
                             <contexts>
                                 <includes>zchars-list.yaml</includes>
                             </contexts>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>templating-zstatus-cpp</id>
+                        <id>templating-zstatus-c</id>
                         <goals>
                             <goal>transform</goal>
                         </goals>
                         <configuration>
-                            <mainTemplate>CppZscriptStatus.mustache</mainTemplate>
+                            <mainTemplate>C-Zstatus.mustache</mainTemplate>
                             <contexts>
                                 <includes>zstatus-list.yaml</includes>
                             </contexts>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>templating-modules-cpp</id>
-                        <goals>
-                            <goal>transform</goal>
-                        </goals>
-                        <configuration>
-                            <mainTemplate>CppCommandKeyDefs.mustache</mainTemplate>
-                            <contexts>
-                                <directory>classpath:/zscript-datamodel/</directory>
-                                <includes>module-list.yaml</includes>
-                            </contexts>
-                        </configuration>
-                    </execution>
+                    <!--                    <execution>-->
+                    <!--                        <id>templating-modules-c</id>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>transform</goal>-->
+                    <!--                        </goals>-->
+                    <!--                        <configuration>-->
+                    <!--                            <mainTemplate>C-CommandKeyDefs.mustache</mainTemplate>-->
+                    <!--                            <contexts>-->
+                    <!--                                <directory>classpath:/zscript-datamodel/</directory>-->
+                    <!--                                <includes>module-list.yaml</includes>-->
+                    <!--                            </contexts>-->
+                    <!--                        </configuration>-->
+                    <!--                    </execution>-->
                 </executions>
             </plugin>
 
             <plugin>
-                <groupId>net.zscript.maven-nar</groupId>
-                <artifactId>nar-maven-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <skip>${build-native-gcc.skip}</skip>
-                    <cpp>
-                        <name>gcc</name>
-                        <debug>true</debug>
-                        <includePaths>
-                            <includePath>
-                                <path>${generated-code-path}</path>
-                                <includes>**/*.hpp</includes>
-                            </includePath>
-                        </includePaths>
-                        <options>
-                            <option>-flto</option>
-                            <option>-g</option>
-                            <option>-Wall</option>
-                            <option>-fno-exceptions</option>
-                            <option>-Wextra</option>
-                            <option>-m32</option>
-                        </options>
-                        <testOptions>
-                            <testOption>-fexceptions</testOption>
-                            <testOption>-m32</testOption>
-                        </testOptions>
-                    </cpp>
-                    <linker>
-                        <name>g++</name>
-                        <options>
-                            <option>-m32</option>
-                        </options>
-                    </linker>
-                    <libraries>
-                        <library>
-                            <type>static</type>
-                        </library>
-                    </libraries>
-                    <tests>
-                        <test>
-                            <name>ZscriptGeneratedCodeTest</name>
-                            <link>static</link>
-                            <run>true</run>
-                        </test>
-                    </tests>
-                </configuration>
+                <groupId>io.github.cmake-maven-plugin</groupId>
+                <artifactId>cmake-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>cmake-generate</id>
+                        <phase>process-sources</phase>
+                    </execution>
+                    <execution>
+                        <id>cmake-compile</id>
+                        <phase>compile</phase>
+                    </execution>
+                    <execution>
+                        <id>cmake-test</id>
+                        <phase>test</phase>
+                    </execution>
+                    <execution>
+                        <id>cmake-install</id>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

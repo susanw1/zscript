@@ -1,0 +1,78 @@
+/*
+* Zscript - Command System for Microcontrollers
+* Copyright (c) 2025 Zscript team (Susan Witts, Alicia Witts)
+* SPDX-License-Identifier: MIT
+*/
+
+#ifndef _ZS_ZCHARS_H
+#define _ZS_ZCHARS_H
+
+#include <stdint.h>
+#include <stdbool.h>
+
+/**
+ * Constants generated from the Zchars intrinsics.
+ *
+ * Generated(value = "C-Zchars.mustache",
+ *  date = "{{timeNow}}",
+ *  comments = "Zscript Zchars constants list, using {{additional.context-source}}")
+ */
+enum ZS_Zchars {
+{{#zchars}}
+    /** {{description}} */
+    ZS_Zchars_{{#upperUnderscore}}{{name}}{{/upperUnderscore}} = '{{{chEscapedAsC}}}',
+
+{{/zchars}}
+};
+
+
+static const int ZS_Zchars_PARSE_NOT_HEX_0X10 = 0x10;
+
+static uint8_t ZS_Zchars_parseHex(uint8_t b) {
+    if (b >= '0' && b <= '9') {
+        return b - '0';
+    } else if (b >= 'a' && b <= 'f') {
+        return b - 'a' + 10;
+    } else {
+        return ZS_Zchars_PARSE_NOT_HEX_0X10;
+    }
+}
+
+static bool ZS_Zchars_alwaysIgnore(uint8_t b) {
+    return 0{{#zchars}}{{#ignoreAlways}} || b == '{{{chEscapedAsC}}}'{{/ignoreAlways}}{{/zchars}};
+}
+
+static bool ZS_Zchars_shouldIgnore(uint8_t b) {
+    return 0{{#zchars}}{{#ignoreInCode}} || b == '{{{chEscapedAsC}}}'{{/ignoreInCode}}{{/zchars}};
+}
+
+static bool ZS_Zchars_isSeparator(uint8_t b) {
+    return 0{{#zchars}}{{#separator}} || b == '{{{chEscapedAsC}}}'{{/separator}}{{/zchars}};
+}
+
+static bool ZS_Zchars_isNonNumerical(uint8_t b) {
+    return 0{{#zchars}}{{#nonNumeric}} || b == '{{{chEscapedAsC}}}'{{/nonNumeric}}{{/zchars}};
+}
+
+static bool ZS_Zchars_isBigField(uint8_t b) {
+    return 0{{#zchars}}{{#bigField}} || b == '{{{chEscapedAsC}}}'{{/bigField}}{{/zchars}};
+}
+
+static bool ZS_Zchars_mustStringEscape(uint8_t b) {
+    return 0{{#zchars}}{{#mustEscape}} || b == '{{{chEscapedAsC}}}'{{/mustEscape}}{{/zchars}};
+}
+
+static bool ZS_Zchars_isNumericKey(uint8_t b) {
+    return (b >= 'A' && b <= 'Z');
+}
+
+static bool ZS_Zchars_isCommandKey(uint8_t b) {
+    return ZS_Zchars_isNumericKey(b) || ZS_Zchars_isBigField(b);
+}
+
+static bool ZS_Zchars_isAllowableKey(uint8_t b) {
+    // disallow hex, non-printing and top-bit-set keys
+    return b >= 0x20 && b < 0x80 && ZS_Zchars_parseHex(b) == ZS_Zchars_PARSE_NOT_HEX_0X10;
+}
+
+#endif /* _ZS_ZCHARS_H */

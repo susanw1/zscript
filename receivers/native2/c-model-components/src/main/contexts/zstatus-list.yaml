@@ -1,0 +1,9 @@
+### Fake module-list to make the transformer populate the template with intrinsics without having to change everything!
+# So, this isn't really a module-bank, and the lack of moduleDefinitions triggers "module-less" templating.
+moduleBanks:
+-   name: Zstatus
+    id: 0
+    defaultPackage:
+    - zscript
+    - model
+    moduleDefinitions: [ ]

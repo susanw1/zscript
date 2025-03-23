@@ -232,13 +232,14 @@ class TokenRingBufferWriterTest {
         TokenWriter     writer    = bigBuffer.getTokenWriter();
 
         writer.startToken((byte) '+', false);
+        // write 3 more than 255
         for (int i = 0; i < 258; i++) {
             writer.continueTokenNibble((byte) 4);
             writer.continueTokenNibble((byte) (i & 0xf));
         }
         writer.endToken();
 
-        assertThat(bigBuffer.getInternalData()).startsWith('+', 255, 64, 65).containsSequence(77, 78, 129, 3, 79, 64, 65, 0);
+        assertThat(bigBuffer.getInternalData()).startsWith('+', 255, 0x40, 0x41).containsSequence(0x4d, 0x4e, 0x81, 3, 0x4f, 0x40, 0x41, 0);
     }
 
     @Test

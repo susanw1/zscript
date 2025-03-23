@@ -3,7 +3,7 @@
 
     <parent>
         <groupId>net.zscript</groupId>
-        <artifactId>zscript-receivers-native</artifactId>
+        <artifactId>zscript-receivers-native1</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 

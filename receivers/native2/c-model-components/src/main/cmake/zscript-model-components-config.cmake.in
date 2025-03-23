@@ -1,0 +1,5 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/zscript-model-components-targets.cmake")
+
+check_required_components(zscript-model-components)

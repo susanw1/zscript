@@ -8,9 +8,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zscript-receivers-native</artifactId>
+    <artifactId>zscript-receivers-native1</artifactId>
     <packaging>pom</packaging>
-    <name>Zscript Native Receivers</name>
+    <name>Zscript Native1 Receivers</name>
 
     <profiles>
         <profile>

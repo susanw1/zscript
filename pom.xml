@@ -47,7 +47,9 @@
         <version.maven-assembly-plugin>3.7.1</version.maven-assembly-plugin>
         <version.maven-jar-plugin>3.4.2</version.maven-jar-plugin>
         <version.maven-enforcer-plugin>3.5.0</version.maven-enforcer-plugin>
+        <version.cmake-maven-plugin>3.31.6-b1</version.cmake-maven-plugin>
         <version.mustache-templating-maven-plugin>1.0.0</version.mustache-templating-maven-plugin>
+        <version.build-helper-maven-plugin>3.6.0</version.build-helper-maven-plugin>
 
         <version.maven-javadoc-plugin>3.11.2</version.maven-javadoc-plugin>
         <version.maven-source-plugin>3.3.1</version.maven-source-plugin>
@@ -159,9 +161,19 @@
                     <extensions>true</extensions>
                 </plugin>
                 <plugin>
+                    <groupId>io.github.cmake-maven-plugin</groupId>
+                    <artifactId>cmake-maven-plugin</artifactId>
+                    <version>${version.cmake-maven-plugin}</version>
+                </plugin>
+                <plugin>
                     <groupId>net.zscript.maven-templates</groupId>
                     <artifactId>mustache-templating-maven-plugin</artifactId>
                     <version>${version.mustache-templating-maven-plugin}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>${version.build-helper-maven-plugin}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
