@@ -32,4 +32,5 @@ macro(invoke_test_with_libs test_name libs)
 endmacro()
 
 add_subdirectory(zscript/tokenbuffer)
+add_subdirectory(zscript/tokenizer)
 #add_subdirectory(zscript/sys)

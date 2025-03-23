@@ -72,7 +72,7 @@ static bool ZS_Zchars_isCommandKey(uint8_t b) {
 
 static bool ZS_Zchars_isAllowableKey(uint8_t b) {
     // disallow hex, non-printing and top-bit-set keys
-    return b >= 0x20 && ZS_Zchars_parseHex(b) == ZS_Zchars_PARSE_NOT_HEX_0X10;
+    return b >= 0x20 && b < 0x80 && ZS_Zchars_parseHex(b) == ZS_Zchars_PARSE_NOT_HEX_0X10;
 }
 
 #endif /* _ZS_ZCHARS_H */

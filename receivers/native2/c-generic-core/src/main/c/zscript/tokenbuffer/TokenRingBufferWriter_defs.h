@@ -52,7 +52,7 @@ static void zstok_moveCursor_priv(const ZStok_TokenWriter tbw) {
  * @param numeric true if numeric nibble aggregation should be used, false otherwise
  */
 static void zstok_startToken(ZStok_TokenWriter tbw, uint8_t key, bool numeric) {
-    if (key < 0x20 || key >= 0x80) {
+    if (key < 0x20 || zstok_isMarker(key)) {
         zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_ARG_NOT_TOKENKEY);   // "invalid token [key=0x" + key + "]""
         return;
     }

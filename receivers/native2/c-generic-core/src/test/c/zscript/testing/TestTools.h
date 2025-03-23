@@ -44,7 +44,8 @@ void assertFalse(const char *msg, bool expected) {
     }
 }
 
-void assertContains(const char *msg, const uint8_t actual[], const uint8_t expected[], int len) {
+
+bool checkContains(const char *msg, const uint8_t actual[], const uint8_t expected[], int len) {
     for (int i = 0; i < len; i++) {
         uint8_t c = expected[i];
         if (c != actual[i]) {
@@ -65,9 +66,16 @@ void assertContains(const char *msg, const uint8_t actual[], const uint8_t expec
             for (int t = 0; t < i; t++) {
                 fprintf(stderr, "   ");
             }
-            fprintf(stderr, "^^\n*********** Expected=%02x(%c), actual=%02x(%c); pos=%d: %s\n", actual[i], actual[i], c, (c < ' ' ? '?' : c), i, msg);
-            exit(1);
+            fprintf(stderr, "^^\n*********** Expected=%02x(%c), actual=%02x(%c); pos=%d: %s\n", c, (c < ' ' ? '?' : c), actual[i], actual[i], i, msg);
+            return false;
         }
+    }
+    return true;
+}
+
+void assertContains(const char *msg, const uint8_t actual[], const uint8_t expected[], int len) {
+    if (!checkContains(msg, actual, expected, len)) {
+        exit(1);
     }
 }
 

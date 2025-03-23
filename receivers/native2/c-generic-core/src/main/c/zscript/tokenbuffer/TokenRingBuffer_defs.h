@@ -45,7 +45,6 @@ inline static bool zstok_isMarker(const uint8_t key) {
     return (key & 0xe0) == 0xe0;
 }
 
-
 /**
  * Determines whether the supplied byte is a sequence-end "marker" key (newline, fatal error).
  *
@@ -55,7 +54,6 @@ inline static bool zstok_isMarker(const uint8_t key) {
 inline static bool zstok_isSequenceEndMarker(const uint8_t key) {
     return (key & 0xf0) == 0xf0;
 }
-
 
 /**
  * For a given `index`, calculate the new index having added the `offset`, wrapping around the ring-buffer as required.
