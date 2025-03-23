@@ -21,6 +21,11 @@ intrinsics:
     -   name: cmd
         ch: "Z"
         description: "command field to identify the specific command to execute"
+    -   name: eolSymbol
+        ch: "\n"
+        description: "sequence terminator"
+        separator: true
+        mustEscape: true
     -   name: newline
         ch: "\n"
         description: "sequence terminator"
