@@ -14,31 +14,6 @@
 
 #include "TokenRingBufferReader.h"
 
-// TokenBuffer operations for constructing/using ReadTokens:
-
-static ZStok_ReadToken zstok_getFirstReadToken(ZStok_TokenBuffer *tb);
-
-static bool zstok_hasReadToken(const ZStok_TokenBuffer *tb);
-
-// ReadToken operations:
-static uint8_t zstok_getReadTokenKey(ZStok_ReadToken token);
-
-static uint16_t zstok_getReadTokenData16(ZStok_ReadToken token);
-
-static zstok_bufsz_t zstok_getReadTokenDataLength(ZStok_ReadToken token);
-
-
-static bool zstok_isReadTokenMarker(ZStok_ReadToken token);
-
-static bool zstok_isReadTokenSequenceEndMarker(ZStok_ReadToken token);
-
-static ZStok_ReadToken zstok_getNextReadToken(ZStok_ReadToken token);
-
-static ZStok_ReadToken zstok_getNextReadTokenAndFlush(ZStok_ReadToken token);
-
-static bool zstok_isValidReadToken(ZStok_ReadToken token);
-
-static bool zstok_isEmptyReadToken(ZStok_ReadToken token);
 
 // Private functions not used outside this unit:
 static bool zstok_isInReadableArea_priv(const ZStok_TokenBuffer *tb, zstok_bufsz_t index);
@@ -262,7 +237,7 @@ static ZStok_ReadToken zstok_getNextReadTokenAndFlush(const ZStok_ReadToken toke
  *
  * @return a new block iterator pointing at the beginning of this token's data
  */
-ZStok_BlockIterator zstok_getReadTokenDataIterator(const ZStok_ReadToken token) {
+static ZStok_BlockIterator zstok_getReadTokenDataIterator(const ZStok_ReadToken token) {
     zstok_bufsz_t ind = 0;
     zstok_bufsz_t rem = 0;
 
@@ -283,10 +258,10 @@ ZStok_BlockIterator zstok_getReadTokenDataIterator(const ZStok_ReadToken token) 
  * @param blockIterator the iterator to manage progress
  * @return true if there are more blocks to return, false if there is no more
  */
-bool zstok_hasNextIteratorBlock(ZStok_BlockIterator *blockIterator) {
-    // Copes with empty tokens which still have extensions... probably not a valid thing anyway, but still, it didn't cost anything.
+static bool zstok_hasNextIteratorBlock(ZStok_BlockIterator *blockIterator) {
+    // Copes with variably-sized extensions (including empty!)
 
-    // note: must not actually access blockIterator->token.tokenBuffer (or buf) until we know it's not null.
+    // note: must not actually access blockIterator->token.tokenBuffer (or buf) until we know it's not null (see zstok_isEmptyReadToken call below)
     const ZStok_TokenBuffer *buf = blockIterator->token.tokenBuffer;
     while (blockIterator->segRemaining == 0) {
         if (zstok_isEmptyReadToken(blockIterator->token) || (blockIterator->byteIndex == buf->writeStart) || (buf->data[blockIterator->byteIndex] != ZSTOK_TOKEN_EXTENSION)) {
@@ -299,13 +274,18 @@ bool zstok_hasNextIteratorBlock(ZStok_BlockIterator *blockIterator) {
 }
 
 /**
- * Retrieves a pointer to the next block of contiguous bytes in the currently iterated token. It is not required that {@refitem zstok_hasNextIteratorBlock()} be called
+ * Retrieves a pointer to the next block of contiguous bytes in the currently iterated token. It is not required that {@refitem zstok_hasNextIteratorBlock()} be called, though
+ * it would be unusual not to do so. It is guaranteed that if we are not at the end of the data (and the supplied `maxLength` > 0!), then length returned is always > 0 - empty
+ * data never happens until the end of data. Generally, use {@refitem zstok_hasNextIteratorBlock()} to determine whether we're at the end.
+ *
+ * <p>Note that the ByteString points to, but does not copy, the bytes. The pointer points straight into the token-buffer. Changing that buffer is undefined! - it should be considered immutable.
+ * Once the token is flushed, the iterated data is undefined (its space becomes "writable" as far as the TokenBuffer cares).
  *
  * @param blockIterator the iterator to manage iteration progress
- * @param maxLength max number of bytes to return (use 255 for max possible)
- * @return struct containing pointer to the bytes, with its length (or contains a NULL data value if iteration is ended)
+ * @param maxLength max number of bytes to return (use 255 for max possible). May be 0, though won't advance the iterator.
+ * @return struct containing pointer to the bytes, including its length (or data,length == NULL,0  value if iteration is ended)
  */
-ZS_ByteString zstok_nextContiguousIteratorBlock(ZStok_BlockIterator *blockIterator, uint8_t maxLength) {
+static ZS_ByteString zstok_nextContiguousIteratorBlock(ZStok_BlockIterator *blockIterator, uint8_t maxLength) {
     if (!zstok_hasNextIteratorBlock(blockIterator)) {
         return (ZS_ByteString) { .data = NULL, .length = 0 };
     }
@@ -329,6 +309,17 @@ ZS_ByteString zstok_nextContiguousIteratorBlock(ZStok_BlockIterator *blockIterat
 }
 
 /**
+ * Retrieves a pointer to the next block of contiguous bytes in the currently iterated token. It is not required that {@refitem zstok_hasNextIteratorBlock()} be called
+ *
+ * @param blockIterator the iterator to manage iteration progress
+ * @return struct containing pointer to the bytes, with its length (or contains a NULL data value if iteration is ended)
+ */
+inline static uint8_t zstok_nextIteratorByte(ZStok_BlockIterator *blockIterator) {
+    ZS_ByteString bs = zstok_nextContiguousIteratorBlock(blockIterator, 1);
+    return (bs.length == 0) ? 0 : *(bs.data);
+}
+
+/**
  * Calls the supplied action function on each data block in the supplied token in their order of appearance. The iteration
  * will continue as long as the action function returns true or until no more blocks exist. Returning `false` from the action
  * function allows early termination.
@@ -339,7 +330,7 @@ ZS_ByteString zstok_nextContiguousIteratorBlock(ZStok_BlockIterator *blockIterat
  * @param action a function to be called
  * @return true if action function always returned true, false otherwise
  */
-bool zstok_forEachDataBlock(const ZStok_ReadToken token, uint8_t maxLength, void *misc, bool (*action)(const ZS_ByteString s, void *misc)) {
+static bool zstok_forEachDataBlock(const ZStok_ReadToken token, uint8_t maxLength, void *misc, bool (*action)(const ZS_ByteString s, void *misc)) {
     ZStok_BlockIterator it        = zstok_getReadTokenDataIterator(token);
     bool                keepGoing = true;
     while (keepGoing && zstok_hasNextIteratorBlock(&it)) {

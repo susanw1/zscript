@@ -230,6 +230,7 @@ void shouldFlushCorrectlyWithWrappedToken(void) {
 
 
 void shouldIterateNoTokens(void) {
+    setup();
     const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
     ZStok_BlockIterator   it   = zstok_getReadTokenDataIterator(tok1);
     assertFalse("shouldIterateNoTokens:hasNext", zstok_hasNextIteratorBlock(&it));
@@ -243,14 +244,16 @@ void shouldIterateNoTokens(void) {
 }
 
 void shouldIterateSingleToken(void) {
+    setup();
     insertNonNumericTokenNibbles('+', 6, 1, 2, 3, 4, 5, 6);
     zstok_endToken(testWriter);
 
     const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
     ZStok_BlockIterator   it   = zstok_getReadTokenDataIterator(tok1);
     assertTrue("shouldIterateSingleToken:hasNext1", zstok_hasNextIteratorBlock(&it));
+
     ZS_ByteString block = zstok_nextContiguousIteratorBlock(&it, 100);
-    assertTrue("shouldIterateSingleToken:next1", *block.data == 0x12);
+    assertTrue("shouldIterateSingleToken:next1", block.data[0] == 0x12);
     assertEquals("shouldIterateSingleToken:next1 len", block.length, 3);
 
     ZS_ByteString block2 = zstok_nextContiguousIteratorBlock(&it, 100);
@@ -259,6 +262,7 @@ void shouldIterateSingleToken(void) {
 }
 
 void shouldIterateSingleTokenWithMaxLength(void) {
+    setup();
     insertNonNumericTokenNibbles('+', 6, 1, 2, 3, 4, 5, 6);
     zstok_endToken(testWriter);
 
@@ -266,13 +270,35 @@ void shouldIterateSingleTokenWithMaxLength(void) {
     ZStok_BlockIterator   it   = zstok_getReadTokenDataIterator(tok1);
     assertTrue("shouldIterateSingleToken:hasNext1", zstok_hasNextIteratorBlock(&it));
     ZS_ByteString block = zstok_nextContiguousIteratorBlock(&it, 2);
-    assertEquals("shouldIterateSingleToken:next1", *block.data, 0x12);
+    assertEquals("shouldIterateSingleToken:next1", block.data[0], 0x12);
     assertEquals("shouldIterateSingleToken:next1 len", block.length, 2);
 
     assertTrue("shouldIterateSingleToken:hasNext2", zstok_hasNextIteratorBlock(&it));
     ZS_ByteString block2 = zstok_nextContiguousIteratorBlock(&it, 2);
     assertEquals("shouldIterateSingleToken:next2", *block2.data, 0x56);
     assertEquals("shouldIterateSingleToken:next2 len", block2.length, 1);
+}
+
+void shouldIterateSingleTokenSingleByte(void) {
+    setup();
+    insertNonNumericTokenNibbles('+', 4, 1, 2, 3, 4);
+    zstok_endToken(testWriter);
+
+    const ZStok_ReadToken tok1 = zstok_getFirstReadToken(&testRingBuffer);
+    ZStok_BlockIterator   it   = zstok_getReadTokenDataIterator(tok1);
+
+    assertTrue("shouldIterateSingleTokenSingleByte:hasNext1", zstok_hasNextIteratorBlock(&it));
+    uint8_t b1 = zstok_nextIteratorByte(&it);
+    assertEquals("shouldIterateSingleTokenSingleByte:next1", b1, 0x12);
+
+    // quick sanity test for the maxLen=0 case - doesn't break, doesn't advance the iterator
+    ZS_ByteString zeroSizedBlock = zstok_nextContiguousIteratorBlock(&it, 0);
+    assertEquals("shouldIterateSingleToken:next2", zeroSizedBlock.data[0], 0x34);
+
+    uint8_t b2 = zstok_nextIteratorByte(&it);
+    assertEquals("shouldIterateSingleTokenSingleByte:next2", b2, 0x34);
+    uint8_t b3 = zstok_nextIteratorByte(&it);
+    assertEquals("shouldIterateSingleTokenSingleByte:next3", b3, 0);
 }
 
 
@@ -376,7 +402,7 @@ struct foreach_testdata {
     int totalLen, count, maxCount;
 };
 
-// add up all the block lengths until we hit one that's longer than a max value, just as a demo
+// add up the first `maxCount` blocks lengths, and then stop - just as a demo
 bool myEarlyTerminateAccumAction(ZS_ByteString bytes, void *p) {
     struct foreach_testdata *dp = (struct foreach_testdata *) p;
     if (dp->count < dp->maxCount) {
@@ -412,6 +438,7 @@ int main(void) {
     shouldIterateNoTokens();
     shouldIterateSingleToken();
     shouldIterateSingleTokenWithMaxLength();
+    shouldIterateSingleTokenSingleByte();
     shouldIterateExtendedTokens();
     shouldIterateWrappedTokens();
     shouldIterateWithForEach();
