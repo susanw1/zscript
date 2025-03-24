@@ -79,15 +79,15 @@ class ZscriptBasicNodeTest {
     public void shouldReceiveSequenceResponse() throws IOException {
         final AtomicReference<ResponseSequence> responseHolder = new AtomicReference<>();
 
-        final CommandSequence seq = parseToSequence("_100 Z1");
+        final CommandSequence seq = parseToSequence("=100 Z1");
         node.send(seq, responseHolder::set);
         verify(connection).send(any());
-        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("_100Z1\n");
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("=100Z1\n");
 
-        byteStringUtf8("! _100 S \n").writeTo(responseSender);
+        byteStringUtf8("! =100 S \n").writeTo(responseSender);
         await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
 
-        final ResponseSequence responseSequence = parseToResponse("! _100 S");
+        final ResponseSequence responseSequence = parseToResponse("! =100 S");
         assertThat(responseHolder).doesNotHaveNullValue()
                 .hasValueMatching(v -> v.asStringUtf8().equals(responseSequence.asStringUtf8()));
     }
@@ -95,16 +95,16 @@ class ZscriptBasicNodeTest {
     @Test
     public void shouldSendPath() {
         // no response in this test
-        setupHandlerAndSend("Z1", "%_100Z1\n", r -> {
+        setupHandlerAndSend("Z1", "%=100Z1\n", r -> {
         });
     }
 
     @Test
     public void shouldReceivePathResponse() throws IOException {
         final AtomicReference<ResponseExecutionPath> responseHolder = new AtomicReference<>();
-        setupHandlerAndSend("Z1", "%_100Z1\n", responseHolder::set);
+        setupHandlerAndSend("Z1", "%=100Z1\n", responseHolder::set);
 
-        byteStringUtf8("! _100 S \n").writeTo(responseSender);
+        byteStringUtf8("! =100 S \n").writeTo(responseSender);
         await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
 
         final ResponseExecutionPath responsePath = parseToResponse("!S").getExecutionPath();
@@ -131,10 +131,10 @@ class ZscriptBasicNodeTest {
         node.setUnknownResponseHandler(unknownResponseHandler::set);
 
         final AtomicReference<ResponseExecutionPath> responseHolder = new AtomicReference<>();
-        setupHandlerAndSend("Z1", "%_100Z1\n", responseHolder::set);
+        setupHandlerAndSend("Z1", "%=100Z1\n", responseHolder::set);
 
         // Note non-matching echo
-        byteStringUtf8("! _999 S \n").writeTo(responseSender);
+        byteStringUtf8("! =999 S \n").writeTo(responseSender);
 
         await().atMost(AWAIT_TIMEOUT).until(() -> unknownResponseHandler.get() != null);
         assertThat(responseHolder).hasNullValue();
@@ -151,10 +151,10 @@ class ZscriptBasicNodeTest {
         node.setUnknownResponseHandler(unknownResponseHandler::set);
 
         final AtomicReference<ResponseExecutionPath> responseHolder = new AtomicReference<>();
-        setupHandlerAndSend("Z1", "%_100Z1\n", responseHolder::set);
+        setupHandlerAndSend("Z1", "%=100Z1\n", responseHolder::set);
 
         // Note unregistered address
-        byteStringUtf8("@1 ! _100 S\n").writeTo(responseSender);
+        byteStringUtf8("@1 ! =100 S\n").writeTo(responseSender);
 
         await().atMost(AWAIT_TIMEOUT).until(() -> unknownResponseHandler.get() != null);
         assertThat(responseHolder).hasNullValue();
@@ -171,15 +171,15 @@ class ZscriptBasicNodeTest {
         node.setBadCommandResponseMatchHandler((cmd, resp) -> badMatchHandler.set(resp));
 
         final AtomicReference<ResponseExecutionPath> responseHolder = new AtomicReference<>();
-        setupHandlerAndSend("Z1", "%_100Z1\n", responseHolder::set);
+        setupHandlerAndSend("Z1", "%=100Z1\n", responseHolder::set);
 
         // Note mismatching response syntax
-        byteStringUtf8("! _100 S|S \n").writeTo(responseSender);
+        byteStringUtf8("! =100 S|S \n").writeTo(responseSender);
 
         await().atMost(AWAIT_TIMEOUT).until(() -> badMatchHandler.get() != null);
         assertThat(responseHolder).hasNullValue();
 
-        final ResponseSequence responseSeq = parseToResponse("!_100S|S");
+        final ResponseSequence responseSeq = parseToResponse("!=100S|S");
         assertThat(badMatchHandler).doesNotHaveNullValue();
         assertThat(badMatchHandler.get().getResponseSequence().asStringUtf8()).isEqualTo(responseSeq.asStringUtf8());
     }
@@ -190,11 +190,11 @@ class ZscriptBasicNodeTest {
         node.setCallbackExceptionHandler(exceptionHandler::set);
 
         // response handler throws exception to trigger exception handler
-        setupHandlerAndSend("Z1", "%_100Z1\n", r -> {
+        setupHandlerAndSend("Z1", "%=100Z1\n", r -> {
             throw new RuntimeException("dummy exception (broken response handler)");
         });
 
-        byteStringUtf8("! _100 S \n").writeTo(responseSender);
+        byteStringUtf8("! =100 S \n").writeTo(responseSender);
 
         await().atMost(AWAIT_TIMEOUT).until(() -> exceptionHandler.get() != null);
 
@@ -232,7 +232,7 @@ class ZscriptBasicNodeTest {
         subSubNode.send(seq, subSubHandler::set);
 
         verify(connection).send(any());
-        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("@1.2@3.4%_100Z1\n");
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("@1.2@3.4%=100Z1\n");
         assertThat(subSubHandler).hasNullValue();
         assertThat(node.isAttached(address(3, 4))).isFalse();
         assertThat(node.isAttached(address(1, 2))).isTrue();
@@ -247,9 +247,9 @@ class ZscriptBasicNodeTest {
         final CommandExecutionPath path = parseToSequence("Z1").getExecutionPath();
         subSubNode.send(path, responseHolder::set);
         verify(connection).send(any());
-        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("@1.2@3.4%_100Z1\n");
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("@1.2@3.4%=100Z1\n");
 
-        byteStringUtf8("@1.2 @3.4 ! _100 S \n").writeTo(responseSender);
+        byteStringUtf8("@1.2 @3.4 ! =100 S \n").writeTo(responseSender);
 
         await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
 
@@ -268,9 +268,9 @@ class ZscriptBasicNodeTest {
     @Test
     public void shouldCheckTimeouts() {
         final AtomicReference<ResponseExecutionPath> responseHolder = new AtomicReference<>();
-        setupHandlerAndSend("Z1A", "%_100Z1A\n", responseHolder::set);
+        setupHandlerAndSend("Z1A", "%=100Z1A\n", responseHolder::set);
         verify(connection).send(any());
-        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("%_100Z1A\n");
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("%=100Z1A\n");
 
         ConnectionBuffer buffer = node.getConnectionBuffer();
         assertThat(buffer.getQueueLength()).isEqualTo(1);

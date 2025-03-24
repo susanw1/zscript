@@ -46,7 +46,7 @@ public class SemanticParserAddressingTest {
 
     @Test
     void shouldAcceptAddressingWithEchoAndLocks() {
-        parserActionTester.parseSnippet("_2%233@2Z1\n", List.of(INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS));
+        parserActionTester.parseSnippet("=2%233@2Z1\n", List.of(INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS));
         assertThat(outStream.getString()).isEqualTo("");
         assertThat(outStream.isOpen()).isFalse();
     }

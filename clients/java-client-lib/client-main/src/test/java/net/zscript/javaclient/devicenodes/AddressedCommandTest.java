@@ -13,11 +13,11 @@ import net.zscript.model.ZscriptModel;
 class AddressedCommandTest {
     @Test
     public void shouldCreateAddressedCommand() {
-        final CommandSequence  seq = parse("%1_2A3B4");
+        final CommandSequence  seq = parse("%1=2A3B4");
         final AddressedCommand cmd = new AddressedCommand(seq);
         cmd.prefixAddressLayer(address(10, 11));
         cmd.prefixAddressLayer(address(14));
-        assertThat(cmd.asStringUtf8()).isEqualTo("@e@a.b%10_2A3B4\n");
+        assertThat(cmd.asStringUtf8()).isEqualTo("@e@a.b%10=2A3B4\n");
         assertThat(seq).isSameAs(cmd.getCommandSequence());
         assertThat(cmd.hasAddress()).isTrue();
     }

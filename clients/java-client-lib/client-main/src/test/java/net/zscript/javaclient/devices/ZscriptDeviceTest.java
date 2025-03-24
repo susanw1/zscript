@@ -80,9 +80,9 @@ class ZscriptDeviceTest {
 
         final CapabilitiesCommand builtCommand = capabilitiesBuilder().setVersionType(UserFirmware).build();
         device.sendAsync(builtCommand, responseHolder::set);
-        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("%_100ZV\n");
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("%=100ZV\n");
 
-        byteStringUtf8("! _100 S C7 M1 V2 \"testing\"  \n").writeTo(responseSender);
+        byteStringUtf8("! =100 S C7 M1 V2 \"testing\"  \n").writeTo(responseSender);
         await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
 
         final ResponseSequenceCallback result = responseHolder.get();
@@ -112,7 +112,7 @@ class ZscriptDeviceTest {
         final Future<ResponseSequenceCallback> fut = device.send(capCmd1.andThen(capCmd2));
 
         final ResponseSequenceCallback result
-                = waitAndCheckResult(fut, "%_100ZV&ZV4\n", "! _100 S C7 M1 V2 \"testing\" & S1 \n", 2, 1, 1, false, 2, 0, true);
+                = waitAndCheckResult(fut, "%=100ZV&ZV4\n", "! =100 S C7 M1 V2 \"testing\" & S1 \n", 2, 1, 1, false, 2, 0, true);
 
         final ZscriptResponse resp0 = result.getResponses().get(0);
         final ZscriptResponse resp1 = result.getResponses().get(1);
@@ -137,7 +137,7 @@ class ZscriptDeviceTest {
         final ActivateCommand                  cmd2 = activateBuilder().setChallenge(4).build();
         final Future<ResponseSequenceCallback> fut  = device.send(cmd1.andThen(cmd2));
         final ResponseSequenceCallback result
-                = waitAndCheckResult(fut, "%_100ZV&Z2K4\n", "! _100 S1\n", 1, 0, 1, false, 1, 1, true);
+                = waitAndCheckResult(fut, "%=100ZV&Z2K4\n", "! =100 S1\n", 1, 0, 1, false, 1, 1, true);
 
         assertThat(result.getFailed()).hasSize(1);
         assertThat(result.getFailed().iterator().next().getCommand()).isEqualTo(cmd1);
@@ -152,7 +152,7 @@ class ZscriptDeviceTest {
         final Future<ResponseSequenceCallback> fut  = device.send(cmd1.andThen(cmd2));
 
         final ResponseSequenceCallback result
-                = waitAndCheckResult(fut, "%_100ZV&Z2K4\n", "! _100 S10\n", 1, 0, 0, true, 1, 1, true);
+                = waitAndCheckResult(fut, "%=100ZV&Z2K4\n", "! =100 S10\n", 1, 0, 0, true, 1, 1, true);
 
         assertThat(result.getAborted().orElseThrow().getCommand()).isNotNull().isEqualTo(cmd1);
         assertThat(result.getNotExecuted()).hasSize(1).containsExactly(cmd2);
@@ -165,7 +165,7 @@ class ZscriptDeviceTest {
         final ActivateCommand                  cmd2 = activateBuilder().setChallenge(4).build();
         final Future<ResponseSequenceCallback> fut  = device.sendExpectSuccess(cmd1.andThen(cmd2));
         final ResponseSequenceCallback result
-                = waitAndCheckResult(fut, "%_100ZV&Z2K4\n", "! _100 S&S\n", 2, 2, 0, false, 2, 0, true);
+                = waitAndCheckResult(fut, "%=100ZV&Z2K4\n", "! =100 S&S\n", 2, 2, 0, false, 2, 0, true);
 
         assertThat(result.getExecuted()).containsExactly(cmd1, cmd2);
     }
@@ -176,7 +176,7 @@ class ZscriptDeviceTest {
         final ActivateCommand                  cmd2 = activateBuilder().setChallenge(4).build();
         final Future<ResponseSequenceCallback> fut  = device.sendExpectSuccess(cmd1.onFail(cmd2));
         final ResponseSequenceCallback result
-                = waitAndCheckResult(fut, "%_100Z1S1|Z2K4\n", "! _100 S1|S\n", 2, 1, 1, false, 2, 0, true);
+                = waitAndCheckResult(fut, "%=100Z1S1|Z2K4\n", "! =100 S1|S\n", 2, 1, 1, false, 2, 0, true);
 
         assertThat(result.getExecuted()).containsExactly(cmd1, cmd2);
     }
@@ -187,10 +187,10 @@ class ZscriptDeviceTest {
         final ActivateCommand                  cmd2 = activateBuilder().setChallenge(4).build();
         final Future<ResponseSequenceCallback> fut  = device.sendExpectSuccess(cmd1.onFail(cmd2));
 
-        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("%_100Z1S1|Z2K4\n");
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("%=100Z1S1|Z2K4\n");
         assertThat(fut.isDone()).isFalse();
 
-        byteStringUtf8("! _100 S1|S1\n").writeTo(responseSender);
+        byteStringUtf8("! =100 S1|S1\n").writeTo(responseSender);
         await().atMost(AWAIT_TIMEOUT).until(fut::isDone);
 
         assertThatThrownBy(fut::get).isInstanceOf(ExecutionException.class)
@@ -225,7 +225,7 @@ class ZscriptDeviceTest {
 
     @Test
     void shouldSendAndWait() throws InterruptedException, ExecutionException {
-        final Future<Object> responderTask = startResponder("%_100Z1S\n", "! _100 S\n");
+        final Future<Object> responderTask = startResponder("%=100Z1S\n", "! =100 S\n");
 
         final EchoCommand              cmd1   = echoBuilder().setAny('S', 0).build();
         final ResponseSequenceCallback result = device.sendAndWait(cmd1);
@@ -235,7 +235,7 @@ class ZscriptDeviceTest {
 
     @Test
     void shouldSendAndWaitButWithFailure() throws InterruptedException, ExecutionException {
-        final Future<Object> responderTask = startResponder("%_100Z1S1\n", "! _100 S1\n");
+        final Future<Object> responderTask = startResponder("%=100Z1S1\n", "! =100 S1\n");
 
         final EchoCommand              cmd1   = echoBuilder().setAny('S', 1).build();
         final ResponseSequenceCallback result = device.sendAndWait(cmd1);
@@ -245,7 +245,7 @@ class ZscriptDeviceTest {
 
     @Test
     void shouldSendAndWaitWithTimeoutAndNoResponse() {
-        startResponder("%_100Z1S\n", "");
+        startResponder("%=100Z1S\n", "");
         final EchoCommand cmd1 = echoBuilder().setAny('S', 0).build();
         assertThatThrownBy(() -> device.sendAndWait(cmd1, 20, MILLISECONDS))
                 .isInstanceOf(TimeoutException.class);
@@ -253,7 +253,7 @@ class ZscriptDeviceTest {
 
     @Test
     void shouldSendAndWaitExpectSuccess() throws InterruptedException, ExecutionException {
-        final Future<Object> responderTask = startResponder("%_100Z1S\n", "! _100 S\n");
+        final Future<Object> responderTask = startResponder("%=100Z1S\n", "! =100 S\n");
 
         final EchoCommand              cmd1   = echoBuilder().setAny('S', 0).build();
         final ResponseSequenceCallback result = device.sendAndWaitExpectSuccess(cmd1);
@@ -263,7 +263,7 @@ class ZscriptDeviceTest {
 
     @Test
     void shouldSendAndWaitExpectSuccessButWithFailure() {
-        startResponder("%_100Z1S1\n", "! _100 S2\n");
+        startResponder("%=100Z1S1\n", "! =100 S2\n");
 
         final EchoCommand cmd1 = echoBuilder().setAny('S', 1).build();
         assertThatThrownBy(() -> device.sendAndWaitExpectSuccess(cmd1)).isInstanceOf(CommandFailedException.class);
@@ -271,7 +271,7 @@ class ZscriptDeviceTest {
 
     @Test
     void shouldSendAndWaitExpectSuccessWithTimeout() throws InterruptedException, ExecutionException, TimeoutException {
-        final Future<Object> responderTask = startResponder("%_100Z1S\n", "! _100 S\n");
+        final Future<Object> responderTask = startResponder("%=100Z1S\n", "! =100 S\n");
 
         final EchoCommand              cmd1   = echoBuilder().setAny('S', 0).build();
         final ResponseSequenceCallback result = device.sendAndWaitExpectSuccess(cmd1, 3, SECONDS);
@@ -288,7 +288,7 @@ class ZscriptDeviceTest {
 
     @Test
     void shouldSendAndWaitExpectSuccessButWithAbort() {
-        startResponder("%_100Z1S1\n", "! _100 S12\n");
+        startResponder("%=100Z1S1\n", "! =100 S12\n");
 
         final EchoCommand cmd1 = echoBuilder().setAny('S', 1).build();
         assertThatThrownBy(() -> device.sendAndWaitExpectSuccess(cmd1)).isInstanceOf(CommandFailedException.class);
@@ -298,8 +298,8 @@ class ZscriptDeviceTest {
     void shouldSendBytesWithoutEcho() throws IOException {
         final AtomicReference<ByteString> responseHolder = new AtomicReference<>();
         device.send(byteStringUtf8("Z1\n"), responseHolder::set);
-        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("%_100Z1\n");
-        byteStringUtf8("!_100S1\n").writeTo(responseSender);
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("%=100Z1\n");
+        byteStringUtf8("!=100S1\n").writeTo(responseSender);
         await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
 
         final ByteString result = responseHolder.get();
@@ -309,13 +309,13 @@ class ZscriptDeviceTest {
     @Test
     void shouldSendBytesWithEcho() throws IOException {
         final AtomicReference<ByteString> responseHolder = new AtomicReference<>();
-        device.send(byteStringUtf8("_104 Z1\n"), responseHolder::set);
-        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("_104Z1\n");
-        byteStringUtf8("!_104S1\n").writeTo(responseSender);
+        device.send(byteStringUtf8("=104 Z1\n"), responseHolder::set);
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("=104Z1\n");
+        byteStringUtf8("!=104S1\n").writeTo(responseSender);
         await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
 
         final ByteString result = responseHolder.get();
-        assertThat(result.asString()).isEqualTo("!_104S1");
+        assertThat(result.asString()).isEqualTo("!=104S1");
     }
 
     @Test

@@ -48,9 +48,9 @@ class ConnectionBufferTest {
 
     @Test
     public void shouldNotEnqueueCommandSequenceWithDuplicateEchoValue() {
-        sendSeqToBuffer("_100 Z1", true, 1);
+        sendSeqToBuffer("=100 Z1", true, 1);
         // 2nd one blocked
-        sendSeqToBuffer("_100 Z1", false, 1);
+        sendSeqToBuffer("=100 Z1", false, 1);
 
         verify(connection).send(any());
         verify(echoAssigner).manualEchoUse(0x100);
@@ -92,12 +92,12 @@ class ConnectionBufferTest {
 
     @Test
     public void shouldMatchResponsesWithManualEcho() {
-        sendSeqToBuffer("_100 Z1", true, 1);
+        sendSeqToBuffer("=100 Z1", true, 1);
 
         verify(connection).send(any());
         verify(echoAssigner).manualEchoUse(0x100);
 
-        ResponseSequence rs              = parseToResponse("! _100 S");
+        ResponseSequence rs              = parseToResponse("! =100 S");
         AddressedCommand matchingCommand = buffer.match(rs);
         assertThat(matchingCommand).isNotNull();
         assertThat(matchingCommand.getCommandSequence()).isNotNull();
@@ -118,7 +118,7 @@ class ConnectionBufferTest {
         verify(echoAssigner).getEcho();
         verify(echoAssigner).moveEcho();
 
-        final ResponseSequence rs              = parseToResponse("! _100 S");
+        final ResponseSequence rs              = parseToResponse("! =100 S");
         final AddressedCommand matchingCommand = buffer.match(rs);
         assertThat(matchingCommand).isNotNull();
         assertThat(matchingCommand.getCommandSequence()).isNotNull();
@@ -136,7 +136,7 @@ class ConnectionBufferTest {
         verify(echoAssigner, times(2)).getEcho();
         verify(echoAssigner, times(2)).moveEcho();
 
-        ResponseSequence rs              = parseToResponse("! _101 S");
+        ResponseSequence rs              = parseToResponse("! =101 S");
         AddressedCommand matchingCommand = buffer.match(rs);
         assertThat(matchingCommand).isNotNull();
         assertThat(matchingCommand.getCommandSequence()).isNotNull();
@@ -152,7 +152,7 @@ class ConnectionBufferTest {
         verify(echoAssigner).getEcho();
         verify(echoAssigner).moveEcho();
 
-        ResponseSequence rs              = parseToResponse("! _100 S|S");
+        ResponseSequence rs              = parseToResponse("! =100 S|S");
         AddressedCommand matchingCommand = buffer.match(rs);
         // this is odd - it failed the match but we return it anyway? Why?
         assertThat(matchingCommand).isNotNull();
@@ -171,7 +171,7 @@ class ConnectionBufferTest {
         verify(echoAssigner, times(2)).getEcho();
         verify(echoAssigner, times(2)).moveEcho();
 
-        ResponseSequence rs              = parseToResponse("! _105 S|S");
+        ResponseSequence rs              = parseToResponse("! =105 S|S");
         AddressedCommand matchingCommand = buffer.match(rs);
         // this is odd - it failed the match but we return it anyway? Why?
         assertThat(matchingCommand).isNull();
@@ -210,10 +210,10 @@ class ConnectionBufferTest {
 
     @Test
     public void shouldUnqueueAddressedCommandsOnMatch() {
-        forwardSeq("_100 Z1A", address(2), true, 1);
-        forwardSeq("_101 Z1B", address(1), true, 2);
+        forwardSeq("=100 Z1A", address(2), true, 1);
+        forwardSeq("=101 Z1B", address(1), true, 2);
         // dummy one, just to force removal to not run to the end of the queue:
-        forwardSeq("_102 Z1C", address(1), true, 3);
+        forwardSeq("=102 Z1C", address(1), true, 3);
 
         assertThat(buffer.getQueueLength()).isEqualTo(3);
         assertThat(buffer.responseMatchedBySubnode(buffer.getQueueItem(1))).isTrue();
@@ -222,24 +222,24 @@ class ConnectionBufferTest {
 
     @Test
     public void shouldNotUnqueueUnknownAddressedCommandsOnMatch() {
-        forwardSeq("_100 Z1A", address(2), true, 1);
-        forwardSeq("_101 Z1B", address(1), true, 2);
+        forwardSeq("=100 Z1A", address(2), true, 1);
+        forwardSeq("=101 Z1B", address(1), true, 2);
         // dummy one, just to force removal to not run to the end of the queue:
-        forwardSeq("_102 Z1C", address(1), true, 3);
+        forwardSeq("=102 Z1C", address(1), true, 3);
 
         assertThat(buffer.getQueueLength()).isEqualTo(3);
-        AddressedCommand cmd = new AddressedCommand(parseToSequence("_105 S"));
+        AddressedCommand cmd = new AddressedCommand(parseToSequence("=105 S"));
         assertThat(buffer.responseMatchedBySubnode(cmd)).isFalse();
         assertThat(buffer.getQueueLength()).isEqualTo(3);
     }
 
     @Test
     public void shouldDetectNonAddressedCommands() {
-        forwardSeq("_100 Z1A", address(2), true, 1);
-        forwardSeq("_101 Z1B", address(1), true, 2);
+        forwardSeq("=100 Z1A", address(2), true, 1);
+        forwardSeq("=101 Z1B", address(1), true, 2);
         assertThat(buffer.hasNonAddressedInBuffer()).isFalse();
 
-        forwardSeq("_102 Z1B", null, true, 3);
+        forwardSeq("=102 Z1B", null, true, 3);
         assertThat(buffer.hasNonAddressedInBuffer()).isTrue();
     }
 
