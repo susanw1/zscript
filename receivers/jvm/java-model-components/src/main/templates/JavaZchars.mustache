@@ -17,6 +17,7 @@ import javax.annotation.processing.Generated;
 public class Zchars {
 {{#zchars}}
     /** {{description}} */
+    {{#deprecated}}@Deprecated{{/deprecated}}
     public static final byte Z_{{#upperUnderscore}}{{name}}{{/upperUnderscore}} = '{{{chEscapedAsC}}}';
 
 {{/zchars}}
@@ -37,6 +38,7 @@ public class Zchars {
         return false{{#zchars}}{{#nonNumeric}} || b == '{{{chEscapedAsC}}}'{{/nonNumeric}}{{/zchars}};
     }
 
+    @Deprecated
     public static boolean isBigField(byte b) {
         return false{{#zchars}}{{#bigField}} || b == '{{{chEscapedAsC}}}'{{/bigField}}{{/zchars}};
     }
@@ -53,6 +55,7 @@ public class Zchars {
         return (b >= 'A' && b <= 'Z');
     }
 
+    @Deprecated
     public static boolean isCommandKey(byte b) {
         return isNumericKey(b) || isBigField(b);
     }

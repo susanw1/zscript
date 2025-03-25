@@ -21,85 +21,109 @@ intrinsics:
     -   name: cmd
         ch: "Z"
         description: "command field to identify the specific command to execute"
+
     -   name: eolSymbol
         ch: "\n"
         description: "sequence terminator"
         separator: true
         mustEscape: true
+
     -   name: andthen
         ch: "&"
         description: "command separator with AND THEN semantics, executes second command only if first succeeded"
         separator: true
+
     -   name: orelse
         ch: "|"
         description: "command separator with OR ELSE semantics, executes second command only if first failed"
         separator: true
+
     -   name: openparen
         ch: "("
         description: "opens parenthesized commands to control logical sequencing"
         separator: true
+
     -   name: closeparen
         ch: ")"
         description: "closes parenthesized commands to control logical sequencing"
         separator: true
+
     -   name: responseMark
         ch: "!"
         description: "prefixed to all responses and notifications, to indicate notification source"
+
     -   name: locks
         ch: "%"
         description: "command sequence prefix to request specific locks to allow some concurrent access to resources"
         nonNumeric: true
+        deprecated: true
+
     -   name: bigfieldHex
         ch: "+"
         description: "prefix for sequence of hex pairs to be sent in the big-field"
         nonNumeric: true
         bigField: true
+        deprecated: true
+
     -   name: bigfieldQuoted
         ch: "\""
         description: "surrounds text to be sent as the big-field"
         nonNumeric: true
         mustEscape: true
         bigField: true
+        deprecated: true
+
     -   name: stringEscape
         ch: "="
         description: "marks an escaped char within a text field, eg =3b"
         mustEscape: true
+
     -   name: comment
         ch: "#"
         description: "starts a comment, which is generally ignored by the receiver"
         nonNumeric: true
+
     -   name: addressing
         ch: "@"
         description: "marks the start of an address, eg @12.4.3"
         addressing: true
+
     -   name: addressingContinue
         ch: "."
         description: "separates address components, eg @12.4.3"
         addressing: true
+
     -   name: echo
         ch: ">"
         description: "special sequence-level field assigning a command number, echoed in the response"
+
     -   name: status
         ch: "S"
         description: "response status field"
+
     -   name: nullChar
         ch: "\0"
         description: "nulls are always ignored in command and response stream, so they can be used by channels to pad packets"
         ignoreAlways: true
         ignoreInCode: true
         mustEscape: true
+
     -   name: carriageReturn
         ch: "\r"
         description: "ignored outside of text fields to simplify newline handling"
         ignoreInCode: true
+
     -   name: tab
         ch: "\t"
         description: "may be used to make commands and responses more readable, ignored outside of text fields"
         ignoreInCode: true
+
     -   name: comma
         ch: ","
         description: "may be used to make commands and responses more readable, ignored outside of text fields"
         ignoreInCode: true
+        deprecated: true
+
     -   name: space
         ch: " "
         description: "may be used to make commands and responses more readable, ignored outside of text fields"

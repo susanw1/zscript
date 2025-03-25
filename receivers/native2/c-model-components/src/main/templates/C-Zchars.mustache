@@ -20,6 +20,7 @@
 enum ZS_Zchars {
 {{#zchars}}
     /** {{description}} */
+    {{#deprecated}}// !!DEPRECATED!! {{/deprecated}}
     ZS_Zchars_{{#upperUnderscore}}{{name}}{{/upperUnderscore}} = '{{{chEscapedAsC}}}',
 
 {{/zchars}}

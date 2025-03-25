@@ -54,6 +54,8 @@ public interface IntrinsicsDataModel {
         boolean isBigField();
 
         boolean isAddressing();
+
+        boolean isDeprecated();
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)
