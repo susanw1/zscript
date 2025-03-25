@@ -43,7 +43,7 @@ public class AddressedCommand implements ByteAppendable {
     public void appendTo(ByteStringBuilder builder) {
         builder.append(addressSections)
                 .append(commandSequence)
-                .appendByte(Zchars.Z_NEWLINE);
+                .appendByte(Zchars.Z_EOL_SYMBOL);
     }
 
     public CommandSequence getCommandSequence() {

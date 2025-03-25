@@ -73,7 +73,7 @@ public abstract class AbstractOutStream implements OutStream {
 
     @Override
     public void endSequence() {
-        writeCharAsByte(Zchars.Z_NEWLINE);
+        writeCharAsByte(Zchars.Z_EOL_SYMBOL);
     }
 
     @Override

@@ -121,7 +121,7 @@ public:
     void shouldAcceptAddressingWithEchoAndLocks() {
         ParserActionTester<zp> parserActionTester(&buffer, &tokenizer, &parser, &outStream);
         SemanticActionType types[] = { INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS };
-        parserActionTester.parseSnippet("_2%233@2Z1\n", types, 3);
+        parserActionTester.parseSnippet("=2%233@2Z1\n", types, 3);
         checkAgainstOut("");
         if (outStream.isOpen()) {
             std::cerr << "Out stream open unexpectedly\n";
@@ -172,4 +172,3 @@ int main(int argc, char **argv) {
     s4.shouldAcceptMultPartAddressing();
 
 }
-

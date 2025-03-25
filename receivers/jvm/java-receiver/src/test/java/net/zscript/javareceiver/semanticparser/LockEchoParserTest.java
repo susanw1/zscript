@@ -43,7 +43,7 @@ class LockEchoParserTest {
 
     @Test
     public void shouldEchoSequenceLevelValue() {
-        parserActionTester.parseSnippet("_1234Z1\n", "!_1234S\n");
+        parserActionTester.parseSnippet("=1234Z1\n", "!=1234S\n");
         assertThat(outStream.isOpen()).isFalse();
     }
 
@@ -56,11 +56,11 @@ class LockEchoParserTest {
 
     private static Stream<Arguments> shouldEchoSequenceLevelLineNumber() {
         return Stream.of(
-                of("_1234Z1\n", "!_1234S\n"),
-                of("_\n", "!_\n"),
-                of("_1\n_2\n", "!_1\n!_2\n"),
-                of("__\n", "!_S31\n"),
-                of("_12345\n", "!S20\n"));
+                of("=1234Z1\n", "!=1234S\n"),
+                of("=\n", "!=\n"),
+                of("=1\n=2\n", "!=1\n!=2\n"),
+                of("==\n", "!=S31\n"),
+                of("=12345\n", "!S20\n"));
     }
 
     @ParameterizedTest
@@ -78,7 +78,7 @@ class LockEchoParserTest {
                 of("%ffff\n%ffff\n", "!\n!\n"),
                 of("%1 Z1A \n  %1 Z1B\n", "!AS\n!BS\n"),
                 of("%1 %2 Z1A \n", "!S30\n"),
-                of("_1234%f Z1A\n", "!_1234AS\n"));
+                of("=1234%f Z1A\n", "!=1234AS\n"));
     }
 
     @Test

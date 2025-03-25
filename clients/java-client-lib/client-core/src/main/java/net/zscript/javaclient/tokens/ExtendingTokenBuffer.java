@@ -83,7 +83,7 @@ public class ExtendingTokenBuffer extends AbstractArrayTokenBuffer {
             }
         }
         if (autoNewline) {
-            tok.accept(Zchars.Z_NEWLINE);
+            tok.accept(Zchars.Z_EOL_SYMBOL);
         } else {
             buf.getTokenWriter().endToken();
         }
