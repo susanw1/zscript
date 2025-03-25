@@ -160,7 +160,7 @@ public class Tokenizer {
         }
 
         if (bufferOvr || tokenizerError || skipToNL) {
-            if (b == Zchars.Z_NEWLINE) {
+            if (b == Zchars.Z_EOL_SYMBOL) {
                 if (skipToNL) {
                     if (!checkCapacity()) {
                         dataLost();
@@ -211,8 +211,8 @@ public class Tokenizer {
         if (!numeric && writer.getCurrentWriteTokenKey() == Zchars.Z_BIGFIELD_HEX && writer.isInNibble()) {
             writer.fail(ERROR_CODE_ODD_BIGFIELD_LENGTH);
             tokenizerError = true;
-            if (b == Zchars.Z_NEWLINE) {
-                // interesting case: the error above could be caused by b==Z_NEWLINE, but we've written an error marker, so just reset and return
+            if (b == Zchars.Z_EOL_SYMBOL) {
+                // interesting case: the error above could be caused by b==Z_EOL_SYMBOL, but we've written an error marker, so just reset and return
                 resetFlags();
             }
             return;
@@ -222,7 +222,7 @@ public class Tokenizer {
     }
 
     private void acceptText(final byte b) {
-        if (b == Zchars.Z_NEWLINE) {
+        if (b == Zchars.Z_EOL_SYMBOL) {
             if (isNormalString) {
                 writer.fail(ERROR_CODE_STRING_NOT_TERMINATED);
             } else {
@@ -250,7 +250,7 @@ public class Tokenizer {
     }
 
     private void startNewToken(final byte b) {
-        if (b == Zchars.Z_NEWLINE) {
+        if (b == Zchars.Z_EOL_SYMBOL) {
             writer.writeMarker(NORMAL_SEQUENCE_END);
             resetFlags();
             return;

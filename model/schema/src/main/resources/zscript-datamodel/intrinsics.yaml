@@ -26,11 +26,6 @@ intrinsics:
         description: "sequence terminator"
         separator: true
         mustEscape: true
-    -   name: newline
-        ch: "\n"
-        description: "sequence terminator"
-        separator: true
-        mustEscape: true
     -   name: andthen
         ch: "&"
         description: "command separator with AND THEN semantics, executes second command only if first succeeded"

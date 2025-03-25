@@ -86,7 +86,7 @@ public abstract class DirectConnection implements Connection, Closeable {
      * @param responseHandler the handler to accept the parsed AddressedResponses
      */
     private void processReceivedBytes(byte[] bytes, Consumer<AddressedResponse> responseHandler) {
-        int nlCount = ByteString.count(Zchars.Z_NEWLINE, bytes);
+        int nlCount = ByteString.count(Zchars.Z_EOL_SYMBOL, bytes);
         if (nlCount == 0) {
             // these bytes are incomplete, so stash them
             receivedBytes.appendRaw(bytes);
@@ -105,7 +105,7 @@ public abstract class DirectConnection implements Connection, Closeable {
             while (nlCount > 0 && index < bytes.length) {
                 final byte b = bytes[index++];
                 t.accept(b);
-                if (b == Zchars.Z_NEWLINE) {
+                if (b == Zchars.Z_EOL_SYMBOL) {
                     try {
                         final AddressedResponse parsedResponse = new AddressedResponse(CompleteAddressedResponse.parse(buffer.getTokenReader().getFirstReadToken()));
                         responseHandler.accept(parsedResponse);

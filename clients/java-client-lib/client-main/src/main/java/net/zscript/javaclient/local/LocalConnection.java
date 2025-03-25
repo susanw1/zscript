@@ -41,7 +41,7 @@ public class LocalConnection extends DirectConnection {
         commandStream.write(data);
 
         // check from end as it's likely data is a complete '\n'-terminated line of Zscript
-        if (lastIndexOf(Zchars.Z_NEWLINE, data.length, data) != -1) {
+        if (lastIndexOf(Zchars.Z_EOL_SYMBOL, data.length, data) != -1) {
             commandStream.flush();
         }
     }
