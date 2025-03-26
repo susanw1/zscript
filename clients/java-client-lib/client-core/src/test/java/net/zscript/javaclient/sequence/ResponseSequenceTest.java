@@ -24,11 +24,11 @@ class ResponseSequenceTest {
 
     @Test
     public void shouldParseResponseAndEchoValue() {
-        final ResponseSequence respSeq = parse("!3 =a AS");
+        final ResponseSequence respSeq = parse("!3 >a AS");
         assertThat(respSeq.getResponseFieldValue()).isEqualTo(3);
         assertThat(respSeq.hasEchoValue()).isTrue();
         assertThat(respSeq.getEchoValue()).isEqualTo(0x0a);
-        assertThat(respSeq.asStringUtf8()).isEqualTo("!3=aAS");
+        assertThat(respSeq.asStringUtf8()).isEqualTo("!3>aAS");
         assertThat(respSeq.getExecutionPath().asStringUtf8()).isEqualTo("AS");
     }
 
@@ -62,7 +62,7 @@ class ResponseSequenceTest {
 
     @Test
     public void shouldImplementToString() {
-        assertThat(parse("!1 =2 A")).hasToString("ResponseSequence:{'!1=2A'}");
+        assertThat(parse("!1 >2 A")).hasToString("ResponseSequence:{'!1>2A'}");
     }
 
     private static ResponseSequence parse(String s) {

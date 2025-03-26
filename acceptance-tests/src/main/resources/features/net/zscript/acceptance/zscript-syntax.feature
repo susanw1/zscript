@@ -105,17 +105,17 @@ Feature: Zscript Syntax Consistency
 
     @Standard-operation
     Scenario: should allow echoed line number at start of sequence
-        When I send exactly "=1 Z1" as a command sequence to the connection, and capture the response
+        When I send exactly ">1 Z1" as a command sequence to the connection, and capture the response
         Then connection response #0 is equivalent to "S"
 
     @Syntax-error
     Scenario: should disallow echoed line number within a command
-        When I send exactly "Z1 =1 A2" as a command sequence to the connection, and capture the response
+        When I send exactly "Z1 >1 A2" as a command sequence to the connection, and capture the response
         Then connection response #0 has status INVALID_KEY
 
     @Syntax-error
     Scenario: should disallow echoed line number mid-sequence
-        When I send exactly "Z1 & =1 Z2" as a command sequence to the connection, and capture the response
+        When I send exactly "Z1 & >1 Z2" as a command sequence to the connection, and capture the response
         Then connection response #0 has status SUCCESS
         Then connection response #1 has status INVALID_KEY
 
@@ -139,7 +139,7 @@ Feature: Zscript Syntax Consistency
             | Z1 A g | lc non-hex                                                    |
             | Z1 A z | lc non-hex                                                    |
             | Z1 :1  | theoretically ok but undefined                                |
-            | Z1 =1  | text escape theoretically ok outside of quotes, but undefined |
+            | Z1 >1  | text escape theoretically ok outside of quotes, but undefined |
 
     @Standard-operation
     Scenario Outline: should ignore spaces and commas except in text

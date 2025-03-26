@@ -11,7 +11,7 @@ RPAREN              : ')' ;
 PLUS                : '+' -> pushMode(BIGHEX);
 
 LOCK                : '%' ;
-ECHO                : '=' ;
+ECHO                : '>' ;
 
 fragment HEX        : [0-9a-f] ; 
 fragment WSHEX      : WS* [0-9a-f] ; 
