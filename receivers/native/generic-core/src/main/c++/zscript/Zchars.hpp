@@ -25,7 +25,7 @@ namespace Zscript {
         Z_BIGFIELD_HEX    = '+',
         Z_BIGFIELD_QUOTED = '"',
 
-        Z_ECHO                = '=',
+        Z_ECHO                = '>',
         Z_LOCKS               = '%',
         Z_COMMENT             = '#',
         NOTIFY_PREFIX         = '!',
