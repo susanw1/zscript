@@ -12,29 +12,24 @@ Feature: Zscript Syntax Consistency
         Then connection response #0 is equivalent to "S A Ba C8f D3d4 E1a2b"
 
     @Standard-operation
-    Scenario: should allow any number of leading zeroes in numeric fields
-        When I send exactly "Z1 A00000 B00000a C008f D000003d4 E0001a2b" as a command sequence to the connection, and capture the response
+    Scenario: should allow up to 4 leading zeroes in numeric fields
+        When I send exactly "Z1 A0000 B000a C08f D03d4 E1a2b" as a command sequence to the connection, and capture the response
         Then connection response #0 is equivalent to "S A Ba C8f D3d4 E1a2b"
 
     @Syntax-error
-    Scenario: should disallow more than 4 hex digits in numeric fields
+    Scenario: should disallow odd length, >4 hex digits in numeric fields
         When I send exactly "Z1 A12345" as a command sequence to the connection, and capture the response
-        Then connection response #0 has status FIELD_TOO_LONG
+        Then connection response #0 has status ODD_LENGTH
 
     @Syntax-error
     Scenario: should reject unterminated text big-field
         When I send exactly "Z1\"abc" as a command sequence to the connection, and capture the response
         Then connection response #0 has status UNTERMINATED_STRING
 
-    @Syntax-error
-    Scenario: should reject odd digit big-field
-        When I send exactly "Z1+1" as a command sequence to the connection, and capture the response
-        Then connection response #0 has status ODD_LENGTH
-
     @Standard-operation
-    Scenario: should allow multiple big-fields
-        When I send exactly "Z1A2+74B3\"uv\"+77" as a command sequence to the connection, and capture the response
-        Then connection response #0 is equivalent to "S A2 B3 \"tuvw\""
+    Scenario: should allow string-fields
+        When I send exactly "Z1A2C74B3D\"tu\"E\"vw\"" as a command sequence to the connection, and capture the response
+        Then connection response #0 is equivalent to "S A2 B3 C74 D\"tu\" E\"vw\""
 
     @Standard-operation
     Scenario: should allow multiple empty big-fields
@@ -43,8 +38,8 @@ Feature: Zscript Syntax Consistency
 
     @Standard-operation
     Scenario: should allow escaping in text big-fields
-        When I send exactly "Z1\"a=4eb\"" as a command sequence to the connection, and capture the response
-        Then connection response #0 is equivalent to "S \"aNb\""
+        When I send exactly "Z1 X\"a=4eb\"" as a command sequence to the connection, and capture the response
+        Then connection response #0 is equivalent to "S X\"aNb\""
 
     @Syntax-error
     Scenario: should reject upper-case escapes embedded in text big-fields
@@ -58,34 +53,34 @@ Feature: Zscript Syntax Consistency
 
     @Syntax-error
     Scenario: should reject unescaped '=' in text
-        When I send exactly "Z1 \"1+1=2\"" as a command sequence to the connection, and capture the response
+        When I send exactly "Z1 X\"1+1=2\"" as a command sequence to the connection, and capture the response
         Then connection response #0 has status ESCAPING_ERROR
 
     @Standard-operation
     Scenario: should allow escaped '=' in text
-        When I send exactly "Z1 \"1+1=3d2\"" as a command sequence to the connection, and capture the response
-        Then connection response #0 is equivalent to "S \"1+1\" +3d \"2\" "
+        When I send exactly "Z1 X\"1+1=3d2\"" as a command sequence to the connection, and capture the response
+        Then connection response #0 is equivalent to "S X 31 2b 31 3d 32 "
 
     @Syntax-error
-    Scenario: should reject unterminated escapes in text big-fields
+    Scenario: should reject unterminated escapes in text fields
 #        # The quotes string finishes before the '=xx' escape is complete
-        When I send exactly "Z1\"a=4\"" as a command sequence to the connection, and capture the response
+        When I send exactly "Z1 X\"a=4\"" as a command sequence to the connection, and capture the response
         Then connection response #0 has status ESCAPING_ERROR
 
     @Standard-operation
-    Scenario: should allow single UTF-8 multibyte in text big-fields
-        When I send exactly "Z1\"a£b\"" as a command sequence to the connection, and capture the response
-        Then connection response #0 is equivalent to "S \"a£b\""
+    Scenario: should allow single UTF-8 multibyte in text fields
+        When I send exactly "Z1 X\"a£b\"" as a command sequence to the connection, and capture the response
+        Then connection response #0 is equivalent to "S X\"a£b\""
 
     @Standard-operation
-    Scenario: should allow Chinese UTF-8 multibyte in text big-fields
-        When I send exactly "Z1\"机器的兴起\"" as a command sequence to the connection, and capture the response
-        Then connection response #0 is equivalent to "S +e69cbae599a8e79a84e585b4e8b5b7"
+    Scenario: should allow Chinese UTF-8 multibyte in text fields
+        When I send exactly "Z1 X\"机器的兴起\"" as a command sequence to the connection, and capture the response
+        Then connection response #0 is equivalent to "S Xe69cbae599a8e79a84e585b4e8b5b7"
 
     @Standard-operation
-    Scenario: should reject disallowed chars in text big-fields
-        When I send exactly "Z1\"=0a\"" as a command sequence to the connection, and capture the response
-        Then connection response #0 is equivalent to "S +0a"
+    Scenario: should reject disallowed chars in text fields
+        When I send exactly "Z1 X\"=0a\"" as a command sequence to the connection, and capture the response
+        Then connection response #0 is equivalent to "S X0a"
 
 
     @Standard-operation

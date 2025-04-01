@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Stream;
 
+import net.zscript.util.BlockIterator;
 import net.zscript.util.ByteString;
 
 /**
@@ -18,7 +19,7 @@ public interface ZscriptExpression {
      * @return stream of numeric fields
      */
     @Nonnull
-    Stream<ZscriptField> fields();
+    Stream<? extends ZscriptField> fields();
 
     /**
      * Gets the ZscriptField representing the specified numeric field (key, value), if it exists.
@@ -63,6 +64,29 @@ public interface ZscriptExpression {
     @Nonnull
     default OptionalInt getField(char key) {
         return getField((byte) key);
+    }
+
+    /**
+     * Accesses the data associated with the specified field.
+     *
+     * @param key the key of the required field
+     * @return the BlockIterator of data in that field, or empty if the field isn't defined
+     */
+    @Nonnull
+    default Optional<BlockIterator> getFieldData(byte key) {
+        return getZscriptField(key)
+                .map(ZscriptField::iterator);
+    }
+
+    /**
+     * Accesses the data associated with the specified field.
+     *
+     * @param key the key of the required field
+     * @return the BlockIterator of data in that field, or empty if the field isn't defined
+     */
+    @Nonnull
+    default Optional<BlockIterator> getFieldData(char key) {
+        return getFieldData(key);
     }
 
     /**
@@ -115,10 +139,51 @@ public interface ZscriptExpression {
     int getFieldCount();
 
     /**
+     * Gets the byte string content of the specified field.
+     *
+     * @param key the key of the required field
+     * @return the ByteString of data in that field, or empty if the field isn't defined
+     */
+    @Nonnull
+    default Optional<ByteString> getFieldAsByteString(byte key) {
+        return getFieldData(key).map(ByteString::concat);
+    }
+
+    /**
+     * @see #getFieldAsByteString(byte)
+     */
+    @Nonnull
+    default Optional<ByteString> getFieldAsByteString(char key) {
+        return getFieldAsByteString((byte) key);
+    }
+
+    /**
+     * Gets the string length of the specified field.
+     *
+     * @param key the key of the required field
+     * @return the number of data bytes in the specified field, or zero if the field isn't defined
+     */
+    default int getFieldDataLength(byte key) {
+        // this implementation is a fall-back - implementations can probably be far more efficient
+        return getFieldAsByteString(key).map(ByteString::size).orElse(0);
+    }
+
+    /**
+     * Gets the string length of the specified field.
+     *
+     * @param key the key of the required field
+     * @return the number of data bytes in the specified field, or zero if the field isn't defined
+     */
+    default int getFieldDataLength(char key) {
+        return getFieldDataLength((byte) key);
+    }
+
+    /**
      * Determines whether there is a big-field defined.
      *
      * @return true if there is a big-field, false otherwise
      */
+    @Deprecated
     boolean hasBigField();
 
     /**
@@ -126,6 +191,7 @@ public interface ZscriptExpression {
      *
      * @return the big-field size, in bytes (zero if no big-field is found)
      */
+    @Deprecated
     int getBigFieldSize();
 
     /**
@@ -133,6 +199,7 @@ public interface ZscriptExpression {
      *
      * @return a new array containing all big-field data, or empty array if none defined
      */
+    @Deprecated
     @Nonnull
     default byte[] getBigFieldData() {
         return getBigFieldAsByteString().toByteArray();
@@ -143,6 +210,7 @@ public interface ZscriptExpression {
      *
      * @return a ByteString containing all big-field data, or empty ByteString if none defined
      */
+    @Deprecated
     @Nonnull
     ByteString getBigFieldAsByteString();
 }

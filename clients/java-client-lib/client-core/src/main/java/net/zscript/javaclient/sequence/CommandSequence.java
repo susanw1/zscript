@@ -3,7 +3,7 @@ package net.zscript.javaclient.sequence;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
-import static net.zscript.javaclient.commandpaths.NumberField.fieldOf;
+import static net.zscript.javaclient.commandpaths.FieldElement.fieldOf;
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
 import net.zscript.javaclient.ZscriptParseException;

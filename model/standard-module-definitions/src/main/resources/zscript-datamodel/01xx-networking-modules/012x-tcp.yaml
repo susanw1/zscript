@@ -135,7 +135,7 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: D
+    -   key: K
         name: socketDescriptor
         description: 'which socket to connect on (default: highest available - so that descriptor 0 is generally available)'
         typeDefinition:
@@ -154,7 +154,7 @@ commands:
             '@type': flag
         required: no
     responseFields:
-    -   key: D
+    -   key: K
         name: socketDescriptor
         description: socket descriptor used to create connection (if not present, no incoming connections present)
         typeDefinition:
@@ -171,7 +171,7 @@ commands:
     description: creates a socket connecting to a given server
     operation: post
     requestFields:
-    -   key: D
+    -   key: K
         name: socketDescriptor
         description: 'which socket to connect on (default: highest available - so that descriptor 0 is generally available)'
         typeDefinition:
@@ -207,14 +207,14 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    -   key: +
+    -   key: T
         name: targetDestination
         description: IP address (IPv4 or IPv6) of destination, or hostname if DNS is to be used
         typeDefinition:
             '@type': bytes
         required: yes
     responseFields:
-    -   key: D
+    -   key: K
         name: socketDescriptor
         description: socket descriptor used to create connection
         typeDefinition:
@@ -231,15 +231,15 @@ commands:
     description: gets info on a given socket
     operation: read
     requestFields:
-    -   key: D
+    -   key: K
         name: socketDescriptor
         description: which socket to query
         typeDefinition:
             '@type': number
         required: yes
     responseFields:
-    -   key: A
-        name: active
+    -   key: E
+        name: enabled
         description: whether this socket has been set up
         typeDefinition:
             '@type': flag
@@ -274,7 +274,7 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
+    -   key: A
         name: remoteAddress
         description: IP address (IPv4 or IPv6) of remote system
         typeDefinition:
@@ -287,13 +287,13 @@ commands:
     description: transmits data along a given TCP socket
     operation: post
     requestFields:
-    -   key: D
+    -   key: K
         name: socketDescriptor
         description: which socket to send data along
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
+    -   key: D
         name: data
         description: the data to be sent
         typeDefinition:
@@ -309,7 +309,7 @@ commands:
     description: receives data from a given TCP socket
     operation: read
     requestFields:
-    -   key: D
+    -   key: K
         name: socketDescriptor
         description: which socket to send data along
         typeDefinition:
@@ -328,7 +328,7 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
+    -   key: D
         name: data
         description: the data received
         typeDefinition:
@@ -345,7 +345,7 @@ commands:
     description: skips received data from a given TCP socket
     operation: read
     requestFields:
-    -   key: D
+    -   key: K
         name: socketDescriptor
         description: which socket to send data along
         typeDefinition:
@@ -396,7 +396,7 @@ commands:
         typeDefinition:
             '@type': number
         required: no
-    -   key: A
+    -   key: G
         name: assigned
         description: whether this channel currently has a receiver it is communicating with
         typeDefinition:
@@ -408,7 +408,7 @@ commands:
         typeDefinition:
             '@type': number
         required: no
-    -   key: +
+    -   key: A
         name: remoteAddress
         description: IP address (IPv4 or IPv6) of remote system
         typeDefinition:
@@ -447,7 +447,7 @@ notifications:
             name: socketDataInfo
             description: information on a socket with available data
             fields:
-            -   key: D
+            -   key: K
                 name: socketDescriptor
                 description: which socket data was received along
                 typeDefinition:
@@ -476,7 +476,7 @@ notifications:
             name: socketInfo
             description: specifies a socket
             fields:
-            -   key: D
+            -   key: K
                 name: socketDescriptor
                 description: which socket data was received along
                 typeDefinition:
@@ -493,7 +493,7 @@ notifications:
             name: socketData
             description: data from a socket
             fields:
-            -   key: +
+            -   key: D
                 name: receivedData
                 description: the data received
                 typeDefinition:
@@ -515,7 +515,7 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: yes
-            -   key: D
+            -   key: K
                 name: socketDescriptor
                 description: which socket was connected
                 typeDefinition:

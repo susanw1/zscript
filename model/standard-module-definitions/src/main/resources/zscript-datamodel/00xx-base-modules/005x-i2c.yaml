@@ -132,7 +132,7 @@ commands:
         typeDefinition:
             '@type': number
         required: no
-    -   key: +
+    -   key: D
         name: data
         description: the data to send
         typeDefinition:
@@ -210,7 +210,7 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
+    -   key: D
         name: data
         description: the data that was received
         typeDefinition:
@@ -253,7 +253,7 @@ commands:
         typeDefinition:
             '@type': number
         required: no
-    -   key: +
+    -   key: D
         name: data
         description: the data to send
         typeDefinition:
@@ -277,7 +277,7 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
+    -   key: D
         name: data
         description: the data that was read
         typeDefinition:

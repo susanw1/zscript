@@ -1,8 +1,8 @@
 package net.zscript.javaclient.commandbuilderapi;
 
 import java.util.List;
-import java.util.Map;
 
+import static net.zscript.javaclient.commandpaths.FieldElement.fieldOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -15,9 +15,11 @@ public class ValidatingResponseTest {
 
     @Test
     public void shouldValidateExpression() {
-        ZscriptExpression fieldSet = ZscriptFieldSet.fromMap(
+        ZscriptExpression fieldSet = ZscriptFieldSet.fromList(
                 List.of(new BigField(new byte[] { 'a', 'b' }, false), new BigField(new byte[] { 'c', 'd', 'e' }, true)),
-                Map.of((byte) 'A', 12, (byte) 'Z', 7, (byte) 'C', 0, (byte) 'D', 0x123));
+                List.of(fieldOf((byte) 'A', 12), fieldOf((byte) 'Z', 7), fieldOf((byte) 'C', 0), fieldOf((byte) 'D', 0x132))
+                //                Map.of((byte) 'A', 12, (byte) 'Z', 7, (byte) 'C', 0, (byte) 'D', 0x123)
+        );
 
         ValidatingResponse vr1 = new ValidatingResponse(fieldSet, new byte[] { 'A', 'D' });
         assertThat(vr1.expression()).isSameAs(fieldSet);

@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import net.zscript.ascii.AsciiFrame;
 import net.zscript.ascii.CharacterStyle;
@@ -81,16 +82,16 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         }
     }
 
-    private void explainBitField(TextBox box, ZscriptDataModel.GenericField field, CommandPrintSettings settings, int value) {
+    private void explainBitField(TextBox box, ZscriptDataModel.GenericField field, CommandPrintSettings settings, OptionalInt value) {
         if (field.getTypeDefinition() instanceof ZscriptDataModel.BitsetTypeDefinition) {
             List<ZscriptDataModel.BitsetTypeDefinition.Bit> bits = ((ZscriptDataModel.BitsetTypeDefinition) field.getTypeDefinition()).getBits();
             int                                             i    = 0;
             for (ZscriptDataModel.BitsetTypeDefinition.Bit bit : bits) {
                 box.startNewLine(2);
                 box.append(upperFirst(bit.getName()));
-                if (value != -1) {
+                if (value.isPresent()) {
                     box.append(": ");
-                    if ((value & (1 << i)) != 0) {
+                    if ((value.getAsInt() & (1 << i)) != 0) {
                         box.append("True");
                     } else {
                         box.append("False");
@@ -113,12 +114,12 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         box.append(" (");
         box.append(key);
         box.append("): ");
-        if (field.getTypeDefinition() instanceof ZscriptDataModel.BigfieldTypeDefinition) {
+        if (field.getTypeDefinition() instanceof ZscriptDataModel.StringTypeDefinition) {
             explainBigField(box, field, fieldSet, settings);
         } else {
             doneFields[key - 'A'] = true;
-            int value = fieldSet.getFieldVal(key);
-            if (value == -1) {
+            OptionalInt valueOpt = fieldSet.getField(key);
+            if (valueOpt.isEmpty()) {
                 if (field.isRequired()) {
                     box.setStyle(new CharacterStyle(TextColor.RED, TextColor.DEFAULT, true))
                             .append("Error: Is required but missing")
@@ -127,6 +128,8 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
                     box.append("Not present");
                 }
             } else {
+                int value = valueOpt.getAsInt();
+
                 if (field.getTypeDefinition() instanceof ZscriptDataModel.FlagTypeDefinition) {
                     box.append("Present");
                 } else {
@@ -150,7 +153,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
                 box.append(toSentence(field.getDescription()));
             }
             if (settings.getVerbosity().compareTo(VerbositySetting.BITFIELDS) >= 0) {
-                explainBitField(box, field, settings, value);
+                explainBitField(box, field, settings, valueOpt);
             }
         }
     }
@@ -163,8 +166,8 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         box.append(upperFirst(field.getName()));
         box.append(" (").append(key).append("): ");
         doneFields[key - 'A'] = true;
-        int value = fieldSet.getFieldVal(key);
-        if (value == -1) {
+        OptionalInt valueOpt = fieldSet.getField(key);
+        if (valueOpt.isEmpty()) {
             if (field.isRequired()) {
                 box.setStyle(new CharacterStyle(TextColor.RED, TextColor.DEFAULT, true));
                 box.append("Error: Is required but missing");
@@ -174,9 +177,9 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
             }
         } else {
             box.append("0x");
-            box.appendHex(value, 1);
+            box.appendHex(valueOpt.getAsInt(), 1);
             box.append(" (");
-            Optional<StatusModel> optStatus = model.getStatus(value);
+            Optional<StatusModel> optStatus = model.getStatus(valueOpt.getAsInt());
             if (optStatus.isPresent()) {
                 box.append(upperFirst(optStatus.get().getName()));
             } else {
@@ -188,8 +191,8 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         if (settings.getVerbosity().compareTo(VerbositySetting.DESCRIPTIONS) >= 0) {
             box.startNewLine(3);
             boolean hasSpecificDesc = false;
-            if (value != -1) {
-                Optional<StatusModel> optStatus = model.getStatus(value);
+            if (valueOpt.isPresent()) {
+                Optional<StatusModel> optStatus = model.getStatus(valueOpt.getAsInt());
                 if (optStatus.isPresent()) {
                     for (ZscriptDataModel.CommandStatusModel specific : command.getStatus()) {
                         if (specific.getName().equals(optStatus.get().getName())) {
@@ -211,13 +214,14 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
 
     private void explainUnknownFields(TextBox box, CommandPrintSettings settings, ZscriptFieldSet fieldSet, boolean[] doneFields) {
         for (int i = 0; i < 26; i++) {
-            if (!doneFields[i] && fieldSet.getFieldVal((byte) ('A' + i)) != -1) {
+            final OptionalInt fieldVal = fieldSet.getField((byte) ('A' + i));
+            if (!doneFields[i] && fieldVal.isPresent()) {
                 box.startNewLine(1);
                 box.append("Unknown Field ");
                 box.append((char) ('A' + i));
                 box.append(" with value: ");
                 box.append("0x");
-                box.appendHex(fieldSet.getFieldVal((byte) ('A' + i)), 1);
+                box.appendHex(fieldVal.getAsInt(), 1);
             }
         }
     }
@@ -229,7 +233,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
 
         ZscriptFieldSet fieldSet = target.getFields();
 
-        int commandValue = fieldSet.getFieldVal(Zchars.Z_CMD);
+        OptionalInt commandValue = fieldSet.getField(Zchars.Z_CMD);
         box.startNewLine(0);
         if (fieldSet.isEmpty()) {
             box.append("Empty Command");
@@ -237,10 +241,10 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         }
         ZscriptDataModel.CommandModel command = null;
         if (settings.getVerbosity().compareTo(VerbositySetting.MINIMAL) > 0) {
-            if (commandValue == -1) {
+            if (commandValue.isEmpty()) {
                 box.append("No command field - Z expected");
             } else {
-                Optional<ZscriptDataModel.CommandModel> commandOpt = model.getCommand(commandValue);
+                Optional<ZscriptDataModel.CommandModel> commandOpt = model.getCommand(commandValue.getAsInt());
                 if (commandOpt.isEmpty()) {
                     box.append("Command not recognised");
                 } else {
@@ -277,7 +281,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
 
     @Nonnull
     public AsciiFrame explainResponse(CommandElement source, ResponseElement target, ZscriptModel model, CommandPrintSettings settings) {
-        int             commandValue = source.getFields().getFieldVal(Zchars.Z_CMD);
+        OptionalInt     commandValue = source.getFields().getField(Zchars.Z_CMD);
         ZscriptFieldSet fieldSet     = target.getFields();
 
         TextBox box = new TextBox(settings.indentString);
@@ -290,10 +294,10 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         }
         ZscriptDataModel.CommandModel command = null;
         if (settings.getVerbosity().compareTo(VerbositySetting.MINIMAL) > 0) {
-            if (commandValue == -1) {
+            if (commandValue.isEmpty()) {
                 box.append("Response to unrecognised command");
             } else {
-                Optional<ZscriptDataModel.CommandModel> commandOpt = model.getCommand(commandValue);
+                Optional<ZscriptDataModel.CommandModel> commandOpt = model.getCommand(commandValue.getAsInt());
                 if (commandOpt.isEmpty()) {
                     box.append("Response to unrecognised command");
                 } else {

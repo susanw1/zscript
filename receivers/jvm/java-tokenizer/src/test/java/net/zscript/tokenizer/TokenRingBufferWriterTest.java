@@ -2,8 +2,10 @@ package net.zscript.tokenizer;
 
 import static net.zscript.tokenizer.Tokenizer.ERROR_BUFFER_OVERRUN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.tokenizer.TokenBuffer.TokenWriter;
@@ -142,11 +144,11 @@ class TokenRingBufferWriterTest {
     }
 
     @Test
-    void shouldTokenizeNumericField5NibbleValue() {
-        insertNumericTokenNibbles('A', (byte) 5, (byte) 0xd, (byte) 0xa, (byte) 0x3, (byte) 0xe);
+    void shouldRejectNumericField5NibbleValue() {
+        insertNumericTokenNibbles('A', (byte) 0x5, (byte) 0xd, (byte) 0xa, (byte) 0x3, (byte) 0xe);
         verifyBufferState(false, 5, 'A', true, 3);
-        writer.endToken();
-        assertThat(buffer.getInternalData()).startsWith('A', 3, 0x5, 0xda, 0x3e, 0);
+        assertThatIllegalStateException().isThrownBy(writer::endToken).withMessage("hex-pair value too long for odd length");
+        assertThat(buffer.getInternalData()).startsWith('A', 3, 0x5d, 0xa3, 0xe0, 0);
     }
 
     @Test
@@ -219,6 +221,7 @@ class TokenRingBufferWriterTest {
     }
 
     @Test
+    @Disabled("Obsolete, applied to '%'")
     void shouldTokenizeNonNumericFieldWithOddNibbles() {
         insertNonNumericTokenNibbles('+', (byte) 0xa, (byte) 0xb, (byte) 0xc);
         writer.endToken();

@@ -3,6 +3,7 @@ package net.zscript.javaclient.commandbuilderapi.nodes;
 import javax.annotation.Nonnull;
 
 import net.zscript.tokenizer.ZscriptExpression;
+import net.zscript.util.ByteString;
 
 /**
  * Test object - works like a generated capabilities command. Many methods exposed for testing.
@@ -27,6 +28,18 @@ public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCa
 
     public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> setField(char key, int value) {
         return super.setField(key, value);
+    }
+
+    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> setFieldAsText(char key, @Nonnull ByteString data) {
+        return super.setFieldAsText((byte) key, data);
+    }
+
+    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> setFieldAsBytes(char key, @Nonnull ByteString data) {
+        return super.setFieldAsBytes((byte) key, data);
+    }
+
+    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> setFieldAsSmallest(char key, @Nonnull ByteString data) {
+        return super.setFieldAsSmallest((byte) key, data);
     }
 
     public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigField(@Nonnull byte[] data) {

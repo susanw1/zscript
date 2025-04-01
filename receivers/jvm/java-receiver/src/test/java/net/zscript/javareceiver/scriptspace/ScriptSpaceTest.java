@@ -100,7 +100,7 @@ public class ScriptSpaceTest {
         module.addScriptSpace(space);
         for (int i = 0; zscript.progress() && i < 1000000; i++) {
         }
-        assertThat(outStream.getStringAndReset()).isEqualTo("!AS&P7LffffS\n");
+        assertThat(outStream.getStringAndReset()).isEqualTo("!AS&P8LffffS\n");
     }
 
     @Test
@@ -113,7 +113,7 @@ public class ScriptSpaceTest {
         module.addScriptSpace(space);
         for (int i = 0; zscript.progress() && i < 1000000; i++) {
         }
-        assertThat(outStream.getStringAndReset()).isEqualTo("!AS&P7LffffS\n");
+        assertThat(outStream.getStringAndReset()).isEqualTo("!AS&P8LffffS\n");
     }
 
     @Test
@@ -143,7 +143,7 @@ public class ScriptSpaceTest {
 
     @Test
     public void shouldWriteToBlankSpace() {
-        StringChannel channel = StringChannel.from("Z2 & Z21P & Z22P\"Z1S10=0a\" & Z21PR1\n", outStream);
+        StringChannel channel = StringChannel.from("Z2 & Z21P & Z22PC\"Z1S10=0a\" & Z21PR1\n", outStream);
         ScriptSpace   space   = ScriptSpace.blank(zscript);
         zscript.addActionSource(space);
         zscript.addChannel(channel);

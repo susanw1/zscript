@@ -39,7 +39,7 @@
                 return set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(value.ordinal());
             }
 
-            {{^required}}
+        {{^required}}
             /**
              * Optionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
@@ -82,10 +82,10 @@
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}If(final boolean condition, @Nonnull final {{#upperCamel}}{{{fieldName}}}{{/upperCamel}} value) {
                 return condition ? set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(value) : this;
             }
-            {{/required}}
-                            {{/enumType}}
-                            {{#numberType}}
-                {{! ============ NUMBER-TYPE SETTERS ============= }}
+        {{/required}}
+    {{/enumType}}
+    {{#numberType}}
+    {{! ============ NUMBER-TYPE SETTERS ============= }}
             /**
              * Sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
@@ -101,7 +101,7 @@
             return this;
             }
 
-            {{^required}}
+        {{^required}}
             /**
              * Optionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
@@ -130,9 +130,9 @@
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}If(final boolean condition, final int value) {
                 return condition ? set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(value) : this;
             }
-            {{/required}}
-                            {{/numberType}}
-                            {{#flagType}}
+        {{/required}}
+    {{/numberType}}
+    {{#flagType}}
                 {{! ============ FLAG-TYPE SETTERS ============= }}
             /**
              * Sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
@@ -162,9 +162,9 @@
                 return condition ? set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() : this;
             }
 
-            {{/flagType}}
-            {{#bitsetType}}
-                {{! ============ BITSET-TYPE SETTERS ============= }}
+    {{/flagType}}
+    {{#bitsetType}}
+    {{! ============ BITSET-TYPE SETTERS ============= }}
             /**
              * Enum of acceptable values for <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field.
             {{#longDescription}}
@@ -228,10 +228,10 @@
              * @return this builder, to facilitate method chaining
              */
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(@Nonnull final {{#upperCamel}}{{{fieldName}}}{{/upperCamel}} bit) {
-                return set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(getField((byte) '{{key}}') | (1 << bit.ordinal()));
+                return set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(getFieldOrZero((byte) '{{key}}').getValue() | (1 << bit.ordinal()));
             }
 
-            {{^required}}
+        {{^required}}
             /**
              * Optionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
              * <p>
@@ -280,64 +280,68 @@
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}If(final boolean condition, @Nonnull final {{#upperCamel}}{{{fieldName}}}{{/upperCamel}} bit) {
                 return condition ? set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(bit) : this;
             }
-            {{/required}}
-                        {{/bitsetType}}
-                        {{#textType}}
-            {{! ============ TEXT-TYPE SETTERS ============= }}
-            /**
-             * Appends the supplied text for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
-             * <p>
-             * The string is encoded as UTF-8.
-            {{#longDescription}}
-             * <p>
-             * {{longDescription}}
-            {{/longDescription}}
-             *
-             * @param text      the text to append
-             * @return this builder, to facilitate method chaining
-             */
-            public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(@Nonnull final String text) {
-                addBigField(text);
-                return this;
-            }
+        {{/required}}
+    {{/bitsetType}}
+    {{#stringType}}
+    {{! ============ STRING-TYPE (BOTH TEXT AND BYTES) SETTERS ============= }}
 
             /**
-             * Appends the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
+             * Uses the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field: {{description}}
              * <p>
-             * This field is defined as 'text' and will normally use the "..." form. This method overrides that, and uses the +1a2b... form.
+             * This field is defined as 'bytes' and will normally use the +1a2b... form. This method overrides that, and uses whichever form uses least bytes.
             {{#longDescription}}
              * <p>
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @param bytes     the bytes to add to the big-field
-             * @return this builder, to facilitate method chaining
-             */
-            public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsBytes(@Nonnull final byte[] bytes) {
-                addBigField(bytes);
-                return this;
-            }
-
-            /**
-             * Appends the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
-             * <p>
-             * This field is defined as 'text' and will normally use the "..." form. This method overrides that, and uses whichever form uses least bytes.
-            {{#longDescription}}
-             * <p>
-             * {{longDescription}}
-            {{/longDescription}}
-             *
-             * @param bytes     the bytes to add to the big-field
+             * @param bytes     the bytes to set
              * @return this builder, to facilitate method chaining
              */
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsSmallest(@Nonnull final byte[] bytes) {
-                addBigFieldAsSmallest(bytes);
+                setFieldAsSmallest((byte) '{{key}}', ByteString.byteString(bytes));
                 return this;
             }
 
-            {{^required}}
+    {{/stringType}}
+    {{#textType}}
+    {{! ============ TEXT-TYPE SETTERS ============= }}
             /**
-             * Optionally appends the supplied text for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
+             * Uses the supplied text for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field: {{description}}
+             * <p>
+             * The string is written as UTF-8.
+            {{#longDescription}}
+             * <p>
+             * {{longDescription}}
+            {{/longDescription}}
+             *
+             * @param text      the string value to convert to bytes in UTF-8
+             * @return this builder, to facilitate method chaining
+             */
+            public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(@Nonnull final String text) {
+                setFieldAsText((byte) '{{key}}', ByteString.byteStringUtf8(text));
+                return this;
+            }
+
+            /**
+             * Uses the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field: {{description}}
+             * <p>
+             * This field is defined as 'text' and will normally use the ""-quoted form. This method overrides that, and uses the hex 1a2b... form.
+            {{#longDescription}}
+             * <p>
+             * {{longDescription}}
+            {{/longDescription}}
+             *
+             * @param bytes     the bytes to set
+             * @return this builder, to facilitate method chaining
+             */
+            public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsBytes(@Nonnull final byte[] bytes) {
+                setFieldAsBytes((byte) '{{key}}', ByteString.byteString(bytes));
+                return this;
+            }
+
+        {{^required}}
+            /**
+             * Uses the supplied bytes, if present, for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field: {{description}}
              * <p>
              * The string is encoded as UTF-8.
             {{#longDescription}}
@@ -345,7 +349,7 @@
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @param text      the text to append, if present
+             * @param text      the text to set, if present
              * @return this builder, to facilitate method chaining
              */
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(@Nonnull final Optional<String> text) {
@@ -353,7 +357,7 @@
             }
 
             /**
-             * Conditionally appends the supplied text for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
+             * Conditionally uses the supplied text for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field: {{description}}
              * <p>
              * The string is encoded as UTF-8.
             {{#longDescription}}
@@ -362,36 +366,36 @@
             {{/longDescription}}
              *
              * @param condition if true, then set the field; otherwise, ignore it
-             * @param text      the text to append, if present
+             * @param text      the text to set, if condition is true
              * @return this builder, to facilitate method chaining
              */
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}If(final boolean condition, @Nonnull final String text) {
                 return condition ? set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(text) : this;
             }
 
-            {{/required}}
-        {{/textType}}
-        {{#bytesType}}
-        {{! ============ BYTES-TYPE SETTERS ============= }}
+        {{/required}}
+    {{/textType}}
+    {{#bytesType}}
+    {{! ============ BYTES-TYPE SETTERS ============= }}
             /**
-             * Appends the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
+             * Uses the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @param bytes     the bytes to add to the big-field
+             * @param bytes     the bytes to set
              * @return this builder, to facilitate method chaining
              */
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(@Nonnull final byte[] bytes) {
-                addBigField(bytes);
+                setFieldAsBytes((byte) '{{key}}', ByteString.byteString(bytes));
                 return this;
             }
 
             /**
-             * Appends the supplied text for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
+             * Uses the supplied text for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field: {{description}}
              * <p>
-             * This field is defined as 'bytes' and will normally use the +1a2b... form. This method overrides that, and uses the "..." form.
+             * This field is defined as 'bytes' and will normally use the hex 1a2b... form. This method overrides that, and uses the quoted "..." form.
              * <p>
              * The string is encoded as UTF-8.
             {{#longDescription}}
@@ -399,48 +403,31 @@
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @param text      the text to append
+             * @param text      the text to set
              * @return this builder, to facilitate method chaining
              */
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsText(@Nonnull final String text) {
-                addBigField(text);
+                setFieldAsText((byte) '{{key}}', ByteString.byteStringUtf8(text));
                 return this;
             }
 
+        {{^required}}
             /**
-             * Appends the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
-             * <p>
-             * This field is defined as 'bytes' and will normally use the +1a2b... form. This method overrides that, and uses whichever form uses least bytes.
+             * Optionally uses the supplied bytes, if present, for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @param bytes     the bytes to add to the big-field
+             * @param bytes      the bytes to set, if present
              * @return this builder, to facilitate method chaining
              */
-            public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsSmallest(@Nonnull final byte[] bytes) {
-                addBigFieldAsSmallest(bytes);
-                return this;
-            }
-
-            {{^required}}
-            /**
-             * Optionally appends the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
-            {{#longDescription}}
-             * <p>
-             * {{longDescription}}
-            {{/longDescription}}
-             *
-             * @param bytes      the bytes to append, if present
-             * @return this builder, to facilitate method chaining
-             */
-            public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(@Nonnull final Optional< byte[]> bytes) {
+            public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(@Nonnull final Optional<byte[]> bytes) {
                 return bytes.isPresent() ? set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(bytes.get()) : this;
             }
 
             /**
-             * Conditionally appends the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> big-field: {{description}}
+             * Conditionally uses the supplied bytes for the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field: {{description}}
              * <p>
              * The string is encoded as UTF-8.
             {{#longDescription}}
@@ -448,17 +435,17 @@
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @param condition if true, then set the field; otherwise, ignore
-             * @param bytes     the bytes to append, if present
+             * @param condition  if true, then set the field; otherwise, ignore
+             * @param bytes      the bytes to set, if condition is true
              * @return this builder, to facilitate method chaining
              */
             public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}If(final boolean condition, @Nonnull final byte[] bytes) {
                 return condition ? set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(bytes) : this;
             }
-            {{/required}}
-        {{/bytesType}}
-        {{#anyType}}
-        {{! ============ ANY-TYPE SETTERS (Used for "echo" command) ============= }}
+        {{/required}}
+    {{/bytesType}}
+    {{#anyType}}
+    {{! ============ ANY-TYPE SETTERS (Used for "echo" command) ============= }}
             /**
              * Sets any field: {{description}}
             {{#longDescription}}
@@ -474,7 +461,7 @@
                 setField((byte) key, value);
                 return this;
             }
-            {{^required}}
+        {{^required}}
             /**
              * Optionally sets any field: {{description}}
             {{#longDescription}}
@@ -491,7 +478,7 @@
             }
 
             /**
-        * Conditionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field: {{description}}
+             * Conditionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}

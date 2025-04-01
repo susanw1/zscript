@@ -21,6 +21,7 @@ intrinsics:
     -   name: cmd
         ch: "Z"
         description: "command field to identify the specific command to execute"
+        shortNumber: true
 
     -   name: eolSymbol
         ch: "\n"
@@ -51,10 +52,12 @@ intrinsics:
     -   name: responseMark
         ch: "!"
         description: "prefixed to all responses and notifications, to indicate notification source"
+        shortNumber: true
 
     -   name: locks
         ch: "%"
         description: "command sequence prefix to request specific locks to allow some concurrent access to resources"
+        shortNumber: true
         nonNumeric: true
         deprecated: true
 
@@ -73,6 +76,12 @@ intrinsics:
         bigField: true
         deprecated: true
 
+    -   name: stringTypeQuoted
+        ch: "\""
+        description: "surrounds text to be sent as a string field argument"
+        mustEscape: true
+        fieldTypeIndicator: true
+
     -   name: stringEscape
         ch: "="
         description: "marks an escaped char within a text field, eg =3b"
@@ -87,15 +96,18 @@ intrinsics:
         ch: "@"
         description: "marks the start of an address, eg @12.4.3"
         addressing: true
+        shortNumber: true
 
     -   name: addressingContinue
         ch: "."
         description: "separates address components, eg @12.4.3"
         addressing: true
+        shortNumber: true
 
     -   name: echo
         ch: ">"
         description: "special sequence-level field assigning a command number, echoed in the response"
+        shortNumber: true
 
     -   name: status
         ch: "S"

@@ -5,6 +5,7 @@ import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
@@ -54,7 +55,7 @@ class LockSetTest {
     public void shouldParseNormalLocks() {
         final LockSet locks16 = LockSet.parse(parse("%52c"), false);
         assertThat(locks16.isAllSet()).isFalse();
-        assertThat(locks16.asStringUtf8()).isEqualTo("%52c0");
+        assertThat(locks16.asStringUtf8()).isEqualTo("%52c");
     }
 
     @Test
@@ -72,6 +73,8 @@ class LockSetTest {
     }
 
     @Test
+    @Disabled
+    @Deprecated // this is all going to die
     public void shouldRejectParsingLongLockField() {
         final ReadToken token16 = parse("%12345");
         assertThatThrownBy(() -> LockSet.parse(token16, false))
@@ -85,7 +88,7 @@ class LockSetTest {
     @Test
     public void shouldImplementToString() {
         final LockSet locks16 = LockSet.parse(parse("%52c"), false);
-        assertThat(locks16).hasToString("LockSet:{'%52c0'}");
+        assertThat(locks16).hasToString("LockSet:{'%52c'}");
     }
 
     private static ReadToken parse(String s) {

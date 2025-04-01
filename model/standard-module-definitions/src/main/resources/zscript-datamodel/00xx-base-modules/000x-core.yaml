@@ -51,7 +51,7 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    -   key: +
+    -   key: I
         name: ident
         description: identification string relating to requested versionType
         typeDefinition:
@@ -70,12 +70,6 @@ commands:
         description: determines the returned Status param - can be any status
         typeDefinition:
             '@type': number
-        required: no
-    -   key: +
-        name: bigField
-        description: any supplied value will be returned
-        typeDefinition:
-            '@type': bytes
         required: no
     -   name: any
         description: any supplied value will be returned
@@ -129,14 +123,14 @@ commands:
     description: Challenges the identity of the device, using a public-private key system. The specific implementation is device specific.
     operation: get
     requestFields:
-    -   key: +
+    -   key: C
         name: challenge
         description: the challenge given to the device
         typeDefinition:
             '@type': bytes
         required: yes
     responseFields:
-    -   key: +
+    -   key: C
         name: challenge
         description: the answer to the challenge from the device
         typeDefinition:
@@ -165,14 +159,14 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    -   key: +
+    -   key: M
         name: matchId
         description: The id to be checked against the saved id. Always fails match if this is a different length.
         typeDefinition:
             '@type': bytes
         required: no
     responseFields:
-    -   key: +
+    -   key: R
         name: id
         description: the id specified, if set validly
         typeDefinition:

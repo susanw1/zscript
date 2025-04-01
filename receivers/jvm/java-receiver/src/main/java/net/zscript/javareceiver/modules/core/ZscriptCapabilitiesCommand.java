@@ -61,9 +61,7 @@ public class ZscriptCapabilitiesCommand {
         }
         if (str != null) {
             out.writeField('V', ver);
-            if (!str.isEmpty()) {
-                out.writeBigFieldQuoted(str);
-            }
+            out.writeFieldQuoted('I', str);
         } else {
             ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
         }

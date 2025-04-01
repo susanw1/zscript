@@ -2,16 +2,9 @@ package net.zscript.tokenizer;
 
 import java.util.stream.Stream;
 
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static net.zscript.tokenizer.Tokenizer.ERROR_CODE_ILLEGAL_TOKEN;
 import static net.zscript.tokenizer.Tokenizer.NORMAL_SEQUENCE_END;
-import static net.zscript.tokenizer.Tokenizer.charToMarker;
-import static net.zscript.tokenizer.Tokenizer.markerToChar;
-import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyByte;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,20 +19,17 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import net.zscript.model.components.Zchars;
-import net.zscript.tokenizer.TokenBuffer.TokenWriter;
-
 /**
- * This test is almost identical to TokenizerDeepParseAddressTest, except it's in "receiver mode", where addressed data is all gathered into a single byte-string token. Tests added
- * here should also be added there.
+ * This test is almost identical to TokenizerTest, except it's in "client mode", where we tokenize the contents of addressed messages, rather than receiver-mode: sticking them all
+ * in a single byte-string. Tests added here should also be added there.
  */
 @ExtendWith(MockitoExtension.class)
-class TokenizerTest {
+class TokenizerDeepParseAddressTest {
     // determines that we parse addressed data
-    private static final boolean PARSE_OUT_ADDRESSING_FALSE = false;
+    private static final boolean PARSE_OUT_ADDRESSING_TRUE = true;
 
     @Mock
-    private TokenWriter writer;
+    private TokenBuffer.TokenWriter writer;
 
     private Tokenizer tokenizer;
 
@@ -56,7 +46,7 @@ class TokenizerTest {
 
     @BeforeEach
     void setUp() {
-        tokenizer = new Tokenizer(writer, PARSE_OUT_ADDRESSING_FALSE);
+        tokenizer = new Tokenizer(writer, 2, PARSE_OUT_ADDRESSING_TRUE);
         lenient().when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
     }
 
@@ -181,11 +171,11 @@ class TokenizerTest {
 
     private static Stream<Arguments> shouldHandleAddressing() {
         return Stream.of(
-                Arguments.of("Simple address", "@2Z\n", "t@n2aZm" + END),
-                Arguments.of("Simple address with nulls", "\000@\000a\000Z\000\n", "--t@--na--aZ--m" + END),
-                Arguments.of("Simple address, complex content", "@2Z12345\"a=\n", "t@n2aZb1b2b3b4b5b\"bab=m" + END),
-                Arguments.of("Multilevel address", "@2.1Z\n", "t@n2t.n1aZm" + END),
-                Arguments.of("Compound multilevel addresses", "@2.3@4.5Z\n", "t@n2t.n3a@b4b.b5bZm" + END));
+                Arguments.of("Simple address", "@2Z\n", "t@n2tZm" + END),
+                Arguments.of("Simple address with nulls", "\000@\000a\000Z\000\n", "--t@--na--tZ--m" + END),
+                Arguments.of("Simple address, complex content", "@2Z1234A123B23\n", "t@n2tZn1n2n3n4tAn1n2n3tBn2n3m" + END),
+                Arguments.of("Multilevel address", "@2.123Z\n", "t@n2t.n1n2n3tZm" + END),
+                Arguments.of("Compound multilevel addresses", "@2.3@4.5Z\n", "t@n2t.n3t@n4t.n5tZm" + END));
     }
 
     @Test
@@ -197,7 +187,7 @@ class TokenizerTest {
     @Test
     public void shouldTokenizeFullSizeNumber() {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_FALSE);
+        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "Z1234\n\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         // note second newline!
         assertThat(buf.getInternalData()).startsWith('Z', 2, 0x12, 0x34, 0xf0, 0xf0, 0);
@@ -206,7 +196,7 @@ class TokenizerTest {
     @Test
     public void shouldFailOnLongNumber() {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_FALSE);
+        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "A12345\n\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         // note second newline!
         assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 0xf0, 0x12, 0x34, 0x50, 0);
@@ -216,7 +206,7 @@ class TokenizerTest {
     @Test
     public void shouldFailOnOddHexString() {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_FALSE);
+        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "+123A\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 2, 0x12, 0x30, 0);
 
@@ -228,7 +218,7 @@ class TokenizerTest {
     @Deprecated
     public void shouldFailOnOddHexStringTerminatedByNL() {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_FALSE);
+        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "+12abc\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 3, 0x12, 0xab, 0xc0, 0);
 
@@ -239,7 +229,7 @@ class TokenizerTest {
     @Test
     public void shouldFailOnOddHexStringField() {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_FALSE);
+        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "A12345B\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 3, 0x12, 0x34, 0x50, 0);
 
@@ -250,7 +240,7 @@ class TokenizerTest {
     @Test
     public void shouldFailOnOddHexStringFieldTerminatedByNL() {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_FALSE);
+        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "A12abc\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 3, 0x12, 0xab, 0xc0, 0);
 
@@ -261,7 +251,7 @@ class TokenizerTest {
     @Test
     public void shouldResetHexModeAfterHexToken() {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_FALSE);
+        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "A12 B345\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         assertThat(buf.getInternalData()).startsWith('A', 1, 0x12, 'B', 2, 0x3, 0x45, 0xf0);
 
@@ -272,7 +262,7 @@ class TokenizerTest {
     @Test
     public void shouldResetStringModeAfterStringToken() {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_FALSE);
+        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "A\"x\" B345\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         assertThat(buf.getInternalData()).startsWith('A', 1, 'x', 'B', 2, 0x3, 0x45, 0xf0);
 
@@ -283,7 +273,7 @@ class TokenizerTest {
     @Test
     public void shouldRejectHexAfterStringToken() {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_FALSE);
+        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "A\"x\"12 B345\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         assertThat(buf.getInternalData()).startsWith('A', 1, 'x', ERROR_CODE_ILLEGAL_TOKEN);
     }
@@ -291,7 +281,7 @@ class TokenizerTest {
     @Test
     public void shouldRejectOverLongAddressComponents() {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_FALSE);
+        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "@12345\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         assertThat(buf.getInternalData()).startsWith(FIELD_TOO_LONG, 2, 0x12, 0x34, 0);
     }
@@ -299,7 +289,7 @@ class TokenizerTest {
     @Test
     public void shouldRejectOverLongAddressSubComponents() {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_FALSE);
+        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "@1234.12345\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         assertThat(buf.getInternalData()).startsWith('@', 2, 0x12, 0x34, FIELD_TOO_LONG, 2, 0x12, 0x34, 0);
     }
@@ -307,17 +297,9 @@ class TokenizerTest {
     @Test
     public void shouldRejectOverLongEcho() {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_FALSE);
+        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         ">12345Z\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         assertThat(buf.getInternalData()).startsWith(FIELD_TOO_LONG, 2, 0x12, 0x34, 0);
-    }
-
-    @Test
-    public void shouldMapCharsAndMarkers() {
-        assertThat(markerToChar(Tokenizer.CMD_END_ANDTHEN)).isEqualTo(Zchars.Z_ANDTHEN);
-        for (byte b : byteStringUtf8("&|()")) {
-            assertThat(markerToChar(charToMarker(b))).isEqualTo(b);
-        }
     }
 
     /**
@@ -327,60 +309,7 @@ class TokenizerTest {
      * @param bufferActions a pair of chars for each zscript char, so express expected method calls
      */
     private void validateZscriptActions(String zscript, String bufferActions) {
-        validateZscriptActions(tokenizer, writer, zscript, bufferActions);
+        TokenizerTest.validateZscriptActions(tokenizer, writer, zscript, bufferActions);
     }
 
-    static void validateZscriptActions(Tokenizer tokenizer, TokenWriter writer, String zscript, String bufferActions) {
-        if (zscript.length() * 2 > bufferActions.length()) {
-            fail("bufferActions length is too short (trimmed?) + zscript='" + zscript + "', actions='" + bufferActions + "'");
-        }
-        int index = 0;
-        // ISO8859 to ensure chars are fed as just bytes
-        for (byte c : zscript.getBytes(ISO_8859_1)) {
-            tokenizer.accept(c);
-            //            System.out.println("c = " + c);
-            char action = bufferActions.charAt(index * 2);
-            byte arg    = (byte) bufferActions.charAt(index * 2 + 1);
-            try {
-                switch (action) {
-                case 's':
-                    verify(writer).startToken(arg, false);
-                    break;
-                case 't':
-                    verify(writer).startToken(arg, true);
-                    break;
-                //                case 'y':
-                //                    verify(writer).setTokenType(false);
-                //                    break;
-                case 'n':
-                    verify(writer).continueTokenNibble((byte) Character.digit((char) arg, 16));
-                    break;
-                case 'b':
-                    verify(writer).continueTokenByte(arg);
-                    break;
-                case 'm':
-                    verify(writer).writeMarker(arg);
-                    break;
-                case 'f':
-                    verify(writer).fail(arg);
-                    break;
-                case 'a':
-                    verify(writer).startToken(Tokenizer.ADDRESSING_FIELD_KEY, false);
-                    verify(writer).continueTokenByte(arg);
-                    break;
-                case '-':
-                    verify(writer, Mockito.never()).startToken(anyByte(), anyBoolean());
-                    verify(writer, Mockito.never()).continueTokenNibble(anyByte());
-                    verify(writer, Mockito.never()).continueTokenByte(anyByte());
-                    break;
-                default:
-                    fail("Unknown action! '" + action + "'");
-                }
-                Mockito.clearInvocations(writer);
-            } catch (Throwable t) {
-                throw new AssertionError("At index " + index + " processing char " + Byte.toUnsignedInt(c) + " ('" + (char) c + "')", t);
-            }
-            index++;
-        }
-    }
 }

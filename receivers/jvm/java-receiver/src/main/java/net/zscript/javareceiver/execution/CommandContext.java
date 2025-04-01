@@ -44,7 +44,7 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
 
     @Nonnull
     @Override
-    public Stream<ZscriptField> fields() {
+    public Stream<? extends ZscriptField> fields() {
         return expression.fields();
     }
 
@@ -66,6 +66,7 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
     }
 
     @Override
+    @Deprecated
     public boolean hasBigField() {
         return expression.hasBigField();
     }
@@ -77,17 +78,19 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
      * @return fully big-field-aware data iterator
      */
     @Nonnull
-    public BlockIterator bigFieldDataIterator() {
-        return expression.bigFieldDataIterator();
+    public Optional<BlockIterator> dataIterator(byte c) {
+        return expression.getFieldData(c);
     }
 
     @Override
+    @Deprecated
     public int getBigFieldSize() {
         return expression.getBigFieldSize();
     }
 
     @Nonnull
     @Override
+    @Deprecated
     public ByteString getBigFieldAsByteString() {
         return expression.getBigFieldAsByteString();
     }
@@ -102,9 +105,10 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
     }
 
     /**
-     * Returns  an iterator that supplies ZscriptField objects representing the fields (big-fields and numeric) in the current ZscriptExpression.
+     * Returns  an iterator that supplies ZscriptField objects representing all the fields in the current ZscriptExpression.
      * <p/>
-     * Note: relies on {@link ZscriptTokenExpression#iteratorToMarker()} to supply tokens, which should skip extension tokens correctly.
+     * Note: relies on {@link ZscriptTokenExpression#iteratorToMarker()} to supply tokens, which should skip extension tokens correctly (ie not return them, but count them as part
+     * of their precursor token).
      *
      * @return OptIterator for all the fields in this expression
      */
@@ -127,18 +131,19 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
         for (Optional<ReadToken> opt = iter.next(); opt.isPresent(); opt = iter.next()) {
             final ReadToken rt  = opt.get();
             final byte      key = rt.getKey();
-            if (Zchars.isNumericKey(key)) {
+            if (Zchars.isExpressionKey(key)) {
                 if (foundCmds.get(key - 'A')) {
                     commandComplete();
                     status(ZscriptStatus.REPEATED_KEY);
                     return false;
                 }
                 foundCmds.set(key - 'A');
-                if (rt.getDataSize() > 2) {
-                    commandComplete();
-                    status(ZscriptStatus.FIELD_TOO_LONG);
-                    return false;
-                }
+                // // Obsolete: fields are no longer size limited like this
+                //                if (rt.getDataSize() > 2) {
+                //                    commandComplete();
+                //                    status(ZscriptStatus.FIELD_TOO_LONG);
+                //                    return false;
+                //                }
             } else if (!Zchars.isBigField(key)) {
                 commandComplete();
                 status(ZscriptStatus.INVALID_KEY);

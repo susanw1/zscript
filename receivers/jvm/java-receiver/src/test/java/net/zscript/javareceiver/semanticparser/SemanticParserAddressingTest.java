@@ -59,7 +59,7 @@ public class SemanticParserAddressingTest {
     }
 
     @Test
-    void shouldFailNonExistantAddressing() {
+    void shouldFailNonExistentAddressing() {
         zscript.setNotificationOutStream(outStream);
         parserActionTester.parseSnippet("@9999Z1\n", List.of(INVOKE_ADDRESSING, END_SEQUENCE, WAIT_FOR_TOKENS));
         assertThat(outStream.getString()).isEqualTo("!S12\n");

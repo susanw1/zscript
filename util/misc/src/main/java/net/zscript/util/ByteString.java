@@ -299,13 +299,13 @@ public final class ByteString implements Iterable<Byte> {
     }
 
     /**
-     * Utility method to create a ByteString from byte[]
+     * Utility method to create a ByteString from some bytes (or a byte[]).
      *
      * @param b the byte array to copy
      * @return the resulting ByteString
      */
     @Nonnull
-    public static ByteString byteString(byte[] b) {
+    public static ByteString byteString(byte... b) {
         return byteString(b, 0, b.length);
     }
 

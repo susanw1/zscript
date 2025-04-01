@@ -16,21 +16,29 @@ public interface ZscriptField extends Iterable<Byte> {
     byte getKey();
 
     /**
-     * If this is a numeric field, then this is the numeric value of the 16-bit field. Otherwise zero.
+     * Numeric value of the first 2 bytes of data, as a 16-bit unsigned value.
      *
-     * @return the value of this field, or zero
+     * @return the value of this field's data
      */
     int getValue();
 
     /**
-     * @return true if this is a big-field (quoted or string), false otherwise
+     * Indicates whether this field has a meaningful numeric form, which implies {@link #getValue()} gives a reasonable value.
+     *
+     * @return true if numeric, false if string only
      */
+    boolean isNumeric();
+
+    /**
+     * @return true if this is a big-field (quoted or string), false otherwise. Note, true big-fields are obsolete, as any A-Z field can be string or numeric
+     */
+    @Deprecated
     boolean isBigField();
 
     /**
-     * Returns a data iterator for the data in this field. This might be empty for a numeric field, so check that {@link #isBigField()} is true to avoid uncertainty.
+     * Returns a data iterator for the data in this field, including extension data.
      *
-     * @return an iterator over the data in this field (including extension data)
+     * @return an iterator over the data in this field
      */
     @Nonnull
     @Override

@@ -4,21 +4,31 @@ import javax.annotation.Nonnull;
 
 import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandpaths.FieldElement;
 import net.zscript.tokenizer.ZscriptExpression;
+import net.zscript.util.ByteString;
 
 public class GenericCommandBuilder extends ZscriptCommandBuilder<DefaultResponse> {
     @Override
-    public int getField(byte key) {
-        return super.getField(key);
+    public FieldElement getFieldOrZero(byte key) {
+        return super.getFieldOrZero(key);
     }
 
     @Override
-    public int getField(char key) {
-        return super.getField(key);
+    public FieldElement getFieldOrZero(char key) {
+        return super.getFieldOrZero(key);
     }
 
     public GenericCommandBuilder setField(char key, int value) {
         return (GenericCommandBuilder) setField((byte) key, value);
+    }
+
+    public GenericCommandBuilder setFieldAsText(char key, ByteString data) {
+        return (GenericCommandBuilder) setFieldAsText((byte) key, data);
+    }
+
+    public GenericCommandBuilder setFieldAsBytes(char key, ByteString data) {
+        return (GenericCommandBuilder) setFieldAsBytes((byte) key, data);
     }
 
     @Override

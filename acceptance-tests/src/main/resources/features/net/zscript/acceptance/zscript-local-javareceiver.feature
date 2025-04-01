@@ -20,7 +20,7 @@ Feature: Zscript Local Device Representation for Java Receiver
         When I send the command sequence to the target and receive a response sequence
         Then it should include a Status field set to 0
         And it should include a Version field set to 1
-        And it should include a bigfield Ident set to ""
+        And it should include a Ident string-field set to ""
         And there should be no additional responses
 
 
@@ -32,7 +32,7 @@ Feature: Zscript Local Device Representation for Java Receiver
         When I send the command sequence to the target and receive a response sequence
         Then it should include a Status field set to 0
         And it should include a Version field set to 1
-        And it should include a bigfield Ident set to ""
+        And it should include a Ident string-field set to ""
         And having succeeded, there should be a following response
         And it should include a Status field set to 0
         And it should include a field key 'A' set to 0x14
@@ -45,7 +45,7 @@ Feature: Zscript Local Device Representation for Java Receiver
         And if successful, it is followed by the echo command
         And it has the field key 'A' set to 0x14
         When I send the command sequence to the target and receive a response sequence
-        Then it should match "C3117 M1 V1 S0"
+        Then it should match "C3117 M1 V1 S I"
         And having succeeded, there should be a following response
-        And it should match "A14 S0"
+        And it should match "A14 S"
         And there should be no additional responses

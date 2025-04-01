@@ -34,13 +34,22 @@ public class Zchars {
         return false{{#zchars}}{{#separator}} || b == '{{{chEscapedAsC}}}'{{/separator}}{{/zchars}};
     }
 
+    @Deprecated
     public static boolean isNonNumericalKey(byte b) {
         return false{{#zchars}}{{#nonNumeric}} || b == '{{{chEscapedAsC}}}'{{/nonNumeric}}{{/zchars}};
+    }
+
+    public static boolean isShortNumber(byte b) {
+        return false{{#zchars}}{{#shortNumber}} || b == '{{{chEscapedAsC}}}'{{/shortNumber}}{{/zchars}};
     }
 
     @Deprecated
     public static boolean isBigField(byte b) {
         return false{{#zchars}}{{#bigField}} || b == '{{{chEscapedAsC}}}'{{/bigField}}{{/zchars}};
+    }
+
+    public static boolean isFieldTypeIndicator(byte b) {
+        return false{{#zchars}}{{#fieldTypeIndicator}} || b == '{{{chEscapedAsC}}}'{{/fieldTypeIndicator}}{{/zchars}};
     }
 
     public static boolean isAddressing(byte b) {
@@ -51,13 +60,13 @@ public class Zchars {
         return false{{#zchars}}{{#mustEscape}} || b == '{{{chEscapedAsC}}}'{{/mustEscape}}{{/zchars}};
     }
 
-    public static boolean isNumericKey(byte b) {
+    public static boolean isExpressionKey(byte b) {
         return (b >= 'A' && b <= 'Z');
     }
 
     @Deprecated
     public static boolean isCommandKey(byte b) {
-        return isNumericKey(b) || isBigField(b);
+        return isExpressionKey(b) || isBigField(b);
     }
 
     public static boolean isAllowableKey(byte b) {

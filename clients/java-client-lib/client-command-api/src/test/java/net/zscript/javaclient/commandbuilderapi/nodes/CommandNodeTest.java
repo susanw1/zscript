@@ -55,7 +55,7 @@ public class CommandNodeTest {
         final DemoCapabilitiesCommandBuilder b = DemoCapabilities.builder();
         assertThatThrownBy(() -> b.setField('%', 123))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Key not a valid Zscript Command key");
-        assertThatThrownBy(() -> b.getField('%'))
+        assertThatThrownBy(() -> b.getFieldOrZero('%'))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Key not a valid Zscript Command key");
     }
 

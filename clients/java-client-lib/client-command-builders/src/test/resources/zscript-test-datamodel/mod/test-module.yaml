@@ -126,76 +126,76 @@ commands:
 
 -   name: testCommand1
     command: 1
-    description: Bigfield request and response required text
+    description: String request and response required text
     operation: get
     requestFields:
-    -   key: +
+    -   key: A
         name: textReqTestA
-        description: a required test bigfield text
+        description: a required test string text
         typeDefinition:
             '@type': text
         required: yes
     responseFields:
-    -   key: +
+    -   key: P
         name: textRespTestP
-        description: a required test bigfield text
+        description: a required test string text
         typeDefinition:
             '@type': text
         required: yes
 
 -   name: testCommand2
     command: 2
-    description: Bigfield request and response required bytes
+    description: String request and response required bytes
     operation: get
     requestFields:
-    -   key: +
+    -   key: A
         name: textReqTestA
-        description: a required test bigfield bytes
+        description: a required test string bytes
         typeDefinition:
             '@type': bytes
         required: yes
     responseFields:
-    -   key: +
+    -   key: P
         name: textRespTestA
-        description: a required test bigfield bytes
+        description: a required test string bytes
         typeDefinition:
             '@type': bytes
         required: yes
 
 -   name: testCommand3
     command: 3
-    description: Bigfield request and response optional text
+    description: String request and response optional text
     operation: get
     requestFields:
-    -   key: +
+    -   key: A
         name: textReqTestA
-        description: a optional test bigfield text
+        description: a optional test string text
         typeDefinition:
             '@type': text
         required: no
     responseFields:
-    -   key: +
+    -   key: P
         name: textRespTestP
-        description: a optional test bigfield text
+        description: a optional test string text
         typeDefinition:
             '@type': text
         required: no
 
 -   name: testCommand4
     command: 4
-    description: Bigfield request and response optional bytes
+    description: String request and response optional bytes
     operation: get
     requestFields:
-    -   key: +
+    -   key: A
         name: textReqTestA
-        description: a optional test bigfield bytes
+        description: a optional test string bytes
         typeDefinition:
             '@type': bytes
         required: no
     responseFields:
-    -   key: +
+    -   key: P
         name: textRespTestA
-        description: a optional test bigfield bytes
+        description: a optional test string bytes
         typeDefinition:
             '@type': bytes
         required: no

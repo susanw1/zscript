@@ -51,24 +51,39 @@ static bool ZS_Zchars_isSeparator(uint8_t b) {
     return 0{{#zchars}}{{#separator}} || b == '{{{chEscapedAsC}}}'{{/separator}}{{/zchars}};
 }
 
+// Deprecated!!!
 static bool ZS_Zchars_isNonNumerical(uint8_t b) {
     return 0{{#zchars}}{{#nonNumeric}} || b == '{{{chEscapedAsC}}}'{{/nonNumeric}}{{/zchars}};
 }
 
+static bool ZS_Zchars_isShortNumber(uint8_t b) {
+    return 0{{#zchars}}{{#shortNumber}} || b == '{{{chEscapedAsC}}}'{{/shortNumber}}{{/zchars}};
+}
+
+// Deprecated!!!
 static bool ZS_Zchars_isBigField(uint8_t b) {
     return 0{{#zchars}}{{#bigField}} || b == '{{{chEscapedAsC}}}'{{/bigField}}{{/zchars}};
+}
+
+static bool ZS_Zchars_isFieldTypeIndicator(uint8_t b) {
+    return 0{{#zchars}}{{#fieldTypeIndicator}} || b == '{{{chEscapedAsC}}}'{{/fieldTypeIndicator}}{{/zchars}};
+}
+
+static bool ZS_Zchars_isAddressing(uint8_t b) {
+    return 0{{#zchars}}{{#addressing}} || b == '{{{chEscapedAsC}}}'{{/addressing}}{{/zchars}};
 }
 
 static bool ZS_Zchars_mustStringEscape(uint8_t b) {
     return 0{{#zchars}}{{#mustEscape}} || b == '{{{chEscapedAsC}}}'{{/mustEscape}}{{/zchars}};
 }
 
-static bool ZS_Zchars_isNumericKey(uint8_t b) {
+static bool ZS_Zchars_isExpressionKey(uint8_t b) {
     return (b >= 'A' && b <= 'Z');
 }
 
+// Deprecated!!!
 static bool ZS_Zchars_isCommandKey(uint8_t b) {
-    return ZS_Zchars_isNumericKey(b) || ZS_Zchars_isBigField(b);
+    return ZS_Zchars_isExpressionKey(b) || ZS_Zchars_isBigField(b);
 }
 
 static bool ZS_Zchars_isAllowableKey(uint8_t b) {

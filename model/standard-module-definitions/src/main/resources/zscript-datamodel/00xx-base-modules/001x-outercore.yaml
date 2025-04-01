@@ -86,7 +86,7 @@ commands:
     description: writes a specified GUID to the id system
     operation: put
     requestFields:
-    -   key: +
+    -   key: G
         name: guid
         description: the GUID to write, exactly 16 bytes
         typeDefinition:

@@ -50,9 +50,9 @@ public class ZscriptTokenExpression implements ZscriptExpression {
 
     @Nonnull
     @Override
-    public Stream<ZscriptField> fields() {
+    public Stream<ZscriptTokenField> fields() {
         return iteratorToMarker().stream()
-                .filter(tok -> Zchars.isNumericKey(tok.getKey()))
+                .filter(tok -> Zchars.isExpressionKey(tok.getKey()))
                 .map(ZscriptTokenField::new);
     }
 
@@ -68,17 +68,19 @@ public class ZscriptTokenExpression implements ZscriptExpression {
     @Override
     public int getFieldCount() {
         return (int) iteratorToMarker().stream()
-                .filter(tok -> Zchars.isNumericKey(tok.getKey()))
+                .filter(tok -> Zchars.isExpressionKey(tok.getKey()))
                 .count();
     }
 
     @Override
+    @Deprecated
     public boolean hasBigField() {
         return iteratorToMarker().stream()
                 .anyMatch(tok -> Zchars.isBigField(tok.getKey()));
     }
 
     @Override
+    @Deprecated
     public int getBigFieldSize() {
         return iteratorToMarker().stream()
                 .filter(tok -> Zchars.isBigField(tok.getKey()))
@@ -88,6 +90,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
 
     @Nonnull
     @Override
+    @Deprecated
     public ByteString getBigFieldAsByteString() {
         return byteString(bigFieldDataIterator());
     }
@@ -98,6 +101,7 @@ public class ZscriptTokenExpression implements ZscriptExpression {
      *
      * @return fully big-field-aware data iterator
      */
+    @Deprecated
     public BlockIterator bigFieldDataIterator() {
         return new BlockIterator() {
             final OptIterator<ReadToken> it = iteratorToMarker();

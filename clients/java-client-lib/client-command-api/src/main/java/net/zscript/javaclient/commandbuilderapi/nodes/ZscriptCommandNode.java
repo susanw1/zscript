@@ -2,15 +2,16 @@ package net.zscript.javaclient.commandbuilderapi.nodes;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+
+import static java.util.Collections.emptyList;
 
 import net.zscript.javaclient.commandbuilderapi.Respondable;
 import net.zscript.javaclient.commandbuilderapi.ZscriptResponse;
 import net.zscript.javaclient.commandbuilderapi.defaultcommands.AbortCommandNode;
 import net.zscript.javaclient.commandbuilderapi.defaultcommands.FailureCommandNode;
 import net.zscript.javaclient.commandpaths.BigField;
+import net.zscript.javaclient.commandpaths.FieldElement;
 import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 import net.zscript.tokenizer.ZscriptExpression;
 import net.zscript.util.ByteString.ByteStringBuilder;
@@ -34,11 +35,11 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
     private final ZscriptFieldSet   fieldSet;
 
     protected ZscriptCommandNode(ZscriptCommandBuilder<T> builder) {
-        this(builder.captor, List.copyOf(builder.bigFields), Map.copyOf(builder.fields));
+        this(builder.captor, List.copyOf(builder.bigFields), List.copyOf(builder.fields.values()));
     }
 
     protected ZscriptCommandNode() {
-        this(null, Collections.emptyList(), Collections.emptyMap());
+        this(null, emptyList(), emptyList());
     }
 
     /**
@@ -49,9 +50,9 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
      * @param bigFields the big-fields associated with this command
      * @param fields    the numeric fields associated with this response
      */
-    protected ZscriptCommandNode(@Nullable ResponseCaptor<T> captor, List<BigField> bigFields, Map<Byte, Integer> fields) {
+    protected ZscriptCommandNode(@Nullable ResponseCaptor<T> captor, @Deprecated List<BigField> bigFields, List<FieldElement> fields) {
         this.captor = captor;
-        this.fieldSet = ZscriptFieldSet.fromMap(bigFields, fields);
+        this.fieldSet = ZscriptFieldSet.fromList(bigFields, fields);
         if (captor != null) {
             captor.setSource(this);
         }
@@ -70,7 +71,7 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
 
     @Nonnull
     public final List<CommandSequenceNode> getChildren() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Nonnull

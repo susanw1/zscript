@@ -291,8 +291,8 @@ public interface ZscriptDataModel {
     /**
      * "abstract" type to represent the common behaviour in the big-field related types.
      */
-    interface BigfieldTypeDefinition extends TypeDefinition {
-        default boolean bigfieldType() {
+    interface StringTypeDefinition extends TypeDefinition {
+        default boolean stringType() {
             return true;
         }
 
@@ -301,13 +301,13 @@ public interface ZscriptDataModel {
         Integer getMaxLength();
     }
 
-    interface BytesTypeDefinition extends BigfieldTypeDefinition {
+    interface BytesTypeDefinition extends StringTypeDefinition {
         default boolean bytesType() {
             return true;
         }
     }
 
-    interface TextTypeDefinition extends BigfieldTypeDefinition {
+    interface TextTypeDefinition extends StringTypeDefinition {
         default boolean textType() {
             return true;
         }

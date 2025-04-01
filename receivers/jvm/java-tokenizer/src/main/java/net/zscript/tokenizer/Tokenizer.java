@@ -49,7 +49,7 @@ public class Tokenizer {
 
     public static final byte NORMAL_SEQUENCE_END              = (byte) 0xf0;
     public static final byte ERROR_BUFFER_OVERRUN             = (byte) 0xf1;
-    public static final byte ERROR_CODE_ODD_BIGFIELD_LENGTH   = (byte) 0xf2;
+    public static final byte ERROR_CODE_ODD_HEXPAIR_LENGTH    = (byte) 0xf2;
     public static final byte ERROR_CODE_FIELD_TOO_LONG        = (byte) 0xf3;
     public static final byte ERROR_CODE_STRING_NOT_TERMINATED = (byte) 0xf4;
     public static final byte ERROR_CODE_STRING_ESCAPING       = (byte) 0xf5;
@@ -69,11 +69,13 @@ public class Tokenizer {
     private boolean skipToNL;
     private boolean bufferOvr;
     private boolean tokenizerError;
-    private boolean numeric;
     private boolean addressing;
+    //    private boolean numeric;
+    private boolean expectKeyTypeIndicator;
+    private boolean hexPaired;
 
     private boolean isText;
-    private boolean isNormalString;
+    private boolean isQuotedString;
     private int     escapingCount; // 2 bit counter, from 2 to 0
 
     /**
@@ -98,17 +100,28 @@ public class Tokenizer {
         this.writer = writer;
         this.maxNumericBytes = maxNumericBytes;
         this.parseOutAddressing = parseOutAddressing;
-        resetFlags();
+        resetAllFlags();
     }
 
-    private void resetFlags() {
+    private void resetAllFlags() {
         this.skipToNL = false;
         this.bufferOvr = false;
         this.tokenizerError = false;
-        this.numeric = false;
+
         this.addressing = false;
+        resetTokenFlags();
+    }
+
+    /**
+     * Resets just the flags that relate to the state of the current token, ready for the next one
+     */
+    private void resetTokenFlags() {
+        //        this.numeric = false;
+        this.expectKeyTypeIndicator = false;
+        this.hexPaired = false;
+
         this.isText = false;
-        this.isNormalString = false;
+        this.isQuotedString = false;
         this.escapingCount = 0;
     }
 
@@ -168,7 +181,7 @@ public class Tokenizer {
                     }
                     writer.writeMarker(NORMAL_SEQUENCE_END);
                 }
-                resetFlags();
+                resetAllFlags();
             }
             return;
         }
@@ -188,48 +201,51 @@ public class Tokenizer {
             return;
         }
 
+        if (expectKeyTypeIndicator && b == Zchars.Z_STRING_TYPE_QUOTED && !Zchars.isShortNumber(writer.getCurrentWriteTokenKey())) {
+            isText = true;
+            isQuotedString = true;
+            escapingCount = 0;
+            return;
+        }
+        expectKeyTypeIndicator = false;
+
         final byte hex = Zchars.parseHex(b);
         if (hex != Zchars.PARSE_NOT_HEX_0X10) {
-            if (numeric) {
-                // Check field length
-                final int currentLength = writer.getCurrentWriteTokenLength();
-                if (currentLength == maxNumericBytes && !writer.isInNibble()) {
+            if (writer.getCurrentWriteTokenLength() == DEFAULT_MAX_NUMERIC_BYTES) {
+                if (!writer.isInNibble() && Zchars.isShortNumber(writer.getCurrentWriteTokenKey())) {
                     writer.fail(ERROR_CODE_FIELD_TOO_LONG);
                     tokenizerError = true;
                     return;
                 }
-                // Skip leading zeros
-                if (currentLength == 0 && hex == 0) {
-                    return;
-                }
+                hexPaired = true;
             }
             writer.continueTokenNibble(hex);
-            return;
-        }
-
-        // Check big field odd length
-        if (!numeric && writer.getCurrentWriteTokenKey() == Zchars.Z_BIGFIELD_HEX && writer.isInNibble()) {
-            writer.fail(ERROR_CODE_ODD_BIGFIELD_LENGTH);
-            tokenizerError = true;
-            if (b == Zchars.Z_EOL_SYMBOL) {
-                // interesting case: the error above could be caused by b==Z_EOL_SYMBOL, but we've written an error marker, so just reset and return
-                resetFlags();
-            }
             return;
         }
 
         startNewToken(b);
     }
 
+    /**
+     * This is essentially copying bytes into the data of a token. Special cases include:
+     * <ul>
+     * <li>{@link Zchars#Z_EOL_SYMBOL} End-of-line - which terminates the string, or is an error if it's a quoted string</li>
+     * <li>{@link Zchars#Z_STRING_ESCAPE} String escapes in quoted strings</li>
+     * <li>{@link Zchars#Z_STRING_TYPE_QUOTED} End-quote in quoted strings - which terminates the string</li>
+     * </ul>
+     * All of the above special characters must be escaped in quoted strings
+     *
+     * @param b the text byte to accept
+     */
     private void acceptText(final byte b) {
         if (b == Zchars.Z_EOL_SYMBOL) {
-            if (isNormalString) {
+            if (isQuotedString) {
                 writer.fail(ERROR_CODE_STRING_NOT_TERMINATED);
             } else {
                 writer.writeMarker(NORMAL_SEQUENCE_END);
             }
             // we've written some marker, so reset as per the newline:
-            resetFlags();
+            resetAllFlags();
         } else if (escapingCount > 0) {
             final byte hex = Zchars.parseHex(b);
             if (hex == Zchars.PARSE_NOT_HEX_0X10) {
@@ -239,10 +255,10 @@ public class Tokenizer {
                 writer.continueTokenNibble(hex);
                 escapingCount--;
             }
-        } else if (isNormalString && b == Zchars.Z_BIGFIELD_QUOTED) {
+        } else if (isQuotedString && b == Zchars.Z_BIGFIELD_QUOTED) {
             writer.endToken();
             isText = false;
-        } else if (isNormalString && b == Zchars.Z_STRING_ESCAPE) {
+        } else if (isQuotedString && b == Zchars.Z_STRING_ESCAPE) {
             escapingCount = 2;
         } else {
             writer.continueTokenByte(b);
@@ -250,9 +266,20 @@ public class Tokenizer {
     }
 
     private void startNewToken(final byte b) {
+        // Check long hex odd length - disallow non-numeric fields with incomplete nibbles
+        if (hexPaired && writer.isInNibble()) {
+            writer.fail(ERROR_CODE_ODD_HEXPAIR_LENGTH);
+            tokenizerError = true;
+            if (b == Zchars.Z_EOL_SYMBOL) {
+                // interesting case: the error above could be caused by b==Z_EOL_SYMBOL, but we've written an error marker, so just reset and return
+                resetAllFlags();
+            }
+            return;
+        }
+
         if (b == Zchars.Z_EOL_SYMBOL) {
             writer.writeMarker(NORMAL_SEQUENCE_END);
-            resetFlags();
+            resetAllFlags();
             return;
         }
 
@@ -262,7 +289,7 @@ public class Tokenizer {
             addressing = false;
             isText = true;
             escapingCount = 0;
-            isNormalString = false;
+            isQuotedString = false;
             return;
         }
 
@@ -285,19 +312,22 @@ public class Tokenizer {
             return;
         }
 
-        numeric = !Zchars.isNonNumericalKey(b);
-        isText = false;
         if (b == Zchars.Z_COMMENT) {
             skipToNL = true;
             return;
         }
 
-        writer.startToken(b, numeric);
+        resetTokenFlags();
+        writer.startToken(b, true);
+        expectKeyTypeIndicator = true;
 
+        // Deprecated quoted/hexpair big-field
         if (b == Zchars.Z_BIGFIELD_QUOTED) {
             isText = true;
-            isNormalString = true;
+            isQuotedString = true;
             escapingCount = 0;
+        } else if (b == Zchars.Z_BIGFIELD_HEX) {
+            hexPaired = true;
         }
     }
 

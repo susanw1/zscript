@@ -565,7 +565,7 @@ public class SemanticParser implements ParseState, ContextView {
                 statusValue = ZscriptStatus.FIELD_TOO_LONG;
             } else if (tokenizerError == Tokenizer.ERROR_CODE_ILLEGAL_TOKEN) {
                 statusValue = ZscriptStatus.ILLEGAL_KEY;
-            } else if (tokenizerError == Tokenizer.ERROR_CODE_ODD_BIGFIELD_LENGTH) {
+            } else if (tokenizerError == Tokenizer.ERROR_CODE_ODD_HEXPAIR_LENGTH) {
                 statusValue = ZscriptStatus.ODD_LENGTH;
             } else if (tokenizerError == Tokenizer.ERROR_CODE_STRING_ESCAPING) {
                 statusValue = ZscriptStatus.ESCAPING_ERROR;

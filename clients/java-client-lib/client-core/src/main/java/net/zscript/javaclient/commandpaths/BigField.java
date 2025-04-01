@@ -14,6 +14,7 @@ import net.zscript.util.ByteString.ByteStringBuilder;
 /**
  * Represents a single big-field element (there may be multiple elements within n expression).
  */
+@Deprecated
 public class BigField implements ZscriptField, ByteAppendable {
     private final ByteString data;
     private final boolean    isString;
@@ -111,6 +112,12 @@ public class BigField implements ZscriptField, ByteAppendable {
     }
 
     @Override
+    public boolean isNumeric() {
+        return getDataLength() > 2;
+    }
+
+    @Override
+    @Deprecated
     public boolean isBigField() {
         return true;
     }

@@ -1,5 +1,6 @@
 package net.zscript.javaclient.commandbuilderapi.defaultcommands;
 
+import static net.zscript.javaclient.commandpaths.FieldElement.fieldOf;
 import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -8,14 +9,14 @@ import org.junit.jupiter.api.Test;
 import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandNode;
 
 class GenericCommandBuilderTest {
-    final GenericCommandBuilder testBuilder = new GenericCommandBuilder().setField('X', 123).addBigField("hello");
+    final GenericCommandBuilder testBuilder = new GenericCommandBuilder().setField('X', 123).setFieldAsText('W', byteStringUtf8("hello"));
 
     @Test
     public void shouldCreateGenericCommandBuilder() {
-        assertThat(testBuilder.getField('X')).isEqualTo(123);
-        assertThat(testBuilder.getField('Y')).isEqualTo(0);
+        assertThat(testBuilder.getFieldOrZero('X')).isEqualTo(fieldOf((byte) 'X', 123));
+        assertThat(testBuilder.getFieldOrZero('Y')).isEqualTo(fieldOf((byte) 'Y', 0));
 
-        assertThat(testBuilder.build().asFieldSet().asStringUtf8()).isEqualTo("X7b\"hello\"");
+        assertThat(testBuilder.build().asFieldSet().asStringUtf8()).isEqualTo("W\"hello\"X7b");
     }
 
     @Test

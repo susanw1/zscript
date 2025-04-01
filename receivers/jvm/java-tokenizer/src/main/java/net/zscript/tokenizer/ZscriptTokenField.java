@@ -26,6 +26,12 @@ public class ZscriptTokenField implements ZscriptField {
         return token.getData16();
     }
 
+    @Override
+    public boolean isNumeric() {
+        return token.hasNumeric(2);
+    }
+
+    @Deprecated
     public boolean isBigField() {
         return Zchars.isBigField(token.getKey());
     }
