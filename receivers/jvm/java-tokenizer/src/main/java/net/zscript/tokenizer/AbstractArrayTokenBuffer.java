@@ -121,20 +121,11 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
         }
 
         @Override
-        public void startToken(final byte key, final boolean numeric) {
+        public void startToken(final byte key) {
             endToken();
-            //            this.numeric = numeric;
             writeNewTokenStart(key);
         }
 
-        //        @Override
-        //        public void setTokenType(boolean numeric) {
-        //            if (isTokenComplete() || data[writeLastLen] != 0) {
-        //                throw new IllegalStateException("type can change only in a token before data is written");
-        //            }
-        //            this.numeric = numeric;
-        //        }
-        //
         @Override
         public void continueTokenNibble(final byte nibble) {
             if (nibble < 0 || nibble > 0xf) {
@@ -521,17 +512,14 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                 return getDataN(2);
             }
 
-            /** @return value read from data, or zero if data block is too large - use {@link #hasNumeric(int)} to pre-verify. */
-            private int getDataN(int maxBytes) {
+            /** @return value read from data, or just last n - use {@link #hasNumeric(int)} to pre-verify. */
+            private int getDataN(int n) {
                 if (isMarker()) {
                     throw new IllegalStateException("Cannot get data from marker token");
                 }
-                final int sz = getSegmentDataSize();
-                if (sz > maxBytes) {
-                    return 0;
-                }
-                int value = 0;
-                for (int i = 0; i < sz; i++) {
+                final int sz    = getSegmentDataSize();
+                int       value = 0;
+                for (int i = (sz > n ? sz - n : 0); i < sz; i++) {
                     value <<= 8;
                     value += toUnsignedInt(data[offset(index, i + 2)]);
                 }

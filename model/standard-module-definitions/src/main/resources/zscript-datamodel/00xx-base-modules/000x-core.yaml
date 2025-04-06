@@ -197,7 +197,7 @@ commands:
     responseFields:
     -   key: N
         name: channelCount
-        description: the total number of channels the device has
+        description: the total number of known channels
         typeDefinition:
             '@type': number
         required: yes
@@ -209,16 +209,22 @@ commands:
         required: yes
     -   key: B
         name: bufferLength
-        description: the total length of this channels token ring buffer
+        description: the total length of the requested channel's token ring buffer
         typeDefinition:
             '@type': number
         required: yes
     -   key: M
         name: associatedModule
-        description: the module associated with this channel
+        description: the module associated with the requested channel
         typeDefinition:
             '@type': number
         required: yes
+    -   key: D
+        name: description
+        description: a description of the requested channel
+        typeDefinition:
+            '@type': text
+        required: no
     extension: channel
     status:
     -   name: valueOutOfRange

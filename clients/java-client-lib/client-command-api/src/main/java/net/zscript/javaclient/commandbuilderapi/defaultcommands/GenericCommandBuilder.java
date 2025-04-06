@@ -31,24 +31,8 @@ public class GenericCommandBuilder extends ZscriptCommandBuilder<DefaultResponse
         return (GenericCommandBuilder) setFieldAsBytes((byte) key, data);
     }
 
-    @Override
-    public GenericCommandBuilder addBigField(byte[] data) {
-        return (GenericCommandBuilder) super.addBigField(data);
-    }
-
-    @Override
-    public GenericCommandBuilder addBigField(byte[] data, boolean asString) {
-        return (GenericCommandBuilder) super.addBigField(data, asString);
-    }
-
-    @Override
-    public GenericCommandBuilder addBigFieldAsSmallest(byte[] data) {
-        return (GenericCommandBuilder) super.addBigFieldAsSmallest(data);
-    }
-
-    @Override
-    public GenericCommandBuilder addBigField(String text) {
-        return (GenericCommandBuilder) super.addBigField(text);
+    public GenericCommandBuilder setFieldAsSmallest(char key, ByteString data) {
+        return (GenericCommandBuilder) setFieldAsSmallest((byte) key, data);
     }
 
     @Nonnull

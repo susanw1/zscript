@@ -21,7 +21,6 @@ intrinsics:
     -   name: cmd
         ch: "Z"
         description: "command field to identify the specific command to execute"
-        shortNumber: true
 
     -   name: eolSymbol
         ch: "\n"
@@ -58,22 +57,6 @@ intrinsics:
         ch: "%"
         description: "command sequence prefix to request specific locks to allow some concurrent access to resources"
         shortNumber: true
-        nonNumeric: true
-        deprecated: true
-
-    -   name: bigfieldHex
-        ch: "+"
-        description: "prefix for sequence of hex pairs to be sent in the big-field"
-        nonNumeric: true
-        bigField: true
-        deprecated: true
-
-    -   name: bigfieldQuoted
-        ch: "\""
-        description: "surrounds text to be sent as the big-field"
-        nonNumeric: true
-        mustEscape: true
-        bigField: true
         deprecated: true
 
     -   name: stringTypeQuoted
@@ -90,7 +73,6 @@ intrinsics:
     -   name: comment
         ch: "#"
         description: "starts a comment, which is generally ignored by the receiver"
-        nonNumeric: true
 
     -   name: addressing
         ch: "@"
@@ -258,7 +240,7 @@ intrinsics:
 
     -   name: oddLength
         id: 0x21
-        description: odd length big field
+        description: odd length string field
         category: *statusCategory_syntaxError
 
     -   name: unterminatedString
@@ -321,7 +303,7 @@ intrinsics:
 
     -   name: valueOutOfRange
         id: 0x51
-        description: a field or big field value is out of range
+        description: a field value is out of range
         category: *statusCategory_commandFieldError
 
     -   name: dataTooLong
@@ -331,7 +313,7 @@ intrinsics:
 
     -   name: valueUnsupported
         id: 0x53
-        description: a field or big field value is unsupported or invalid
+        description: a field value is unsupported or invalid
         category: *statusCategory_commandFieldError
 
 

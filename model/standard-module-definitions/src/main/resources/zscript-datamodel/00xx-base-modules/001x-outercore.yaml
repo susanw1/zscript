@@ -171,3 +171,9 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: no
+            -   key: M
+                name: message
+                description: explanatory message
+                typeDefinition:
+                    '@type': text
+                required: no

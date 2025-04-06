@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import net.zscript.tokenizer.TokenBuffer;
+import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.util.ByteString;
 import net.zscript.util.OptIterator;
 
@@ -23,7 +23,7 @@ class ResponseExecutionPathTest {
             "BaA01S,                    A1BaS",
             "AS & BS,                   AS&BS",
             "AS | BS,                   AS|BS",
-            "A+ab | B,                  A+ab|B",
+            "ACabcdef | B,              ACabcdef|B",
             "A,                         A",
             "A & B,                     A&B",
             "A | B,                     A|B",
@@ -60,14 +60,14 @@ class ResponseExecutionPathTest {
 
     @Test
     public void shouldSupportToString() {
-        TokenBuffer.TokenReader.ReadToken token    = tokenize(byteStringUtf8("A1+abB2"), true).getTokenReader().getFirstReadToken();
-        ResponseExecutionPath             respPath = ResponseExecutionPath.parse(token);
-        assertThat(respPath).hasToString("ResponseExecutionPath:{'A1B2+ab'}");
+        ReadToken             token    = tokenize(byteStringUtf8("A1B\"ab\"C2"), true).getTokenReader().getFirstReadToken();
+        ResponseExecutionPath respPath = ResponseExecutionPath.parse(token);
+        assertThat(respPath).hasToString("ResponseExecutionPath:{'A1B6162C2'}");
     }
 
     private static ResponseExecutionPath getAndCheckResponseExecutionPath(String resps, String expected) {
-        TokenBuffer.TokenReader.ReadToken token    = tokenize(byteStringUtf8(resps), true).getTokenReader().getFirstReadToken();
-        ResponseExecutionPath             respPath = ResponseExecutionPath.parse(token);
+        ReadToken             token    = tokenize(byteStringUtf8(resps), true).getTokenReader().getFirstReadToken();
+        ResponseExecutionPath respPath = ResponseExecutionPath.parse(token);
         assertThat(respPath.asStringUtf8()).isEqualTo(expected);
         return respPath;
     }

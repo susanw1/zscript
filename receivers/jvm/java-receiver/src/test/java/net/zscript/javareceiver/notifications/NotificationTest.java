@@ -52,7 +52,7 @@ public class NotificationTest {
                 someValue--;
             }
             notifier = ctx.getAsyncActionNotifier();
-            ctx.getOutStream().asCommandOutStream().writeBigFieldQuoted(toWrite);
+            ctx.getOutStream().asCommandOutStream().writeFieldQuoted('X', toWrite);
         }
 
     }
@@ -76,7 +76,7 @@ public class NotificationTest {
         for (int i = 0; i < 20; i++) {
             zscript.progress();
         }
-        assertThat(outStream.getStringAndReset()).isEqualTo("!f\"data\"\n");
+        assertThat(outStream.getStringAndReset()).isEqualTo("!fX\"data\"\n");
         assertThat(outStream.isOpen()).isFalse();
     }
 
@@ -90,7 +90,7 @@ public class NotificationTest {
         for (int i = 0; i < 20; i++) {
             zscript.progress();
         }
-        assertThat(outStream.getStringAndReset()).isEqualTo("!f\"data\"");
+        assertThat(outStream.getStringAndReset()).isEqualTo("!fX\"data\"");
         assertThat(outStream.isOpen()).isTrue();
         assertThat(lastID).isEqualTo(0xf0);
         assertThat(lastIsAddressing).isFalse();
@@ -101,7 +101,7 @@ public class NotificationTest {
         for (int i = 0; i < 20; i++) {
             zscript.progress();
         }
-        assertThat(outStream.getStringAndReset()).isEqualTo("\"MoreData\"\n");
+        assertThat(outStream.getStringAndReset()).isEqualTo("X\"MoreData\"\n");
         assertThat(lastID).isEqualTo(0xf0);
         assertThat(lastIsAddressing).isFalse();
         assertThat(lastIsMoveAlong).isTrue();
@@ -119,7 +119,7 @@ public class NotificationTest {
         for (int i = 0; i < 20; i++) {
             zscript.progress();
         }
-        assertThat(outStream.getStringAndReset()).isEqualTo("!\"data\"");
+        assertThat(outStream.getStringAndReset()).isEqualTo("!X\"data\"");
         assertThat(lastID).isEqualTo(0xfd);
         assertThat(lastIsAddressing).isTrue();
         assertThat(lastIsMoveAlong).isFalse();
@@ -130,7 +130,7 @@ public class NotificationTest {
         for (int i = 0; i < 20; i++) {
             zscript.progress();
         }
-        assertThat(outStream.getStringAndReset()).isEqualTo("\"MoreData\"");
+        assertThat(outStream.getStringAndReset()).isEqualTo("X\"MoreData\"");
         assertThat(lastID).isEqualTo(0xfd);
         assertThat(lastIsAddressing).isTrue();
         assertThat(lastIsMoveAlong).isTrue();
@@ -141,7 +141,7 @@ public class NotificationTest {
         for (int i = 0; i < 20; i++) {
             zscript.progress();
         }
-        assertThat(outStream.getStringAndReset()).isEqualTo("\"YetMoreData\"\n");
+        assertThat(outStream.getStringAndReset()).isEqualTo("X\"YetMoreData\"\n");
         assertThat(lastID).isEqualTo(0xfd);
         assertThat(lastIsAddressing).isTrue();
         assertThat(lastIsMoveAlong).isTrue();

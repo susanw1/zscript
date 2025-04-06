@@ -3,7 +3,6 @@ package net.zscript.javaclient.commandbuilderapi.defaultcommands;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-import static java.util.Collections.emptyList;
 import static net.zscript.javaclient.commandpaths.FieldElement.fieldOf;
 
 import net.zscript.javaclient.commandbuilderapi.nodes.CommandSequenceNode;
@@ -15,7 +14,7 @@ import net.zscript.tokenizer.ZscriptExpression;
 public class FailureCommandNode extends ZscriptCommandNode<DefaultResponse> {
 
     public FailureCommandNode() {
-        super(null, emptyList(), List.of(fieldOf(Zchars.Z_CMD, 1), fieldOf(Zchars.Z_STATUS, ZscriptStatus.COMMAND_FAIL_CONTROL)));
+        super(null, List.of(fieldOf(Zchars.Z_CMD, 1), fieldOf(Zchars.Z_STATUS, ZscriptStatus.COMMAND_FAIL_CONTROL)));
     }
 
     @Override

@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import net.zscript.javaclient.commandpaths.BigField;
 import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 import net.zscript.tokenizer.ZscriptExpression;
 
@@ -16,9 +15,7 @@ public class ValidatingResponseTest {
     @Test
     public void shouldValidateExpression() {
         ZscriptExpression fieldSet = ZscriptFieldSet.fromList(
-                List.of(new BigField(new byte[] { 'a', 'b' }, false), new BigField(new byte[] { 'c', 'd', 'e' }, true)),
                 List.of(fieldOf((byte) 'A', 12), fieldOf((byte) 'Z', 7), fieldOf((byte) 'C', 0), fieldOf((byte) 'D', 0x132))
-                //                Map.of((byte) 'A', 12, (byte) 'Z', 7, (byte) 'C', 0, (byte) 'D', 0x123)
         );
 
         ValidatingResponse vr1 = new ValidatingResponse(fieldSet, new byte[] { 'A', 'D' });

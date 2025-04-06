@@ -10,7 +10,6 @@ import net.zscript.javaclient.commandbuilderapi.Respondable;
 import net.zscript.javaclient.commandbuilderapi.ZscriptResponse;
 import net.zscript.javaclient.commandbuilderapi.defaultcommands.AbortCommandNode;
 import net.zscript.javaclient.commandbuilderapi.defaultcommands.FailureCommandNode;
-import net.zscript.javaclient.commandpaths.BigField;
 import net.zscript.javaclient.commandpaths.FieldElement;
 import net.zscript.javaclient.commandpaths.ZscriptFieldSet;
 import net.zscript.tokenizer.ZscriptExpression;
@@ -35,24 +34,23 @@ public abstract class ZscriptCommandNode<T extends ZscriptResponse> extends Comm
     private final ZscriptFieldSet   fieldSet;
 
     protected ZscriptCommandNode(ZscriptCommandBuilder<T> builder) {
-        this(builder.captor, List.copyOf(builder.bigFields), List.copyOf(builder.fields.values()));
+        this(builder.captor, List.copyOf(builder.fields.values()));
     }
 
     protected ZscriptCommandNode() {
-        this(null, emptyList(), emptyList());
+        this(null, emptyList());
     }
 
     /**
      * Defines a command sequence node representing a single command, optionally with a captor. The captor will be given the constructed response object when this command is
      * executed by a Zscript device and matched with a response.
      *
-     * @param captor    the captor, for keeping a link to the matching response
-     * @param bigFields the big-fields associated with this command
-     * @param fields    the numeric fields associated with this response
+     * @param captor the captor, for keeping a link to the matching response
+     * @param fields the numeric fields associated with this response
      */
-    protected ZscriptCommandNode(@Nullable ResponseCaptor<T> captor, @Deprecated List<BigField> bigFields, List<FieldElement> fields) {
+    protected ZscriptCommandNode(@Nullable ResponseCaptor<T> captor, List<FieldElement> fields) {
         this.captor = captor;
-        this.fieldSet = ZscriptFieldSet.fromList(bigFields, fields);
+        this.fieldSet = ZscriptFieldSet.fromList(fields);
         if (captor != null) {
             captor.setSource(this);
         }

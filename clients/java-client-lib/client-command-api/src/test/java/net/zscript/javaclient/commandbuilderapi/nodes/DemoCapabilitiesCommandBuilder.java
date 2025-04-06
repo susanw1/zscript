@@ -42,22 +42,6 @@ public class DemoCapabilitiesCommandBuilder extends ZscriptCommandBuilder<DemoCa
         return super.setFieldAsSmallest((byte) key, data);
     }
 
-    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigField(@Nonnull byte[] data) {
-        return super.addBigField(data);
-    }
-
-    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigField(@Nonnull byte[] data, boolean asString) {
-        return super.addBigField(data, asString);
-    }
-
-    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigFieldAsSmallest(@Nonnull byte[] data) {
-        return super.addBigField(data);
-    }
-
-    public ZscriptCommandBuilder<DemoCapabilitiesCommandResponse> addBigField(@Nonnull String data) {
-        return super.addBigField(data);
-    }
-
     @Nonnull
     @Override
     public ZscriptCommandNode<DemoCapabilitiesCommandResponse> build() {
@@ -77,7 +61,7 @@ class DemoCapabilities extends ZscriptCommandNode<DemoCapabilitiesCommandRespons
     @Nonnull
     @Override
     public DemoCapabilitiesCommandResponse parseResponse(@Nonnull ZscriptExpression resp) {
-        return new DemoCapabilitiesCommandResponse(resp, new byte[] {}, resp.getField('V').orElseThrow(), resp.getBigFieldAsByteString().asString());
+        return new DemoCapabilitiesCommandResponse(resp, new byte[] {}, resp.getField('V').orElseThrow(), resp.getFieldAsByteString('I').orElseThrow().asString());
     }
 
     @Nonnull

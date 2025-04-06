@@ -39,14 +39,14 @@ class TokenizerDeepParseAddressTest {
     private static final char OPEN_PAREN  = (char) Tokenizer.CMD_END_OPEN_PAREN;
     private static final char CLOSE_PAREN = (char) Tokenizer.CMD_END_CLOSE_PAREN;
 
-    private static final char FIELD_TOO_LONG      = (char) Tokenizer.ERROR_CODE_FIELD_TOO_LONG;
-    private static final char ODD_BIGFIELD_LENGTH = (char) Tokenizer.ERROR_CODE_ODD_HEXPAIR_LENGTH;
+    private static final char FIELD_TOO_LONG           = (char) Tokenizer.ERROR_CODE_FIELD_TOO_LONG;
+    private static final char ODD_HEXPAIR_FIELD_LENGTH = (char) Tokenizer.ERROR_CODE_ODD_HEXPAIR_LENGTH;
 
     private static final int CAPACITY_CHECK_LENGTH = 3;
 
     @BeforeEach
     void setUp() {
-        tokenizer = new Tokenizer(writer, 2, PARSE_OUT_ADDRESSING_TRUE);
+        tokenizer = new Tokenizer(writer, PARSE_OUT_ADDRESSING_TRUE);
         lenient().when(writer.checkAvailableCapacity(CAPACITY_CHECK_LENGTH)).thenReturn(true);
     }
 
@@ -117,25 +117,6 @@ class TokenizerDeepParseAddressTest {
 
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource
-    @Deprecated
-    public void shouldHandleBigFields(String desc, String zscript, String bufferActions) {
-        validateZscriptActions(zscript, bufferActions);
-    }
-
-    @Deprecated
-    private static Stream<Arguments> shouldHandleBigFields() {
-        return Stream.of(
-                Arguments.of("Bigfield hex", "A0 +1234\n", "tAn0--t+n1n2n3n4m" + END),
-                Arguments.of("Bigfield string", "A1 \"hello\"\n", "tAn1--t\"bhbeblblbo--m" + END),
-                Arguments.of("Bigfield string with nulls", "A1 \"\000hel\000lo\"\000\n", "tAn1--t\"--bhbebl--blbo----m" + END),
-                Arguments.of("Bigfield string with escape", "A1 \"h=65llo\"\n", "tAn1--t\"bh--n6n5blblbo--m" + END),
-                Arguments.of("Bigfield hex and string", "+12\"a\"\n", "t+n1n2t\"ba--m" + END),
-                Arguments.of("Bigfield string not terminated", "\"a\nA\n", "t\"baf" + (char) Tokenizer.ERROR_CODE_STRING_NOT_TERMINATED + "tAm" + END + "--"),
-                Arguments.of("Bigfield invalid escape", "\"h=6Ao\"A\nB\n", "t\"bh--n6f" + (char) Tokenizer.ERROR_CODE_STRING_ESCAPING + "--------tBm" + END));
-    }
-
-    @ParameterizedTest(name = "{0}: {1}")
-    @MethodSource
     public void shouldHandleStringFields(String desc, String zscript, String bufferActions) {
         validateZscriptActions(zscript, bufferActions);
     }
@@ -146,7 +127,7 @@ class TokenizerDeepParseAddressTest {
                 Arguments.of("Stringfield string", "A1 B\"hello\"\n", "tAn1--tB--bhbeblblbo--m" + END),
                 Arguments.of("Stringfield string with nulls", "A1 B\"\000hel\000lo\"\000\n", "tAn1--tB----bhbebl--blbo----m" + END),
                 Arguments.of("Stringfield string with escape", "A1 B\"h=65llo\"\n", "tAn1--tB--bh--n6n5blblbo--m" + END),
-                Arguments.of("Bigfield hex and string", "B12\"a\"\n", "tBn1n2t\"ba--m" + END),
+                Arguments.of("Stringfield hex and string", "B12C\"a\"\n", "tBn1n2tC--ba--m" + END),
                 Arguments.of("Stringfield string not terminated", "B\"a\nA\n", "tB--baf" + (char) Tokenizer.ERROR_CODE_STRING_NOT_TERMINATED + "tAm" + END + "--"),
                 Arguments.of("Stringfield invalid escape", "C\"h=6Ao\"A\nB\n", "tC--bh--n6f" + (char) Tokenizer.ERROR_CODE_STRING_ESCAPING + "--------tBm" + END));
     }
@@ -199,31 +180,7 @@ class TokenizerDeepParseAddressTest {
         Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "A12345\n\n".chars().forEachOrdered(c -> tok.accept((byte) c));
         // note second newline!
-        assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 0xf0, 0x12, 0x34, 0x50, 0);
-    }
-
-    @Deprecated
-    @Test
-    public void shouldFailOnOddHexString() {
-        TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
-        "+123A\n".chars().forEachOrdered(c -> tok.accept((byte) c));
-        assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 2, 0x12, 0x30, 0);
-
-        "B\n".chars().forEachOrdered(c -> tok.accept((byte) c));
-        assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 'B', 0, 0xf0, 0);
-    }
-
-    @Test
-    @Deprecated
-    public void shouldFailOnOddHexStringTerminatedByNL() {
-        TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
-        Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
-        "+12abc\n".chars().forEachOrdered(c -> tok.accept((byte) c));
-        assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 3, 0x12, 0xab, 0xc0, 0);
-
-        "A\n".chars().forEachOrdered(c -> tok.accept((byte) c));
-        assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 'A', 0, 0xf0, 0xc0, 0);
+        assertThat(buf.getInternalData()).startsWith(ODD_HEXPAIR_FIELD_LENGTH, 0xf0, 0x12, 0x34, 0x50, 0);
     }
 
     @Test
@@ -231,10 +188,10 @@ class TokenizerDeepParseAddressTest {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
         Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "A12345B\n".chars().forEachOrdered(c -> tok.accept((byte) c));
-        assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 3, 0x12, 0x34, 0x50, 0);
+        assertThat(buf.getInternalData()).startsWith(ODD_HEXPAIR_FIELD_LENGTH, 3, 0x12, 0x34, 0x50, 0);
 
         "C\n".chars().forEachOrdered(c -> tok.accept((byte) c));
-        assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 'C', 0, 0xf0, 0x50, 0);
+        assertThat(buf.getInternalData()).startsWith(ODD_HEXPAIR_FIELD_LENGTH, 'C', 0, 0xf0, 0x50, 0);
     }
 
     @Test
@@ -242,10 +199,10 @@ class TokenizerDeepParseAddressTest {
         TokenRingBuffer buf = TokenRingBuffer.createBufferWithCapacity(128);
         Tokenizer       tok = new Tokenizer(buf.getTokenWriter(), PARSE_OUT_ADDRESSING_TRUE);
         "A12abc\n".chars().forEachOrdered(c -> tok.accept((byte) c));
-        assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 3, 0x12, 0xab, 0xc0, 0);
+        assertThat(buf.getInternalData()).startsWith(ODD_HEXPAIR_FIELD_LENGTH, 3, 0x12, 0xab, 0xc0, 0);
 
         "B\n".chars().forEachOrdered(c -> tok.accept((byte) c));
-        assertThat(buf.getInternalData()).startsWith(ODD_BIGFIELD_LENGTH, 'B', 0, 0xf0, 0xc0, 0);
+        assertThat(buf.getInternalData()).startsWith(ODD_HEXPAIR_FIELD_LENGTH, 'B', 0, 0xf0, 0xc0, 0);
     }
 
     @Test

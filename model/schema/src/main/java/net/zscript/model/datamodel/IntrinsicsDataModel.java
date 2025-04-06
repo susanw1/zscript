@@ -45,16 +45,11 @@ public interface IntrinsicsDataModel {
 
         boolean isMustEscape();
 
-        @Deprecated
-        boolean isNonNumeric();
-
         boolean isShortNumber();
 
         boolean isIgnoreAlways();
 
         boolean isIgnoreInCode();
-
-        boolean isBigField();
 
         boolean isFieldTypeIndicator();
 

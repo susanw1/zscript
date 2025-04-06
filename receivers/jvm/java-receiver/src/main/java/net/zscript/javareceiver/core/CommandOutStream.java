@@ -27,33 +27,7 @@ public interface CommandOutStream {
     }
 
     void writeField(ZscriptField field);
-
-    /**
-     * Writes the supplied string as a quoted Big Field. It is assumed to represent actual text and will be UTF-8 encoded. Forbidden chars (eg '\n', '"', '=', '\0') will be
-     * automatically Quoted-Printable escaped, eg =0a.
-     *
-     * @param text the text to write
-     */
-    @Deprecated
-    void writeBigFieldQuoted(String text);
-
-    /**
-     * Writes the supplied bytes as a quoted Big Field. It is assumed to already be encoded as required, and will *not* be UTF-8 encoded. However, forbidden chars (eg '\n', '"',
-     * '=', '\0') will be automatically Quoted-Printable escaped, eg =0a.
-     *
-     * @param utf8text the text to write
-     */
-    @Deprecated
-    void writeBigFieldQuoted(byte[] utf8text);
-
-    /**
-     * Writes the bytes provided as a hex big field, eg +68656c6c6f
-     *
-     * @param data the data to write
-     */
-    @Deprecated
-    void writeBigFieldHex(byte[] data);
-
+    
     /**
      * Writes the supplied string as a quoted string field. It is assumed to represent actual text and will be UTF-8 encoded. Forbidden chars (eg '\n', '"', '=', '\0') will be
      * automatically Quoted-Printable escaped, eg =0a.

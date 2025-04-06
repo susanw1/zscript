@@ -2,7 +2,6 @@ package net.zscript.javaclient.commandpaths;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -12,12 +11,10 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Stream;
 
-import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static net.zscript.javaclient.commandpaths.FieldElement.fieldOfBytes;
-import static net.zscript.util.ByteString.byteString;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +35,10 @@ import net.zscript.util.ByteString.ByteStringBuilder;
 public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable {
     private static final Logger LOG = LoggerFactory.getLogger(ZscriptFieldSet.class);
 
-    private final List<BigField> bigFields;
     private final FieldElement[] fields;
     private final boolean        hasClash;
 
     public static ZscriptFieldSet fromTokens(ReadToken start) {
-        final List<BigField> bigFields = new ArrayList<>();
-
         final FieldElement[] fields   = new FieldElement[26];
         boolean              hasClash = false;
 
@@ -53,37 +47,33 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
             final ReadToken token = opt.get();
             final byte      key   = token.getKey();
 
-            if (Zchars.isBigField(key)) {
-                bigFields.add(new BigField(byteString(token.dataIterator()), key == Zchars.Z_BIGFIELD_QUOTED));
-            } else {
-                if (!Zchars.isExpressionKey(key)) {
-                    throw new ZscriptParseException("Invalid numeric key, must be 'A'-'Z' [key=0x%02x('%c')]", key, key);
-                }
-                if (fields[key - 'A'] != null) {
-                    hasClash = true;
-                } else {
-                    fields[key - 'A'] = fieldOfBytes(key, token.dataIterator().toByteString());
-                }
+            if (!Zchars.isExpressionKey(key)) {
+                throw new ZscriptParseException("Invalid numeric key, must be 'A'-'Z' [key=0x%02x('%c')]", key, key);
             }
+            if (fields[key - 'A'] != null) {
+                hasClash = true;
+            } else {
+                fields[key - 'A'] = fieldOfBytes(key, token.dataIterator().toByteString());
+            }
+
         }
-        return new ZscriptFieldSet(bigFields, fields, hasClash);
+        return new ZscriptFieldSet(fields, hasClash);
     }
 
-    public static ZscriptFieldSet fromList(List<BigField> bigFields, List<FieldElement> inFields) {
+    public static ZscriptFieldSet fromList(List<FieldElement> inFields) {
         final FieldElement[] fields = new FieldElement[26];
         for (final FieldElement e : inFields) {
             fields[e.getKey() - 'A'] = e;
         }
-        return new ZscriptFieldSet(bigFields, fields, false);
+        return new ZscriptFieldSet(fields, false);
     }
 
     public static ZscriptFieldSet blank() {
         final FieldElement[] fields = new FieldElement[26];
-        return new ZscriptFieldSet(emptyList(), fields, false);
+        return new ZscriptFieldSet(fields, false);
     }
 
-    private ZscriptFieldSet(List<BigField> bigFields, FieldElement[] fields, boolean hasClash) {
-        this.bigFields = List.copyOf(bigFields);
+    private ZscriptFieldSet(FieldElement[] fields, boolean hasClash) {
         this.fields = fields;
         this.hasClash = hasClash;
     }
@@ -92,9 +82,6 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
      * @return true if this expression has no numeric fields and no big-fields; false otherwise
      */
     public boolean isEmpty() {
-        if (!bigFields.isEmpty()) {
-            return false;
-        }
         for (final FieldElement i : fields) {
             if (i != null) {
                 return false;
@@ -122,18 +109,6 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
         }
     }
 
-    /**
-     * Aggregates all big-fields in this field-set and returns the concatenated result.
-     *
-     * @return concatenation of all associated big-field data
-     */
-    @Nonnull
-    @Override
-    @Deprecated
-    public ByteString getBigFieldAsByteString() {
-        return ByteString.concat((bigField, b) -> b.append(bigField.getDataAsByteString()), bigFields);
-    }
-
     @Override
     public void appendTo(ByteStringBuilder builder) {
         // output Z-field first, for prettiness
@@ -145,9 +120,6 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
                 getFieldVal(key).appendTo(builder);
             }
         }
-        for (final BigField big : bigFields) {
-            big.appendTo(builder);
-        }
     }
 
     public int getBufferLength() {
@@ -157,11 +129,7 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
                 b.append(field);
             }
         }
-        int length = b.size();
-        for (final BigField big : bigFields) {
-            length += big.getBufferLength();
-        }
-        return length;
+        return b.size();
     }
 
     @Nonnull
@@ -181,20 +149,6 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
         return (int) Arrays.stream(fields).filter(Objects::nonNull).count();
     }
 
-    @Override
-    @Deprecated
-    public boolean hasBigField() {
-        return !bigFields.isEmpty();
-    }
-
-    @Override
-    @Deprecated
-    public int getBigFieldSize() {
-        return bigFields.stream()
-                .mapToInt(BigField::getDataLength)
-                .sum();
-    }
-
     /**
      * Builds a string description of the difference between this FieldSet and the supplied ZscriptExpression.
      *
@@ -211,9 +165,6 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
         final ByteStringBuilder b = ByteString.builder();
         if (!thisFields.isEmpty() || !otherFields.isEmpty()) {
             b.append(thisFields.values()).appendUtf8(" <> ").append(otherFields.values());
-        }
-        if (hasBigField() != other.hasBigField() || !getBigFieldAsByteString().equals(other.getBigFieldAsByteString())) {
-            b.appendUtf8(" + ").append(getBigFieldAsByteString()).appendUtf8(" <> ").append(other.getBigFieldAsByteString());
         }
         return b.build().asString();
     }

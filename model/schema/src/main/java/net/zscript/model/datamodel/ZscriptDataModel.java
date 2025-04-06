@@ -289,7 +289,7 @@ public interface ZscriptDataModel {
     }
 
     /**
-     * "abstract" type to represent the common behaviour in the big-field related types.
+     * "abstract" type to represent the common behaviour in the string-related types (bytes and text).
      */
     interface StringTypeDefinition extends TypeDefinition {
         default boolean stringType() {

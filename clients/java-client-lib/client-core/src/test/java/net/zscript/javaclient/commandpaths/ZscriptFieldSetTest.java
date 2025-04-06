@@ -2,11 +2,12 @@ package net.zscript.javaclient.commandpaths;
 
 import java.util.List;
 
-import static java.util.Collections.emptyList;
 import static net.zscript.javaclient.commandpaths.FieldElement.fieldOf;
 import static net.zscript.javaclient.commandpaths.FieldElement.fieldOfBytes;
+import static net.zscript.javaclient.commandpaths.FieldElement.fieldOfText;
 import static net.zscript.util.ByteString.ByteAppender.ISOLATIN1_APPENDER;
 import static net.zscript.util.ByteString.byteString;
+import static net.zscript.util.ByteString.byteStringUtf8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Disabled;
@@ -16,12 +17,16 @@ import net.zscript.javaclient.tokens.ExtendingTokenBuffer;
 
 public class ZscriptFieldSetTest {
     ZscriptFieldSet fieldSet = ZscriptFieldSet.fromList(
-            List.of(new BigField(new byte[] { 'a', 'b' }, false), new BigField(new byte[] { 'c', 'd', 'e' }, true)),
-            List.of(fieldOf((byte) 'A', 12), fieldOf((byte) 'Z', 7), fieldOf((byte) 'C', 0), fieldOf((byte) 'D', 0x123)));
+            List.of(fieldOf((byte) 'A', 12),
+                    fieldOf((byte) 'Z', 7),
+                    fieldOfText((byte) 'E', byteStringUtf8("ab")),
+                    fieldOf((byte) 'C', 0),
+                    fieldOfText((byte) 'F', byteStringUtf8("cde")),
+                    fieldOf((byte) 'D', 0x123)));
 
     @Test
     public void shouldInitializeFromMap() {
-        assertThat(fieldSet.getFieldCount()).isEqualTo(4);
+        assertThat(fieldSet.getFieldCount()).isEqualTo(6);
         assertThat(fieldSet.getField('A')).hasValue(12);
         assertThat(fieldSet.getField('Z')).hasValue(7);
         assertThat(fieldSet.hasField('Z')).isTrue();
@@ -32,23 +37,22 @@ public class ZscriptFieldSetTest {
         assertThat(fieldSet.hasField('B')).isFalse();
         assertThat(fieldSet.getZscriptField('B')).isNotPresent();
         assertThat(fieldSet.getFieldVal((byte) 'B')).isNull();
-
-        assertThat(fieldSet.hasBigField()).isTrue();
-        assertThat(fieldSet.getBigFieldSize()).isEqualTo(5);
-        assertThat(fieldSet.getBigFieldAsByteString().asString()).isEqualTo("abcde");
+        assertThat(fieldSet.hasField('E')).isTrue();
+        assertThat(fieldSet.getField('E')).isPresent().hasValue(0x6162);
+        assertThat(fieldSet.hasField('F')).isTrue();
+        assertThat(fieldSet.getField('F')).isPresent().hasValue('d' * 256 + 'e');
     }
 
     @Test
     public void shouldAppendToByteString() {
-        assertThat(byteString(fieldSet).asString()).isEqualTo("Z7AcCD123+6162\"cde\"");
+        assertThat(byteString(fieldSet).asString()).isEqualTo("Z7AcCD123E\"ab\"F\"cde\"");
     }
 
     @Test
     public void shouldDetermineIfEmpty() {
         assertThat(fieldSet.isEmpty()).isFalse();
         assertThat(ZscriptFieldSet.blank().isEmpty()).isTrue();
-        assertThat(ZscriptFieldSet.blank().hasBigField()).isFalse();
-        assertThat(ZscriptFieldSet.fromList(emptyList(), List.of(fieldOf((byte) 'Z', 4))).isEmpty()).isFalse();
+        assertThat(ZscriptFieldSet.fromList(List.of(fieldOf((byte) 'Z', 4))).isEmpty()).isFalse();
     }
 
     @Test

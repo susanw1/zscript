@@ -110,7 +110,7 @@ class LocalChannelTest {
         // E3 implies ERROR
         final Optional<byte[]> resp = responseCollector.next();
         final String           msg  = resp.map(b -> byteString(b).asString()).orElse("-empty-");
-        assertThat(resp).as(msg).hasValue("\"LocalChannel\"".getBytes(UTF_8));
+        assertThat(resp).as(msg).hasValue("D\"LocalChannel\"".getBytes(UTF_8));
         assertThat(testChannel.getStatus()).isEqualTo(ChannelStatus.ERROR);
     }
 
@@ -125,7 +125,7 @@ class LocalChannelTest {
         // E1 implies CLOSED
         final Optional<byte[]> resp = responseCollector.next();
         final String           msg  = resp.map(b -> byteString(b).asString()).orElse("-empty-");
-        assertThat(resp).as(msg).hasValue("\"LocalChannel\"".getBytes(UTF_8));
+        assertThat(resp).as(msg).hasValue("D\"LocalChannel\"".getBytes(UTF_8));
         assertThat(testChannel.getStatus()).isEqualTo(ChannelStatus.CLOSED);
     }
 
@@ -160,7 +160,7 @@ class LocalChannelTest {
         sequenceOutStream.close();
 
         await().atMost(ofSeconds(5)).until(() -> !responseCollector.isEmpty());
-        assertThat(responseCollector.next()).hasValue("\"LocalChannel\"".getBytes(UTF_8));
+        assertThat(responseCollector.next()).hasValue("D\"LocalChannel\"".getBytes(UTF_8));
         assertThat(channel.getStatus()).isEqualTo(ChannelStatus.OK);
     }
 }

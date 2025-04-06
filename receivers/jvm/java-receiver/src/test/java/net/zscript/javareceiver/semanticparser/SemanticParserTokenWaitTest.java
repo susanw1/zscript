@@ -138,7 +138,7 @@ class SemanticParserTokenWaitTest {
     @Test
     public void shouldWaitWithErrors() {
         // Z1A+a & Z1B\n Z1C\n
-        parserActionTester.parseSnippet("Z1A+a", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "");
+        parserActionTester.parseSnippet("Z1Aabcde", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "");
         assertThat(outStream.isOpen()).isFalse();
         parserActionTester.parseSnippet("", ActionType.WAIT_FOR_TOKENS, State.PRESEQUENCE, "");
         assertThat(outStream.isOpen()).isFalse();

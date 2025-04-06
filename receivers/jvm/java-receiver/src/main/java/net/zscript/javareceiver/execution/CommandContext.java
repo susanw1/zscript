@@ -17,8 +17,6 @@ import net.zscript.tokenizer.ZscriptExpression;
 import net.zscript.tokenizer.ZscriptField;
 import net.zscript.tokenizer.ZscriptTokenExpression;
 import net.zscript.tokenizer.ZscriptTokenField;
-import net.zscript.util.BlockIterator;
-import net.zscript.util.ByteString;
 import net.zscript.util.OptIterator;
 
 /**
@@ -63,36 +61,6 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
     @Override
     public int getFieldCount() {
         return expression.getFieldCount();
-    }
-
-    @Override
-    @Deprecated
-    public boolean hasBigField() {
-        return expression.hasBigField();
-    }
-
-    /**
-     * Produces a BlockIterator that iterates over multiple big-field items appearing in a single expression, including any extension tokens, thus providing access to all the
-     * big-field bytes.
-     *
-     * @return fully big-field-aware data iterator
-     */
-    @Nonnull
-    public Optional<BlockIterator> dataIterator(byte c) {
-        return expression.getFieldData(c);
-    }
-
-    @Override
-    @Deprecated
-    public int getBigFieldSize() {
-        return expression.getBigFieldSize();
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public ByteString getBigFieldAsByteString() {
-        return expression.getBigFieldAsByteString();
     }
 
     @Override
@@ -144,7 +112,7 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
                 //                    status(ZscriptStatus.FIELD_TOO_LONG);
                 //                    return false;
                 //                }
-            } else if (!Zchars.isBigField(key)) {
+            } else {
                 commandComplete();
                 status(ZscriptStatus.INVALID_KEY);
                 return false;

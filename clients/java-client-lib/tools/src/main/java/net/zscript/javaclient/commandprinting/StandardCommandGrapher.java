@@ -2,8 +2,6 @@ package net.zscript.javaclient.commandprinting;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -56,19 +54,21 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
 
-    private void explainBigField(TextBox box, ZscriptDataModel.GenericField field, ZscriptFieldSet fieldSet, CommandPrintSettings settings) {
-        byte[] bigFields = fieldSet.getBigFieldData();
-        if (bigFields.length == 0) {
+    private void explainStringField(TextBox box, ZscriptDataModel.GenericField field, ZscriptFieldSet fieldSet, CommandPrintSettings settings) {
+        final byte                 key      = (byte) field.getKey();
+        final Optional<ByteString> bigField = fieldSet.getFieldAsByteString(key);
+
+        if (bigField.isEmpty()) {
             box.append("No data");
         } else {
             if (field.getTypeDefinition() instanceof ZscriptDataModel.TextTypeDefinition) {
                 box.append('"')
-                        .append(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(bigFields)))
+                        .append(bigField.get().asString())
                         .append('"');
             } else {
                 box.append("(Hex) ");
                 ByteStringBuilder builder = ByteString.builder();
-                for (byte b : bigFields) {
+                for (byte b : bigField.get()) {
                     builder.appendHexPair(b);
                     builder.appendByte(' ');
                 }
@@ -115,7 +115,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         box.append(key);
         box.append("): ");
         if (field.getTypeDefinition() instanceof ZscriptDataModel.StringTypeDefinition) {
-            explainBigField(box, field, fieldSet, settings);
+            explainStringField(box, field, fieldSet, settings);
         } else {
             doneFields[key - 'A'] = true;
             OptionalInt valueOpt = fieldSet.getField(key);
@@ -322,7 +322,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
             }
         }
         for (ZscriptDataModel.ResponseFieldModel field : command.getResponseFields()) {
-            if (field.getKey() != 'S') {
+            if (field.getKey() != Zchars.Z_STATUS) {
                 explainField(box, field, doneFields, fieldSet, settings);
             }
         }

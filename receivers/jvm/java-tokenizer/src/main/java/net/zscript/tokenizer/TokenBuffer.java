@@ -58,17 +58,10 @@ public interface TokenBuffer {
          * Starts a new token with the specified key, along with whether nibble pairs are to be aggregated into bytes numerically. If a token is already being written, then it is
          * finished off first. The key must not be a marker - use {@link #writeMarker(byte)}.
          *
-         * @param key     the byte to use as the key
-         * @param numeric true if numeric nibble aggregation should be used, false otherwise
+         * @param key the byte to use as the key
          * @throws IllegalArgumentException if key is a marker
          */
-        void startToken(byte key, boolean numeric);
-
-        //        /**
-        //         * @param numeric true if token is now numeric, false otherwise
-        //         * @throws IllegalStateException if no token has been started, or if data has already been written
-        //         */
-        //        void setTokenType(boolean numeric);
+        void startToken(byte key);
 
         /**
          * Forces the current token to be finished (eg on close-quote), wrapping up any numeric nibbles and resetting the state flags.

@@ -61,7 +61,7 @@ class TokenRingBufferReaderTest {
             byte[] data = new byte[byteCount];
             r.nextBytes(data);
             TokenExpectation exp = normal((byte) r.nextInt(0x80), data);
-            writer.startToken(exp.key, true);
+            writer.startToken(exp.key);
             for (int j = 0; j < byteCount; j++) {
                 writer.continueTokenByte(data[j]);
             }
@@ -87,7 +87,7 @@ class TokenRingBufferReaderTest {
         byte[] data = new byte[byteCount];
         r.nextBytes(data);
         TokenExpectation exp = extended((byte) r.nextInt(0x80), data);
-        writer.startToken(exp.key, false);
+        writer.startToken(exp.key);
         for (int j = 0; j < byteCount; j++) {
             writer.continueTokenByte(data[j]);
         }

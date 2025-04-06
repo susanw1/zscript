@@ -66,10 +66,10 @@ public class AbstractOutStreamTest {
     }
 
     @Test
-    void shouldWriteBigField() {
+    void shouldWriteStringField() {
         byte[]        data     = new byte[256];
         StringBuilder expected = new StringBuilder();
-        expected.append('+');
+        expected.append('X');
         for (byte i = 0; i < 16; i++) {
             for (byte j = 0; j < 16; j++) {
                 data[i * 16 + j] = (byte) (i * 16 + j);
@@ -77,7 +77,7 @@ public class AbstractOutStreamTest {
                 expected.append(toHexChar(j));
             }
         }
-        stOut.writeBigFieldHex(data);
+        stOut.writeFieldHex('X', data);
         assertThat(stOut.getString()).isEqualTo(expected.toString());
     }
 
@@ -85,7 +85,7 @@ public class AbstractOutStreamTest {
     void shouldWriteStringFieldWithBytes() {
         byte[]        data     = new byte[256];
         StringBuilder expected = new StringBuilder();
-        expected.append('"');
+        expected.append("X\"");
         for (int i = 0; i < 256; i++) {
             if (i == '\0') {
                 expected.append("=00");
@@ -101,30 +101,30 @@ public class AbstractOutStreamTest {
             data[i] = (byte) i;
         }
         expected.append('"');
-        stOut.writeBigFieldQuoted(data);
+        stOut.writeFieldQuoted('X', data);
         assertThat(stOut.getString()).isEqualTo(expected.toString());
     }
 
     @Test
     void shouldWriteStringFieldWithHiByte() {
         // 0xb5 is the 'µ' symbol, but we expect literally 0xb5, not utf-8's 0xc2b5
-        stOut.writeBigFieldQuoted(new byte[] { (byte) 0xb5 });
+        stOut.writeFieldQuoted('X', new byte[] { (byte) 0xb5 });
         // note: ISO_8859_1 handily takes bottom byte of each char. We're not really using it.
-        assertThat(stOut.getString().getBytes(StandardCharsets.ISO_8859_1)).hasSize(3).containsExactly('"', 0xb5, '"');
+        assertThat(stOut.getString().getBytes(StandardCharsets.ISO_8859_1)).hasSize(4).containsExactly('X', '"', 0xb5, '"');
     }
 
     @Test
     void shouldWriteStringFieldWithStringContainingHiByte() {
         // 0xb5 is the 'µ' symbol, and writing strings should convert to UTF-8's 0xc2b5
-        stOut.writeBigFieldQuoted("µ");
+        stOut.writeFieldQuoted('X', "µ");
         // note: ISO_8859_1 handily takes bottom byte of each char. We're not really using it.
-        assertThat(stOut.getString().getBytes(StandardCharsets.ISO_8859_1)).hasSize(4).containsExactly('"', 0xc2, 0xb5, '"');
+        assertThat(stOut.getString().getBytes(StandardCharsets.ISO_8859_1)).hasSize(5).containsExactly('X', '"', 0xc2, 0xb5, '"');
     }
 
     @Test
     void shouldWriteStringFieldWithString() {
-        stOut.writeBigFieldQuoted("Hello World");
-        assertThat(stOut.getString()).isEqualTo("\"Hello World\"");
+        stOut.writeFieldQuoted('X', "Hello World");
+        assertThat(stOut.getString()).isEqualTo("X\"Hello World\"");
     }
 
     @Test

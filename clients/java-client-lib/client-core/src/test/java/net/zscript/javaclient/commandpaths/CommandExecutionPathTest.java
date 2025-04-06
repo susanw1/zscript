@@ -37,7 +37,7 @@ class CommandExecutionPathTest {
             "Z1BaA01,                           Z1A1Ba",
             "Z1A1 & Z1A2,                       Z1A1&Z1A2",
             "Z1A1 | Z1A2,                       Z1A1|Z1A2",
-            "Z1A1+ab | Z1A2,                    Z1A1+ab|Z1A2",
+            "Z1A1Babcdef | Z1A2,                Z1A1Babcdef|Z1A2",
             "A,                                 A",
             "A & B,                             A&B",
             "A | B,                             A|B",
@@ -192,7 +192,7 @@ class CommandExecutionPathTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "Z12345\n",
-            "+123\n",
+            "Aabcde\n",
     })
     public void shouldRejectFailedTokenization(String badCmdSeqs) {
         final ReadToken token = tokenizeWithoutRejection(byteStringUtf8(badCmdSeqs)).getTokenReader().getFirstReadToken();

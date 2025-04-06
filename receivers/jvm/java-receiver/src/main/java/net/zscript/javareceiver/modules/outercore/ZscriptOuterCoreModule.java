@@ -47,7 +47,7 @@ public class ZscriptOuterCoreModule implements ZscriptModule {
 
     @Override
     public void notification(NotificationContext ctx, boolean moveAlong) {
-        ctx.getOutStream().asCommandOutStream().writeBigFieldQuoted("System has reset");
+        ctx.getOutStream().asCommandOutStream().writeFieldQuoted('M', "System has reset");
     }
 
 }

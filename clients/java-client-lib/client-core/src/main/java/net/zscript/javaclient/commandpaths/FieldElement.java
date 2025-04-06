@@ -42,9 +42,6 @@ public final class FieldElement implements ZscriptField, ByteString.ByteAppendab
     }
 
     public static FieldElement fieldOf(ZscriptField f) {
-        if (f.isBigField()) {
-            throw new IllegalArgumentException("big field cannot be converted");
-        }
         return f instanceof FieldElement ? (FieldElement) f : new FieldElement(f.getKey(), concat(f.iterator()), false);
     }
 
@@ -75,7 +72,7 @@ public final class FieldElement implements ZscriptField, ByteString.ByteAppendab
     @Override
     public int getValue() {
         int t = 0;
-        for (int i = 0, n = Math.min(2, data.size()); i < n; i++) {
+        for (int i = (data.size() > 2 ? data.size() - 2 : 0), n = data.size(); i < n; i++) {
             t = (t << 8) | (data.get(i) & 0xff);
         }
         return t;
@@ -113,12 +110,6 @@ public final class FieldElement implements ZscriptField, ByteString.ByteAppendab
      */
     public int getDataLength() {
         return data.size();
-    }
-
-    @Override
-    @Deprecated
-    public boolean isBigField() {
-        return false;
     }
 
     @Nonnull

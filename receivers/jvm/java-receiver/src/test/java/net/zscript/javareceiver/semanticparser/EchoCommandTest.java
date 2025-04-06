@@ -63,16 +63,16 @@ class EchoCommandTest {
                 of("Z1A\"he=0all=6f\"\n", "!A\"he=0allo\"S\n"),
                 of("Z1A\"he=0all=6f\"\n", "!A\"he=0allo\"S\n"),
                 of("Z1A\"1=0a2=003=3d=224\"\n", "!A\"1=0a2=003=3d=224\"S\n"),
-                of("Z1+123456\n", "!+123456S\n"),
-                of("Z1+123456789abcdef0\n", "!+123456789abcdef0S\n"),
+                of("Z1 X123456\n", "!X\"\u00124V\"S\n"),
+                of("Z1 X123456789abcdef0\n", "!X\"\u00124Vx\u009a¼Þð\"S\n"),
                 of("Z1AS2\n", "!AS2\n"),
                 of("Z1AS2 | Z1\n", "!AS2|S\n"),
                 of("Z1AS13\n", "!AS13\n"),
                 of("Z1AS13 | Z1\n", "!AS13\n"),
 
                 of("Z1A1A2\n", "!S40\n"), // TODO verify this is standard, or whether we just pick first one
-                of("Z1+12+34\n", "!+12+34S\n"),
-                of("Z1+12\"ab\"+34\n", "!+12\"ab\"+34S\n")
+                of("Z1A12B34\n", "!A12B34S\n"),
+                of("Z1 A12 B\"ab\" C34\n", "!A12B6162C34S\n")
 
         );
     }

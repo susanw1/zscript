@@ -37,7 +37,7 @@ public class ScriptSpaceWriteCommand {
             writer = target.append();
         }
 
-        final Optional<BlockIterator> scriptText = ctx.dataIterator((byte) 'C');
+        final Optional<BlockIterator> scriptText = ctx.getFieldData('C');
         if (scriptText.isEmpty()) {
             ctx.status(ZscriptStatus.MISSING_KEY);
             return;
@@ -50,5 +50,4 @@ public class ScriptSpaceWriteCommand {
         writer.commitChanges();
         out.writeField('L', 0xFFFF);
     }
-
 }

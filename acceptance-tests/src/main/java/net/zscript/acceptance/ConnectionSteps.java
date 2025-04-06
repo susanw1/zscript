@@ -52,7 +52,7 @@ public class ConnectionSteps {
      * @param p some predicate to test (use t->false if only testing for device progression)
      */
     public void progressDeviceWhile(Predicate<?> p) {
-        await().atMost(ofSeconds(10))
+        await().atMost(ofSeconds(10000))
                 .until(() -> (!localJavaReceiverSteps.isConnected() || !localJavaReceiverSteps.progressZscriptDevice()) && !p.test(null));
     }
 

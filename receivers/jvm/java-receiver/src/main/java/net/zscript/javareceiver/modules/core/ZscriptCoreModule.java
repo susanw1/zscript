@@ -37,14 +37,14 @@ public class ZscriptCoreModule implements ZscriptModule {
         case 0x4:
             guidCmd.fetch(ctx);
             break;
-        case 0x8:
-            ZscriptChannelInfoCommand.execute(ctx);
-            break;
-        case 0xc:
+        //        case 0x4:
+        //            codeCmd.match(ctx);
+        //            break;
+        case 0x5:
             codeCmd.make(ctx);
             break;
-        case 0xd:
-            codeCmd.match(ctx);
+        case 0x8:
+            ZscriptChannelInfoCommand.execute(ctx);
             break;
         default:
             ctx.status(ZscriptStatus.COMMAND_NOT_FOUND);

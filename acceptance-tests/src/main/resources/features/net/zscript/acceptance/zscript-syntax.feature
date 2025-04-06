@@ -22,8 +22,8 @@ Feature: Zscript Syntax Consistency
         Then connection response #0 has status ODD_LENGTH
 
     @Syntax-error
-    Scenario: should reject unterminated text big-field
-        When I send exactly "Z1\"abc" as a command sequence to the connection, and capture the response
+    Scenario: should reject unterminated text string-field
+        When I send exactly "Z1 A\"abc" as a command sequence to the connection, and capture the response
         Then connection response #0 has status UNTERMINATED_STRING
 
     @Standard-operation
@@ -32,23 +32,23 @@ Feature: Zscript Syntax Consistency
         Then connection response #0 is equivalent to "S A2 B3 C74 D\"tu\" E\"vw\""
 
     @Standard-operation
-    Scenario: should allow multiple empty big-fields
-        When I send exactly "Z1+++\"\"+" as a command sequence to the connection, and capture the response
-        Then connection response #0 is equivalent to "S +"
+    Scenario: should allow multiple empty string-fields
+        When I send exactly "Z1 A\"\" B\"\"" as a command sequence to the connection, and capture the response
+        Then connection response #0 is equivalent to "SAB"
 
     @Standard-operation
-    Scenario: should allow escaping in text big-fields
+    Scenario: should allow escaping in text string-fields
         When I send exactly "Z1 X\"a=4eb\"" as a command sequence to the connection, and capture the response
         Then connection response #0 is equivalent to "S X\"aNb\""
 
     @Syntax-error
-    Scenario: should reject upper-case escapes embedded in text big-fields
-        When I send exactly "Z1\"a=4Bb\"" as a command sequence to the connection, and capture the response
+    Scenario: should reject upper-case escapes embedded in text string-fields
+        When I send exactly "Z1 X\"a=4Bb\"" as a command sequence to the connection, and capture the response
         Then connection response #0 has status ESCAPING_ERROR
 
     @Syntax-error
-    Scenario: should reject badly formed escapes as only value in text big-fields
-        When I send exactly "Z1\"=4x\"" as a command sequence to the connection, and capture the response
+    Scenario: should reject badly formed escapes as only value in text string-fields
+        When I send exactly "Z1 X\"=4x\"" as a command sequence to the connection, and capture the response
         Then connection response #0 has status ESCAPING_ERROR
 
     @Syntax-error
@@ -120,10 +120,10 @@ Feature: Zscript Syntax Consistency
         When I send exactly "<cmd>" as a command sequence to the connection, and capture the response
         Then connection response #0 has status ILLEGAL_KEY
         Examples:
-            | cmd        | desc                     |
-            | Z1 \"\" b2 | lc hex chars forbidden   |
-            | Z1 £1 A2   | non-base-ascii forbidden |
-            | Z1 \"\" 1  | non-base-ascii forbidden |
+            | cmd         | desc                     |
+            | Z1 A\"\" b2 | lc hex chars forbidden   |
+            | Z1 £1 A2    | non-base-ascii forbidden |
+            | Z1 B\"\" 1  | non-base-ascii forbidden |
 
     @Syntax-error
     Scenario Outline: should disallow invalid keys (allowed as keys, but not in their supplied location)
@@ -141,7 +141,7 @@ Feature: Zscript Syntax Consistency
         When I send exactly "<cmd>" as a command sequence to the connection, and capture the response
         Then connection response #0 is equivalent to "<resp>"
         Examples:
-            | cmd                | resp        |
-            | Z1 A, 2 ,b 1 \" \" | S0 A2b1 +20 |
-            | Z1 A1,2,3          | S0 A123     |
-            | Z1 \",\"           | S0 +2c      |
+            | cmd                 | resp        |
+            | Z1 A, 2 ,b 1 B\" \" | S0 A2b1 B20 |
+            | Z1 A1,2,3           | S0 A123     |
+            | Z1 A\",\"           | S0 A2c      |

@@ -17,7 +17,6 @@ class FieldElementTest {
         FieldElement f = FieldElement.fieldOf((byte) 'A', 0x123);
         assertThat(f.getKey()).isEqualTo((byte) 0x41);
         assertThat(f.getValue()).isEqualTo(0x123);
-        assertThat(f.isBigField()).isFalse();
         assertThat(f.isNumeric()).isTrue();
         assertThat(f.iterator().hasNext()).isTrue();
         assertThat(f.iterator().nextContiguous()).containsExactly(0x01, 0x23);
@@ -28,8 +27,7 @@ class FieldElementTest {
         final FieldElement f = FieldElement.fieldOfText((byte) 'A', testBytes);
 
         assertThat(f.getKey()).isEqualTo((byte) 'A');
-        assertThat(f.getValue()).isEqualTo('h' * 256 + 'e');
-        assertThat(f.isBigField()).isFalse();
+        assertThat(f.getValue()).isEqualTo('l' * 256 + 'o');
         assertThat(f.isNumeric()).isFalse();
         assertThat(f.iterator().hasNext()).isTrue();
         assertThat(f.getDataLength()).isEqualTo(5);
@@ -42,8 +40,7 @@ class FieldElementTest {
         final FieldElement f = FieldElement.fieldOfBytes((byte) 'A', testBytes);
 
         assertThat(f.getKey()).isEqualTo((byte) 'A');
-        assertThat(f.getValue()).isEqualTo('h' * 256 + 'e');
-        assertThat(f.isBigField()).isFalse();
+        assertThat(f.getValue()).isEqualTo('l' * 256 + 'o');
         assertThat(f.isNumeric()).isFalse();
         assertThat(f.iterator().hasNext()).isTrue();
         assertThat(f.getDataLength()).isEqualTo(5);
@@ -55,7 +52,7 @@ class FieldElementTest {
     public void shouldInitializeSmallestData() {
         final FieldElement f1 = FieldElement.fieldAsSmallest((byte) 'A', testBytes);
         assertThat(f1.isNumeric()).isFalse();
-        assertThat(f1.getValue()).isEqualTo('h' * 256 + 'e');
+        assertThat(f1.getValue()).isEqualTo('l' * 256 + 'o');
 
         final FieldElement f2 = FieldElement.fieldAsSmallest((byte) 'A', byteString((byte) 0, (byte) 0));
         assertThat(f2.isNumeric()).isTrue();

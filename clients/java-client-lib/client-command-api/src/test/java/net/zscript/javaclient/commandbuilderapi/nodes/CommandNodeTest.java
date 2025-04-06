@@ -13,21 +13,21 @@ public class CommandNodeTest {
     public void shouldCompileBasicCommand() {
         var seq = DemoCapabilities.builder()
                 .setVersionType(DemoCapabilitiesCommandBuilder.PLATFORM_FIRMWARE)
-                .addBigField("abc")
+                .setFieldAsText('X', "abc")
                 .build();
-        assertThat(seq.asStringUtf8()).isEqualTo("ZV2\"abc\"");
+        assertThat(seq.asStringUtf8()).isEqualTo("ZV2X\"abc\"");
     }
 
     @Test
     public void shouldCompileAndedCommandSequence() {
         var seq = DemoCapabilities.builder()
                 .setVersionType(DemoCapabilitiesCommandBuilder.PLATFORM_FIRMWARE)
-                .addBigField(new byte[] { 5, 6, 7, 0x7f })
+                .setFieldAsBytes('X', new byte[] { 5, 6, 7, 0x7f })
                 .build()
                 .andThen(DemoActivateCommand.builder()
                         .setField('A', 0x1234)
                         .build());
-        assertThat(seq.asStringUtf8()).isEqualTo("ZV2+0506077f&Z2A1234");
+        assertThat(seq.asStringUtf8()).isEqualTo("ZV2X0506077f&Z2A1234");
     }
 
     @Test
@@ -40,13 +40,13 @@ public class CommandNodeTest {
     }
 
     @Test
-    public void shouldValidateAndRejectBuilderWithMissingBigFieldKeys() {
+    public void shouldValidateAndRejectBuilderWithMissingStringFieldKeys() {
         final DemoCapabilitiesCommandBuilder b = DemoCapabilities.builder();
-        b.setRequiredFields(new byte[] { '+', 'V' });
+        b.setRequiredFields(new byte[] { 'I', 'V' });
         b.setField('V', 123);
         assertThatThrownBy(b::failIfInvalid)
                 .isInstanceOf(ZscriptMissingFieldException.class).hasMessageContaining("missingKeys");
-        b.addBigField("");
+        b.setFieldAsText('I', "");
         b.failIfInvalid(); // should return quietly now
     }
 

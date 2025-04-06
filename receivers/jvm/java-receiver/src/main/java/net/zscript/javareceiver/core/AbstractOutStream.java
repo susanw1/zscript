@@ -20,7 +20,7 @@ public abstract class AbstractOutStream implements OutStream {
 
     /**
      * Finds the ascii char representation of the bottom nibble of {@code b}. Watch out - this returns a byte, so it must be cast to a char to use it in certain contexts, such as
-     * StringBuilders or String '+' operations.
+     * StringBuilders or String concat operations.
      *
      * @param b the byte to convert (ignores top nibble)
      * @return a byte in range '0'-'9' or 'a'-'f'
@@ -98,49 +98,11 @@ public abstract class AbstractOutStream implements OutStream {
 
     @Override
     public void writeField(ZscriptField field) {
-        // Obsolete part:
-        if (field.isBigField()) {
-            if (field.getKey() == Zchars.Z_BIGFIELD_QUOTED) {
-                writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
-                // note, could use BlockIterator, but need to split and extract escaped chars
-                for (byte b : field) {
-                    writeStringByte(b);
-                }
-                writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
-            } else {
-                writeCharAsByte(Zchars.Z_BIGFIELD_HEX);
-                for (BlockIterator iterator = field.iterator(); iterator.hasNext(); ) {
-                    byte[] bytes = iterator.nextContiguous();
-                    writeBytes(bytes, bytes.length, true);
-                }
-            }
-        } else if (field.isNumeric()) { // New shiny part.
+        if (field.isNumeric()) {
             writeField(field.getKey(), field.getValue());
         } else {
             writeFieldQuoted(field.getKey(), field.iterator());
         }
-    }
-
-    @Override
-    @Deprecated
-    public void writeBigFieldQuoted(String string) {
-        writeBigFieldQuoted(string.getBytes(StandardCharsets.UTF_8));
-    }
-
-    @Override
-    @Deprecated
-    public void writeBigFieldQuoted(byte[] data) {
-        writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
-        for (byte b : data) {
-            writeStringByte(b);
-        }
-        writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
-    }
-
-    @Override
-    public void writeBigFieldHex(byte[] data) {
-        writeCharAsByte(Zchars.Z_BIGFIELD_HEX);
-        writeBytes(data, data.length, true);
     }
 
     @Override

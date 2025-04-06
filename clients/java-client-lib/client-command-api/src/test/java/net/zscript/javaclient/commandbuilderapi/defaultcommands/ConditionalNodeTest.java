@@ -3,7 +3,6 @@ package net.zscript.javaclient.commandbuilderapi.defaultcommands;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static java.util.Collections.emptyList;
 import static net.zscript.javaclient.commandbuilderapi.nodes.CommandSequenceNode.ifFails;
 import static net.zscript.javaclient.commandbuilderapi.nodes.CommandSequenceNode.ifSucceeds;
 import static net.zscript.javaclient.commandpaths.FieldElement.fieldOf;
@@ -89,7 +88,7 @@ class ConditionalNodeTest {
     @ParameterizedTest
     @MethodSource
     public void shouldParseResponses(final ZscriptCommandNode<DefaultResponse> node) {
-        final ZscriptFieldSet fieldSet = ZscriptFieldSet.fromList(emptyList(), List.of(fieldOf((byte) 'A', 12)));
+        final ZscriptFieldSet fieldSet = ZscriptFieldSet.fromList(List.of(fieldOf((byte) 'A', 12)));
         DefaultResponse       br       = node.parseResponse(fieldSet);
         assertThat(br.getField((byte) 'A')).hasValue(12);
         assertThat(node.getResponseType()).isEqualTo(DefaultResponse.class);

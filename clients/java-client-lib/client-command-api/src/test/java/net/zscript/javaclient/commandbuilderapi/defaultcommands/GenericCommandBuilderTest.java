@@ -31,25 +31,25 @@ class GenericCommandBuilderTest {
     }
 
     @Test
-    public void shouldAddTextAsBigFieldSmallest() {
-        final GenericCommandBuilder builder = new GenericCommandBuilder();
-        builder.addBigFieldAsSmallest(byteStringUtf8("hello").toByteArray());
-        assertThat(builder.build().asFieldSet().asStringUtf8()).isEqualTo("\"hello\"");
-    }
-
-    @Test
     public void shouldAddBytes() {
         final GenericCommandBuilder builder = new GenericCommandBuilder();
-        builder.addBigField(byteStringUtf8("hello").toByteArray());
-        builder.addBigField(byteStringUtf8("hello").toByteArray(), true);
-        assertThat(builder.build().asFieldSet().asStringUtf8()).isEqualTo("+68656c6c6f\"hello\"");
+        builder.setFieldAsBytes('X', byteStringUtf8("hello"));
+        builder.setFieldAsText('Y', byteStringUtf8("hello"));
+        assertThat(builder.build().asFieldSet().asStringUtf8()).isEqualTo("X68656c6c6fY\"hello\"");
     }
 
     @Test
-    public void shouldAddBytesAsBigFieldSmallest() {
+    public void shouldAddTextAsStringFieldSmallest() {
         final GenericCommandBuilder builder = new GenericCommandBuilder();
-        builder.addBigFieldAsSmallest(byteStringUtf8("\n\0=\"\n").toByteArray());
-        assertThat(builder.build().asFieldSet().asStringUtf8()).isEqualTo("+0a003d220a");
+        builder.setFieldAsSmallest('X', byteStringUtf8("hello"));
+        assertThat(builder.build().asFieldSet().asStringUtf8()).isEqualTo("X\"hello\"");
+    }
+
+    @Test
+    public void shouldAddBytesAsStringFieldSmallest() {
+        final GenericCommandBuilder builder = new GenericCommandBuilder();
+        builder.setFieldAsSmallest('X', byteStringUtf8("\n\0=\"\n"));
+        assertThat(builder.build().asFieldSet().asStringUtf8()).isEqualTo("X0a003d220a");
     }
 
 }

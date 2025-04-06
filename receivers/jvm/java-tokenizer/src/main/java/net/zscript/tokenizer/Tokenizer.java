@@ -63,14 +63,12 @@ public class Tokenizer {
     public static final byte CMD_END_CLOSE_PAREN = (byte) 0xe4;
 
     private final TokenWriter writer;
-    private final int         maxNumericBytes;
     private final boolean     parseOutAddressing;
 
     private boolean skipToNL;
     private boolean bufferOvr;
     private boolean tokenizerError;
     private boolean addressing;
-    //    private boolean numeric;
     private boolean expectKeyTypeIndicator;
     private boolean hexPaired;
 
@@ -79,26 +77,15 @@ public class Tokenizer {
     private int     escapingCount; // 2 bit counter, from 2 to 0
 
     /**
-     * @param writer             the writer to write tokens to
-     * @param parseOutAddressing true if addressed text should be written as normal tokens ("client"-style), false if they should be bundled into a singled ADDRESSING_FIELD_KEY
-     *                           token ("receiver"-style) ready for forwarding to its destination
-     */
-    public Tokenizer(final TokenWriter writer, final boolean parseOutAddressing) {
-        this(writer, DEFAULT_MAX_NUMERIC_BYTES, parseOutAddressing);
-    }
-
-    /**
      * Creates a new Tokenizer to write chars into tokens on the supplied writer. There are two primary modes: "client"-mode, where all tokens are written normally, and
      * "receiver"-mode. In receiver-mode, everything after the first address (eg "@a.b.c") is written as a single large text token marked with {@link #ADDRESSING_FIELD_KEY}
      *
      * @param writer             the writer to write tokens to
-     * @param maxNumericBytes    the width of the largest numeric token to write (beyond which we write ERROR_CODE_FIELD_TOO_LONG)
      * @param parseOutAddressing true if addressed text should be written as normal tokens ("client"-mode), false if they should be bundled into a singled ADDRESSING_FIELD_KEY
      *                           token ("receiver"-mode) ready for forwarding to its destination
      */
-    public Tokenizer(final TokenWriter writer, final int maxNumericBytes, final boolean parseOutAddressing) {
+    public Tokenizer(final TokenWriter writer, final boolean parseOutAddressing) {
         this.writer = writer;
-        this.maxNumericBytes = maxNumericBytes;
         this.parseOutAddressing = parseOutAddressing;
         resetAllFlags();
     }
@@ -116,7 +103,6 @@ public class Tokenizer {
      * Resets just the flags that relate to the state of the current token, ready for the next one
      */
     private void resetTokenFlags() {
-        //        this.numeric = false;
         this.expectKeyTypeIndicator = false;
         this.hexPaired = false;
 
@@ -255,7 +241,7 @@ public class Tokenizer {
                 writer.continueTokenNibble(hex);
                 escapingCount--;
             }
-        } else if (isQuotedString && b == Zchars.Z_BIGFIELD_QUOTED) {
+        } else if (isQuotedString && b == Zchars.Z_STRING_TYPE_QUOTED) {
             writer.endToken();
             isText = false;
         } else if (isQuotedString && b == Zchars.Z_STRING_ESCAPE) {
@@ -284,7 +270,7 @@ public class Tokenizer {
         }
 
         if (!parseOutAddressing && addressing && b != Zchars.Z_ADDRESSING_CONTINUE) {
-            writer.startToken(ADDRESSING_FIELD_KEY, false);
+            writer.startToken(ADDRESSING_FIELD_KEY);
             writer.continueTokenByte(b);
             addressing = false;
             isText = true;
@@ -318,17 +304,8 @@ public class Tokenizer {
         }
 
         resetTokenFlags();
-        writer.startToken(b, true);
+        writer.startToken(b);
         expectKeyTypeIndicator = true;
-
-        // Deprecated quoted/hexpair big-field
-        if (b == Zchars.Z_BIGFIELD_QUOTED) {
-            isText = true;
-            isQuotedString = true;
-            escapingCount = 0;
-        } else if (b == Zchars.Z_BIGFIELD_HEX) {
-            hexPaired = true;
-        }
     }
 
     /**
