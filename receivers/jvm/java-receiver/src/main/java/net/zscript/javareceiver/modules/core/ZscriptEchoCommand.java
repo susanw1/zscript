@@ -15,6 +15,7 @@ public class ZscriptEchoCommand {
         OptIterator<ZscriptField> iterator = ctx.fieldIterator();
         for (Optional<ZscriptField> opt = iterator.next(); opt.isPresent(); opt = iterator.next()) {
             ZscriptField field = opt.get();
+
             if (field.getKey() == Zchars.Z_STATUS) {
                 int status = field.getValue();
                 ctx.status((byte) status);

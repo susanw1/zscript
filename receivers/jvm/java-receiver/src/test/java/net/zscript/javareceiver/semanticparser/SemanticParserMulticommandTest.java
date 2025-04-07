@@ -73,7 +73,7 @@ class SemanticParserMulticommandTest {
 
     private static Stream<Arguments> shouldProduceMultipleResponses() {
         return Stream.of(
-                of("Z1 A2 +1234\n Z1 A3B3 +5678\n", "!A2+1234S\n!A3B3+5678S\n"),
+                of("Z1 A2 B1234\n Z1 A3B3 C5678\n", "!A2B1234S\n!A3B3C5678S\n"),
                 of("Z1A S1 \n Z1B\n", "!AS1\n!BS\n"),
                 of("Z1A S1 | Z1B S1 \n Z1C\n", "!AS1|BS1\n!CS\n"),
                 of("Z1A S13 \n Z1B\n", "!AS13\n!BS\n"),

@@ -46,7 +46,7 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    -   key: +
+    -   key: M
         name: macAddress
         description: the mac address to be set for the interface (will be persisted if possible) (if not using ethernet, then whatever other physical address may be applicable)
         typeDefinition:
@@ -71,7 +71,7 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    -   key: S
+    -   key: X
         name: speed
         description: what speed the current connection can run at
         typeDefinition:
@@ -99,7 +99,7 @@ commands:
             -   name: dnsSupported
                 description: whether the device can use DNS to resolve hostnames to IP addresses
         required: no
-    -   key: +
+    -   key: M
         name: macAddress
         description: the mac address of the interface  (if not using ethernet, then whatever other physical address may be applicable)
         typeDefinition:
@@ -135,20 +135,20 @@ commands:
             - gatewayIp
             - dnsServerIp
         required: no
-    -   key: +
+    -   key: A
         name: ipAddress
         description: the ip address to be set for the interface (IPv4 or, if supported, IPv6)
         typeDefinition:
             '@type': bytes
         required: no
     responseFields:
-    -   key: A
+    -   key: D
         name: hasIpAddress
         description: whether the interface has an IP address
         typeDefinition:
             '@type': flag
         required: no
-    -   key: +
+    -   key: A
         name: ipAddress
         description: the ip address fetched for the interface (IPv4 or IPv6)
         typeDefinition:
@@ -167,14 +167,14 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
+    -   key: A
         name: ipAddress
         description: the ip address to resolve (IPv4 or, if supported, IPv6)
         typeDefinition:
             '@type': bytes
         required: yes
     responseFields:
-    -   key: +
+    -   key: M
         name: macAddress
         description: the mac address found for the given ip address (or whatever other physical layer address may apply, should the system not be using ethernet).
         typeDefinition:
@@ -193,14 +193,14 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
+    -   key: H
         name: hostname
         description: the hostname string to resolve
         typeDefinition:
             '@type': text
         required: yes
     responseFields:
-    -   key: +
+    -   key: A
         name: ipAddress
         description: the ip address found for the host
         typeDefinition:
@@ -231,7 +231,7 @@ commands:
         typeDefinition:
             '@type': number
         required: no
-    -   key: +
+    -   key: A
         name: target
         description: the ip address (IPv4 or IPv6 as supported) or hostname to resolve
         typeDefinition:

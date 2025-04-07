@@ -60,10 +60,10 @@ class CommandSequenceTest {
     public void shouldParseLocksAndEchoValue() {
         final CommandSequence cmdSeq = parse(" >a %12a AS");
         assertThat(cmdSeq.hasLockField()).isTrue();
-        assertThat(cmdSeq.getLocks().asStringUtf8()).isEqualTo("%12a0");
+        assertThat(cmdSeq.getLocks().asStringUtf8()).isEqualTo("%12a");
         assertThat(cmdSeq.hasEchoField()).isTrue();
         assertThat(cmdSeq.getEchoValue()).isEqualTo(0x0a);
-        assertThat(cmdSeq.asStringUtf8()).isEqualTo("%12a0>aAS");
+        assertThat(cmdSeq.asStringUtf8()).isEqualTo("%12a>aAS");
         assertThat(cmdSeq.getExecutionPath().asStringUtf8()).isEqualTo("AS");
     }
 

@@ -5,32 +5,34 @@ import javax.annotation.Nonnull;
 import net.zscript.util.BlockIterator;
 
 /**
- * Represents a Zscript field, which may be either numeric or a big-field.
+ * Represents a Zscript field, which may be either numeric or string.
  */
 public interface ZscriptField extends Iterable<Byte> {
     /**
-     * Determines the key for this field (eg u/c letter for a numeric field, or big-field key)
+     * Determines the key for this field (eg u/c letter for a normal expression field)
      *
      * @return the key
      */
     byte getKey();
 
     /**
-     * If this is a numeric field, then this is the numeric value of the 16-bit field. Otherwise zero.
+     * Numeric value of the *last* 2 bytes of field data, as a 16-bit unsigned value.
      *
-     * @return the value of this field, or zero
+     * @return the value of this field's data
      */
     int getValue();
 
     /**
-     * @return true if this is a big-field (quoted or string), false otherwise
+     * Indicates whether this field has a meaningful numeric form, which implies {@link #getValue()} gives a reasonable value.
+     *
+     * @return true if numeric, false if string only
      */
-    boolean isBigField();
+    boolean isNumeric();
 
     /**
-     * Returns a data iterator for the data in this field. This might be empty for a numeric field, so check that {@link #isBigField()} is true to avoid uncertainty.
+     * Returns a data iterator for the data in this field, including extension data.
      *
-     * @return an iterator over the data in this field (including extension data)
+     * @return an iterator over the data in this field
      */
     @Nonnull
     @Override

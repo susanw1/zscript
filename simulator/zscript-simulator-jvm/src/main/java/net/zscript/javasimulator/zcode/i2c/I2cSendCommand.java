@@ -1,5 +1,6 @@
 package net.zscript.javasimulator.zcode.i2c;
 
+import java.util.Optional;
 import java.util.OptionalInt;
 
 import net.zscript.javareceiver.core.CommandOutStream;
@@ -11,14 +12,16 @@ import net.zscript.javasimulator.connections.i2c.I2cProtocolCategory;
 import net.zscript.javasimulator.connections.i2c.I2cResponse;
 import net.zscript.javasimulator.connections.i2c.I2cSendPacket;
 import net.zscript.model.components.ZscriptStatus;
+import net.zscript.util.ByteString;
 
 public class I2cSendCommand {
 
     public static void execute(CommandContext ctx, I2cModule module) {
-        Entity           entity  = module.getEntity();
-        CommandOutStream out     = ctx.getOutStream();
-        OptionalInt      addrOpt = ctx.getField((byte) 'A');
-        OptionalInt      portOpt = ctx.getField((byte) 'P');
+        Entity               entity  = module.getEntity();
+        CommandOutStream     out     = ctx.getOutStream();
+        OptionalInt          addrOpt = ctx.getField((byte) 'A');
+        OptionalInt          portOpt = ctx.getField((byte) 'P');
+        Optional<ByteString> dataOpt = ctx.getFieldAsByteString('D');
 
         if (addrOpt.isEmpty()) {
             ctx.status(ZscriptStatus.MISSING_KEY);
@@ -28,11 +31,17 @@ public class I2cSendCommand {
             ctx.status(ZscriptStatus.MISSING_KEY);
             return;
         }
-        int     addr     = addrOpt.getAsInt();
-        int     port     = portOpt.getAsInt();
-        int     attempts = ctx.getField((byte) 'T', 5);
-        boolean tenBit   = ctx.hasField((byte) 'N');
-        byte[]  data     = ctx.getBigFieldData();
+        if (dataOpt.isEmpty()) {
+            ctx.status(ZscriptStatus.MISSING_KEY);
+            return;
+        }
+
+        final int     addr     = addrOpt.getAsInt();
+        final int     port     = portOpt.getAsInt();
+        final int     attempts = ctx.getField((byte) 'T', 5);
+        final boolean tenBit   = ctx.hasField((byte) 'N');
+        final byte[]  data     = dataOpt.get().toByteArray();
+
         if (port >= entity.countConnection(I2cProtocolCategory.class)) {
             ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
             return;

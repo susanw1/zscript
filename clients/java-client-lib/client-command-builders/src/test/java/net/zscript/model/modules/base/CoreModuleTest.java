@@ -50,7 +50,7 @@ public class CoreModuleTest {
                 .setIdType(TemporaryId)
                 .setMatchId(new byte[] { 0x3a, 0x42 })
                 .build();
-        assertThat(c.asStringUtf8()).isEqualTo("Z4I+3a42");
+        assertThat(c.asStringUtf8()).isEqualTo("Z4IM3a42");
     }
 
     @Test

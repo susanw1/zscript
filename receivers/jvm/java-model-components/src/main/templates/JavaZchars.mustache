@@ -17,49 +17,55 @@ import javax.annotation.processing.Generated;
 public class Zchars {
 {{#zchars}}
     /** {{description}} */
+    {{#deprecated}}@Deprecated{{/deprecated}}
     public static final byte Z_{{#upperUnderscore}}{{name}}{{/upperUnderscore}} = '{{{chEscapedAsC}}}';
 
 {{/zchars}}
 
+    /** Is this character value under all circumstances to be skipped in an Zscript message? */
     public static boolean alwaysIgnore(byte b) {
         return false{{#zchars}}{{#ignoreAlways}} || b == '{{{chEscapedAsC}}}'{{/ignoreAlways}}{{/zchars}};
     }
 
+    /** Is this character value always ignored in an Zscript message, except in strings? */
     public static boolean shouldIgnore(byte b) {
         return false{{#zchars}}{{#ignoreInCode}} || b == '{{{chEscapedAsC}}}'{{/ignoreInCode}}{{/zchars}};
     }
 
+    /** Is this character value an expression separator, marking the end of an expression in a sequence? */
     public static boolean isSeparator(byte b) {
         return false{{#zchars}}{{#separator}} || b == '{{{chEscapedAsC}}}'{{/separator}}{{/zchars}};
     }
 
-    public static boolean isNonNumericalKey(byte b) {
-        return false{{#zchars}}{{#nonNumeric}} || b == '{{{chEscapedAsC}}}'{{/nonNumeric}}{{/zchars}};
+    /** Is this a field key for a field that is always 16 bit, never string? */
+    public static boolean isShortNumber(byte b) {
+        return false{{#zchars}}{{#shortNumber}} || b == '{{{chEscapedAsC}}}'{{/shortNumber}}{{/zchars}};
     }
 
-    public static boolean isBigField(byte b) {
-        return false{{#zchars}}{{#bigField}} || b == '{{{chEscapedAsC}}}'{{/bigField}}{{/zchars}};
+    /** Does this character follow a field key to indicate the field's type? */
+    public static boolean isFieldTypeIndicator(byte b) {
+        return false{{#zchars}}{{#fieldTypeIndicator}} || b == '{{{chEscapedAsC}}}'{{/fieldTypeIndicator}}{{/zchars}};
     }
 
+    /** Is this character part of the addressing system? */
     public static boolean isAddressing(byte b) {
         return false{{#zchars}}{{#addressing}} || b == '{{{chEscapedAsC}}}'{{/addressing}}{{/zchars}};
     }
 
+    /** Must this character always be escaped if it occurs in a string? */
     public static boolean mustStringEscape(byte b) {
         return false{{#zchars}}{{#mustEscape}} || b == '{{{chEscapedAsC}}}'{{/mustEscape}}{{/zchars}};
     }
 
-    public static boolean isNumericKey(byte b) {
+    /** Is this character a valid field key within an expression? */
+    public static boolean isExpressionKey(byte b) {
         return (b >= 'A' && b <= 'Z');
     }
 
-    public static boolean isCommandKey(byte b) {
-        return isNumericKey(b) || isBigField(b);
-    }
-
+    /** Is this character a legal key as far as the buffer system is concerned? */
     public static boolean isAllowableKey(byte b) {
-        // disallow hex, non-printing and top-bit-set keys
-        return b >= 0x20 && parseHex(b) == PARSE_NOT_HEX_0X10;
+        // disallow hex, quotes, non-printing and top-bit-set keys
+        return b >= 0x20 && parseHex(b) == PARSE_NOT_HEX_0X10 && b != Z_STRING_TYPE_QUOTED;
     }
 
     public static final int PARSE_NOT_HEX_0X10 = 0x10;

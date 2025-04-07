@@ -160,65 +160,65 @@ public class JavaCommandBuilderBuildTest {
     void shouldCreateCommandWithRequiredTextField() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand1Builder()
                 .setTextReqTestA("foo");
-        assertThat(build(b)).isEqualTo("Z1\"foo\"");
+        assertThat(build(b)).isEqualTo("Z1A\"foo\"");
     }
 
     @Test
     void shouldCreateCommandWithMissingTextField() {
         assertThatThrownBy(() -> TestingModule.testCommand1Builder().build())
                 .isInstanceOf(ZscriptMissingFieldException.class)
-                .hasMessage("missingKeys='+'");
+                .hasMessage("missingKeys='A'");
     }
 
     @Test
-    void shouldCreateCommandWithMultipleRequiredTextFields() {
+    void shouldCreateCommandWithLastOfMultipleRequiredTextFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand1Builder()
                 .setTextReqTestA("foo")
                 .setTextReqTestAAsBytes(new byte[] { 0x42, 0x41, 0x52 });
-        assertThat(build(b)).isEqualTo("Z1\"foo\"+424152");
+        assertThat(build(b)).isEqualTo("Z1A424152");
     }
 
     @Test
     void shouldCreateCommandWithRequiredTextAsEmptyBytes() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand1Builder()
                 .setTextReqTestAAsBytes(new byte[] {});
-        assertThat(build(b)).isEqualTo("Z1+");
+        assertThat(build(b)).isEqualTo("Z1A");
     }
 
     @Test
     void shouldCreateCommandWithRequiredBytesField() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand2Builder()
                 .setTextReqTestA(new byte[] { 0x42, 0x41, 0x52 });
-        assertThat(build(b)).isEqualTo("Z2+424152");
+        assertThat(build(b)).isEqualTo("Z2A424152");
     }
 
     @Test
     void shouldCreateCommandWithMissingBytesField() {
         assertThatThrownBy(() -> TestingModule.testCommand2Builder().build())
                 .isInstanceOf(ZscriptMissingFieldException.class)
-                .hasMessage("missingKeys='+'");
+                .hasMessage("missingKeys='A'");
     }
 
     @Test
-    void shouldCreateCommandWithMultipleRequiredBytesFields() {
+    void shouldCreateCommandWithLastOfMultipleRequiredBytesFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand2Builder()
                 .setTextReqTestAAsText("foo")
                 .setTextReqTestA(new byte[] { 0x42, 0x41, 0x52 });
-        assertThat(build(b)).isEqualTo("Z2\"foo\"+424152");
+        assertThat(build(b)).isEqualTo("Z2A424152");
     }
 
     @Test
     void shouldCreateCommandWithRequiredBytesAsEmptyBytes() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand2Builder()
                 .setTextReqTestA(new byte[] {});
-        assertThat(build(b)).isEqualTo("Z2+");
+        assertThat(build(b)).isEqualTo("Z2A");
     }
 
     @Test
     void shouldCreateCommandWithOptionalTextField() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand3Builder()
                 .setTextReqTestA("foo");
-        assertThat(build(b)).isEqualTo("Z3\"foo\"");
+        assertThat(build(b)).isEqualTo("Z3A\"foo\"");
     }
 
     @Test
@@ -228,25 +228,25 @@ public class JavaCommandBuilderBuildTest {
     }
 
     @Test
-    void shouldCreateCommandWithMultipleOptionalTextFields() {
+    void shouldCreateCommandWithLastOfMultipleOptionalTextFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand3Builder()
                 .setTextReqTestA("foo")
                 .setTextReqTestAAsBytes(new byte[] { 0x42, 0x41, 0x52 });
-        assertThat(build(b)).isEqualTo("Z3\"foo\"+424152");
+        assertThat(build(b)).isEqualTo("Z3A424152");
     }
 
     @Test
     void shouldCreateCommandWithOptionalTextAsEmptyBytes() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand3Builder()
                 .setTextReqTestAAsBytes(new byte[] {});
-        assertThat(build(b)).isEqualTo("Z3+");
+        assertThat(build(b)).isEqualTo("Z3A");
     }
 
     @Test
     void shouldCreateCommandWithOptionalBytesField() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand4Builder()
                 .setTextReqTestA(new byte[] { 0x42, 0x41, 0x52 });
-        assertThat(build(b)).isEqualTo("Z4+424152");
+        assertThat(build(b)).isEqualTo("Z4A424152");
     }
 
     @Test
@@ -256,18 +256,18 @@ public class JavaCommandBuilderBuildTest {
     }
 
     @Test
-    void shouldCreateCommandWithMultipleOptionalBytesFields() {
+    void shouldCreateCommandWithLastOfMultipleOptionalBytesFields() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand4Builder()
                 .setTextReqTestAAsText("foo")
                 .setTextReqTestA(new byte[] { 0x42, 0x41, 0x52 });
-        assertThat(build(b)).isEqualTo("Z4\"foo\"+424152");
+        assertThat(build(b)).isEqualTo("Z4A424152");
     }
 
     @Test
     void shouldCreateCommandWithOptionalBytesAsEmptyBytes() {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand4Builder()
                 .setTextReqTestA(new byte[] {});
-        assertThat(build(b)).isEqualTo("Z4+");
+        assertThat(build(b)).isEqualTo("Z4A");
     }
 
     private String build(ZscriptCommandBuilder<?> b) {

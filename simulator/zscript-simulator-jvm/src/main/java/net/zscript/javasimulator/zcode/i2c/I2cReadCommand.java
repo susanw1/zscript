@@ -63,7 +63,7 @@ public class I2cReadCommand {
         } else {
             out.writeField('I', 0);
             I2cReceiveResponse recResp = (I2cReceiveResponse) resp;
-            out.writeBigFieldHex(recResp.getData());
+            out.writeFieldHex('R', recResp.getData());
         }
     }
 }

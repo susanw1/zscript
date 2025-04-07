@@ -49,7 +49,7 @@ public class Tokenizer {
 
     public static final byte NORMAL_SEQUENCE_END              = (byte) 0xf0;
     public static final byte ERROR_BUFFER_OVERRUN             = (byte) 0xf1;
-    public static final byte ERROR_CODE_ODD_BIGFIELD_LENGTH   = (byte) 0xf2;
+    public static final byte ERROR_CODE_ODD_HEXPAIR_LENGTH    = (byte) 0xf2;
     public static final byte ERROR_CODE_FIELD_TOO_LONG        = (byte) 0xf3;
     public static final byte ERROR_CODE_STRING_NOT_TERMINATED = (byte) 0xf4;
     public static final byte ERROR_CODE_STRING_ESCAPING       = (byte) 0xf5;
@@ -63,52 +63,51 @@ public class Tokenizer {
     public static final byte CMD_END_CLOSE_PAREN = (byte) 0xe4;
 
     private final TokenWriter writer;
-    private final int         maxNumericBytes;
     private final boolean     parseOutAddressing;
 
     private boolean skipToNL;
     private boolean bufferOvr;
     private boolean tokenizerError;
-    private boolean numeric;
     private boolean addressing;
+    private boolean expectKeyTypeIndicator;
+    private boolean hexPaired;
 
     private boolean isText;
-    private boolean isNormalString;
+    private boolean isQuotedString;
     private int     escapingCount; // 2 bit counter, from 2 to 0
-
-    /**
-     * @param writer             the writer to write tokens to
-     * @param parseOutAddressing true if addressed text should be written as normal tokens ("client"-style), false if they should be bundled into a singled ADDRESSING_FIELD_KEY
-     *                           token ("receiver"-style) ready for forwarding to its destination
-     */
-    public Tokenizer(final TokenWriter writer, final boolean parseOutAddressing) {
-        this(writer, DEFAULT_MAX_NUMERIC_BYTES, parseOutAddressing);
-    }
 
     /**
      * Creates a new Tokenizer to write chars into tokens on the supplied writer. There are two primary modes: "client"-mode, where all tokens are written normally, and
      * "receiver"-mode. In receiver-mode, everything after the first address (eg "@a.b.c") is written as a single large text token marked with {@link #ADDRESSING_FIELD_KEY}
      *
      * @param writer             the writer to write tokens to
-     * @param maxNumericBytes    the width of the largest numeric token to write (beyond which we write ERROR_CODE_FIELD_TOO_LONG)
      * @param parseOutAddressing true if addressed text should be written as normal tokens ("client"-mode), false if they should be bundled into a singled ADDRESSING_FIELD_KEY
      *                           token ("receiver"-mode) ready for forwarding to its destination
      */
-    public Tokenizer(final TokenWriter writer, final int maxNumericBytes, final boolean parseOutAddressing) {
+    public Tokenizer(final TokenWriter writer, final boolean parseOutAddressing) {
         this.writer = writer;
-        this.maxNumericBytes = maxNumericBytes;
         this.parseOutAddressing = parseOutAddressing;
-        resetFlags();
+        resetAllFlags();
     }
 
-    private void resetFlags() {
+    private void resetAllFlags() {
         this.skipToNL = false;
         this.bufferOvr = false;
         this.tokenizerError = false;
-        this.numeric = false;
+
         this.addressing = false;
+        resetTokenFlags();
+    }
+
+    /**
+     * Resets just the flags that relate to the state of the current token, ready for the next one
+     */
+    private void resetTokenFlags() {
+        this.expectKeyTypeIndicator = false;
+        this.hexPaired = false;
+
         this.isText = false;
-        this.isNormalString = false;
+        this.isQuotedString = false;
         this.escapingCount = 0;
     }
 
@@ -168,7 +167,7 @@ public class Tokenizer {
                     }
                     writer.writeMarker(NORMAL_SEQUENCE_END);
                 }
-                resetFlags();
+                resetAllFlags();
             }
             return;
         }
@@ -188,48 +187,51 @@ public class Tokenizer {
             return;
         }
 
+        if (expectKeyTypeIndicator && b == Zchars.Z_STRING_TYPE_QUOTED && !Zchars.isShortNumber(writer.getCurrentWriteTokenKey())) {
+            isText = true;
+            isQuotedString = true;
+            escapingCount = 0;
+            return;
+        }
+        expectKeyTypeIndicator = false;
+
         final byte hex = Zchars.parseHex(b);
         if (hex != Zchars.PARSE_NOT_HEX_0X10) {
-            if (numeric) {
-                // Check field length
-                final int currentLength = writer.getCurrentWriteTokenLength();
-                if (currentLength == maxNumericBytes && !writer.isInNibble()) {
+            if (writer.getCurrentWriteTokenLength() == DEFAULT_MAX_NUMERIC_BYTES) {
+                if (!writer.isInNibble() && Zchars.isShortNumber(writer.getCurrentWriteTokenKey())) {
                     writer.fail(ERROR_CODE_FIELD_TOO_LONG);
                     tokenizerError = true;
                     return;
                 }
-                // Skip leading zeros
-                if (currentLength == 0 && hex == 0) {
-                    return;
-                }
+                hexPaired = true;
             }
             writer.continueTokenNibble(hex);
-            return;
-        }
-
-        // Check big field odd length
-        if (!numeric && writer.getCurrentWriteTokenKey() == Zchars.Z_BIGFIELD_HEX && writer.isInNibble()) {
-            writer.fail(ERROR_CODE_ODD_BIGFIELD_LENGTH);
-            tokenizerError = true;
-            if (b == Zchars.Z_EOL_SYMBOL) {
-                // interesting case: the error above could be caused by b==Z_EOL_SYMBOL, but we've written an error marker, so just reset and return
-                resetFlags();
-            }
             return;
         }
 
         startNewToken(b);
     }
 
+    /**
+     * This is essentially copying bytes into the data of a token. Special cases include:
+     * <ul>
+     * <li>{@link Zchars#Z_EOL_SYMBOL} End-of-line - which terminates the string, or is an error if it's a quoted string</li>
+     * <li>{@link Zchars#Z_STRING_ESCAPE} String escapes in quoted strings</li>
+     * <li>{@link Zchars#Z_STRING_TYPE_QUOTED} End-quote in quoted strings - which terminates the string</li>
+     * </ul>
+     * All of the above special characters must be escaped in quoted strings
+     *
+     * @param b the text byte to accept
+     */
     private void acceptText(final byte b) {
         if (b == Zchars.Z_EOL_SYMBOL) {
-            if (isNormalString) {
+            if (isQuotedString) {
                 writer.fail(ERROR_CODE_STRING_NOT_TERMINATED);
             } else {
                 writer.writeMarker(NORMAL_SEQUENCE_END);
             }
             // we've written some marker, so reset as per the newline:
-            resetFlags();
+            resetAllFlags();
         } else if (escapingCount > 0) {
             final byte hex = Zchars.parseHex(b);
             if (hex == Zchars.PARSE_NOT_HEX_0X10) {
@@ -239,10 +241,10 @@ public class Tokenizer {
                 writer.continueTokenNibble(hex);
                 escapingCount--;
             }
-        } else if (isNormalString && b == Zchars.Z_BIGFIELD_QUOTED) {
+        } else if (isQuotedString && b == Zchars.Z_STRING_TYPE_QUOTED) {
             writer.endToken();
             isText = false;
-        } else if (isNormalString && b == Zchars.Z_STRING_ESCAPE) {
+        } else if (isQuotedString && b == Zchars.Z_STRING_ESCAPE) {
             escapingCount = 2;
         } else {
             writer.continueTokenByte(b);
@@ -250,19 +252,30 @@ public class Tokenizer {
     }
 
     private void startNewToken(final byte b) {
+        // Check long hex odd length - disallow non-numeric fields with incomplete nibbles
+        if (hexPaired && writer.isInNibble()) {
+            writer.fail(ERROR_CODE_ODD_HEXPAIR_LENGTH);
+            tokenizerError = true;
+            if (b == Zchars.Z_EOL_SYMBOL) {
+                // interesting case: the error above could be caused by b==Z_EOL_SYMBOL, but we've written an error marker, so just reset and return
+                resetAllFlags();
+            }
+            return;
+        }
+
         if (b == Zchars.Z_EOL_SYMBOL) {
             writer.writeMarker(NORMAL_SEQUENCE_END);
-            resetFlags();
+            resetAllFlags();
             return;
         }
 
         if (!parseOutAddressing && addressing && b != Zchars.Z_ADDRESSING_CONTINUE) {
-            writer.startToken(ADDRESSING_FIELD_KEY, false);
+            writer.startToken(ADDRESSING_FIELD_KEY);
             writer.continueTokenByte(b);
             addressing = false;
             isText = true;
             escapingCount = 0;
-            isNormalString = false;
+            isQuotedString = false;
             return;
         }
 
@@ -285,20 +298,14 @@ public class Tokenizer {
             return;
         }
 
-        numeric = !Zchars.isNonNumericalKey(b);
-        isText = false;
         if (b == Zchars.Z_COMMENT) {
             skipToNL = true;
             return;
         }
 
-        writer.startToken(b, numeric);
-
-        if (b == Zchars.Z_BIGFIELD_QUOTED) {
-            isText = true;
-            isNormalString = true;
-            escapingCount = 0;
-        }
+        resetTokenFlags();
+        writer.startToken(b);
+        expectKeyTypeIndicator = true;
     }
 
     /**

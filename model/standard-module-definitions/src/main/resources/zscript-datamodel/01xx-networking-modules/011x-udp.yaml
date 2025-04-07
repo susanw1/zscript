@@ -134,7 +134,7 @@ commands:
     description: connects a particular UDP socket (or any available socket) to a destination
     operation: post
     requestFields:
-    -   key: D
+    -   key: K
         name: socketDescriptor
         description: 'which socket to connect on (default: highest available - so that descriptor 0 is generally available)'
         typeDefinition:
@@ -158,14 +158,14 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    -   key: +
+    -   key: T
         name: targetDestination
         description: IP address (IPv4 or IPv6) of destination, or hostname if DNS is to be used
         typeDefinition:
             '@type': bytes
         required: yes
     responseFields:
-    -   key: D
+    -   key: K
         name: socketDescriptor
         description: socket descriptor used to create connection
         typeDefinition:
@@ -184,15 +184,15 @@ commands:
     description: reads information about a socket used for UDP send
     operation: get
     requestFields:
-    -   key: D
+    -   key: K
         name: socketDescriptor
         description: which socket to query
         typeDefinition:
             '@type': number
         required: yes
     responseFields:
-    -   key: A
-        name: active
+    -   key: E
+        name: enabled
         description: whether this socket has been set up
         typeDefinition:
             '@type': flag
@@ -215,7 +215,7 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
+    -   key: T
         name: targetDestination
         description: IP address (IPv4 or IPv6) of destination
         typeDefinition:
@@ -228,19 +228,19 @@ commands:
     description: sends data along a UDP socket
     operation: post
     requestFields:
-    -   key: D
+    -   key: K
         name: socketDescriptor
         description: which interface socket to send data along
         typeDefinition:
             '@type': number
         required: yes
-    -   key: A
-        name: append
+    -   key: C
+        name: continue
         description: doesn't send packet after this command, instead leaving the packet open for more data to be appended
         typeDefinition:
             '@type': flag
         required: no
-    -   key: +
+    -   key: D
         name: data
         description: data to be sent along the socket
         typeDefinition:
@@ -256,7 +256,7 @@ commands:
 #    description: closes the given socket, and sends any packets which haven't been finished
 #    operation: post
 #    requestFields:
-#    -   key: D
+#    -   key: K
 #        name: socketDescriptor
 #        description: which interface socket to close
 #        typeDefinition:
@@ -279,7 +279,7 @@ commands:
             '@type': number
         required: yes
     responseFields:
-    -   key: A
+    -   key: V
         name: availableData
         description: number of bytes available in current packet
         typeDefinition:
@@ -297,7 +297,7 @@ commands:
         typeDefinition:
             '@type': number
         required: no
-    -   key: +
+    -   key: A
         name: remoteAddress
         description: IP address (IPv4 or IPv6) of the source of the current packet
         typeDefinition:
@@ -331,7 +331,7 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
+    -   key: D
         name: data
         description: data read from the packet
         typeDefinition:
@@ -442,7 +442,7 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: yes
-            -   key: A
+            -   key: V
                 name: availableData
                 description: number of bytes available in the packet
                 typeDefinition:
@@ -454,7 +454,7 @@ notifications:
                 typeDefinition:
                     '@type': number
                 required: yes
-            -   key: +
+            -   key: A
                 name: remoteAddress
                 description: IP address (IPv4 or IPv6) of the source of the current packet
                 typeDefinition:
@@ -469,7 +469,7 @@ notifications:
             name: packetData
             description: data from a received UDP packet
             fields:
-            -   key: +
+            -   key: D
                 name: data
                 description: the data contained in the received packet
                 typeDefinition:

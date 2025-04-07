@@ -43,7 +43,7 @@ public class Main {
 
             @Override
             public void channelInfo(@Nonnull CommandContext ctx) {
-                ctx.getOutStream().writeBigFieldQuoted("Basic text channel");
+                ctx.getOutStream().writeFieldQuoted('D', "Basic text channel");
             }
 
             @Override

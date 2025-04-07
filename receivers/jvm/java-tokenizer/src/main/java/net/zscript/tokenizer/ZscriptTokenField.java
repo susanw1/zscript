@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 
 import static java.util.Objects.requireNonNull;
 
-import net.zscript.model.components.Zchars;
 import net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 import net.zscript.util.BlockIterator;
 
@@ -26,8 +25,9 @@ public class ZscriptTokenField implements ZscriptField {
         return token.getData16();
     }
 
-    public boolean isBigField() {
-        return Zchars.isBigField(token.getKey());
+    @Override
+    public boolean isNumeric() {
+        return token.hasNumeric(2);
     }
 
     @Nonnull

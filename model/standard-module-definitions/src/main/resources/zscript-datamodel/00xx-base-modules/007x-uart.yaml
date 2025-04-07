@@ -79,7 +79,7 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
+    -   key: X
         name: baudRate
         description: the baud rate menu option requested in Hz (or maximum rate supported if not given)
         typeDefinition:
@@ -132,7 +132,7 @@ commands:
         typeDefinition:
             '@type': flag
         required: no
-    -   key: +
+    -   key: X
         name: baudRate
         description: the baud rate requested, in Hz
         typeDefinition:
@@ -145,7 +145,7 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
+    -   key: X
         name: baudRate
         description: the baud rate the device is running at, in Hz
         typeDefinition:
@@ -165,7 +165,7 @@ commands:
         typeDefinition:
             '@type': number
         required: yes
-    -   key: +
+    -   key: D
         name: data
         description: the data to be sent
         typeDefinition:
@@ -205,7 +205,7 @@ commands:
             - NoiseError
             - BufferOverflow
         required: yes
-    -   key: +
+    -   key: D
         name: data
         description: the data received up to the first serial marker
         typeDefinition:
@@ -297,7 +297,7 @@ commands:
             -   name: arbitraryFrequency
                 description: whether the device supports selecting baudrate as a freely varying number
         required: yes
-    -   key: +
+    -   key: X
         name: baudRate
         description: the baud rate option requested in Hz (or maximum rate supported if not given)
         typeDefinition:
@@ -327,14 +327,14 @@ commands:
         description: a set of more specific operational choices about the device's operation
         typeDefinition: *setup_options
         required: no
-    -   key: +
+    -   key: X
         name: baudRate
         description: the baud rate requested, in Hz
         typeDefinition:
             '@type': bytes
         required: no
     responseFields:
-    -   key: +
+    -   key: X
         name: baudRate
         description: the baud rate the device is running at, in Hz
         typeDefinition:
@@ -404,7 +404,7 @@ notifications:
                 description: the type of terminator ending the data
                 typeDefinition: *receive_markers
                 required: yes
-            -   key: +
+            -   key: D
                 name: data
                 description: the data in the buffer
                 typeDefinition:

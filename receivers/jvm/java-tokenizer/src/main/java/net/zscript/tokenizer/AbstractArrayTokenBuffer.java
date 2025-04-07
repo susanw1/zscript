@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static java.lang.Byte.toUnsignedInt;
 import static java.lang.String.format;
 import static net.zscript.tokenizer.TokenBuffer.isMarker;
 import static net.zscript.tokenizer.TokenBuffer.isSequenceEndMarker;
@@ -22,7 +23,8 @@ import net.zscript.util.BlockIterator;
  * </ol>
  */
 public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
-    private static final byte MAX_TOKEN_DATA_LENGTH = (byte) 255;
+    private static final byte MAX_TOKEN_DATA_LENGTH         = (byte) 255;
+    private static final byte MAX_NUMERIC_TOKEN_DATA_LENGTH = (byte) 2;
 
     /** the ring-buffer's data array */
     private byte[] data;
@@ -104,8 +106,11 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
         /** the current write index into data array */
         private int writeCursor  = 0;
 
+        /** Toggled with each consecutive nibble.  True indicates we've been given an odd-number. */
         private boolean inNibble = false;
-        private boolean numeric  = false;
+
+        /** Indicates that we are writing an extended token (in order to help limit odd-nibble numerics) */
+        private boolean extended;
 
         @Nonnull
         @Override
@@ -114,19 +119,18 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
         }
 
         @Override
-        public void startToken(final byte key, final boolean numeric) {
+        public void startToken(final byte key) {
             endToken();
-            this.numeric = numeric;
             writeNewTokenStart(key);
         }
 
         @Override
         public void continueTokenNibble(final byte nibble) {
-            if (isTokenComplete()) {
-                throw new IllegalStateException("Digit with missing field key");
-            }
             if (nibble < 0 || nibble > 0xf) {
                 throw new IllegalArgumentException("Nibble value out of range");
+            }
+            if (isTokenComplete()) {
+                throw new IllegalStateException("Digit with missing field key");
             }
 
             if (inNibble) {
@@ -134,10 +138,8 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                 moveCursor();
             } else {
                 if (data[writeLastLen] == MAX_TOKEN_DATA_LENGTH) {
-                    if (numeric) {
-                        throw new IllegalArgumentException("Illegal numeric field longer than 255 bytes");
-                    }
                     writeNewTokenStart(TOKEN_EXTENSION);
+                    extended = true;
                 }
                 data[writeCursor] = (byte) (nibble << 4);
                 data[writeLastLen]++;
@@ -155,10 +157,8 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
             }
 
             if (data[writeLastLen] == MAX_TOKEN_DATA_LENGTH) {
-                if (numeric) {
-                    throw new IllegalArgumentException("Illegal numeric field longer than 255 bytes");
-                }
                 writeNewTokenStart(TOKEN_EXTENSION);
+                extended = true;
             }
             data[writeCursor] = b;
             moveCursor();
@@ -167,27 +167,27 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
 
         @Override
         public void endToken() {
+            // Allow nibble shift only for short, odd-nibble cases; otherwise, nibbles must be even!
             if (inNibble) {
-                if (numeric) {
-                    //                    if (writeLastLen != writeStart) {
-                    //                        throw new IllegalStateException("Illegal numeric field longer than 255 bytes");
-                    //                    }
-
-                    // if odd nibble count, then shuffle nibbles through token's data to ensure "right-aligned", eg 4ad0 really means 04ad
-                    byte hold = 0;
-                    int  pos  = offset(writeStart, 1);
-                    do {
-                        pos = offset(pos, 1);
-                        final byte tmp = (byte) (data[pos] & 0xF);
-                        data[pos] = (byte) (hold | (data[pos] >> 4) & 0xF);
-                        hold = (byte) (tmp << 4);
-                    } while (pos != writeCursor);
+                // note: need to check extended, as current length is only for this segment
+                if (extended || getCurrentWriteTokenLength() > MAX_NUMERIC_TOKEN_DATA_LENGTH) {
+                    throw new IllegalStateException("hex-pair value too long for odd length");
                 }
+                // if odd nibble count, then shuffle nibbles through token's data to ensure "right-aligned", eg 4ad0 really means 04ad
+                byte hold = 0;
+                int  pos  = offset(writeStart, 1);
+                do {
+                    pos = offset(pos, 1);
+                    final byte tmp = (byte) (data[pos] & 0xF);
+                    data[pos] = (byte) (hold | (data[pos] >> 4) & 0xF);
+                    hold = (byte) (tmp << 4);
+                } while (pos != writeCursor);
                 moveCursor();
             }
 
             writeStart = writeCursor;
             inNibble = false;
+            extended = false;
         }
 
         @Override
@@ -213,7 +213,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
             if (isTokenComplete()) {
                 throw new IllegalStateException("no token being written");
             }
-            return Byte.toUnsignedInt(data[offset(writeStart, 1)]);
+            return toUnsignedInt(data[offset(writeStart, 1)]);
         }
 
         @Override
@@ -337,7 +337,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                     index = offset(index, 1);
                 } else {
                     do {
-                        final int tokenDataLength = Byte.toUnsignedInt(data[offset(index, 1)]);
+                        final int tokenDataLength = toUnsignedInt(data[offset(index, 1)]);
                         index = offset(index, tokenDataLength + 2);
                     } while (data[index] == TOKEN_EXTENSION);
                 }
@@ -456,7 +456,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                             if ((itIndex == writeStart) || (data[itIndex] != TOKEN_EXTENSION)) {
                                 return false;
                             }
-                            segRemaining = Byte.toUnsignedInt(data[offset(itIndex, 1)]);
+                            segRemaining = toUnsignedInt(data[offset(itIndex, 1)]);
                             itIndex = offset(itIndex, 2);
                         }
                         return true;
@@ -502,34 +502,24 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
 
             @Override
             public long getData32() {
-                if (isMarker()) {
-                    throw new IllegalStateException("Cannot get data from marker token");
-                }
-                long value = 0;
-                for (int i = 0; i < getSegmentDataSize(); i++) {
-                    // Check before we left shift. Avoids overflowing data type.
-                    if (value > 0xFFFFFF) {
-                        throw new IllegalStateException("More than 32 bits of data");
-                    }
-                    value <<= 8;
-                    value += Byte.toUnsignedInt(data[offset(index, i + 2)]);
-                }
-                return value;
+                return getDataN(4) & 0xffff_ffffL;
             }
 
             @Override
             public int getData16() {
+                return getDataN(2);
+            }
+
+            /** @return value read from data, or just last n - use {@link #hasNumeric(int)} to pre-verify. */
+            private int getDataN(int n) {
                 if (isMarker()) {
                     throw new IllegalStateException("Cannot get data from marker token");
                 }
-                int value = 0;
-                for (int i = 0; i < getSegmentDataSize(); i++) {
-                    // Check before we left shift. Avoids overflowing data type.
-                    if (value > 0xFF) {
-                        throw new IllegalStateException("More than 16 bits of data");
-                    }
+                final int sz    = getSegmentDataSize();
+                int       value = 0;
+                for (int i = (sz > n ? sz - n : 0); i < sz; i++) {
                     value <<= 8;
-                    value += Byte.toUnsignedInt(data[offset(index, i + 2)]);
+                    value += toUnsignedInt(data[offset(index, i + 2)]);
                 }
                 return value;
             }
@@ -554,12 +544,17 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                 int index   = this.index;
 
                 do {
-                    final int segSz = Byte.toUnsignedInt(data[offset(index, 1)]);
+                    final int segSz = toUnsignedInt(data[offset(index, 1)]);
                     totalSz += segSz;
                     index = offset(index, segSz + 2);
                 } while (index != writeStart && data[index] == TOKEN_EXTENSION);
 
                 return totalSz;
+            }
+
+            @Override
+            public boolean hasNumeric(int maxBytes) {
+                return !TokenBuffer.isMarker(data[index]) && toUnsignedInt(data[offset(index, 1)]) <= maxBytes;
             }
 
             /**
@@ -568,15 +563,15 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
              * @return this Token's data size - 0 to 255
              */
             private int getSegmentDataSize() {
-                return TokenBuffer.isMarker(data[index]) ? 0 : Byte.toUnsignedInt(data[offset(index, 1)]);
+                return TokenBuffer.isMarker(data[index]) ? 0 : toUnsignedInt(data[offset(index, 1)]);
             }
 
             @Override
             public String toString() {
                 if (TokenBuffer.isMarker(getKey())) {
-                    return "Token(Marker:0x" + Integer.toHexString(Byte.toUnsignedInt(getKey())) + ")";
+                    return "Token(Marker:0x" + Integer.toHexString(toUnsignedInt(getKey())) + ")";
                 }
-                return "Token(key='" + (char) getKey() + "'(0x" + Integer.toHexString(Byte.toUnsignedInt(getKey())) + "), len=" + getDataSize() + ")";
+                return "Token(key='" + (char) getKey() + "'(0x" + Integer.toHexString(toUnsignedInt(getKey())) + "), len=" + getDataSize() + ")";
             }
         }
     }

@@ -2,8 +2,10 @@ package net.zscript.tokenizer;
 
 import static net.zscript.tokenizer.Tokenizer.ERROR_BUFFER_OVERRUN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.tokenizer.TokenBuffer.TokenWriter;
@@ -35,7 +37,7 @@ class TokenRingBufferWriterTest {
 
     @Test
     void shouldTokenizeNumericFieldWithNoValue() {
-        writer.startToken((byte) 'A', true);
+        writer.startToken((byte) 'A');
         assertThat(buffer.getInternalData()).startsWith('A', 0, 0);
 
         verifyBufferState(false, 7, 'A', false, 0);
@@ -45,7 +47,7 @@ class TokenRingBufferWriterTest {
 
     @Test
     void shouldTokenizeNumericFieldWithNibbleValue() {
-        writer.startToken((byte) 'A', true);
+        writer.startToken((byte) 'A');
         writer.continueTokenNibble((byte) 5);
 
         verifyBufferState(false, 7, 'A', true, 1);
@@ -92,7 +94,7 @@ class TokenRingBufferWriterTest {
     @Test
     void shouldFailToTokenizeNumericFieldWithOddNibbleAndByteValue() {
         assertThatThrownBy(() -> {
-            writer.startToken((byte) 'A', true);
+            writer.startToken((byte) 'A');
             writer.continueTokenNibble((byte) 3);
             writer.continueTokenByte((byte) 123);
             verifyBufferState(false, 6, 'A', true, 1);
@@ -142,18 +144,18 @@ class TokenRingBufferWriterTest {
     }
 
     @Test
-    void shouldTokenizeNumericField5NibbleValue() {
-        insertNumericTokenNibbles('A', (byte) 5, (byte) 0xd, (byte) 0xa, (byte) 0x3, (byte) 0xe);
+    void shouldRejectNumericField5NibbleValue() {
+        insertNumericTokenNibbles('A', (byte) 0x5, (byte) 0xd, (byte) 0xa, (byte) 0x3, (byte) 0xe);
         verifyBufferState(false, 5, 'A', true, 3);
-        writer.endToken();
-        assertThat(buffer.getInternalData()).startsWith('A', 3, 0x5, 0xda, 0x3e, 0);
+        assertThatIllegalStateException().isThrownBy(writer::endToken).withMessage("hex-pair value too long for odd length");
+        assertThat(buffer.getInternalData()).startsWith('A', 3, 0x5d, 0xa3, 0xe0, 0);
     }
 
     @Test
     void shouldTokenize2NumericFields() {
-        writer.startToken((byte) 'A', true);
+        writer.startToken((byte) 'A');
         writer.endToken();
-        writer.startToken((byte) 'B', true);
+        writer.startToken((byte) 'B');
         verifyBufferState(false, 5, 'B', false, 0);
         writer.endToken();
         assertThat(buffer.getInternalData()).startsWith('A', 0, 'B', 0, 0);
@@ -162,10 +164,10 @@ class TokenRingBufferWriterTest {
 
     @Test
     void shouldTokenize2NumericFieldsWithValues() {
-        writer.startToken((byte) 'A', true);
+        writer.startToken((byte) 'A');
         writer.continueTokenNibble((byte) 5);
         writer.endToken();
-        writer.startToken((byte) 'B', true);
+        writer.startToken((byte) 'B');
         writer.endToken();
         assertThat(buffer.getInternalData()).startsWith('A', 1, 5, 'B', 0, 0);
         verifyBufferState(true, 4);
@@ -173,29 +175,29 @@ class TokenRingBufferWriterTest {
 
     @Test
     void shouldTokenizeNonNumericField() {
-        writer.startToken((byte) '+', false);
-        verifyBufferState(false, 7, '+', false, 0);
+        writer.startToken((byte) 'X');
+        verifyBufferState(false, 7, 'X', false, 0);
         writer.endToken();
-        assertThat(buffer.getInternalData()).startsWith('+', 0, 0);
+        assertThat(buffer.getInternalData()).startsWith('X', 0, 0);
         verifyBufferState(true, 7);
     }
 
     @Test
     void shouldTokenize2NonNumericFields() {
-        writer.startToken((byte) '+', false);
+        writer.startToken((byte) 'X');
         writer.endToken();
-        writer.startToken((byte) '+', false);
+        writer.startToken((byte) 'X');
         writer.endToken();
-        assertThat(buffer.getInternalData()).startsWith('+', 0, '+', 0, 0);
+        assertThat(buffer.getInternalData()).startsWith('X', 0, 'X', 0, 0);
     }
 
     @Test
     void shouldTokenize2NonNumericFieldsWithValues() {
-        insertNonNumericTokenNibbles('+', (byte) 5, (byte) 0xa);
+        insertNonNumericTokenNibbles('X', (byte) 5, (byte) 0xa);
         writer.endToken();
-        writer.startToken((byte) '+', false);
+        writer.startToken((byte) 'X');
         writer.endToken();
-        assertThat(buffer.getInternalData()).startsWith('+', 1, 0x5a, '+', 0, 0);
+        assertThat(buffer.getInternalData()).startsWith('X', 1, 0x5a, 'X', 0, 0);
     }
 
     @Test
@@ -203,9 +205,9 @@ class TokenRingBufferWriterTest {
         insertNumericTokenNibbles('A', (byte) 5, (byte) 0xa, (byte) 0xb);
         verifyBufferState(false, 6, 'A', true, 2);
         writer.endToken();
-        writer.startToken((byte) '+', false);
+        writer.startToken((byte) 'X');
         writer.endToken();
-        assertThat(buffer.getInternalData()).startsWith('A', 2, 0x5, 0xab, '+', 0, 0);
+        assertThat(buffer.getInternalData()).startsWith('A', 2, 0x5, 0xab, 'X', 0, 0);
         verifyBufferState(true, 3);
     }
 
@@ -213,25 +215,26 @@ class TokenRingBufferWriterTest {
     void shouldTokenizeMixedFieldsWithValues() {
         insertNumericTokenNibbles('A', (byte) 5, (byte) 0xa, (byte) 0xb);
         writer.endToken();
-        writer.startToken((byte) '+', false);
+        writer.startToken((byte) 'X');
         writer.endToken();
-        assertThat(buffer.getInternalData()).startsWith('A', 2, 0x5, 0xab, '+', 0, 0);
+        assertThat(buffer.getInternalData()).startsWith('A', 2, 0x5, 0xab, 'X', 0, 0);
     }
 
     @Test
+    @Disabled("Obsolete, applied only to '%'")
     void shouldTokenizeNonNumericFieldWithOddNibbles() {
-        insertNonNumericTokenNibbles('+', (byte) 0xa, (byte) 0xb, (byte) 0xc);
+        insertNonNumericTokenNibbles('X', (byte) 0xa, (byte) 0xb, (byte) 0xc);
         writer.endToken();
-        assertThat(buffer.getInternalData()).startsWith('+', 2, 0xab, 0xc0);
+        assertThat(buffer.getInternalData()).startsWith('X', 2, 0xab, 0xc0);
         verifyBufferState(true, 5);
     }
 
     @Test
-    void shouldTokenizeContinuedBigField() {
+    void shouldTokenizeContinuedHexField() {
         TokenRingBuffer bigBuffer = TokenRingBuffer.createBufferWithCapacity(300);
         TokenWriter     writer    = bigBuffer.getTokenWriter();
 
-        writer.startToken((byte) '+', false);
+        writer.startToken((byte) 'X');
         // write 3 more than 255
         for (int i = 0; i < 258; i++) {
             writer.continueTokenNibble((byte) 4);
@@ -239,7 +242,7 @@ class TokenRingBufferWriterTest {
         }
         writer.endToken();
 
-        assertThat(bigBuffer.getInternalData()).startsWith('+', 255, 0x40, 0x41).containsSequence(0x4d, 0x4e, 0x81, 3, 0x4f, 0x40, 0x41, 0);
+        assertThat(bigBuffer.getInternalData()).startsWith('X', 255, 0x40, 0x41).containsSequence(0x4d, 0x4e, 0x81, 3, 0x4f, 0x40, 0x41, 0);
     }
 
     @Test
@@ -248,9 +251,9 @@ class TokenRingBufferWriterTest {
         writer.endToken();
         verifyBufferState(true, 2);
 
-        writer.startToken((byte) 'A', true);
+        writer.startToken((byte) 'A');
         writer.fail(ERROR_BUFFER_OVERRUN);
-        assertThat(buffer.getInternalData()).startsWith('+', 5, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, ERROR_BUFFER_OVERRUN, 0x0);
+        assertThat(buffer.getInternalData()).startsWith('X', 5, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, ERROR_BUFFER_OVERRUN, 0x0);
     }
 
     @Test
@@ -259,13 +262,13 @@ class TokenRingBufferWriterTest {
         writer.endToken();
         verifyBufferState(true, 4);
 
-        writer.startToken((byte) 'A', true);
+        writer.startToken((byte) 'A');
         writer.continueTokenByte((byte) 0x32);
         writer.continueTokenByte((byte) 0x33);
         writer.fail(ERROR_BUFFER_OVERRUN);
 
         // Overrun indicator wrote over the 'A' token's key
-        assertThat(buffer.getInternalData()).startsWith('+', 3, 0xa0, 0xa1, 0xa2, ERROR_BUFFER_OVERRUN, 2, 0x32, 0x33);
+        assertThat(buffer.getInternalData()).startsWith('X', 3, 0xa0, 0xa1, 0xa2, ERROR_BUFFER_OVERRUN, 2, 0x32, 0x33);
     }
 
     @Test
@@ -277,7 +280,7 @@ class TokenRingBufferWriterTest {
     }
 
     private void insertNumericToken(char key, byte... data) {
-        writer.startToken((byte) key, true);
+        writer.startToken((byte) key);
         for (byte b : data) {
             writer.continueTokenByte(b);
         }
@@ -292,21 +295,21 @@ class TokenRingBufferWriterTest {
     }
 
     private void insertTokenNibbles(char key, boolean numeric, byte... nibbles) {
-        writer.startToken((byte) key, numeric);
+        writer.startToken((byte) key);
         for (byte b : nibbles) {
             writer.continueTokenNibble(b);
         }
     }
 
     private void insertByteToken(int count) {
-        writer.startToken((byte) '+', false);
+        writer.startToken((byte) 'X');
 
         for (int i = 0; i < count; i++) {
             writer.continueTokenByte((byte) (0xa0 + i));
         }
 
         // check first few... only works if this was the first thing in the buffer! Remove these checks soon...
-        assertThat(buffer.getInternalData()).startsWith('+', count, (byte) 0xa0, (byte) 0xa1);
-        verifyBufferState(false, BUFSIZE - 3 - count, '+', false, count);
+        assertThat(buffer.getInternalData()).startsWith('X', count, (byte) 0xa0, (byte) 0xa1);
+        verifyBufferState(false, BUFSIZE - 3 - count, 'X', false, count);
     }
 }

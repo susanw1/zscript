@@ -86,7 +86,7 @@ commands:
     description: writes a specified GUID to the id system
     operation: put
     requestFields:
-    -   key: +
+    -   key: G
         name: guid
         description: the GUID to write, exactly 16 bytes
         typeDefinition:
@@ -170,4 +170,10 @@ notifications:
                 description: how many resets have been done (can be done in non-initialised memory)
                 typeDefinition:
                     '@type': number
+                required: no
+            -   key: M
+                name: message
+                description: explanatory message
+                typeDefinition:
+                    '@type': text
                 required: no

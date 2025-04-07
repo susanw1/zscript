@@ -82,7 +82,7 @@ class ZscriptDeviceTest {
         device.sendAsync(builtCommand, responseHolder::set);
         assertThat(commandByteCapture.asStringUtf8()).isEqualTo("%>100ZV\n");
 
-        byteStringUtf8("! >100 S C7 M1 V2 \"testing\"  \n").writeTo(responseSender);
+        byteStringUtf8("! >100 S C7 M1 V2 I\"testing\"  \n").writeTo(responseSender);
         await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
 
         final ResponseSequenceCallback result = responseHolder.get();
@@ -90,7 +90,7 @@ class ZscriptDeviceTest {
         final ZscriptResponse resp0 = result.getResponses().get(0);
         assertThat(resp0.expression().fields()
                 .map(f -> format("%c%x", f.getKey(), f.getValue())).collect(toList()))
-                .containsExactlyInAnyOrder("C7", "M1", "S0", "V2");
+                .containsExactlyInAnyOrder("C7", "M1", "S0", "V2", "I6e67"); // (I6e67 = "ng" from "testing")
         assertThat(result.getSucceeded()).hasSize(1);
         final CommandExecutionSummary<?> summary = result.getSucceeded().iterator().next();
 
@@ -112,14 +112,14 @@ class ZscriptDeviceTest {
         final Future<ResponseSequenceCallback> fut = device.send(capCmd1.andThen(capCmd2));
 
         final ResponseSequenceCallback result
-                = waitAndCheckResult(fut, "%>100ZV&ZV4\n", "! >100 S C7 M1 V2 \"testing\" & S1 \n", 2, 1, 1, false, 2, 0, true);
+                = waitAndCheckResult(fut, "%>100ZV&ZV4\n", "! >100 S C7 M1 V2 I\"testing\" & S1 \n", 2, 1, 1, false, 2, 0, true);
 
         final ZscriptResponse resp0 = result.getResponses().get(0);
         final ZscriptResponse resp1 = result.getResponses().get(1);
 
         assertThat(resp0.expression().fields()
                 .map(f -> format("%c%x", f.getKey(), f.getValue())).collect(toList()))
-                .containsExactlyInAnyOrder("C7", "M1", "S0", "V2");
+                .containsExactlyInAnyOrder("C7", "M1", "S0", "V2", "I6e67");
 
         assertThat(resp1.expression().fields()
                 .map(f -> format("%c%x", f.getKey(), f.getValue())).collect(toList()))
@@ -328,7 +328,7 @@ class ZscriptDeviceTest {
     @Test
     void shouldRejectBytesWithParseFailures() {
         final AtomicReference<ByteString> responseHolder = new AtomicReference<>();
-        assertThatIllegalArgumentException().isThrownBy(() -> device.send(byteStringUtf8("Z\"\n"), responseHolder::set))
+        assertThatIllegalArgumentException().isThrownBy(() -> device.send(byteStringUtf8("ZA\"\n"), responseHolder::set))
                 .withMessageContaining("tokenization failure");
     }
 

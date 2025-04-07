@@ -52,7 +52,7 @@ public class JavaCommandBuilderNotificationTest {
         assertThat(sec0.getTestNtfARespLField2()).isEqualTo(0xcd);
 
         assertThat(sec1.getTestNtfBRespXField1()).isEqualTo(0xef);
-        assertThat(sec1.getTestNtfBRespYField2AsString()).isEqualTo("");
+        assertThat(sec1.getTestNtfBRespYField2AsString()).isNotPresent();
 
         assertThat(sec0.getField((byte) 'D')).as("field 'D'").hasValue(0xab);
         assertThat(sec0.getField((byte) 'L')).as("field 'L'").hasValue(0xcd);

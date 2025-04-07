@@ -68,7 +68,7 @@ class CompleteAddressedResponseTest {
     @Test
     public void shouldFailResponseWithTokenizerError() {
         assertThatThrownBy(() -> {
-            final TokenBuffer.TokenReader.ReadToken token = tokenize(byteStringUtf8("!2 \""), true).getTokenReader().getFirstReadToken();
+            final TokenBuffer.TokenReader.ReadToken token = tokenize(byteStringUtf8("!2 A\""), true).getTokenReader().getFirstReadToken();
             CompleteAddressedResponse.parse(token);
         }).isInstanceOf(ZscriptParseException.class).hasMessageContaining("Tokenizer error");
     }
@@ -76,7 +76,7 @@ class CompleteAddressedResponseTest {
     @Test
     public void shouldFailIncompleteResponse() {
         assertThatThrownBy(() -> {
-            final TokenBuffer.TokenReader.ReadToken token = tokenize(byteStringUtf8("!2 \""), false).getTokenReader().getFirstReadToken();
+            final TokenBuffer.TokenReader.ReadToken token = tokenize(byteStringUtf8("!2 A\""), false).getTokenReader().getFirstReadToken();
             CompleteAddressedResponse.parse(token);
         }).isInstanceOf(ZscriptParseException.class).hasMessageContaining("no terminating sequence");
     }

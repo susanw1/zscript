@@ -14,6 +14,8 @@ import net.zscript.util.BlockIterator;
 public interface TokenBuffer {
     /**
      * Special token key to indicate that this segment is a continuation of the previous token due to its data size hitting maximum.
+     *
+     * <p>Fixme: this should be in a more "reserved" number space. We use 0x80 for address blocks, which is definitely a "user" space. This could be 0xdf ?
      */
     byte TOKEN_EXTENSION = (byte) 0x81;
 
@@ -56,11 +58,10 @@ public interface TokenBuffer {
          * Starts a new token with the specified key, along with whether nibble pairs are to be aggregated into bytes numerically. If a token is already being written, then it is
          * finished off first. The key must not be a marker - use {@link #writeMarker(byte)}.
          *
-         * @param key     the byte to use as the key
-         * @param numeric true if numeric nibble aggregation should be used, false otherwise
+         * @param key the byte to use as the key
          * @throws IllegalArgumentException if key is a marker
          */
-        void startToken(byte key, boolean numeric);
+        void startToken(byte key);
 
         /**
          * Forces the current token to be finished (eg on close-quote), wrapping up any numeric nibbles and resetting the state flags.
@@ -221,6 +222,15 @@ public interface TokenBuffer {
             int getDataSize();
 
             /**
+             * Determines whether this token contains data that could be read with a numeric read {@link #getData16()} or {@link #getData32()}. While other sizes may be supported,
+             * only maxBytes = {2, 4} are guaranteed.
+             *
+             * @param maxBytes the size of the data type to read in bytes: 2 for uint-16, or 4 for uint-32.
+             * @return true if numeric, false otherwise
+             */
+            boolean hasNumeric(int maxBytes);
+
+            /**
              * Handy method equivalent to using {@link TokenBuffer#isMarker(byte)} on this ReadToken.
              *
              * @return true if this is a marker token (including sequence marker); false otherwise
@@ -258,18 +268,18 @@ public interface TokenBuffer {
             BlockIterator dataIterator();
 
             /**
-             * Exposes the data as a single number (uint32).
+             * Exposes the data as a single number (uint32). Check whether this will succeed with {@link #hasNumeric(int) hasNumeric(4)}.
              *
-             * @return the value of the data, as a 4 byte number
-             * @throws IllegalStateException if this token is any kind of Marker - check first!
+             * @return the value of the data, as a 4 byte number, or zero if out of range
+             * @throws IllegalStateException if this token is any kind of Marker.
              */
             long getData32();
 
             /**
-             * Exposes the data as a single number (uint16).
+             * Exposes the data as a single number (uint16). Check whether this will succeed with {@link #hasNumeric(int) hasNumeric(2)}.
              *
-             * @return the value of the data, as a 2 byte number
-             * @throws IllegalStateException if this token is any kind of Marker - check first!
+             * @return the value of the data, as a 2 byte number, or zero if out of range
+             * @throws IllegalStateException if this token is any kind of Marker.
              */
             int getData16();
         }

@@ -12,8 +12,9 @@
 #include "TokenBufferFlags.h"
 
 
-// The max-length of the data associated with a single token - limited by the 1-byte length field. Longer data needs an extension token.
+// The max-length of the data associated with a single token - limited by the 1-byte field-length field. Longer data needs an extension token.
 #define ZSTOK_MAX_TOKEN_DATA_LENGTH ((uint8_t) 255)
+#define MAX_NUMERIC_TOKEN_DATA_LENGTH ((uint8_t) 2)
 
 // Special token key to indicate that this segment is a continuation of the previous token due to its data size hitting maximum.
 #define ZSTOK_TOKEN_EXTENSION ((uint8_t) 0x81)
@@ -52,8 +53,8 @@ typedef struct {
     zstok_bufsz_t writeCursor;
     /** are we in the middle of writing a 2-nibble value? */
     bool inNibble : 1;
-    /** have we started writing a nibble-based "numeric" field (even or odd number of nibbles), or a strictly hex-pair field? */
-    bool numeric : 1;
+    /** Indicates that we are writing an extended token (in order to help limit odd-nibble numerics) */
+    bool extended : 1;
 
 } ZStok_TokenBuffer;
 

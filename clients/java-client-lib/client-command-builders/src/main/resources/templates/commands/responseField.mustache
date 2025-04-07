@@ -11,6 +11,8 @@
             }
 
         {{#required}}
+            // ============ ENUM GETTERS - required field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
+
             /**
              * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
@@ -37,6 +39,7 @@
              *
              * @return the value of this required field
              * @throws ZscriptFieldOutOfRangeException if the value is out of range of the available values
+             * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}
              */
             @Nonnull
             public {{#upperCamel}}{{{fieldName}}}{{/upperCamel}} get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
@@ -44,6 +47,8 @@
             }
         {{/required}}
         {{^required}}
+            // ============ ENUM GETTERS - optional field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
+
             /**
              * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
@@ -96,6 +101,7 @@
     {{#numberType}}
         {{! ============ NUMBER-TYPE GETTERS ============= }}
         {{#required}}
+            // ============ NUMBER-TYPE GETTERS - required field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
             /**
              * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
@@ -112,6 +118,7 @@
             }
         {{/required}}
         {{^required}}
+            // ============ NUMBER-TYPE GETTERS - optional field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
             /**
              * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
@@ -142,6 +149,7 @@
     {{/numberType}}
     {{#flagType}}
         {{! ============ FLAG-TYPE GETTERS ============= }}
+            // ============ FLAG-TYPE GETTERS - field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
             /**
              * Checks if the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field is set: {{description}}
             {{#longDescription}}
@@ -168,6 +176,7 @@
             }
 
         {{#required}}
+            // ============ BITSET-TYPE GETTERS - required field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
             /**
              * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
@@ -202,6 +211,7 @@
             }
         {{/required}}
         {{^required}}
+            // ============ BITSET-TYPE GETTERS - optional field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
             /**
              * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
@@ -245,24 +255,42 @@
             }
         {{/required}}
     {{/bitsetType}}
-    {{#bigfieldType}}
-        {{! ============ BIG-FIELD-TYPE GETTERS ============= }}
+    {{#stringType}}
+        {{! ============ STRING-TYPE (BOTH TEXT AND BYTES) GETTERS ============= }}
+        {{#required}}
+            // ============ STRING-TYPE (BOTH TEXT AND BYTES) GETTERS - required field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
+
             /**
-             * Returns the big-field <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as bytes: {{description}}
+             * Returns the string <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as ByteString: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @return the big-field data, as bytes
+             * @return the string data, as ByteString
              */
             @Nonnull
-            public byte[] get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsBytes() {
-                return expression.getBigFieldData();
+            public ByteString get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsByteString() {
+                return expression.getFieldAsByteString((byte) '{{key}}')
+                        .orElseThrow(() -> new ZscriptMissingFieldException("name={{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}, key='{{key}}'"));
             }
 
             /**
-             * Returns the big-field <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as a String: {{description}}
+             * Returns the string <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as bytes: {{description}}
+            {{#longDescription}}
+             * <p>
+             * {{longDescription}}
+            {{/longDescription}}
+             *
+             * @return the string data, as bytes
+             */
+            @Nonnull
+            public byte[] get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsBytes() {
+                return get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsByteString().toByteArray();
+            }
+
+            /**
+             * Returns the string <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as a String: {{description}}
              * <p>
              * The bytes are interpreted as encoded as UTF-8.
             {{#longDescription}}
@@ -270,32 +298,81 @@
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @return the big-field data, as a String
+             * @return the string data, as a String
              */
             @Nonnull
             public String get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsString() {
-                return new String(expression.getBigFieldData(), StandardCharsets.UTF_8);
+                return get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsByteString().asString();
             }
-
+        {{/required}}
         {{^required}}
+            // ============ STRING-TYPE (BOTH TEXT AND BYTES) GETTERS - optional field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
+
             /**
-             * Determines whether a big-field <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> was supplied in the response: {{description}}
+             * Returns the string <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data, if present, as ByteString: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @return true if any big-field component was supplied, false otherwise
+             * @return the string data, as ByteString
+             */
+            @Nonnull
+            public Optional<ByteString> get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsByteString() {
+                return expression.getFieldAsByteString((byte) '{{key}}');
+            }
+
+            /**
+             * Returns the string <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data, if present, as bytes: {{description}}
+            {{#longDescription}}
+             * <p>
+             * {{longDescription}}
+            {{/longDescription}}
+             *
+             * @return the string data, as bytes
+             */
+            @Nonnull
+            public Optional<byte[]> get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsBytes() {
+                return get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsByteString().map(s -> s.toByteArray());
+            }
+
+            /**
+             * Returns the string <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data, if present, as a String: {{description}}
+             * <p>
+             * The bytes are interpreted as encoded as UTF-8.
+            {{#longDescription}}
+             * <p>
+             * {{longDescription}}
+            {{/longDescription}}
+             *
+             * @return the string data, as a String
+             */
+            @Nonnull
+            public Optional<String> get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsString() {
+                return get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsByteString().map(s -> s.asString());
+            }
+
+            /**
+             * Determines if the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field is set: {{description}}
+            {{#longDescription}}
+             * <p>
+             * {{longDescription}}
+            {{/longDescription}}
+             *
+             * @return true if this field is set, false otherwise
              */
             public boolean has{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
-                return expression.hasBigField();
+                return expression.hasField((byte) '{{key}}');
             }
         {{/required}}
-    {{/bigfieldType}}
+    {{/stringType}}
     {{#textType}}
         {{! ============ TEXT-TYPE GETTERS ============= }}
+        {{#required}}
+            // ============ TEXT-TYPE GETTERS - required field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
+
             /**
-            * Returns the big-field <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as text: {{description}}
+            * Returns the string <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as text: {{description}}
             * <p>
             * The bytes are interpreted as encoded as UTF-8.
             {{#longDescription}}
@@ -303,31 +380,78 @@
              * {{longDescription}}
             {{/longDescription}}
             *
-            * @return the big-field data, as a String
+            * @return the string data, as a String
             */
             @Nonnull
             public String get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
                 return get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsString();
             }
+
+        {{/required}}
+        {{^required}}
+            // ============ TEXT-TYPE GETTERS - optional field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
+
+            /**
+            * Returns the string <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data, if present, as text: {{description}}
+            * <p>
+            * The bytes are interpreted as encoded as UTF-8.
+            {{#longDescription}}
+             * <p>
+             * {{longDescription}}
+            {{/longDescription}}
+            *
+            * @return the string data, as a String
+            */
+            @Nonnull
+            public Optional<String> get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
+                return get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsString();
+            }
+
+        {{/required}}
+
     {{/textType}}
     {{#bytesType}}
         {{! ============ BYTES-TYPE GETTERS ============= }}
+        {{#required}}
+            // ============ BYTES-TYPE GETTERS - required field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
+
             /**
-             * Returns the big-field <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as bytes: {{description}}
+             * Returns the string <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data as bytes: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @return the big-field data, as bytes
+             * @return the string data, as bytes
              */
             @Nonnull
             public byte[] get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
                 return get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsBytes();
             }
+
+        {{/required}}
+        {{^required}}
+            // ============ BYTES-TYPE GETTERS - optional field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
+
+            /**
+             * Returns the string <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> data, if present, as bytes: {{description}}
+            {{#longDescription}}
+             * <p>
+             * {{longDescription}}
+            {{/longDescription}}
+             *
+             * @return the string data, as bytes
+             */
+            @Nonnull
+            public Optional<byte[]> get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
+                return get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsBytes();
+            }
+
+        {{/required}}
     {{/bytesType}}
     {{#commandsType}}
         {{! ============ COMMANDS-TYPE GETTERS ============= }}
+            // ============ COMMANDS-TYPE GETTERS - field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
             /**
              * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}

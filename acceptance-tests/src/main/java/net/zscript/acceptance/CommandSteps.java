@@ -128,8 +128,8 @@ public class CommandSteps {
         assertThat(Integer.decode(value)).isEqualTo(actualValue);
     }
 
-    @And("it should include a bigfield {word} set to {string}")
-    public void shouldIncludeBigFieldSetTo(String fieldName, String value) throws Exception {
+    @And("it should include a {word} string-field set to {string}")
+    public void shouldIncludeStringFieldSetTo(String fieldName, String value) throws Exception {
         final ZscriptResponse currentResponse = responses.get(currentResponseIndex);
         final String          actualValue     = (String) currentResponse.getClass().getMethod("get" + uc(fieldName) + "AsString").invoke(currentResponse);
         assertThat(value).isEqualTo(actualValue);
@@ -143,7 +143,7 @@ public class CommandSteps {
     }
 
     /**
-     * Checks for field equivalence (eg every listed field must have same value as that returned, though not necessarily same order or big-field configuration)
+     * Checks for field equivalence (eg every listed field must have same value as that returned, though not necessarily same order or string configuration)
      *
      * @param responseExpression the expression to check against
      */
@@ -165,10 +165,6 @@ public class CommandSteps {
         final Set<ZscriptField> actualFields   = currentResponse.expression().fields().collect(toSet());
         final Set<ZscriptField> expectedFields = expected.fields().collect(toSet());
         assertThat(actualFields).containsAll(expectedFields);
-
-        if (expected.hasBigField()) {
-            assertThat(currentResponse.expression().getBigFieldAsByteString()).isEqualTo(expected.getBigFieldAsByteString());
-        }
     }
 
     /**

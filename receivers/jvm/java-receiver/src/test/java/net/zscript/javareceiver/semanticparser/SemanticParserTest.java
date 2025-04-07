@@ -62,7 +62,7 @@ class SemanticParserTest {
         final SemanticAction a1 = parser.getAction();
         assertThat(a1.getType()).isEqualTo(RUN_FIRST_COMMAND);
         a1.performAction(zscript, outStream);
-        assertThat(outStream.getStringAndReset()).isEqualTo("!V1C3117M1S");
+        assertThat(outStream.getStringAndReset()).isEqualTo("!V1I\"\"C3117M1S");
         assertThat(parser.getState()).isEqualTo(State.COMMAND_COMPLETE);
 
         final SemanticAction a2 = parser.getAction();
@@ -121,7 +121,7 @@ class SemanticParserTest {
 
     private static Stream<Arguments> shouldProduceActionsForSingleCommands() {
         return Stream.of(
-                of("Z0\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!V1C3117M1S\n"),
+                of("Z0\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!V1I\"\"C3117M1S\n"),
                 of("Z1A\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS\n"),
                 of("Z1A S1\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS1\n"),
                 of("Z1A S10\n", List.of(RUN_FIRST_COMMAND, END_SEQUENCE, WAIT_FOR_TOKENS), "!AS10\n"));

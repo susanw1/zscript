@@ -64,7 +64,7 @@ public class ExtendingTokenBuffer extends AbstractArrayTokenBuffer {
 
     private static ExtendingTokenBuffer tokenizeImpl(ByteString sequence, boolean autoNewline, boolean rejectErrors, boolean parseOutAddressing) {
         final ExtendingTokenBuffer buf = new ExtendingTokenBuffer();
-        final Tokenizer            tok = new Tokenizer(buf.getTokenWriter(), Tokenizer.DEFAULT_MAX_NUMERIC_BYTES, parseOutAddressing);
+        final Tokenizer            tok = new Tokenizer(buf.getTokenWriter(), parseOutAddressing);
 
         final TokenBufferFlags flags = buf.getTokenReader().getFlags();
         for (int i = 0, n = sequence.size(); i < n; i++) {

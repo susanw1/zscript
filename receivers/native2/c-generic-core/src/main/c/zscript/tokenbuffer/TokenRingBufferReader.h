@@ -16,7 +16,7 @@
 
 /**
  * Represents the view of a single readable token in the buffer. The first readable token is computed from the `readStart` position of the TokenBuffer,
- * and subsequent tokens are calculated using this token's length, like a linked-list. They are deliberately small and stateless, so they
+ * and subsequent tokens are calculated using each token's length, like a linked-list. ZStok_ReadToken objects are deliberately small and immutable, so they
  * should ALWAYS be passed by value, not reference.
  *
  * <p>At a higher level, it has the following rules:
@@ -25,7 +25,7 @@
  * <li>you can't go off the end of the readable space - the tokenBuffer pointer will be NULL for any such invalid token object.</li>
  * </ul>
  *
- * <p>Any operation which returns a ReadToken should fail when these rules are broken.
+ * <p>Any operation which returns a ReadToken should raise an error when these rules are broken.
  *
  * <p>Token-based operations include allowing access to the numeric fields, and creating an iterator for accessing the token's data as a series of contiguous byte arrays (including
  * navigating extension tokens). A ReadToken is also used to flush preceding tokens, allowing the readStart position to be updated (flushToToken()).

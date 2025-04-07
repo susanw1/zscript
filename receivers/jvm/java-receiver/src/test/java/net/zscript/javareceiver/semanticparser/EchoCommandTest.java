@@ -55,24 +55,24 @@ class EchoCommandTest {
                 of("Z1A\n", "!AS\n"),
                 of("Z1C3B2A1\n", "!C3B2A1S\n"),
                 of("Z1ABfCffDfffEffff\n", "!ABfCffDfffEffffS\n"),
-                of("Z1Afffff\n", "!S20\n"), // TODO is this good?
-                of("Z1A000000B0000001C00000ffff\n", "!AB1CffffS\n"),
+                of("Z1Afffff\n", "!S21\n"), // TODO is this good?
+                of("Z1A00000000B00000001C000000ffff\n", "!A\"=00=00=00=00\"B\"=00=00=00\u0001\"C\"=00=00=00ÿÿ\"S\n"),
                 of("Z1A\"hello\"\n", "!A\"hello\"S\n"),
                 of("Z1A\"hµllo\"\n", "!A\"hµllo\"S\n"),
                 of("Z1A\"he=0allo\"\n", "!A\"he=0allo\"S\n"),
                 of("Z1A\"he=0all=6f\"\n", "!A\"he=0allo\"S\n"),
                 of("Z1A\"he=0all=6f\"\n", "!A\"he=0allo\"S\n"),
                 of("Z1A\"1=0a2=003=3d=224\"\n", "!A\"1=0a2=003=3d=224\"S\n"),
-                of("Z1+123456\n", "!+123456S\n"),
-                of("Z1+123456789abcdef0\n", "!+123456789abcdef0S\n"),
+                of("Z1 X123456\n", "!X\"\u00124V\"S\n"),
+                of("Z1 X123456789abcdef0\n", "!X\"\u00124Vx\u009a¼Þð\"S\n"),
                 of("Z1AS2\n", "!AS2\n"),
                 of("Z1AS2 | Z1\n", "!AS2|S\n"),
                 of("Z1AS13\n", "!AS13\n"),
                 of("Z1AS13 | Z1\n", "!AS13\n"),
 
                 of("Z1A1A2\n", "!S40\n"), // TODO verify this is standard, or whether we just pick first one
-                of("Z1+12+34\n", "!+12+34S\n"),
-                of("Z1+12\"ab\"+34\n", "!+12\"ab\"+34S\n")
+                of("Z1A12B34\n", "!A12B34S\n"),
+                of("Z1 A12 B\"ab\" C34\n", "!A12B6162C34S\n")
 
         );
     }

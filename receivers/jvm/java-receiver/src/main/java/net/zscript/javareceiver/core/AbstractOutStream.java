@@ -20,7 +20,7 @@ public abstract class AbstractOutStream implements OutStream {
 
     /**
      * Finds the ascii char representation of the bottom nibble of {@code b}. Watch out - this returns a byte, so it must be cast to a char to use it in certain contexts, such as
-     * StringBuilders or String '+' operations.
+     * StringBuilders or String concat operations.
      *
      * @param b the byte to convert (ignores top nibble)
      * @return a byte in range '0'-'9' or 'a'-'f'
@@ -98,44 +98,52 @@ public abstract class AbstractOutStream implements OutStream {
 
     @Override
     public void writeField(ZscriptField field) {
-        if (field.isBigField()) {
-            if (field.getKey() == Zchars.Z_BIGFIELD_QUOTED) {
-                writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
-                // note, could use BlockIterator, but need to split and extract escaped chars
-                for (byte b : field) {
-                    writeStringByte(b);
-                }
-                writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
-            } else {
-                writeCharAsByte(Zchars.Z_BIGFIELD_HEX);
-                for (BlockIterator iterator = field.iterator(); iterator.hasNext(); ) {
-                    byte[] bytes = iterator.nextContiguous();
-                    writeBytes(bytes, bytes.length, true);
-                }
-            }
-        } else {
+        if (field.isNumeric()) {
             writeField(field.getKey(), field.getValue());
+        } else {
+            writeFieldQuoted(field.getKey(), field.iterator());
         }
     }
 
     @Override
-    public void writeBigFieldQuoted(String string) {
-        writeBigFieldQuoted(string.getBytes(StandardCharsets.UTF_8));
+    public void writeFieldQuoted(byte key, String string) {
+        writeFieldQuoted(key, string.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
-    public void writeBigFieldQuoted(byte[] data) {
-        writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
+    public void writeFieldQuoted(byte key, byte[] data) {
+        writeCharAsByte(key);
+        writeCharAsByte(Zchars.Z_STRING_TYPE_QUOTED);
         for (byte b : data) {
             writeStringByte(b);
         }
-        writeCharAsByte(Zchars.Z_BIGFIELD_QUOTED);
+        writeCharAsByte(Zchars.Z_STRING_TYPE_QUOTED);
     }
 
     @Override
-    public void writeBigFieldHex(byte[] data) {
-        writeCharAsByte(Zchars.Z_BIGFIELD_HEX);
+    public void writeFieldQuoted(byte key, BlockIterator dataIterator) {
+        writeCharAsByte(key);
+        writeCharAsByte(Zchars.Z_STRING_TYPE_QUOTED);
+
+        while (dataIterator.hasNext()) {
+            writeStringByte(dataIterator.next());
+        }
+        writeCharAsByte(Zchars.Z_STRING_TYPE_QUOTED);
+    }
+
+    @Override
+    public void writeFieldHex(byte key, byte[] data) {
+        writeCharAsByte(key);
         writeBytes(data, data.length, true);
+    }
+
+    @Override
+    public void writeFieldHex(byte key, BlockIterator dataIterator) {
+        writeCharAsByte(key);
+        while (dataIterator.hasNext()) {
+            byte[] data = dataIterator.nextContiguous();
+            writeBytes(data, data.length, true);
+        }
     }
 
     @Override

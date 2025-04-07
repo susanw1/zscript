@@ -32,13 +32,15 @@ void assertBufferContainsAt(const char *msg, ZStok_TokenWriter tbw, zstok_bufsz_
     assertContains(msg, tbw.tokenBuffer->data + start, contents, len);
 }
 
-bool testBufferContent(uint8_t *instructions, uint8_t *data, uint16_t instructionsLength, uint8_t *dataExpected, uint16_t dataLengthExpected) {
+bool testBufferContent(char *instructions, char *data, uint8_t *dataExpected, uint16_t dataLengthExpected) {
     setup();
     for (int i = 0; i < 100; i++) {
         testBufferSpace[i] = 0xAA;
     }
 
-    zstok_initTokenizer(&tokenizer, testWriter, 2);
+    uint16_t instructionsLength = strlen(instructions);
+
+    zstok_initTokenizer(&tokenizer, testWriter);
 
     for (int i = 0; i < instructionsLength; ++i) {
         if (instructions[i] == 'c') {
@@ -77,134 +79,110 @@ bool testBufferContent(uint8_t *instructions, uint8_t *data, uint16_t instructio
 }
 
 bool shouldMarkOverrunOnce(void) {
-    uint8_t  instructions[]     = "ll";
-    uint8_t  data[]             = { 0, 0 };
-    uint16_t instructionsLength = 2;
-    uint8_t  dataExpected[]     = { ZSTOK_ERROR_BUFFER_OVERRUN };
-    uint16_t dataLengthExpected = 1;
-    return testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected);
+    char    instructions[] = "ll";
+    char    data[]         = { 0, 0 };
+    uint8_t dataExpected[] = { ZSTOK_ERROR_BUFFER_OVERRUN };
+    return testBufferContent(instructions, data, dataExpected, sizeof(dataExpected));
 }
 
 bool shouldHandleNumericalFields(void) {
     bool worked = true;
     if (true) {
-        uint8_t  instructions[]     = "o";
-        uint8_t  data[]             = "Z";
-        uint16_t instructionsLength = 1;
-        uint8_t  dataExpected[]     = { 'Z', 0 };
-        uint16_t dataLengthExpected = 2;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "o";
+        char    data[]         = "Z";
+        uint8_t dataExpected[] = { 'Z', 0 };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Single zero-valued key, no NL\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oo";
-        uint8_t  data[]             = "Z\n";
-        uint16_t instructionsLength = 2;
-        uint8_t  dataExpected[]     = { 'Z', 0, ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 3;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oo";
+        char    data[]         = "Z\n";
+        uint8_t dataExpected[] = { 'Z', 0, ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Single zero-valued key with NL\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooo";
-        uint8_t  data[]             = "A A A\n";
-        uint16_t instructionsLength = 6;
-        uint8_t  dataExpected[]     = { 'A', 0, 'A', 0, 'A', 0, ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 7;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooooo";
+        char    data[]         = "A A A\n";
+        uint8_t dataExpected[] = { 'A', 0, 'A', 0, 'A', 0, ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on 3 empty keys\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "ooooooo";
-        uint8_t  data[]             = "AA1Afa\n";
-        uint16_t instructionsLength = 7;
-        uint8_t  dataExpected[]     = { 'A', 0, 'A', 1, 1, 'A', 1, 0xfa, ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 9;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "ooooooo";
+        char    data[]         = "AA1Afa\n";
+        uint8_t dataExpected[] = { 'A', 0, 'A', 1, 1, 'A', 1, 0xfa, ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on 3 keys\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooo";
-        uint8_t  data[]             = "A 12";
-        uint16_t instructionsLength = 4;
-        uint8_t  dataExpected[]     = { 'A', 1, 0x12 };
-        uint16_t dataLengthExpected = 3;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooo";
+        char    data[]         = "A 12";
+        uint8_t dataExpected[] = { 'A', 1, 0x12 };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Key with 2-nibble value, spaced\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oo";
-        uint8_t  data[]             = "A0";
-        uint16_t instructionsLength = 2;
-        uint8_t  dataExpected[]     = { 'A', 0 };
-        uint16_t dataLengthExpected = 2;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oo";
+        char    data[]         = "A0";
+        uint8_t dataExpected[] = { 'A', 1, 0 };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Key with explicit zero\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooo";
-        uint8_t  data[]             = "A0a\n";
-        uint16_t instructionsLength = 4;
-        uint8_t  dataExpected[]     = { 'A', 1, 0xa, ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 4;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooo";
+        char    data[]         = "A0a\n";
+        uint8_t dataExpected[] = { 'A', 1, 0xa, ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Key 1-nibble value with leading zero\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "ooooo";
-        uint8_t  data[]             = "A0ab\n";
-        uint16_t instructionsLength = 5;
-        uint8_t  dataExpected[]     = { 'A', 1, 0xab, ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 4;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "ooooo";
+        char    data[]         = "A0ab\n";
+        uint8_t dataExpected[] = { 'A', 2, 0x00, 0xab, ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Key 2-nibble value with leading zero\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooo";
-        uint8_t  data[]             = "A0abc\n";
-        uint16_t instructionsLength = 6;
-        uint8_t  dataExpected[]     = { 'A', 2, 0x0a, 0xbc, ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 5;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooooo";
+        char    data[]         = "A0abc\n";
+        uint8_t dataExpected[] = { 'A', 2, 0x0a, 0xbc, ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Key 3-nibble value with leading zero\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "ooooooooo";
-        uint8_t  data[]             = "A000abcd\n";
-        uint16_t instructionsLength = 9;
-        uint8_t  dataExpected[]     = { 'A', 2, 0xab, 0xcd, ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 5;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooooooooo";
+        char    data[]         = "A0000abcd\n";
+        uint8_t dataExpected[] = { 'A', 4, 0x00, 0x00, 0xab, 0xcd, ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Key 4-nibble value with leading zeros\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooooo";
-        uint8_t  data[]             = "A12345\n\n";
-        uint16_t instructionsLength = 8;
-        uint8_t  dataExpected[]     = { ZSTOK_ERROR_CODE_FIELD_TOO_LONG,
-                                        ZSTOK_NORMAL_SEQUENCE_END, 0x12, 0x34 }; // buffer shrapnel
-        uint16_t dataLengthExpected = 4;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooooooo";
+        char    data[]         = "A12345\n\n";
+        uint8_t dataExpected[] = { ZSTOK_ERROR_CODE_ODD_HEXPAIR_LENGTH, ZSTOK_NORMAL_SEQUENCE_END, 0x12, 0x34,
+                                   0x50 }; // buffer shrapnel
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Too long number\n\n");
             worked = false;
         }
@@ -215,81 +193,76 @@ bool shouldHandleNumericalFields(void) {
 bool shouldRejectInvalidKeys(void) {
     bool worked = true;
     if (true) {
-        uint8_t  instructions[]     = "ooooo";
-        uint8_t  data[]             = "A5\f1\n";
-        uint16_t instructionsLength = 5;
-        uint8_t  dataExpected[]     = { ZSTOK_ERROR_CODE_ILLEGAL_TOKEN, 1,
-                                        0x50 }; // here we are just measuring shrapnel in the buffer
-        uint16_t dataLengthExpected = 3;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "ooooo";
+        char    data[]         = "A5\f1\n";
+        uint8_t dataExpected[] = { ZSTOK_ERROR_CODE_ILLEGAL_TOKEN, 1,
+                                   0x50 }; // here we are just measuring shrapnel in the buffer
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Illegal low-value key check\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "ooooo";
-        uint8_t  data[]             = "A5" "\x80" "a\n";
-        uint16_t instructionsLength = 5;
-        uint8_t  dataExpected[]     = { ZSTOK_ERROR_CODE_ILLEGAL_TOKEN, 1,
-                                        0x50 }; // here we are just measuring shrapnel in the buffer
-        uint16_t dataLengthExpected = 3;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "ooooo";
+        char    data[]         = "A5" "\x80" "a\n";
+        uint8_t dataExpected[] = { ZSTOK_ERROR_CODE_ILLEGAL_TOKEN, 1,
+                                   0x50 }; // here we are just measuring shrapnel in the buffer
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Illegal high-value key check x80\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "ooooo";
-        uint8_t  data[]             = "A5\u00f0a\n";
-        uint16_t instructionsLength = 5;
-        uint8_t  dataExpected[]     = { ZSTOK_ERROR_CODE_ILLEGAL_TOKEN, 1,
-                                        0x50 }; // here we are just measuring shrapnel in the buffer
-        uint16_t dataLengthExpected = 3;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "ooooo";
+        char    data[]         = "A5\u00f0a\n";
+        uint8_t dataExpected[] = { ZSTOK_ERROR_CODE_ILLEGAL_TOKEN, 1,
+                                   0x50 }; // here we are just measuring shrapnel in the buffer
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Illegal high-value key check xf0\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooo";
-        uint8_t  data[]             = "A5\"\"a\n";
-        uint16_t instructionsLength = 6;
-        uint8_t  dataExpected[]     = { 'A', 1, 0x5, '"', 0, ZSTOK_ERROR_CODE_ILLEGAL_TOKEN };
-        uint16_t dataLengthExpected = 6;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "ooooo";
+        char    data[]         = "A5\"\"\n";
+        uint8_t dataExpected[] = { ZSTOK_ERROR_CODE_ILLEGAL_TOKEN, 1, 0x50 };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
+            fprintf(stderr, "Failed on Illegal hex key check '\"'\n\n");
+            worked = false;
+        }
+    }
+    if (true) {
+        char    instructions[] = "ooooo";
+        char    data[]         = "A\"\"a\n";
+        uint8_t dataExpected[] = { 'A', 0, ZSTOK_ERROR_CODE_ILLEGAL_TOKEN };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Illegal hex key check 'a'\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooo";
-        uint8_t  data[]             = "A5\"\"f\n";
-        uint16_t instructionsLength = 6;
-        uint8_t  dataExpected[]     = { 'A', 1, 0x5, '"', 0, ZSTOK_ERROR_CODE_ILLEGAL_TOKEN };
-        uint16_t dataLengthExpected = 6;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "ooooo";
+        char    data[]         = "A\"\"f\n";
+        uint8_t dataExpected[] = { 'A', 0, ZSTOK_ERROR_CODE_ILLEGAL_TOKEN };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Illegal hex key check 'f'\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooo";
-        uint8_t  data[]             = "A5\"\"7\n";
-        uint16_t instructionsLength = 6;
-        uint8_t  dataExpected[]     = { 'A', 1, 0x5, '"', 0, ZSTOK_ERROR_CODE_ILLEGAL_TOKEN };
-        uint16_t dataLengthExpected = 6;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooooo";
+        char    data[]         = "A\"a\"7\n";
+        uint8_t dataExpected[] = { 'A', 1, 'a', ZSTOK_ERROR_CODE_ILLEGAL_TOKEN };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Illegal hex key check '7'\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oo";
-        uint8_t  data[]             = "7\n";
-        uint16_t instructionsLength = 2;
-        uint8_t  dataExpected[]     = { ZSTOK_ERROR_CODE_ILLEGAL_TOKEN };
-        uint16_t dataLengthExpected = 1;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oo";
+        char    data[]         = "7\n";
+        uint8_t dataExpected[] = { ZSTOK_ERROR_CODE_ILLEGAL_TOKEN };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Illegal hex key check '7' at start\n\n");
             worked = false;
         }
@@ -300,78 +273,66 @@ bool shouldRejectInvalidKeys(void) {
 bool shouldHandleLogicalSequencesOfNumericFields(void) {
     bool worked = true;
     if (true) {
-        uint8_t  instructions[]     = "oooo";
-        uint8_t  data[]             = "Y&Z\n";
-        uint16_t instructionsLength = 4;
-        uint8_t  dataExpected[]     = { 'Y', 0, ZSTOK_CMD_END_ANDTHEN, 'Z', 0,
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 6;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooo";
+        char    data[]         = "Y&Z\n";
+        uint8_t dataExpected[] = { 'Y', 0, ZSTOK_CMD_END_ANDTHEN, 'Z', 0,
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Two keys sep with &\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooo";
-        uint8_t  data[]             = "Y|Z\n";
-        uint16_t instructionsLength = 4;
-        uint8_t  dataExpected[]     = { 'Y', 0, ZSTOK_CMD_END_ORELSE, 'Z', 0,
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 6;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooo";
+        char    data[]         = "Y|Z\n";
+        uint8_t dataExpected[] = { 'Y', 0, ZSTOK_CMD_END_ORELSE, 'Z', 0,
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Two keys sep with |\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooooo";
-        uint8_t  data[]             = "A|B&C|D\n";
-        uint16_t instructionsLength = 8;
-        uint8_t  dataExpected[]     = { 'A', 0, ZSTOK_CMD_END_ORELSE,
-                                        'B', 0, ZSTOK_CMD_END_ANDTHEN,
-                                        'C', 0, ZSTOK_CMD_END_ORELSE,
-                                        'D', 0, ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 12;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooooooo";
+        char    data[]         = "A|B&C|D\n";
+        uint8_t dataExpected[] = { 'A', 0, ZSTOK_CMD_END_ORELSE,
+                                   'B', 0, ZSTOK_CMD_END_ANDTHEN,
+                                   'C', 0, ZSTOK_CMD_END_ORELSE,
+                                   'D', 0, ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Several keys sep with several & and |\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooo";
-        uint8_t  data[]             = "Y(Z\n";
-        uint16_t instructionsLength = 4;
-        uint8_t  dataExpected[]     = { 'Y', 0, ZSTOK_CMD_END_OPEN_PAREN, 'Z', 0,
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 6;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooo";
+        char    data[]         = "Y(Z\n";
+        uint8_t dataExpected[] = { 'Y', 0, ZSTOK_CMD_END_OPEN_PAREN, 'Z', 0,
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Two keys sep with (\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooo";
-        uint8_t  data[]             = "Y)Z\n";
-        uint16_t instructionsLength = 4;
-        uint8_t  dataExpected[]     = { 'Y', 0, ZSTOK_CMD_END_CLOSE_PAREN, 'Z', 0,
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 6;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooo";
+        char    data[]         = "Y)Z\n";
+        uint8_t dataExpected[] = { 'Y', 0, ZSTOK_CMD_END_CLOSE_PAREN, 'Z', 0,
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Two keys sep with )\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooooo";
-        uint8_t  data[]             = "A(B|C)D&E\n";
-        uint16_t instructionsLength = 8;
-        uint8_t  dataExpected[]     = { 'A', 0, ZSTOK_CMD_END_OPEN_PAREN,
-                                        'B', 0, ZSTOK_CMD_END_ORELSE,
-                                        'C', 0, ZSTOK_CMD_END_CLOSE_PAREN,
-                                        'D', 0, ZSTOK_CMD_END_ANDTHEN,
-                                        'E', 0, ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 12;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooooooooo";
+        char    data[]         = "A(B|C)D&E\n";
+        uint8_t dataExpected[] = { 'A', 0, ZSTOK_CMD_END_OPEN_PAREN,
+                                   'B', 0, ZSTOK_CMD_END_ORELSE,
+                                   'C', 0, ZSTOK_CMD_END_CLOSE_PAREN,
+                                   'D', 0, ZSTOK_CMD_END_ANDTHEN,
+                                   'E', 0, ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Several keys sep with &, |, ( and )\n\n");
             worked = false;
         }
@@ -379,111 +340,94 @@ bool shouldHandleLogicalSequencesOfNumericFields(void) {
     return worked;
 }
 
-bool shouldHandleBigFields(void) {
+bool shouldHandleStringFields(void) {
     bool worked = true;
     if (true) {
-        uint8_t  instructions[]     = "ooooooooo";
-        uint8_t  data[]             = "A0 +1234\n";
-        uint16_t instructionsLength = 9;
-        uint8_t  dataExpected[]     = { 'A', 0, '+', 2, 0x12, 0x34, ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 7;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
-            fprintf(stderr, "Failed on Bigfield hex\n\n");
+        char    instructions[] = "ooooooooo";
+        char    data[]         = "A0 B1234\n";
+        uint8_t dataExpected[] = { 'A', 1, 0, 'B', 2, 0x12, 0x34, ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
+            fprintf(stderr, "Failed on String-field hex\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "ooooooooooo";
-        uint8_t  data[]             = "A1 \"hello\"\n";
-        uint16_t instructionsLength = 11;
-        uint8_t  dataExpected[]     = { 'A', 1, 1, '"', 5, 'h', 'e', 'l', 'l', 'o',
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 11;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
-            fprintf(stderr, "Failed on Bigfield string\n\n");
+        char    instructions[] = "oooooooooooo";
+        char    data[]         = "A1 B\"hello\"\n";
+        uint8_t dataExpected[] = { 'A', 1, 1, 'B', 5, 'h', 'e', 'l', 'l', 'o',
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
+            fprintf(stderr, "Failed on String-field string\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooooooooooo";
-        uint8_t  data[]             = "A1 \"\000hel\000lo\"\000\n";
-        uint16_t instructionsLength = 14;
-        uint8_t  dataExpected[]     = { 'A', 1, 1, '"', 5, 'h', 'e', 'l', 'l', 'o',
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 11;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
-            fprintf(stderr, "Failed on Bigfield string with nulls\n\n");
+        char    instructions[] = "ooooooooooooooo";
+        char    data[]         = "A1 B\"\0hel\0lo\"\0\n";
+        uint8_t dataExpected[] = { 'A', 1, 1, 'B', 5, 'h', 'e', 'l', 'l', 'o',
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
+            fprintf(stderr, "Failed on String-field string with nulls\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "ooooooooooooo";
-        uint8_t  data[]             = "A1 \"h=65llo\"\n";
-        uint16_t instructionsLength = 13;
-        uint8_t  dataExpected[]     = { 'A', 1, 1, '"', 5, 'h', 'e', 'l', 'l', 'o',
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 11;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
-            fprintf(stderr, "Failed on Bigfield string with escape\n\n");
+        char    instructions[] = "oooooooooooooo";
+        char    data[]         = "A1 B\"h=65llo\"\n";
+        uint8_t dataExpected[] = { 'A', 1, 1, 'B', 5, 'h', 'e', 'l', 'l', 'o',
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
+            fprintf(stderr, "Failed on String-field string with escape\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "ooooooo";
-        uint8_t  data[]             = "+12\"a\"\n";
-        uint16_t instructionsLength = 7;
-        uint8_t  dataExpected[]     = { '+', 1, 0x12, '"', 1, 'a', ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 7;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
-            fprintf(stderr, "Failed on Bigfield hex and string\n\n");
+        char    instructions[] = "oooooooo";
+        char    data[]         = "A12B\"a\"\n";
+        uint8_t dataExpected[] = { 'A', 1, 0x12, 'B', 1, 'a', ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
+            fprintf(stderr, "Failed on String-field hex and string\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooooooo";
-        uint8_t  data[]             = "A0 +123\nV\n";
-        uint16_t instructionsLength = 10;
-        uint8_t  dataExpected[]     = { 'A', 0, ZSTOK_ERROR_CODE_ODD_BIGFIELD_LENGTH, 'V', 0,
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 6;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
-            fprintf(stderr, "Failed on Bigfield odd length NL terminated\n\n");
+        char    instructions[] = "oooooooooooo";
+        char    data[]         = "A0 B12345\nV\n";
+        uint8_t dataExpected[] = { 'A', 1, 0, ZSTOK_ERROR_CODE_ODD_HEXPAIR_LENGTH, 'V', 0,
+                                   ZSTOK_NORMAL_SEQUENCE_END, 0x50 };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
+            fprintf(stderr, "Failed on String-field odd length NL terminated\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "ooooooooooooo";
-        uint8_t  data[]             = "A0 +123ffB\nW\n";
-        uint16_t instructionsLength = 13;
-        uint8_t  dataExpected[]     = { 'A', 0, ZSTOK_ERROR_CODE_ODD_BIGFIELD_LENGTH, 'W', 0,
-                                        ZSTOK_NORMAL_SEQUENCE_END, 0xf0 };
-        uint16_t dataLengthExpected = 7;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
-            fprintf(stderr, "Failed on Bigfield odd length token terminated\n\n");
+        char    instructions[] = "ooooooooooooo";
+        char    data[]         = "A0 B123ffC\nW\n";
+        uint8_t dataExpected[] = { 'A', 1, 0, ZSTOK_ERROR_CODE_ODD_HEXPAIR_LENGTH, 'W', 0,
+                                   ZSTOK_NORMAL_SEQUENCE_END, 0xf0 };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
+            fprintf(stderr, "Failed on String-field odd length token terminated\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "ooooo";
-        uint8_t  data[]             = "\"a\nA\n";
-        uint16_t instructionsLength = 5;
-        uint8_t  dataExpected[]     = { ZSTOK_ERROR_CODE_STRING_NOT_TERMINATED, 'A', 0,
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 4;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
-            fprintf(stderr, "Failed on Bigfield string not terminated\n\n");
+        char    instructions[] = "oooooo";
+        char    data[]         = "X\"a\nA\n";
+        uint8_t dataExpected[] = { ZSTOK_ERROR_CODE_STRING_NOT_TERMINATED, 'A', 0,
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
+            fprintf(stderr, "Failed on String-field string not terminated\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "ooooooooooo";
-        uint8_t  data[]             = "\"h=6Ao\"A\nB\n";
-        uint16_t instructionsLength = 11;
-        uint8_t  dataExpected[]     = { ZSTOK_ERROR_CODE_STRING_ESCAPING, 'B', 0,
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 4;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
-            fprintf(stderr, "Failed on Bigfield invalid escape\n\n");
+        char    instructions[] = "oooooooooooo";
+        char    data[]         = "X\"h=6Ao\"A\nB\n";
+        uint8_t dataExpected[] = { ZSTOK_ERROR_CODE_STRING_ESCAPING, 'B', 0,
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
+            fprintf(stderr, "Failed on String-field invalid escape\n\n");
             worked = false;
         }
     }
@@ -493,24 +437,20 @@ bool shouldHandleBigFields(void) {
 bool shouldHandleComment(void) {
     bool worked = true;
     if (true) {
-        uint8_t  instructions[]     = "ooooooooooooo";
-        uint8_t  data[]             = "A0#abc&|+\"\nB\n";
-        uint16_t instructionsLength = 13;
-        uint8_t  dataExpected[]     = { 'A', 0, ZSTOK_NORMAL_SEQUENCE_END, 'B', 0, ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 6;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "ooooooooooooo";
+        char    data[]         = "A0#abc&|+\"\nB\n";
+        uint8_t dataExpected[] = { 'A', 1, 0, ZSTOK_NORMAL_SEQUENCE_END, 'B', 0, ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Discarding comment\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooo";
-        uint8_t  data[]             = "#\nX\n";
-        uint16_t instructionsLength = 4;
-        uint8_t  dataExpected[]     = { ZSTOK_NORMAL_SEQUENCE_END, 'X', 0,
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 4;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooo";
+        char    data[]         = "#\nX\n";
+        uint8_t dataExpected[] = { ZSTOK_NORMAL_SEQUENCE_END, 'X', 0,
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Empty comment\n\n");
             worked = false;
         }
@@ -521,61 +461,51 @@ bool shouldHandleComment(void) {
 bool shouldHandleAddressing(void) {
     bool worked = true;
     if (true) {
-        uint8_t  instructions[]     = "oooo";
-        uint8_t  data[]             = "@2Z\n";
-        uint16_t instructionsLength = 4;
-        uint8_t  dataExpected[]     = { '@', 1, 0x2, ZSTOK_ADDRESSING_FIELD_KEY, 1, 'Z',
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 7;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooo";
+        char    data[]         = "@2Z\n";
+        uint8_t dataExpected[] = { '@', 1, 0x2, ZSTOK_ADDRESSING_FIELD_KEY, 1, 'Z',
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Simple address\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooooo";
-        uint8_t  data[]             = "\000@\000a\000Z\000\n";
-        uint16_t instructionsLength = 8;
-        uint8_t  dataExpected[]     = { '@', 1, 0xa, ZSTOK_ADDRESSING_FIELD_KEY, 1, 'Z',
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 7;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooooooo";
+        char    data[]         = "\000@\000a\000Z\000\n";
+        uint8_t dataExpected[] = { '@', 1, 0xa, ZSTOK_ADDRESSING_FIELD_KEY, 1, 'Z',
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Simple address with nulls\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooooooooo";
-        uint8_t  data[]             = "@2Z12345\"a=\n";
-        uint16_t instructionsLength = 12;
-        uint8_t  dataExpected[]     = { '@', 1, 0x2, ZSTOK_ADDRESSING_FIELD_KEY, 9, 'Z', '1', '2', '3', '4',
-                                        '5', '"', 'a', '=', ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 15;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooooooooooo";
+        char    data[]         = "@2Z12345\"a=\n";
+        uint8_t dataExpected[] = { '@', 1, 0x2, ZSTOK_ADDRESSING_FIELD_KEY, 9, 'Z', '1', '2', '3', '4',
+                                   '5', '"', 'a', '=', ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Simple address, complex content\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooo";
-        uint8_t  data[]             = "@2.1Z\n";
-        uint16_t instructionsLength = 6;
-        uint8_t  dataExpected[]     = { '@', 1, 0x2, '.', 1, 0x1, ZSTOK_ADDRESSING_FIELD_KEY, 1, 'Z',
-                                        ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 10;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooooo";
+        char    data[]         = "@2.1Z\n";
+        uint8_t dataExpected[] = { '@', 1, 0x2, '.', 1, 0x1, ZSTOK_ADDRESSING_FIELD_KEY, 1, 'Z',
+                                   ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Multilevel address\n\n");
             worked = false;
         }
     }
     if (true) {
-        uint8_t  instructions[]     = "oooooooooo";
-        uint8_t  data[]             = "@2.3@4.5Z\n";
-        uint16_t instructionsLength = 10;
-        uint8_t  dataExpected[]     = { '@', 1, 0x2, '.', 1, 0x3, ZSTOK_ADDRESSING_FIELD_KEY, 5, '@', '4',
-                                        '.', '5', 'Z', ZSTOK_NORMAL_SEQUENCE_END };
-        uint16_t dataLengthExpected = 14;
-        if (!testBufferContent(instructions, data, instructionsLength, dataExpected, dataLengthExpected)) {
+        char    instructions[] = "oooooooooo";
+        char    data[]         = "@2.3@4.5Z\n";
+        uint8_t dataExpected[] = { '@', 1, 0x2, '.', 1, 0x3, ZSTOK_ADDRESSING_FIELD_KEY, 5, '@', '4',
+                                   '.', '5', 'Z', ZSTOK_NORMAL_SEQUENCE_END };
+        if (!testBufferContent(instructions, data, dataExpected, sizeof(dataExpected))) {
             fprintf(stderr, "Failed on Multilevel address\n\n");
             worked = false;
         }
@@ -603,8 +533,8 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Failed on handling logical sequences of numeric fields \n");
         return 1;
     }
-    if (!shouldHandleBigFields()) {
-        fprintf(stderr, "Failed on handling big fields \n");
+    if (!shouldHandleStringFields()) {
+        fprintf(stderr, "Failed on handling string fields \n");
         return 1;
     }
     if (!shouldHandleComment()) {

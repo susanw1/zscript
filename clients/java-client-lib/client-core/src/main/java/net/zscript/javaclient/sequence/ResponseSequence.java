@@ -1,6 +1,6 @@
 package net.zscript.javaclient.sequence;
 
-import static net.zscript.javaclient.commandpaths.NumberField.fieldOf;
+import static net.zscript.javaclient.commandpaths.FieldElement.fieldOf;
 
 import net.zscript.javaclient.ZscriptParseException;
 import net.zscript.javaclient.commandpaths.ResponseExecutionPath;

@@ -75,7 +75,7 @@ public class ExtendingTokenBufferTest {
         final Tokenizer            tok = new Tokenizer(buf.getTokenWriter(), true);
 
         assertThat(buf.getDataSize()).isLessThan(500);
-        tok.accept((byte) '"');
+        tok.accept((byte) 'X');
         for (int i = 0; i < 1000; i++) {
             tok.accept((byte) 'x');
         }

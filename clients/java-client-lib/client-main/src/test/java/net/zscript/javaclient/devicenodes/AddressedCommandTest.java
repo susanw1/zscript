@@ -13,7 +13,7 @@ import net.zscript.model.ZscriptModel;
 class AddressedCommandTest {
     @Test
     public void shouldCreateAddressedCommand() {
-        final CommandSequence  seq = parse("%1>2A3B4");
+        final CommandSequence  seq = parse("%10>2A3B4");
         final AddressedCommand cmd = new AddressedCommand(seq);
         cmd.prefixAddressLayer(address(10, 11));
         cmd.prefixAddressLayer(address(14));

@@ -27,7 +27,7 @@ public class ValidatingResponse implements ZscriptResponse {
     @Override
     public boolean isValid() {
         for (byte b : requiredKeys) {
-            if (Zchars.isNumericKey(b) && !expression.hasField(b) || Zchars.isBigField(b) && !expression.hasBigField()) {
+            if (Zchars.isExpressionKey(b) && !expression.hasField(b)) {
                 return false;
             }
         }

@@ -45,15 +45,17 @@ public interface IntrinsicsDataModel {
 
         boolean isMustEscape();
 
-        boolean isNonNumeric();
+        boolean isShortNumber();
 
         boolean isIgnoreAlways();
 
         boolean isIgnoreInCode();
 
-        boolean isBigField();
+        boolean isFieldTypeIndicator();
 
         boolean isAddressing();
+
+        boolean isDeprecated();
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.StringIdGenerator.class)

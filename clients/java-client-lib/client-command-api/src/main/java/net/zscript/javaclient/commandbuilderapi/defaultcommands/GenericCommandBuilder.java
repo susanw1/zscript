@@ -4,41 +4,35 @@ import javax.annotation.Nonnull;
 
 import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandBuilder;
 import net.zscript.javaclient.commandbuilderapi.nodes.ZscriptCommandNode;
+import net.zscript.javaclient.commandpaths.FieldElement;
 import net.zscript.tokenizer.ZscriptExpression;
+import net.zscript.util.ByteString;
 
 public class GenericCommandBuilder extends ZscriptCommandBuilder<DefaultResponse> {
     @Override
-    public int getField(byte key) {
-        return super.getField(key);
+    public FieldElement getFieldOrZero(byte key) {
+        return super.getFieldOrZero(key);
     }
 
     @Override
-    public int getField(char key) {
-        return super.getField(key);
+    public FieldElement getFieldOrZero(char key) {
+        return super.getFieldOrZero(key);
     }
 
     public GenericCommandBuilder setField(char key, int value) {
         return (GenericCommandBuilder) setField((byte) key, value);
     }
 
-    @Override
-    public GenericCommandBuilder addBigField(byte[] data) {
-        return (GenericCommandBuilder) super.addBigField(data);
+    public GenericCommandBuilder setFieldAsText(char key, ByteString data) {
+        return (GenericCommandBuilder) setFieldAsText((byte) key, data);
     }
 
-    @Override
-    public GenericCommandBuilder addBigField(byte[] data, boolean asString) {
-        return (GenericCommandBuilder) super.addBigField(data, asString);
+    public GenericCommandBuilder setFieldAsBytes(char key, ByteString data) {
+        return (GenericCommandBuilder) setFieldAsBytes((byte) key, data);
     }
 
-    @Override
-    public GenericCommandBuilder addBigFieldAsSmallest(byte[] data) {
-        return (GenericCommandBuilder) super.addBigFieldAsSmallest(data);
-    }
-
-    @Override
-    public GenericCommandBuilder addBigField(String text) {
-        return (GenericCommandBuilder) super.addBigField(text);
+    public GenericCommandBuilder setFieldAsSmallest(char key, ByteString data) {
+        return (GenericCommandBuilder) setFieldAsSmallest((byte) key, data);
     }
 
     @Nonnull
