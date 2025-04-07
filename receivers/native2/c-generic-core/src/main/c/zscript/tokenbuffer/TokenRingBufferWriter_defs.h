@@ -13,8 +13,6 @@
 #include "TokenRingBufferWriter.h"
 
 // Private functions not used outside this unit
-static bool zstok_isNumeric_priv(ZStok_TokenWriter tbw);
-
 static void zstok_moveCursor_priv(ZStok_TokenWriter tbw);
 
 static void zstok_writeNewTokenStart_priv(ZStok_TokenWriter tbw, uint8_t key);
@@ -49,15 +47,13 @@ static void zstok_moveCursor_priv(const ZStok_TokenWriter tbw) {
  * finished off first. The key must not be a marker - use {@link #writeMarker(byte)}.
  *
  * @param key     the byte to use as the key
- * @param numeric true if numeric nibble aggregation should be used, false otherwise
  */
-static void zstok_startToken(ZStok_TokenWriter tbw, uint8_t key, bool numeric) {
+static void zstok_startToken(ZStok_TokenWriter tbw, uint8_t key) {
     if (key < 0x20 || zstok_isMarker(key)) {
         zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_ARG_NOT_TOKENKEY);   // "invalid token [key=0x" + key + "]""
         return;
     }
     zstok_endToken(tbw);
-    tbw.tokenBuffer->numeric = numeric;
     zstok_writeNewTokenStart_priv(tbw, key);
 }
 
@@ -83,11 +79,8 @@ static void zstok_continueTokenNibble(ZStok_TokenWriter tbw, uint8_t nibble) {
         zstok_moveCursor_priv(tbw);
     } else {
         if (tbw.tokenBuffer->data[tbw.tokenBuffer->writeLastLen] == ZSTOK_MAX_TOKEN_DATA_LENGTH) {
-            if (zstok_isNumeric_priv(tbw)) {
-                zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_NUMERIC_TOO_LONG);    // "Illegal numeric field longer than 255 bytes"
-                return;
-            }
             zstok_writeNewTokenStart_priv(tbw, ZSTOK_TOKEN_EXTENSION);
+            tbw.tokenBuffer->extended = true;
         }
         tbw.tokenBuffer->data[tbw.tokenBuffer->writeCursor] = (uint8_t) (nibble << 4);
         tbw.tokenBuffer->data[tbw.tokenBuffer->writeLastLen]++;
@@ -111,11 +104,8 @@ static void zstok_continueTokenByte(ZStok_TokenWriter tbw, uint8_t b) {
     }
 
     if (tbw.tokenBuffer->data[tbw.tokenBuffer->writeLastLen] == ZSTOK_MAX_TOKEN_DATA_LENGTH) {
-        if (zstok_isNumeric_priv(tbw)) {
-            zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_NUMERIC_TOO_LONG);    // "Illegal numeric field longer than 255 bytes"
-            return;
-        }
         zstok_writeNewTokenStart_priv(tbw, ZSTOK_TOKEN_EXTENSION);
+        tbw.tokenBuffer->extended = true;
     }
     tbw.tokenBuffer->data[tbw.tokenBuffer->writeCursor] = b;
     zstok_moveCursor_priv(tbw);
@@ -127,22 +117,28 @@ static void zstok_continueTokenByte(ZStok_TokenWriter tbw, uint8_t b) {
  */
 static void zstok_endToken(ZStok_TokenWriter tbw) {
     if (zstok_isInNibble(tbw)) {
-        if (zstok_isNumeric_priv(tbw)) {
-            // if odd nibble count, then shuffle nibbles through token's data to ensure "right-aligned", eg 4ad0 really means 04ad
-            uint8_t       hold = 0;
-            zstok_bufsz_t pos  = zstok_offset(tbw.tokenBuffer, tbw.tokenBuffer->writeStart, 1);
-            do {
-                pos         = zstok_offset(tbw.tokenBuffer, pos, 1);
-                uint8_t tmp = tbw.tokenBuffer->data[pos] & 0xF;
-                tbw.tokenBuffer->data[pos] = hold | ((tbw.tokenBuffer->data[pos] >> 4) & 0xF);
-                hold = tmp << 4;
-            } while (pos != tbw.tokenBuffer->writeCursor);
+        // note: need to check extended, as current length is only for this segment
+        if (tbw.tokenBuffer->extended || zstok_getCurrentWriteTokenLength(tbw) > MAX_NUMERIC_TOKEN_DATA_LENGTH) {
+            zstok_fatalError_priv(tbw, ZS_SystemErrorType_TOKBUF_STATE_NUMERIC_TOO_LONG);
+            return;
         }
+
+        // if odd nibble count, then shuffle nibbles through token's data to ensure "right-aligned", eg 4ad0 really means 04ad
+        uint8_t       hold = 0;
+        zstok_bufsz_t pos  = zstok_offset(tbw.tokenBuffer, tbw.tokenBuffer->writeStart, 1);
+        do {
+            pos         = zstok_offset(tbw.tokenBuffer, pos, 1);
+            uint8_t tmp = tbw.tokenBuffer->data[pos] & 0xF;
+            tbw.tokenBuffer->data[pos] = hold | ((tbw.tokenBuffer->data[pos] >> 4) & 0xF);
+            hold = tmp << 4;
+        } while (pos != tbw.tokenBuffer->writeCursor);
+
         zstok_moveCursor_priv(tbw);
     }
 
     tbw.tokenBuffer->writeStart = tbw.tokenBuffer->writeCursor;
     tbw.tokenBuffer->inNibble   = false;
+    tbw.tokenBuffer->extended   = false;
 }
 
 /**
@@ -151,7 +147,7 @@ static void zstok_endToken(ZStok_TokenWriter tbw) {
  * @param tbw the writer to check
  * @return the amount of writable space available
  */
-static zstok_bufsz_t zstok_getAvailableWrite_priv(ZStok_TokenWriter tbw) {
+static zstok_bufsz_t zstok_getAvailableWrite_priv(const ZStok_TokenWriter tbw) {
     return (tbw.tokenBuffer->writeCursor >= tbw.tokenBuffer->readStart ? tbw.tokenBuffer->bufLen : 0)
            + tbw.tokenBuffer->readStart - tbw.tokenBuffer->writeCursor - 1;
 }
@@ -162,7 +158,7 @@ static zstok_bufsz_t zstok_getAvailableWrite_priv(ZStok_TokenWriter tbw) {
  * @param size the size to check
  * @return true if there is space; false otherwise
  */
-static bool zstok_checkAvailableCapacity(ZStok_TokenWriter tbw, zstok_bufsz_t size) {
+static bool zstok_checkAvailableCapacity(const ZStok_TokenWriter tbw, zstok_bufsz_t size) {
     return zstok_getAvailableWrite_priv(tbw) >= size;
 }
 
@@ -174,15 +170,6 @@ static bool zstok_checkAvailableCapacity(ZStok_TokenWriter tbw, zstok_bufsz_t si
  */
 static bool zstok_isInNibble(ZStok_TokenWriter tbw) {
     return tbw.tokenBuffer->inNibble;
-}
-
-/**
- * Determines whether the writer is currently writing a numeric token (vs a non-numeric one).
- *
- * @return true if there is a numeric token being constructed; false otherwise
- */
-static bool zstok_isNumeric_priv(ZStok_TokenWriter tbw) {
-    return tbw.tokenBuffer->numeric;
 }
 
 /**

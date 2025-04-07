@@ -97,14 +97,15 @@ class TokenizerTest {
     }
 
     private static Stream<Arguments> shouldRejectInvalidKeys() {
-        // Note, all these go bad-key,value or key,value,bad-key or key,value,"",bad-key ... to fit with the test's isTokenComplete setup
+        // Note, all these go bad-key,value or key,value,bad-key or key,"",bad-key ... to fit with the test's isTokenComplete setup
         return Stream.of(
                 Arguments.of("Illegal low-value key check", "A5\f1\n", "tAn5f" + (char) ERROR_CODE_ILLEGAL_TOKEN + "----"),
                 Arguments.of("Illegal high-value key check x80", "A5\u0080a\n", "tAn5f" + (char) ERROR_CODE_ILLEGAL_TOKEN + "------"),
                 Arguments.of("Illegal high-value key check xf0", "A5ða\n", "tAn5f" + (char) ERROR_CODE_ILLEGAL_TOKEN + "------"),
-                Arguments.of("Illegal hex key check 'a'", "A5\"\"a\n", "tAn5t\"--f" + (char) ERROR_CODE_ILLEGAL_TOKEN + "------"),
-                Arguments.of("Illegal hex key check 'f'", "A5\"\"f\n", "tAn5t\"--f" + (char) ERROR_CODE_ILLEGAL_TOKEN + "------"),
-                Arguments.of("Illegal hex key check '7'", "A5\"\"7\n", "tAn5t\"--f" + (char) ERROR_CODE_ILLEGAL_TOKEN + "------"),
+                Arguments.of("Illegal hex key check '\"'", "A5\"\"\n", "tAn5f" + (char) ERROR_CODE_ILLEGAL_TOKEN + "------"),
+                Arguments.of("Illegal hex key check 'a'", "A\"\"a\n", "tA--f" + (char) ERROR_CODE_ILLEGAL_TOKEN + "------"),
+                Arguments.of("Illegal hex key check 'f'", "A\"\"f\n", "tA--f" + (char) ERROR_CODE_ILLEGAL_TOKEN + "------"),
+                Arguments.of("Illegal hex key check '7'", "A\"\"7\n", "tA--f" + (char) ERROR_CODE_ILLEGAL_TOKEN + "------"),
                 Arguments.of("Illegal hex key check '7' at start", "7\n", "f" + (char) ERROR_CODE_ILLEGAL_TOKEN + "------"));
     }
 

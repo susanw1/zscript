@@ -49,15 +49,15 @@ void insertNumericToken(char key, int count, ...) {
     va_list args;
     va_start(args, count);
 
-    zstok_startToken(testWriter, key, true);
+    zstok_startToken(testWriter, key);
     for (int i = 0; i < count; i++) {
         zstok_continueTokenByte(testWriter, va_arg(args, int));
     }
     va_end(args);
 }
 
-void insertTokenNibbles_priv(char key, bool isNumeric, int count, va_list args) {
-    zstok_startToken(testWriter, key, isNumeric);
+void insertTokenNibbles_priv(char key, int count, va_list args) {
+    zstok_startToken(testWriter, key);
     for (int i = 0; i < count; i++) {
         zstok_continueTokenNibble(testWriter, va_arg(args, int) & 0xF); // Mask for 4-bit nibble
     }
@@ -66,19 +66,19 @@ void insertTokenNibbles_priv(char key, bool isNumeric, int count, va_list args) 
 void insertNumericTokenNibbles(char key, int count, ...) {
     va_list args;
     va_start(args, count);
-    insertTokenNibbles_priv(key, true, count, args);
+    insertTokenNibbles_priv(key, count, args);
     va_end(args);
 }
 
 void insertNonNumericTokenNibbles(char key, int count, ...) {
     va_list args;
     va_start(args, count);
-    insertTokenNibbles_priv(key, false, count, args);
+    insertTokenNibbles_priv(key, count, args);
     va_end(args);
 }
 
 void insertByteToken(int count, uint8_t firstByte) {
-    zstok_startToken(testWriter, '+', false);
+    zstok_startToken(testWriter, '+');
 
     for (int i = 0; i < count; i++) {
         zstok_continueTokenByte(testWriter, firstByte + (i % 50));

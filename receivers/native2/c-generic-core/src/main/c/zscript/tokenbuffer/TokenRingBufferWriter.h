@@ -26,7 +26,7 @@ typedef struct {
 static ZStok_TokenWriter zstok_getTokenWriter(ZStok_TokenBuffer *tb);
 
 // Token writing operations
-static void zstok_startToken(ZStok_TokenWriter tbw, uint8_t key, bool numeric);
+static void zstok_startToken(ZStok_TokenWriter tbw, uint8_t key);
 
 static void zstok_continueTokenNibble(ZStok_TokenWriter tbw, uint8_t nibble);
 

@@ -112,8 +112,6 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
         /** Indicates that we are writing an extended token (in order to help limit odd-nibble numerics) */
         private boolean extended;
 
-        /** Indicates a right-aligned, non-extending, limited length token */
-        //        private boolean numeric  = false;
         @Nonnull
         @Override
         public TokenBufferFlags getFlags() {
@@ -171,7 +169,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
         public void endToken() {
             // Allow nibble shift only for short, odd-nibble cases; otherwise, nibbles must be even!
             if (inNibble) {
-                // note: need to check extended, as a 256 byte long token's current length reads 1
+                // note: need to check extended, as current length is only for this segment
                 if (extended || getCurrentWriteTokenLength() > MAX_NUMERIC_TOKEN_DATA_LENGTH) {
                     throw new IllegalStateException("hex-pair value too long for odd length");
                 }

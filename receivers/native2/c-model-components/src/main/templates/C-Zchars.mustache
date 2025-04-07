@@ -39,56 +39,50 @@ static uint8_t ZS_Zchars_parseHex(uint8_t b) {
     }
 }
 
+/** Is this character value under all circumstances to be skipped in an Zscript message? */
 static bool ZS_Zchars_alwaysIgnore(uint8_t b) {
     return 0{{#zchars}}{{#ignoreAlways}} || b == '{{{chEscapedAsC}}}'{{/ignoreAlways}}{{/zchars}};
 }
 
+/** Is this character value always ignored in an Zscript message, except in strings? */
 static bool ZS_Zchars_shouldIgnore(uint8_t b) {
     return 0{{#zchars}}{{#ignoreInCode}} || b == '{{{chEscapedAsC}}}'{{/ignoreInCode}}{{/zchars}};
 }
 
+/** Is this character value an expression separator, marking the end of an expression in a sequence? */
 static bool ZS_Zchars_isSeparator(uint8_t b) {
     return 0{{#zchars}}{{#separator}} || b == '{{{chEscapedAsC}}}'{{/separator}}{{/zchars}};
 }
 
-// Deprecated!!!
-static bool ZS_Zchars_isNonNumerical(uint8_t b) {
-    return 0{{#zchars}}{{#nonNumeric}} || b == '{{{chEscapedAsC}}}'{{/nonNumeric}}{{/zchars}};
-}
-
+/** Is this a field key for a field that is always 16 bit, never string? */
 static bool ZS_Zchars_isShortNumber(uint8_t b) {
     return 0{{#zchars}}{{#shortNumber}} || b == '{{{chEscapedAsC}}}'{{/shortNumber}}{{/zchars}};
 }
 
-// Deprecated!!!
-static bool ZS_Zchars_isBigField(uint8_t b) {
-    return 0{{#zchars}}{{#bigField}} || b == '{{{chEscapedAsC}}}'{{/bigField}}{{/zchars}};
-}
-
+/** Does this character follow a field key to indicate the field's type? */
 static bool ZS_Zchars_isFieldTypeIndicator(uint8_t b) {
     return 0{{#zchars}}{{#fieldTypeIndicator}} || b == '{{{chEscapedAsC}}}'{{/fieldTypeIndicator}}{{/zchars}};
 }
 
+/** Is this character part of the addressing system? */
 static bool ZS_Zchars_isAddressing(uint8_t b) {
     return 0{{#zchars}}{{#addressing}} || b == '{{{chEscapedAsC}}}'{{/addressing}}{{/zchars}};
 }
 
+/** Must this character always be escaped if it occurs in a string? */
 static bool ZS_Zchars_mustStringEscape(uint8_t b) {
     return 0{{#zchars}}{{#mustEscape}} || b == '{{{chEscapedAsC}}}'{{/mustEscape}}{{/zchars}};
 }
 
+/** Is this character a valid field key within an expression? */
 static bool ZS_Zchars_isExpressionKey(uint8_t b) {
     return (b >= 'A' && b <= 'Z');
 }
 
-// Deprecated!!!
-static bool ZS_Zchars_isCommandKey(uint8_t b) {
-    return ZS_Zchars_isExpressionKey(b) || ZS_Zchars_isBigField(b);
-}
-
+/** Is this character a legal key as far as the buffer system is concerned? */
 static bool ZS_Zchars_isAllowableKey(uint8_t b) {
-    // disallow hex, non-printing and top-bit-set keys
-    return b >= 0x20 && b < 0x80 && ZS_Zchars_parseHex(b) == ZS_Zchars_PARSE_NOT_HEX_0X10;
+    // disallow hex, quotes, non-printing and top-bit-set keys
+    return b >= 0x20 && b < 0x80 && ZS_Zchars_parseHex(b) == ZS_Zchars_PARSE_NOT_HEX_0X10 && b != ZS_Zchars_STRING_TYPE_QUOTED;
 }
 
 #endif /* _ZS_ZCHARS_H */

@@ -64,15 +64,15 @@ static ZStok_ReadToken zstok_getFirstReadToken(ZStok_TokenBuffer *tb) {
  *
  * @return an empty ReadToken
  */
-inline static ZStok_ReadToken zstok_createEmptyReadToken_priv(void) {
+static inline ZStok_ReadToken zstok_createEmptyReadToken_priv(void) {
     return (ZStok_ReadToken) { .tokenBuffer = NULL, .index = 0 };
 }
 
-inline static bool zstok_isEmptyReadToken(const ZStok_ReadToken token) {
+static inline bool zstok_isEmptyReadToken(const ZStok_ReadToken token) {
     return token.tokenBuffer == NULL;
 }
 
-inline static bool zstok_isValidReadToken(const ZStok_ReadToken token) {
+static inline bool zstok_isValidReadToken(const ZStok_ReadToken token) {
     return token.tokenBuffer != NULL;
 }
 
@@ -81,7 +81,7 @@ inline static bool zstok_isValidReadToken(const ZStok_ReadToken token) {
  *
  * @return the key associated with this ReadToken
  */
-inline static uint8_t zstok_getReadTokenKey(const ZStok_ReadToken token) {
+static inline uint8_t zstok_getReadTokenKey(const ZStok_ReadToken token) {
     if (token.tokenBuffer == NULL) {
         return 0;
     }
@@ -93,7 +93,7 @@ inline static uint8_t zstok_getReadTokenKey(const ZStok_ReadToken token) {
  *
  * @return true if this is a marker token (including sequence marker); false otherwise
  */
-inline static bool zstok_isReadTokenMarker(const ZStok_ReadToken token) {
+static inline bool zstok_isReadTokenMarker(const ZStok_ReadToken token) {
     return zstok_isMarker(zstok_getReadTokenKey(token));
 }
 
@@ -102,7 +102,7 @@ inline static bool zstok_isReadTokenMarker(const ZStok_ReadToken token) {
  *
  * @return true if this is a sequence-marker token; false otherwise
  */
-inline static bool zstok_isReadTokenSequenceEndMarker(const ZStok_ReadToken token) {
+static inline bool zstok_isReadTokenSequenceEndMarker(const ZStok_ReadToken token) {
     return zstok_isSequenceEndMarker(zstok_getReadTokenKey(token));
 }
 
@@ -135,7 +135,7 @@ static zstok_bufsz_t zstok_getReadTokenDataLength(const ZStok_ReadToken token) {
  *
  * @return this Token's data size - 0 to 255
  */
-inline static zstok_bufsz_t zstok_getSegmentDataSizeNonMarker_priv(const ZStok_ReadToken token) {
+static inline zstok_bufsz_t zstok_getSegmentDataSizeNonMarker_priv(const ZStok_ReadToken token) {
     return token.tokenBuffer->data[zstok_offset(token.tokenBuffer, token.index, 1)];
 }
 
@@ -144,10 +144,26 @@ inline static zstok_bufsz_t zstok_getSegmentDataSizeNonMarker_priv(const ZStok_R
  *
  * @return this Token's data size - 0 to 255, and 0 if it's a Marker
  */
-inline static zstok_bufsz_t zstok_getSegmentDataSize_priv(const ZStok_ReadToken token) {
+static inline zstok_bufsz_t zstok_getSegmentDataSize_priv(const ZStok_ReadToken token) {
     return zstok_isReadTokenMarker(token)
            ? 0
            : zstok_getSegmentDataSizeNonMarker_priv(token);
+}
+
+
+static uint16_t zstok_getReadTokenDataN_priv(const ZStok_ReadToken token, const uint8_t n) {
+    if (zstok_isEmptyReadToken(token) || zstok_isReadTokenMarker(token)) {
+        return 0;
+    }
+
+    const zstok_bufsz_t sz    = zstok_getSegmentDataSizeNonMarker_priv(token);
+    uint16_t            value = 0;
+
+    for (zstok_bufsz_t i = (sz > n ? sz - n : 0); i < sz; i++) {
+        value <<= 8;
+        value += token.tokenBuffer->data[zstok_offset(token.tokenBuffer, token.index, i + 2)];
+    }
+    return value;
 }
 
 /**
@@ -155,20 +171,8 @@ inline static zstok_bufsz_t zstok_getSegmentDataSize_priv(const ZStok_ReadToken 
  *
  * @return the value of the data, as a 2 byte number
  */
-static uint16_t zstok_getReadTokenData16(const ZStok_ReadToken token) {
-    if (zstok_isEmptyReadToken(token) || zstok_isReadTokenMarker(token)) {
-        return 0;
-    }
-    uint16_t           value = 0;
-    for (zstok_bufsz_t i     = 0, n = zstok_getSegmentDataSizeNonMarker_priv(token); i < n; i++) {
-        // Check before we left shift. Avoids overflowing data type.
-        if (value > 0xFF) {
-            // raise error!
-        }
-        value <<= 8;
-        value += token.tokenBuffer->data[zstok_offset(token.tokenBuffer, token.index, i + 2)];
-    }
-    return value;
+static inline uint16_t zstok_getReadTokenData16(const ZStok_ReadToken token) {
+    return zstok_getReadTokenDataN_priv(token, 2);
 }
 
 /**
@@ -309,12 +313,21 @@ static ZS_ByteString zstok_nextContiguousIteratorBlock(ZStok_BlockIterator *bloc
 }
 
 /**
- * Retrieves a pointer to the next block of contiguous bytes in the currently iterated token. It is not required that {@refitem zstok_hasNextIteratorBlock()} be called
+ * Retrieves the next unread byte in the currently iterated token. It is advisable but not required that {@refitem zstok_hasNextIteratorBlock()} be called
+ * first.
+ * <p>Expected usage pattern:
+ *
+ *     ZStok_BlockIterator it = zstok_getReadTokenDataIterator(token);
+ *     while(zstok_hasNextIteratorBlock(&it)) {
+ *         uint8_t b = zstok_nextIteratorByte(&it);
+ *         ...
+ *     }
  *
  * @param blockIterator the iterator to manage iteration progress
- * @return struct containing pointer to the bytes, with its length (or contains a NULL data value if iteration is ended)
+ * @return the next byte of data, or zero if no more unread data is available (use {@refitem zstok_hasNextIteratorBlock()} in advance to tell if real
+ * data is available)
  */
-inline static uint8_t zstok_nextIteratorByte(ZStok_BlockIterator *blockIterator) {
+static inline uint8_t zstok_nextIteratorByte(ZStok_BlockIterator *blockIterator) {
     ZS_ByteString bs = zstok_nextContiguousIteratorBlock(blockIterator, 1);
     return (bs.length == 0) ? 0 : *(bs.data);
 }

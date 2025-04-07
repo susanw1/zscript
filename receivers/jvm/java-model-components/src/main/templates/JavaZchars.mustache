@@ -64,8 +64,8 @@ public class Zchars {
 
     /** Is this character a legal key as far as the buffer system is concerned? */
     public static boolean isAllowableKey(byte b) {
-        // disallow hex, non-printing and top-bit-set keys
-        return b >= 0x20 && parseHex(b) == PARSE_NOT_HEX_0X10;
+        // disallow hex, quotes, non-printing and top-bit-set keys
+        return b >= 0x20 && parseHex(b) == PARSE_NOT_HEX_0X10 && b != Z_STRING_TYPE_QUOTED;
     }
 
     public static final int PARSE_NOT_HEX_0X10 = 0x10;

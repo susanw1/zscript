@@ -31,7 +31,7 @@ static void zstok_initTokenBuffer(ZStok_TokenBuffer *tb, uint8_t *bufferSpace, c
     tb->writeLastLen = 0;
     tb->writeCursor  = 0;
     tb->inNibble     = false;
-    tb->numeric      = false;
+    tb->extended     = false;
     tb->flags        = zstok_createBufferFlags();
 }
 
