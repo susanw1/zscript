@@ -30,10 +30,16 @@ class ZscriptAddressTest {
 
     @Test
     public void shouldParseSimpleAddress() {
-        final ReadToken            token = ExtendingTokenBuffer.tokenize(byteStringUtf8("@12.34.ef Z1A2+34")).getTokenReader().getFirstReadToken();
+        final ReadToken            token = ExtendingTokenBuffer.tokenize(byteStringUtf8("@12.34.ef Z1A2")).getTokenReader().getFirstReadToken();
         final List<ZscriptAddress> a     = ZscriptAddress.parseAll(token);
         assertThat(a).hasSize(1);
         assertThat(a.get(0).getAsInts()).containsExactly(0x12, 0x34, 0xef);
+    }
+
+    @Test
+    public void shouldRejectUnaddressedContinuation() {
+        final ReadToken token = ExtendingTokenBuffer.tokenize(byteStringUtf8(".12@34 Z1A2")).getTokenReader().getFirstReadToken();
+        assertThat(ZscriptAddress.parseAll(token)).isEmpty();
     }
 
     /**
@@ -42,7 +48,7 @@ class ZscriptAddressTest {
      */
     @Test
     public void shouldParseMultipleAddresses() {
-        final ReadToken token = ExtendingTokenBuffer.tokenize(byteStringUtf8("@12.34.56 @78.ab Z1A2+34")).getTokenReader().getFirstReadToken();
+        final ReadToken token = ExtendingTokenBuffer.tokenize(byteStringUtf8("@12.34.56 @78.ab Z1A2")).getTokenReader().getFirstReadToken();
 
         List<ZscriptAddress> addresses = ZscriptAddress.parseAll(token);
 

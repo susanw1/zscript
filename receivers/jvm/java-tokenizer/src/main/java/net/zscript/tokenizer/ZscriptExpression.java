@@ -3,6 +3,7 @@ package net.zscript.tokenizer;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.stream.Stream;
 
 import net.zscript.util.BlockIterator;
@@ -42,10 +43,10 @@ public interface ZscriptExpression {
     }
 
     /**
-     * Gets the value of the specified field.
+     * Gets the 16-bit value of the specified field.
      *
      * @param key the key of the required field
-     * @return the value of that field, or empty if the field isn't defined
+     * @return the 16-bit value of that field, or empty if the field isn't defined
      */
     @Nonnull
     default OptionalInt getField(byte key) {
@@ -56,14 +57,37 @@ public interface ZscriptExpression {
     }
 
     /**
-     * Gets the value of the specified field.
+     * Gets the 16-bit value of the specified field.
      *
      * @param key the key of the required field
-     * @return the value of that field, or empty if the field isn't defined
+     * @return the 16-bit value of that field, or empty if the field isn't defined
      */
     @Nonnull
     default OptionalInt getField(char key) {
         return getField((byte) key);
+    }
+
+    /**
+     * Gets the 32-bit value of the specified field.
+     *
+     * @param key the key of the required field
+     * @return the 32-bit value of that field, or empty if the field isn't defined
+     */
+    default OptionalLong getField32(byte key) {
+        return getZscriptField(key)
+                .map(f -> OptionalLong.of(f.getValue32()))
+                .orElseGet(OptionalLong::empty);
+    }
+
+    /**
+     * Gets the 32-bit value of the specified field.
+     *
+     * @param key the key of the required field
+     * @return the 32-bit value of that field, or empty if the field isn't defined
+     */
+    @Nonnull
+    default OptionalLong getField32(char key) {
+        return getField32((byte) key);
     }
 
     /**
@@ -96,7 +120,7 @@ public interface ZscriptExpression {
      * @return true if it exists, false otherwise
      */
     default boolean hasField(final byte key) {
-        return getField(key).isPresent();
+        return getZscriptField(key).isPresent();
     }
 
     /**

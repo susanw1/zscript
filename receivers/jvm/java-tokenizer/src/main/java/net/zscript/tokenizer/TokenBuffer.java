@@ -268,20 +268,22 @@ public interface TokenBuffer {
             BlockIterator dataIterator();
 
             /**
-             * Exposes the data as a single number (uint32). Check whether this will succeed with {@link #hasNumeric(int) hasNumeric(4)}.
+             * Exposes the data as a single number (uint16). Check whether there are excess bytes (ie leading bytes that may be dropped) with
+             * {@link #hasNumeric(int) hasNumeric(2)}.
              *
-             * @return the value of the data, as a 4 byte number, or zero if out of range
-             * @throws IllegalStateException if this token is any kind of Marker.
-             */
-            long getData32();
-
-            /**
-             * Exposes the data as a single number (uint16). Check whether this will succeed with {@link #hasNumeric(int) hasNumeric(2)}.
-             *
-             * @return the value of the data, as a 2 byte number, or zero if out of range
+             * @return the value of the data, as a 2 byte number
              * @throws IllegalStateException if this token is any kind of Marker.
              */
             int getData16();
+
+            /**
+             * Exposes the data as a single number (uint32). Check whether there are excess bytes (ie leading bytes that may be dropped) with
+             * {@link #hasNumeric(int) hasNumeric(4)}.
+             *
+             * @return the value of the data, as a 4 byte number
+             * @throws IllegalStateException if this token is any kind of Marker.
+             */
+            long getData32();
         }
     }
 

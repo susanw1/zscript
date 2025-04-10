@@ -22,19 +22,38 @@ class ZscriptTokenExpressionTest {
 
     @Test
     public void shouldGetNumericFields() {
-        tokenize("Z12 A34 B Cffff\n");
-        assertThat(zscriptExpr.getFieldCount()).isEqualTo(4);
+        tokenize("Z A6 B13 C123 Dffff E1234567890\n");
+        assertThat(zscriptExpr.getFieldCount()).isEqualTo(6);
 
         assertThat(zscriptExpr.hasField('Z')).isTrue();
-        assertThat(zscriptExpr.getField('Z')).hasValue(0x12);
-        assertThat(zscriptExpr.getField('A')).hasValue(0x34);
-        assertThat(zscriptExpr.getField('B')).hasValue(0);
-        assertThat(zscriptExpr.getField('C')).hasValue(0xffff);
-        assertThat(zscriptExpr.hasField('D')).isFalse();
-        assertThat(zscriptExpr.getField('D')).isNotPresent();
+        assertThat(zscriptExpr.getField('Z')).hasValue(0x0);
+        assertThat(zscriptExpr.getField('A')).hasValue(0x6);
+        assertThat(zscriptExpr.getField('B')).hasValue(0x13);
+        assertThat(zscriptExpr.getField('C')).hasValue(0x123);
+        assertThat(zscriptExpr.getField('D')).hasValue(0xffff);
+        assertThat(zscriptExpr.getField('E')).hasValue(0x7890);
+        assertThat(zscriptExpr.hasField('F')).isFalse();
+        assertThat(zscriptExpr.getField('F')).isNotPresent();
 
-        assertThat(zscriptExpr.getField('A', 23)).isEqualTo(0x34);
-        assertThat(zscriptExpr.getField('D', 23)).isEqualTo(23);
+        assertThat(zscriptExpr.getField('A', 23)).isEqualTo(0x6);
+        assertThat(zscriptExpr.getField('F', 23)).isEqualTo(23);
+    }
+
+    @Test
+    public void shouldGet32bitNumericFields() {
+        tokenize("Z A1 B12 C123 D1234 E123456 F87654321 G0123456789ab Hfffffffffffff1 \n");
+        assertThat(zscriptExpr.getFieldCount()).isEqualTo(9);
+
+        assertThat(zscriptExpr.hasField('Z')).isTrue();
+        assertThat(zscriptExpr.getField32('Z')).hasValue(0);
+        assertThat(zscriptExpr.getField32('A')).hasValue(1);
+        assertThat(zscriptExpr.getField32('B')).hasValue(0x12L);
+        assertThat(zscriptExpr.getField32('C')).hasValue(0x123L);
+        assertThat(zscriptExpr.getField32('D')).hasValue(0x1234L);
+        assertThat(zscriptExpr.getField32('E')).hasValue(0x123456L);
+        assertThat(zscriptExpr.getField32('F')).hasValue(0x87654321L);
+        assertThat(zscriptExpr.getField32('G')).hasValue(0x456789abL);
+        assertThat(zscriptExpr.getField32('H')).hasValue(0xfffffff1L);
     }
 
     @Test

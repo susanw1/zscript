@@ -17,9 +17,40 @@ class FieldElementTest {
         FieldElement f = FieldElement.fieldOf((byte) 'A', 0x123);
         assertThat(f.getKey()).isEqualTo((byte) 0x41);
         assertThat(f.getValue()).isEqualTo(0x123);
+        assertThat(f.getValue32()).isEqualTo(0x123L);
         assertThat(f.isNumeric()).isTrue();
         assertThat(f.iterator().hasNext()).isTrue();
         assertThat(f.iterator().nextContiguous()).containsExactly(0x01, 0x23);
+    }
+
+    @Test
+    public void shouldInitialize32bitNumericCorrectly() {
+        FieldElement f = FieldElement.fieldOf((byte) 'A', 0xfedcba98);
+        assertThat(f.getKey()).isEqualTo((byte) 0x41);
+        assertThat(f.getValue32()).isEqualTo(0xfedcba98L);
+        assertThat(f.getValue()).isEqualTo(0xba98);
+        assertThat(f.isNumeric()).isFalse();
+        assertThat(f.iterator().hasNext()).isTrue();
+        assertThat(f.iterator().nextContiguous()).containsExactly(0xfe, 0xdc, 0xba, 0x98);
+    }
+
+    @Test
+    public void shouldHandleZeroesCorrectly() {
+        FieldElement f1 = FieldElement.fieldOf((byte) 'A', 0x00000098L);
+        assertThat(f1.getValue()).isEqualTo(0x98L);
+        assertThat(f1.getValue32()).isEqualTo(0x98L);
+
+        FieldElement f2 = FieldElement.fieldOf((byte) 'A', 0x00800098L);
+        assertThat(f2.getValue()).isEqualTo(0x98L);
+        assertThat(f2.getValue32()).isEqualTo(0x800098L);
+
+        FieldElement f3 = FieldElement.fieldOf((byte) 'A', 0x80000098L);
+        assertThat(f3.getValue()).isEqualTo(0x98L);
+        assertThat(f3.getValue32()).isEqualTo(0x80000098L);
+
+        FieldElement f4 = FieldElement.fieldOf((byte) 'A', 0L);
+        assertThat(f4.getValue()).isEqualTo(0);
+        assertThat(f4.getValue32()).isEqualTo(0L);
     }
 
     @Test
@@ -28,6 +59,7 @@ class FieldElementTest {
 
         assertThat(f.getKey()).isEqualTo((byte) 'A');
         assertThat(f.getValue()).isEqualTo('l' * 256 + 'o');
+        assertThat(f.getValue32()).isEqualTo(('e' * 256 + 'l') * 65536 + 'l' * 256 + 'o');
         assertThat(f.isNumeric()).isFalse();
         assertThat(f.iterator().hasNext()).isTrue();
         assertThat(f.getDataLength()).isEqualTo(5);
@@ -41,6 +73,7 @@ class FieldElementTest {
 
         assertThat(f.getKey()).isEqualTo((byte) 'A');
         assertThat(f.getValue()).isEqualTo('l' * 256 + 'o');
+        assertThat(f.getValue32()).isEqualTo(('e' * 256 + 'l') * 65536 + 'l' * 256 + 'o');
         assertThat(f.isNumeric()).isFalse();
         assertThat(f.iterator().hasNext()).isTrue();
         assertThat(f.getDataLength()).isEqualTo(5);
