@@ -29,7 +29,7 @@ public class ZscriptModuleRegistry {
 
         // commands are completable unless explicitly marked otherwise by a command
         ctx.commandComplete();
-        OptionalInt value = ctx.getField(Zchars.Z_CMD);
+        OptionalInt value = ctx.getFieldValue(Zchars.Z_CMD);
         if (value.isEmpty()) {
             ctx.status(ZscriptStatus.COMMAND_NOT_FOUND);
             return;
@@ -54,7 +54,7 @@ public class ZscriptModuleRegistry {
     public void moveAlong(CommandContext ctx) {
         LOG.debug("Moving along command: {}", ctx);
         ctx.commandComplete();
-        int cmd = ctx.getField(Zchars.Z_CMD).getAsInt();
+        int cmd = ctx.getFieldValue(Zchars.Z_CMD).getAsInt();
         modules[cmd >> 4].moveAlong(ctx, cmd & 0xF);
     }
 

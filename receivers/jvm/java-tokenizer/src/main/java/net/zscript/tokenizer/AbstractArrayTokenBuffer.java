@@ -430,6 +430,12 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
                 this.index = index;
             }
 
+            private void checkNotMarker() {
+                if (isMarker()) {
+                    throw new IllegalStateException("Cannot get data from marker token");
+                }
+            }
+
             /**
              * {@inheritDoc}
              */
@@ -442,9 +448,7 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
             @Nonnull
             @Override
             public BlockIterator dataIterator() {
-                if (isMarker()) {
-                    throw new IllegalStateException("Cannot get data from marker token");
-                }
+                checkNotMarker();
                 return new BlockIterator() {
                     private int itIndex      = offset(index, 2);
                     private int segRemaining = getSegmentDataSize();
@@ -502,26 +506,32 @@ public abstract class AbstractArrayTokenBuffer implements TokenBuffer {
 
             @Override
             public long getData32() {
-                return getDataN(4) & 0xffff_ffffL;
+                checkNotMarker();
+                final int sz = getSegmentDataSize();
+                int       t  = getData16Impl(sz);
+                if (sz > 2) {
+                    t |= getData16Impl(sz - 2) << 16;
+                }
+                return t & 0xffff_ffffL;
             }
 
             @Override
             public int getData16() {
-                return getDataN(2);
+                checkNotMarker();
+                final int sz = getSegmentDataSize();
+                return getData16Impl(sz);
             }
 
-            /** @return value read from data, or just last n - use {@link #hasNumeric(int)} to pre-verify. */
-            private int getDataN(int n) {
-                if (isMarker()) {
-                    throw new IllegalStateException("Cannot get data from marker token");
+            private int getData16Impl(int endLen) {
+                int t   = 0;
+                int off = offset(index, endLen);
+                if (endLen >= 2) {
+                    t = (data[off] & 0xff) << 8;
                 }
-                final int sz    = getSegmentDataSize();
-                int       value = 0;
-                for (int i = (sz > n ? sz - n : 0); i < sz; i++) {
-                    value <<= 8;
-                    value += toUnsignedInt(data[offset(index, i + 2)]);
+                if (endLen >= 1) {
+                    t |= (data[offset(off, 1)] & 0xff);
                 }
-                return value;
+                return t;
             }
 
             /**

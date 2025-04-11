@@ -22,19 +22,38 @@ class ZscriptTokenExpressionTest {
 
     @Test
     public void shouldGetNumericFields() {
-        tokenize("Z12 A34 B Cffff\n");
-        assertThat(zscriptExpr.getFieldCount()).isEqualTo(4);
+        tokenize("Z A6 B13 C123 Dffff E1234567890\n");
+        assertThat(zscriptExpr.getFieldCount()).isEqualTo(6);
 
         assertThat(zscriptExpr.hasField('Z')).isTrue();
-        assertThat(zscriptExpr.getField('Z')).hasValue(0x12);
-        assertThat(zscriptExpr.getField('A')).hasValue(0x34);
-        assertThat(zscriptExpr.getField('B')).hasValue(0);
-        assertThat(zscriptExpr.getField('C')).hasValue(0xffff);
-        assertThat(zscriptExpr.hasField('D')).isFalse();
-        assertThat(zscriptExpr.getField('D')).isNotPresent();
+        assertThat(zscriptExpr.getFieldValue('Z')).hasValue(0x0);
+        assertThat(zscriptExpr.getFieldValue('A')).hasValue(0x6);
+        assertThat(zscriptExpr.getFieldValue('B')).hasValue(0x13);
+        assertThat(zscriptExpr.getFieldValue('C')).hasValue(0x123);
+        assertThat(zscriptExpr.getFieldValue('D')).hasValue(0xffff);
+        assertThat(zscriptExpr.getFieldValue('E')).hasValue(0x7890);
+        assertThat(zscriptExpr.hasField('F')).isFalse();
+        assertThat(zscriptExpr.getFieldValue('F')).isNotPresent();
 
-        assertThat(zscriptExpr.getField('A', 23)).isEqualTo(0x34);
-        assertThat(zscriptExpr.getField('D', 23)).isEqualTo(23);
+        assertThat(zscriptExpr.getFieldValueOrDefault('A', 23)).isEqualTo(0x6);
+        assertThat(zscriptExpr.getFieldValueOrDefault('F', 23)).isEqualTo(23);
+    }
+
+    @Test
+    public void shouldGet32bitNumericFields() {
+        tokenize("Z A1 B12 C123 D1234 E123456 F87654321 G0123456789ab Hfffffffffffff1 \n");
+        assertThat(zscriptExpr.getFieldCount()).isEqualTo(9);
+
+        assertThat(zscriptExpr.hasField('Z')).isTrue();
+        assertThat(zscriptExpr.getFieldValue32('Z')).hasValue(0);
+        assertThat(zscriptExpr.getFieldValue32('A')).hasValue(1);
+        assertThat(zscriptExpr.getFieldValue32('B')).hasValue(0x12L);
+        assertThat(zscriptExpr.getFieldValue32('C')).hasValue(0x123L);
+        assertThat(zscriptExpr.getFieldValue32('D')).hasValue(0x1234L);
+        assertThat(zscriptExpr.getFieldValue32('E')).hasValue(0x123456L);
+        assertThat(zscriptExpr.getFieldValue32('F')).hasValue(0x87654321L);
+        assertThat(zscriptExpr.getFieldValue32('G')).hasValue(0x456789abL);
+        assertThat(zscriptExpr.getFieldValue32('H')).hasValue(0xfffffff1L);
     }
 
     @Test
@@ -43,10 +62,10 @@ class ZscriptTokenExpressionTest {
         assertThat(zscriptExpr.getFieldCount()).isEqualTo(4);
 
         assertThat(zscriptExpr.hasField('Z')).isTrue();
-        assertThat(zscriptExpr.getField('Z')).hasValue(0x12);
-        assertThat(zscriptExpr.getField('A')).hasValue(0x34);
-        assertThat(zscriptExpr.getField('B')).hasValue(0);
-        assertThat(zscriptExpr.getField('C')).hasValue(0xabcd);
+        assertThat(zscriptExpr.getFieldValue('Z')).hasValue(0x12);
+        assertThat(zscriptExpr.getFieldValue('A')).hasValue(0x34);
+        assertThat(zscriptExpr.getFieldValue('B')).hasValue(0);
+        assertThat(zscriptExpr.getFieldValue('C')).hasValue(0xabcd);
     }
 
     // Note, this isn't really behaviour we care about much, but we should probably detect if the behaviour changes!
@@ -97,7 +116,7 @@ class ZscriptTokenExpressionTest {
     private void checkField(char key, int len, ByteString data, int value) {
         assertThat(zscriptExpr.getFieldDataLength(key)).isEqualTo(len);
         assertThat(zscriptExpr.getFieldData(key).orElseThrow().toByteString()).isEqualTo(data);
-        assertThat(zscriptExpr.getField(key).orElseThrow()).isEqualTo(value);
+        assertThat(zscriptExpr.getFieldValue(key).orElseThrow()).isEqualTo(value);
     }
 
     private void tokenize(String z) {

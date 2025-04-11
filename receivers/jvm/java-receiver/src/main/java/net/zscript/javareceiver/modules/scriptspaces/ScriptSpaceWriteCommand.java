@@ -14,7 +14,7 @@ import net.zscript.util.BlockIterator;
 
 public class ScriptSpaceWriteCommand {
     public static void execute(List<ScriptSpace> spaces, CommandContext ctx) {
-        final OptionalInt spaceIndex = ctx.getField('P');
+        final OptionalInt spaceIndex = ctx.getFieldValue('P');
         if (spaceIndex.isEmpty()) {
             ctx.status(ZscriptStatus.MISSING_KEY);
             return;

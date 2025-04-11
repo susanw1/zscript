@@ -71,8 +71,8 @@ public class CommandElement implements ByteAppendable {
             return false;
         }
         // special case: "Z1 S{status}" command, where {status} is a failure code (esp COMMAND_FAIL_CONTROL)
-        if (fieldSet.getField(Zchars.Z_CMD).orElse(0) == 1) {
-            int sVal = fieldSet.getField(Zchars.Z_STATUS).orElse(0);
+        if (fieldSet.getFieldValueOrDefault(Zchars.Z_CMD, 0) == 1) {
+            int sVal = fieldSet.getFieldValueOrDefault(Zchars.Z_STATUS, 0);
             return ZscriptStatus.isFailure(sVal);
         }
         return true;
@@ -85,8 +85,8 @@ public class CommandElement implements ByteAppendable {
      */
     public boolean canSucceed() {
         // special case: "Z1" command, where 'S' is missing, or has a zero (success) code
-        if (fieldSet.getField(Zchars.Z_CMD).orElse(0) == 1) {
-            int sVal = fieldSet.getField(Zchars.Z_STATUS).orElse(0);
+        if (fieldSet.getFieldValueOrDefault(Zchars.Z_CMD, 0) == 1) {
+            int sVal = fieldSet.getFieldValueOrDefault(Zchars.Z_STATUS, 0);
             return sVal == -1 || ZscriptStatus.isSuccess(sVal);
         }
         return true;

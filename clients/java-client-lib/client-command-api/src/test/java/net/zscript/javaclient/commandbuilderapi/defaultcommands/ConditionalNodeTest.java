@@ -90,7 +90,7 @@ class ConditionalNodeTest {
     public void shouldParseResponses(final ZscriptCommandNode<DefaultResponse> node) {
         final ZscriptFieldSet fieldSet = ZscriptFieldSet.fromList(List.of(fieldOf((byte) 'A', 12)));
         DefaultResponse       br       = node.parseResponse(fieldSet);
-        assertThat(br.getField((byte) 'A')).hasValue(12);
+        assertThat(br.getFieldValue('A')).hasValue(12);
         assertThat(node.getResponseType()).isEqualTo(DefaultResponse.class);
     }
 

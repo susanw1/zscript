@@ -25,8 +25,8 @@ class GenericCommandBuilderTest {
         // cheat, using the testBuilder as though it's a response!
         final ZscriptCommandNode<DefaultResponse> node = builder.build();
         DefaultResponse                           resp = node.parseResponse(testBuilder.build().asFieldSet());
-        assertThat(resp.getField((byte) 'X')).hasValue(123);
-        assertThat(resp.expression().getField((byte) 'X')).hasValue(123);
+        assertThat(resp.getFieldValue('X')).hasValue(123);
+        assertThat(resp.expression().getFieldValue('X')).hasValue(123);
         assertThat(resp.isValid()).isTrue();
     }
 

@@ -33,7 +33,7 @@ public class ZscriptCapabilitiesCommand {
     public void execute(CommandContext ctx) {
         CommandOutStream out = ctx.getOutStream();
 
-        int versionType = ctx.getField((byte) 'V', 0);
+        int versionType = ctx.getFieldValueOrDefault((byte) 'V', 0);
 
         String str = null;
         int    ver = 0;

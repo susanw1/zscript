@@ -3,6 +3,7 @@ package net.zscript.tokenizer;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.stream.Stream;
 
 import net.zscript.util.BlockIterator;
@@ -42,13 +43,13 @@ public interface ZscriptExpression {
     }
 
     /**
-     * Gets the value of the specified field.
+     * Gets the 16-bit value of the specified field.
      *
      * @param key the key of the required field
-     * @return the value of that field, or empty if the field isn't defined
+     * @return the 16-bit value of that field, or empty if the field isn't defined
      */
     @Nonnull
-    default OptionalInt getField(byte key) {
+    default OptionalInt getFieldValue(byte key) {
         // I thought there would be a super-cool way to do this that wasn't basically an if-statement...OptionalInt makes it messy.
         return getZscriptField(key)
                 .map(f -> OptionalInt.of(f.getValue()))
@@ -56,14 +57,59 @@ public interface ZscriptExpression {
     }
 
     /**
-     * Gets the value of the specified field.
+     * Gets the 16-bit value of the specified field.
      *
      * @param key the key of the required field
-     * @return the value of that field, or empty if the field isn't defined
+     * @return the 16-bit value of that field, or empty if the field isn't defined
      */
     @Nonnull
-    default OptionalInt getField(char key) {
-        return getField((byte) key);
+    default OptionalInt getFieldValue(char key) {
+        return getFieldValue((byte) key);
+    }
+
+    /**
+     * Gets the 32-bit value of the specified field.
+     *
+     * @param key the key of the required field
+     * @return the 32-bit value of that field, or empty if the field isn't defined
+     */
+    default OptionalLong getFieldValue32(byte key) {
+        return getZscriptField(key)
+                .map(f -> OptionalLong.of(f.getValue32()))
+                .orElseGet(OptionalLong::empty);
+    }
+
+    /**
+     * Gets the 32-bit value of the specified field.
+     *
+     * @param key the key of the required field
+     * @return the 32-bit value of that field, or empty if the field isn't defined
+     */
+    @Nonnull
+    default OptionalLong getFieldValue32(char key) {
+        return getFieldValue32((byte) key);
+    }
+
+    /**
+     * Gets the value of the specified field, or a default value if the field isn't defined.
+     *
+     * @param key the key of the required field
+     * @param def the default value
+     * @return the value of that field, or empty if the field isn't defined
+     */
+    default int getFieldValueOrDefault(final byte key, final int def) {
+        return getFieldValue(key).orElse(def);
+    }
+
+    /**
+     * Gets the value of the specified field, or a default value if the field isn't defined.
+     *
+     * @param key the key of the required field
+     * @param def the default value
+     * @return the value of that field, or empty if the field isn't defined
+     */
+    default int getFieldValueOrDefault(final char key, final int def) {
+        return getFieldValueOrDefault((byte) key, def);
     }
 
     /**
@@ -96,7 +142,7 @@ public interface ZscriptExpression {
      * @return true if it exists, false otherwise
      */
     default boolean hasField(final byte key) {
-        return getField(key).isPresent();
+        return getZscriptField(key).isPresent();
     }
 
     /**
@@ -107,28 +153,6 @@ public interface ZscriptExpression {
      */
     default boolean hasField(final char key) {
         return hasField((byte) key);
-    }
-
-    /**
-     * Gets the value of the specified field, or a default value if the field isn't defined.
-     *
-     * @param key the key of the required field
-     * @param def the default value
-     * @return the value of that field, or empty if the field isn't defined
-     */
-    default int getField(final byte key, final int def) {
-        return getField(key).orElse(def);
-    }
-
-    /**
-     * Gets the value of the specified field, or a default value if the field isn't defined.
-     *
-     * @param key the key of the required field
-     * @param def the default value
-     * @return the value of that field, or empty if the field isn't defined
-     */
-    default int getField(final char key, final int def) {
-        return getField((byte) key, def);
     }
 
     /**

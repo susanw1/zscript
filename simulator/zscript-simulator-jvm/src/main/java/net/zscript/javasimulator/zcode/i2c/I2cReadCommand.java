@@ -18,9 +18,9 @@ public class I2cReadCommand {
     public static void execute(CommandContext ctx, I2cModule module) {
         Entity           entity    = module.getEntity();
         CommandOutStream out       = ctx.getOutStream();
-        OptionalInt      addrOpt   = ctx.getField((byte) 'A');
-        OptionalInt      portOpt   = ctx.getField((byte) 'P');
-        OptionalInt      lengthOpt = ctx.getField((byte) 'L');
+        OptionalInt      addrOpt   = ctx.getFieldValue('A');
+        OptionalInt      portOpt   = ctx.getFieldValue('P');
+        OptionalInt      lengthOpt = ctx.getFieldValue('L');
 
         if (addrOpt.isEmpty()) {
             ctx.status(ZscriptStatus.MISSING_KEY);
@@ -37,7 +37,7 @@ public class I2cReadCommand {
         int     addr     = addrOpt.getAsInt();
         int     port     = portOpt.getAsInt();
         int     length   = lengthOpt.getAsInt();
-        int     attempts = ctx.getField((byte) 'T', 1);
+        int     attempts = ctx.getFieldValueOrDefault((byte) 'T', 1);
         boolean tenBit   = ctx.hasField((byte) 'N');
         if (port >= entity.countConnection(I2cProtocolCategory.class)) {
             ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);

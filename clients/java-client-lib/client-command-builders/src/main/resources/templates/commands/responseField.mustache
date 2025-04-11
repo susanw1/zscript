@@ -25,7 +25,7 @@
              * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}
              */
             public int get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsInt() {
-                int value = expression.getField((byte) '{{key}}')
+                int value = expression.getFieldValue('{{key}}')
                         .orElseThrow(() -> new ZscriptMissingFieldException("name={{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}, key='{{key}}'"));
                 return checkInEnumRange(value, {{#upperCamel}}{{{fieldName}}}{{/upperCamel}}.class, '{{key}}', false);
             }
@@ -61,7 +61,7 @@
              */
             @Nonnull
             public OptionalInt get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsInt() {
-                final OptionalInt field = expression.getField((byte) '{{key}}');
+                final OptionalInt field = expression.getFieldValue('{{key}}');
                 if (field.isPresent()) {
                     checkInEnumRange(field.getAsInt(), {{#upperCamel}}{{{fieldName}}}{{/upperCamel}}.class, '{{key}}', false);
                 }
@@ -113,7 +113,7 @@
              * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}
              */
             public int get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
-                return expression.getField((byte) '{{key}}')
+                return expression.getFieldValue('{{key}}')
                         .orElseThrow(() -> new ZscriptMissingFieldException("name={{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}, key='{{key}}'"));
             }
         {{/required}}
@@ -130,7 +130,7 @@
              */
             @Nonnull
             public OptionalInt get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
-                return expression.getField((byte) '{{key}}');
+                return expression.getFieldValue('{{key}}');
             }
 
             /**
@@ -189,7 +189,7 @@
              * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}
              */
             public int get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsInt() {
-                final int value = expression.getField((byte) '{{key}}')
+                final int value = expression.getFieldValue('{{key}}')
                         .orElseThrow(() -> new ZscriptMissingFieldException("name={{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}, key='{{key}}'"));
                 return checkInEnumRange(value, {{#upperCamel}}{{{fieldName}}}{{/upperCamel}}.class, '{{key}}', true);
             }
@@ -223,7 +223,7 @@
              */
             @Nonnull
             public OptionalInt get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsInt() {
-                return expression.getField((byte) '{{key}}');
+                return expression.getFieldValue('{{key}}');
             }
 
             /**
@@ -463,7 +463,7 @@
              * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}
              */
             public int get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsInt() {
-                return expression.getField((byte) '{{key}}')
+                return expression.getFieldValue('{{key}}')
                         .orElseThrow(() -> new ZscriptMissingFieldException("name={{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}, key='{{key}}'"));
             }
 

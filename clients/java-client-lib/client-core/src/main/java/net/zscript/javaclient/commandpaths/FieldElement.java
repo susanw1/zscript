@@ -22,6 +22,13 @@ public final class FieldElement implements ZscriptField, ByteString.ByteAppendab
         return new FieldElement(key, value);
     }
 
+    public static FieldElement fieldOf(byte key, long value) {
+        if (value > 0xffff_ffffL) {
+            throw new IllegalArgumentException("value too large for 32-bit field");
+        }
+        return new FieldElement(key, (int) value);
+    }
+
     public static FieldElement fieldOfText(byte key, ByteString string) {
         return new FieldElement(key, string, true);
     }
@@ -45,14 +52,21 @@ public final class FieldElement implements ZscriptField, ByteString.ByteAppendab
         return f instanceof FieldElement ? (FieldElement) f : new FieldElement(f.getKey(), concat(f.iterator()), false);
     }
 
+    /**
+     * Creates the FieldElement from the supplied key and value. Note that the value can be a full 32-bit number and is treated as though unsigned.
+     *
+     * @param key   the key for the field
+     * @param value the value to encode (as up to 4 bytes)
+     */
     private FieldElement(byte key, int value) {
         this.key = key;
-        ByteStringBuilder b = builder();
-        if (value >= 0x100) {
-            b.appendByte((value >> 8) & 0xff);
-        }
-        if (value > 0x0) {
-            b.appendByte(value & 0xff);
+        final ByteStringBuilder b = builder();
+
+        for (int offset = 24; offset >= 0; offset -= 8) {
+            final int ch = value >>> offset;
+            if (ch != 0) {
+                b.appendByte(ch & 0xff);
+            }
         }
         this.data = b.build();
         this.preferString = false;
@@ -69,13 +83,37 @@ public final class FieldElement implements ZscriptField, ByteString.ByteAppendab
         return key;
     }
 
-    @Override
-    public int getValue() {
+    /**
+     * Utility method that reads a 2-byte number from the end of the 'data' array,  working back from the supplied 'end' value. Specifically, the two bytes are taken from index
+     * {@code end-2} and {@code end-1}.
+     *
+     * @param end the end index, exclusively (ie, value is read from the previous <= 2 bytes)
+     * @return the value read (in range 0-0xffff)
+     */
+    private int getValueImpl(int end) {
         int t = 0;
-        for (int i = (data.size() > 2 ? data.size() - 2 : 0), n = data.size(); i < n; i++) {
-            t = (t << 8) | (data.get(i) & 0xff);
+        if (end >= 2) {
+            t = (data.get(end - 2) & 0xff) << 8;
+        }
+        if (end >= 1) {
+            t |= data.get(end - 1) & 0xff;
         }
         return t;
+    }
+
+    @Override
+    public int getValue() {
+        return getValueImpl(data.size());
+    }
+
+    @Override
+    public long getValue32() {
+        final int sz = data.size();
+        int       t  = getValueImpl(sz);
+        if (sz > 2) {
+            t |= getValueImpl(sz - 2) << 16;
+        }
+        return t & 0xffff_ffffL;
     }
 
     @Override

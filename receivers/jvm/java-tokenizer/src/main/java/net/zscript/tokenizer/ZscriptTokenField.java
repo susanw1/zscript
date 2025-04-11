@@ -26,6 +26,11 @@ public class ZscriptTokenField implements ZscriptField {
     }
 
     @Override
+    public long getValue32() {
+        return token.getData32();
+    }
+
+    @Override
     public boolean isNumeric() {
         return token.hasNumeric(2);
     }

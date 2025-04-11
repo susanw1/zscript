@@ -138,7 +138,7 @@ public class CommandSteps {
     @And("it should include a field key {string} set to {word}")
     public void shouldIncludeKeyedFieldSetTo(String key, String value) {
         final ZscriptResponse currentResponse = responses.get(currentResponseIndex);
-        final OptionalInt     actualValue     = currentResponse.getField((byte) asKey(key));
+        final OptionalInt     actualValue     = currentResponse.getFieldValue(asKey(key));
         assertThat(Integer.decode(value)).isEqualTo(actualValue.orElseThrow());
     }
 

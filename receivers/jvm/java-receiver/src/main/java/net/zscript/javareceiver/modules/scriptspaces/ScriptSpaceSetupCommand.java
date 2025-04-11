@@ -10,7 +10,7 @@ import net.zscript.model.components.ZscriptStatus;
 
 public class ScriptSpaceSetupCommand {
     public static void execute(List<ScriptSpace> spaces, CommandContext ctx) {
-        OptionalInt spaceIndex = ctx.getField('P');
+        OptionalInt spaceIndex = ctx.getFieldValue('P');
         if (spaceIndex.isEmpty()) {
             ctx.status(ZscriptStatus.MISSING_KEY);
             return;
@@ -32,7 +32,7 @@ public class ScriptSpaceSetupCommand {
         }
 
         out.writeField('L', 0xFFFF);
-        OptionalInt runOpt = ctx.getField('R');
+        OptionalInt runOpt = ctx.getFieldValue('R');
         if (runOpt.isPresent()) {
             if (runOpt.getAsInt() != 0) {
                 targetSpace.run();

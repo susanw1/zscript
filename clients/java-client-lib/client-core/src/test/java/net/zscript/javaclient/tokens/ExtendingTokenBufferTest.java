@@ -24,8 +24,8 @@ public class ExtendingTokenBufferTest {
 
         final ZscriptFieldSet fields = commandSeq.getExecutionPath().getFirstCommand().getFields();
         assertThat(fields.getFieldCount()).isEqualTo(2);
-        assertThat(fields.getField('Z')).isPresent().hasValue(5);
-        assertThat(fields.getField('A')).isPresent().hasValue(3);
+        assertThat(fields.getFieldValue('Z')).isPresent().hasValue(5);
+        assertThat(fields.getFieldValue('A')).isPresent().hasValue(3);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class ExtendingTokenBufferTest {
         assertThat(response.hasAddress()).isFalse();
         final ZscriptFieldSet fields = response.getResponseSequence().getExecutionPath().getFirstResponse().getFields();
         assertThat(fields.getFieldCount()).isEqualTo(1);
-        assertThat(fields.getField('S')).isPresent().hasValue(5);
+        assertThat(fields.getFieldValue('S')).isPresent().hasValue(5);
     }
 
     @Test

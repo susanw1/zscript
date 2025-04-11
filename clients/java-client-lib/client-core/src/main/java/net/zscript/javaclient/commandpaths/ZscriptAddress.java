@@ -49,6 +49,13 @@ public class ZscriptAddress implements ByteAppendable {
         return new ZscriptAddress(addressParts.stream().mapToInt(i -> i).toArray());
     }
 
+    /**
+     * Parses the tokens representing a series of Addresses, eg "@12.34.ef @3.1". Parsing starts from the supplied token (which must represent an '@' field) and proceeds until a
+     * token is read that is neither {@link Zchars#Z_ADDRESSING '@'} nor {@link Zchars#Z_ADDRESSING_CONTINUE '.'}.
+     *
+     * @param start the token to start parsing from
+     * @return a List of ZscriptAddress - empty if no address element is found
+     */
     public static List<ZscriptAddress> parseAll(ReadToken start) {
         if (start.getKey() != Zchars.Z_ADDRESSING) {
             return Collections.emptyList();

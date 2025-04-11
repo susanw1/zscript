@@ -118,7 +118,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
             explainStringField(box, field, fieldSet, settings);
         } else {
             doneFields[key - 'A'] = true;
-            OptionalInt valueOpt = fieldSet.getField(key);
+            OptionalInt valueOpt = fieldSet.getFieldValue(key);
             if (valueOpt.isEmpty()) {
                 if (field.isRequired()) {
                     box.setStyle(new CharacterStyle(TextColor.RED, TextColor.DEFAULT, true))
@@ -166,7 +166,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
         box.append(upperFirst(field.getName()));
         box.append(" (").append(key).append("): ");
         doneFields[key - 'A'] = true;
-        OptionalInt valueOpt = fieldSet.getField(key);
+        OptionalInt valueOpt = fieldSet.getFieldValue(key);
         if (valueOpt.isEmpty()) {
             if (field.isRequired()) {
                 box.setStyle(new CharacterStyle(TextColor.RED, TextColor.DEFAULT, true));
@@ -214,7 +214,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
 
     private void explainUnknownFields(TextBox box, CommandPrintSettings settings, ZscriptFieldSet fieldSet, boolean[] doneFields) {
         for (int i = 0; i < 26; i++) {
-            final OptionalInt fieldVal = fieldSet.getField((byte) ('A' + i));
+            final OptionalInt fieldVal = fieldSet.getFieldValue((byte) ('A' + i));
             if (!doneFields[i] && fieldVal.isPresent()) {
                 box.startNewLine(1);
                 box.append("Unknown Field ");
@@ -233,7 +233,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
 
         ZscriptFieldSet fieldSet = target.getFields();
 
-        OptionalInt commandValue = fieldSet.getField(Zchars.Z_CMD);
+        OptionalInt commandValue = fieldSet.getFieldValue(Zchars.Z_CMD);
         box.startNewLine(0);
         if (fieldSet.isEmpty()) {
             box.append("Empty Command");
@@ -281,7 +281,7 @@ public class StandardCommandGrapher implements CommandGrapher<AsciiFrame, Standa
 
     @Nonnull
     public AsciiFrame explainResponse(CommandElement source, ResponseElement target, ZscriptModel model, CommandPrintSettings settings) {
-        OptionalInt     commandValue = source.getFields().getField(Zchars.Z_CMD);
+        OptionalInt     commandValue = source.getFields().getFieldValue(Zchars.Z_CMD);
         ZscriptFieldSet fieldSet     = target.getFields();
 
         TextBox box = new TextBox(settings.indentString);

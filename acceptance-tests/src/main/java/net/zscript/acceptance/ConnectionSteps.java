@@ -123,7 +123,7 @@ public class ConnectionSteps {
         final List<ResponseElement> responses = ResponseSequence.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken())
                 .getExecutionPath().getResponses();
 
-        assertThat(responses.get(index).getFields().getField(Zchars.Z_STATUS))
+        assertThat(responses.get(index).getFields().getFieldValue(Zchars.Z_STATUS))
                 .as("actual response: %s", responseBytes.asString())
                 .hasValue(Integer.decode(statusValue));
     }
