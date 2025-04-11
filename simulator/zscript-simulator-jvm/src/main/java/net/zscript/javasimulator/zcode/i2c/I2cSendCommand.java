@@ -19,8 +19,8 @@ public class I2cSendCommand {
     public static void execute(CommandContext ctx, I2cModule module) {
         Entity               entity  = module.getEntity();
         CommandOutStream     out     = ctx.getOutStream();
-        OptionalInt          addrOpt = ctx.getField((byte) 'A');
-        OptionalInt          portOpt = ctx.getField((byte) 'P');
+        OptionalInt          addrOpt = ctx.getFieldValue((byte) 'A');
+        OptionalInt          portOpt = ctx.getFieldValue((byte) 'P');
         Optional<ByteString> dataOpt = ctx.getFieldAsByteString('D');
 
         if (addrOpt.isEmpty()) {
@@ -38,7 +38,7 @@ public class I2cSendCommand {
 
         final int     addr     = addrOpt.getAsInt();
         final int     port     = portOpt.getAsInt();
-        final int     attempts = ctx.getField((byte) 'T', 5);
+        final int     attempts = ctx.getFieldValueOrDefault((byte) 'T', 5);
         final boolean tenBit   = ctx.hasField((byte) 'N');
         final byte[]  data     = dataOpt.get().toByteArray();
 

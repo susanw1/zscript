@@ -191,7 +191,7 @@ public class ResponseExecutionPath implements Iterable<ResponseElement>, ByteApp
         public ResponseElement generateResponse(@Nullable ResponseElement next, boolean unexplainedFail, int priorBrackets) {
             final ZscriptFieldSet fieldSet = ZscriptFieldSet.fromTokens(start);
             return new ResponseElement(next,
-                    isSuccess(fieldSet.getField(Zchars.Z_STATUS, SUCCESS)) && !(unexplainedFail || separator == Zchars.Z_ORELSE),
+                    isSuccess(fieldSet.getFieldValueOrDefault(Zchars.Z_STATUS, SUCCESS)) && !(unexplainedFail || separator == Zchars.Z_ORELSE),
                     separator == '(', separator == ')', priorBrackets, fieldSet);
         }
     }

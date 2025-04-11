@@ -54,8 +54,8 @@ public class JavaCommandBuilderNotificationTest {
         assertThat(sec1.getTestNtfBRespXField1()).isEqualTo(0xef);
         assertThat(sec1.getTestNtfBRespYField2AsString()).isNotPresent();
 
-        assertThat(sec0.getField((byte) 'D')).as("field 'D'").hasValue(0xab);
-        assertThat(sec0.getField((byte) 'L')).as("field 'L'").hasValue(0xcd);
-        assertThat(sec1.getField((byte) 'X')).as("field 'X'").hasValue(0xef);
+        assertThat(sec0.getFieldValue('D')).as("field 'D'").hasValue(0xab);
+        assertThat(sec0.getFieldValue('L')).as("field 'L'").hasValue(0xcd);
+        assertThat(sec1.getFieldValue('X')).as("field 'X'").hasValue(0xef);
     }
 }

@@ -21,20 +21,24 @@ public interface ZscriptResponse {
      */
     ZscriptExpression expression();
 
-    OptionalInt getField(byte key);
+    OptionalInt getFieldValue(byte key);
+
+    default OptionalInt getFieldValue(char key) {
+        return getFieldValue((byte) key);
+    }
 
     default boolean succeeded() {
-        OptionalInt status = getField(Zchars.Z_STATUS);
+        OptionalInt status = getFieldValue(Zchars.Z_STATUS);
         return status.isEmpty() || status.getAsInt() == ZscriptStatus.SUCCESS;
     }
 
     default boolean failed() {
-        OptionalInt status = getField(Zchars.Z_STATUS);
+        OptionalInt status = getFieldValue(Zchars.Z_STATUS);
         return status.isPresent() && ZscriptStatus.isFailure(status.getAsInt());
     }
 
     default boolean error() {
-        OptionalInt status = getField(Zchars.Z_STATUS);
+        OptionalInt status = getFieldValue(Zchars.Z_STATUS);
         return status.isPresent() && ZscriptStatus.isError(status.getAsInt());
     }
 }

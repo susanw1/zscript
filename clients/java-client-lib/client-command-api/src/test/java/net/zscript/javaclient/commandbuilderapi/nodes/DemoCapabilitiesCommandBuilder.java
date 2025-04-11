@@ -61,7 +61,7 @@ class DemoCapabilities extends ZscriptCommandNode<DemoCapabilitiesCommandRespons
     @Nonnull
     @Override
     public DemoCapabilitiesCommandResponse parseResponse(@Nonnull ZscriptExpression resp) {
-        return new DemoCapabilitiesCommandResponse(resp, new byte[] {}, resp.getField('V').orElseThrow(), resp.getFieldAsByteString('I').orElseThrow().asString());
+        return new DemoCapabilitiesCommandResponse(resp, new byte[] {}, resp.getFieldValue('V').orElseThrow(), resp.getFieldAsByteString('I').orElseThrow().asString());
     }
 
     @Nonnull

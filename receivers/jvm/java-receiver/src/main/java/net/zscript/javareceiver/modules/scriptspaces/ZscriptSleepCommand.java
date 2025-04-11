@@ -13,7 +13,7 @@ public class ZscriptSleepCommand {
     private static final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
 
     public static void execute(CommandContext ctx) {
-        OptionalInt delay = ctx.getField('M');
+        OptionalInt delay = ctx.getFieldValue('M');
         if (delay.isEmpty()) {
             ctx.status(ZscriptStatus.MISSING_KEY);
             return;

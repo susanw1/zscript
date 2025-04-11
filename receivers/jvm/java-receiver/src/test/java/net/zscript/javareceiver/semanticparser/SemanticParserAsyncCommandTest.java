@@ -111,7 +111,7 @@ class SemanticParserAsyncCommandTest {
                 CommandOutStream out = ctx.getOutStream();
                 out.writeField('A', 0xff);
 
-                int endOnValue = ctx.getField((byte) 'E', 1);
+                int endOnValue = ctx.getFieldValueOrDefault((byte) 'E', 1);
                 if (endOnValue == 0) {
                     ctx.getOutStream().writeField('B', 0);
                 } else {
@@ -121,7 +121,7 @@ class SemanticParserAsyncCommandTest {
             }
 
             public void moveAlong(CommandContext ctx) {
-                int endOnValue = ctx.getField((byte) 'E', 1);
+                int endOnValue = ctx.getFieldValueOrDefault((byte) 'E', 1);
 
                 if (someValue < endOnValue) {
                     ctx.commandNotComplete();

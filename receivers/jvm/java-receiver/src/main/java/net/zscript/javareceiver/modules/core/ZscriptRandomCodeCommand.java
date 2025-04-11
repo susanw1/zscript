@@ -19,7 +19,7 @@ public class ZscriptRandomCodeCommand {
     }
 
     public void match(CommandContext ctx) {
-        OptionalInt givenCode = ctx.getField((byte) 'C');
+        OptionalInt givenCode = ctx.getFieldValue((byte) 'C');
         if (givenCode.isEmpty()) {
             ctx.status(ZscriptStatus.MISSING_KEY);
             return;

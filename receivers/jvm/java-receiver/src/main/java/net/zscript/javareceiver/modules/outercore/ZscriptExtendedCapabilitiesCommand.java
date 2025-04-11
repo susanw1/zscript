@@ -12,7 +12,7 @@ public class ZscriptExtendedCapabilitiesCommand {
         CommandOutStream out = ctx.getOutStream();
         out.writeField('C', ZscriptOuterCoreModule.getCommands());
         out.writeField('M', ctx.getZscript().getModuleRegistry().getCommandSwitchExistsBroad());
-        OptionalInt targetOpt = ctx.getField((byte) 'M');
+        OptionalInt targetOpt = ctx.getFieldValue((byte) 'M');
 
         if (targetOpt.isPresent()) {
             int target = targetOpt.getAsInt();

@@ -21,10 +21,10 @@ public class ValidatingResponseTest {
         ValidatingResponse vr1 = new ValidatingResponse(fieldSet, new byte[] { 'A', 'D' });
         assertThat(vr1.expression()).isSameAs(fieldSet);
         assertThat(vr1.isValid()).isTrue();
-        assertThat(vr1.getField((byte) 'A')).isPresent().hasValue(0xc);
+        assertThat(vr1.getFieldValue('A')).isPresent().hasValue(0xc);
 
         ValidatingResponse vr2 = new ValidatingResponse(fieldSet, new byte[] { 'B', 'D' });
         assertThat(vr2.isValid()).isFalse();
-        assertThat(vr2.getField((byte) 'B')).isNotPresent();
+        assertThat(vr2.getFieldValue('B')).isNotPresent();
     }
 }

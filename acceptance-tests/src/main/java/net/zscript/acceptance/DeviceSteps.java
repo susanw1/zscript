@@ -82,21 +82,21 @@ public class DeviceSteps {
     public void shouldReceiveThisResponseFromDevice(String status, String field, String value) {
         final ResponseElement response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
 
-        assertThat(response.getFields().getField(Zchars.Z_STATUS)).hasValue(Integer.decode(status));
-        assertThat(response.getFields().getField(field.charAt(0))).hasValue(Integer.decode(value));
+        assertThat(response.getFields().getFieldValue(Zchars.Z_STATUS)).hasValue(Integer.decode(status));
+        assertThat(response.getFields().getFieldValue(field.charAt(0))).hasValue(Integer.decode(value));
     }
 
     @Then("device should answer with status value {word}")
     public void shouldReceiveThisStatusValue(String statusValue) {
         final ResponseElement response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
 
-        assertThat(response.getFields().getField(Zchars.Z_STATUS)).hasValue(Integer.decode(statusValue));
+        assertThat(response.getFields().getFieldValue(Zchars.Z_STATUS)).hasValue(Integer.decode(statusValue));
     }
 
     @Then("device should answer with status {word}")
     public void shouldReceiveThisStatus(String statusName) throws Exception {
         final ResponseElement response = ResponseExecutionPath.parse(tokenize(responseBytes).getTokenReader().getFirstReadToken()).getFirstResponse();
 
-        assertThat(response.getFields().getField(Zchars.Z_STATUS)).hasValue(statusNameToValue(statusName));
+        assertThat(response.getFields().getFieldValue(Zchars.Z_STATUS)).hasValue(statusNameToValue(statusName));
     }
 }

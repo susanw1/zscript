@@ -9,7 +9,7 @@ import net.zscript.model.components.ZscriptStatus;
 public class I2cSetupCommand {
 
     public static void execute(CommandContext ctx, I2cModule module) {
-        final OptionalInt portOpt = ctx.getField((byte) 'P');
+        final OptionalInt portOpt = ctx.getFieldValue((byte) 'P');
         if (portOpt.isPresent() && portOpt.getAsInt() >= module.getEntity().countConnection(I2cProtocolCategory.class)) {
             ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
             return;
@@ -19,7 +19,7 @@ public class I2cSetupCommand {
             module.getNotificationHandler().setNotifications(port, ctx.hasField((byte) 'N'));
             module.getNotificationHandler().setAddressing(port, ctx.hasField((byte) 'A'));
         }
-        final OptionalInt freqOpt = ctx.getField((byte) 'F');
+        final OptionalInt freqOpt = ctx.getFieldValue((byte) 'F');
         if (freqOpt.isPresent()) {
             if (freqOpt.getAsInt() > 3) {
                 ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);

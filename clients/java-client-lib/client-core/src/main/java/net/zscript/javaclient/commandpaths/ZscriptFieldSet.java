@@ -134,7 +134,7 @@ public final class ZscriptFieldSet implements ZscriptExpression, ByteAppendable 
 
     @Nonnull
     @Override
-    public OptionalInt getField(byte key) {
+    public OptionalInt getFieldValue(byte key) {
         return getZscriptField(key).stream().mapToInt(ZscriptField::getValue).findFirst();
     }
 

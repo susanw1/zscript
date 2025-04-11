@@ -57,7 +57,7 @@ public class ResponseSequenceCallback {
             responses.put(node, summary.getResponse());
             if (cr.getResponse().wasSuccess()) {
                 succeeded.add(summary);
-            } else if (ZscriptStatus.isFailure(cr.getResponse().getFields().getField(Zchars.Z_STATUS).orElse(0))) {
+            } else if (ZscriptStatus.isFailure(cr.getResponse().getFields().getFieldValueOrDefault(Zchars.Z_STATUS, 0))) {
                 failed.add(summary);
             } else {
                 if (abort != null) {

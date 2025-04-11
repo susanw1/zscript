@@ -22,7 +22,7 @@ public class DemoActivateCommand extends ZscriptCommandNode<DemoActivateCommand.
     @Nonnull
     @Override
     public DemoActivateCommandResponse parseResponse(@Nonnull ZscriptExpression resp) {
-        return new DemoActivateCommandResponse(resp, new byte[] {}, resp.getField('A').orElse(0) == 1);
+        return new DemoActivateCommandResponse(resp, new byte[] {}, resp.getFieldValueOrDefault('A', 0) == 1);
     }
 
     @Nonnull

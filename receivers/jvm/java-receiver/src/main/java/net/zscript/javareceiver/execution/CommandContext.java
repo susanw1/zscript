@@ -48,8 +48,8 @@ public class CommandContext extends AbstractContext implements ZscriptExpression
 
     @Nonnull
     @Override
-    public OptionalInt getField(final byte key) {
-        return expression.getField(key);
+    public OptionalInt getFieldValue(final byte key) {
+        return expression.getFieldValue(key);
     }
 
     @Nonnull

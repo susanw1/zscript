@@ -27,20 +27,20 @@ public class ZscriptFieldSetTest {
     @Test
     public void shouldInitializeFromMap() {
         assertThat(fieldSet.getFieldCount()).isEqualTo(6);
-        assertThat(fieldSet.getField('A')).hasValue(12);
-        assertThat(fieldSet.getField('Z')).hasValue(7);
+        assertThat(fieldSet.getFieldValue('A')).hasValue(12);
+        assertThat(fieldSet.getFieldValue('Z')).hasValue(7);
         assertThat(fieldSet.hasField('Z')).isTrue();
         assertThat(fieldSet.getFieldVal((byte) 'Z')).isEqualTo(fieldOfBytes((byte) 'Z', byteString((byte) 7)));
 
         assertThat(fieldSet.getZscriptField('Z').orElseThrow()).isEqualTo(fieldOf((byte) 'Z', 7));
-        assertThat(fieldSet.getField('B')).isNotPresent();
+        assertThat(fieldSet.getFieldValue('B')).isNotPresent();
         assertThat(fieldSet.hasField('B')).isFalse();
         assertThat(fieldSet.getZscriptField('B')).isNotPresent();
         assertThat(fieldSet.getFieldVal((byte) 'B')).isNull();
         assertThat(fieldSet.hasField('E')).isTrue();
-        assertThat(fieldSet.getField('E')).isPresent().hasValue(0x6162);
+        assertThat(fieldSet.getFieldValue('E')).isPresent().hasValue(0x6162);
         assertThat(fieldSet.hasField('F')).isTrue();
-        assertThat(fieldSet.getField('F')).isPresent().hasValue('d' * 256 + 'e');
+        assertThat(fieldSet.getFieldValue('F')).isPresent().hasValue('d' * 256 + 'e');
     }
 
     @Test

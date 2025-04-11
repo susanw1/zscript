@@ -13,7 +13,7 @@ public class ZscriptChannelInfoCommand {
 
         int current = ctx.getChannelIndex();
 
-        int target = ctx.getField((byte) 'C', current);
+        int target = ctx.getFieldValueOrDefault((byte) 'C', current);
         if (target >= chs.size()) {
             ctx.status(ZscriptStatus.VALUE_OUT_OF_RANGE);
             return;
