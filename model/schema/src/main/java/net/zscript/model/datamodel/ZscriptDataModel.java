@@ -241,10 +241,24 @@ public interface ZscriptDataModel {
                     .map(Type::name)
                     .orElse("unknown");
         }
+
+        /**
+         * Determines whether the type code generation should include a 'hasXxxx()' field-check method (generally only for fields where 'required' is false). Overridden by specific
+         * types. Default is false.
+         *
+         * @return true if check method should be included for non-required fields, false otherwise
+         */
+        default boolean includeFieldCheck() {
+            return false;
+        }
     }
 
     interface EnumTypeDefinition extends TypeDefinition {
         default boolean enumType() {
+            return true;
+        }
+
+        default boolean includeFieldCheck() {
             return true;
         }
 
@@ -253,6 +267,10 @@ public interface ZscriptDataModel {
 
     interface BitsetTypeDefinition extends TypeDefinition {
         default boolean bitsetType() {
+            return true;
+        }
+
+        default boolean includeFieldCheck() {
             return true;
         }
 
@@ -277,10 +295,18 @@ public interface ZscriptDataModel {
         default boolean flagType() {
             return true;
         }
+
+        default boolean includeFieldCheck() {
+            return true;
+        }
     }
 
     interface NumberTypeDefinition extends TypeDefinition {
         default boolean numberType() {
+            return true;
+        }
+
+        default boolean includeFieldCheck() {
             return true;
         }
     }
@@ -314,6 +340,10 @@ public interface ZscriptDataModel {
      */
     interface StringTypeDefinition extends TypeDefinition {
         default boolean stringType() {
+            return true;
+        }
+
+        default boolean includeFieldCheck() {
             return true;
         }
 
