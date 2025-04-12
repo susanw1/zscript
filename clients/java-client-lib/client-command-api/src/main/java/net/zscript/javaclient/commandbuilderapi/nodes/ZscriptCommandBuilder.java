@@ -72,6 +72,10 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         return setField((byte) key, value);
     }
 
+    public ZscriptCommandBuilder<T> setField32(char key, long value) {
+        return setField32((byte) key, value);
+    }
+
     protected FieldElement getFieldOrZero(byte key) {
         if (!Zchars.isExpressionKey(key)) {
             throw new IllegalArgumentException("Key not a valid Zscript Command key: " + (char) key);
