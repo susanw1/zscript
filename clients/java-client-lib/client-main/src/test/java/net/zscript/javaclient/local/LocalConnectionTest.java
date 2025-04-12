@@ -113,7 +113,7 @@ class LocalConnectionTest {
 
     static CommandSequence parseToSequence(String s) {
         return CommandSequence.parse(ZscriptModel.standardModel(),
-                tokenize(byteStringUtf8(s), true).getTokenReader().getFirstReadToken(), false);
+                tokenize(byteStringUtf8(s), true).getTokenReader().getFirstReadToken());
     }
 
 }

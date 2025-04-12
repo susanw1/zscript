@@ -277,7 +277,7 @@ class ConnectionBufferTest {
 
     static CommandSequence parseToSequence(String s) {
         return CommandSequence.parse(ZscriptModel.standardModel(),
-                tokenize(byteStringUtf8(s), true).getTokenReader().getFirstReadToken(), false);
+                tokenize(byteStringUtf8(s), true).getTokenReader().getFirstReadToken());
     }
 
     static ResponseSequence parseToResponse(String s) {

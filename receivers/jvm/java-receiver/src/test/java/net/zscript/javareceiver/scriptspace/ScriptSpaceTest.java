@@ -54,19 +54,7 @@ public class ScriptSpaceTest {
     }
 
     @Test
-    public void scriptSpaceDelayShouldUnjamZscript() {
-        StringChannel channel = StringChannel.from("Z1AB\n", outStream);
-        ScriptSpace   space   = ScriptSpace.from(zscript, "Z2 & Z0\n %Z28M10\n");
-        zscript.addActionSource(space);
-        zscript.addChannel(channel);
-        module.addScriptSpace(space);
-        for (int i = 0; zscript.progress() && i < 1000000; i++) {
-        }
-        assertThat(outStream.getStringAndReset()).isEqualTo("!ABS\n");
-    }
-
-    @Test
-    public void scriptSpaceDelayWithLockingShouldJamZscript() {
+    public void scriptSpaceDelayShouldJamZscript() {
         StringChannel channel = StringChannel.from("Z1AB\n", outStream);
         ScriptSpace   space   = ScriptSpace.from(zscript, "Z2&Z0\nZ28M10\n");
         zscript.addActionSource(space);

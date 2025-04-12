@@ -6,7 +6,6 @@ import java.util.function.Predicate;
 
 import net.zscript.javareceiver.core.LockSet;
 import net.zscript.javareceiver.core.Zscript;
-import net.zscript.javareceiver.core.ZscriptLocks;
 import net.zscript.javareceiver.semanticparser.SemanticAction.ActionType;
 import net.zscript.model.components.Zchars;
 import net.zscript.model.components.ZscriptStatus;
@@ -501,7 +500,7 @@ public class SemanticParser implements ParseState, ContextView {
      */
     private void parseSequenceLevel() {
         ReadToken first = reader.getFirstReadToken();
-        while (first.getKey() == Zchars.Z_ECHO || first.getKey() == Zchars.Z_LOCKS) {
+        while (first.getKey() == Zchars.Z_ECHO) {
             if (first.getKey() == Zchars.Z_ECHO) {
                 if (hasEcho) {
                     state = State.ERROR_MULTIPLE_ECHO;
@@ -509,13 +508,6 @@ public class SemanticParser implements ParseState, ContextView {
                 }
                 echo = first.getData16();
                 hasEcho = true;
-            } else if (first.getKey() == Zchars.Z_LOCKS) {
-                if (hasLocks || first.getDataSize() > ZscriptLocks.LOCK_BYTENUM) {
-                    state = State.ERROR_LOCKS;
-                    return;
-                }
-                locks = LockSet.from(first.dataIterator());
-                hasLocks = true;
             }
             reader.flushFirstReadToken(); // safe as key is checked, not a Marker
             first = reader.getFirstReadToken();

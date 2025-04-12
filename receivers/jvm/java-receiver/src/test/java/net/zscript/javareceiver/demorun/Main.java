@@ -24,7 +24,7 @@ public class Main {
         zscript.addModule(oCore);
         zscript.addModule(new ZscriptCoreModule());
         byte[]      code  = "Z2&Z20&Z21P0\n".getBytes();
-        ScriptSpace space = ScriptSpace.from(zscript, "Z0&Z2\nZ1S1\n%Z28M20\n");
+        ScriptSpace space = ScriptSpace.from(zscript, "Z0&Z2\nZ1S1\nZ28M20\n");
         scrSpace.addScriptSpace(space);
         zscript.addActionSource(space);
 

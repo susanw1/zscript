@@ -83,6 +83,6 @@ class AddressingConnectionTest {
 
     private static AddressedCommand parse(String s) {
         return new AddressedCommand(CommandSequence.parse(ZscriptModel.standardModel(),
-                tokenize(byteStringUtf8(s), true).getTokenReader().getFirstReadToken(), false));
+                tokenize(byteStringUtf8(s), true).getTokenReader().getFirstReadToken()));
     }
 }

@@ -20,7 +20,7 @@ public class ExtendingTokenBufferTest {
     @Test
     public void shouldTokenizeCommand() {
         final TokenBuffer     buf        = tokenize(byteStringUtf8("Z5 A3\n"));
-        final CommandSequence commandSeq = CommandSequence.parse(ZscriptModel.rawModel(), buf.getTokenReader().getFirstReadToken(), false);
+        final CommandSequence commandSeq = CommandSequence.parse(ZscriptModel.rawModel(), buf.getTokenReader().getFirstReadToken());
 
         final ZscriptFieldSet fields = commandSeq.getExecutionPath().getFirstCommand().getFields();
         assertThat(fields.getFieldCount()).isEqualTo(2);

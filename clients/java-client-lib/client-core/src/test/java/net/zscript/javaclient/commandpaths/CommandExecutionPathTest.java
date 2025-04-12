@@ -181,6 +181,7 @@ class CommandExecutionPathTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "x\n",
+            "%Z\n",
             "Z%\n",
     })
     public void shouldRejectInvalidFields(String badCmdSeqs) {

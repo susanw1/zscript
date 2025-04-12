@@ -95,14 +95,14 @@ class ZscriptBasicNodeTest {
     @Test
     public void shouldSendPath() {
         // no response in this test
-        setupHandlerAndSend("Z1", "%>100Z1\n", r -> {
+        setupHandlerAndSend("Z1", ">100Z1\n", r -> {
         });
     }
 
     @Test
     public void shouldReceivePathResponse() throws IOException {
         final AtomicReference<ResponseExecutionPath> responseHolder = new AtomicReference<>();
-        setupHandlerAndSend("Z1", "%>100Z1\n", responseHolder::set);
+        setupHandlerAndSend("Z1", ">100Z1\n", responseHolder::set);
 
         byteStringUtf8("! >100 S \n").writeTo(responseSender);
         await().atMost(AWAIT_TIMEOUT).until(() -> responseHolder.get() != null);
@@ -131,7 +131,7 @@ class ZscriptBasicNodeTest {
         node.setUnknownResponseHandler(unknownResponseHandler::set);
 
         final AtomicReference<ResponseExecutionPath> responseHolder = new AtomicReference<>();
-        setupHandlerAndSend("Z1", "%>100Z1\n", responseHolder::set);
+        setupHandlerAndSend("Z1", ">100Z1\n", responseHolder::set);
 
         // Note non-matching echo
         byteStringUtf8("! >999 S \n").writeTo(responseSender);
@@ -151,7 +151,7 @@ class ZscriptBasicNodeTest {
         node.setUnknownResponseHandler(unknownResponseHandler::set);
 
         final AtomicReference<ResponseExecutionPath> responseHolder = new AtomicReference<>();
-        setupHandlerAndSend("Z1", "%>100Z1\n", responseHolder::set);
+        setupHandlerAndSend("Z1", ">100Z1\n", responseHolder::set);
 
         // Note unregistered address
         byteStringUtf8("@1 ! >100 S\n").writeTo(responseSender);
@@ -171,7 +171,7 @@ class ZscriptBasicNodeTest {
         node.setBadCommandResponseMatchHandler((cmd, resp) -> badMatchHandler.set(resp));
 
         final AtomicReference<ResponseExecutionPath> responseHolder = new AtomicReference<>();
-        setupHandlerAndSend("Z1", "%>100Z1\n", responseHolder::set);
+        setupHandlerAndSend("Z1", ">100Z1\n", responseHolder::set);
 
         // Note mismatching response syntax
         byteStringUtf8("! >100 S|S \n").writeTo(responseSender);
@@ -190,7 +190,7 @@ class ZscriptBasicNodeTest {
         node.setCallbackExceptionHandler(exceptionHandler::set);
 
         // response handler throws exception to trigger exception handler
-        setupHandlerAndSend("Z1", "%>100Z1\n", r -> {
+        setupHandlerAndSend("Z1", ">100Z1\n", r -> {
             throw new RuntimeException("dummy exception (broken response handler)");
         });
 
@@ -232,7 +232,7 @@ class ZscriptBasicNodeTest {
         subSubNode.send(seq, subSubHandler::set);
 
         verify(connection).send(any());
-        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("@1.2@3.4%>100Z1\n");
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("@1.2@3.4>100Z1\n");
         assertThat(subSubHandler).hasNullValue();
         assertThat(node.isAttached(address(3, 4))).isFalse();
         assertThat(node.isAttached(address(1, 2))).isTrue();
@@ -247,7 +247,7 @@ class ZscriptBasicNodeTest {
         final CommandExecutionPath path = parseToSequence("Z1").getExecutionPath();
         subSubNode.send(path, responseHolder::set);
         verify(connection).send(any());
-        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("@1.2@3.4%>100Z1\n");
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("@1.2@3.4>100Z1\n");
 
         byteStringUtf8("@1.2 @3.4 ! >100 S \n").writeTo(responseSender);
 
@@ -268,9 +268,9 @@ class ZscriptBasicNodeTest {
     @Test
     public void shouldCheckTimeouts() {
         final AtomicReference<ResponseExecutionPath> responseHolder = new AtomicReference<>();
-        setupHandlerAndSend("Z1A", "%>100Z1A\n", responseHolder::set);
+        setupHandlerAndSend("Z1A", ">100Z1A\n", responseHolder::set);
         verify(connection).send(any());
-        assertThat(commandByteCapture.asStringUtf8()).isEqualTo("%>100Z1A\n");
+        assertThat(commandByteCapture.asStringUtf8()).isEqualTo(">100Z1A\n");
 
         ConnectionBuffer buffer = node.getConnectionBuffer();
         assertThat(buffer.getQueueLength()).isEqualTo(1);

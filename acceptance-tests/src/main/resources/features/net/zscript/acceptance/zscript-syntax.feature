@@ -84,17 +84,17 @@ Feature: Zscript Syntax Consistency
 
 
     @Standard-operation
-    Scenario: should allow locking at start of sequence
+    Scenario: should disallow (obsolete) locks at start of sequence
         When I send exactly "%1 Z1" as a command sequence to the connection, and capture the response
-        Then connection response #0 is equivalent to "S"
+        Then connection response #0 has status INVALID_KEY
 
     @Syntax-error
-    Scenario: should disallow locking within a command
+    Scenario: should disallow (obsolete) locks within a command
         When I send exactly "Z1 %1 A2" as a command sequence to the connection, and capture the response
         Then connection response #0 has status INVALID_KEY
 
     @Syntax-error
-    Scenario: should disallow locking mid-sequence
+    Scenario: should disallow (obsolete) locks mid-sequence
         When I send exactly "Z1 & %1 Z2" as a command sequence to the connection, and capture the response
         Then connection response #1 has status INVALID_KEY
 

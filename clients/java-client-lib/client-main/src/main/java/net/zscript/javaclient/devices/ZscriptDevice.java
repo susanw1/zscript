@@ -195,8 +195,8 @@ public class ZscriptDevice {
             throw new IllegalArgumentException("multiple sequences [bytes=" + cmdSeq + "]");
         }
 
-        final CommandSequence sequence = CommandSequence.parse(model, tokenReader.getFirstReadToken(), false);
-        if (sequence.hasEchoField() || sequence.hasLockField()) {
+        final CommandSequence sequence = CommandSequence.parse(model, tokenReader.getFirstReadToken());
+        if (sequence.hasEchoField()) {
             node.send(sequence, r -> callback.accept(r.toByteString()));
         } else {
             node.send(sequence.getExecutionPath(), r -> callback.accept(r.toByteString()));

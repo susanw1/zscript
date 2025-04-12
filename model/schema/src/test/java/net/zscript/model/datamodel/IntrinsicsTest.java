@@ -31,7 +31,7 @@ public class IntrinsicsTest {
         final Intrinsics intrinsics = dataModel.getIntrinsics();
         assertThat(intrinsics.getRequestFields()).hasSize(1);
         assertThat(intrinsics.getResponseFields()).hasSize(1);
-        assertThat(intrinsics.getZchars()).hasSize(20);
+        assertThat(intrinsics.getZchars()).hasSize(19);
         assertThat(intrinsics.getStatus()).hasSize(33);
     }
 

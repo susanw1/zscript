@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import net.zscript.tokenizer.TokenBuffer.TokenWriter;
@@ -218,15 +217,6 @@ class TokenRingBufferWriterTest {
         writer.startToken((byte) 'X');
         writer.endToken();
         assertThat(buffer.getInternalData()).startsWith('A', 2, 0x5, 0xab, 'X', 0, 0);
-    }
-
-    @Test
-    @Disabled("Obsolete, applied only to '%'")
-    void shouldTokenizeNonNumericFieldWithOddNibbles() {
-        insertNonNumericTokenNibbles('X', (byte) 0xa, (byte) 0xb, (byte) 0xc);
-        writer.endToken();
-        assertThat(buffer.getInternalData()).startsWith('X', 2, 0xab, 0xc0);
-        verifyBufferState(true, 5);
     }
 
     @Test

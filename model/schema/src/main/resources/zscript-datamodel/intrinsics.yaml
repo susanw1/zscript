@@ -53,12 +53,6 @@ intrinsics:
         description: "prefixed to all responses and notifications, to indicate notification source"
         shortNumber: true
 
-    -   name: locks
-        ch: "%"
-        description: "command sequence prefix to request specific locks to allow some concurrent access to resources"
-        shortNumber: true
-        deprecated: true
-
     -   name: stringTypeQuoted
         ch: "\""
         description: "surrounds text to be sent as a string field argument"

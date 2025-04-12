@@ -13,7 +13,6 @@ import static net.zscript.javaclient.devicenodes.ConnectionBuffer.TimeSource.NAN
 
 import net.zscript.javaclient.commandpaths.CommandExecutionPath;
 import net.zscript.javaclient.sequence.CommandSequence;
-import net.zscript.javaclient.sequence.LockCondition;
 import net.zscript.javaclient.sequence.ResponseSequence;
 
 /**
@@ -31,9 +30,6 @@ public class ConnectionBuffer {
     private int bufferSize;
     /** Keeps track of the number of bytes currently in this device's buffer to prevent overflows. */
     private int currentBufferContent = 0;
-
-    private Collection<LockCondition> lockConditions  = List.of();
-    private boolean                   supports32Locks = false;
 
     public ConnectionBuffer(Connection connection, EchoAssigner echoAssigner, int bufferSize) {
         this(connection, echoAssigner, bufferSize, NANOTIME);
@@ -65,7 +61,7 @@ public class ConnectionBuffer {
     }
 
     public boolean send(CommandExecutionPath path, boolean ignoreLength, long timeout, TimeUnit unit) {
-        final CommandSequence seq = CommandSequence.from(path, echoAssigner.getEcho(), supports32Locks, lockConditions);
+        final CommandSequence seq = CommandSequence.from(path, echoAssigner.getEcho());
         return addBufferElementToBuffer(new BufferElement(seq, timeSource.nanoTime() + unit.toNanos(timeout), false), ignoreLength);
     }
 
@@ -214,11 +210,6 @@ public class ConnectionBuffer {
             }
         }
         return false;
-    }
-
-    public void setLockConditions(Collection<LockCondition> lockConditions, boolean supports32Locks) {
-        this.lockConditions = lockConditions;
-        this.supports32Locks = supports32Locks;
     }
 
     /**

@@ -1,8 +1,5 @@
 package net.zscript.javaclient.sequence;
 
-import javax.annotation.Nullable;
-import java.util.Collection;
-
 import static net.zscript.javaclient.commandpaths.FieldElement.fieldOf;
 import static net.zscript.tokenizer.TokenBuffer.TokenReader.ReadToken;
 
@@ -15,71 +12,41 @@ import net.zscript.util.ByteString.ByteAppendable;
 import net.zscript.util.ByteString.ByteStringBuilder;
 
 /**
- * A sendable, unaddressed command sequence, optionally with locks (eg "%1a") and echo (eg "_c2") fields. It's a {@link CommandExecutionPath} with the extra sequence-level
- * information.
- * <p>
- * As far as a specific device is concerned, executing a CommandSequence results in a corresponding {@link ResponseSequence}.
+ * A sendable, unaddressed command sequence, optionally with echo (eg "_c2") field. It's a {@link CommandExecutionPath} with the extra sequence-level information.
+ *
+ * <p>As far as a specific device is concerned, executing a CommandSequence results in a corresponding {@link ResponseSequence}.
  */
 public class CommandSequence implements ByteAppendable {
 
     public static CommandSequence from(CommandExecutionPath path, int echoField) {
-        return from(path, echoField, false);
+        return new CommandSequence(path, echoField);
     }
 
-    public static CommandSequence from(CommandExecutionPath path, int echoField, boolean supports32Locks) {
-        return new CommandSequence(path, echoField, LockSet.allLocked(supports32Locks));
-    }
-
-    public static CommandSequence from(CommandExecutionPath path, int echoField, boolean supports32Locks, Collection<LockCondition> lockConditions) {
-        LockSet locks = LockSet.noneLocked(supports32Locks);
-        for (LockCondition c : lockConditions) {
-            c.apply(path, locks);
-        }
-        return new CommandSequence(path, echoField, locks);
-    }
-
-    public static CommandSequence from(CommandExecutionPath path, int echoField, @Nullable LockSet locks) {
-        return new CommandSequence(path, echoField, locks);
-    }
-
-    public static CommandSequence parse(ZscriptModel model, ReadToken start, boolean supports32Locks) {
-        LockSet             locks     = null;
+    public static CommandSequence parse(ZscriptModel model, ReadToken start) {
         int                 echoField = -1;
         TokenBufferIterator iter      = start.tokenIterator();
         ReadToken           current   = iter.next().orElse(null);
-        while (current != null && (current.getKey() == Zchars.Z_LOCKS || current.getKey() == Zchars.Z_ECHO)) {
-            if (current.getKey() == Zchars.Z_LOCKS) {
-                if (locks != null) {
-                    throw new ZscriptParseException("Tokens contained two lock fields");
-                }
-                locks = LockSet.parse(current, supports32Locks);
-            } else {
-                if (echoField != -1) {
-                    throw new ZscriptParseException("Tokens contained two echo fields");
-                }
-                echoField = current.getData16();
+        while (current != null && current.getKey() == Zchars.Z_ECHO) {
+            if (echoField != -1) {
+                throw new ZscriptParseException("Tokens contained two echo fields");
             }
+            echoField = current.getData16();
+
             current = iter.next().orElse(null);
         }
-        return new CommandSequence(CommandExecutionPath.parse(model, current), echoField, locks);
+        return new CommandSequence(CommandExecutionPath.parse(model, current), echoField);
     }
 
     private final CommandExecutionPath executionPath;
     private final int                  echoField;
-    @Nullable
-    private final LockSet              locks;
 
-    private CommandSequence(CommandExecutionPath executionPath, int echoField, @Nullable LockSet locks) {
+    private CommandSequence(CommandExecutionPath executionPath, int echoField) {
         this.executionPath = executionPath;
         this.echoField = echoField;
-        this.locks = locks;
     }
 
     @Override
     public void appendTo(ByteStringBuilder builder) {
-        if (locks != null) {
-            locks.appendTo(builder);
-        }
         if (echoField != -1) {
             fieldOf(Zchars.Z_ECHO, echoField).appendTo(builder);
         }
@@ -94,21 +61,12 @@ public class CommandSequence implements ByteAppendable {
         return echoField != -1;
     }
 
-    public boolean hasLockField() {
-        return locks != null;
-    }
-
     public int getEchoValue() { // -1 if there isn't one
         return echoField;
     }
 
-    @Nullable
-    public LockSet getLocks() {
-        return locks;
-    }
-
     public int getBufferLength() {
-        return executionPath.getBufferLength() + (echoField > 0xff ? 4 : 3) + (locks != null ? locks.getBufferLength() : 0);
+        return executionPath.getBufferLength() + (echoField > 0xff ? 4 : 3);
     }
 
     @Override
