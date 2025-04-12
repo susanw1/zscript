@@ -35,6 +35,10 @@ public abstract class ZscriptCommandBuilder<T extends ZscriptResponse> {
         return setField(fieldOf(key, value));
     }
 
+    public ZscriptCommandBuilder<T> setField32(byte key, long value) {
+        return setField(fieldOf(key, value));
+    }
+
     protected ZscriptCommandBuilder<T> setFieldAsBytes(byte key, ByteString data) {
         return setField(fieldOfBytes(key, data));
     }

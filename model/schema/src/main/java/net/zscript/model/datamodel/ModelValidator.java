@@ -192,8 +192,8 @@ public class ModelValidator {
                     parent.getName(), field.getName(), field.getKey());
         }
 
-        if (!String.valueOf(field.getKey()).matches("[A-Z+\"]") && !(field.getKey() == 0 && field.getTypeDefinition() instanceof AnyTypeDefinition)) {
-            throw new ZscriptModelException("Field key must be A-Z, '+' [parent=%s, field=%s, key='%c']",
+        if (!String.valueOf(field.getKey()).matches("[A-Z]") && !(field.getKey() == 0 && field.getTypeDefinition() instanceof AnyTypeDefinition)) {
+            throw new ZscriptModelException("Field key must be A-Z [parent=%s, field=%s, key='%c']",
                     parent.getName(), field.getName(), field.getKey());
         }
 

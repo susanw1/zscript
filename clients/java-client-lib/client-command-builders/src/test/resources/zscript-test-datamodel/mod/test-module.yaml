@@ -36,15 +36,15 @@ commands:
         required: no
     -   key: C
         name: numberReqTestC
-        description: a required test field with number
+        description: a required test field with uint16
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: D
         name: numberReqTestD
-        description: an optional test field with number
+        description: an optional test field with uint16
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: E
         name: bitsetReqTestE
@@ -72,6 +72,18 @@ commands:
             -   name: GreekFeta
                 description: not as such
         required: no
+    -   key: G
+        name: numberReqTestG
+        description: a required test field with uint32
+        typeDefinition:
+            '@type': uint32
+        required: yes
+    -   key: H
+        name: numberReqTestH
+        description: an optional test field with uint32
+        typeDefinition:
+            '@type': uint32
+        required: no
     responseFields:
     -   key: P
         name: enumRespTestP
@@ -97,13 +109,13 @@ commands:
         name: numberRespTestR
         description: a required test response field with number
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: T
         name: numberRespTestT
         description: a test response field with optional number
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: U
         name: bitsetRespTestU
@@ -122,6 +134,18 @@ commands:
         name: bitsetRespTestV
         description: a test response field with optional bitset
         typeDefinition: *id001
+        required: no
+    -   key: W
+        name: numberRespTestW
+        description: a required test response field with uint32
+        typeDefinition:
+            '@type': uint32
+        required: yes
+    -   key: X
+        name: numberRespTestX
+        description: a test response field with optional uint32
+        typeDefinition:
+            '@type': uint32
         required: no
 
 -   name: testCommand1
@@ -214,13 +238,13 @@ notifications:
                 name: testNtfARespDField1
                 description: tomato
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
             -   key: L
                 name: testNtfARespLField2
                 description: radish
                 typeDefinition:
-                    '@type': number
+                    '@type': uint32
                 required: yes
 
 -   name: testNtfB
@@ -237,7 +261,7 @@ notifications:
                 name: testNtfBRespXField1
                 description: lettuce
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
             -   key: Y
                 name: testNtfBRespYField2

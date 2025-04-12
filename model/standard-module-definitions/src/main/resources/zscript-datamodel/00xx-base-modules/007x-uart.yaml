@@ -19,7 +19,7 @@ commands:
         name: frequencySelection
         description: 'which frequency option should be investigated (default: maximum)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     responseFields:
     -   key: C
@@ -44,13 +44,13 @@ commands:
         name: interfaceCount
         description: how many interfaces are available
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: F
         name: frequenciesSupported
         description: how many frequencies are supported as a 'menu' of frequencies - if not present, no preset frequencies are supported
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: B
         name: bitsetCapabilities
@@ -71,13 +71,13 @@ commands:
         name: rxBufferSize
         description: how many bytes of buffer have been assigned for received data
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: T
         name: txBufferSize
         description: how many bytes of buffer have been assigned for transmitted data
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: X
         name: baudRate
@@ -97,13 +97,13 @@ commands:
         name: interface
         description: 'which interface should be configured (default: all)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: F
         name: frequency
         description: which frequency option should be selected from the 'menu'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: B
         name: options
@@ -143,7 +143,7 @@ commands:
         name: dataLength
         description: the amount of data in the buffer of the given interface
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: X
         name: baudRate
@@ -163,7 +163,7 @@ commands:
         name: interface
         description: which interface should be used
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: D
         name: data
@@ -184,13 +184,13 @@ commands:
         name: interface
         description: which interface should be used
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: L
         name: length
         description: how much data is to be read from the buffer
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: M
@@ -222,13 +222,13 @@ commands:
         name: interface
         description: which interface should be used
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: L
         name: length
         description: how much data is to be skipped from the buffer
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: M
@@ -240,7 +240,7 @@ commands:
         name: length
         description: how much data was skipped
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status: [ ]
 
@@ -253,32 +253,32 @@ commands:
         name: channel
         description: 'which channel to fetch info about'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: F
         name: frequencySelection
         description: 'which frequency option should be investigated (default: maximum)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     responseFields:
     -   key: N
         name: channelCount
         description: the number of Uart channels supported by the device
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: I
         name: interface
         description: which interface the channel operates on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: F
         name: frequenciesSupported
         description: how many frequencies are supported as a 'menu' of frequencies - if not present, no preset frequencies are supported
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: B
         name: bitsetCapabilities
@@ -314,13 +314,13 @@ commands:
         name: channel
         description: which channel to setup
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: F
         name: frequencySelection
         description: which frequency option should be selected from the 'menu'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: B
         name: options
@@ -357,13 +357,13 @@ notifications:
                 name: interface
                 description: which interface caused the notification
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
             -   key: L
                 name: dataLength
                 description: the amount of data in the buffer
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
 
 -   name: serialReceiveNearCapacity
@@ -386,7 +386,7 @@ notifications:
                 name: interface
                 description: which interface caused the notification
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
 
 -   name: serialReceiveData

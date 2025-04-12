@@ -213,8 +213,8 @@ class ModelValidatorTest {
         final Runnable testReqAction = () -> modelValidator.checkField(mockCommand, mockReqBsField);
         checkAlternateValue(testReqAction, mockReqBsField::getName, "Foo", "Field names must be lower-camel-case");
         checkAlternateValue(testReqAction, mockReqBsField::getName, "setThing", "Field names mustn't start with 'set' or 'get'");
-        checkAlternateValue(testReqAction, mockReqBsField::getKey, 'a', "Field key must be A-Z, '+'");
-        checkAlternateValue(testReqAction, mockReqBsField::getKey, '\0', "Field key must be A-Z, '+'");
+        checkAlternateValue(testReqAction, mockReqBsField::getKey, 'a', "Field key must be A-Z");
+        checkAlternateValue(testReqAction, mockReqBsField::getKey, '\0', "Field key must be A-Z");
         checkAlternateValue(testReqAction, mockReqBsField::getTypeDefinition, null, "Field has no 'typeDefinition' section");
 
         final Bit b1 = mock(Bit.class);

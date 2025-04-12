@@ -214,7 +214,8 @@ public interface ZscriptDataModel {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, defaultImpl = TypeDefinition.class)
     @JsonSubTypes({
             @Type(value = EnumTypeDefinition.class, name = "enum"),
-            @Type(value = NumberTypeDefinition.class, name = "number"),
+            @Type(value = Uint16TypeDefinition.class, name = "uint16"),
+            @Type(value = Uint32TypeDefinition.class, name = "uint32"),
             @Type(value = BitsetTypeDefinition.class, name = "bitset"),
             @Type(value = FlagTypeDefinition.class, name = "flag"),
             @Type(value = TextTypeDefinition.class, name = "text"),
@@ -282,10 +283,30 @@ public interface ZscriptDataModel {
         default boolean numberType() {
             return true;
         }
+    }
 
+    interface Uint16TypeDefinition extends NumberTypeDefinition {
+        default boolean uint16Type() {
+            return true;
+        }
+
+        /** Indicates the smallest acceptable value (default: 0, range: 0-0xffff, max >= min) */
         Integer getMin();
 
+        /** Indicates the largest acceptable value (default: 0xffff, range: 0-0xffff, max >= min) */
         Integer getMax();
+    }
+
+    interface Uint32TypeDefinition extends NumberTypeDefinition {
+        default boolean uint32Type() {
+            return true;
+        }
+
+        /** Indicates the smallest acceptable value (default: 0, range: 0-0xffff_ffff, max >= min) */
+        Long getMin();
+
+        /** Indicates the largest acceptable value (default: 0xffff_ffff, range: 0-0xffff_ffff, max >= min) */
+        Long getMax();
     }
 
     /**

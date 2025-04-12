@@ -13,7 +13,7 @@ commands:
         name: moduleBankRequest
         description: top nibble (0-f) of module bank to get enabled lower nibble module info in 'L'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: C
@@ -107,7 +107,7 @@ commands:
         name: channel
         description: 'which channel to configure (default: this channel)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: D
         name: assignDebug
@@ -169,7 +169,7 @@ notifications:
                 name: resetCounter
                 description: how many resets have been done (can be done in non-initialised memory)
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: no
             -   key: M
                 name: message

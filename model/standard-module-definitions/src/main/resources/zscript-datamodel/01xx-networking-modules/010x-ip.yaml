@@ -25,7 +25,7 @@ commands:
         name: interfaceCount
         description: how many network interfaces are present
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status: [ ]
 
@@ -38,7 +38,7 @@ commands:
         name: interface
         description: which interface to query
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: R
         name: reset
@@ -116,7 +116,7 @@ commands:
         name: interface
         description: which interface to query
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: D
         name: dhcp
@@ -165,7 +165,7 @@ commands:
         name: interface
         description: which interface to query
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: A
         name: ipAddress
@@ -191,7 +191,7 @@ commands:
         name: interface
         description: which interface to query
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: H
         name: hostname
@@ -217,7 +217,7 @@ commands:
         name: interface
         description: which interface to query
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: D
         name: dnsResolve
@@ -229,7 +229,7 @@ commands:
         name: timeout
         description: 'timeout in ms (default: 1000)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: A
         name: target

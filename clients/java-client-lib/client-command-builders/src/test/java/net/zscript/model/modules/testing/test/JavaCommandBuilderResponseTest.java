@@ -33,10 +33,11 @@ public class JavaCommandBuilderResponseTest {
 
     @Test
     void shouldCreateResponseWithRequiredFields() {
-        checkResponse("S P2 R1b U5\n", TestingModule.testCommand0Builder()
+        checkResponse("S P2 R1b U5 Wabcdef01\n", TestingModule.testCommand0Builder()
                         .setEnumReqTestA(2)
                         .setNumberReqTestC(35)
-                        .setBitsetReqTestE(1),
+                        .setBitsetReqTestE(1)
+                        .setNumberReqTestG(0xfedc9876L),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getEnumRespTestPAsInt()).isEqualTo(0x2);
@@ -57,15 +58,21 @@ public class JavaCommandBuilderResponseTest {
                     assertThat(response.getBitsetRespTestVAsInt()).isEmpty();
                     assertThat(response.getBitsetRespTestV()).isEmpty();
                     assertThat(response.hasBitsetRespTestV()).isFalse();
+
+                    assertThat(response.getNumberRespTestW()).isEqualTo(0xabcdef01L);
+
+                    assertThat(response.getNumberRespTestX()).isEmpty();
+                    assertThat(response.hasNumberRespTestX()).isFalse();
                 });
     }
 
     @Test
     void shouldCreateResponseWithAllFields() {
-        checkResponse("S P Q1 R1b Tf1 U3 V6 \n", TestingModule.testCommand0Builder()
+        checkResponse("S P Q1 R1b Tf1 U3 V6 W X12345678\n", TestingModule.testCommand0Builder()
                         .setEnumReqTestA(2)
                         .setNumberReqTestC(35)
-                        .setBitsetReqTestE(1),
+                        .setBitsetReqTestE(1)
+                        .setNumberReqTestG(0xfedc9876L),
                 response -> {
                     assertThat(response.isValid()).isTrue();
                     assertThat(response.getEnumRespTestPAsInt()).isEqualTo(0x0);
@@ -86,6 +93,11 @@ public class JavaCommandBuilderResponseTest {
                     assertThat(response.getBitsetRespTestVAsInt()).isPresent().hasValue(0x6);
                     assertThat(response.getBitsetRespTestV()).contains(BitsetRespTestV.Camembert, BitsetRespTestV.GreekFeta);
                     assertThat(response.hasBitsetRespTestV()).isTrue();
+
+                    assertThat(response.getNumberRespTestW()).isEqualTo(0);
+
+                    assertThat(response.getNumberRespTestX()).isPresent().hasValue(0x12345678L);
+                    assertThat(response.hasNumberRespTestX()).isTrue();
                 });
 
     }

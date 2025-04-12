@@ -84,8 +84,8 @@
             }
         {{/required}}
     {{/enumType}}
-    {{#numberType}}
-    {{! ============ NUMBER-TYPE SETTERS ============= }}
+    {{#uint16Type}}
+    {{! ============ UINT16-TYPE SETTERS ============= }}
             /**
              * Sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
@@ -131,7 +131,55 @@
                 return condition ? set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(value) : this;
             }
         {{/required}}
-    {{/numberType}}
+    {{/uint16Type}}
+    {{#uint32Type}}
+    {{! ============ UINT32-TYPE SETTERS ============= }}
+            /**
+             * Sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
+            {{#longDescription}}
+             * <p>
+             * {{longDescription}}
+            {{/longDescription}}
+             *
+             * @param value  the {{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}} to set, using the supplied numerical value
+             * @return this builder, to facilitate method chaining
+             */
+            public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(final long value) {
+                setField32((byte)'{{key}}', value);
+            return this;
+            }
+
+        {{^required}}
+            /**
+             * Optionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
+            {{#longDescription}}
+             * <p>
+             * {{longDescription}}
+            {{/longDescription}}
+             *
+             * @param value  the {{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}} to set, as an OptionalLong (if empty, then no change is made)
+             * @return this builder, to facilitate method chaining
+             */
+            public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(@Nonnull final OptionalLong value) {
+                return value.isPresent() ? set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(value.getAsLong()) : this;
+            }
+
+            /**
+             * Conditionally sets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
+            {{#longDescription}}
+             * <p>
+             * {{longDescription}}
+            {{/longDescription}}
+             *
+             * @param condition if true, then set the field; otherwise, no change is made
+             * @param value     the {{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}} to set
+             * @return this builder, to facilitate method chaining
+             */
+            public Builder set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}If(final boolean condition, final long value) {
+                return condition ? set{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}(value) : this;
+            }
+        {{/required}}
+    {{/uint32Type}}
     {{#flagType}}
                 {{! ============ FLAG-TYPE SETTERS ============= }}
             /**

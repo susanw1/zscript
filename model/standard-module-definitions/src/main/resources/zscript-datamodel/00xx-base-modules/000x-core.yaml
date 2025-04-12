@@ -37,7 +37,7 @@ commands:
         name: version
         description: 2-byte version number relating to requested versionType
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: A
         name: addressingSupported
@@ -69,7 +69,7 @@ commands:
         name: status
         description: determines the returned Status param - can be any status
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   name: any
         description: any supplied value will be returned
@@ -86,7 +86,7 @@ commands:
         name: status
         description: 'the supplied Status param - can be any status; default: OK'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
 
 
@@ -99,7 +99,7 @@ commands:
         name: challenge
         description: allows authentication (though in a user defined way)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     responseFields:
     -   key: A
@@ -112,7 +112,7 @@ commands:
         name: challenge
         description: allows the receiver to give a challenge to the client
         typeDefinition:
-            '@type': number
+            '@type': uint32
         required: no
     status:
     -   name: commandFail
@@ -192,32 +192,32 @@ commands:
         name: channel
         description: 'which channel to fetch info about (default: this channel)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     responseFields:
     -   key: N
         name: channelCount
         description: the total number of known channels
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: U
         name: currentChannel
         description: the index of the channel being used for this communication
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: B
         name: bufferLength
         description: the total length of the requested channel's token ring buffer
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: M
         name: associatedModule
         description: the module associated with the requested channel
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: D
         name: description

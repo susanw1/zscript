@@ -20,7 +20,7 @@ commands:
         name: interfaceCount
         description: how many ports are available
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: N
         name: notificationsSupported
@@ -38,7 +38,7 @@ commands:
         name: frequenciesSupported
         description: how many frequencies are supported as a 'menu' of (0 -> slow, 1 -> 100kHz, 2 -> 400kHz, 3 -> 1MHz)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: B
         name: bitsetCapabilities
@@ -66,13 +66,13 @@ commands:
         name: interface
         description: 'which I2C interface to configure (default: all)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: F
         name: frequency
         description: the frequency to set as a choice from the 'menu'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: A
         name: addressing
@@ -97,7 +97,7 @@ commands:
         name: frequencykHz
         description: the frequency the device will run at in kHz
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     status:
     -   name: valueOutOfRange
@@ -112,13 +112,13 @@ commands:
         name: interface
         description: which interface to send to
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: A
         name: address
         description: which address to send to (0-127, or 0-1023 depending on mode)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: T
         name: tenBitMode
@@ -130,7 +130,7 @@ commands:
         name: retries
         description: 'how many times to try the write operation (default: 5)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: D
         name: data
@@ -155,7 +155,7 @@ commands:
         name: attempts
         description: how many attempts we made to send
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status:
     -   name: commandFail
@@ -172,13 +172,13 @@ commands:
         name: interface
         description: which interface to read from
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: A
         name: address
         description: which address to read from (0-127, or 0-1023 depending on mode)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: T
         name: tenBitMode
@@ -190,13 +190,13 @@ commands:
         name: retries
         description: 'how many times to try the receive operation (default: 5)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: L
         name: length
         description: 'number of bytes to attempt to receive (default: 0)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     responseFields:
     -   key: I
@@ -208,7 +208,7 @@ commands:
         name: attempts
         description: how many attempts were made to receive
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: D
         name: data
@@ -233,13 +233,13 @@ commands:
         name: interface
         description: which interface to send to/read from
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: A
         name: address
         description: which address to send to/receive from (0-127, or 0-1023 depending on mode)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: T
         name: tenBitMode
@@ -251,7 +251,7 @@ commands:
         name: retries
         description: 'how many times to try the send/receive operation (default: 5)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: D
         name: data
@@ -263,7 +263,7 @@ commands:
         name: length
         description: 'number of bytes to attempt to read (default: 0)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     responseFields:
     -   key: I
@@ -275,7 +275,7 @@ commands:
         name: attempts
         description: how many attempts we made to send/receive
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: D
         name: data
@@ -299,26 +299,26 @@ commands:
         name: channel
         description: 'which channel to fetch info about'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: N
         name: channelCount
         description: the number of I2C channels supported by the device
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: A
         name: address
         description: which address the channel operates on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: I
         name: interface
         description: which interface the channel operates on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status: [ ]
 
@@ -331,13 +331,13 @@ commands:
         name: channel
         description: which channel to set up
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: A
         name: address
         description: the address the channel should respond on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     responseFields: [ ]
     status: [ ]
@@ -358,7 +358,7 @@ notifications:
                 name: interface
                 description: which interface the alert occurred on
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
     -   section:
             name: smBusAlertResolution
@@ -374,5 +374,5 @@ notifications:
                 name: address
                 description: the address found through SMBus alert resolution
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: no
