@@ -28,7 +28,7 @@ commands:
         name: pinCount
         description: how many pins are available
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: B
         name: availableControllers
@@ -60,7 +60,7 @@ commands:
         name: pin
         description: which pin should be configured
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: M
         name: mode
@@ -150,7 +150,7 @@ commands:
         name: pin
         description: which pin should be written
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: V
         name: value
@@ -173,7 +173,7 @@ commands:
         name: pin
         description: which pin should be read
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: V
@@ -196,7 +196,7 @@ commands:
         name: pin
         description: which pin should be configured
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: N
         name: enableNotifications
@@ -211,20 +211,20 @@ commands:
         name: lowerLimitNotify
         description: 'if notifications are enabled for this pin, one will be generated if the measured value falls below this (default: no change), initial value: 0'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: U
         name: upperLimitNotify
         description: 'if notifications are enabled for this pin, one will be generated if the measured value rises above this (default: no change), initial value: ffff'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     responseFields:
     -   key: B
         name: bitCount
         description: how many bits of precision can be read (1 bit -> digital)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: N
         name: supportedNotifications
@@ -243,14 +243,14 @@ commands:
         name: pin
         description: which pin should be read from
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: V
         name: value
         description: value read from pin, left-shifted to compensate for precision, so that 8000 is always half
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status: [ ]
 
@@ -263,14 +263,14 @@ commands:
         name: pin
         description: which pin should be configured
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: B
         name: bitCount
         description: how many bits of precision can be written  (1 bit -> digital)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status: [ ]
 
@@ -283,13 +283,13 @@ commands:
         name: pin
         description: which pin should be written to
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: V
         name: value
         description: value to be written, left-shifted to compensate for precision, so that 8000 is always half
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields: [ ]
     status: [ ]
@@ -302,14 +302,14 @@ commands:
         name: pin
         description: which pin should be configured
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: B
         name: bitCount
         description: how many bits of precision can be written  (1 bit -> digital)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status: [ ]
 
@@ -322,13 +322,13 @@ commands:
         name: pin
         description: which pin should be written to
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: V
         name: value
         description: value to be written, left-shifted to compensate for precision, so that 8000 is always 50%
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields: [ ]
     status: [ ]
@@ -347,7 +347,7 @@ notifications:
                 name: pin
                 description: which pin triggered the notification
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
             -   key: T
                 name: type
@@ -385,7 +385,7 @@ notifications:
                 name: pin
                 description: which pin triggered the notification
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
             -   key: T
                 name: type
@@ -400,5 +400,5 @@ notifications:
                 name: value
                 description: the analog reading from the pin which triggered the notification, left-shifted so that 8000 is always 50% (note that this must be the value which triggered the notification itself, not a later read)
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes

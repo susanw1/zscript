@@ -11,7 +11,7 @@ intrinsics:
         name: status
         description: indicates success (0), failure (0x1-0xf) or error (0x10+)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
 
     ### ------------------------------

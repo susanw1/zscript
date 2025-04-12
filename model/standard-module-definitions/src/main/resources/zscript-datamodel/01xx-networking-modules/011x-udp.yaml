@@ -19,7 +19,7 @@ commands:
         name: udpPortCount
         description: how many UDP port are supported at once
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status: [ ]
 
@@ -32,13 +32,13 @@ commands:
         name: interface
         description: which interface to connect on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: P
         name: localPort
         description: destination port to be used for UDP transmissions
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: N
         name: notifications
@@ -56,7 +56,7 @@ commands:
         name: udpSystemDescriptor
         description: 'which UDP system to activate on the port (default: highest available - so that descriptor 0 is generally available)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: C
         name: channel
@@ -69,7 +69,7 @@ commands:
         name: udpSystemDescriptor
         description: which UDP system the port is active on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     status:
     -   name: executionError
@@ -84,7 +84,7 @@ commands:
         name: udpSystemDescriptor
         description: which UDP system is to be queried
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: C
@@ -103,13 +103,13 @@ commands:
         name: interface
         description: which interface the UDP system is set up on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: P
         name: localPort
         description: which local port the UDP system is set up on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status: [ ]
 
@@ -122,7 +122,7 @@ commands:
         name: udpSystemDescriptor
         description: which UDP system is to be queried
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields: [ ]
     status:
@@ -138,19 +138,19 @@ commands:
         name: socketDescriptor
         description: 'which socket to connect on (default: highest available - so that descriptor 0 is generally available)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: U
         name: udpSystemDescriptor
         description: which udp system to connect on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: P
         name: destinationPort
         description: destination port to be used for UDP transmissions
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: H
         name: hostName
@@ -169,7 +169,7 @@ commands:
         name: socketDescriptor
         description: socket descriptor used to create connection
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status:
     -   name: peripheralDisabled
@@ -188,7 +188,7 @@ commands:
         name: socketDescriptor
         description: which socket to query
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: E
@@ -207,13 +207,13 @@ commands:
         name: udpSystemDescriptor
         description: which UDP system the socket is connected on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: P
         name: destinationPort
         description: destination port used for UDP transmissions
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: T
         name: targetDestination
@@ -232,7 +232,7 @@ commands:
         name: socketDescriptor
         description: which interface socket to send data along
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: C
         name: continue
@@ -260,7 +260,7 @@ commands:
 #        name: socketDescriptor
 #        description: which interface socket to close
 #        typeDefinition:
-#            '@type': number
+#            '@type': uint16
 #        required: yes
 #    responseFields: [ ]
 #    status:
@@ -276,26 +276,26 @@ commands:
         name: udpSystemDescriptor
         description: which UDP system to read from
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: V
         name: availableData
         description: number of bytes available in current packet
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: N
         name: newPacket
         description: whether this is the first time this command has executed on this packet
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: P
         name: remotePort
         description: remote port from which the current packet arrived
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: A
         name: remoteAddress
@@ -316,20 +316,20 @@ commands:
         name: udpSystemDescriptor
         description: which UDP system to read from
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: L
         name: length
         description: 'maximum length of data to read from the packet (default: all)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     responseFields:
     -   key: L
         name: lengthRemaining
         description: number of bytes available in current packet
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: D
         name: data
@@ -350,20 +350,20 @@ commands:
         name: udpSystemDescriptor
         description: which UDP system to read from
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: L
         name: length
         description: 'maximum length of data to read from the packet (default: all)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     responseFields:
     -   key: L
         name: length
         description: length actually skipped
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status:
     -   name: commandDataNotReceived
@@ -378,26 +378,26 @@ commands:
         name: channel
         description: 'which channel to fetch info about (default: 0)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     responseFields:
     -   key: N
         name: channelCount
         description: the number of UDP channels supported by the device
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: C
         name: channel
         description: the global channel index of this channel
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: U
         name: udpSystemDescriptor
         description: the UDP system this channel is working on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: A
         name: assigned
@@ -416,7 +416,7 @@ commands:
         name: channel
         description: which channel to set up
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: R
         name: reset
@@ -440,19 +440,19 @@ notifications:
                 name: udpSystemDescriptor
                 description: which UDP system received the packet
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
             -   key: V
                 name: availableData
                 description: number of bytes available in the packet
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
             -   key: P
                 name: remotePort
                 description: remote port from which the current packet arrived
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
             -   key: A
                 name: remoteAddress

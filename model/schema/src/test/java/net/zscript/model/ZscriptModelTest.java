@@ -83,6 +83,6 @@ class ZscriptModelTest {
 
         assertThat(command.get().getRequestFields()).hasSize(3)
                 .extracting(f -> f.getTypeDefinition().getType())
-                .contains("number", "any", "cmd");
+                .contains("uint16", "any", "cmd");
     }
 }

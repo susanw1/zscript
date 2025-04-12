@@ -46,7 +46,7 @@ commands:
         name: status
         description: determines the returned Status param - can be any status
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   name: any
         description: any supplied value will be returned
@@ -63,7 +63,7 @@ commands:
         name: status
         description: 'the supplied Status param - can be any status; default: OK'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
 notifications:
 -   name: devicePowerOn
@@ -92,7 +92,7 @@ notifications:
                 name: resetCounter
                 description: how many resets have been done (can be done in non-initialised memory)
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: no
 
 -   name: packetArrived
@@ -107,9 +107,9 @@ notifications:
                 name: udpSystemDescriptor
                 description: which UDP system received the packet
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
-            -   key: +
+            -   key: A
                 name: remoteAddress
                 description: IP address (IPv4 or IPv6) of the source of the current packet
                 typeDefinition:
@@ -124,7 +124,7 @@ notifications:
             name: packetData
             description: data from a received UDP packet
             fields:
-            -   key: +
+            -   key: D
                 name: data
                 description: the data contained in the received packet
                 typeDefinition:

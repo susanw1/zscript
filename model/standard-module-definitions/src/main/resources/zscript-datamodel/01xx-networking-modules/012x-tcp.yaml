@@ -19,13 +19,13 @@ commands:
         name: tcpServerMaximum
         description: how many TCP servers are supported at once
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: T
         name: tcpSocketMaximum
         description: how many active TCP sockets are supported at once
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status: [ ]
 
@@ -38,19 +38,19 @@ commands:
         name: interface
         description: which interface to connect on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: P
         name: localPort
         description: destination port to be used for UDP transmissions
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: T
         name: tcpServerDescriptor
         description: 'which TCP server to activate on the port (default: highest available - so that descriptor 0 is generally available)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: C
         name: channel
@@ -63,7 +63,7 @@ commands:
         name: tcpServerDescriptor
         description: which TCP system the port is active on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     status:
     -   name: executionError
@@ -78,7 +78,7 @@ commands:
         name: tcpServerDescriptor
         description: which TCP server is to be queried
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: C
@@ -97,13 +97,13 @@ commands:
         name: interface
         description: which interface the TCP server is set up on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: P
         name: localPort
         description: which local port the TCP server is set up on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status: [ ]
 
@@ -116,7 +116,7 @@ commands:
         name: udpSystemDescriptor
         description: which TCP server is to be queried
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields: [ ]
     status:
@@ -133,13 +133,13 @@ commands:
         name: tcpSystemDescriptor
         description: which TCP server to accept the connection on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: K
         name: socketDescriptor
         description: 'which socket to connect on (default: highest available - so that descriptor 0 is generally available)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: N
         name: notifications
@@ -158,7 +158,7 @@ commands:
         name: socketDescriptor
         description: socket descriptor used to create connection (if not present, no incoming connections present)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     status:
     -   name: peripheralDisabled
@@ -175,19 +175,19 @@ commands:
         name: socketDescriptor
         description: 'which socket to connect on (default: highest available - so that descriptor 0 is generally available)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: I
         name: interface
         description: which interface to connect on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: P
         name: destinationPort
         description: destination port to be used for TCP connection
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: H
         name: hostName
@@ -218,7 +218,7 @@ commands:
         name: socketDescriptor
         description: socket descriptor used to create connection
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status:
     -   name: executionError
@@ -235,7 +235,7 @@ commands:
         name: socketDescriptor
         description: which socket to query
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: E
@@ -248,31 +248,31 @@ commands:
         name: receivedDataAvailable
         description: length of data received that can be read
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: T
         name: tcpSystemDescriptor
         description: which TCP server the socket is from (not present implies this is a client socket)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: I
         name: interface
         description: interface used for communication
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: L
         name: localPort
         description: local port used for socket
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: P
         name: remotePort
         description: remote port
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: A
         name: remoteAddress
@@ -291,7 +291,7 @@ commands:
         name: socketDescriptor
         description: which socket to send data along
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: D
         name: data
@@ -313,20 +313,20 @@ commands:
         name: socketDescriptor
         description: which socket to send data along
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: L
         name: length
         description: how much data is to be read from the socket
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: L
         name: lengthRemaining
         description: number of bytes available in the buffer
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: D
         name: data
@@ -349,20 +349,20 @@ commands:
         name: socketDescriptor
         description: which socket to send data along
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: L
         name: length
         description: how much data is to be skipped from the socket
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields:
     -   key: L
         name: length
         description: how much data was skipped
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status: [ ]
 
@@ -375,26 +375,26 @@ commands:
         name: channel
         description: 'which channel to fetch info about (default: 0)'
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     responseFields:
     -   key: N
         name: channelCount
         description: the number of TCP channels supported by the device
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: C
         name: channel
         description: the global channel index of this channel
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: T
         name: tcpServerDescriptor
         description: the TCP server this channel is associated with
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: G
         name: assigned
@@ -406,7 +406,7 @@ commands:
         name: remotePort
         description: remote port
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: A
         name: remoteAddress
@@ -425,7 +425,7 @@ commands:
         name: channel
         description: which channel to controlled
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: R
         name: reset
@@ -451,13 +451,13 @@ notifications:
                 name: socketDescriptor
                 description: which socket data was received along
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
             -   key: L
                 name: dataLength
                 description: the amount of data the socket has available
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
 
 -   name: socketReceiveNearCapacity
@@ -480,7 +480,7 @@ notifications:
                 name: socketDescriptor
                 description: which socket data was received along
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
 
 -   name: socketReceiveData
@@ -513,11 +513,11 @@ notifications:
                 name: tcpSystemDescriptor
                 description: which TCP server accepted the connection
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes
             -   key: K
                 name: socketDescriptor
                 description: which socket was connected
                 typeDefinition:
-                    '@type': number
+                    '@type': uint16
                 required: yes

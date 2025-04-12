@@ -14,8 +14,9 @@ public class CommandNodeTest {
         var seq = DemoCapabilities.builder()
                 .setVersionType(DemoCapabilitiesCommandBuilder.PLATFORM_FIRMWARE)
                 .setFieldAsText('X', "abc")
+                .setField32('B', 0xffffeeeeL)
                 .build();
-        assertThat(seq.asStringUtf8()).isEqualTo("ZV2X\"abc\"");
+        assertThat(seq.asStringUtf8()).isEqualTo("ZBffffeeeeV2X\"abc\"");
     }
 
     @Test

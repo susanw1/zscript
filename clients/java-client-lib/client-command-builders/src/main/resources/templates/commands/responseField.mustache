@@ -1,4 +1,22 @@
 {{#typeDefinition}}
+    {{#includeFieldCheck}}
+        {{^required}}
+            // ============ Field check for optional "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
+            /**
+             * Determines if the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field is set: {{description}}
+            {{#longDescription}}
+             * <p>
+             * {{longDescription}}
+            {{/longDescription}}
+             *
+             * @return true if this field is set, false otherwise
+             */
+            public boolean has{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
+                return expression.hasField((byte) '{{key}}');
+            }
+        {{/required}}
+    {{/includeFieldCheck}}
+
     {{#enumType}}
     {{! ============ ENUM GETTERS ============= }}
             /**
@@ -83,25 +101,12 @@
                 OptionalInt valueOpt = get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsInt();
                 return valueOpt.stream().mapToObj(v -> {{#upperCamel}}{{{fieldName}}}{{/upperCamel}}.values()[v]).findFirst();
             }
-
-            /**
-             * Determines if the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field is set: {{description}}
-            {{#longDescription}}
-             * <p>
-             * {{longDescription}}
-            {{/longDescription}}
-             *
-             * @return true if this field is set, false otherwise
-             */
-            public boolean has{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
-                return expression.hasField((byte) '{{key}}');
-            }
         {{/required}}
     {{/enumType}}
-    {{#numberType}}
-        {{! ============ NUMBER-TYPE GETTERS ============= }}
+    {{#uint16Type}}
+        {{! ============ UINT16-TYPE GETTERS ============= }}
         {{#required}}
-            // ============ NUMBER-TYPE GETTERS - required field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
+            // ============ UINT16-TYPE GETTERS - required field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
             /**
              * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
@@ -118,7 +123,7 @@
             }
         {{/required}}
         {{^required}}
-            // ============ NUMBER-TYPE GETTERS - optional field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
+            // ============ UINT16-TYPE GETTERS - optional field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
             /**
              * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
@@ -132,36 +137,46 @@
             public OptionalInt get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
                 return expression.getFieldValue('{{key}}');
             }
-
+        {{/required}}
+    {{/uint16Type}}
+    {{#uint32Type}}
+        {{! ============ UINT32-TYPE GETTERS ============= }}
+        {{#required}}
+            // ============ UINT32-TYPE GETTERS - required field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
             /**
-             * Determines if the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field is set: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @return true if this field is set, false otherwise
+             * @return the value of this required field
+             * @throws ZscriptMissingFieldException if this required field is not set in the response, see {@link #isValid()}
              */
-            public boolean has{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
-                return expression.hasField((byte) '{{key}}');
+            public long get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
+                return expression.getFieldValue32('{{key}}')
+                        .orElseThrow(() -> new ZscriptMissingFieldException("name={{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}, key='{{key}}'"));
             }
         {{/required}}
-    {{/numberType}}
-    {{#flagType}}
-        {{! ============ FLAG-TYPE GETTERS ============= }}
-            // ============ FLAG-TYPE GETTERS - field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
+        {{^required}}
+            // ============ UINT32-TYPE GETTERS - optional field "{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}" ('{{key}}') =============
             /**
-             * Checks if the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field is set: {{description}}
+             * Gets the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field: {{description}}
             {{#longDescription}}
              * <p>
              * {{longDescription}}
             {{/longDescription}}
              *
-             * @return true if this field is set, false otherwise
+             * @return the value of this non-required field, or empty if not set
              */
-            public boolean is{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
-                return expression.hasField((byte) '{{key}}');
+            @Nonnull
+            public OptionalLong get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
+                return expression.getFieldValue32('{{key}}');
             }
+        {{/required}}
+    {{/uint32Type}}
+    {{#flagType}}
+        {{! Note: nothing needed here - flags are never "required" by definition, so the common 'hasXxx()' form is all there needs to be }}
     {{/flagType}}
     {{#bitsetType}}
         {{! ============ BITSET-TYPE GETTERS ============= }}
@@ -239,19 +254,6 @@
             @Nonnull
             public EnumSet<{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}> get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
                 return bitsetToEnumSet(get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsInt().orElse(0), {{#upperCamel}}{{{fieldName}}}{{/upperCamel}}.class);
-            }
-
-            /**
-             * Determines if the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field is set: {{description}}
-            {{#longDescription}}
-             * <p>
-             * {{longDescription}}
-            {{/longDescription}}
-             *
-             * @return true if this field is set, false otherwise
-             */
-            public boolean has{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
-                return expression.hasField((byte) '{{key}}');
             }
         {{/required}}
     {{/bitsetType}}
@@ -350,19 +352,6 @@
             @Nonnull
             public Optional<String> get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsString() {
                 return get{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}AsByteString().map(s -> s.asString());
-            }
-
-            /**
-             * Determines if the <i>{{#lowerCamel}}{{{fieldName}}}{{/lowerCamel}}</i> ('{@code {{key}}}') field is set: {{description}}
-            {{#longDescription}}
-             * <p>
-             * {{longDescription}}
-            {{/longDescription}}
-             *
-             * @return true if this field is set, false otherwise
-             */
-            public boolean has{{#upperCamel}}{{{fieldName}}}{{/upperCamel}}() {
-                return expression.hasField((byte) '{{key}}');
             }
         {{/required}}
     {{/stringType}}

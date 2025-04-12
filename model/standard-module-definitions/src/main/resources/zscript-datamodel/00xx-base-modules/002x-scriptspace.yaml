@@ -20,7 +20,7 @@ commands:
         name: scriptSpaceCount
         description: how many independent script spaces are present
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     status: [ ]
 
@@ -33,7 +33,7 @@ commands:
         name: scriptSpaceId
         description: which space to configure
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: R
         name: run
@@ -49,7 +49,7 @@ commands:
         name: availableLength
         description: how much memory is dedicated to the given script space
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: R
         name: running
@@ -61,7 +61,7 @@ commands:
         name: currentWritePosition
         description: where the current write position is in the script space
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: W
         name: writeAllowed
@@ -80,7 +80,7 @@ commands:
         name: scriptSpaceId
         description: which space to write to
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: R
         name: reset
@@ -99,7 +99,7 @@ commands:
         name: availableLength
         description: how much space is available after the write is complete
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     status:
     -   name: commandFail
@@ -116,7 +116,7 @@ commands:
         name: milliseconds
         description: how many milliseconds to sleep for
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     responseFields: [ ]
     status: [ ]

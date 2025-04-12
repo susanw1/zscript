@@ -3,6 +3,7 @@ package net.zscript.model.modules.testing.test;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.BitsetReqTestE.Lion;
 import static net.zscript.client.modules.test.testing.TestingModule.TestCommand0Command.Builder.BitsetReqTestE.Tabby;
@@ -29,15 +30,16 @@ public class JavaCommandBuilderBuildTest {
         ZscriptCommandBuilder<?> b = TestingModule.testCommand0Builder()
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
-                .setBitsetReqTestE(2);
-        assertThat(build(b)).isEqualTo("ZA2C23E2");
+                .setBitsetReqTestE(2)
+                .setNumberReqTestG(0x98765432L);
+        assertThat(build(b)).isEqualTo("ZA2C23E2G98765432");
     }
 
     @Test
     void shouldFailToCreateCommandWithAllMissingRequiredFields() {
         assertThatThrownBy(() -> TestingModule.testCommand0Builder().build())
                 .isInstanceOf(ZscriptMissingFieldException.class)
-                .hasMessage("missingKeys='A','C','E'");
+                .hasMessage("missingKeys='A','C','E','G'");
     }
 
     @Test
@@ -46,7 +48,7 @@ public class JavaCommandBuilderBuildTest {
                 .setEnumReqTestA(2)
                 .build())
                 .isInstanceOf(ZscriptMissingFieldException.class)
-                .hasMessage("missingKeys='C','E'");
+                .hasMessage("missingKeys='C','E','G'");
     }
 
     @Test
@@ -72,8 +74,9 @@ public class JavaCommandBuilderBuildTest {
                 .setNumberReqTestC(5)
                 .setBitsetReqTestE(BitsetReqTestE.Tiger)
                 .setBitsetReqTestE(EnumSet.of(Lion, Tabby)) // this overwrites previous value
-                .setBitsetReqTestF(EnumSet.of(Camembert, Cheddar));
-        assertThat(build(b)).isEqualTo("ZA1C5E5F3");
+                .setBitsetReqTestF(EnumSet.of(Camembert, Cheddar))
+                .setNumberReqTestG(1);
+        assertThat(build(b)).isEqualTo("ZA1C5E5F3G1");
     }
 
     @Test
@@ -85,8 +88,12 @@ public class JavaCommandBuilderBuildTest {
 
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
-                .setBitsetReqTestE(2);
-        assertThat(build(b)).isEqualTo("ZA2B1C23D2914E2F6");
+                .setBitsetReqTestE(2)
+
+                .setNumberReqTestG(1)
+                .setNumberReqTestH(0x87868584L);
+
+        assertThat(build(b)).isEqualTo("ZA2B1C23D2914E2F6G1H87868584");
     }
 
     @Test
@@ -99,8 +106,9 @@ public class JavaCommandBuilderBuildTest {
 
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
-                .setBitsetReqTestE(1);
-        assertThat(build(b)).isEqualTo("ZA2B1C23D21aE1F5");
+                .setBitsetReqTestE(1)
+                .setNumberReqTestG(1);
+        assertThat(build(b)).isEqualTo("ZA2B1C23D21aE1F5G1");
     }
 
     @Test
@@ -110,22 +118,26 @@ public class JavaCommandBuilderBuildTest {
                 .setNumberReqTestDIf(false, 0x21a)
                 .setBitsetReqTestFIf(true, GreekFeta)
                 .setBitsetReqTestFIf(false, Cheddar)
+                .setNumberReqTestHIf(true, 0x81828384L)
 
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
-                .setBitsetReqTestE(1);
-        assertThat(build(b1)).isEqualTo("ZA2BC23E1F4");
+                .setBitsetReqTestE(1)
+                .setNumberReqTestG(1);
+        assertThat(build(b1)).isEqualTo("ZA2BC23E1F4G1H81828384");
 
         ZscriptCommandBuilder<?> b2 = TestingModule.testCommand0Builder()
                 .setEnumReqTestBIf(false, Rabbit)
                 .setNumberReqTestDIf(true, 0x21a)
                 .setBitsetReqTestFIf(false, GreekFeta)
                 .setBitsetReqTestFIf(true, Cheddar)
+                .setNumberReqTestHIf(false, 0x81828384L)
 
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
-                .setBitsetReqTestE(1);
-        assertThat(build(b2)).isEqualTo("ZA2C23D21aE1F1");
+                .setBitsetReqTestE(1)
+                .setNumberReqTestG(1);
+        assertThat(build(b2)).isEqualTo("ZA2C23D21aE1F1G1");
     }
 
     @Test
@@ -136,11 +148,12 @@ public class JavaCommandBuilderBuildTest {
                 .setBitsetReqTestF(Optional.of(Camembert)) // should be overwritten
                 .setBitsetReqTestF(OptionalInt.of(1))
                 .setBitsetReqTestF(Optional.of(GreekFeta))
-
+                .setNumberReqTestH(OptionalLong.of(0x12345))
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(0xa5)
-                .setBitsetReqTestE(1);
-        assertThat(build(b)).isEqualTo("ZA2B1Ca5D1aE1F5");
+                .setBitsetReqTestE(1)
+                .setNumberReqTestG(0);
+        assertThat(build(b)).isEqualTo("ZA2B1Ca5D1aE1F5GH012345");
     }
 
     @Test
@@ -152,8 +165,9 @@ public class JavaCommandBuilderBuildTest {
 
                 .setEnumReqTestA(2)
                 .setNumberReqTestC(35)
-                .setBitsetReqTestE(1);
-        assertThat(build(b)).isEqualTo("ZA2C23E1");
+                .setBitsetReqTestE(1)
+                .setNumberReqTestG(1);
+        assertThat(build(b)).isEqualTo("ZA2C23E1G1");
     }
 
     @Test

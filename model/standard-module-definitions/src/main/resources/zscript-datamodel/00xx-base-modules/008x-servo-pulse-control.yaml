@@ -20,37 +20,37 @@ commands:
         name: servoInterfaceCount
         description: how many servo interfaces are available
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: R
         name: pulseRate
         description: Default time between pulses - in ms
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: N
         name: minimumPulseTime
         description: minimum supported pulse time - in us
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: M
         name: maximumPulseTime
         description: maximum supported pulse time - in us
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: X
         name: minimumPulseRate
         description: Minimum supported time between pulses - in ms (not present if pulse rate not controllable)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: Y
         name: maximumPulseRate
         description: Maximum supported time between pulses - in ms (not present if pulse rate not controllable)
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
 
     -   key: B
@@ -82,38 +82,38 @@ commands:
         name: servoInterface
         description: which servo to setup
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: N
         name: minimumPulseTime
         description: the length of pulse to be used as the minimum for the chosen servo, in µs
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: M
         name: maximumPulseTime
         description: the length of pulse to be used as the maximum for the chosen servo, in µs
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: C
         name: centerPulseTime
         description: the length of pulse to be used as the center for the chosen servo, in µs
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: V
         name: pinChangeSpeed
         description: the speed for the servo - 1 byte. A value of 255 will do a full sweep in ~1/3s, and a value of 1 will sweep in ~80s. This is conformant with
             adding V/16 to 1-byte position every 20ms, though any implementation with values close to this would be considered valid.
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: W
         name: pinChangeSpeedPrecise
         description: the speed for the servo - 2 byte. The time to do a full sweep will be exactly '4096/W's, allowing sweeps in anything from 64ms to 64 minutes.
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: P
         name: persistCalibrations
@@ -132,38 +132,38 @@ commands:
         name: pin
         description: the pin ID which this servo runs on
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: N
         name: minimumPulseTime
         description: the length of pulse used as the minimum for the chosen servo, in µs
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: M
         name: maximumPulseTime
         description: the length of pulse  used as the maximum for the chosen servo, in µs
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: C
         name: centerPulseTime
         description: the length of pulse used as the center for the chosen servo, in µs
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: V
         name: pinChangeSpeed
         description: the speed for the servo - 1 byte. A value of 255 will do a full sweep in ~1/3s, and a value of 1 will sweep in ~80s. This is conformant with
             adding V/16 to 1-byte position every 20ms, though any implementation with values close to this would be considered valid.
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     -   key: W
         name: pinChangeSpeedPrecise
         description: the speed for the servo - 2 byte. The time to do a full sweep will be exactly '4096/W's, allowing sweeps in anything from 64ms to 64 minutes.
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: no
     status: [ ]
 
@@ -177,13 +177,13 @@ commands:
         name: servoInterface
         description: which servo to setup
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: T
         name: target
         description: target position the servo should move towards, as a 16-bit value, so 8000 is the middle.
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: F
         name: fast
@@ -213,7 +213,7 @@ commands:
         name: servoInterface
         description: which servo to setup
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: W
         name: wait
@@ -226,19 +226,19 @@ commands:
         name: target
         description: The 16-bit (0-ffff) target position for the servo
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: C
         name: current
         description: The current 16-bit (0-ffff) position for the servo
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: U
         name: currentMicroseconds
         description: The current microsecond time for the high pulse of the signal
         typeDefinition:
-            '@type': number
+            '@type': uint16
         required: yes
     -   key: M
         name: moving

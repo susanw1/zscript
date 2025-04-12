@@ -56,6 +56,10 @@ public class DemoActivateCommand extends ZscriptCommandNode<DemoActivateCommand.
         public DemoActivateCommandBuilder setField(char key, int value) {
             return (DemoActivateCommandBuilder) super.setField(key, value);
         }
+
+        public DemoActivateCommandBuilder setField32(char key, int value) {
+            return (DemoActivateCommandBuilder) super.setField32(key, value);
+        }
     }
 
     public static class DemoActivateCommandResponse extends ValidatingResponse {
