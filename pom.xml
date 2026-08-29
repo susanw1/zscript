@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.source.version>11</java.source.version>
         <java.target.version>11</java.target.version>
-        <version.min.maven>3.9.9</version.min.maven>
+        <version.min.maven>3.9.16</version.min.maven>
 
         <version.slf4j>2.0.17</version.slf4j>
         <version.logback>1.5.20</version.logback>
@@ -43,11 +43,11 @@
         <version.maven-compiler-plugin>3.14.1</version.maven-compiler-plugin>
         <version.maven-surefire-plugin>3.5.4</version.maven-surefire-plugin>
         <version.maven-failsafe-plugin>3.5.4</version.maven-failsafe-plugin>
-        <version.maven-spotbugs-plugin>4.9.8.1</version.maven-spotbugs-plugin>
+        <version.maven-spotbugs-plugin>4.10.4.0</version.maven-spotbugs-plugin>
         <version.maven-assembly-plugin>3.7.1</version.maven-assembly-plugin>
         <version.maven-jar-plugin>3.4.2</version.maven-jar-plugin>
         <version.maven-enforcer-plugin>3.6.2</version.maven-enforcer-plugin>
-        <version.cmake-maven-plugin>4.0.3-b1</version.cmake-maven-plugin>
+        <version.cmake-maven-plugin>4.2.3-b1</version.cmake-maven-plugin>
         <version.mustache-templating-maven-plugin>1.0.0</version.mustache-templating-maven-plugin>
         <version.build-helper-maven-plugin>3.6.1</version.build-helper-maven-plugin>
         <version.versions-maven-plugin>2.19.1</version.versions-maven-plugin>
@@ -286,7 +286,7 @@
                     <version>${version.versions-maven-plugin}</version>
                     <configuration>
                         <!-- Note: correctly advises if newer non-{Mx,alpha,RCx} version exists -->
-                        <ignoredVersions>.*-M[0-9]*,.*-alpha[0-9]*,.*-[rR][cC][0-9]*</ignoredVersions>
+                        <ignoredVersions>.*-M[0-9]*,.*-alpha[0-9]*,.*-beta-[0-9]*,.*-[rR][cC][0-9]*</ignoredVersions>
                     </configuration>
                 </plugin>
                 <plugin>
