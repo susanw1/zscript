@@ -10,6 +10,6 @@ import org.junit.platform.suite.api.Suite;
 @Suite
 @IncludeEngines("cucumber")
 @SelectPackages("features")
-@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "net.zscript.acceptance, net.zscript.experiment")
+@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "net.zscript.acceptance")
 public class CucumberRunIT {
 }
