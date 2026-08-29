@@ -22,7 +22,7 @@
         <version.antlr>4.13.2</version.antlr>
         <version.spotbugs>4.10.4</version.spotbugs>
         <version.picocli>4.7.7</version.picocli>
-        <version.javafx>24</version.javafx>
+        <version.javafx>21</version.javafx>
 
         <!-- test dependency versions -->
         <version.junit>6.1.3</version.junit>
