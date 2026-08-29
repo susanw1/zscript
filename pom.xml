@@ -40,13 +40,13 @@
         <version.nar-maven-plugin>3.10.2-alpha</version.nar-maven-plugin>
         <version.jacoco-maven-plugin>0.8.14</version.jacoco-maven-plugin>
         <version.exec-maven-plugin>3.6.2</version.exec-maven-plugin>
-        <version.maven-compiler-plugin>3.14.1</version.maven-compiler-plugin>
-        <version.maven-surefire-plugin>3.5.4</version.maven-surefire-plugin>
-        <version.maven-failsafe-plugin>3.5.4</version.maven-failsafe-plugin>
+        <version.maven-compiler-plugin>3.15.0</version.maven-compiler-plugin>
+        <version.maven-surefire-plugin>3.5.6</version.maven-surefire-plugin>
+        <version.maven-failsafe-plugin>3.5.6</version.maven-failsafe-plugin>
         <version.maven-spotbugs-plugin>4.10.4.0</version.maven-spotbugs-plugin>
-        <version.maven-assembly-plugin>3.7.1</version.maven-assembly-plugin>
-        <version.maven-jar-plugin>3.4.2</version.maven-jar-plugin>
-        <version.maven-enforcer-plugin>3.6.2</version.maven-enforcer-plugin>
+        <version.maven-assembly-plugin>3.8.0</version.maven-assembly-plugin>
+        <version.maven-jar-plugin>3.5.1</version.maven-jar-plugin>
+        <version.maven-enforcer-plugin>3.6.3</version.maven-enforcer-plugin>
         <version.cmake-maven-plugin>4.2.3-b1</version.cmake-maven-plugin>
         <version.mustache-templating-maven-plugin>1.0.0</version.mustache-templating-maven-plugin>
         <version.build-helper-maven-plugin>3.6.1</version.build-helper-maven-plugin>
